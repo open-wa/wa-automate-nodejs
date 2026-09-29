@@ -466,15 +466,34 @@
 .reference-controls button { padding: 7px 10px; border-radius: 6px; color: var(--muted-foreground); cursor: pointer; }
 .reference-controls button[aria-selected=true] { background: var(--card); color: var(--primary); box-shadow: 0 1px 3px #16274818; font-weight: 600; }
 .reference-controls label { display: flex; align-items: center; gap: 6px; color: var(--muted-foreground); }
+.reference-display-options { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; font-size: 13px; }
+.reference-display-options label { cursor: pointer; white-space: nowrap; min-height: 28px; }
+.reference-display-options input { accent-color: var(--primary); }
+.reference-naming-switch { display: inline-flex; align-items: center; flex-shrink: 0; width: 30px; height: 18px; padding: 2px; border: 1px solid var(--ow-border-strong); border-radius: 999px; background: var(--muted); transition: background 150ms ease; }
+.reference-naming-switch[data-checked] { background: var(--primary); border-color: var(--primary); }
+.reference-naming-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--muted-foreground); transition: transform 150ms ease, background 150ms ease; }
+.reference-naming-switch[data-checked] .reference-naming-thumb { background: #fff; transform: translateX(12px); }
+.reference-naming-switch:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.reference-naming-note { margin: 8px 0; color: var(--muted-foreground); font-size: 12px; line-height: 18px; }
+.reference-naming-note a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
 .reference-setup { margin: 10px 0 0; padding-bottom: 14px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--muted-foreground); }
 .reference-setup summary { cursor: pointer; }
 .reference-setup p { margin: 10px 0; line-height: 1.6; }
 .reference-setup a { color: var(--primary); text-decoration: underline; }
 .reference-method { scroll-margin-top: 88px; padding: 22px 0; border-bottom: 1px solid var(--border); }
-.reference-method-heading { display: flex; align-items: center; gap: 12px; }
-.reference-method-heading h2 { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -.025em; }
-.method-anchor { opacity: 0; margin-left: 8px; color: var(--muted-foreground); }
+.reference-method-heading { line-height: 26px; overflow-wrap: anywhere; }
+.reference-method-heading h2 { display: inline; margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -.025em; }
+.reference-method-heading h2 > a { position: relative; }
+.method-anchor { position: absolute; opacity: 0; margin-left: 5px; color: var(--muted-foreground); font-size: 14px; }
 .reference-method-heading a:hover .method-anchor, .reference-method-heading a:focus-visible .method-anchor { opacity: 1; }
+.reference-method-aliases { margin-left: 24px; vertical-align: baseline; }
+.reference-method-alias { display: inline; margin: 0 12px 0 0; padding: 2px 0; color: var(--muted-foreground); font-size: 12px; line-height: 20px; text-decoration: underline dotted; text-decoration-color: var(--ow-border-strong); text-underline-offset: 4px; cursor: help; overflow-wrap: anywhere; }
+.reference-method-alias:hover, .reference-method-alias[data-popup-open] { color: var(--primary); text-decoration-color: currentColor; }
+.reference-method-alias:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; border-radius: 2px; }
+.reference-alias-positioner { z-index: 60; }
+.reference-alias-tooltip { display: flex; flex-direction: column; gap: 4px; max-width: min(300px, calc(100vw - 24px)); padding: 10px 12px; border: 1px solid #314369; border-radius: 8px; background: #111d39; color: #e5eeff; box-shadow: 0 6px 20px #101d3926; font-size: 12px; line-height: 18px; overflow-wrap: anywhere; }
+.reference-alias-tooltip strong { color: #fff; font-weight: 600; }
+.reference-alias-tooltip code { font-family: var(--font-mono); }
 .reference-license { display: inline-flex; align-items: center; border-radius: 7px; border: 1px solid var(--ow-license-border); padding: 3px 8px; background: var(--ow-license-background); color: var(--ow-license-foreground); font-size: 13px; font-weight: 600; }
 .reference-description { margin: 7px 0 12px; font-size: 14px; line-height: 22px; color: var(--muted-foreground); }
 .reference-parameters { border: 1px solid var(--border); border-radius: 8px; background: var(--muted); }
@@ -499,8 +518,6 @@
 .reference-code .shiki, .reference-code .shiki span { color: var(--shiki-dark, #ddeaff)!important; background-color: transparent!important; }
 .reference-code button { color: #bed0f5; background: #202f50; }
 .reference-code pre { padding: 14px!important; font-size: 14px!important; line-height: 21px!important; }
-.reference-route, .reference-aliases { margin-top: 8px; color: var(--muted-foreground); font-size: 13px; }
-.reference-aliases summary { cursor: pointer; }
 .method-explorer { position: sticky; top: calc(var(--fd-banner-height, 0px) + var(--ow-docs-header-height) + 12px); height: fit-content; max-height: calc(100dvh - 110px); display: flex; flex-direction: column; min-height: 0; border-left: 1px solid var(--border); padding-left: 20px; }
 .method-explorer-body > label { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
 .method-explorer input, .method-explorer select { width: 100%; border: 1px solid var(--border); border-radius: 7px; background: var(--card); padding: 8px 10px; font-size: 14px; margin-bottom: 8px; }

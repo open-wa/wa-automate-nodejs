@@ -45,6 +45,7 @@ type CanonicalMethodRecord = {
   id: string;
   anchor: string;
   name: string;
+  namespacedName: string;
   namespace: string;
   description: string;
   license: string | null;
@@ -57,7 +58,7 @@ type CanonicalMethodRecord = {
   sdkReturnType: string | null;
   returnCaveat?: string;
   returnNotes: string;
-  route: { method: string; path: string } | null;
+  route: { method: string; path: string; flatPath: string } | null;
   examples: {
     inProcessSdk: string;
     nodeCall: string;
@@ -673,6 +674,7 @@ function buildCanonicalMethodRecord(
     id: `${slugForNamespace(def.meta.namespace ?? 'core')}.${anchor}`,
     anchor,
     name: def.meta.functionName,
+    namespacedName: def.meta.namespace ? `${def.meta.namespace}.${def.meta.namespacedName}` : def.meta.functionName,
     namespace: def.meta.namespace ?? 'core',
     description: def.meta.description ?? `Client method ${def.meta.functionName}.`,
     license: def.meta.license && def.meta.license !== 'none' ? def.meta.license : null,
@@ -685,7 +687,7 @@ function buildCanonicalMethodRecord(
     sdkReturnType,
     returnCaveat: def.meta.outputSchema.description ?? (def.meta.outputSchema._zod.def as any).element?.description,
     returnNotes: buildReturnNotes(def, returnType),
-    route: route ? { method: route.httpMethod, path: route.path } : null,
+    route: route ? { method: route.httpMethod, path: route.path, flatPath: route.aliasRoutes.find((alias) => alias.name === def.meta.functionName)?.path ?? route.path } : null,
     examples: {
       inProcessSdk: !sdkReturnType ? '' : def.meta.functionName === 'decryptMedia' || def.meta.functionName === 'downloadMedia'
         ? `// Use the full media message from your message handler.\nconst result = await client.${def.meta.functionName}(message${def.meta.functionName === 'downloadMedia' ? ', "./downloaded-media"' : ''});`
@@ -937,7 +939,13 @@ function buildInternalsPages(
     ].join('\n')),
 
     'namespaced-client': buildGeneratedPage('Namespaced client', 'How BaseNamespacedClient builds namespace objects from aliases.', [
-      '`BaseNamespacedClient extends BaseClient` and exposes namespace objects (for example `client.messages.send`) built from each method\'s registered aliases. A namespaced alias like `messages.send` maps back to the canonical method `sendText`.',
+      'Namespaced aliases group related methods. For example, `groups.create` resolves to `createGroup`, and `messages.sendText` resolves to `sendText`. Both names identify the same registered method.',
+      '',
+      'The [compact reference](/docs/reference/client/client) starts with flat method names. Turn on **Namespaced** beside **Expand parameters** to browse by namespace. Permanent method links stay the same.',
+      '',
+      'The [HTTP API](/docs/getting-started/easy-api) registers both forms, such as `/api/createGroup` and `/api/groups/create`. Its examples follow the switch. The [Node.js client](/docs/client-and-integrations/socket-client) and [in-process SDK](/docs/getting-started/custom-code) use flat calls such as `client.createGroup(...)`; they do not expose `client.groups.create(...)`, so their examples keep the callable form.',
+      '',
+      '`BaseNamespacedClient` is a generated base class for client implementations. It extends `BaseClient` and builds namespace objects from the registered aliases. It is not the class returned by `SocketClient.connect()`.',
       '',
       'See the full alias map on [Aliases](/docs/reference/client/aliases).',
     ].join('\n')),

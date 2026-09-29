@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { Switch } from '@base-ui/react/switch';
+import { Tooltip } from '@base-ui/react/tooltip';
 import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
 import recordsJson from '@/generated/client-methods.json';
 import { LicensedMethodSection } from '@/components/licensing';
@@ -18,6 +20,7 @@ type MethodRecord = {
   id: string;
   anchor: string;
   name: string;
+  namespacedName: string;
   namespace: string;
   description: string;
   license: string | null;
@@ -30,7 +33,7 @@ type MethodRecord = {
   sdkReturnType: string | null;
   returnCaveat?: string;
   returnNotes: string;
-  route: { method: string; path: string } | null;
+  route: { method: string; path: string; flatPath: string } | null;
   examples: {
     inProcessSdk: string;
     nodeCall: string;
@@ -81,9 +84,37 @@ function compactExample(value: string) {
   return inline.length <= 115 ? inline : value;
 }
 
-function MethodBlock({ method, mode, expanded }: { method: MethodRecord; mode: ExampleMode; expanded: boolean }) {
+function MethodAliases({ method, displayedName }: { method: MethodRecord; displayedName: string }) {
+  const alternatives = [method.name, ...method.aliases].filter((name) => name !== displayedName);
+  if (!alternatives.length) return null;
+
+  return <span className="reference-method-aliases" aria-label="Alternative method names">
+    {alternatives.map((name) => {
+      const label = name === method.name ? 'Canonical method' : method.deprecatedAliases.includes(name) ? 'Deprecated alias' : 'Alias';
+      const tooltipId = `${method.anchor}-${name}-alias-description`;
+      return <Tooltip.Root key={name}>
+        <Tooltip.Trigger type="button" className="reference-method-alias" aria-label={`${name}: ${label.toLowerCase()}`} aria-describedby={tooltipId}>
+          <code>{name}</code>
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner side="top" sideOffset={8} className="reference-alias-positioner">
+            <Tooltip.Popup id={tooltipId} role="tooltip" className="reference-alias-tooltip">
+              <strong>{label}</strong>
+              <span>{name === method.name ? 'The original method name and permanent link.' : <>Resolves to <code>{method.name}</code>.</>}</span>
+            </Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>;
+    })}
+  </span>;
+}
+
+function MethodBlock({ method, mode, expanded, namespaced }: { method: MethodRecord; mode: ExampleMode; expanded: boolean; namespaced: boolean }) {
   const [open, setOpen] = React.useState(expanded);
   React.useEffect(() => setOpen(expanded), [expanded]);
+  const displayedName = namespaced ? method.namespacedName : method.name;
+  const routePath = namespaced ? method.route?.path : method.route?.flatPath;
+  const httpExample = method.route && routePath ? method.examples.http.replace(method.route.path, routePath) : method.examples.http;
   const returnType = mode === 'sdk' ? method.sdkReturnType : method.returnType;
   const notes = method.returnNotes.replace(/\\\|/g, '|');
   const meaningfulNotes = notes
@@ -97,12 +128,13 @@ function MethodBlock({ method, mode, expanded }: { method: MethodRecord; mode: E
     <>
       {method.license ? <span id={`${method.anchor}---${method.license}`} aria-hidden="true" /> : null}
       <div className="reference-method-heading">
-        <h2><a href={`#${method.anchor}`}><code>{method.name}</code><span className="method-anchor" aria-hidden="true">#</span></a></h2>
+        <h2><a href={`#${method.anchor}`}><code>{displayedName}</code><span className="method-anchor" aria-hidden="true">#</span></a></h2>
+        <MethodAliases method={method} displayedName={displayedName} />
       </div>
       <p className="reference-description">{method.description}</p>
       <details className="reference-parameters" open={open} onToggle={(event) => setOpen(event.currentTarget.open)}>
         <summary>
-          <code>client.{methodSignature(method)}</code>
+          <code>{mode === 'http' && method.route ? `${method.route.method} ${routePath}` : `client.${methodSignature(method)}`}</code>
           <span>{method.parameters.length ? `Parameters (${method.parameters.length})` : 'No parameters'} <span aria-hidden="true">{open ? '−' : '+'}</span></span>
         </summary>
         {method.parameters.length ? <div className="reference-parameter-list">
@@ -121,9 +153,7 @@ function MethodBlock({ method, mode, expanded }: { method: MethodRecord; mode: E
       {meaningfulNotes && meaningfulNotes !== method.returnCaveat && mode === 'node' ? <p className="reference-caveat">{meaningfulNotes.replace(/`/g, '')}</p> : null}
       {mode === 'sdk' && returnType && returnType !== method.returnType ? <p className="reference-caveat">This is the in-process Client contract. The remote Node.js client and HTTP API use the registry contract shown in their tabs.</p> : null}
       {caveat ? <p className="reference-caveat">{caveat}</p> : null}
-      {mode !== 'sdk' || returnType ? <CodeBlock value={mode === 'http' ? method.examples.http : compactExample(mode === 'sdk' ? method.examples.inProcessSdk : method.examples.nodeCall)} lang={mode === 'http' ? 'bash' : 'ts'} /> : null}
-      {mode === 'http' && method.route ? <p className="reference-route"><span>{method.route.method}</span> {method.route.path}</p> : null}
-      {method.aliases.length ? <details className="reference-aliases"><summary>Aliases ({method.aliases.length})</summary><p>{method.aliases.join(', ')}</p></details> : null}
+      {mode !== 'sdk' || returnType ? <CodeBlock value={mode === 'http' ? httpExample : compactExample(mode === 'sdk' ? method.examples.inProcessSdk : method.examples.nodeCall)} lang={mode === 'http' ? 'bash' : 'ts'} /> : null}
     </>
   );
   return <article id={method.anchor} className="reference-method">
@@ -139,9 +169,22 @@ export function ClientReference() {
   const [namespace, setNamespace] = React.useState('all');
   const [mode, setMode] = React.useState<ExampleMode>('node');
   const [expanded, setExpanded] = React.useState(false);
+  const [namespaced, setNamespaced] = React.useState(false);
   const [activeMethod, setActiveMethod] = React.useState('');
+  const readingPosition = React.useRef<{ element: HTMLElement; top: number } | null>(null);
   const tabRefs = React.useRef<Array<HTMLButtonElement | null>>([]);
   const explorerRef = React.useRef<HTMLElement | null>(null);
+  function changeNamingStyle(checked: boolean) {
+    const element = document.getElementById(activeMethod);
+    if (element) readingPosition.current = { element, top: element.getBoundingClientRect().top };
+    setNamespaced(checked);
+  }
+  React.useLayoutEffect(() => {
+    const position = readingPosition.current;
+    if (!position) return;
+    window.scrollBy({ top: position.element.getBoundingClientRect().top - position.top, behavior: 'instant' });
+    readingPosition.current = null;
+  }, [namespaced]);
   React.useEffect(() => {
     const nav = explorerRef.current;
     const item = nav?.querySelector<HTMLElement>('[aria-current="location"]');
@@ -168,6 +211,7 @@ export function ClientReference() {
     return () => observer.disconnect();
   }, []);
   return (
+    <Tooltip.Provider delay={250}>
     <div className="not-prose client-reference">
       <div className="reference-content">
         <div className="reference-controls">
@@ -181,15 +225,24 @@ export function ClientReference() {
                 setMode(modes[next].id); tabRefs.current[next]?.focus();
               }}>{item.label}</button>)}
           </div>
-          <label><input type="checkbox" checked={expanded} onChange={(event) => setExpanded(event.target.checked)} />Expand parameters</label>
+          <div className="reference-display-options">
+            <label><input type="checkbox" checked={expanded} onChange={(event) => setExpanded(event.target.checked)} />Expand parameters</label>
+            <label className="reference-naming-label">
+              <Switch.Root className="reference-naming-switch" checked={namespaced} onCheckedChange={changeNamingStyle}>
+                <Switch.Thumb className="reference-naming-thumb" />
+              </Switch.Root>
+              Namespaced
+            </label>
+          </div>
         </div>
+        {namespaced && mode !== 'http' ? <p className="reference-naming-note">Namespaced labels are <a href="/docs/reference/client/namespaced-client">registry aliases</a>. {mode === 'node' ? 'SocketClient' : 'The in-process SDK'} uses the flat calls shown below.</p> : null}
         <details className="reference-setup">
           <summary>{mode === 'http' ? 'HTTP connection and response format' : mode === 'sdk' ? 'What is the in-process SDK?' : 'Connect the Node.js client'}</summary>
           {mode === 'node' ? <><p>Connect once to a running Easy API, then use the calls below.</p><CodeBlock value={records[0].examples.nodeClient.split('\n').filter((line) => line.startsWith('import ') || line.includes('SocketClient.connect')).join('\n')} /></>
             : mode === 'sdk' ? <p>The SDK runs WhatsApp inside your Node.js application. The examples assume you already created a runtime with <code>createClient()</code> and wrapped it in the <code>Client</code> facade. Follow <a href="/docs/getting-started/custom-code">the Node.js setup guide</a> first.</p>
               : <p>Run the Easy API on port 8080 and replace <code>YOUR_API_KEY</code> with your configured key. Successful HTTP calls wrap the return value in <code>{'{ success: true, data: … }'}</code>. The return types below describe <code>data</code>.</p>}
         </details>
-        <div id="client-method-examples" role="tabpanel">{records.map((method) => <MethodBlock key={method.id} method={method} mode={mode} expanded={expanded} />)}</div>
+        <div id="client-method-examples" role="tabpanel">{records.map((method) => <MethodBlock key={method.id} method={method} mode={mode} expanded={expanded} namespaced={namespaced} />)}</div>
       </div>
       <aside className="method-explorer">
         <button type="button" className="method-explorer-toggle" aria-expanded={explorerOpen} aria-controls="method-explorer-body" onClick={() => setExplorerOpen(!explorerOpen)}>Browse {records.length} methods <span aria-hidden="true">{explorerOpen ? '−' : '+'}</span></button>
@@ -199,10 +252,11 @@ export function ClientReference() {
         <select aria-label="Method category" value={namespace} onChange={(event) => setNamespace(event.target.value)}><option value="all">All categories</option>{[...new Set(records.map((method) => method.namespace))].sort().map((item) => <option key={item} value={item}>{item}</option>)}</select>
         <p aria-live="polite">{matchingRecords.length} of {records.length} methods</p>
         {!matchingRecords.length ? <div className="method-empty">No methods match this filter.<button type="button" onClick={() => { setQuery(''); setNamespace('all'); }}>Clear filters</button></div> : null}
-        <nav ref={explorerRef} aria-label="Client methods">{matchingRecords.map((method) => <a key={method.id} href={`#${method.anchor}`} aria-current={activeMethod === method.anchor ? 'location' : undefined} onClick={() => setActiveMethod(method.anchor)}><span>{method.name}</span>{method.license ? <span className="method-license-dot" data-license-tier={method.license} title={`${method.license} license`} aria-label={`${method.license} license`} /> : null}</a>)}</nav>
+        <nav ref={explorerRef} aria-label="Client methods">{matchingRecords.map((method) => <a key={method.id} href={`#${method.anchor}`} aria-current={activeMethod === method.anchor ? 'location' : undefined} onClick={() => setActiveMethod(method.anchor)} title={namespaced ? method.namespacedName : method.name}><span>{namespaced ? method.namespacedName : method.name}</span>{method.license ? <span className="method-license-dot" data-license-tier={method.license} title={`${method.license} license`} aria-label={`${method.license} license`} /> : null}</a>)}</nav>
         </div>
       </aside>
     </div>
+    </Tooltip.Provider>
   );
 }
 

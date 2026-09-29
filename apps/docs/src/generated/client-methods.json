@@ -3,6 +3,7 @@
     "id": "labels.addlabel",
     "anchor": "addlabel",
     "name": "addLabel",
+    "namespacedName": "labels.add",
     "namespace": "labels",
     "description": "Add label to chat",
     "license": null,
@@ -43,7 +44,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/labels/add"
+      "path": "/api/labels/add",
+      "flatPath": "/api/addLabel"
     },
     "examples": {
       "inProcessSdk": "",
@@ -57,6 +59,7 @@
     "id": "groups.addparticipant",
     "anchor": "addparticipant",
     "name": "addParticipant",
+    "namespacedName": "groups.addParticipant",
     "namespace": "groups",
     "description": "Add participant to group",
     "license": null,
@@ -104,7 +107,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/groups/addParticipant"
+      "path": "/api/groups/addParticipant",
+      "flatPath": "/api/addParticipant"
     },
     "examples": {
       "inProcessSdk": "const result = await client.addParticipant(\"447123456789-1445627445@g.us\", \"447123456789@c.us\");",
@@ -118,6 +122,7 @@
     "id": "groups.approvegroupjoinrequest",
     "anchor": "approvegroupjoinrequest",
     "name": "approveGroupJoinRequest",
+    "namespacedName": "groups.approveJoinRequest",
     "namespace": "groups",
     "description": "Approve group join request",
     "license": null,
@@ -164,7 +169,8 @@
     "returnNotes": "Resolves to `string \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/groups/approveJoinRequest"
+      "path": "/api/groups/approveJoinRequest",
+      "flatPath": "/api/approveGroupJoinRequest"
     },
     "examples": {
       "inProcessSdk": "",
@@ -178,6 +184,7 @@
     "id": "chats.archivechat",
     "anchor": "archivechat",
     "name": "archiveChat",
+    "namespacedName": "chats.archive",
     "namespace": "chats",
     "description": "Archive a chat",
     "license": null,
@@ -209,7 +216,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/chats/archive"
+      "path": "/api/chats/archive",
+      "flatPath": "/api/archiveChat"
     },
     "examples": {
       "inProcessSdk": "const result = await client.archiveChat(\"447123456789@c.us\");",
@@ -223,6 +231,7 @@
     "id": "contacts.blockcontact",
     "anchor": "blockcontact",
     "name": "blockContact",
+    "namespacedName": "contacts.block",
     "namespace": "contacts",
     "description": "Block a contact",
     "license": null,
@@ -258,7 +267,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/contacts/block"
+      "path": "/api/contacts/block",
+      "flatPath": "/api/blockContact"
     },
     "examples": {
       "inProcessSdk": "const result = await client.blockContact(\"447123456789@c.us\");",
@@ -272,6 +282,7 @@
     "id": "contacts.checknumberstatus",
     "anchor": "checknumberstatus",
     "name": "checkNumberStatus",
+    "namespacedName": "contacts.checkNumberStatus",
     "namespace": "contacts",
     "description": "Check if number is on WhatsApp",
     "license": "insiders",
@@ -304,7 +315,8 @@
     "returnNotes": "Resolves to `NumberCheck`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/contacts/checkNumberStatus"
+      "path": "/api/contacts/checkNumberStatus",
+      "flatPath": "/api/checkNumberStatus"
     },
     "examples": {
       "inProcessSdk": "const result = await client.checkNumberStatus(\"447123456789@c.us\");",
@@ -318,6 +330,7 @@
     "id": "contacts.checkreadreceipts",
     "anchor": "checkreadreceipts",
     "name": "checkReadReceipts",
+    "namespacedName": "contacts.checkReadReceipts",
     "namespace": "contacts",
     "description": "Check read receipts setting",
     "license": null,
@@ -350,7 +363,8 @@
     "returnNotes": "Resolves to `boolean \\| string`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/contacts/checkReadReceipts"
+      "path": "/api/contacts/checkReadReceipts",
+      "flatPath": "/api/checkReadReceipts"
     },
     "examples": {
       "inProcessSdk": "",
@@ -364,6 +378,7 @@
     "id": "chats.clearchat",
     "anchor": "clearchat",
     "name": "clearChat",
+    "namespacedName": "chats.clear",
     "namespace": "chats",
     "description": "Clear chat history",
     "license": null,
@@ -395,7 +410,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "DELETE",
-      "path": "/api/chats/clear"
+      "path": "/api/chats/clear",
+      "flatPath": "/api/clearChat"
     },
     "examples": {
       "inProcessSdk": "const result = await client.clearChat(\"447123456789@c.us\");",
@@ -409,6 +425,7 @@
     "id": "groups.creategroup",
     "anchor": "creategroup",
     "name": "createGroup",
+    "namespacedName": "groups.create",
     "namespace": "groups",
     "description": "Create new group",
     "license": "restricted",
@@ -452,7 +469,8 @@
     "returnNotes": "Resolves to `GroupCreationResult \\| null`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/groups/create"
+      "path": "/api/groups/create",
+      "flatPath": "/api/createGroup"
     },
     "examples": {
       "inProcessSdk": "const result = await client.createGroup(\"name\", [\"447123456789@c.us\"]);",
@@ -466,6 +484,7 @@
     "id": "media.decryptmedia",
     "anchor": "decryptmedia",
     "name": "decryptMedia",
+    "namespacedName": "media.decrypt",
     "namespace": "media",
     "description": "Decrypts media from a message",
     "license": null,
@@ -495,7 +514,8 @@
     "returnNotes": "Resolves to `DataURL`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/media/decrypt"
+      "path": "/api/media/decrypt",
+      "flatPath": "/api/decryptMedia"
     },
     "examples": {
       "inProcessSdk": "// Use the full media message from your message handler.\nconst result = await client.decryptMedia(message);",
@@ -509,6 +529,7 @@
     "id": "status.deleteallstatus",
     "anchor": "deleteallstatus",
     "name": "deleteAllStatus",
+    "namespacedName": "status.deleteAll",
     "namespace": "status",
     "description": "Delete all statuses",
     "license": "insiders",
@@ -525,7 +546,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "DELETE",
-      "path": "/api/status/deleteAll"
+      "path": "/api/status/deleteAll",
+      "flatPath": "/api/deleteAllStatus"
     },
     "examples": {
       "inProcessSdk": "",
@@ -539,6 +561,7 @@
     "id": "chats.deletechat",
     "anchor": "deletechat",
     "name": "deleteChat",
+    "namespacedName": "chats.delete",
     "namespace": "chats",
     "description": "Delete a chat",
     "license": null,
@@ -570,7 +593,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "DELETE",
-      "path": "/api/chats/delete"
+      "path": "/api/chats/delete",
+      "flatPath": "/api/deleteChat"
     },
     "examples": {
       "inProcessSdk": "const result = await client.deleteChat(\"447123456789@c.us\");",
@@ -584,6 +608,7 @@
     "id": "messages.deletemessage",
     "anchor": "deletemessage",
     "name": "deleteMessage",
+    "namespacedName": "messages.delete",
     "namespace": "messages",
     "description": "Deletes a message",
     "license": null,
@@ -638,7 +663,8 @@
     "returnNotes": "Resolves to `boolean`: `true` means the runtime accepted the operation and `false` means it did not complete. Provider-side revoke can still be rejected, so the value is not proof that every recipient removed the message. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "DELETE",
-      "path": "/api/messages/delete"
+      "path": "/api/messages/delete",
+      "flatPath": "/api/deleteMessage"
     },
     "examples": {
       "inProcessSdk": "const result = await client.deleteMessage(\"447123456789@c.us\", [\"false_447123456789@c.us_ABC123\",\"false_447123456789@c.us_DEF456\"]);",
@@ -652,6 +678,7 @@
     "id": "status.deletestatus",
     "anchor": "deletestatus",
     "name": "deleteStatus",
+    "namespacedName": "status.delete",
     "namespace": "status",
     "description": "Delete status",
     "license": "insiders",
@@ -679,7 +706,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "DELETE",
-      "path": "/api/status/delete"
+      "path": "/api/status/delete",
+      "flatPath": "/api/deleteStatus"
     },
     "examples": {
       "inProcessSdk": "",
@@ -693,6 +721,7 @@
     "id": "groups.demoteparticipant",
     "anchor": "demoteparticipant",
     "name": "demoteParticipant",
+    "namespacedName": "groups.demoteParticipant",
     "namespace": "groups",
     "description": "Demote participant from admin",
     "license": null,
@@ -740,7 +769,8 @@
     "returnNotes": "Resolves to `boolean \\| string`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/groups/demoteParticipant"
+      "path": "/api/groups/demoteParticipant",
+      "flatPath": "/api/demoteParticipant"
     },
     "examples": {
       "inProcessSdk": "const result = await client.demoteParticipant(\"447123456789-1445627445@g.us\", \"447123456789@c.us\");",
@@ -754,6 +784,7 @@
     "id": "media.downloadmedia",
     "anchor": "downloadmedia",
     "name": "downloadMedia",
+    "namespacedName": "media.download",
     "namespace": "media",
     "description": "Downloads and decrypts media from a message to a file",
     "license": null,
@@ -792,7 +823,8 @@
     "returnNotes": "Path to the saved file",
     "route": {
       "method": "POST",
-      "path": "/api/media/download"
+      "path": "/api/media/download",
+      "flatPath": "/api/downloadMedia"
     },
     "examples": {
       "inProcessSdk": "// Use the full media message from your message handler.\nconst result = await client.downloadMedia(message, \"./downloaded-media\");",
@@ -806,6 +838,7 @@
     "id": "messages.forwardmessages",
     "anchor": "forwardmessages",
     "name": "forwardMessages",
+    "namespacedName": "messages.forward",
     "namespace": "messages",
     "description": "Forwards messages to a chat",
     "license": null,
@@ -861,7 +894,8 @@
     "returnNotes": "Resolves to `MessageIdReturn[] \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/forward"
+      "path": "/api/messages/forward",
+      "flatPath": "/api/forwardMessages"
     },
     "examples": {
       "inProcessSdk": "const result = await client.forwardMessages(\"447123456789@c.us\", [\"false_447123456789@c.us_ABC123\",\"false_447123456789@c.us_DEF456\"]);",
@@ -875,6 +909,7 @@
     "id": "chatids.getallchatids",
     "anchor": "getallchatids",
     "name": "getAllChatIds",
+    "namespacedName": "chatIds.getAll",
     "namespace": "chatIds",
     "description": "Get all chat IDs",
     "license": null,
@@ -897,7 +932,8 @@
     "returnNotes": "Resolves to `ChatId[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/chatIds/getAll"
+      "path": "/api/chatIds/getAll",
+      "flatPath": "/api/getAllChatIds"
     },
     "examples": {
       "inProcessSdk": "",
@@ -911,6 +947,7 @@
     "id": "chats.getallchats",
     "anchor": "getallchats",
     "name": "getAllChats",
+    "namespacedName": "chats.getAll",
     "namespace": "chats",
     "description": "Returns serialized Chat objects from the current session, optionally limited to chats with unread messages.",
     "license": null,
@@ -944,7 +981,8 @@
     "returnNotes": "Resolves to `Chat[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/chats/getAll"
+      "path": "/api/chats/getAll",
+      "flatPath": "/api/getAllChats"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getAllChats();",
@@ -958,6 +996,7 @@
     "id": "communities.getallcommunities",
     "anchor": "getallcommunities",
     "name": "getAllCommunities",
+    "namespacedName": "communities.getAll",
     "namespace": "communities",
     "description": "Get all communities",
     "license": null,
@@ -979,7 +1018,8 @@
     "returnNotes": "Resolves to `GroupChatId[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/communities/getAll"
+      "path": "/api/communities/getAll",
+      "flatPath": "/api/getAllCommunities"
     },
     "examples": {
       "inProcessSdk": "",
@@ -993,6 +1033,7 @@
     "id": "contacts.getallcontacts",
     "anchor": "getallcontacts",
     "name": "getAllContacts",
+    "namespacedName": "contacts.getAll",
     "namespace": "contacts",
     "description": "Retrieves all contacts",
     "license": null,
@@ -1013,7 +1054,8 @@
     "returnNotes": "Resolves to `Contact[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/contacts/getAll"
+      "path": "/api/contacts/getAll",
+      "flatPath": "/api/getAllContacts"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getAllContacts();",
@@ -1027,6 +1069,7 @@
     "id": "groups.getallgroups",
     "anchor": "getallgroups",
     "name": "getAllGroups",
+    "namespacedName": "groups.getAll",
     "namespace": "groups",
     "description": "Get all groups",
     "license": null,
@@ -1060,7 +1103,8 @@
     "returnNotes": "Resolves to `Chat[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/groups/getAll"
+      "path": "/api/groups/getAll",
+      "flatPath": "/api/getAllGroups"
     },
     "examples": {
       "inProcessSdk": "",
@@ -1074,6 +1118,7 @@
     "id": "labels.getalllabels",
     "anchor": "getalllabels",
     "name": "getAllLabels",
+    "namespacedName": "labels.getAll",
     "namespace": "labels",
     "description": "Get all labels",
     "license": null,
@@ -1094,7 +1139,8 @@
     "returnNotes": "Resolves to `Label[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/labels/getAll"
+      "path": "/api/labels/getAll",
+      "flatPath": "/api/getAllLabels"
     },
     "examples": {
       "inProcessSdk": "",
@@ -1108,6 +1154,7 @@
     "id": "messages.getallmessages",
     "anchor": "getallmessages",
     "name": "getAllMessages",
+    "namespacedName": "messages.getAll",
     "namespace": "messages",
     "description": "Retrieves all messages in the session",
     "license": null,
@@ -1164,7 +1211,8 @@
     "returnNotes": "Resolves to `Message[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/messages/getAll"
+      "path": "/api/messages/getAll",
+      "flatPath": "/api/getAllMessages"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getAllMessages();",
@@ -1178,6 +1226,7 @@
     "id": "session.getbatterylevel",
     "anchor": "getbatterylevel",
     "name": "getBatteryLevel",
+    "namespacedName": "session.getBatteryLevel",
     "namespace": "session",
     "description": "Get phone battery level",
     "license": null,
@@ -1193,7 +1242,8 @@
     "returnNotes": "Resolves to `number`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/session/getBatteryLevel"
+      "path": "/api/session/getBatteryLevel",
+      "flatPath": "/api/getBatteryLevel"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getBatteryLevel();",
@@ -1207,6 +1257,7 @@
     "id": "contacts.getblockedids",
     "anchor": "getblockedids",
     "name": "getBlockedIds",
+    "namespacedName": "contacts.getBlockedIds",
     "namespace": "contacts",
     "description": "Get blocked contact IDs",
     "license": null,
@@ -1224,7 +1275,8 @@
     "returnNotes": "Resolves to `ContactId[] \\| false`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/contacts/getBlockedIds"
+      "path": "/api/contacts/getBlockedIds",
+      "flatPath": "/api/getBlockedIds"
     },
     "examples": {
       "inProcessSdk": "",
@@ -1238,6 +1290,7 @@
     "id": "business.getbusinessproducts",
     "anchor": "getbusinessproducts",
     "name": "getBusinessProducts",
+    "namespacedName": "business.getProducts",
     "namespace": "business",
     "description": "Get business products",
     "license": null,
@@ -1275,7 +1328,8 @@
     "returnNotes": "Resolves to `Product[] \\| false`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/business/getProducts"
+      "path": "/api/business/getProducts",
+      "flatPath": "/api/getBusinessProducts"
     },
     "examples": {
       "inProcessSdk": "",
@@ -1289,6 +1343,7 @@
     "id": "business.getbusinessprofile",
     "anchor": "getbusinessprofile",
     "name": "getBusinessProfile",
+    "namespacedName": "business.getProfile",
     "namespace": "business",
     "description": "Get business profile",
     "license": null,
@@ -1321,7 +1376,8 @@
     "returnNotes": "Resolves to `BusinessProfile`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/business/getProfile"
+      "path": "/api/business/getProfile",
+      "flatPath": "/api/getBusinessProfile"
     },
     "examples": {
       "inProcessSdk": "",
@@ -1335,6 +1391,7 @@
     "id": "chats.getchat",
     "anchor": "getchat",
     "name": "getChat",
+    "namespacedName": "chats.get",
     "namespace": "chats",
     "description": "Get specific chat by ID",
     "license": null,
@@ -1370,7 +1427,8 @@
     "returnNotes": "Resolves to `Chat \\| null \\| undefined \\| false`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/chats/get"
+      "path": "/api/chats/get",
+      "flatPath": "/api/getChat"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getChat(\"447123456789@c.us\");",
@@ -1384,6 +1442,7 @@
     "id": "labels.getchatsbylabel",
     "anchor": "getchatsbylabel",
     "name": "getChatsByLabel",
+    "namespacedName": "labels.getChats",
     "namespace": "labels",
     "description": "Get chats by label",
     "license": null,
@@ -1415,7 +1474,8 @@
     "returnNotes": "Resolves to `Chat[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/labels/getChats"
+      "path": "/api/labels/getChats",
+      "flatPath": "/api/getChatsByLabel"
     },
     "examples": {
       "inProcessSdk": "",
@@ -1429,6 +1489,7 @@
     "id": "chats.getchatwithnoncontacts",
     "anchor": "getchatwithnoncontacts",
     "name": "getChatWithNonContacts",
+    "namespacedName": "chats.getWithNonContacts",
     "namespace": "chats",
     "description": "Get chats with non-contacts",
     "license": null,
@@ -1446,7 +1507,8 @@
     "returnNotes": "Resolves to `Contact[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/chats/getWithNonContacts"
+      "path": "/api/chats/getWithNonContacts",
+      "flatPath": "/api/getChatWithNonContacts"
     },
     "examples": {
       "inProcessSdk": "",
@@ -1460,6 +1522,7 @@
     "id": "contacts.getcommongroups",
     "anchor": "getcommongroups",
     "name": "getCommonGroups",
+    "namespacedName": "contacts.getCommonGroups",
     "namespace": "contacts",
     "description": "Get common groups with contact",
     "license": null,
@@ -1493,7 +1556,8 @@
     "returnNotes": "Resolves to `CommonGroup[] \\| false`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/contacts/getCommonGroups"
+      "path": "/api/contacts/getCommonGroups",
+      "flatPath": "/api/getCommonGroups"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getCommonGroups(\"447123456789@c.us\");",
@@ -1507,6 +1571,7 @@
     "id": "communities.getcommunityadminids",
     "anchor": "getcommunityadminids",
     "name": "getCommunityAdminIds",
+    "namespacedName": "communities.getAdminIds",
     "namespace": "communities",
     "description": "Get community admin IDs",
     "license": null,
@@ -1537,7 +1602,8 @@
     "returnNotes": "Resolves to `CommunityAdminIds[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/communities/getAdminIds"
+      "path": "/api/communities/getAdminIds",
+      "flatPath": "/api/getCommunityAdminIds"
     },
     "examples": {
       "inProcessSdk": "",
@@ -1551,6 +1617,7 @@
     "id": "communities.getcommunityadmins",
     "anchor": "getcommunityadmins",
     "name": "getCommunityAdmins",
+    "namespacedName": "communities.getAdmins",
     "namespace": "communities",
     "description": "Get community admins",
     "license": null,
@@ -1581,7 +1648,8 @@
     "returnNotes": "Resolves to `CommunityAdmins[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/communities/getAdmins"
+      "path": "/api/communities/getAdmins",
+      "flatPath": "/api/getCommunityAdmins"
     },
     "examples": {
       "inProcessSdk": "",
@@ -1595,6 +1663,7 @@
     "id": "communities.getcommunityinfo",
     "anchor": "getcommunityinfo",
     "name": "getCommunityInfo",
+    "namespacedName": "communities.getInfo",
     "namespace": "communities",
     "description": "Get community metadata",
     "license": null,
@@ -1625,7 +1694,8 @@
     "returnNotes": "Resolves to `CommunityMetadata`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/communities/getInfo"
+      "path": "/api/communities/getInfo",
+      "flatPath": "/api/getCommunityInfo"
     },
     "examples": {
       "inProcessSdk": "",
@@ -1639,6 +1709,7 @@
     "id": "communities.getcommunityparticipantids",
     "anchor": "getcommunityparticipantids",
     "name": "getCommunityParticipantIds",
+    "namespacedName": "communities.getParticipantIds",
     "namespace": "communities",
     "description": "Get community participant IDs",
     "license": null,
@@ -1669,7 +1740,8 @@
     "returnNotes": "Resolves to `CommunityParticipantIds[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/communities/getParticipantIds"
+      "path": "/api/communities/getParticipantIds",
+      "flatPath": "/api/getCommunityParticipantIds"
     },
     "examples": {
       "inProcessSdk": "",
@@ -1683,6 +1755,7 @@
     "id": "communities.getcommunityparticipants",
     "anchor": "getcommunityparticipants",
     "name": "getCommunityParticipants",
+    "namespacedName": "communities.getParticipants",
     "namespace": "communities",
     "description": "Get community participants",
     "license": null,
@@ -1713,7 +1786,8 @@
     "returnNotes": "Resolves to `CommunityParticipants[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/communities/getParticipants"
+      "path": "/api/communities/getParticipants",
+      "flatPath": "/api/getCommunityParticipants"
     },
     "examples": {
       "inProcessSdk": "",
@@ -1727,6 +1801,7 @@
     "id": "session.getconnectionstate",
     "anchor": "getconnectionstate",
     "name": "getConnectionState",
+    "namespacedName": "session.getConnectionState",
     "namespace": "session",
     "description": "Get connection state",
     "license": null,
@@ -1742,7 +1817,8 @@
     "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/session/getConnectionState"
+      "path": "/api/session/getConnectionState",
+      "flatPath": "/api/getConnectionState"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getConnectionState();",
@@ -1756,6 +1832,7 @@
     "id": "contacts.getcontact",
     "anchor": "getcontact",
     "name": "getContact",
+    "namespacedName": "contacts.get",
     "namespace": "contacts",
     "description": "Get specific contact",
     "license": null,
@@ -1788,7 +1865,8 @@
     "returnNotes": "Resolves to `Contact \\| null`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/contacts/get"
+      "path": "/api/contacts/get",
+      "flatPath": "/api/getContact"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getContact(\"447123456789@c.us\");",
@@ -1802,6 +1880,7 @@
     "id": "session.getfeatures",
     "anchor": "getfeatures",
     "name": "getFeatures",
+    "namespacedName": "session.getFeatures",
     "namespace": "session",
     "description": "Get enabled features",
     "license": null,
@@ -1820,7 +1899,8 @@
     "returnNotes": "WhatsApp feature flags keyed by name. Values are provider-defined and must be narrowed before use.",
     "route": {
       "method": "GET",
-      "path": "/api/session/getFeatures"
+      "path": "/api/session/getFeatures",
+      "flatPath": "/api/getFeatures"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getFeatures();",
@@ -1834,6 +1914,7 @@
     "id": "groups.getgroupadmins",
     "anchor": "getgroupadmins",
     "name": "getGroupAdmins",
+    "namespacedName": "groups.getAdmins",
     "namespace": "groups",
     "description": "Get group admins",
     "license": null,
@@ -1870,7 +1951,8 @@
     "returnNotes": "Resolves to `ContactId[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/groups/getAdmins"
+      "path": "/api/groups/getAdmins",
+      "flatPath": "/api/getGroupAdmins"
     },
     "examples": {
       "inProcessSdk": "",
@@ -1884,6 +1966,7 @@
     "id": "groups.getgroupinfo",
     "anchor": "getgroupinfo",
     "name": "getGroupInfo",
+    "namespacedName": "groups.getInfo",
     "namespace": "groups",
     "description": "Get group metadata",
     "license": null,
@@ -1919,7 +2002,8 @@
     "returnNotes": "Resolves to `GroupMetadata \\| null`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/groups/getInfo"
+      "path": "/api/groups/getInfo",
+      "flatPath": "/api/getGroupInfo"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getGroupInfo(\"447123456789-1445627445@g.us\");",
@@ -1933,6 +2017,7 @@
     "id": "groups.getgroupinvitelink",
     "anchor": "getgroupinvitelink",
     "name": "getGroupInviteLink",
+    "namespacedName": "groups.getInviteLink",
     "namespace": "groups",
     "description": "Get group invite link",
     "license": null,
@@ -1966,7 +2051,8 @@
     "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/groups/getInviteLink"
+      "path": "/api/groups/getInviteLink",
+      "flatPath": "/api/getGroupInviteLink"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getGroupInviteLink(\"447123456789-1445627445@g.us\");",
@@ -1980,6 +2066,7 @@
     "id": "groups.getgroupmembers",
     "anchor": "getgroupmembers",
     "name": "getGroupMembers",
+    "namespacedName": "groups.getMembers",
     "namespace": "groups",
     "description": "Retrieves members of a group",
     "license": null,
@@ -2016,7 +2103,8 @@
     "returnNotes": "Resolves to `Contact[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/groups/getMembers"
+      "path": "/api/groups/getMembers",
+      "flatPath": "/api/getGroupMembers"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getGroupMembers(\"447123456789-1445627445@g.us\");",
@@ -2030,6 +2118,7 @@
     "id": "groups.getgroupmembersid",
     "anchor": "getgroupmembersid",
     "name": "getGroupMembersId",
+    "namespacedName": "groups.getMemberIds",
     "namespace": "groups",
     "description": "Get group member IDs",
     "license": null,
@@ -2068,7 +2157,8 @@
     "returnNotes": "Resolves to `ContactId[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/groups/getMemberIds"
+      "path": "/api/groups/getMemberIds",
+      "flatPath": "/api/getGroupMembersId"
     },
     "examples": {
       "inProcessSdk": "",
@@ -2082,6 +2172,7 @@
     "id": "session.gethostnumber",
     "anchor": "gethostnumber",
     "name": "getHostNumber",
+    "namespacedName": "session.getHostNumber",
     "namespace": "session",
     "description": "Get host phone number",
     "license": null,
@@ -2097,7 +2188,8 @@
     "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/session/getHostNumber"
+      "path": "/api/session/getHostNumber",
+      "flatPath": "/api/getHostNumber"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getHostNumber();",
@@ -2111,6 +2203,7 @@
     "id": "groups.getkickedgroups",
     "anchor": "getkickedgroups",
     "name": "getKickedGroups",
+    "namespacedName": "groups.getKicked",
     "namespace": "groups",
     "description": "Get groups where kicked",
     "license": null,
@@ -2129,7 +2222,8 @@
     "returnNotes": "Resolves to `GroupChatId[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/groups/getKicked"
+      "path": "/api/groups/getKicked",
+      "flatPath": "/api/getKickedGroups"
     },
     "examples": {
       "inProcessSdk": "",
@@ -2143,6 +2237,7 @@
     "id": "session.getlicensetype",
     "anchor": "getlicensetype",
     "name": "getLicenseType",
+    "namespacedName": "session.getLicenseType",
     "namespace": "session",
     "description": "Get license type",
     "license": null,
@@ -2160,7 +2255,8 @@
     "returnNotes": "Resolves to `LicenseType \\| false`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/session/getLicenseType"
+      "path": "/api/session/getLicenseType",
+      "flatPath": "/api/getLicenseType"
     },
     "examples": {
       "inProcessSdk": "",
@@ -2174,6 +2270,7 @@
     "id": "session.getloadedmessagecount",
     "anchor": "getloadedmessagecount",
     "name": "getLoadedMessageCount",
+    "namespacedName": "session.getLoadedMessageCount",
     "namespace": "session",
     "description": "Get loaded message count",
     "license": null,
@@ -2194,7 +2291,8 @@
     "returnNotes": "Resolves to `number`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/session/getLoadedMessageCount"
+      "path": "/api/session/getLoadedMessageCount",
+      "flatPath": "/api/getLoadedMessageCount"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getAmountOfLoadedMessages();",
@@ -2208,6 +2306,7 @@
     "id": "session.getme",
     "anchor": "getme",
     "name": "getMe",
+    "namespacedName": "session.getMe",
     "namespace": "session",
     "description": "Get host account info",
     "license": null,
@@ -2226,7 +2325,8 @@
     "returnNotes": "Host account attributes plus the current account ID. Additional WhatsApp Web attributes vary by version.",
     "route": {
       "method": "GET",
-      "path": "/api/session/getMe"
+      "path": "/api/session/getMe",
+      "flatPath": "/api/getMe"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getMe();",
@@ -2240,6 +2340,7 @@
     "id": "messages.getmessagebyid",
     "anchor": "getmessagebyid",
     "name": "getMessageById",
+    "namespacedName": "messages.get",
     "namespace": "messages",
     "description": "Retrieves a specific message by ID",
     "license": null,
@@ -2277,7 +2378,8 @@
     "returnNotes": "Resolves to `Message \\| null \\| false`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/messages/get"
+      "path": "/api/messages/get",
+      "flatPath": "/api/getMessageById"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getMessageById(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\");",
@@ -2291,6 +2393,7 @@
     "id": "messages.getmessageinfo",
     "anchor": "getmessageinfo",
     "name": "getMessageInfo",
+    "namespacedName": "messages.getInfo",
     "namespace": "messages",
     "description": "Get message delivery info",
     "license": null,
@@ -2326,7 +2429,8 @@
     "returnNotes": "Resolves to `MessageInfo`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/messages/getInfo"
+      "path": "/api/messages/getInfo",
+      "flatPath": "/api/getMessageInfo"
     },
     "examples": {
       "inProcessSdk": "",
@@ -2340,6 +2444,7 @@
     "id": "messages.getmessagesforllm",
     "anchor": "getmessagesforllm",
     "name": "getMessagesForLLM",
+    "namespacedName": "messages.getForLLM",
     "namespace": "messages",
     "description": "Get messages formatted for LLMs",
     "license": null,
@@ -2388,7 +2493,8 @@
     "returnNotes": "Resolves to `LLMMessage[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/messages/getForLLM"
+      "path": "/api/messages/getForLLM",
+      "flatPath": "/api/getMessagesForLLM"
     },
     "examples": {
       "inProcessSdk": "",
@@ -2402,6 +2508,7 @@
     "id": "messages.getmylastmessage",
     "anchor": "getmylastmessage",
     "name": "getMyLastMessage",
+    "namespacedName": "messages.getMyLast",
     "namespace": "messages",
     "description": "Get last message sent by host",
     "license": null,
@@ -2435,7 +2542,8 @@
     "returnNotes": "Resolves to `Message \\| undefined`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/messages/getMyLast"
+      "path": "/api/messages/getMyLast",
+      "flatPath": "/api/getMyLastMessage"
     },
     "examples": {
       "inProcessSdk": "",
@@ -2449,6 +2557,7 @@
     "id": "contacts.getnumberprofile",
     "anchor": "getnumberprofile",
     "name": "getNumberProfile",
+    "namespacedName": "contacts.getNumberProfile",
     "namespace": "contacts",
     "description": "Get profile of number",
     "license": "insiders",
@@ -2482,7 +2591,8 @@
     "returnNotes": "Provisional number profile based on the public Contact fields. Fields are optional and additional provider fields are unknown. The licensed getNumberProfile payload has not been verified against this model.",
     "route": {
       "method": "GET",
-      "path": "/api/contacts/getNumberProfile"
+      "path": "/api/contacts/getNumberProfile",
+      "flatPath": "/api/getNumberProfile"
     },
     "examples": {
       "inProcessSdk": "",
@@ -2496,6 +2606,7 @@
     "id": "business.getorder",
     "anchor": "getorder",
     "name": "getOrder",
+    "namespacedName": "business.getOrder",
     "namespace": "business",
     "description": "Get order details",
     "license": "insiders",
@@ -2525,7 +2636,8 @@
     "returnNotes": "Resolves to `Order`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/business/getOrder"
+      "path": "/api/business/getOrder",
+      "flatPath": "/api/getOrder"
     },
     "examples": {
       "inProcessSdk": "",
@@ -2539,6 +2651,7 @@
     "id": "session.getprocessstats",
     "anchor": "getprocessstats",
     "name": "getProcessStats",
+    "namespacedName": "session.getProcessStats",
     "namespace": "session",
     "description": "Get process statistics",
     "license": null,
@@ -2557,7 +2670,8 @@
     "returnNotes": "Process diagnostics keyed by process ID. The provider controls each entry; no stable entry shape is guaranteed.",
     "route": {
       "method": "GET",
-      "path": "/api/session/getProcessStats"
+      "path": "/api/session/getProcessStats",
+      "flatPath": "/api/getProcessStats"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getProcessStats();",
@@ -2571,6 +2685,7 @@
     "id": "contacts.getprofilepicture",
     "anchor": "getprofilepicture",
     "name": "getProfilePicture",
+    "namespacedName": "contacts.getProfilePicture",
     "namespace": "contacts",
     "description": "Get profile picture from server",
     "license": null,
@@ -2607,7 +2722,8 @@
     "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/contacts/getProfilePicture"
+      "path": "/api/contacts/getProfilePicture",
+      "flatPath": "/api/getProfilePicture"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getProfilePic(\"447123456789@c.us\");",
@@ -2621,6 +2737,7 @@
     "id": "session.getsnapshot",
     "anchor": "getsnapshot",
     "name": "getSnapshot",
+    "namespacedName": "session.getSnapshot",
     "namespace": "session",
     "description": "Take screenshot",
     "license": null,
@@ -2674,7 +2791,8 @@
     "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/session/getSnapshot"
+      "path": "/api/session/getSnapshot",
+      "flatPath": "/api/getSnapshot"
     },
     "examples": {
       "inProcessSdk": "",
@@ -2688,6 +2806,7 @@
     "id": "messages.getstarredmessages",
     "anchor": "getstarredmessages",
     "name": "getStarredMessages",
+    "namespacedName": "messages.getStarred",
     "namespace": "messages",
     "description": "Get starred messages",
     "license": "insiders",
@@ -2721,7 +2840,8 @@
     "returnNotes": "Resolves to `Message[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/messages/getStarred"
+      "path": "/api/messages/getStarred",
+      "flatPath": "/api/getStarredMessages"
     },
     "examples": {
       "inProcessSdk": "",
@@ -2735,6 +2855,7 @@
     "id": "mystatus.getstatus",
     "anchor": "getstatus",
     "name": "getStatus",
+    "namespacedName": "mystatus.getStatus",
     "namespace": "mystatus",
     "description": "Get specific status",
     "license": "insiders",
@@ -2767,7 +2888,8 @@
     "returnNotes": "Resolves to `ContactStatus`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/mystatus/getStatus"
+      "path": "/api/mystatus/getStatus",
+      "flatPath": "/api/getStatus"
     },
     "examples": {
       "inProcessSdk": "",
@@ -2781,6 +2903,7 @@
     "id": "status.getstories",
     "anchor": "getstories",
     "name": "getStories",
+    "namespacedName": "status.getAll",
     "namespace": "status",
     "description": "Get all stories",
     "license": "insiders",
@@ -2802,7 +2925,8 @@
     "returnNotes": "Resolves to `Story[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/status/getAll"
+      "path": "/api/status/getAll",
+      "flatPath": "/api/getStories"
     },
     "examples": {
       "inProcessSdk": "",
@@ -2816,6 +2940,7 @@
     "id": "messages.getunsentmessages",
     "anchor": "getunsentmessages",
     "name": "getUnsentMessages",
+    "namespacedName": "messages.getUnsent",
     "namespace": "messages",
     "description": "Get unsent/pending messages",
     "license": null,
@@ -2833,7 +2958,8 @@
     "returnNotes": "Resolves to `Message[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/messages/getUnsent"
+      "path": "/api/messages/getUnsent",
+      "flatPath": "/api/getUnsentMessages"
     },
     "examples": {
       "inProcessSdk": "",
@@ -2847,6 +2973,7 @@
     "id": "session.getuseragent",
     "anchor": "getuseragent",
     "name": "getUserAgent",
+    "namespacedName": "session.getUserAgent",
     "namespace": "session",
     "description": "Get user agent",
     "license": null,
@@ -2883,7 +3010,8 @@
     "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/session/getUserAgent"
+      "path": "/api/session/getUserAgent",
+      "flatPath": "/api/getUserAgent"
     },
     "examples": {
       "inProcessSdk": "",
@@ -2897,6 +3025,7 @@
     "id": "messages.getvcards",
     "anchor": "getvcards",
     "name": "getVCards",
+    "namespacedName": "messages.getVCards",
     "namespace": "messages",
     "description": "Extract vCards from message",
     "license": null,
@@ -2930,7 +3059,8 @@
     "returnNotes": "Resolves to `string[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/messages/getVCards"
+      "path": "/api/messages/getVCards",
+      "flatPath": "/api/getVCards"
     },
     "examples": {
       "inProcessSdk": "",
@@ -2944,6 +3074,7 @@
     "id": "session.getwaversion",
     "anchor": "getwaversion",
     "name": "getWAVersion",
+    "namespacedName": "session.getWAVersion",
     "namespace": "session",
     "description": "Get WhatsApp Web version",
     "license": null,
@@ -2961,7 +3092,8 @@
     "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/session/getWAVersion"
+      "path": "/api/session/getWAVersion",
+      "flatPath": "/api/getWAVersion"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getWAVersion();",
@@ -2975,6 +3107,7 @@
     "id": "session.healthcheck",
     "anchor": "healthcheck",
     "name": "healthCheck",
+    "namespacedName": "session.healthCheck",
     "namespace": "session",
     "description": "Health check",
     "license": null,
@@ -2993,7 +3126,8 @@
     "returnNotes": "Browser health diagnostics. This is not the Easy API /health HTTP envelope.",
     "route": {
       "method": "GET",
-      "path": "/api/session/healthCheck"
+      "path": "/api/session/healthCheck",
+      "flatPath": "/api/healthCheck"
     },
     "examples": {
       "inProcessSdk": "",
@@ -3007,6 +3141,7 @@
     "id": "chats.ischatonline",
     "anchor": "ischatonline",
     "name": "isChatOnline",
+    "namespacedName": "chats.isOnline",
     "namespace": "chats",
     "description": "Check if chat is online",
     "license": null,
@@ -3038,7 +3173,8 @@
     "returnNotes": "Resolves to `boolean \\| string`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/chats/isOnline"
+      "path": "/api/chats/isOnline",
+      "flatPath": "/api/isChatOnline"
     },
     "examples": {
       "inProcessSdk": "const result = await client.isChatOnline(\"447123456789@c.us\");",
@@ -3052,6 +3188,7 @@
     "id": "session.isplugged",
     "anchor": "isplugged",
     "name": "isPlugged",
+    "namespacedName": "session.isPlugged",
     "namespace": "session",
     "description": "Check if phone is charging",
     "license": null,
@@ -3072,7 +3209,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
-      "path": "/api/session/isPlugged"
+      "path": "/api/session/isPlugged",
+      "flatPath": "/api/isPlugged"
     },
     "examples": {
       "inProcessSdk": "const result = await client.getIsPlugged();",
@@ -3086,6 +3224,7 @@
     "id": "groups.joingroupvialink",
     "anchor": "joingroupvialink",
     "name": "joinGroupViaLink",
+    "namespacedName": "groups.join",
     "namespace": "groups",
     "description": "Join group via invite link",
     "license": "restricted",
@@ -3129,7 +3268,8 @@
     "returnNotes": "Resolves to `GroupChatId \\| boolean \\| number \\| Chat`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/groups/join"
+      "path": "/api/groups/join",
+      "flatPath": "/api/joinGroupViaLink"
     },
     "examples": {
       "inProcessSdk": "const result = await client.joinGroupViaLink(\"link\");",
@@ -3143,6 +3283,7 @@
     "id": "groups.leavegroup",
     "anchor": "leavegroup",
     "name": "leaveGroup",
+    "namespacedName": "groups.leave",
     "namespace": "groups",
     "description": "Leave a group",
     "license": null,
@@ -3176,7 +3317,8 @@
     "returnNotes": "Resolves to `void`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/groups/leave"
+      "path": "/api/groups/leave",
+      "flatPath": "/api/leaveGroup"
     },
     "examples": {
       "inProcessSdk": "const result = await client.leaveGroup(\"447123456789-1445627445@g.us\");",
@@ -3190,6 +3332,7 @@
     "id": "messages.loadearliermessages",
     "anchor": "loadearliermessages",
     "name": "loadEarlierMessages",
+    "namespacedName": "messages.loadEarlier",
     "namespace": "messages",
     "description": "Loads earlier messages from a chat",
     "license": null,
@@ -3245,7 +3388,8 @@
     "returnNotes": "Resolves to `Message[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/loadEarlier"
+      "path": "/api/messages/loadEarlier",
+      "flatPath": "/api/loadEarlierMessages"
     },
     "examples": {
       "inProcessSdk": "const result = await client.loadEarlierMessages(\"447123456789@c.us\");",
@@ -3259,6 +3403,7 @@
     "id": "chats.markasread",
     "anchor": "markasread",
     "name": "markAsRead",
+    "namespacedName": "chats.markAsRead",
     "namespace": "chats",
     "description": "Mark chat as read",
     "license": null,
@@ -3290,7 +3435,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/chats/markAsRead"
+      "path": "/api/chats/markAsRead",
+      "flatPath": "/api/markAsRead"
     },
     "examples": {
       "inProcessSdk": "",
@@ -3304,6 +3450,7 @@
     "id": "chats.markasunread",
     "anchor": "markasunread",
     "name": "markAsUnread",
+    "namespacedName": "chats.markAsUnread",
     "namespace": "chats",
     "description": "Mark chat as unread",
     "license": null,
@@ -3335,7 +3482,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/chats/markAsUnread"
+      "path": "/api/chats/markAsUnread",
+      "flatPath": "/api/markAsUnread"
     },
     "examples": {
       "inProcessSdk": "const result = await client.markAsUnread(\"447123456789@c.us\");",
@@ -3349,6 +3497,7 @@
     "id": "chats.mutechat",
     "anchor": "mutechat",
     "name": "muteChat",
+    "namespacedName": "chats.mute",
     "namespace": "chats",
     "description": "Mute a chat",
     "license": null,
@@ -3390,7 +3539,8 @@
     "returnNotes": "Resolves to `string \\| boolean \\| number`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/chats/mute"
+      "path": "/api/chats/mute",
+      "flatPath": "/api/muteChat"
     },
     "examples": {
       "inProcessSdk": "const result = await client.muteChat(\"447123456789@c.us\", 1);",
@@ -3404,6 +3554,7 @@
     "id": "chats.pinchat",
     "anchor": "pinchat",
     "name": "pinChat",
+    "namespacedName": "chats.pin",
     "namespace": "chats",
     "description": "Pin a chat",
     "license": null,
@@ -3435,7 +3586,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/chats/pin"
+      "path": "/api/chats/pin",
+      "flatPath": "/api/pinChat"
     },
     "examples": {
       "inProcessSdk": "const result = await client.pinChat(\"447123456789@c.us\");",
@@ -3449,6 +3601,7 @@
     "id": "status.postimagestatus",
     "anchor": "postimagestatus",
     "name": "postImageStatus",
+    "namespacedName": "status.postImage",
     "namespace": "status",
     "description": "Post image status",
     "license": "insiders",
@@ -3488,7 +3641,8 @@
     "returnNotes": "Resolves to `MessageId \\| string \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/status/postImage"
+      "path": "/api/status/postImage",
+      "flatPath": "/api/postImageStatus"
     },
     "examples": {
       "inProcessSdk": "",
@@ -3502,6 +3656,7 @@
     "id": "status.posttextstatus",
     "anchor": "posttextstatus",
     "name": "postTextStatus",
+    "namespacedName": "status.postText",
     "namespace": "status",
     "description": "Post text status",
     "license": "insiders",
@@ -3551,7 +3706,8 @@
     "returnNotes": "Resolves to `MessageId \\| string \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/status/postText"
+      "path": "/api/status/postText",
+      "flatPath": "/api/postTextStatus"
     },
     "examples": {
       "inProcessSdk": "",
@@ -3565,6 +3721,7 @@
     "id": "status.postvideostatus",
     "anchor": "postvideostatus",
     "name": "postVideoStatus",
+    "namespacedName": "status.postVideo",
     "namespace": "status",
     "description": "Post video status",
     "license": "insiders",
@@ -3604,7 +3761,8 @@
     "returnNotes": "Resolves to `MessageId \\| string \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/status/postVideo"
+      "path": "/api/status/postVideo",
+      "flatPath": "/api/postVideoStatus"
     },
     "examples": {
       "inProcessSdk": "",
@@ -3618,6 +3776,7 @@
     "id": "groups.promoteparticipant",
     "anchor": "promoteparticipant",
     "name": "promoteParticipant",
+    "namespacedName": "groups.promoteParticipant",
     "namespace": "groups",
     "description": "Promote participant to admin",
     "license": null,
@@ -3665,7 +3824,8 @@
     "returnNotes": "Resolves to `boolean \\| string`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/groups/promoteParticipant"
+      "path": "/api/groups/promoteParticipant",
+      "flatPath": "/api/promoteParticipant"
     },
     "examples": {
       "inProcessSdk": "const result = await client.promoteParticipant(\"447123456789-1445627445@g.us\", \"447123456789@c.us\");",
@@ -3679,6 +3839,7 @@
     "id": "messages.react",
     "anchor": "react",
     "name": "react",
+    "namespacedName": "messages.react",
     "namespace": "messages",
     "description": "React to message with emoji",
     "license": null,
@@ -3722,7 +3883,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/react"
+      "path": "/api/messages/react",
+      "flatPath": "/api/react"
     },
     "examples": {
       "inProcessSdk": "const result = await client.react(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\", \"emoji\");",
@@ -3736,6 +3898,7 @@
     "id": "groups.rejectgroupjoinrequest",
     "anchor": "rejectgroupjoinrequest",
     "name": "rejectGroupJoinRequest",
+    "namespacedName": "groups.rejectJoinRequest",
     "namespace": "groups",
     "description": "Reject group join request",
     "license": null,
@@ -3782,7 +3945,8 @@
     "returnNotes": "Resolves to `string \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/groups/rejectJoinRequest"
+      "path": "/api/groups/rejectJoinRequest",
+      "flatPath": "/api/rejectGroupJoinRequest"
     },
     "examples": {
       "inProcessSdk": "",
@@ -3796,6 +3960,7 @@
     "id": "labels.removelabel",
     "anchor": "removelabel",
     "name": "removeLabel",
+    "namespacedName": "labels.remove",
     "namespace": "labels",
     "description": "Remove label from chat",
     "license": null,
@@ -3836,7 +4001,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/labels/remove"
+      "path": "/api/labels/remove",
+      "flatPath": "/api/removeLabel"
     },
     "examples": {
       "inProcessSdk": "",
@@ -3850,6 +4016,7 @@
     "id": "groups.removeparticipant",
     "anchor": "removeparticipant",
     "name": "removeParticipant",
+    "namespacedName": "groups.removeParticipant",
     "namespace": "groups",
     "description": "Remove participant from group",
     "license": null,
@@ -3897,7 +4064,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/groups/removeParticipant"
+      "path": "/api/groups/removeParticipant",
+      "flatPath": "/api/removeParticipant"
     },
     "examples": {
       "inProcessSdk": "const result = await client.removeParticipant(\"447123456789-1445627445@g.us\", \"447123456789@c.us\");",
@@ -3911,6 +4079,7 @@
     "id": "groups.revokegroupinvitelink",
     "anchor": "revokegroupinvitelink",
     "name": "revokeGroupInviteLink",
+    "namespacedName": "groups.revokeInviteLink",
     "namespace": "groups",
     "description": "Revoke group invite link",
     "license": null,
@@ -3944,7 +4113,8 @@
     "returnNotes": "Resolves to `string \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/groups/revokeInviteLink"
+      "path": "/api/groups/revokeInviteLink",
+      "flatPath": "/api/revokeGroupInviteLink"
     },
     "examples": {
       "inProcessSdk": "const result = await client.revokeGroupInviteLink(\"447123456789-1445627445@g.us\");",
@@ -3958,6 +4128,7 @@
     "id": "messages.sendadvancedbuttons",
     "anchor": "sendadvancedbuttons",
     "name": "sendAdvancedButtons",
+    "namespacedName": "messages.sendAdvancedButtons",
     "namespace": "messages",
     "description": "Sends an advanced button message with media (deprecated)",
     "license": "insiders",
@@ -4040,7 +4211,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendAdvancedButtons"
+      "path": "/api/messages/sendAdvancedButtons",
+      "flatPath": "/api/sendAdvancedButtons"
     },
     "examples": {
       "inProcessSdk": "",
@@ -4054,6 +4226,7 @@
     "id": "messages.sendaudio",
     "anchor": "sendaudio",
     "name": "sendAudio",
+    "namespacedName": "messages.sendAudio",
     "namespace": "messages",
     "description": "Sends an audio file to a chat",
     "license": null,
@@ -4123,7 +4296,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendAudio"
+      "path": "/api/messages/sendAudio",
+      "flatPath": "/api/sendAudio"
     },
     "examples": {
       "inProcessSdk": "",
@@ -4137,6 +4311,7 @@
     "id": "messages.sendbanner",
     "anchor": "sendbanner",
     "name": "sendBanner",
+    "namespacedName": "messages.sendBanner",
     "namespace": "messages",
     "description": "Sends a banner image",
     "license": null,
@@ -4179,7 +4354,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendBanner"
+      "path": "/api/messages/sendBanner",
+      "flatPath": "/api/sendBanner"
     },
     "examples": {
       "inProcessSdk": "",
@@ -4193,6 +4369,7 @@
     "id": "messages.sendbuttons",
     "anchor": "sendbuttons",
     "name": "sendButtons",
+    "namespacedName": "messages.sendButtons",
     "namespace": "messages",
     "description": "Sends a button message (deprecated)",
     "license": "insiders",
@@ -4265,7 +4442,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendButtons"
+      "path": "/api/messages/sendButtons",
+      "flatPath": "/api/sendButtons"
     },
     "examples": {
       "inProcessSdk": "",
@@ -4279,6 +4457,7 @@
     "id": "messages.sendcontact",
     "anchor": "sendcontact",
     "name": "sendContact",
+    "namespacedName": "messages.sendContact",
     "namespace": "messages",
     "description": "Sends a single contact",
     "license": null,
@@ -4321,7 +4500,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean \\| void`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendContact"
+      "path": "/api/messages/sendContact",
+      "flatPath": "/api/sendContact"
     },
     "examples": {
       "inProcessSdk": "const result = await client.sendContact(\"447123456789@c.us\", \"447123456789@c.us\");",
@@ -4335,6 +4515,7 @@
     "id": "messages.sendfile",
     "anchor": "sendfile",
     "name": "sendFile",
+    "namespacedName": "messages.sendFile",
     "namespace": "messages",
     "description": "Sends a file or document to a chat",
     "license": null,
@@ -4399,7 +4580,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| string`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendFile"
+      "path": "/api/messages/sendFile",
+      "flatPath": "/api/sendFile"
     },
     "examples": {
       "inProcessSdk": "const result = await client.sendFile(\"447123456789@c.us\", \"data:application/pdf;base64,JVBERi0xLjQK...\");",
@@ -4413,6 +4595,7 @@
     "id": "messages.sendfilefromurl",
     "anchor": "sendfilefromurl",
     "name": "sendFileFromUrl",
+    "namespacedName": "messages.sendFileFromUrl",
     "namespace": "messages",
     "description": "Downloads a file from a URL and sends it to a chat",
     "license": null,
@@ -4484,7 +4667,8 @@
     "returnNotes": "Message ID or success status",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendFileFromUrl"
+      "path": "/api/messages/sendFileFromUrl",
+      "flatPath": "/api/sendFileFromUrl"
     },
     "examples": {
       "inProcessSdk": "",
@@ -4498,6 +4682,7 @@
     "id": "messages.sendimage",
     "anchor": "sendimage",
     "name": "sendImage",
+    "namespacedName": "messages.sendImage",
     "namespace": "messages",
     "description": "Sends an image to a chat",
     "license": null,
@@ -4588,7 +4773,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean \\| string`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendImage"
+      "path": "/api/messages/sendImage",
+      "flatPath": "/api/sendImage"
     },
     "examples": {
       "inProcessSdk": "const result = await client.sendImage(\"447123456789@c.us\", \"data:image/png;base64,iVBORw0KGgo...\");",
@@ -4602,6 +4788,7 @@
     "id": "messages.sendlinkwithautopreview",
     "anchor": "sendlinkwithautopreview",
     "name": "sendLinkWithAutoPreview",
+    "namespacedName": "messages.sendLinkWithAutoPreview",
     "namespace": "messages",
     "description": "Sends a link with auto-generated preview",
     "license": null,
@@ -4697,7 +4884,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendLinkWithAutoPreview"
+      "path": "/api/messages/sendLinkWithAutoPreview",
+      "flatPath": "/api/sendLinkWithAutoPreview"
     },
     "examples": {
       "inProcessSdk": "",
@@ -4711,6 +4899,7 @@
     "id": "messages.sendlistmessage",
     "anchor": "sendlistmessage",
     "name": "sendListMessage",
+    "namespacedName": "messages.sendList",
     "namespace": "messages",
     "description": "Sends a list/menu message (deprecated)",
     "license": "insiders",
@@ -4784,7 +4973,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendList"
+      "path": "/api/messages/sendList",
+      "flatPath": "/api/sendListMessage"
     },
     "examples": {
       "inProcessSdk": "",
@@ -4798,6 +4988,7 @@
     "id": "messages.sendlocation",
     "anchor": "sendlocation",
     "name": "sendLocation",
+    "namespacedName": "messages.sendLocation",
     "namespace": "messages",
     "description": "Sends a location to a chat",
     "license": null,
@@ -4881,7 +5072,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendLocation"
+      "path": "/api/messages/sendLocation",
+      "flatPath": "/api/sendLocation"
     },
     "examples": {
       "inProcessSdk": "const result = await client.sendLocation(\"447123456789@c.us\", 51.5074, -0.1278);",
@@ -4895,6 +5087,7 @@
     "id": "messages.sendmessagewiththumb",
     "anchor": "sendmessagewiththumb",
     "name": "sendMessageWithThumb",
+    "namespacedName": "messages.sendLinkWithThumbnail",
     "namespace": "messages",
     "description": "Sends a link preview message with custom thumbnail",
     "license": null,
@@ -5010,7 +5203,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendLinkWithThumbnail"
+      "path": "/api/messages/sendLinkWithThumbnail",
+      "flatPath": "/api/sendMessageWithThumb"
     },
     "examples": {
       "inProcessSdk": "",
@@ -5024,6 +5218,7 @@
     "id": "messages.sendmultiplecontacts",
     "anchor": "sendmultiplecontacts",
     "name": "sendMultipleContacts",
+    "namespacedName": "messages.sendContacts",
     "namespace": "messages",
     "description": "Sends multiple contacts",
     "license": null,
@@ -5071,7 +5266,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendContacts"
+      "path": "/api/messages/sendContacts",
+      "flatPath": "/api/sendMultipleContacts"
     },
     "examples": {
       "inProcessSdk": "",
@@ -5085,6 +5281,7 @@
     "id": "messages.sendpaymentrequest",
     "anchor": "sendpaymentrequest",
     "name": "sendPaymentRequest",
+    "namespacedName": "messages.sendPaymentRequest",
     "namespace": "messages",
     "description": "Sends a payment request message",
     "license": null,
@@ -5147,7 +5344,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendPaymentRequest"
+      "path": "/api/messages/sendPaymentRequest",
+      "flatPath": "/api/sendPaymentRequest"
     },
     "examples": {
       "inProcessSdk": "",
@@ -5161,6 +5359,7 @@
     "id": "messages.sendpoll",
     "anchor": "sendpoll",
     "name": "sendPoll",
+    "namespacedName": "messages.sendPoll",
     "namespace": "messages",
     "description": "Sends a poll message",
     "license": null,
@@ -5223,7 +5422,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendPoll"
+      "path": "/api/messages/sendPoll",
+      "flatPath": "/api/sendPoll"
     },
     "examples": {
       "inProcessSdk": "",
@@ -5237,6 +5437,7 @@
     "id": "messages.sendptt",
     "anchor": "sendptt",
     "name": "sendPtt",
+    "namespacedName": "messages.sendPtt",
     "namespace": "messages",
     "description": "Sends a voice note (push-to-talk) to a chat",
     "license": null,
@@ -5298,7 +5499,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendPtt"
+      "path": "/api/messages/sendPtt",
+      "flatPath": "/api/sendPtt"
     },
     "examples": {
       "inProcessSdk": "",
@@ -5312,6 +5514,7 @@
     "id": "messages.sendreplywithmentions",
     "anchor": "sendreplywithmentions",
     "name": "sendReplyWithMentions",
+    "namespacedName": "messages.sendReplyWithMentions",
     "namespace": "messages",
     "description": "Sends a reply to a message that includes @mentions",
     "license": null,
@@ -5395,7 +5598,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendReplyWithMentions"
+      "path": "/api/messages/sendReplyWithMentions",
+      "flatPath": "/api/sendReplyWithMentions"
     },
     "examples": {
       "inProcessSdk": "",
@@ -5409,6 +5613,7 @@
     "id": "messages.sendseen",
     "anchor": "sendseen",
     "name": "sendSeen",
+    "namespacedName": "messages.sendSeen",
     "namespace": "messages",
     "description": "Mark message as seen",
     "license": null,
@@ -5440,7 +5645,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/messages/sendSeen"
+      "path": "/api/messages/sendSeen",
+      "flatPath": "/api/sendSeen"
     },
     "examples": {
       "inProcessSdk": "const result = await client.sendSeen(\"447123456789@c.us\");",
@@ -5454,6 +5660,7 @@
     "id": "messages.sendtext",
     "anchor": "sendtext",
     "name": "sendText",
+    "namespacedName": "messages.sendText",
     "namespace": "messages",
     "description": "Sends a text message to a chat",
     "license": null,
@@ -5511,7 +5718,8 @@
     "returnNotes": "A successful send returns a message ID as a string; some Easy API responses may serialize it as an object with `_serialized`. A boolean or a non-ID status string is not a message ID: the current WAPI can return values such as `Not a contact` or `Not able to send message to broadcast`. The in-process Client converts `Not a contact` into a rejected Promise because sending to an unknown number requires a Restricted or Premium license; the method is not otherwise license-gated. The in-process Client is declared as `Promise<string | false>`. Check returned values before passing them to another method, and handle rejected Promises for input, dispatch, license, or provider errors.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendText"
+      "path": "/api/messages/sendText",
+      "flatPath": "/api/sendText"
     },
     "examples": {
       "inProcessSdk": "const result = await client.sendText('447123456789@c.us', 'Hello from open-wa');\nconst messageId = typeof result === 'string' && /^(true|false)_.+_.+$/.test(result) ? result : null;\nif (!messageId) throw new Error(`Message was not sent: ${String(result)}`);\nconsole.log('Message ID:', messageId);",
@@ -5525,6 +5733,7 @@
     "id": "messages.sendtextwithmentions",
     "anchor": "sendtextwithmentions",
     "name": "sendTextWithMentions",
+    "namespacedName": "messages.sendTextWithMentions",
     "namespace": "messages",
     "description": "Sends a text message that includes @mentions",
     "license": null,
@@ -5592,7 +5801,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendTextWithMentions"
+      "path": "/api/messages/sendTextWithMentions",
+      "flatPath": "/api/sendTextWithMentions"
     },
     "examples": {
       "inProcessSdk": "",
@@ -5606,6 +5816,7 @@
     "id": "messages.sendvcard",
     "anchor": "sendvcard",
     "name": "sendVCard",
+    "namespacedName": "messages.sendVCard",
     "namespace": "messages",
     "description": "Sends a contact card (vCard)",
     "license": null,
@@ -5666,7 +5877,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendVCard"
+      "path": "/api/messages/sendVCard",
+      "flatPath": "/api/sendVCard"
     },
     "examples": {
       "inProcessSdk": "",
@@ -5680,6 +5892,7 @@
     "id": "messages.sendvideoasgif",
     "anchor": "sendvideoasgif",
     "name": "sendVideoAsGif",
+    "namespacedName": "messages.sendVideoAsGif",
     "namespace": "messages",
     "description": "Sends a video as an animated GIF",
     "license": null,
@@ -5759,7 +5972,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendVideoAsGif"
+      "path": "/api/messages/sendVideoAsGif",
+      "flatPath": "/api/sendVideoAsGif"
     },
     "examples": {
       "inProcessSdk": "",
@@ -5773,6 +5987,7 @@
     "id": "messages.sendyoutubelink",
     "anchor": "sendyoutubelink",
     "name": "sendYouTubeLink",
+    "namespacedName": "messages.sendYouTubeLink",
     "namespace": "messages",
     "description": "Sends a YouTube link with auto-generated preview",
     "license": null,
@@ -5871,7 +6086,8 @@
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
-      "path": "/api/messages/sendYouTubeLink"
+      "path": "/api/messages/sendYouTubeLink",
+      "flatPath": "/api/sendYouTubeLink"
     },
     "examples": {
       "inProcessSdk": "",
@@ -5885,6 +6101,7 @@
     "id": "chats.setchatephemeral",
     "anchor": "setchatephemeral",
     "name": "setChatEphemeral",
+    "namespacedName": "chats.setEphemeral",
     "namespace": "chats",
     "description": "Set ephemeral messages for chat",
     "license": null,
@@ -5926,7 +6143,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/chats/setEphemeral"
+      "path": "/api/chats/setEphemeral",
+      "flatPath": "/api/setChatEphemeral"
     },
     "examples": {
       "inProcessSdk": "",
@@ -5940,6 +6158,7 @@
     "id": "groups.setgroupdescription",
     "anchor": "setgroupdescription",
     "name": "setGroupDescription",
+    "namespacedName": "groups.setDescription",
     "namespace": "groups",
     "description": "Set group description",
     "license": null,
@@ -5983,7 +6202,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/groups/setDescription"
+      "path": "/api/groups/setDescription",
+      "flatPath": "/api/setGroupDescription"
     },
     "examples": {
       "inProcessSdk": "const result = await client.setGroupDescription(\"447123456789-1445627445@g.us\", \"description\");",
@@ -5997,6 +6217,7 @@
     "id": "groups.setgroupedittoadminsonly",
     "anchor": "setgroupedittoadminsonly",
     "name": "setGroupEditToAdminsOnly",
+    "namespacedName": "groups.setEditAdminsOnly",
     "namespace": "groups",
     "description": "Restrict group editing to admins only",
     "license": null,
@@ -6041,7 +6262,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/groups/setEditAdminsOnly"
+      "path": "/api/groups/setEditAdminsOnly",
+      "flatPath": "/api/setGroupEditToAdminsOnly"
     },
     "examples": {
       "inProcessSdk": "",
@@ -6055,6 +6277,7 @@
     "id": "groups.setgroupicon",
     "anchor": "setgroupicon",
     "name": "setGroupIcon",
+    "namespacedName": "groups.setIcon",
     "namespace": "groups",
     "description": "Set group icon",
     "license": null,
@@ -6098,7 +6321,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/groups/setIcon"
+      "path": "/api/groups/setIcon",
+      "flatPath": "/api/setGroupIcon"
     },
     "examples": {
       "inProcessSdk": "const result = await client.setGroupIcon(\"447123456789-1445627445@g.us\", \"image\");",
@@ -6112,6 +6336,7 @@
     "id": "groups.setgrouptitle",
     "anchor": "setgrouptitle",
     "name": "setGroupTitle",
+    "namespacedName": "groups.setTitle",
     "namespace": "groups",
     "description": "Set group title",
     "license": null,
@@ -6155,7 +6380,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/groups/setTitle"
+      "path": "/api/groups/setTitle",
+      "flatPath": "/api/setGroupTitle"
     },
     "examples": {
       "inProcessSdk": "const result = await client.setGroupTitle(\"447123456789-1445627445@g.us\", \"title\");",
@@ -6169,6 +6395,7 @@
     "id": "groups.setgrouptoadminsonly",
     "anchor": "setgrouptoadminsonly",
     "name": "setGroupToAdminsOnly",
+    "namespacedName": "groups.setAdminsOnly",
     "namespace": "groups",
     "description": "Restrict group to admins only",
     "license": null,
@@ -6213,7 +6440,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/groups/setAdminsOnly"
+      "path": "/api/groups/setAdminsOnly",
+      "flatPath": "/api/setGroupToAdminsOnly"
     },
     "examples": {
       "inProcessSdk": "",
@@ -6227,6 +6455,7 @@
     "id": "session.setmyname",
     "anchor": "setmyname",
     "name": "setMyName",
+    "namespacedName": "session.setName",
     "namespace": "session",
     "description": "Set host name",
     "license": null,
@@ -6261,7 +6490,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/session/setName"
+      "path": "/api/session/setName",
+      "flatPath": "/api/setMyName"
     },
     "examples": {
       "inProcessSdk": "const result = await client.setMyName(\"OpenWA Bot\");",
@@ -6275,6 +6505,7 @@
     "id": "session.setmystatus",
     "anchor": "setmystatus",
     "name": "setMyStatus",
+    "namespacedName": "session.setStatus",
     "namespace": "session",
     "description": "Set host status",
     "license": null,
@@ -6309,7 +6540,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/session/setStatus"
+      "path": "/api/session/setStatus",
+      "flatPath": "/api/setMyStatus"
     },
     "examples": {
       "inProcessSdk": "const result = await client.setMyStatus(\"Available\");",
@@ -6323,6 +6555,7 @@
     "id": "session.setprofilepicture",
     "anchor": "setprofilepicture",
     "name": "setProfilePicture",
+    "namespacedName": "session.setProfilePicture",
     "namespace": "session",
     "description": "Set profile picture",
     "license": "insiders",
@@ -6356,7 +6589,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/session/setProfilePicture"
+      "path": "/api/session/setProfilePicture",
+      "flatPath": "/api/setProfilePicture"
     },
     "examples": {
       "inProcessSdk": "",
@@ -6370,6 +6604,7 @@
     "id": "messages.starmessage",
     "anchor": "starmessage",
     "name": "starMessage",
+    "namespacedName": "messages.star",
     "namespace": "messages",
     "description": "Star a message",
     "license": null,
@@ -6403,7 +6638,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/messages/star"
+      "path": "/api/messages/star",
+      "flatPath": "/api/starMessage"
     },
     "examples": {
       "inProcessSdk": "",
@@ -6417,6 +6653,7 @@
     "id": "chats.unarchivechat",
     "anchor": "unarchivechat",
     "name": "unarchiveChat",
+    "namespacedName": "chats.unarchive",
     "namespace": "chats",
     "description": "Unarchive a chat",
     "license": null,
@@ -6448,7 +6685,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/chats/unarchive"
+      "path": "/api/chats/unarchive",
+      "flatPath": "/api/unarchiveChat"
     },
     "examples": {
       "inProcessSdk": "const result = await client.unarchiveChat(\"447123456789@c.us\");",
@@ -6462,6 +6700,7 @@
     "id": "contacts.unblockcontact",
     "anchor": "unblockcontact",
     "name": "unblockContact",
+    "namespacedName": "contacts.unblock",
     "namespace": "contacts",
     "description": "Unblock a contact",
     "license": null,
@@ -6497,7 +6736,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/contacts/unblock"
+      "path": "/api/contacts/unblock",
+      "flatPath": "/api/unblockContact"
     },
     "examples": {
       "inProcessSdk": "const result = await client.unblockContact(\"447123456789@c.us\");",
@@ -6511,6 +6751,7 @@
     "id": "chats.unmutechat",
     "anchor": "unmutechat",
     "name": "unmuteChat",
+    "namespacedName": "chats.unmute",
     "namespace": "chats",
     "description": "Unmute a chat",
     "license": null,
@@ -6542,7 +6783,8 @@
     "returnNotes": "Resolves to `string \\| boolean \\| number`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/chats/unmute"
+      "path": "/api/chats/unmute",
+      "flatPath": "/api/unmuteChat"
     },
     "examples": {
       "inProcessSdk": "const result = await client.unmuteChat(\"447123456789@c.us\");",
@@ -6556,6 +6798,7 @@
     "id": "chats.unpinchat",
     "anchor": "unpinchat",
     "name": "unpinChat",
+    "namespacedName": "chats.unpin",
     "namespace": "chats",
     "description": "Unpin a chat",
     "license": null,
@@ -6587,7 +6830,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/chats/unpin"
+      "path": "/api/chats/unpin",
+      "flatPath": "/api/unpinChat"
     },
     "examples": {
       "inProcessSdk": "const result = await client.unpinChat(\"447123456789@c.us\");",
@@ -6601,6 +6845,7 @@
     "id": "messages.unstarmessage",
     "anchor": "unstarmessage",
     "name": "unstarMessage",
+    "namespacedName": "messages.unstar",
     "namespace": "messages",
     "description": "Unstar a message",
     "license": null,
@@ -6634,7 +6879,8 @@
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
-      "path": "/api/messages/unstar"
+      "path": "/api/messages/unstar",
+      "flatPath": "/api/unstarMessage"
     },
     "examples": {
       "inProcessSdk": "",

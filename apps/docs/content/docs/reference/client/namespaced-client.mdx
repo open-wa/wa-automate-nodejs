@@ -6,6 +6,12 @@ icon: "BookOpen"
 
 # Namespaced client
 
-`BaseNamespacedClient extends BaseClient` and exposes namespace objects (for example `client.messages.send`) built from each method's registered aliases. A namespaced alias like `messages.send` maps back to the canonical method `sendText`.
+Namespaced aliases group related methods. For example, `groups.create` resolves to `createGroup`, and `messages.sendText` resolves to `sendText`. Both names identify the same registered method.
+
+The [compact reference](/docs/reference/client/client) starts with flat method names. Turn on **Namespaced** beside **Expand parameters** to browse by namespace. Permanent method links stay the same.
+
+The [HTTP API](/docs/getting-started/easy-api) registers both forms, such as `/api/createGroup` and `/api/groups/create`. Its examples follow the switch. The [Node.js client](/docs/client-and-integrations/socket-client) and [in-process SDK](/docs/getting-started/custom-code) use flat calls such as `client.createGroup(...)`; they do not expose `client.groups.create(...)`, so their examples keep the callable form.
+
+`BaseNamespacedClient` is a generated base class for client implementations. It extends `BaseClient` and builds namespace objects from the registered aliases. It is not the class returned by `SocketClient.connect()`.
 
 See the full alias map on [Aliases](/docs/reference/client/aliases).
