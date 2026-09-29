@@ -1873,6 +1873,65 @@ describe('bootstrap contract harness', () => {
   });
 
   describe('payload depth: license server validation', () => {
+    it('retries license preload after the live patch reveals the host ID', async () => {
+      const unknownHost = {
+        WA_VERSION: '2.3000.0',
+        WA_AUTOMATE_VERSION: '5.0.0',
+        hostNumber: '',
+      };
+      const resolvedHost = { ...unknownHost, hostNumber: '1234567890@c.us' };
+      const debugSpy = vi.spyOn(Transport.prototype, 'getSessionDebugInfo')
+        .mockResolvedValueOnce(unknownHost)
+        .mockResolvedValueOnce(resolvedHost);
+      const originalPreload = Transport.prototype.preloadLicenseArtifact;
+      const licensePreloadSpy = vi.spyOn(Transport.prototype, 'preloadLicenseArtifact')
+        .mockImplementation(function (this: Transport, options) {
+          if (!options.sessionInfo?.hostNumber) {
+            return originalPreload.call(this, options);
+          }
+          return Promise.resolve({
+            outcome: 'ready',
+            status: 'valid',
+            source: 'local',
+            artifact: {
+              key: 'insiders-test-key-12345',
+              maskedKey: '******************2345',
+              source: 'local',
+              payload: 'window.__OPENWA_LICENSE__ = {}; window.KEYTYPE = "insiders"; true',
+              keyType: 'insiders',
+              payloadSource: 'server',
+            },
+            blockingFailure: false,
+          });
+        });
+      vi.spyOn(Transport.prototype as any, 'fetchLivePatchesWithCache').mockResolvedValue({
+        data: [],
+        tag: 'empty',
+        source: 'remote',
+      });
+
+      const { client, recordedEvents } = await createHarness({
+        runtimeAvailable: true,
+        storeMsgAvailable: true,
+        sessionLoaded: true,
+        licenseKey: 'insiders-test-key-12345',
+      });
+
+      expect(await settleStart(client)).toMatchObject({ status: 'resolved' });
+      expect(debugSpy).toHaveBeenCalledTimes(2);
+      expect(licensePreloadSpy).toHaveBeenCalledWith(expect.objectContaining({
+        sessionInfo: expect.objectContaining({ hostNumber: '1234567890@c.us' }),
+      }));
+      expect(recordedEvents).toContainEqual(expect.objectContaining({
+        name: 'launch.license.check.after',
+        payload: expect.objectContaining({
+          details: expect.objectContaining({ status: 'valid' }),
+        }),
+      }));
+
+      await client.stop('license_host_recovery_cleanup');
+    });
+
     it('passes host number to license validation server for round-trip check', async () => {
       // Mock getSessionDebugInfo to return a host number
       const debugSpy = vi.spyOn(

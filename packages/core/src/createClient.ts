@@ -94,13 +94,13 @@ export interface CreateClientOptions {
 
   /**
    * Configuration for remote patch fetching from cdn.openwa.dev.
-   * Controls patch endpoints, caching, and fallback behavior.
+   * Controls caching and fallback between OpenWA patch sources.
    */
   patchConfig?: PatchFetchConfig;
 
   /**
    * Configuration for remote license validation via funcs.openwa.dev.
-   * Controls the license check endpoint and offline mode.
+   * Controls offline mode.
    */
   licenseConfig?: LicenseServerConfig;
 
@@ -477,7 +477,9 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
             details: { phase: stage },
           });
 
-          const result = await transport.validateRuntimeUsability(stage);
+          const result = stage === 'post_injection'
+            ? await transport.validateRuntimeCapabilityOnly(stage)
+            : await transport.validateRuntimeUsability(stage);
 
           session.recordValidation({
             stage,
@@ -987,9 +989,28 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         },
       });
 
-      const licensePreload = await licensePreloadPromise.catch((error) =>
+      let licensePreload = await licensePreloadPromise.catch((error) =>
         emitFatalBootstrapError('bootstrap.license.preload', error)
       );
+      if (licensePreload.status === 'metadata_only' && !sessionDebugInfo?.hostNumber && licensePreload.artifact) {
+        try {
+          const patchedSessionInfo = await transport.getSessionDebugInfo();
+          if (patchedSessionInfo.hostNumber) {
+            logger.info('license_host_recovered_after_patch', {
+              hostNumber: '***' + patchedSessionInfo.hostNumber.slice(-4),
+            });
+            licensePreload = await transport.preloadLicenseArtifact({
+              sessionId,
+              licenseKey: licensePreload.artifact.key,
+              sessionInfo: patchedSessionInfo,
+            });
+          }
+        } catch (error) {
+          logger.warn('license_host_recovery_after_patch_failed', {
+            error: error instanceof Error ? error.message : String(error),
+          });
+        }
+      }
       const licenseCheck = await transport.checkLicenseArtifact(licensePreload).catch((error) =>
         emitFatalBootstrapError('bootstrap.license.check', error)
       );

@@ -261,9 +261,43 @@ function createEvents(): HyperEmitter<OpenWAEventMap> {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe('Transport launch/config plumbing', () => {
+  it('reads the host ID from the live patch when Store.Conn.me is unavailable', async () => {
+    const page = new TestPage();
+    const transport = new Transport({
+      driver: new CaptureDriver(new TestBrowser(page)),
+      events: createEvents(),
+      logger: createLogger(),
+      blockCrashLogs: false,
+    });
+    await transport.initialize();
+
+    vi.stubGlobal('Store', { Conn: {} });
+    vi.stubGlobal('moi', () => '1234567890@c.us');
+
+    expect((await transport.getSessionDebugInfo()).hostNumber).toBe('1234567890@c.us');
+  });
+
+  it('does not expose an unrecognized license key as its key type', async () => {
+    const opaqueKey = 'opaqueTestToken123456789';
+    const transport = new Transport({
+      driver: new CaptureDriver(new TestBrowser(new TestPage())),
+      events: createEvents(),
+      logger: createLogger(),
+    });
+
+    const result = await transport.preloadLicenseArtifact({
+      sessionId: 'test',
+      licenseKey: opaqueKey,
+    });
+
+    expect(result.artifact?.keyType).toBe('license');
+    expect(result.artifact?.payload).not.toContain(opaqueKey);
+  });
+
   it('forwards userDataDir to driver launch options', async () => {
     const page = new TestPage();
     const driver = new CaptureDriver(new TestBrowser(page));
