@@ -60,9 +60,6 @@ const config: UserConfig = {
                     path: '/docs',
                 },
                 {
-                    path: '/api/search',
-                },
-                {
                     path: '/api-explorer',
                 },
                 {
