@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/decrypt",
-  "version": "5.0.0-alpha.7",
+  "version": "5.0.0",
   "description": "Lightweight WhatsApp media decryption — zero external dependencies",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -52,5 +52,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/open-wa/wa-automate-nodejs.git"
-  }
+  },
+  "license": "SEE LICENSE IN LICENSE.md"
 }

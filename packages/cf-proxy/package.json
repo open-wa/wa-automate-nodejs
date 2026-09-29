@@ -11,8 +11,8 @@
     "build": "tsc"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260722.1",
-    "typescript": "^7.0.2",
+    "@cloudflare/workers-types": "^5.20260927.1",
+    "typescript": "catalog:",
     "wrangler": "catalog:"
   },
   "repository": {

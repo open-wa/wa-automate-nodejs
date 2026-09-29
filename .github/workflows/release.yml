@@ -3,6 +3,21 @@ name: Release
 on:
   push:
     branches: [release]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Existing release version to render and announce, without the v prefix
+        required: true
+        type: string
+      discord_message_ids:
+        description: Comma-separated Discord message IDs to update in order (cover, then page batches)
+        required: false
+        type: string
+      publish_discord:
+        description: Publish the reviewed announcement to Discord
+        required: true
+        default: false
+        type: boolean
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -10,11 +25,13 @@ permissions:
   contents: write
   pull-requests: write
   packages: write
+  id-token: write
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    environment: Release
     env:
       # The release only builds and publishes packages — it never needs a
       # browser. Skip the Puppeteer Chromium download during install/build.
@@ -28,131 +45,128 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: 'pnpm'
+
+      - run: npm install --global npm@^11.5.1
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Validate release secrets
+      - name: Plan release
+        if: github.event_name == 'push'
+        id: plan
+        run: pnpm exec bumpy ci plan
         env:
-          NPM_TOKEN: ${{ secrets['NPM_TOKEN'] }}
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Build packages for publish
+        if: github.event_name == 'push' && steps.plan.outputs.mode == 'publish'
+        run: pnpm build
+
+      - name: Create version PR or publish to npm
+        if: github.event_name == 'push' && steps.plan.outputs.mode != 'nothing'
+        run: pnpm exec bumpy ci release --expect-mode "${{ steps.plan.outputs.mode }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Publish to GitHub Packages
+        if: github.event_name == 'push' && steps.plan.outputs.mode != 'version-pr'
+        run: ./tools/release/publish-github-packages.sh
+        env:
+          BUMPY_PACKAGES: ${{ steps.plan.outputs.packages }}
+          GITHUB_TOKEN: ${{ github.token }}
+
+      # ── Post-publish: Check the aggregate release ───────────────
+      - name: Check aggregate release
+        if: github.event_name == 'workflow_dispatch' || steps.plan.outputs.mode != 'version-pr'
+        id: aggregate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUMPY_PACKAGES: ${{ steps.plan.outputs.packages }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ -z "$NPM_TOKEN" ]; then
-            echo "::error::NPM_TOKEN is not available to this workflow. Add it as a repository Actions secret, or grant this repository access if it is an organization secret."
+          if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
+            VERSION="$REQUESTED_VERSION"
+            if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+              echo "::error::Version must be a valid release version without the v prefix"
+              exit 1
+            fi
+            gh release view "v${VERSION}" >/dev/null
+            echo "needed=true" >> $GITHUB_OUTPUT
+          else
+            VERSION=$(jq -r .version packages/core/package.json)
+            if gh release view "v${VERSION}" >/dev/null 2>&1; then
+              echo "needed=false" >> $GITHUB_OUTPUT
+            elif echo "$BUMPY_PACKAGES" | jq -e 'index("@open-wa/core") != null' >/dev/null || \
+                 npm view "@open-wa/core@${VERSION}" version --prefer-online >/dev/null 2>&1; then
+              echo "needed=true" >> $GITHUB_OUTPUT
+            else
+              echo "needed=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Require Discord webhook
+        if: steps.aggregate.outputs.needed == 'true' && github.event_name == 'workflow_dispatch' && inputs.publish_discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "::error::Set DISCORD_WEBHOOK_URL in repository or Release environment secrets"
             exit 1
           fi
 
-      # ── Determine version bump from merged PR labels ──────────────
-      - name: Determine version bump
-        id: bump
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Find the PR that was merged into this push
-          MERGE_SHA="${{ github.sha }}"
-
-          # Try to find the PR associated with this merge commit
-          PR_DATA=$(gh pr list \
-            --search "$MERGE_SHA" \
-            --state merged \
-            --json number,labels \
-            --limit 1 2>/dev/null || echo '[]')
-
-          if [ "$PR_DATA" = "[]" ]; then
-            # Fallback: check the commit message for PR number
-            PR_NUM=$(git log -1 --format="%s" | grep -oE '#[0-9]+' | head -1 | tr -d '#' || true)
-            if [ -n "$PR_NUM" ]; then
-              PR_DATA=$(gh pr view "$PR_NUM" --json labels 2>/dev/null || echo '{"labels":[]}')
-              LABELS=$(echo "$PR_DATA" | jq -r '.labels[].name // empty' 2>/dev/null || true)
-            else
-              LABELS=""
-            fi
-          else
-            LABELS=$(echo "$PR_DATA" | jq -r '.[0].labels[].name // empty' 2>/dev/null || true)
-          fi
-
-          echo "Labels found: $LABELS"
-
-          if echo "$LABELS" | grep -qi "bump:major"; then
-            echo "type=major" >> $GITHUB_OUTPUT
-            echo "Bump type: major"
-          elif echo "$LABELS" | grep -qi "bump:minor"; then
-            echo "type=minor" >> $GITHUB_OUTPUT
-            echo "Bump type: minor"
-          else
-            echo "type=patch" >> $GITHUB_OUTPUT
-            echo "Bump type: patch (default)"
-          fi
-
-      # ── Ensure changeset exists ──────────────────────────────────
-      - name: Ensure changeset
-        run: pnpm tsx tools/release/ensure-changeset.ts --bump ${{ steps.bump.outputs.type }}
-
-      # ── Changesets: version + publish ────────────────────────────
-      - name: Create Release PR or Publish
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          version: pnpm version-packages
-          publish: pnpm publish-packages
-          commit: 'chore: version packages'
-          title: 'chore: version packages'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets['NPM_TOKEN'] }}
-          NODE_AUTH_TOKEN: ${{ secrets['NPM_TOKEN'] }}
-
-      # ── Post-publish: Get version ────────────────────────────────
-      - name: Get published version
-        if: steps.changesets.outputs.published == 'true'
-        id: version
-        run: |
-          VERSION=$(jq -r .version packages/core/package.json)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Published version: $VERSION"
-
       # ── Post-publish: Generate release notes ─────────────────────
       - name: Generate release notes
-        if: steps.changesets.outputs.published == 'true'
-        run: pnpm tsx tools/release/generate-notes.ts --version ${{ steps.version.outputs.version }}
+        if: steps.aggregate.outputs.needed == 'true' && github.event_name == 'push'
+        run: pnpm tsx tools/release/generate-notes.ts --version ${{ steps.aggregate.outputs.version }}
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
 
+      - name: Load existing release notes
+        if: steps.aggregate.outputs.needed == 'true' && github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.aggregate.outputs.version }}
+        run: |
+          if [ "$VERSION" = '5.0.0' ]; then
+            cp tools/release/v5-release-notes.md RELEASE_BODY.md
+            gh release edit "v${VERSION}" --notes-file RELEASE_BODY.md
+          else
+            gh release view "v${VERSION}" --json body --jq .body > RELEASE_BODY.md
+          fi
+          test -s RELEASE_BODY.md
+
       # ── Post-publish: Generate release image ─────────────────────
-      # The image is rendered with Puppeteer/Chrome, but the job skips the
-      # Chromium download (PUPPETEER_SKIP_DOWNLOAD) to keep install/build lean,
-      # so fetch a browser here just for this cosmetic step. Both this install
-      # and the render are continue-on-error: a missing release image must
-      # never block the actual GitHub Release / Discord notification (the
-      # Create GitHub Release step already handles an absent release.png).
+      # The package install skips Chromium; fetch it only for the image.
       - name: Install Chrome for release image
-        if: steps.changesets.outputs.published == 'true'
-        continue-on-error: true
+        if: steps.aggregate.outputs.needed == 'true'
         env:
           PUPPETEER_SKIP_DOWNLOAD: '0'
-        run: npx puppeteer browsers install chrome
+        run: npx --no-install puppeteer browsers install chrome
 
       - name: Generate release image
-        if: steps.changesets.outputs.published == 'true'
-        continue-on-error: true
-        run: node tools/release-image.js --version ${{ steps.version.outputs.version }}
+        if: steps.aggregate.outputs.needed == 'true'
+        env:
+          VERSION: ${{ steps.aggregate.outputs.version }}
+          RELEASE_IMAGE_NO_SANDBOX: '1'
+        run: |
+          rm -f release.png release-[0-9]*.png
+          node tools/release-image.js --version "$VERSION"
+          test -s release.png
+          shopt -s nullglob
+          pages=(release-[0-9]*.png)
+          test "${#pages[@]}" -gt 0
 
       # ── Post-publish: Create GitHub Release ──────────────────────
       - name: Create GitHub Release
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.aggregate.outputs.needed == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
+          VERSION="${{ steps.aggregate.outputs.version }}"
           TAG="v${VERSION}"
-
-          # Use release notes if available, otherwise a default
-          NOTES_FILE="RELEASE_BODY.md"
-          if [ ! -f "$NOTES_FILE" ]; then
-            echo "# @open-wa v${VERSION}" > "$NOTES_FILE"
-            echo "" >> "$NOTES_FILE"
-            echo "Release v${VERSION}" >> "$NOTES_FILE"
-          fi
 
           # Determine if this is a pre-release
           PRE_FLAG=""
@@ -160,26 +174,32 @@ jobs:
             PRE_FLAG="--prerelease"
           fi
 
-          # Create the release
-          RELEASE_ARGS=(
-            "$TAG"
-            --title "$TAG"
-            --notes-file "$NOTES_FILE"
-            $PRE_FLAG
-          )
-
-          # Attach release image if it exists
-          if [ -f "release.png" ]; then
-            gh release create "${RELEASE_ARGS[@]}" release.png
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            shopt -s nullglob
+            images=(release.png release-[0-9]*.png)
+            while IFS= read -r asset; do
+              if [[ "$asset" =~ ^release-[0-9]+\.png$ ]] && [ ! -f "$asset" ]; then
+                gh release delete-asset "$TAG" "$asset" --yes
+              fi
+            done < <(gh release view "$TAG" --json assets --jq '.assets[].name')
+            gh release upload "$TAG" "${images[@]}" --clobber
           else
-            gh release create "${RELEASE_ARGS[@]}"
+            gh release create "$TAG" --title "$TAG" --notes-file RELEASE_BODY.md $PRE_FLAG release.png release-[0-9]*.png
           fi
 
-          echo "✅ GitHub Release created: $TAG"
+          echo "✅ GitHub Release image ready: $TAG"
 
       # ── Post-publish: Discord notification ───────────────────────
       - name: Notify Discord
-        if: steps.changesets.outputs.published == 'true'
-        run: pnpm tsx tools/release/discord-notify.ts --version ${{ steps.version.outputs.version }}
+        if: steps.aggregate.outputs.needed == 'true' && github.event_name == 'workflow_dispatch' && inputs.publish_discord
+        run: |
+          args=(--version "$VERSION")
+          if [ -n "$DISCORD_MESSAGE_IDS" ]; then
+            args+=(--edit-messages "$DISCORD_MESSAGE_IDS")
+          fi
+          args+=(--approved-discord-post)
+          pnpm tsx tools/release/discord-notify.ts "${args[@]}"
         env:
+          VERSION: ${{ steps.aggregate.outputs.version }}
+          DISCORD_MESSAGE_IDS: ${{ inputs.discord_message_ids }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

@@ -1,11 +1,11 @@
 {
   "name": "@open-wa/schema",
-  "version": "5.0.0-alpha.7",
+  "version": "5.0.0",
   "type": "module",
   "description": "Zod-based schema definitions for open-wa",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index.d.mts",
   "files": [
     "src",
     "dist"
@@ -95,5 +95,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/open-wa/wa-automate-nodejs.git"
-  }
+  },
+  "license": "SEE LICENSE IN LICENSE.md"
 }

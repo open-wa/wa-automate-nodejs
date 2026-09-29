@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/utils",
-  "version": "5.0.0-alpha.7",
+  "version": "5.0.0",
   "description": "Shared utility functions for open-wa",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -45,5 +45,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/open-wa/wa-automate-nodejs.git"
-  }
+  },
+  "license": "SEE LICENSE IN LICENSE.md"
 }

@@ -3,16 +3,9 @@
 >
 > This project is unofficial and is not affiliated with WhatsApp or Meta. Use it at your own risk.
 
-> [!CAUTION]
-> This repository is currently on version 5, which is still in alpha and can have issues.
->
-> Use version 4 unless you are testing or contributing to v5.
->
-> The last stable version is **4.76.0**:
->
-> ```bash
-> npx @open-wa/wa-automate@4.76.0
-> ```
+> [!NOTE]
+> Version 5 is the current release line. Existing v4 applications should use an
+> explicit v4 version while they migrate; unqualified installs use v5.
 
 <div align="center">
 <img src="https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/resources/hotfix-logo.png" width="128" height="128"/>
@@ -41,7 +34,7 @@
 
 `@open-wa/wa-automate` is a Node.js toolkit for WhatsApp Web automation. You can make a local API, bot backend, webhook source, plugin host, or MCP server.
 
-This repository is the **v5 monorepo**. It has a modular architecture, but the package version is still **`5.0.0-alpha.0`**. Keep mature v4 production systems on **4.76.0** and test v5 separately.
+This repository is the **v5 monorepo**. Its packages share the stable **5.0.0** release and use separate modules for the runtime, drivers, API, and integrations.
 
 Need a WhatsApp API running quickly? Start with **Easy API**. Want the browser/runtime inside your own app? Use the **embedded runtime**. Building integrations, proxying sessions, or exposing WhatsApp to an AI agent? Those surfaces are in this repo too.
 
@@ -75,7 +68,7 @@ Need a WhatsApp API running quickly? Start with **Easy API**. Want the browser/r
 | get a WhatsApp-backed API running in minutes | [Quick start: Easy API](#quick-start-easy-api) |
 | build a bot without owning the browser runtime | [Simple automation: SocketClient](#simple-automation-socketclient) |
 | own the runtime inside your own Node.js app | [Deep integration: embedded runtime](#deep-integration-embedded-runtime) |
-| move from stable v4 into the v5 alpha carefully | [Migrating from v4 to v5](#migrating-from-v4-to-v5) |
+| move an existing v4 application to v5 | [Migrating from v4 to v5](#migrating-from-v4-to-v5) |
 | publish or share reusable automation pieces | [Plugins and integrations](#plugins-and-integrations) |
 
 ## The short version
@@ -92,12 +85,12 @@ You can use this project in a few practical ways:
 Want to convert a WhatsApp account into an API with the least ceremony? Run the CLI:
 
 ```bash
-npx @open-wa/wa-automate@alpha --port 8080
+npx @open-wa/wa-automate@latest --port 8080
 ```
 
 That starts an Easy API instance, launches the first-run authentication flow, and exposes interactive docs for the live session.
 
-**v5 is an alpha release.** Keep commands explicit and test in a disposable environment before you connect it to an important system.
+Use an explicit version in deployments that need repeatable installs.
 
 For first login, the runtime will ask you to authenticate. Depending on your setup, either:
 
@@ -123,13 +116,13 @@ Useful first commands:
 
 ```bash
 # choose a port
-npx @open-wa/wa-automate@alpha --port 8080
+npx @open-wa/wa-automate@latest --port 8080
 
 # provide your own API key
-npx @open-wa/wa-automate@alpha --port 8080 --api-key "your-secure-key"
+npx @open-wa/wa-automate@latest --port 8080 --api-key "your-secure-key"
 
 # run a named session
-npx @open-wa/wa-automate@alpha --session-id sales --port 8081
+npx @open-wa/wa-automate@latest --session-id sales --port 8081
 ```
 
 Good defaults for a first real session:
@@ -138,7 +131,7 @@ Good defaults for a first real session:
 - protect the API with an `--api-key` before exposing it outside your machine
 - keep business logic in your own app and let open-wa own the WhatsApp runtime
 
-If your goal is simply "connect WhatsApp to another service", configure `@open-wa/integration-webhook` in `wa.config.*`. The v5 alpha CLI parses `--webhook` but currently warns that CLI webhook registration parity is not restored, so that flag does not enable source-backed delivery. See [Webhooks for Business](apps/docs/content/docs/guides/webhooks-for-business.mdx) for the working configuration.
+If your goal is simply "connect WhatsApp to another service", configure `@open-wa/integration-webhook` in `wa.config.*`. The v5 CLI parses `--webhook` but currently warns that CLI webhook registration parity is not restored, so that flag does not enable source-backed delivery. See [Webhooks for Business](apps/docs/content/docs/guides/webhooks-for-business.mdx) for the working configuration.
 
 If you prefer Docker:
 
@@ -159,7 +152,7 @@ Building a bot, worker, or app integration? Keep the WhatsApp runtime in Easy AP
 Start the runtime:
 
 ```bash
-npx @open-wa/wa-automate@alpha --port 8080 --api-key "your-secure-key"
+npx @open-wa/wa-automate@latest --port 8080 --api-key "your-secure-key"
 ```
 
 Install the remote consumer in your app:
@@ -267,7 +260,7 @@ Common high-value CLI flags include:
 --license-key "YOUR-LICENSE-KEY"
 ```
 
-Some older docs and examples still mention additional legacy or transitional flags. For v5 alpha onboarding, prefer the smaller set above unless you have verified the exact flag against the version you are running.
+Some older docs and examples still mention additional legacy or transitional flags. For v5 onboarding, prefer the smaller set above unless you have verified the exact flag against the version you are running.
 
 For contributors to this monorepo, the repo currently declares:
 
@@ -387,10 +380,10 @@ export default {
 };
 ```
 
-Then start the v5 alpha Easy API from the same directory:
+Then start the v5 Easy API from the same directory:
 
 ```bash
-WA_API_KEY="your-secure-key" npx @open-wa/wa-automate@alpha --config ./wa.config.mjs
+WA_API_KEY="your-secure-key" npx @open-wa/wa-automate@latest --config ./wa.config.mjs
 ```
 
 Then point your MCP client at:
@@ -457,19 +450,19 @@ If you prefer HTTP, give your agent the Easy API docs surface instead:
 
 ## Migrating from v4 to v5
 
-The stable public line is still **v4.76.0**. Use it for production systems unless you are intentionally validating the v5 alpha.
+The npm `latest` tag now selects v5. Pin v4 explicitly while migrating an existing application:
 
 ```bash
 npx @open-wa/wa-automate@4.76.0
 ```
 
-If you are testing v5, treat it like a new runtime surface rather than a drop-in README copy-paste from v4:
+The v5 runtime has a different public surface, so update existing integrations deliberately:
 
 - start with Easy API and confirm `http://localhost:8080/api-docs/` works
 - test named sessions, auth, webhooks, and generated schemas in a separate environment
 - prefer SocketClient for remote consumers instead of embedding browser/runtime work everywhere
 - use `createClient` only when you need direct runtime ownership
-- expect some older v4 docs, examples, and flags to be reorganized or replaced during the alpha
+- replace old v4 examples and flags with the v5 config and CLI options documented here
 
 ## Documentation map
 
@@ -518,7 +511,7 @@ If you need help, paid support, or consulting:
 
 ## License
 
-[Hippocratic + Do Not Harm Version 1.0](./LICENSE.md)
+[Hippocratic + Do Not Harm Version 1.1](./LICENSE.md)
 
 ## Legal
 

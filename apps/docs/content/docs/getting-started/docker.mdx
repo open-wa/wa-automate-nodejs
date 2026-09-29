@@ -17,17 +17,9 @@ Pass the same CLI flags you would normally use with `npx @open-wa/wa-automate`.
 
 ## Image tags
 
-Docker tags follow the package version you want to run. Pin a version when you need repeatable deploys, especially for production or rollback testing.
-
-Use a v4 tag such as `4.76.0` for the current stable line. Use `latest` only when you are intentionally testing the v5 alpha image.
-
-## v4/v5 tags
+Docker images have their own release schedule. Check the image tag before deploying, and pin a version when you need repeatable deploys or rollback testing. The npm `latest` tag selecting v5 does not update an existing Docker image.
 
 ```bash
-# v4 stable
-docker run openwa/wa-automate:4.76.0
-
-# v5 alpha
 docker run openwa/wa-automate:latest
 ```
 

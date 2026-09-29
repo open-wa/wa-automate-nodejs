@@ -1,5 +1,9 @@
 # @open-wa/logger
 
+## 5.0.0
+
+No changes in this release.
+
 ## 5.0.0-alpha.7
 
 ## 5.0.0-alpha.6

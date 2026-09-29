@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/api",
-  "version": "5.0.0-alpha.7",
+  "version": "5.0.0",
   "description": "Reusable Easy API transport and runtime explorer layer for open-wa",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
@@ -32,7 +32,7 @@
     "@open-wa/screencaster": "workspace:*",
     "hono": "catalog:",
     "tree-kill": "^1.2.2",
-    "ws": "^8.21.1"
+    "ws": "^8.22.0"
   },
   "peerDependencies": {
     "vite": "*"
@@ -50,5 +50,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/open-wa/wa-automate-nodejs.git"
-  }
+  },
+  "license": "SEE LICENSE IN LICENSE.md"
 }
