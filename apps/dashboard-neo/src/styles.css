@@ -1,7 +1,13 @@
 @layer scalar-base, scalar-theme, scalar-config, theme, base, components, utilities;
+@import "@open-wa/ui-components/theme.css";
+@source "../../../packages/ui-components/src";
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 @import "@fontsource-variable/geist";
+
+/* Shared BaseUI primitives carry their own utility classes. Keep those
+   classes in the dashboard stylesheet so portaled dialogs retain positioning,
+   backdrop, focus, and z-index rules in the consuming app. */
 
 /* Map Scalar API Reference CSS variables to shadcn theme tokens */
 :root {
@@ -32,6 +38,11 @@
 }
 
 @custom-variant dark (&:is(.dark *));
+
+/* Keep page surfaces below Base UI portals mounted beside the app. */
+#app {
+  isolation: isolate;
+}
 
 @theme inline {
     --font-heading: var(--font-sans);
@@ -175,3 +186,30 @@
   animation: scan 2s ease-in-out infinite;
   position: absolute;
 }
+
+/* Both products resolve their semantic colors from the shared Open-WA palette. */
+:root, .dark {
+  --background: var(--ow-surface-page);
+  --foreground: var(--ow-content-primary);
+  --card: var(--ow-surface-raised);
+  --card-foreground: var(--ow-content-primary);
+  --popover: var(--ow-surface-raised);
+  --popover-foreground: var(--ow-content-primary);
+  --muted: var(--ow-surface-muted);
+  --muted-foreground: var(--ow-content-secondary);
+  --secondary: var(--ow-surface-muted);
+  --secondary-foreground: var(--ow-content-primary);
+  --accent: var(--ow-surface-muted);
+  --accent-foreground: var(--ow-content-primary);
+  --border: var(--ow-border-subtle);
+  --input: var(--ow-border-subtle);
+  --ring: var(--ow-focus-ring);
+  --sidebar: var(--ow-surface-muted);
+  --sidebar-foreground: var(--ow-content-primary);
+  --sidebar-accent: var(--ow-border-subtle);
+  --sidebar-accent-foreground: var(--ow-content-primary);
+  --sidebar-border: var(--ow-border-subtle);
+  --primary: var(--ow-color-cobalt-500);
+  --primary-foreground: #fff;
+}
+.dark { --primary: #8cb0ff; --primary-foreground: #0c1832; }

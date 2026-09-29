@@ -1,0 +1,104 @@
+/* Shared open-wa surface tokens consumed by docs and dashboard. */
+:root {
+  --ow-color-cobalt-50: #f9fcff;
+  --ow-color-cobalt-100: #eef4fd;
+  --ow-color-cobalt-200: #dde6f3;
+  --ow-color-cobalt-300: #bccff7;
+  --ow-color-cobalt-500: #214be6;
+  --ow-color-cobalt-700: #1839b9;
+  --ow-color-cobalt-950: #162748;
+  --ow-color-ice: #f9fcff;
+  --ow-color-white: #ffffff;
+  --ow-color-reflection: #c9e9ff;
+  --ow-surface-code: #111d39;
+  --ow-surface-code-toolbar: #202f50;
+  --ow-content-code: #dfeaff;
+  --ow-surface-selected: #dde8ff;
+  --ow-license-background: linear-gradient(115deg, #dde8ff 0%, #f5fbff 45%, #c9e9ff 65%, #e2eaff 100%);
+  --ow-license-border: #aec8f7;
+  --ow-license-foreground: #244aaa;
+  --ow-color-gold: #e2ad45;
+  --ow-color-gold-soft: #f5cb68;
+  --ow-color-danger: #c63e5c;
+  --ow-color-success: #269b77;
+
+  --ow-surface-page: var(--ow-color-cobalt-50);
+  --ow-surface-raised: var(--ow-color-white);
+  --ow-surface-muted: var(--ow-color-cobalt-100);
+  --ow-content-primary: var(--ow-color-cobalt-950);
+  --ow-content-secondary: #56647f;
+  --ow-border-subtle: var(--ow-color-cobalt-200);
+  --ow-border-strong: var(--ow-color-cobalt-300);
+  --ow-focus-ring: #5c86f3;
+
+  --ow-radius-sm: 6px;
+  --ow-radius-md: 10px;
+  --ow-radius-lg: 16px;
+  --ow-space-1: 4px;
+  --ow-space-2: 8px;
+  --ow-space-3: 12px;
+  --ow-space-4: 16px;
+  --ow-space-6: 24px;
+  --ow-space-8: 32px;
+}
+
+.dark {
+  --ow-surface-selected: #1d3564;
+  --ow-license-background: linear-gradient(115deg, #18305d, #284d7a 45%, #1c416b 65%, #233e6d);
+  --ow-license-border: #5279b6;
+  --ow-license-foreground: #d4e8ff;
+  --ow-surface-page: #0c1832;
+  --ow-surface-raised: #122343;
+  --ow-surface-muted: #162b50;
+  --ow-content-primary: #eaf1ff;
+  --ow-content-secondary: #9eb0d2;
+  --ow-border-subtle: #284570;
+  --ow-border-strong: #3c5b8b;
+  --ow-focus-ring: #8cb0ff;
+}
+
+:root {
+  --ow-motion-duration: 160ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ow-motion-duration: 0ms;
+  }
+}
+
+/* Licensed access shares one treatment across documentation and dashboard. */
+.ow-license-foil {
+  color: var(--ow-license-foreground);
+  background: var(--ow-license-background);
+  border: 1px solid var(--ow-license-border);
+  background-size: 180% 100%;
+  background-position: 0% 50%;
+  transition: background-position 550ms ease, border-color var(--ow-motion-duration);
+}
+.ow-license-foil:is(:hover, :focus-visible) { background-position: 100% 50%; }
+@media (prefers-reduced-motion: reduce) { .ow-license-foil { transition: none; } }
+
+/* Semantic defaults for owned Base UI controls. Apps may extend these tokens. */
+:root, .dark {
+  --background: var(--ow-surface-page);
+  --foreground: var(--ow-content-primary);
+  --card: var(--ow-surface-raised);
+  --card-foreground: var(--ow-content-primary);
+  --popover: var(--ow-surface-raised);
+  --popover-foreground: var(--ow-content-primary);
+  --primary: var(--ow-color-cobalt-500);
+  --primary-foreground: var(--ow-color-white);
+  --secondary: var(--ow-surface-muted);
+  --secondary-foreground: var(--ow-content-primary);
+  --muted: var(--ow-surface-muted);
+  --muted-foreground: var(--ow-content-secondary);
+  --accent: var(--ow-surface-selected);
+  --accent-foreground: var(--ow-content-primary);
+  --destructive: var(--ow-color-danger);
+  --destructive-foreground: var(--ow-color-white);
+  --border: var(--ow-border-subtle);
+  --input: var(--ow-border-strong);
+  --ring: var(--ow-focus-ring);
+  --radius: var(--ow-radius-md);
+}
