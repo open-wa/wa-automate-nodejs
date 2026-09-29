@@ -2,15 +2,18 @@ import * as React from 'react';
 import { ArrowRight, ExternalLink, Info, Ticket } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@open-wa/ui-components/dialog';
 import { GENERIC_LICENSE_URL, getLicenseTierHref, getLicenseTierLabel, getLicenseTierSummary, type LicenseTier } from '@/lib/site';
+import { LicenseCheckoutTrigger } from '@/components/license-checkout';
 
 function joinClasses(...classes: Array<string | undefined>): string {
   return classes.filter(Boolean).join(' ');
 }
 
-export function GetLicenseButton({ href = GENERIC_LICENSE_URL, className, label = 'Get a license', subtle = false }: {
-  href?: string; className?: string; label?: string; subtle?: boolean;
+export function GetLicenseButton({ href = GENERIC_LICENSE_URL, tier, className, label = 'Get a license', subtle = false, onClick }: {
+  href?: string; tier?: LicenseTier; className?: string; label?: string; subtle?: boolean; onClick?: () => void;
 }) {
-  return <a href={href} className={joinClasses('inline-flex min-h-10 items-center justify-center gap-2 rounded-[10px] border px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring', subtle ? 'ow-license-foil' : 'border-primary bg-primary text-primary-foreground hover:opacity-90', className)}><Ticket size={16} aria-hidden="true" />{label}<ArrowRight size={16} aria-hidden="true" /></a>;
+  const requestedTier = new URL(href, GENERIC_LICENSE_URL).searchParams.get('tier');
+  const selectedTier = tier ?? (requestedTier === 'insiders' || requestedTier === 'restricted' ? requestedTier : undefined);
+  return <LicenseCheckoutTrigger tier={selectedTier} onClick={onClick} className={joinClasses('inline-flex min-h-10 items-center justify-center gap-2 rounded-[10px] border px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring', subtle ? 'ow-license-foil' : 'border-primary bg-primary text-primary-foreground hover:opacity-90', className)}><Ticket size={16} aria-hidden="true" />{label}<ArrowRight size={16} aria-hidden="true" /></LicenseCheckoutTrigger>;
 }
 
 export function LicenseBadge({ tier, className }: { tier: LicenseTier; className?: string }) {
@@ -32,6 +35,7 @@ export function LicensedMethodSection({ tier, children, className }: {
 }) {
   const surface = React.useRef<HTMLElement>(null);
   const [animate, setAnimate] = React.useState(false);
+  const [infoOpen, setInfoOpen] = React.useState(false);
   const label = getLicenseTierLabel(tier);
 
   React.useEffect(() => {
@@ -61,10 +65,10 @@ export function LicensedMethodSection({ tier, children, className }: {
       </div>
       <div className="licensed-method-actions not-prose" aria-label={`${label} access`}>
         <LicenseBadge tier={tier} />
-        <a className="licensed-method-action" href={getLicenseTierHref(tier)} target="_blank" rel="noopener noreferrer" aria-label={`Get ${label} access (opens in a new tab)`} title="Get a license">
+        <LicenseCheckoutTrigger tier={tier} className="licensed-method-action" aria-label={`Configure ${label} license`} title="Configure your license">
           <ExternalLink size={15} aria-hidden="true" />
-        </a>
-        <Dialog>
+        </LicenseCheckoutTrigger>
+        <Dialog open={infoOpen} onOpenChange={setInfoOpen}>
           <DialogTrigger className="licensed-method-action" aria-label={`About ${label} licensing`} title="License details">
             <Info size={16} aria-hidden="true" />
           </DialogTrigger>
@@ -74,7 +78,7 @@ export function LicensedMethodSection({ tier, children, className }: {
             <DialogDescription>{getLicenseTierSummary(tier)}</DialogDescription>
             <p className="text-sm leading-6 text-muted-foreground">A license covers access to the marked feature. Its availability can also depend on your WhatsApp account and the method’s current limitations.</p>
             <a href="/docs/licensing/licensed-features" className="text-sm font-medium text-primary underline underline-offset-4">Read the feature requirements</a>
-            <GetLicenseButton href={getLicenseTierHref(tier)} label="See current license options" />
+            <GetLicenseButton tier={tier} label="Configure your license" onClick={() => setInfoOpen(false)} />
           </DialogContent>
         </Dialog>
       </div>

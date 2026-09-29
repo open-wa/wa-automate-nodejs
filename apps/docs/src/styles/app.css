@@ -476,6 +476,39 @@
 .reference-naming-switch:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
 .reference-naming-note { margin: 8px 0; color: var(--muted-foreground); font-size: 12px; line-height: 18px; }
 .reference-naming-note a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
+
+.license-header-button { white-space: nowrap; min-height: 36px; padding: 6px 12px; font-size: 13px; margin-right: 6px; }
+.license-header-button > svg:last-child { display: none; }
+.license-config-popup, .license-config-card { width: min(460px, calc(100vw - 32px)); max-width: 460px; border: 1px solid var(--ow-border-strong); border-radius: 20px; padding: 24px; background: var(--background); color: var(--foreground); box-shadow: 0 24px 80px #102e6b26; }
+.license-config-popup { gap: 0; max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; }
+.license-config-heading { display: flex; align-items: center; gap: 10px; padding-right: 24px; color: var(--foreground); }
+.license-config-heading > svg { color: var(--primary); flex-shrink: 0; }
+.license-config-heading :is(h1,h2) { font-size: 21px; line-height: 28px; font-weight: 650; letter-spacing: -.025em; }
+.license-config-intro { display: flex; align-items: center; gap: 16px; margin: 18px 0; border-block: 1px solid var(--border); padding: 8px 0; background: radial-gradient(ellipse at 10% 50%, var(--ow-surface-selected), transparent 70%); }
+.license-config-intro img { width: 84px; height: 84px; object-fit: contain; flex-shrink: 0; }
+.license-config-intro p { margin: 0; font-size: 14px; line-height: 22px; color: var(--muted-foreground); }
+.license-config-form { display: flex; flex-direction: column; gap: 7px; }
+.license-config-form label { font-size: 13px; font-weight: 600; margin-top: 9px; }
+.license-config-form label:first-child { margin-top: 0; }
+.license-config-form :is(input,textarea,select) { width: 100%; padding: 10px 12px; border: 1px solid var(--ow-border-strong); border-radius: 9px; background: var(--card); color: var(--foreground); font-size: 14px; line-height: 20px; }
+.license-config-form textarea { resize: vertical; min-height: 82px; max-height: 180px; }
+.license-config-form :is(input,textarea)::placeholder { color: var(--muted-foreground); opacity: .8; }
+.license-config-form :is(input,textarea,select):focus { border-color: var(--primary); outline: 2px solid var(--primary); outline-offset: 2px; }
+.license-config-form [aria-invalid=true] { border-color: var(--destructive); }
+.license-config-help { margin: 0; font-size: 12px; line-height: 18px; color: var(--muted-foreground); overflow-wrap: anywhere; }
+.license-config-error { color: var(--destructive); font-size: 13px; line-height: 20px; margin: 4px 0; }
+.license-config-submit { display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: 12px; min-height: 44px; border-radius: 10px; padding: 11px 16px; background: var(--primary); color: var(--primary-foreground); font-size: 14px; font-weight: 600; cursor: pointer; }
+.license-config-submit:hover { filter: brightness(1.08); }
+.license-config-submit:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.license-config-footer { text-align: center; margin-top: 4px; }
+.license-checkout-page { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; min-height: 100dvh; padding: 32px 16px; background: radial-gradient(ellipse at 50% 0, var(--ow-surface-selected), var(--background) 70%); }
+.license-checkout-home { display: inline-flex; align-items: center; gap: 9px; font-weight: 650; }
+.license-checkout-page > a:last-child { font-size: 13px; color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 480px) {
+  .license-config-popup, .license-config-card { padding: 20px; border-radius: 16px; }
+  .license-config-form :is(input,textarea,select) { font-size: 16px; }
+  .license-header-button { padding-inline: 9px; font-size: 12px; }
+}
 .reference-setup { margin: 10px 0 0; padding-bottom: 14px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--muted-foreground); }
 .reference-setup summary { cursor: pointer; }
 .reference-setup p { margin: 10px 0; line-height: 1.6; }

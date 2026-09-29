@@ -93,7 +93,7 @@ export function SessionLicenseBadge() {
 
           {isUnlicensed && (
             <div className="mt-4 flex flex-col items-start gap-3">
-              <p className="text-xs text-muted-foreground">Choose the current open-wa offer at openwa.dev. Your session and phone are passed as support context; checkout does not preselect a license tier or fill purchase fields.</p>
+              <p className="text-xs text-muted-foreground">Configure your license at openwa.dev with your session’s phone number already filled in when available. Add your GitHub username and use case, then continue to a prefilled Gumroad checkout.</p>
               <a
                 href={checkoutUrl}
                 target="_blank"

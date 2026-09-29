@@ -12,6 +12,7 @@ import SearchDialog from '@/components/search';
 import { SITE_NAME } from '@/lib/site';
 import { NotFound } from '@/components/not-found';
 import { getLegacyDocsRedirect } from '@/lib/legacy-docs';
+import { LicenseCheckoutProvider } from '@/components/license-checkout';
 
 export const Route = createRootRoute({
   beforeLoad: ({ location }) => {
@@ -87,7 +88,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         />
       </head>
       <body className="flex flex-col min-h-screen">
-        <RootProvider search={{ SearchDialog }}>{children}</RootProvider>
+        <RootProvider search={{ SearchDialog }}><LicenseCheckoutProvider>{children}</LicenseCheckoutProvider></RootProvider>
         <Scripts />
       </body>
     </html>

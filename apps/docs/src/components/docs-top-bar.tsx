@@ -115,6 +115,7 @@ export function DocsTopBar(props: React.ComponentPropsWithoutRef<'header'>) {
           <slots.navTitle className="inline-flex items-center gap-2.5 font-semibold" />
         ) : null}
         <div className="flex-1" />
+        {customActions.map((item, index) => <HeaderLink key={index} item={item} />)}
         {slots.searchTrigger ? (
           <slots.searchTrigger.sm
             hideIfDisabled

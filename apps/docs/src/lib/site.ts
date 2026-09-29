@@ -44,14 +44,12 @@ export function getLicenseTierLabel(tier: LicenseTier): string {
   return tier === 'insiders' ? 'Insiders' : 'Restricted';
 }
 
-export function getLicenseTierHref(_tier: LicenseTier): string {
-  // The account checkout currently offers the “Open-WA License” product and
-  // does not select a runtime tier from the docs link.
-  return LICENSE_CHECKOUT_URL;
+export function getLicenseTierHref(tier: LicenseTier): string {
+  return `${LICENSE_CHECKOUT_URL}?tier=${tier}`;
 }
 
 export function getLicenseTierSummary(tier: LicenseTier): string {
   return tier === 'insiders'
-    ? 'The current method metadata marks this capability as Insiders. Confirm the offered account plan covers your runtime before purchasing.'
-    : 'The current method metadata marks this capability as Restricted. Confirm the offered account plan covers your runtime before purchasing.';
+    ? 'This method requires an Insiders license. Configure your license here, then review the current terms and price at checkout.'
+    : 'This method requires a Restricted license. Configure your license here, then review the current terms and price at checkout.';
 }

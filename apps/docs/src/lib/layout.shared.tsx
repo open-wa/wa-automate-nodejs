@@ -1,5 +1,6 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import { DOCS_PATHS, REPO_URL } from '@/lib/site';
+import { GetLicenseButton } from '@/components/licensing';
 
 export function baseOptions(): BaseLayoutProps {
   return {
@@ -16,6 +17,7 @@ export function baseOptions(): BaseLayoutProps {
       url: '/',
     },
     links: [
+      { type: 'custom', secondary: true, children: <GetLicenseButton className="license-header-button" /> },
       { text: 'Docs', url: DOCS_PATHS.overview },
       { text: 'API reference', url: DOCS_PATHS.referenceClient },
       { text: 'Integrations', url: DOCS_PATHS.integrationsOverview },
