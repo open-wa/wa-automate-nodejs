@@ -2,49 +2,21 @@ name: 🐞 Bug report
 description: Create a report to help us improve
 labels: [Bug, Needs Triage]
 body:
-- type: checkboxes
-  id: latest_version
-  attributes:
-    label: Are you using the latest version of the library?
-    description: This is not like most libraries where older versions can remain functioning forever. Sometimes major updates from WA result in a new version of this library being released which then becomes essentially the minimum working version.
-    options:
-    - label: I have checked and am using the latest version of the library.
-      required: true
-- type: dropdown
+- type: input
   id: session_type
   attributes:
     label: What type of session are you experiencing this issue on?
-    description: Multi-device beta allows you to use your WA Web session without the host device being connected to the internet.
-    multiple: false
-    options:
-      - "Multi-device and I have set multiDevice to true in my config OR am using the --multi-device flag"
-      - "Legacy (Normal)"
-      - "Tested and experienced on both"
-  validations:
-    required: true
-- type: dropdown
+    description: "Optional. Describe the linked session if you know its type. Leave this blank if you aren't sure."
+- type: input
   id: acc_type
   attributes:
     label: What type of host account are you experiencing this issue on?
-    description: Business and personal accounts are very different and can give a clue to resolve issues quickly.
-    multiple: false
-    options:
-      - "Personal account (normal)"
-      - "Business account"
-      - "Tested and experienced on both"
-  validations:
-    required: true
-- type: dropdown
+    description: "Optional. Examples: Personal account (normal), Business account, or Tested and experienced on both."
+- type: input
   id: mode
   attributes:
     label: Mode
-    description: How are you using the library while experiencing this bug?
-    multiple: false
-    options:
-      - EASY API/CLI
-      - My own code
-  validations:
-    required: true
+    description: "Optional. Tell us whether you use the Easy API/CLI, SocketClient, or an embedded client in your own Node.js app."
 - type: textarea
   id: curr_b
   attributes:
@@ -58,12 +30,12 @@ body:
     label: Expected Behavior
     description: A concise description of what you expected to happen.
   validations:
-    required: false
+    required: true
 - type: textarea
   id: repro
   attributes:
     label: Steps To Reproduce
-    description: Steps to reproduce the behavior. Please include specific code or request bodies. If it involved a file, upload that specific file.
+    description: Include the steps, relevant code, and request bodies. Replace credentials, phone numbers, message content, and private file details before sharing.
     placeholder: |
       1. In this environment...
       2. With this config...
@@ -74,12 +46,11 @@ body:
 - type: textarea
   id: c_code
   attributes:
-    label: create() code OR full CLI command + CONFIG
+    label: Client setup or CLI command and configuration
     description: |
-      This is the code you use to create the client, including the config object. e.g
-      ```javascript
-      create({...}) or npx @open-wa/wa-automate --debug --verbose
-      ```
+      Paste the command you ran or the code that creates your client, including relevant configuration.
+      Remove API keys, licence keys, session credentials, and other private values.
+      See the [CLI guide](https://openwa.dev/docs/guides/configuration-and-cli) or [custom-code guide](https://openwa.dev/docs/getting-started/custom-code) for the supported setup.
     render: markdown
   validations:
     required: false
@@ -87,17 +58,10 @@ body:
 - type: textarea
   id: d_info
   attributes:
-    label: DEBUG INFO
+    label: Runtime details
     description: |
-      This is the info printed to the console when you start your app. It should look like this:
-      ```
-      Debug Info {
-        WA_VERSION: ...,
-        PAGE_UA: ...,
-        WA_AUTOMATE_VERSION: ...,
-        BROWSER_VERSION: ...
-      }
-      ```
+      Include your open-wa version, Node.js version, browser and driver, and WhatsApp Web version if available.
+      The dashboard's Report issue button can collect available runtime details. If a value is unavailable, say so rather than guessing.
     render: markdown
   validations:
     required: true
@@ -106,10 +70,8 @@ body:
   attributes:
     label: Environment
     description: |
-      examples:
-        - **OS**: Ubuntu 20.04
-        - **Node**: 13.14.0
-        - **npm**: 7.6.3
+      Describe the machine running open-wa, which may differ from the machine displaying your dashboard.
+      Include the operating system, Node.js version, package manager, and whether you use Docker or another container.
     value: |
         - OS: 
         - Node: 
@@ -123,9 +85,9 @@ body:
   attributes:
     label: Screenshots/Logs
     description: |
-      If applicable, add screenshots to help explain your problem.
-      Or you can add your logs here. In order to enable logs, add `"logging":[{"type":"file"}]` to your config
-      Tip:  Use ```headless: false``` to get screenshots
+      Add the relevant error and nearby log lines, or a screenshot showing what happened.
+      Mask QR/link codes, credentials, phone numbers, contact names, and message content before sharing.
+      See [Logging and audit](https://openwa.dev/docs/guides/logging-and-audit) for supported logging options.
   validations:
     required: false
     
