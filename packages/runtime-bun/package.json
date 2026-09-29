@@ -32,7 +32,14 @@
     "vitest": "catalog:"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs",
+        "types": "./dist/index.d.mts"
+      }
+    }
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "files": [

@@ -18,7 +18,14 @@
     "lint": "oxlint src"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "exports": {
+      ".": {
+        "require": "./dist/index.cjs",
+        "import": "./dist/index.cjs",
+        "types": "./dist/index.d.cts"
+      }
+    }
   },
   "devDependencies": {
     "typescript": "catalog:"

@@ -38,5 +38,14 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "files": [
     "dist"
-  ]
+  ],
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.cts",
+        "require": "./dist/index.cjs",
+        "default": "./dist/index.cjs"
+      }
+    }
+  }
 }
