@@ -21,12 +21,6 @@ client.onStateChanged((state) => {
 });
 ```
 
-## Operational guidance
-
-- Log the state transition, not just the terminal failure.
-- Treat `UNPAIRED` as a recovery workflow, not only a console message.
-- Pair this with alerting if the session is production-critical.
-
 ## Full state enum
 
 Use a small session state enum in your own monitoring code so every runtime event lands in one clear bucket.

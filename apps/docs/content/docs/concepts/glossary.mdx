@@ -19,7 +19,7 @@ A driver is the browser automation backend open-wa uses to control WhatsApp Web.
 
 ## Easy API
 
-The hosted runtime surface that exposes client functionality over HTTP and related runtime transports. It is the ready made HTTP API surface that runs when you execute `npx @open-wa/wa-automate`, including interactive docs and generated schemas.
+The HTTP and runtime-transport surface served by an open-wa process. Running `npx @open-wa/wa-automate` starts it locally; the process can expose client methods, interactive API docs, and generated schemas.
 
 ## Event namespace
 
@@ -48,8 +48,8 @@ A LID is an opaque WhatsApp identifier ending in `@lid`. The current API schema 
 ## MCP
 
 MCP means Model Context Protocol. It is a standard for connecting AI
-assistants to external tools; when the hosted MCP adapter is enabled with an
-Easy API key, open-wa exposes Easy API methods as MCP tools.
+assistants to external tools. When MCP is enabled for an Easy API instance and
+configured with its API key, open-wa exposes Easy API methods as MCP tools.
 
 ## Proxy
 

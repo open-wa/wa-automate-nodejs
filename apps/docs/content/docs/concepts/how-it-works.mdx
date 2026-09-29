@@ -7,25 +7,6 @@ description: Understand which process owns WhatsApp, how sessions become ready, 
 
 This page explains the processes that operate before your code can send messages or receive events. It also explains which process owns the browser session. Use this information to select Easy API, custom code, or a remote consumer.
 
-## Mental model
-
-Think of the stack like this:
-
-<Steps>
-<Step title="Open WhatsApp Web">
-    A browser runtime opens the WhatsApp Web experience.
-</Step>
-<Step title="Attach the runtime bridge">
-    open-wa attaches the automation/runtime bridge.
-</Step>
-<Step title="Expose the client surface">
-    The client surface exposes actions, listeners, and session lifecycle control.
-</Step>
-<Step title="Choose an integration surface">
-    Your code, Easy API consumers, or SocketClient consumers talk to that surface.
-</Step>
-</Steps>
-
 ## Runtime flow
 
 The same runtime can be reached directly from your app, through the Easy API, or through remote consumers:
@@ -51,7 +32,7 @@ Client surface
            SocketClient, Cloudflare proxy, external services
 ```
 
-The browser is still the source of truth. The other layers decide how your code reaches that browser-backed client.
+Every integration reaches the same browser-backed client. The process that starts the browser owns the session; API and remote consumers send commands to that process.
 
 ## Browser injection
 
@@ -124,18 +105,6 @@ Plugins do not receive the raw internal event bus. `PluginHost` creates an event
 Internal launch, patch, persistence, webhook delivery, server, and license events are blocked from plugin event subscriptions. Sensitive authentication events, such as QR and link-code payloads, are also blocked. Plugins can listen to public message, ack, session, group, chat, device, call, UI, label, story, commerce, reaction, core, and error events.
 
 The gateway also does not expose `emit()`. Plugins consume events and provide hooks, routes, pages, or tools, but they do not get a direct write handle to the core event bus.
-
-## Why sessions matter so much
-
-Most operational questions in open-wa are really session questions:
-
-- how is the session authenticated?
-- where is its state stored?
-- how is it restored after restart?
-- which process owns it?
-- how do remote consumers connect to it?
-
-Answer those questions before choosing a guide. They decide whether you need a startup/auth flow, a multi-session plan, a remote consumer, or a proxy in front of the Easy API.
 
 ## The three primary usage modes
 
