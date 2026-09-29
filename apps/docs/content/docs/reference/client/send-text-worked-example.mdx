@@ -14,11 +14,11 @@ This contributor walkthrough follows `sendText` from its schema definition to ru
 import { create } from '@open-wa/wa-automate';
 
 const client = await create({ sessionId: 'docs-example' });
-const result = await client.sendText('447123456789@c.us', 'Hello from open-wa');
-if (typeof result === 'string') {
-  console.log(`Sent message: ${result}`);
-} else {
-  console.error('The client did not return a message id', result);
+try {
+  const messageId = await client.sendText('447123456789@c.us', 'Hello from open-wa');
+  console.log('Message ID:', messageId);
+} finally {
+  await client.stop();
 }
 ```
 
@@ -28,9 +28,9 @@ if (typeof result === 'string') {
 
 ```ts
 export const sendText = defineMethodV2('sendText', {
-  meta: { description: "Sends a text message to a chat", namespace: "messages", httpMethod: "POST" },
+  meta: { description: "Sends a text message and returns a validated serialized message ID. The in-process Client throws SendTextError on failure. An unknown outcome means the message may have been sent: check the chat before retrying. Starting a chat with a new number requires an applied restricted or premium license.", namespace: "messages", httpMethod: "POST" },
   parameterOrder: ["to","content","options"],
-  // input: z.object({ to, content, options }), output: MessageId | boolean | string
+  // input: z.object({ to, content, options }), output: SendTextResultSchema
 });
 ```
 

@@ -1,0 +1,96 @@
+---
+title: create and stop
+description: Start a ready messaging client with automatic browser setup, QR login, and private sessions.
+---
+
+# create and stop
+
+`create(options?: CreateOptions): Promise<Client>` starts WhatsApp and resolves
+only after authentication, runtime initialization, and messaging readiness.
+It selects Puppeteer by default and wraps the core runtime in the messaging
+`Client`. A failed startup closes the partially started client before rejecting.
+
+```ts
+import { create } from '@open-wa/wa-automate';
+
+const recipient = 'REPLACE_WITH_RECIPIENT_CHAT_ID';
+const client = await create();
+try {
+  const messageId = await client.sendText(recipient, 'Hello from open-wa!');
+  console.log('Submitted:', messageId);
+} finally {
+  await client.stop();
+}
+```
+
+Use an existing chat and replace `recipient` before running the example.
+[`sendText`](/docs/guides/messages#send-messages) returns a validated message ID
+or throws `SendTextError`; an ID is not a delivery or read receipt.
+
+## Session and login options
+
+| Option | Default and behavior |
+| --- | --- |
+| `sessionId` | `session`; different names use separate default profiles. |
+| `userDataDir` | A private profile under `~/.open-wa/sessions`, keyed by the current project directory and session name. An explicit path takes precedence. |
+| `sessionDataPath` | An explicit legacy path is preserved, including the core runtime's profile derivation. Prefer `userDataDir` for new applications. |
+| `ephemeral` | `false`; set to `true` to discard the temporary profile on shutdown. |
+| `headless` | `true`; terminal login does not require a desktop. |
+| `qrTimeout` | `0`, which waits for QR login without a scan deadline; a number sets a timeout in seconds. |
+| `qrLogSkip` | `false`; set to `true` when your application handles QR presentation through a custom output sink. |
+| `linkCode` | Optional phone number for link-code authentication instead of scanning a QR. |
+| `driver` | Optional explicit driver; advanced integrations can also use [`createClient`](/docs/reference/core). |
+
+`create()` uses its supplied options and library defaults. It does not load a
+configuration file or `WA_*` variables implicitly. Puppeteer's browser/cache
+environment settings are still respected. Existing low-level `createClient`
+and `Client` construction remain available when you need to own startup.
+
+## Browser provisioning
+
+By default, startup reuses the exact Chrome revision matched to the installed
+Puppeteer version. If it is missing, open-wa downloads it with progress. The
+cache can be shared by projects; concurrent starts coordinate installation.
+An interrupted download can be retried on the next start.
+
+```ts
+const client = await create({
+  browser: {
+    cacheDirectory: '/srv/open-wa/browser-cache',
+    download: 'never',
+  },
+});
+```
+
+`browser.download` is `auto` by default. Use `never` for deployments that must
+not download at startup. `browser.cacheDirectory` overrides Puppeteer's cache
+location; `browser.downloadBaseUrl` selects a browser mirror. The resolver
+respects Puppeteer's configured cache, skip-download settings, and proxy
+environment variables.
+
+To provision the same browser before starting a session:
+
+```ts
+import { ensureBrowser } from '@open-wa/wa-automate';
+
+await ensureBrowser({
+  browser: { cacheDirectory: '/srv/open-wa/browser-cache' },
+});
+```
+
+An explicit `executablePath` takes precedence and must point to an executable
+browser. Invalid paths fail with an actionable error instead of silently
+choosing another browser. Explicit `useChrome` retains local Chrome selection.
+Provisioning does not install operating-system libraries or disable the
+browser sandbox; a launch error identifies missing system dependencies.
+
+## stop
+
+`client.stop(reason?: string): Promise<void>` drains and disposes the client's
+listeners, stops its runtime, and closes the browser. Put it in `finally` for a
+one-shot script. Stopping leaves a persistent profile available for the next
+run; it does not log the account out of WhatsApp.
+
+For a bot that stays connected, register shutdown handlers and call `stop()`
+when the process is ending. The [messages guide](/docs/guides/messages#full-bot-example)
+has a complete example.

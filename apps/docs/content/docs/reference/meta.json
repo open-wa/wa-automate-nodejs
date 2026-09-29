@@ -3,6 +3,7 @@
   "icon": "FileCode",
   "pages": [
     "index",
+    "create",
     "workspaces",
     "client",
     "messaging",

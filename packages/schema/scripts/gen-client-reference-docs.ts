@@ -461,7 +461,7 @@ function buildOutputBlock(outputSummary: string, notes?: string): string {
 
 function buildReturnNotes(def: MethodDefinition, outputSummary: string): string {
   if (def.meta.functionName === 'sendText') {
-    return 'A successful send returns a message ID as a string; some Easy API responses may serialize it as an object with `_serialized`. A boolean or a non-ID status string is not a message ID: the current WAPI can return values such as `Not a contact` or `Not able to send message to broadcast`. The in-process Client converts `Not a contact` into a rejected Promise because sending to an unknown number requires a Restricted or Premium license; the method is not otherwise license-gated. The in-process Client is declared as `Promise<string | false>`. Check returned values before passing them to another method, and handle rejected Promises for input, dispatch, license, or provider errors.';
+    return 'Resolves to a validated serialized `MessageId` string, not a delivery or read receipt. The in-process Client throws `SendTextError`, exported by `@open-wa/wa-automate` and `@open-wa/client`, on failure. Its `code` is `INVALID_ARGUMENT`, `LICENSE_REQUIRED`, `SEND_REJECTED`, `INVALID_SEND_RESULT`, or `SEND_FAILED`. Its `outcome` is `not_sent` for invalid arguments and known runtime rejections, or `unknown` when the runtime returns no valid ID or browser evaluation fails. An unknown outcome means the message may already have been sent: check the chat before retrying. The client never retries automatically. Starting a chat with a new number still requires an applied restricted or premium license. HTTP and remote clients expose failures through their own error envelopes.';
   }
 
   if (def.meta.functionName === 'deleteMessage') {
@@ -660,12 +660,7 @@ function buildCanonicalMethodRecord(
   const exampleParameters = parameters.filter((parameter) => parameter.required);
   const exampleCall = def.meta.functionName === 'sendText'
     ? [
-      `const result = await client.sendText(${sampleValueForParameter(parameters.find((parameter) => parameter.name === 'to')!)}, ${sampleValueForParameter(parameters.find((parameter) => parameter.name === 'content')!)});`,
-      'const candidate = typeof result === \'string\' ? result : typeof result === \'object\' && result !== null && \'_serialized\' in result ? result._serialized : null;',
-      'const messageId = typeof candidate === \'string\' && /^(true|false)_.+_.+$/.test(candidate) ? candidate : null;',
-      'if (!messageId) {',
-      '  throw new Error(`Message was not sent: ${String(result)}`);',
-      '}',
+      `const messageId = await client.sendText(${sampleValueForParameter(parameters.find((parameter) => parameter.name === 'to')!)}, ${sampleValueForParameter(parameters.find((parameter) => parameter.name === 'content')!)});`,
       'console.log(\'Message ID:\', messageId);',
     ].join('\n')
     : buildObjectCall(def.meta.functionName, exampleParameters);
@@ -693,9 +688,7 @@ function buildCanonicalMethodRecord(
         ? `// Use the full media message from your message handler.\nconst result = await client.${def.meta.functionName}(message${def.meta.functionName === 'downloadMedia' ? ', "./downloaded-media"' : ''});`
         : def.meta.functionName === 'sendText'
           ? [
-            "const result = await client.sendText('447123456789@c.us', 'Hello from open-wa');",
-            'const messageId = typeof result === \'string\' && /^(true|false)_.+_.+$/.test(result) ? result : null;',
-            'if (!messageId) throw new Error(`Message was not sent: ${String(result)}`);',
+            "const messageId = await client.sendText('447123456789@c.us', 'Hello from open-wa');",
             "console.log('Message ID:', messageId);",
           ].join('\n')
           : buildPositionalCall(sdkAliases[def.meta.functionName] ?? def.meta.functionName, exampleParameters),
@@ -1009,11 +1002,11 @@ function buildInternalsPages(
             "import { create } from '@open-wa/wa-automate';",
             '',
             "const client = await create({ sessionId: 'docs-example' });",
-            "const result = await client.sendText('447123456789@c.us', 'Hello from open-wa');",
-            'if (typeof result === \'string\') {',
-            '  console.log(`Sent message: ${result}`);',
-            '} else {',
-            '  console.error(\'The client did not return a message id\', result);',
+            'try {',
+            "  const messageId = await client.sendText('447123456789@c.us', 'Hello from open-wa');",
+            "  console.log('Message ID:', messageId);",
+            '} finally {',
+            '  await client.stop();',
             '}',
             '```',
             '',
@@ -1025,7 +1018,7 @@ function buildInternalsPages(
             "export const sendText = defineMethodV2('sendText', {",
             `  meta: { description: ${JSON.stringify(sendText.meta.description ?? '')}, namespace: ${JSON.stringify(sendText.meta.namespace ?? 'core')}, httpMethod: ${JSON.stringify((routes.get('sendText')?.httpMethod) ?? 'POST')} },`,
             `  parameterOrder: ${JSON.stringify(sendText.meta.parameterOrder)},`,
-            '  // input: z.object({ to, content, options }), output: MessageId | boolean | string',
+            '  // input: z.object({ to, content, options }), output: SendTextResultSchema',
             '});',
             '```',
             '',

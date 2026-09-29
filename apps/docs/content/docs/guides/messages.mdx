@@ -74,14 +74,15 @@ method [`sendTextWithMentions`](/docs/reference/client/client#sendtextwithmentio
 with contact IDs such as `447700900000@c.us`; the current embedded Client does
 not declare that method.
 
-The in-process `Client` declares `sendText` as `Promise<string | false>`. The
-WAPI can return status strings such as `Not a contact` or
-`Not able to send message to broadcast`; the in-process Client turns
-`Not a contact` into a rejected Promise because sending to an unknown number
-requires a Restricted or Premium license. The Easy API schema also allows a
-boolean or a serialized ID object. A string is safe to pass to a follow-up
-method only when it has the message ID shape. Handle both returned values and
-rejected Promises.
+The in-process `Client` returns a validated serialized `MessageId` from
+`sendText`, or throws a typed `SendTextError`. A returned ID confirms submission,
+not delivery or reading. Subscribe to `onAck` before sending to observe later
+acknowledgements. Starting a chat with a new number requires an applied
+Restricted or Premium license; an existing chat is enough for this tutorial.
+
+An error with `outcome: 'unknown'` means the message may already have been sent.
+Check the conversation before retrying. open-wa never retries `sendText`
+automatically.
 
 Mention helpers are generated Easy API methods with their own parameter
 contract; they are not methods declared by the current embedded `Client`
@@ -249,22 +250,26 @@ When receiving a location message, read fields such as `lat`, `lng`, and `loc` f
 A message send can fail when the session is not ready or the chat ID is incorrect. It can also fail when the user is not available. WhatsApp can reject a large, malformed, or prohibited payload.
 
 ```ts
+import { SendTextError } from '@open-wa/wa-automate';
+
 try {
-  const result = await client.sendText(chatId, 'Hello');
-
-  const messageId = typeof result === 'string'
-    ? result
-    : typeof result === 'object' && result !== null
-      ? result._serialized
-      : null;
-
-  if (!messageId || !/^(true|false)_.+_.+$/.test(messageId)) {
-    console.warn('Message send did not return a usable message ID', { result });
-  }
+  const messageId = await client.sendText(chatId, 'Hello');
+  console.log('Submitted:', messageId);
 } catch (error) {
-  console.error('Could not send message', error);
+  if (error instanceof SendTextError) {
+    console.error(error.code, error.message);
+    if (error.outcome === 'unknown') {
+      console.error('Check the receiving chat before sending again.');
+    }
+  } else {
+    throw error;
+  }
 }
 ```
+
+`INVALID_ARGUMENT`, `LICENSE_REQUIRED`, and `SEND_REJECTED` report
+`outcome: 'not_sent'`. `SEND_FAILED` and `INVALID_SEND_RESULT` report
+`outcome: 'unknown'`; their `cause` retains the underlying failure or response.
 
 Common checks:
 
@@ -284,68 +289,33 @@ Read **[Rate limits](/docs/guides/rate-limits)** before running production autom
 
 ## Full bot example
 
-This example creates the embedded runtime, wraps it in the `Client` facade,
-starts the session, and replies to an incoming command. It uses the same
-connected-client lifecycle as the [custom-code guide](/docs/getting-started/custom-code).
+Create a project with the [initializer](/docs/getting-started/initializer), then
+replace `index.ts` with this example. Run `bun run start`, link the sending
+account if prompted, and send `!help` to it from your test chat.
 
 ```ts
-import { Client, createClient } from '@open-wa/wa-automate';
-import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+import { create } from '@open-wa/wa-automate';
 
-async function main(): Promise<void> {
-  const runtime = await createClient({
-    sessionId: 'messages-guide',
-    driver: new PuppeteerDriver(),
-    headless: false,
-  });
+const client = await create();
 
-  const client = new Client({
-    client: runtime,
-    transport: runtime.getTransport(),
-  });
-
-  await client.start();
-  const readiness = runtime.getReadiness();
-  if (!readiness.ready) {
-    throw new Error(`Session is not ready: ${readiness.pending.join(', ') || 'unknown blocker'}`);
+client.onMessage(async (message) => {
+  if (message.body !== '!help') return;
+  try {
+    await client.sendText(message.from, 'I received your request.');
+  } catch (error) {
+    console.error('Reply failed. Check the chat before retrying:', error);
   }
-
-  console.log(`Session ${runtime.sessionId} is ready`);
-
-  client.onMessage(async (message) => {
-    try {
-      if (message.body !== '!help') return;
-
-      const result = await client.reply(
-        message.from,
-        'I received your request.',
-        message.id
-      );
-
-      if (result === false) {
-        console.warn('WhatsApp did not return a reply message ID');
-      } else {
-        console.log('Reply result:', result);
-      }
-    } catch (error) {
-      console.error('Message handler failed', error);
-    }
-  });
-
-  let stopping = false;
-  const shutdown = async (signal: string): Promise<void> => {
-    if (stopping) return;
-    stopping = true;
-    console.log(`Stopping after ${signal}...`);
-    await client.stop(signal);
-  };
-
-  process.once('SIGINT', () => void shutdown('SIGINT'));
-  process.once('SIGTERM', () => void shutdown('SIGTERM'));
-}
-
-main().catch((error: unknown) => {
-  console.error('open-wa failed:', error);
-  process.exitCode = 1;
 });
+
+let stopping = false;
+const shutdown = async () => {
+  if (stopping) return;
+  stopping = true;
+  await client.stop();
+};
+process.once('SIGINT', () => void shutdown());
+process.once('SIGTERM', () => void shutdown());
 ```
+
+The process stays connected to receive messages. Stop it with Ctrl+C when you
+finish; the saved connection remains available for the next run.

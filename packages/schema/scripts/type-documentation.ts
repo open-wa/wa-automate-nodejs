@@ -2,6 +2,7 @@ import { z } from 'zod';
 import * as common from '../src/common-types';
 import * as returns from '../src/return-types';
 import * as interactive from '../src/interactive';
+import { SendTextResultSchema } from '../src/methods/messaging';
 
 export const namedSchemas = Object.fromEntries(
   [...Object.entries(common), ...Object.entries(returns), ...Object.entries(interactive)]
@@ -9,6 +10,7 @@ export const namedSchemas = Object.fromEntries(
     .map(([name, value]) => [name.replace(/Schema$/, ''), value as z.ZodType]),
 );
 const names = new Map(Object.entries(namedSchemas).map(([name, schema]) => [schema, name]));
+names.set(SendTextResultSchema, 'MessageId');
 
 // Walk the Zod contract before JSON Schema erases brands, undefined and names.
 export function describeType(schema: z.ZodType, inline = false): string {

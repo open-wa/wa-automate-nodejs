@@ -632,6 +632,7 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         authTimeoutMs: typeof config.authTimeout === 'number' ? config.authTimeout * 1000 : undefined,
         executablePath: executableResolution.executablePath,
         browserArgs: config.chromiumArgs,
+        browser: config.browser,
         allowDangerousBrowserArgs: config.allowDangerousBrowserArgs,
         userDataDir: config.userDataDir,
         ephemeral: config.ephemeral,
@@ -770,6 +771,11 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
 }
 
 export async function main(argv: string[] = process.argv.slice(2)): Promise<CliRuntimeResult | void> {
+    if (argv[0] === 'init') {
+        const { initProject } = await import('./cli/init');
+        await initProject(argv.slice(1));
+        return;
+    }
     const parsedArgs = parseCliArgs(argv);
 
     if (parsedArgs.pm2) {

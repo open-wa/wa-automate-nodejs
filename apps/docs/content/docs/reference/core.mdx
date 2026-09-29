@@ -14,20 +14,20 @@ Open-WA exposes a few entry points because each one owns a different layer of th
 | Entry point | What it is | Use it when |
 | --- | --- | --- |
 | Easy API | The hosted HTTP API and dashboard started by the CLI or API server. | You want the fastest path to a running WhatsApp API, generated docs, webhooks, or MCP tools. |
-| `createClient` | The low-level core factory exported from `@open-wa/core` and re-exported by `@open-wa/wa-automate`. | You want to own the browser driver, startup lifecycle, events, plugins, and shutdown inside your own Node.js process. |
-| `create` | A convenience runtime helper that resolves Open-WA config, chooses a driver, and then calls core `createClient`. | You want programmatic startup with config-style defaults instead of building a full `CreateClientOptions` object yourself. |
+| `createClient` | The low-level core factory exported from `@open-wa/core` and re-exported by `@open-wa/wa-automate`. | You want to own the browser driver, startup lifecycle, events, plugins, and shutdown inside your own Bun application. |
+| `create` | The public factory that starts WhatsApp and resolves to a ready messaging `Client`. | You want to call message methods after `await create()` with browser setup and QR login handled for you. |
 | `OpenWAClient` | The object returned by `createClient`. | You created a core runtime and must start it, stop it, inspect readiness, access events, or connect to the transport. |
 
-Think of Easy API as the packaged service, `create` as a config-aware helper, `createClient` as the core constructor, and `OpenWAClient` as the running runtime handle. The higher-level client facade and socket clients build on top of those pieces to expose familiar message methods. The core client itself focuses on lifecycle, event flow, plugin hosting, session readiness, and browser transport access.
+Think of Easy API as the packaged service, [`create`](/docs/reference/create) as the ready messaging factory, `createClient` as the core constructor, and `OpenWAClient` as the running runtime handle. The higher-level client facade and socket clients build on top of those pieces to expose familiar message methods. The core client itself focuses on lifecycle, event flow, plugin hosting, session readiness, and browser transport access.
 
-For most applications, start with Easy API. Use `createClient` when you must own the runtime. Examples include a specified driver, custom plugin registration, direct readiness checks, and controlled shutdown behavior.
+For an embedded application, start with [`create()`](/docs/reference/create). Use Easy API for an HTTP service. Use `createClient` when you must own the runtime. Examples include a specified driver, custom plugin registration, direct readiness checks, and controlled shutdown behavior.
 
 ## Runnable example
 
 This example starts the core runtime with the Puppeteer driver. It listens for lifecycle and message events and prints the readiness snapshot. Process signals cause a controlled shutdown.
 
 ```bash
-npm install @open-wa/wa-automate @open-wa/driver-puppeteer
+bun add @open-wa/wa-automate @open-wa/driver-puppeteer
 ```
 
 ```ts

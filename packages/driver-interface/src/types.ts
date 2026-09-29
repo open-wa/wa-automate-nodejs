@@ -17,9 +17,19 @@ export interface LightpandaOptions {
     disableTelemetry?: boolean;
 }
 
+export interface BrowserProvisionOptions {
+    /** Download the Puppeteer-matched Chrome when missing, or require an existing installation. */
+    download?: 'auto' | 'never';
+    /** Defaults to Puppeteer's configured cache (including PUPPETEER_CACHE_DIR). */
+    cacheDirectory?: string;
+    /** Optional Chrome for Testing mirror. HTTP(S)_PROXY and NO_PROXY apply to downloads. */
+    downloadBaseUrl?: string;
+}
+
 export interface LaunchOptions {
     headless?: boolean;
     executablePath?: string;
+    browser?: BrowserProvisionOptions;
     args?: string[];
     proxy?: { server: string; username?: string; password?: string };
     userDataDir?: string;
