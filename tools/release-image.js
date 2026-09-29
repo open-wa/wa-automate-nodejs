@@ -4,6 +4,7 @@
 const fs = require("fs");
 const path = require("path");
 const puppeteer = require("puppeteer");
+const { collectChanges, releaseContent, renderMarkdown } = require("./release/image-content.cjs");
 
 const ROOT = path.join(__dirname, "..");
 const PACKAGES_DIR = path.join(ROOT, "packages");
@@ -16,31 +17,6 @@ function targetVersion() {
   return JSON.parse(fs.readFileSync(path.join(PACKAGES_DIR, "core/package.json"), "utf8")).version;
 }
 
-function changelogBody(file, version) {
-  if (!fs.existsSync(file)) return null;
-  const lines = fs.readFileSync(file, "utf8").split(/\r?\n/);
-  let start = -1;
-  for (let i = 0; i < lines.length; i++) {
-    const match = lines[i].match(/^##\s+\[?(\d+\.\d+\.\d+[^\]\s]*)\]?/);
-    if (!match) continue;
-    if (start !== -1) return lines.slice(start, i).join("\n").trim() || null;
-    if (match[1] === version) start = i + 1;
-  }
-  return start === -1 ? null : lines.slice(start).join("\n").trim() || null;
-}
-
-function collectChanges(version) {
-  return fs.readdirSync(PACKAGES_DIR).flatMap((dir) => {
-    const folder = path.join(PACKAGES_DIR, dir);
-    const manifest = path.join(folder, "package.json");
-    if (!fs.existsSync(manifest)) return [];
-    const pkg = JSON.parse(fs.readFileSync(manifest, "utf8"));
-    if (pkg.private) return [];
-    const body = changelogBody(path.join(folder, "CHANGELOG.md"), version);
-    return body ? [{ name: pkg.name, body }] : [];
-  });
-}
-
 function escapeHtml(value) {
   return value.replace(/[&<>"']/g, (char) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
@@ -48,24 +24,33 @@ function escapeHtml(value) {
 }
 
 function inlineMarkdown(value) {
-  return escapeHtml(value)
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-    .replace(/`([^`]+)`/g, "<code>$1</code>");
+  return renderMarkdown(value).trim().replace(/^<p>|<\/p>$/g, "");
 }
 
-function blocksFor(changes) {
-  return changes.flatMap(({ name, body }) => body.split(/\r?\n/)
-    .filter((line) => line.trim())
-    .map((line) => {
-      const trimmed = line.trim();
-      const type = trimmed.startsWith("### ") ? "section"
-        : /^\s*- /.test(line) ? (/^\s{2,}- /.test(line) ? "nested" : "bullet")
-          : "paragraph";
-      const content = type === "section" ? trimmed.slice(4)
-        : type === "bullet" || type === "nested" ? trimmed.slice(2) : trimmed;
-      return { package: name, type, html: inlineMarkdown(content) };
-    }));
+async function blocksFor(page, content) {
+  return page.evaluate(({ html, sections }) => {
+    const source = document.createElement("div");
+    source.innerHTML = html;
+    source.querySelectorAll("a.anchor").forEach(node => node.remove());
+    const blocks = [];
+    let section;
+    for (const node of source.children) {
+      const marker = (node.matches("h1") ? node : node.querySelector(":scope > h1"))?.textContent.match(/^OPENWA-CHANGE-(\d+)$/);
+      if (marker) { section = sections[Number(marker[1])]; continue; }
+      if (!section) continue;
+      if (node.matches("ul,ol")) {
+        [...node.children].forEach((child, index) => {
+          const list = node.cloneNode(false);
+          if (node.matches("ol")) list.start = (Number(node.getAttribute("start")) || 1) + index;
+          list.appendChild(child.cloneNode(true));
+          blocks.push({ package: section.label, html: list.outerHTML });
+        });
+      } else {
+        blocks.push({ package: section.label, html: node.outerHTML, heading: node.matches("h1,h2,h3,h4,h5,h6,.markdown-heading") });
+      }
+    }
+    return blocks;
+  }, { html: content.html, sections: content.sections });
 }
 
 function releaseSubtitle(version) {
@@ -99,7 +84,7 @@ function storyHtml(story, version) {
   </div></section>`).join("");
 }
 
-function documentHtml(version, count, story) {
+function documentHtml(version, count, story, content) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -115,7 +100,11 @@ function documentHtml(version, count, story) {
     .cover-content { position:relative; z-index:1; height:100%; padding:72px 80px 66px; display:flex; flex-direction:column; }
     .mast { display:flex; align-items:center; justify-content:space-between; font-weight:700; font-size:22px; }
     .mast .issue { font-size:16px; letter-spacing:.13em; color:#e7eeff; }
-    .cover-main { margin-top:145px; }
+    .cover-main { flex:1; display:flex; flex-direction:column; justify-content:center; }
+    .cover-copy h1 { margin:28px 0 0; max-width:1120px; font-family:'Bricolage Grotesque',Inter,sans-serif; font-size:112px; line-height:1.03; letter-spacing:-.045em; font-weight:800; }
+    .cover-copy p { margin:32px 0 0; max-width:970px; font-size:30px; line-height:1.42; color:#e7eeff; }
+    .cover-copy a { color:inherit; }
+    a.anchor { display:none; }
     .eyebrow { color:#a3b7f5; font-size:18px; font-weight:700; letter-spacing:.15em; }
     .cover-title { margin:28px 0 0; font-family:'Bricolage Grotesque',Inter,sans-serif; font-size:132px; line-height:.94; letter-spacing:-.045em; font-weight:800; }
     .cover-deck { margin:35px 0 0; max-width:700px; font-size:27px; line-height:1.38; color:#e7eeff; }
@@ -132,16 +121,28 @@ function documentHtml(version, count, story) {
     .sheet-version { color:#5272c5; font-size:21px; font-weight:600; }
     .columns { display:flex; gap:50px; flex:1; min-height:0; }
     .column { flex:1; height:100%; overflow:hidden; }
-    .package-title { font-family:'Bricolage Grotesque',Inter,sans-serif; font-weight:800; font-size:27px; line-height:1.15; letter-spacing:-.035em; color:#2055e6; border-top:3px solid #2d6bff; padding-top:14px; margin:0 0 14px; }
+    .package-title { font-family:'Bricolage Grotesque',Inter,sans-serif; font-weight:800; font-size:19px; line-height:1.35; letter-spacing:-.02em; color:#2055e6; border-top:3px solid #2d6bff; padding-top:14px; margin:0 0 14px; }
     .package-title.continued:after { content:"  /  continued"; font:600 14px Inter,Arial,sans-serif; letter-spacing:.02em; color:#7b8aa9; }
-    .block { font-size:20px; line-height:1.34; margin:0 0 12px; overflow-wrap:anywhere; }
-    .block.section { font-size:14px; line-height:1.3; color:#687895; font-weight:700; letter-spacing:.12em; text-transform:uppercase; margin:18px 0 13px; }
-    .block.bullet, .block.nested { position:relative; padding-left:24px; }
-    .block.bullet:before, .block.nested:before { content:""; position:absolute; left:0; top:11px; width:7px; height:7px; background:#2d6bff; border-radius:50%; }
-    .block.nested { color:#59677d; font-size:17px; line-height:1.3; padding-left:35px; margin-bottom:7px; }
-    .block.nested:before { left:15px; width:5px; height:5px; background:#a3b7f5; }
+    .block { font-size:22px; line-height:1.34; margin:0 0 12px; overflow-wrap:anywhere; }
+    .block p { margin:0 0 13px; }
+    .block > :last-child { margin-bottom:0; }
+    .block h1, .block h2, .block h3, .block h4 { margin:0 0 14px; font-size:32px; line-height:1.1; letter-spacing:-.03em; }
+    .block h3, .block h4 { font-size:26px; }
+    .block ul, .block ol { margin:0; padding-left:25px; }
+    .block li::marker { color:#2055e6; }
+    .block li > p { margin:0 0 8px; }
+    .block li ul, .block li ol { margin-top:8px; }
+    .block a { color:#2055e6; text-decoration:underline; text-underline-offset:3px; }
     .block strong { font-weight:700; }
-    .block code { font:600 .86em Inter,Arial,sans-serif; background:#e7eeff; padding:1px 4px; border-radius:3px; }
+    .block code { font:500 .86em ui-monospace,SFMono-Regular,monospace; background:#e7eeff; padding:2px 4px; border-radius:3px; }
+    .block pre { background:#e7eeff; padding:16px; border-radius:8px; margin:0; white-space:pre-wrap; overflow-wrap:anywhere; font-size:18px; line-height:1.4; }
+    .block pre code { padding:0; background:none; }
+    .block blockquote { margin:0; padding:5px 0 5px 18px; border-left:4px solid #a3b7f5; color:#526176; }
+    .block table { border-collapse:collapse; width:100%; font-size:18px; }
+    .block th, .block td { border:1px solid #cbd5e7; padding:8px; text-align:left; }
+    .block img { max-width:100%; max-height:350px; object-fit:contain; }
+    .block hr { border:0; border-top:1px solid #cbd5e7; }
+    .pl-k, .pl-s, .pl-en { color:#2055e6; }
     .sheet-bottom { border-top:1px solid #d7ddeb; margin-top:21px; padding-top:17px; display:flex; justify-content:space-between; font-size:15px; font-weight:600; color:#687895; }
     .story-heading { display:flex; justify-content:space-between; align-items:flex-end; padding:29px 0 0; }
     .story-kicker { color:#2055e6; font-size:15px; font-weight:700; letter-spacing:.13em; margin-bottom:10px; }
@@ -157,9 +158,8 @@ function documentHtml(version, count, story) {
     <section class="page cover" id="cover"><div class="mesh"></div><div class="cover-content">
       <div class="mast"><span>openwa</span><span class="issue">${escapeHtml(releaseSubtitle(version))} / 01</span></div>
       <div class="cover-main"><div class="eyebrow">OPENWA · RELEASE ${escapeHtml(version)}</div>
-        <h1 class="cover-title">OpenWA<br>${escapeHtml(version)}</h1>
-        <p class="cover-deck">${story.length ? "Three years in the making. A new foundation for everyone coming from v4." : `Changes across ${count} packages, laid out for reading.`}</p></div>
-      <div class="cover-bottom"><span>${story.length ? "A guide for v4 users" : `${count} package changelogs`}<br>${count} package changelogs.</span><span>${story.length ? "Start with what changed →" : "Package changes follow →"}</span></div>
+        <div class="cover-copy">${content.coverHtml}</div></div>
+      <div class="cover-bottom"><span>${escapeHtml(content.badge)}<br>OpenWA ${escapeHtml(version)}</span><span>See what you can build →</span></div>
     </div></section><main id="story">${storyHtml(story, version)}</main><main id="sheets"></main>
   </body></html>`;
 }
@@ -176,7 +176,7 @@ async function paginate(page, blocks, version, storyCount) {
         pageNumber++;
         const sheet = document.createElement("section");
         sheet.className = "page sheet";
-        sheet.innerHTML = `<div class="sheet-inner"><div class="sheet-top"><span class="sheet-brand">openwa</span><span class="sheet-meta">RELEASE NOTES / ${String(pageNumber + storyCount + 1).padStart(2, "0")}</span></div><div class="sheet-heading"><span class="sheet-title">Package changes</span><span class="sheet-version">v${version}</span></div><div class="columns"><div class="column"></div><div class="column"></div></div><div class="sheet-bottom"><span>open-wa / changelog</span><span>${String(pageNumber + storyCount + 1).padStart(2, "0")} / TOTAL</span></div></div>`;
+        sheet.innerHTML = `<div class="sheet-inner"><div class="sheet-top"><span class="sheet-brand">openwa</span><span class="sheet-meta">RELEASE NOTES / ${String(pageNumber + storyCount + 1).padStart(2, "0")}</span></div><div class="sheet-heading"><span class="sheet-title">What changed</span><span class="sheet-version">v${version}</span></div><div class="columns"><div class="column"></div><div class="column"></div></div><div class="sheet-bottom"><span>open-wa / changelog</span><span>${String(pageNumber + storyCount + 1).padStart(2, "0")} / TOTAL</span></div></div>`;
         sheets.appendChild(sheet);
       }
       const sheet = sheets.lastElementChild;
@@ -192,9 +192,9 @@ async function paginate(page, blocks, version, storyCount) {
     };
     makeColumn();
     const seen = new Set();
-    for (const block of blocks) {
+    for (const [blockIndex, block] of blocks.entries()) {
       const item = document.createElement("div");
-      item.className = `block ${block.type}`;
+      item.className = "block";
       item.innerHTML = block.html;
       let title;
       if (currentPackage !== block.package) {
@@ -202,7 +202,17 @@ async function paginate(page, blocks, version, storyCount) {
         column.appendChild(title);
       }
       column.appendChild(item);
-      if (column.scrollHeight > column.clientHeight + 1) {
+      // Keep a heading with the first content block, even at a column boundary.
+      let probe;
+      if (block.heading && blocks[blockIndex + 1]?.package === block.package) {
+        probe = document.createElement("div");
+        probe.className = "block";
+        probe.innerHTML = blocks[blockIndex + 1].html;
+        column.appendChild(probe);
+      }
+      const overflows = column.scrollHeight > column.clientHeight + 1;
+      if (probe) probe.remove();
+      if (overflows) {
         item.remove();
         if (title) title.remove();
         makeColumn();
@@ -210,7 +220,7 @@ async function paginate(page, blocks, version, storyCount) {
         column.appendChild(title);
         column.appendChild(item);
         if (column.scrollHeight > column.clientHeight + 1) {
-          throw new Error(`Changelog line is taller than a page: ${block.package}`);
+          throw new Error(`Rendered Markdown block is taller than a page: ${block.package}`);
         }
       }
       currentPackage = block.package;
@@ -231,6 +241,7 @@ async function run() {
   const version = targetVersion();
   const changes = collectChanges(version);
   if (!changes.length) throw new Error(`No package changelogs found for v${version}`);
+  const content = releaseContent(version, changes);
   const story = releaseStory(version);
   console.log(`Rendering v${version}: ${changes.length} package changelogs`);
 
@@ -242,12 +253,30 @@ async function run() {
   try {
     const page = await browser.newPage();
     await page.setViewport({ width: WIDTH, height: HEIGHT, deviceScaleFactor: 1 });
-    await page.setContent(documentHtml(version, changes.length, story), { waitUntil: "domcontentloaded" });
+    await page.setContent(documentHtml(version, changes.length, story, content), { waitUntil: "domcontentloaded" });
     await page.evaluate(() => Promise.race([
       document.fonts.ready,
       new Promise((resolve) => setTimeout(resolve, 10000)),
     ]));
-    await paginate(page, blocksFor(changes), version, story.length);
+    await page.evaluate(({ customHeadline, customSummary }) => {
+      const title = document.querySelector(".cover-copy h1");
+      const shorten = (text, limit) => text.length <= limit ? text : `${text.slice(0, limit).replace(/\s+\S*$/, "")}…`;
+      // Shorten rendered text, never raw Markdown that could leave a cut token.
+      if (!customHeadline) title.textContent = shorten(title.textContent.split(/(?<=[.!?])\s/)[0], 90);
+      const summary = document.querySelector(".cover-copy p");
+      if (summary && !customSummary) summary.textContent = shorten(summary.textContent, 220);
+      while (title.scrollHeight > 280 && parseFloat(getComputedStyle(title).fontSize) > 56) {
+        title.style.fontSize = `${parseFloat(getComputedStyle(title).fontSize) - 2}px`;
+      }
+      const copy = document.querySelector(".cover-copy").getBoundingClientRect();
+      const footer = document.querySelector(".cover-bottom").getBoundingClientRect();
+      if (copy.bottom > footer.top - 20) throw new Error("Cover copy is too long; shorten the release headline or summary");
+    }, { customHeadline: content.customHeadline, customSummary: content.customSummary });
+    await paginate(page, await blocksFor(page, content), version, story.length);
+    // Remove only prior generated image pages, including pages no longer needed.
+    for (const name of fs.readdirSync(ROOT)) {
+      if (/^release(?:-\d+)?\.png$/.test(name)) fs.unlinkSync(path.join(ROOT, name));
+    }
     const pages = await page.$$(".page");
     for (let i = 0; i < pages.length; i++) {
       const file = i === 0 ? "release.png" : `release-${String(i + 1).padStart(2, "0")}.png`;
