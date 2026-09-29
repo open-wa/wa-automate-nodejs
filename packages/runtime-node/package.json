@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/runtime-node",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Node Effect runtime Layer for open-wa",
   "type": "module",
   "main": "./dist/index.cjs",
