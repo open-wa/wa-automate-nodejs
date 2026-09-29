@@ -9,6 +9,7 @@
     "authentication-flow",
     "---Messaging & data---",
     "messages",
+    "interactive-messages",
     "media",
     "groups",
     "group-filtering",

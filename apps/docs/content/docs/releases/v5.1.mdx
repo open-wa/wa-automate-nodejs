@@ -1,0 +1,49 @@
+---
+title: "V5.1: Buttons are back"
+description: Reply buttons, lists, forms, image carousels and booking cards return with a new API for Insiders and above.
+---
+
+# Buttons are back
+
+If you gave up on WhatsApp buttons, OpenWA 5.1 gives you a reason to try them again. Send reply buttons, lists, forms, image carousels and booking cards through one `sendInteractive(to, content)` API, with the same JSON document in the SDK and HTTP API.
+
+**Available to Insiders and above.** Update OpenWA and restart your licensed session to load the new capabilities.
+
+## Get answers your code can use
+
+`onInteractiveResponse` gives you the selected reply or list row ID. `onFormResponse` gives you answers keyed by your own question IDs, including arrays for multiple selections:
+
+```ts
+client.onFormResponse(({ answers }) => {
+  // { plan: 'pro', extras: ['delivery', 'gift'] }
+  console.log(answers);
+});
+```
+
+Keep your application IDs stable while changing the labels your customers see. Responses include the sender, chat, response message ID and original message reference, and HTTP integrations can subscribe to `interactive.response` on the event stream.
+
+## Start with a few lines
+
+```ts
+client.onInteractiveResponse(response => {
+  if (response.type === 'reply') console.log(response.id);
+});
+
+await client.sendInteractive(to, {
+  type: 'buttons', body: 'What can we help you with?',
+  actions: [
+    { type: 'reply', id: 'order', label: 'Track my order' },
+    { type: 'reply', id: 'support', label: 'Talk to support' },
+  ],
+});
+```
+
+`defineInteractiveMessage(...)` adds validation and useful defaults when you want to save or reuse a document. Advanced integrations can use native actions or `sendRawMessage` for constructed protocol payloads.
+
+## Upgrade
+
+```sh
+npm install @open-wa/wa-automate@^5.1.0
+```
+
+Read the [interactive messages guide](/docs/guides/interactive-messages) for all message types, response handlers, media and HTTP examples, and recipient support limits. This is the new V5 API; use it for new integrations rather than carrying over V4 button calls.

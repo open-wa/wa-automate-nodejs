@@ -1,3 +1,8 @@
+---
+title: Interactive messages
+description: Send buttons, lists, forms, carousels and booking cards, and handle structured responses with OpenWA V5.
+---
+
 # Interactive messages
 
 Interactive messages require an applied **Insiders or higher** license. Use one JSON document with the SDK, HTTP API or a message builder. `sendInteractive` returns the serialized outgoing message ID; that confirms the send operation, not recipient rendering or interaction.
@@ -16,10 +21,10 @@ const message = defineInteractiveMessage({
 client.onInteractiveResponse(response => {
   if (response.type === 'reply') console.log(response.id, response.originalMessageId);
 });
-const messageId = await client.sendInteractive('447738001345@c.us', message);
+const messageId = await client.sendInteractive('PHONE_NUMBER@c.us', message);
 ```
 
-The HTTP equivalent is `POST /api/messages/sendInteractive` with `{ "to": "447738001345@c.us", "content": message }`. Supply your configured API authentication. SDK and HTTP calls use the same validation and client implementation.
+The HTTP equivalent is `POST /api/messages/sendInteractive` with `{ "to": "PHONE_NUMBER@c.us", "content": message }`. Supply your configured API authentication. SDK and HTTP calls use the same validation and client implementation.
 
 ## Document contract
 
@@ -104,7 +109,7 @@ curl -N -H "X-API-Key: $OPENWA_API_KEY" \
   'http://localhost:8002/api/events?topics=interactive.response'
 ```
 
-Each `interactive.response` event contains the response at `payload.response`. Use its `type` to select forms, replies or list selections, and its `messageId` to deduplicate events in your integration. The stream delivers live events; it does not replay submissions made while the integration was disconnected.
+Each `interactive.response` event contains the response at `payload.response`. Use its `type` to select forms, replies or list selections, and its `messageId` to deduplicate events in your integration. The stream does not retain events for disconnected integrations. WhatsApp can deliver older responses during session synchronization; deduplicate by `messageId` and use `timestamp` when your workflow needs to reject stale submissions.
 
 ### Carousels
 

@@ -2,6 +2,7 @@
   "title": "Releases",
   "icon": "Newspaper",
   "pages": [
+    "v5.1",
     "v5-alpha"
   ]
 }
