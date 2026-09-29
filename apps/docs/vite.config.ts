@@ -44,6 +44,10 @@ const config: UserConfig = {
         mdx(await import('./source.config.ts')),
         tailwindcss(),
         tanstackStart({
+            // Editorial routes read live published content through a Worker binding.
+            prerender: {
+                filter: (page) => !/^\/(blog|changelog|sitemap\.xml)(\/|$)/.test(page.path),
+            },
             spa: {
                 enabled: true,
                 prerender: {
@@ -53,9 +57,6 @@ const config: UserConfig = {
                 },
             },
             pages: [
-                {
-                    path: '/changelog',
-                },
                 {
                     path: '/docs',
                 },

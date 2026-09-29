@@ -20,7 +20,7 @@
     },
   ],
   "assets": {
-    "run_worker_first": ["/", "/docs", "/docs/*", "/changelog", "/changelog/*", "/api/search"],
+    "run_worker_first": ["/", "/docs", "/docs/*", "/changelog", "/changelog/*", "/blog", "/blog/*", "/api/search"],
   },
   "observability": {
     "enabled": true,
