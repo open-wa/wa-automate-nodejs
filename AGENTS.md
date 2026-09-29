@@ -148,6 +148,10 @@ Publishing is driven by Bumpy and the `release` branch.
   for that push, while retaining the normal release behavior otherwise.
 - Confirm registry versions and the workflow conclusion before reporting a
   package as released. A merged development PR is not a published package.
+- Stable packages publish under npm's `latest` tag. Do not reintroduce
+  Changesets pre-mode.
+- `tools/release/publish-packages-local.sh` is intentionally gitignored and
+  local-only. Do not commit it.
 
 ## Repository Gotchas
 
