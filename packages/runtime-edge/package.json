@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/runtime-edge",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Web API Effect runtime Layer for open-wa edge control planes",
   "type": "module",
   "main": "./dist/index.cjs",
