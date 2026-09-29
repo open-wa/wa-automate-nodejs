@@ -22,6 +22,7 @@ export function baseOptions(): BaseLayoutProps {
       { text: 'API reference', url: DOCS_PATHS.referenceClient },
       { text: 'Integrations', url: DOCS_PATHS.integrationsOverview },
       { text: 'Changelog', url: DOCS_PATHS.changelog },
+      { text: 'Blog', url: DOCS_PATHS.blog, active: 'nested-url' },
       {
         text: 'Resources', type: 'menu', items: [
           { text: 'API Explorer', url: DOCS_PATHS.apiExplorer },
