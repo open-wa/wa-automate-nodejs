@@ -5,6 +5,7 @@ import {
   type ReactNode,
   type SyntheticEvent,
   use,
+  useCallback,
   useEffect,
   useEffectEvent,
   useMemo,
@@ -18,11 +19,14 @@ import { useChat, type UseChatHelpers } from '@ai-sdk/react';
 import { DefaultChatTransport, type Tool, type UIToolInvocation } from 'ai';
 import { Markdown } from '../markdown';
 import { Presence } from '@radix-ui/react-presence';
+import { useSearchContext } from 'fumadocs-ui/contexts/search';
 import type { ChatUIMessage, SearchTool } from '../../routes/api.chat';
 
 const Context = createContext<{
   open: boolean;
   setOpen: (open: boolean) => void;
+  available: boolean | null;
+  retryAvailability: () => void;
   chat: UseChatHelpers<ChatUIMessage>;
 } | null>(null);
 
@@ -46,7 +50,6 @@ export function AISearchPanelHeader({ className, ...props }: ComponentProps<'div
 
       <button
         aria-label="Close"
-        tabIndex={-1}
         className={cn(
           buttonVariants({
             size: 'icon-sm',
@@ -63,7 +66,7 @@ export function AISearchPanelHeader({ className, ...props }: ComponentProps<'div
 }
 
 export function AISearchInputActions() {
-  const { messages, status, setMessages, regenerate } = useChatContext();
+  const { messages, status, setMessages, regenerate, error } = useChatContext();
   const isLoading = status === 'streaming';
 
   if (messages.length === 0) return null;
@@ -84,6 +87,16 @@ export function AISearchInputActions() {
         >
           <RefreshCw className="size-4" />
           Retry
+        </button>
+      )}
+      {error && !isLoading && (
+        <button
+          type="button"
+          className={cn(buttonVariants({ color: 'secondary', size: 'sm', className: 'min-h-9 rounded-full gap-1.5' }))}
+          onClick={() => regenerate()}
+        >
+          <RefreshCw className="size-4" />
+          Try again
         </button>
       )}
       <button
@@ -312,6 +325,8 @@ function Message({ message, ...props }: { message: ChatUIMessage } & ComponentPr
 
 export function AISearch({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [available, setAvailable] = useState<boolean | null>(null);
+  const [availabilityRetry, setAvailabilityRetry] = useState(0);
   const chat = useChat<ChatUIMessage>({
     id: 'search',
     transport: new DefaultChatTransport({
@@ -319,8 +334,30 @@ export function AISearch({ children }: { children: ReactNode }) {
     }),
   });
 
+  useEffect(() => {
+    let active = true;
+    setAvailable(null);
+    void fetch('/api/chat', { method: 'GET', cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Availability check failed');
+        const body: unknown = await response.json();
+        if (!body || typeof body !== 'object' || !('available' in body) || typeof body.available !== 'boolean') {
+          throw new Error('Availability response was invalid');
+        }
+        if (active) setAvailable(body.available);
+      })
+      .catch(() => {
+        if (active) setAvailable(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [availabilityRetry]);
+
+  const retryAvailability = useCallback(() => setAvailabilityRetry((value) => value + 1), []);
+
   return (
-    <Context value={useMemo(() => ({ chat, open, setOpen }), [chat, open])}>{children}</Context>
+    <Context value={useMemo(() => ({ chat, open, setOpen, available, retryAvailability }), [chat, open, available, retryAvailability])}>{children}</Context>
   );
 }
 
@@ -351,7 +388,7 @@ export function AISearchTrigger({
 }
 
 export function AISearchPanel() {
-  const { open, setOpen } = useAISearchContext();
+  const { open, setOpen, available } = useAISearchContext();
   useHotKey();
 
   return (
@@ -396,12 +433,14 @@ export function AISearchPanel() {
           <div className="flex size-full flex-col p-2 safe-bottom-pad lg:p-3 lg:w-(--ai-chat-width)">
             <AISearchPanelHeader />
             <AISearchPanelList className="flex-1" />
-            <div className="rounded-2xl border-backstitch bg-card text-card-foreground shadow-sm">
-              <AISearchInput />
-              <div className="flex flex-wrap items-center gap-1.5 p-2 empty:hidden">
-                <AISearchInputActions />
+            {available && (
+              <div className="rounded-2xl border-backstitch bg-card text-card-foreground shadow-sm">
+                <AISearchInput />
+                <div className="flex flex-wrap items-center gap-1.5 p-2 empty:hidden">
+                  <AISearchInputActions />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </Presence>
@@ -412,6 +451,8 @@ export function AISearchPanel() {
 export function AISearchPanelList({ className, style, ...props }: ComponentProps<'div'>) {
   const chat = useChatContext();
   const messages = chat.messages.filter((msg) => msg.role !== 'system');
+  const { setOpen, available, retryAvailability } = useAISearchContext();
+  const { setOpenSearch } = useSearchContext();
 
   return (
     <List
@@ -423,21 +464,68 @@ export function AISearchPanelList({ className, style, ...props }: ComponentProps
       }}
       {...props}
     >
-      {messages.length === 0 ? (
-        <div className="flex size-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border bg-dither p-6 text-center text-sm text-muted-foreground">
+      {available === null ? (
+        <div role="status" className="mx-3 rounded-xl border border-border bg-muted p-3 text-sm text-muted-foreground">
+          Checking Ask AI availability…
+        </div>
+      ) : available === false || chat.error ? (
+        <div className="mx-3 rounded-xl border border-border bg-muted p-3 text-foreground">
+          <p className="mb-1 text-xs font-semibold text-muted-foreground">Ask AI unavailable</p>
+          <p className="text-sm">
+            Ask AI is unavailable right now. Use docs search or the quick start guide instead.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium">
+            {available === false && (
+              <button
+                type="button"
+                className="rounded-md border border-border px-2 py-1 hover:bg-secondary"
+                onClick={retryAvailability}
+              >
+                Try again
+              </button>
+            )}
+            {available && chat.error && (
+              <button
+                type="button"
+                className="rounded-md border border-border px-2 py-1 hover:bg-secondary"
+                onClick={() => chat.regenerate()}
+              >
+                Retry answer
+              </button>
+            )}
+            <button
+              type="button"
+              className="rounded-md border border-border px-2 py-1 hover:bg-secondary"
+              onClick={() => {
+                setOpen(false);
+                setOpenSearch(true);
+              }}
+            >
+              Open search
+            </button>
+            <a
+              className="rounded-md border border-border px-2 py-1 hover:bg-secondary"
+              href="/docs/getting-started/quickstart"
+              onClick={() => setOpen(false)}
+            >
+              Open quick start
+            </a>
+            <a
+              className="rounded-md border border-border px-2 py-1 hover:bg-secondary"
+              href="/docs"
+              onClick={() => setOpen(false)}
+            >
+              Browse docs
+            </a>
+          </div>
+        </div>
+      ) : messages.length === 0 ? (
+        <div className="flex size-full flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-muted p-6 text-center text-sm text-muted-foreground">
           <MessageCircleIcon fill="currentColor" stroke="none" />
           <p onClick={(e) => e.stopPropagation()}>Ask about the current docs page or a runtime workflow.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-4 px-3">
-          {chat.error && (
-            <div className="rounded-xl border border-border bg-muted p-3 text-foreground">
-              <p className="text-xs text-muted-foreground mb-1">
-                Request Failed: {chat.error.name}
-              </p>
-              <p className="text-sm">{chat.error.message}</p>
-            </div>
-          )}
           {messages.map((item) => (
             <Message key={item.id} message={item} />
           ))}
