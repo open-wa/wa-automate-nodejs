@@ -44,18 +44,15 @@ export function FeedbackCard({ className }: { className?: string }) {
         signal: controller.signal,
       });
       if (!response.ok) {
-        const body = (await response.json().catch(() => null)) as { error?: string } | null;
-        throw new Error(body?.error ?? `Feedback submission failed (${response.status}).`);
+        throw new Error('Feedback could not be recorded.');
       }
       if (requestRef.current === controller) setSubmitted(answer);
     } catch (submissionError) {
       if (requestRef.current === controller) {
         setError(
           submissionError instanceof DOMException && submissionError.name === 'AbortError'
-            ? 'Feedback submission timed out.'
-            : submissionError instanceof Error
-              ? submissionError.message
-              : 'Feedback could not be recorded.',
+            ? 'Saving your answer took too long. Please try again.'
+            : 'We couldn’t save your answer. Please try again.',
         );
       }
     } finally {
@@ -70,7 +67,7 @@ export function FeedbackCard({ className }: { className?: string }) {
   const issueHref = (() => {
     const params = new URLSearchParams({
       title: 'Documentation correction',
-      body: `The page ${pathname} was not helpful.\n\nDocs version: ${CURRENT_VERSION}`,
+      body: `Page: ${pathname}\n\nDocs version: ${CURRENT_VERSION}\n\nWhat needs to change?\n\n`,
     });
     return `${REPO_URL}/issues/new?${params.toString()}`;
   })();
@@ -88,7 +85,7 @@ export function FeedbackCard({ className }: { className?: string }) {
 
         <div className="flex gap-3">
           {submitted ? (
-            <div className="text-center text-sm font-semibold text-primary sm:text-left">
+            <div role="status" className="text-center text-sm font-semibold text-primary sm:text-left">
               <p>Submitted as {submitted === 'yes' ? 'helpful' : 'not helpful'}.</p>
               {submitted === 'no' ? (
                 <a
