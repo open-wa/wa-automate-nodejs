@@ -3009,9 +3009,9 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 
 ## `sendText`
 
-Sends a text message to a chat
+Sends a text message and returns a validated serialized message ID. The in-process Client throws SendTextError on failure. An unknown outcome means the message may have been sent: check the chat before retrying. Starting a chat with a new number requires an applied restricted or premium license.
 
-**Signature** `client.sendText(to: string, content: string, options?: unknown): Promise<MessageIdReturn \| boolean \| string>`
+**Signature** `client.sendText(to: string, content: string, options?: unknown): Promise<MessageId>`
 
 Start with `await client.sendText(to, content)`. The registry still accepts an optional `options` value for compatibility, but the current Client implementation ignores it. Use `reply(to, content, messageId)` for quoted replies and `sendTextWithMentions(to, content, hideTags, mentions)` for mentions.
 
@@ -3021,9 +3021,7 @@ Start with `await client.sendText(to, content)`. The registry still accepts an o
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendText('447123456789@c.us', 'Hello from open-wa');
-const messageId = typeof result === 'string' && /^(true|false)_.+_.+$/.test(result) ? result : null;
-if (!messageId) throw new Error(`Message was not sent: ${String(result)}`);
+const messageId = await client.sendText('447123456789@c.us', 'Hello from open-wa');
 console.log('Message ID:', messageId);
 ```
 
@@ -3070,12 +3068,13 @@ Example response envelope:
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<MessageIdReturn \| boolean \| string>` |
-| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
+| Return type | `Promise<MessageId>` |
+| MessageId | [View fields](/docs/reference/client/return-types#messageid) |
 
-A successful send returns a message ID as a string; some Easy API responses may serialize it as an object with `_serialized`. A boolean or a non-ID status string is not a message ID: the current WAPI can return values such as `Not a contact` or `Not able to send message to broadcast`. The in-process Client converts `Not a contact` into a rejected Promise because sending to an unknown number requires a Restricted or Premium license; the method is not otherwise license-gated. The in-process Client is declared as `Promise<string | false>`. Check returned values before passing them to another method, and handle rejected Promises for input, dispatch, license, or provider errors.
+Resolves to a validated serialized `MessageId` string, not a delivery or read receipt. The in-process Client throws `SendTextError`, exported by `@open-wa/wa-automate` and `@open-wa/client`, on failure. Its `code` is `INVALID_ARGUMENT`, `LICENSE_REQUIRED`, `SEND_REJECTED`, `INVALID_SEND_RESULT`, or `SEND_FAILED`. Its `outcome` is `not_sent` for invalid arguments and known runtime rejections, or `unknown` when the runtime returns no valid ID or browser evaluation fails. An unknown outcome means the message may already have been sent: check the chat before retrying. The client never retries automatically. Starting a chat with a new number still requires an applied restricted or premium license. HTTP and remote clients expose failures through their own error envelopes.
 
-In-process Client resolves to `Promise<string \| false>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+In-process Client resolves to `Promise<MessageId>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.
 
 <details>
 <summary>Advanced method metadata</summary>

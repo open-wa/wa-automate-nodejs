@@ -124,7 +124,7 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `sendRawMessage` | `messages` | `sendRawMessage` | `to`, `payload` | `string` |
 | `sendReplyWithMentions` | `messages` | `sendReplyWithMentions` | `to`, `content`, `replyMessageId`, `hideTags`, `mentions` | `MessageIdReturn \| boolean` |
 | `sendSeen` | `messages` | `sendSeen` | `chatId` | `boolean` |
-| `sendText` | `messages` | `sendText` | `to`, `content`, `options` | `MessageIdReturn \| boolean \| string` |
+| `sendText` | `messages` | `sendText` | `to`, `content`, `options` | `MessageId` |
 | `sendTextWithMentions` | `messages` | `sendTextWithMentions` | `to`, `content`, `hideTags`, `mentions` | `MessageIdReturn \| boolean` |
 | `sendVCard` | `messages` | `sendVCard` | `to`, `vcard`, `contactName`, `contactNumber` | `boolean` |
 | `sendVideoAsGif` | `messages` | `sendVideoAsGif` | `to`, `file`, `filename`, `caption`, `quotedMsgId` | `MessageIdReturn \| boolean` |

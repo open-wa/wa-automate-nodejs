@@ -119,7 +119,7 @@ icon: "BookOpen"
 | [`sendRawMessage`](/docs/reference/client/client#sendrawmessage) | `messages` | Send a constructed WhatsApp protobuf Message payload (Insiders and above); media must already be uploaded | `insiders` |
 | [`sendReplyWithMentions`](/docs/reference/client/client#sendreplywithmentions) | `messages` | Sends a reply to a message that includes @mentions | - |
 | [`sendSeen`](/docs/reference/client/client#sendseen) | `messages` | Mark message as seen | - |
-| [`sendText`](/docs/reference/client/client#sendtext) | `messages` | Sends a text message to a chat | - |
+| [`sendText`](/docs/reference/client/client#sendtext) | `messages` | Sends a text message and returns a validated serialized message ID. The in-process Client throws SendTextError on failure. An unknown outcome means the message may have been sent: check the chat before retrying. Starting a chat with a new number requires an applied restricted or premium license. | - |
 | [`sendTextWithMentions`](/docs/reference/client/client#sendtextwithmentions) | `messages` | Sends a text message that includes @mentions | - |
 | [`sendVCard`](/docs/reference/client/client#sendvcard) | `messages` | Sends a contact card (vCard) | - |
 | [`sendVideoAsGif`](/docs/reference/client/client#sendvideoasgif) | `messages` | Sends a video as an animated GIF | - |

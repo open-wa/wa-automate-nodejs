@@ -5778,7 +5778,7 @@
     "name": "sendText",
     "namespacedName": "messages.sendText",
     "namespace": "messages",
-    "description": "Sends a text message to a chat",
+    "description": "Sends a text message and returns a validated serialized message ID. The in-process Client throws SendTextError on failure. An unknown outcome means the message may have been sent: check the chat before retrying. Starting a chat with a new number requires an applied restricted or premium license.",
     "license": null,
     "aliases": [
       "messages.sendText"
@@ -5826,21 +5826,22 @@
         "example": "-"
       }
     ],
-    "returnType": "MessageIdReturn | boolean | string",
+    "returnType": "MessageId",
     "returnTypeLinks": {
-      "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
+      "MessageId": "/docs/reference/client/return-types#messageid"
     },
-    "sdkReturnType": "string | false",
-    "returnNotes": "A successful send returns a message ID as a string; some Easy API responses may serialize it as an object with `_serialized`. A boolean or a non-ID status string is not a message ID: the current WAPI can return values such as `Not a contact` or `Not able to send message to broadcast`. The in-process Client converts `Not a contact` into a rejected Promise because sending to an unknown number requires a Restricted or Premium license; the method is not otherwise license-gated. The in-process Client is declared as `Promise<string | false>`. Check returned values before passing them to another method, and handle rejected Promises for input, dispatch, license, or provider errors.",
+    "sdkReturnType": "MessageId",
+    "returnCaveat": "Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.",
+    "returnNotes": "Resolves to a validated serialized `MessageId` string, not a delivery or read receipt. The in-process Client throws `SendTextError`, exported by `@open-wa/wa-automate` and `@open-wa/client`, on failure. Its `code` is `INVALID_ARGUMENT`, `LICENSE_REQUIRED`, `SEND_REJECTED`, `INVALID_SEND_RESULT`, or `SEND_FAILED`. Its `outcome` is `not_sent` for invalid arguments and known runtime rejections, or `unknown` when the runtime returns no valid ID or browser evaluation fails. An unknown outcome means the message may already have been sent: check the chat before retrying. The client never retries automatically. Starting a chat with a new number still requires an applied restricted or premium license. HTTP and remote clients expose failures through their own error envelopes.",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendText",
       "flatPath": "/api/sendText"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.sendText('447123456789@c.us', 'Hello from open-wa');\nconst messageId = typeof result === 'string' && /^(true|false)_.+_.+$/.test(result) ? result : null;\nif (!messageId) throw new Error(`Message was not sent: ${String(result)}`);\nconsole.log('Message ID:', messageId);",
-      "nodeCall": "const result = await client.sendText(\"447123456789@c.us\", \"Hello, world!\");\nconst candidate = typeof result === 'string' ? result : typeof result === 'object' && result !== null && '_serialized' in result ? result._serialized : null;\nconst messageId = typeof candidate === 'string' && /^(true|false)_.+_.+$/.test(candidate) ? candidate : null;\nif (!messageId) {\n  throw new Error(`Message was not sent: ${String(result)}`);\n}\nconsole.log('Message ID:', messageId);",
-      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendText(\"447123456789@c.us\", \"Hello, world!\");\nconst candidate = typeof result === 'string' ? result : typeof result === 'object' && result !== null && '_serialized' in result ? result._serialized : null;\nconst messageId = typeof candidate === 'string' && /^(true|false)_.+_.+$/.test(candidate) ? candidate : null;\nif (!messageId) {\n  throw new Error(`Message was not sent: ${String(result)}`);\n}\nconsole.log('Message ID:', messageId);",
+      "inProcessSdk": "const messageId = await client.sendText('447123456789@c.us', 'Hello from open-wa');\nconsole.log('Message ID:', messageId);",
+      "nodeCall": "const messageId = await client.sendText(\"447123456789@c.us\", \"Hello, world!\");\nconsole.log('Message ID:', messageId);",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst messageId = await client.sendText(\"447123456789@c.us\", \"Hello, world!\");\nconsole.log('Message ID:', messageId);",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendText\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"content\": \"Hello, world!\"\n  }'",
       "response": "{\n  \"success\": true,\n  \"data\": \"true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n}"
     }
