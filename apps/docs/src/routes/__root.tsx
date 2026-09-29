@@ -3,14 +3,25 @@ import {
   HeadContent,
   Outlet,
   Scripts,
+  redirect,
 } from '@tanstack/react-router';
 import * as React from 'react';
 import appCss from '@/styles/app.css?url';
 import { RootProvider } from 'fumadocs-ui/provider/tanstack';
 import SearchDialog from '@/components/search';
 import { SITE_NAME } from '@/lib/site';
+import { NotFound } from '@/components/not-found';
+import { getLegacyDocsRedirect } from '@/lib/legacy-docs';
 
 export const Route = createRootRoute({
+  beforeLoad: ({ location }) => {
+    const destination = getLegacyDocsRedirect(location.pathname);
+    if (destination) {
+      const hash = location.hash ? `#${location.hash.replace(/^#/, '')}` : '';
+      throw redirect({ href: `${destination}${location.searchStr}${hash}`, statusCode: 301 });
+    }
+  },
+  notFoundComponent: NotFound,
   head: () => ({
     meta: [
       {
@@ -26,13 +37,6 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: 'stylesheet', href: appCss },
-      {
-        rel: 'preload',
-        href: '/fonts/AnalogMonoPlus.ttf',
-        as: 'font',
-        type: 'font/ttf',
-        crossOrigin: 'anonymous',
-      },
       { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
       { rel: 'apple-touch-icon', href: '/wally.png' },
     ],
@@ -62,7 +66,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                   tools: [
                     {
                       name: "search_docs",
-                      description: "Search openWA developer documentation",
+                      description: "Search open-wa developer documentation",
                       inputSchema: {
                         type: "object",
                         properties: {

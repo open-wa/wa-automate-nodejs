@@ -1,6 +1,9 @@
 import * as React from 'react';
 import defaultMdxComponents from 'fumadocs-ui/mdx';
-import * as AccordionComponents from 'fumadocs-ui/components/accordion';
+import {
+  Accordion as FumadocsAccordion,
+  Accordions as FumadocsAccordions,
+} from 'fumadocs-ui/components/accordion';
 import * as TabsComponents from 'fumadocs-ui/components/tabs';
 import { TypeTable } from 'fumadocs-ui/components/type-table';
 import {
@@ -23,6 +26,7 @@ import {
   InterfaceTabs,
   InterfaceTab,
 } from '@/components/interface-tabs';
+import { ClientReference, TypeDisplay } from '@/components/client-reference';
 
 function flattenText(node: React.ReactNode): string {
   if (node === null || node === undefined || typeof node === 'boolean') return '';
@@ -78,9 +82,8 @@ function LicenseAwareBlockquote(
   return (
     <blockquote
       {...props}
-      className="my-6 rounded-2xl border-backstitch bg-card px-5 py-4 text-muted-foreground relative overflow-hidden shadow-stipple"
+      className="my-6 rounded-2xl border border-border bg-muted px-5 py-4 text-muted-foreground"
     >
-      <div className="absolute inset-0 bg-dither opacity-[0.05] pointer-events-none" />
       <div className="relative z-10">{props.children}</div>
     </blockquote>
   );
@@ -117,10 +120,48 @@ const BaseH4 =
   (defaultMdxComponents.h4 as React.ElementType | undefined) ??
   ((props: React.ComponentPropsWithoutRef<'h4'>) => <h4 {...props} />);
 
+const AccordionScope = React.createContext(false);
+
+function DocsAccordions(
+  props: React.ComponentPropsWithoutRef<typeof FumadocsAccordions>,
+) {
+  return (
+    <AccordionScope.Provider value>
+      <FumadocsAccordions {...props} />
+    </AccordionScope.Provider>
+  );
+}
+
+function DocsAccordion(
+  props: React.ComponentPropsWithoutRef<typeof FumadocsAccordion>,
+) {
+  const isInsideAccordions = React.useContext(AccordionScope);
+
+  if (isInsideAccordions) {
+    return <FumadocsAccordion {...props} />;
+  }
+
+  return (
+    <DocsAccordions>
+      <FumadocsAccordion {...props} />
+    </DocsAccordions>
+  );
+}
+
+function DocumentHeading({ id, children }: React.ComponentPropsWithoutRef<'h1'>) {
+  return (
+    <span id={id} className="sr-only docs-mdx-title-anchor">
+      {children}
+    </span>
+  );
+}
+
 export const docsMdxComponents = {
   ...defaultMdxComponents,
-  ...AccordionComponents,
   ...TabsComponents,
+  Accordion: DocsAccordion,
+  Accordions: DocsAccordions,
+  h1: DocumentHeading,
   blockquote: LicenseAwareBlockquote,
   h2: createLicensedHeading(BaseH2),
   h3: createLicensedHeading(BaseH3),
@@ -139,4 +180,6 @@ export const docsMdxComponents = {
   InterfacePreference,
   InterfaceTabs,
   InterfaceTab,
+  ClientReference,
+  TypeDisplay,
 };

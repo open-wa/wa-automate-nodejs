@@ -14,7 +14,7 @@ export const MASCOT_BY_PATH: Record<string, MascotEntry> = {
     activity: 'mapping the safest route from quick start to production operations.',
   },
   '/docs/getting-started/quickstart': {
-    src: '/mascots/wally-quickstart-rocket.png',
+    src: '/mascots/wally-quickstart-transparent.png',
     title: 'Quickstart Wally',
     activity: 'launching a tiny first-success rocket beside the session console.',
   },
@@ -611,22 +611,22 @@ export function MascotCallout({
   const mascot = entry ?? MASCOT_BY_PATH['/docs'];
 
   return (
-    <div className={cn("flex items-center gap-4 px-4 py-3 border-backstitch rounded-2xl bg-card shadow-stipple relative overflow-hidden", className)}>
-      <div className="absolute inset-0 bg-dither opacity-[0.15] pointer-events-none" />
+    <div className={cn("flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2.5", className)}>
+      <div className="pointer-events-none absolute inset-0 bg-dither opacity-[0.03]" />
       
-      <div className="relative w-12 h-12 shrink-0 rounded-xl overflow-hidden border-2 border-foreground bg-background p-0.5 shadow-sm z-10">
+      <div className="relative size-11 shrink-0 overflow-hidden rounded-lg bg-transparent p-0.5">
         <img 
           src={mascot.src} 
           alt={mascot.title} 
-          className="w-full h-full object-cover rounded-lg"
+          className="size-full object-contain"
         />
       </div>
       <div className="z-10 min-w-0">
-        <h4 className="font-display font-bold text-sm text-foreground flex items-center gap-1.5">
-          <span className="text-sm">🧵</span> {mascot.title} says...
+        <h4 className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+          {mascot.title}
         </h4>
-        <p className="text-muted-foreground text-xs mt-0.5 italic font-medium truncate">
-          &quot;I am currently {mascot.activity}&quot;
+        <p className="mt-0.5 truncate text-xs text-muted-foreground">
+          Wally is {mascot.activity}
         </p>
       </div>
     </div>

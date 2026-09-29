@@ -6,9 +6,12 @@ export const SITE_NAME = 'open-wa v5 docs';
 // is no docs.openwa.dev subdomain). If the deploy moves, change it here.
 export const SITE_ORIGIN = 'https://openwa.dev';
 export const REPO_URL = 'https://github.com/open-wa/wa-automate-nodejs';
-export const GENERIC_LICENSE_URL = 'https://smashah.gumroad.com/l/open-wa?wanted=true';
-export const GENERIC_GUMROAD_URL = 'https://smashah.gumroad.com/l/open-wa?wanted=true';
-export const CURRENT_VERSION = '5.0.0-alpha.0';
+export const LICENSE_CHECKOUT_URL = `${SITE_ORIGIN}/checkout`;
+export const GENERIC_LICENSE_URL = LICENSE_CHECKOUT_URL;
+// Active docs/package line. Prerelease tags and the v4 archive are documented
+// on their own pages; shell, search, feedback, and generated metadata use the
+// supported stable release here.
+export const CURRENT_VERSION = '5.1.0';
 
 export const DOCS_PATHS = {
   overview: '/docs',
@@ -33,21 +36,22 @@ export const DOCS_PATHS = {
   errorHandling: '/docs/operations-and-troubleshooting/error-handling',
   logoutDetection: '/docs/operations-and-troubleshooting/detect-logouts',
   licensedFeatures: '/docs/licensing/licensed-features',
-  referenceClient: '/docs/reference/client',
+  integrationsOverview: '/docs/guides/integrations-overview',
+  referenceClient: '/docs/reference/client/client',
 } as const;
 
 export function getLicenseTierLabel(tier: LicenseTier): string {
   return tier === 'insiders' ? 'Insiders' : 'Restricted';
 }
 
-export function getLicenseTierHref(tier: LicenseTier): string {
-  return tier === 'insiders'
-    ? 'https://smashah.gumroad.com/l/open-wa?wanted=true&tier=Insiders%20Program'
-    : 'https://smashah.gumroad.com/l/open-wa?wanted=true&tier=1%20Restricted%20License%20Key';
+export function getLicenseTierHref(_tier: LicenseTier): string {
+  // The account checkout currently offers the “Open-WA License” product and
+  // does not select a runtime tier from the docs link.
+  return LICENSE_CHECKOUT_URL;
 }
 
 export function getLicenseTierSummary(tier: LicenseTier): string {
   return tier === 'insiders'
-    ? 'May require an insiders license for advanced or early-access capabilities.'
-    : 'May require a restricted license for gated or host-account-specific flows.';
+    ? 'The current method metadata marks this capability as Insiders. Confirm the offered account plan covers your runtime before purchasing.'
+    : 'The current method metadata marks this capability as Restricted. Confirm the offered account plan covers your runtime before purchasing.';
 }

@@ -3,8 +3,6 @@ import {
   MarkdownCopyButton,
   ViewOptionsPopover,
 } from '@/components/ai/page-actions';
-import { getMascotForPath } from '@/components/mascot-callout';
-import { cn } from '@/lib/cn';
 
 type DocsPageHeaderProps = Readonly<{
   title: string;
@@ -18,45 +16,16 @@ export function DocsPageHeader({
   pagePath,
 }: DocsPageHeaderProps) {
   const docsUrlPath = getDocsUrlPath(pagePath);
-  const mascot = getMascotForPath(docsUrlPath);
-
+  const reference = docsUrlPath.startsWith('/docs/reference');
   return (
-    <header className="relative mb-8 overflow-hidden rounded-3xl border-backstitch bg-card p-6 shadow-stipple sm:p-8 lg:p-10">
-      <div className="absolute inset-0 bg-dither opacity-[0.12] pointer-events-none" />
-      <div
-        className={cn(
-          'relative grid gap-8',
-          mascot
-            ? 'lg:grid-cols-[minmax(0,1fr)_minmax(14rem,18rem)] lg:items-center'
-            : undefined,
-        )}
-      >
-        <div className="min-w-0 space-y-7">
-          <div className="space-y-4 sm:space-y-5">
-            <DocsTitle className="font-display text-balance text-4xl font-bold text-foreground sm:text-5xl lg:text-6xl">
-              {title}
-            </DocsTitle>
-            {description ? (
-              <DocsDescription className="!mb-0 max-w-3xl text-pretty text-base leading-7 text-muted-foreground font-medium sm:text-lg">
-                {description}
-              </DocsDescription>
-            ) : null}
-          </div>
-          <PageActions pagePath={pagePath} />
-        </div>
-
-        {mascot ? (
-          <div className="flex justify-center lg:justify-end">
-            <figure className="relative size-44 overflow-hidden rounded-full border-backstitch bg-background p-2 shadow-stipple sm:size-52 lg:size-64">
-              <div className="absolute inset-0 bg-dither opacity-[0.18] pointer-events-none" />
-              <img
-                src={mascot.src}
-                alt={mascot.title}
-                className="relative size-full rounded-full object-cover"
-              />
-            </figure>
-          </div>
-        ) : null}
+    <header className="docs-page-header">
+      <div className="docs-page-meta">
+        <span><a href="/docs">Docs</a><span aria-hidden="true"> / </span>{reference ? 'API reference' : title}</span>
+        <PageActions pagePath={pagePath} />
+      </div>
+      <div className="docs-page-heading">
+        <DocsTitle>{title}</DocsTitle>
+        {description ? <DocsDescription>{description}</DocsDescription> : null}
       </div>
     </header>
   );
@@ -68,14 +37,46 @@ function PageActions({ pagePath }: Readonly<{ pagePath: string }>) {
     docsUrlPath === '/docs' ? '/llms.mdx/docs/' : `/llms.mdx${docsUrlPath}`;
 
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-      <MarkdownCopyButton markdownUrl={markdownUrl} />
+    <div className="docs-page-header-actions flex flex-wrap items-center gap-2">
+      <MarkdownCopyButton
+        markdownUrl={markdownUrl}
+        className="min-h-9 w-auto px-2.5 text-xs sm:min-h-10 sm:px-3 sm:text-sm"
+      />
       <ViewOptionsPopover
         markdownUrl={markdownUrl}
-        githubUrl={`https://github.com/open-wa/v5-shh/blob/main/apps/docs/content/docs/${pagePath}`}
-      />
+        githubUrl={`https://github.com/open-wa/wa-automate-nodejs/edit/master/${getSourcePath(pagePath)}`}
+        className="min-h-9 w-auto px-2.5 text-xs sm:min-h-10 sm:px-3 sm:text-sm"
+      >
+        Page options
+      </ViewOptionsPopover>
     </div>
   );
+}
+
+function getSourcePath(pagePath: string) {
+  const normalized = pagePath.replace(/^\/+/, '').replace(/\.mdx$/, '');
+  const workspacePage = normalized.match(
+    /^reference\/workspaces\/(apps|packages|integrations)\/([^/]+)$/,
+  );
+
+  if (workspacePage && workspacePage[2] !== 'index') {
+    return `${workspacePage[1]}/${workspacePage[2]}/README.md`;
+  }
+
+  if (
+    normalized === 'reference/workspaces' ||
+    normalized.startsWith('reference/workspaces/apps') ||
+    normalized.startsWith('reference/workspaces/packages') ||
+    normalized.startsWith('reference/workspaces/integrations')
+  ) {
+    return 'apps/docs/scripts/gen-workspace-readme-docs.js';
+  }
+
+  if (normalized.startsWith('reference/client')) {
+    return 'packages/schema/scripts/gen-client-reference-docs.ts';
+  }
+
+  return `apps/docs/content/docs/${normalized || 'index'}.mdx`;
 }
 
 function getDocsUrlPath(pagePath: string) {
