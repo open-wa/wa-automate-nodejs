@@ -7,10 +7,12 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
+    "src",
     "dist"
   ],
   "exports": {
     ".": {
+      "bun": "./src/index.ts",
       "require": {
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
@@ -21,6 +23,7 @@
       }
     },
     "./generated": {
+      "bun": "./src/generated/index.ts",
       "require": {
         "types": "./dist/generated/index.d.cts",
         "default": "./dist/generated/index.cjs"
@@ -31,6 +34,7 @@
       }
     },
     "./implementor": {
+      "bun": "./src/implementor.ts",
       "require": {
         "types": "./dist/implementor.d.cts",
         "default": "./dist/implementor.cjs"
@@ -41,6 +45,7 @@
       }
     },
     "./methods": {
+      "bun": "./src/methods/index.ts",
       "require": {
         "types": "./dist/methods/index.d.cts",
         "default": "./dist/methods/index.cjs"
@@ -51,6 +56,7 @@
       }
     },
     "./http-manifest": {
+      "bun": "./src/http-manifest.ts",
       "require": {
         "types": "./dist/http-manifest.d.cts",
         "default": "./dist/http-manifest.cjs"

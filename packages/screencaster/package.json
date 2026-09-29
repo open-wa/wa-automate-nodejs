@@ -5,22 +5,26 @@
   "type": "module",
   "exports": {
     "./server": {
+      "bun": "./src/server.ts",
       "types": "./dist/server.d.mts",
       "import": "./dist/server.mjs",
       "require": "./dist/server.cjs"
     },
     "./client": {
+      "bun": "./src/client.ts",
       "types": "./dist/client.d.mts",
       "import": "./dist/client.mjs",
       "require": "./dist/client.cjs"
     },
     "./types": {
+      "bun": "./src/types.ts",
       "types": "./dist/types.d.mts",
       "import": "./dist/types.mjs",
       "require": "./dist/types.cjs"
     }
   },
   "files": [
+    "src",
     "dist"
   ],
   "scripts": {

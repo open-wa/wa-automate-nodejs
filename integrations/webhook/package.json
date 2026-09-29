@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": {
+      "bun": "./src/index.ts",
       "import": "./dist/index.mjs",
       "types": "./dist/index.d.mts"
     }

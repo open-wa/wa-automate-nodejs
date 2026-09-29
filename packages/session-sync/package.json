@@ -29,6 +29,7 @@
   "description": "Synchronize Open-WA sessions to remote storage",
   "exports": {
     ".": {
+      "bun": "./src/index.ts",
       "types": "./dist/index.d.cts",
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"

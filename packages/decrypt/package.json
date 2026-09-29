@@ -8,12 +8,14 @@
   "types": "./dist/index.d.mts",
   "exports": {
     ".": {
+      "bun": "./src/index.ts",
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     }
   },
   "files": [
+    "src",
     "dist"
   ],
   "scripts": {
