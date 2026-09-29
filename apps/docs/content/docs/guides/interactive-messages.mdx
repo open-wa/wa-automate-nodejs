@@ -26,6 +26,10 @@ const messageId = await client.sendInteractive('PHONE_NUMBER@c.us', message);
 
 The HTTP equivalent is `POST /api/messages/sendInteractive` with `{ "to": "PHONE_NUMBER@c.us", "content": message }`. Supply your configured API authentication. SDK and HTTP calls use the same validation and client implementation.
 
+![Illustration of quick reply buttons with stable response IDs](/images/interactive/quick-replies.png)
+
+*Illustrated examples: recipient appearance varies by WhatsApp version. All interactive message types require Insiders or above.*
+
 ## Connect the SDK client
 
 The examples use the `Client` facade. If you are starting a standalone SDK app, create the runtime, attach the facade and start the session:
@@ -65,6 +69,10 @@ Every content variant has `type`, `body` and optional `footer`. Use application-
 
 ### Actions and headers
 
+![Illustration of separate URL, call and copy actions](/images/interactive/cta-actions.png)
+
+*Offer a website link, phone action or copyable code. Keep these separate from reply buttons.*
+
 ```ts
 { type: 'reply', id: 'yes', label: 'Yes' }
 { type: 'url', label: 'Open website', url: 'https://openwa.dev' }
@@ -86,6 +94,10 @@ Media sources can be HTTP(S) URLs, file paths on the API host, or base64 data UR
 
 ### Lists
 
+![Illustration of a list message and its sectioned option picker](/images/interactive/sectioned-list.png)
+
+*Group a longer menu into sections and handle the selected row ID.*
+
 ```ts
 await client.sendInteractive(to, {
   type: 'list', body: 'Choose a service', buttonLabel: 'View services',
@@ -99,6 +111,14 @@ await client.sendInteractive(to, {
 Row IDs must be unique across sections. A selected row arrives as `type: 'list'` with `id` and optional `label`.
 
 ### Forms
+
+![Illustration of a form with a single-choice question](/images/interactive/form-single-select.png)
+
+*Ask for one choice with singleSelect.*
+
+![Illustration of a form with several checked options](/images/interactive/form-multi-select.png)
+
+*Collect several selections with multiSelect.*
 
 ```ts
 const subscription = client.onFormResponse(response => {
@@ -122,6 +142,10 @@ subscription.off();
 
 Question IDs are unique within the form, and option IDs within each question. `allowCustomAnswer` is optional; applications should handle returned values beyond predefined option IDs when enabling it. Selection-count/required-field rules beyond the exposed choices are not implied by labels such as “choose two”.
 
+![Illustration of a completed multi-question form and structured response object](/images/interactive/form-response.png)
+
+*Question IDs connect the choices the recipient sees to the answers your code receives.*
+
 `onFormResponse` filters the same underlying stream as `onInteractiveResponse`; registering both deliberately delivers a form submission to both handlers. Responses carry `messageId`, `chatId`, `senderId`, optional `originalMessageId`/`timestamp`, and `raw`. `originalMessageId` may be a stanza ID rather than a full serialized key. Unexpected native response formats remain available as `type: 'native'` with `name`, `parameters` and an optional `parseError`.
 
 HTTP integrations can subscribe to the same responses before sending a message:
@@ -134,6 +158,10 @@ curl -N -H "X-API-Key: $WA_API_KEY" \
 Each `interactive.response` event contains the response at `payload.response`. Use its `type` to select forms, replies or list selections, and its `messageId` to deduplicate events in your integration. The stream does not retain events for disconnected integrations. WhatsApp can deliver older responses during session synchronization; deduplicate by `messageId` and use `timestamp` when your workflow needs to reject stale submissions.
 
 ### Carousels
+
+![Illustration of two image cards with distinct reply actions](/images/interactive/image-carousel.png)
+
+*Each card has an image and its own actions.*
 
 ```ts
 await client.sendInteractive(to, {
@@ -149,6 +177,10 @@ await client.sendInteractive(to, {
 Card images are uploaded without sending separate seed messages. Give reply actions distinct IDs across cards if you need to distinguish the card from the response alone. Action combinations and recipient limits are subject to WhatsApp support.
 
 ### Bookings
+
+![Illustration of a booking card and appointment details](/images/interactive/booking-details.png)
+
+*The recipient app supplies the calendar icon and details layout.*
 
 ```ts
 await client.sendInteractive(to, {
