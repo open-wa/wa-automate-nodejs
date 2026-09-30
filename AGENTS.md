@@ -1,5 +1,9 @@
 # Repository Instructions
 
+## Backward compatibility
+
+Backward compatibility is out of scope unless Mohammed explicitly requests or authorizes it for the task. Do not investigate, propose, implement, or preserve compatibility shims, legacy fallbacks, old-format readers, key-rotation contingencies, or migration paths solely to support previous behaviour without that instruction. Do not routinely raise compatibility concerns or ask whether compatibility is needed; assume the answer is no and implement the current design. A general request to implement, fix, or release is not authorization for compatibility work. This applies even when a project has existing users. Preserve unrelated work and data.
+
 ## Commit Policy
 
 All commits created for this repository must use gitmoji-prefixed Conventional

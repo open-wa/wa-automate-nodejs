@@ -1,0 +1,43 @@
+---
+title: "V5.4: Your session, your key"
+description: "Choose your own compact-session encryption key through config, environment variables or a mounted Docker secret."
+release:
+  version: "5.4.0"
+  date: "2026-09-30T00:00:00Z"
+  headline: "Your session. Your key."
+  audience: "Session storage · Docker deployments"
+  image: "https://github.com/open-wa/wa-automate-nodejs/releases/download/v5.4.0/release.png"
+  highlights:
+    - "Supply your own session encryption key or use the baked default."
+    - "Move compact session files between containers with the same key and session ID."
+    - "Compact auth is built in; the legacy browser-profile option is removed."
+---
+
+Your compact session can travel with an encryption key you control. OpenWA 5.4 accepts a key from your config, an environment variable or a mounted Docker secret, while keeping the encrypted session file as two values: `auth` and `data`.
+
+## 🔒️ Choose your key
+
+```ts
+import { create } from '@open-wa/wa-automate';
+
+const client = await create({
+  sessionId: 'sales',
+  sessionDataEncryptionKeyFile: '/run/secrets/openwa-session-key',
+});
+```
+
+The file contains a base64-encoded 32-byte random key. Alternatively, pass `sessionDataEncryptionKey` or set `OPENWA_SESSION_DATA_ENCRYPTION_KEY`. The environment variable is read automatically. Use one key source, and keep the same key and session ID across containers. Store the key separately from the session file.
+
+Omit the key settings to use OpenWA's baked default. Existing filename, path and S3 settings remain available.
+
+## 🚚 Pairing and resets
+
+Compact authentication is the only path; `legacyDataDirAuth` is removed. Moving from a browser profile or changing keys requires a fresh QR scan. Reset a saved session with `sessionData: 'NUKE'`, then remove that setting after pairing.
+
+Key settings are redacted from debug responses and startup events. Verbose environment logs show variable names only. Live browser/S3 acceptance for this integration remains unverified.
+
+Read the [session storage guide](https://github.com/open-wa/wa-automate-nodejs/blob/master/packages/wa-automate/PORTABLE_SESSIONS.md) for storage and pending-message replay details.
+
+## 🔖 Version alignment
+
+22 companion packages move to 5.4.0 with no separate feature changes.
