@@ -3,6 +3,14 @@
 
 
 
+
+## 5.4.0
+<sub>2026-09-30</sub>
+
+- [#3477](https://github.com/open-wa/wa-automate-nodejs/pull/3477)  *(patch)*
+  - 🔒️ Redact customer session keys and secret-file settings from debug responses.
+- *(minor)* Version bump from group with `@open-wa/client` v5.4.0, `@open-wa/config` v5.4.0, `@open-wa/core` v5.4.0, `@open-wa/wa-automate` v5.4.0
+
 ## 5.3.0
 
 - 🔒️ Redact session payloads and S3 credentials from debug responses.

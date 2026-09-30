@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/integration-cloudflare",
-  "version": "5.3.0",
+  "version": "5.4.0",
   "description": "Cloudflare Tunnel integration plugin for open-wa",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
