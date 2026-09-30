@@ -1,8 +1,8 @@
 # Portable session storage
 
-Compact authentication is the default for `create()`, `createClient()`, and the CLI. The baked, obfuscated pre-init patch restores an encrypted session into a disposable browser profile. There is no `portableSession` option, patch-provider callback, or encryption-key setting. The host storage layer handles only the opaque `{ auth, data }` JSON envelope.
+Compact authentication is the only authentication path for `create()`, `createClient()`, and the CLI. The baked, obfuscated pre-init patch restores an encrypted session into a disposable browser profile. There is no `portableSession` option or patch-provider callback. Encryption uses the baked default unless you supply a customer key. The host storage layer handles only the opaque `{ auth, data }` JSON envelope.
 
-To keep using an existing browser profile, set `legacyDataDirAuth: true` with your existing session ID and profile location. Compact authentication does not import old profile directories or obsolete v4 token JSON; the first compact launch requires pairing. Existing directories are left intact. Puppeteer and Playwright support compact authentication; other drivers require the legacy flag.
+Existing browser profiles and obsolete v4 token JSON are not imported. Scan a new QR code when moving to compact authentication. Existing profile directories are left intact. Puppeteer and Playwright are supported; there is no legacy profile fallback.
 
 ```ts
 import { create } from '@open-wa/wa-automate';
@@ -36,11 +36,27 @@ The example writes `./sessions/sales.data.json` and `_sessionData/sales.data.jso
 | `sessionData: 'NUKE'` | Explicitly invalidate the selected stores and start fresh. Remove this setting after resetting. A session-specific environment seed takes precedence. |
 | `sessionDataBucketAuth` | Accept the v4 base64-encoded PicoS3 configuration. Explicit `s3Sync` fields override matching fields. |
 | `skipSessionSave: true` | Use S3 without a local payload/lock. Requires S3 configuration. |
-| `legacyDataDirAuth: true` | Use the previous browser-profile authentication path. |
 
 For v4 compatibility, any configured path containing `.data.json` is treated as a filename, including names with a suffix after that extension.
 
-The convenience factory still takes programmatic configuration. The environment seed above is supported explicitly; it does not enable loading arbitrary environment/config files. Lower-level `createClient()` accepts the same session file and S3 settings alongside its driver. The CLI accepts `--legacy-data-dir-auth` for profile authentication.
+The convenience factory still takes programmatic configuration. The environment seed above and encryption environment variables below are supported explicitly; they do not enable loading arbitrary environment/config files. Lower-level `createClient()` accepts the same session file, encryption and S3 settings alongside its driver.
+
+## Customer encryption keys
+
+Supply one optional base64-encoded 32-byte random key. Omit it to use the baked default. Keep the same key and `sessionId` across containers, and store the key separately from the session JSON. No key depends on a hostname, Docker image or filesystem path.
+
+```ts
+const client = await create({
+  sessionId: 'sales',
+  sessionDataEncryptionKey: process.env.OPENWA_SESSION_DATA_ENCRYPTION_KEY,
+});
+```
+
+`OPENWA_SESSION_DATA_ENCRYPTION_KEY` is also read automatically by `create()`, `createClient()` and the CLI. For mounted Docker secrets, use `sessionDataEncryptionKeyFile` or `OPENWA_SESSION_DATA_ENCRYPTION_KEY_FILE` instead; the file contains the base64 key, with an optional trailing newline. The normal `WA_` environment names also work, with `OPENWA_` taking precedence. Supply the key or its file, never both. Direct SDK options override the environment; the CLI follows normal configuration precedence. Secret files are limited to 4 KiB and read at launch.
+
+There is one key and one payload format, with no previous-key list, key IDs, migration or fallback decryption. Changing the key requires resetting the saved session and scanning a new QR code. Use `sessionData: 'NUKE'` for that reset, then remove it after pairing so subsequent launches reuse the session. A missing/wrong key fails restoration without automatically deleting the file.
+
+The file remains `{ auth, data }`. Session decoding, encryption and restoration happen inside the private pre-init patch. Debug responses redact key settings; verbose environment loading prints variable names only.
 
 ## S3 ownership and recovery
 
@@ -56,8 +72,8 @@ Logout writes credential-free invalidation markers so older local files or confi
 
 Pending incoming messages remain in the encrypted `data` value until every registered `onMessage` handler completes and the acknowledgement is saved. Register a handler after `create()` resolves; no handler means no acknowledgement. Processing is at least once, so deduplicate application side effects by message ID. A rejected handler pauses replay; call `client.replayPortableMessages()` to retry. `client.getPortableSessionStatus()` exposes counts and pause state. Processed message history is ephemeral.
 
-The private adapter rejects unsupported WhatsApp builds or storage layouts instead of guessing how to restore credentials. Use `legacyDataDirAuth: true` with an existing profile, or pair in that mode, when the adapter needs an update. A compact file cannot be handed directly to legacy profile authentication.
+The private adapter rejects unsupported WhatsApp builds or storage layouts. Update OpenWA when the adapter needs an update; rescan for an incompatible saved session. Rescanning alone cannot add support for an unsupported WhatsApp build.
 
-Session files are bound to their session ID; keep that ID when moving a file between hosts. Key handling is baked into the obfuscated patch, with no supported decryption API. This is implementation concealment, not protection from an operator who controls and inspects the executing browser. Protect session files as credentials.
+Session files are bound to their session ID; keep that ID when moving a file between hosts. Key handling runs inside the obfuscated patch, with no supported decryption API. Obfuscation cannot prevent an operator who controls the runtime from inspecting or invoking it. Customer keys protect files when the key remains separate; the shared baked default is an obfuscation boundary. Protect session files as credentials.
 
 The integrated browser and S3 paths have not received a live runtime acceptance run. Receipt coverage, concurrent native state changes, and abrupt crashes during outbound sends remain acceptance boundaries; successful graceful saves do not establish crash safety for every native operation. S3 durability also depends on the endpoint enforcing its conditional-request semantics.

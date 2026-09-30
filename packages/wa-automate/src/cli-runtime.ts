@@ -359,7 +359,6 @@ export function parseCliArgs(argv: string[] = process.argv.slice(2)): ParsedCliA
     if (argv.includes('--aggressive-garbage-collection')) cliOverrides.aggressiveGarbageCollection = true;
     if (argv.includes('--no-dashboard')) cliOverrides.dashboard = false;
     if (argv.includes('--ephemeral')) cliOverrides.ephemeral = true;
-    if (argv.includes('--legacy-data-dir-auth')) cliOverrides.legacyDataDirAuth = true;
     if (argv.includes('--sandbox-chats')) cliOverrides.sandboxChats = true;
 
     const sandboxIsolation = getVal(argv, '--sandbox-isolation');
@@ -626,11 +625,12 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         driver,
         deleteSessionDataOnLogout: config.deleteSessionDataOnLogout,
         killClientOnLogout: config.killClientOnLogout,
-        legacyDataDirAuth: config.legacyDataDirAuth,
         sessionDataPath: config.sessionDataPath,
         sessionData: config.sessionData,
         skipSessionSave: config.skipSessionSave,
         sessionDataBucketAuth: config.sessionDataBucketAuth,
+        sessionDataEncryptionKey: config.sessionDataEncryptionKey,
+        sessionDataEncryptionKeyFile: config.sessionDataEncryptionKeyFile,
         s3Sync: config.s3Sync,
         debug: config.logLevel === 'debug' || verbose || config.logConsole,
         headless: config.headless,

@@ -112,8 +112,9 @@ export function acquirePortableSessionStorage(options: PortableSessionStorageOpt
       }
       if (payload !== null) {
         yield* validatePortablePayload(payload);
-        if (remote && !snapshot?.exists) yield* io(() => remote!.write(payload!));
-        if (local) yield* io(() => local!.write(payload!));
+        // Provision is read-only for encrypted checkpoints. Pre-init must first
+        // authenticate both halves with the configured keys; its first durable
+        // commit then seeds/mirrors the stores. Wrong keys cannot replace files.
       } else {
         if (remote && !snapshot?.exists && localExists) yield* io(() => remote!.remove());
         if (snapshot?.exists && local) yield* io(() => local!.remove());

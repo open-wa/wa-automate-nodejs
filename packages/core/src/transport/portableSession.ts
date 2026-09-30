@@ -3,6 +3,7 @@ import { Effect, Exit, Scope, Semaphore } from 'effect';
 import { toPublicError } from '../effect/errors';
 import { portableFailure, portableIO, runPortable, validatePortablePayload, type PortableSessionFailure } from './portableSessionEffects';
 import type { IPage } from '@open-wa/driver-interface';
+import { resolveSessionEncryption, type SessionEncryptionOptions, type SessionEncryptionCredentials } from './sessionEncryption';
 
 /** Opaque, encrypted values. Only the baked pre-init patch interprets them. */
 export interface PortableSessionPayload { auth: string; data: string }
@@ -48,8 +49,10 @@ export class PortableSessionController {
   private leaseCloseResult?: Exit.Exit<void, never>;
   private installAttempted = false;
   private page?: IPage;
+  #encryption?: SessionEncryptionCredentials;
 
-  constructor(private readonly persistence: SessionPersistence, private readonly sessionId: string) {}
+  constructor(private readonly persistence: SessionPersistence, private readonly sessionId: string,
+    private readonly encryptionOptions: SessionEncryptionOptions = {}) {}
 
   setMessageHandler(handler: (message: unknown) => Promise<boolean>, listening: () => boolean): () => void {
     if (this.handler) throw toPublicError(portableFailure('PORTABLE_SESSION_HANDLER_ALREADY_BOUND'));
@@ -83,6 +86,7 @@ export class PortableSessionController {
 
   private installEffect(page: IPage, origin: string, script: string): Effect.Effect<void, PortableSessionFailure> {
     return Effect.gen({ self: this }, function* () {
+      this.#encryption = yield* resolveSessionEncryption(this.encryptionOptions);
       const lease = yield* Effect.acquireRelease(
         portableIO('PORTABLE_SESSION_PROVISION_FAILED', () => this.persistence.acquire(this.sessionId)),
         lease => portableIO('PORTABLE_SESSION_RELEASE_FAILED', () => lease.release()).pipe(Effect.orDie),
@@ -106,7 +110,8 @@ export class PortableSessionController {
           yield* authorize(token);
           if (this.flushing) return yield* Effect.fail(portableFailure('PORTABLE_SESSION_FENCED'));
           return { sessionId: this.sessionId, documentId: this.documentId, revision: this.revision,
-            checkpoint: this.payload, mode: this.payload === null ? 'pair' : 'restore' };
+            checkpoint: this.payload, mode: this.payload === null ? 'pair' : 'restore',
+            encryption: this.#encryption && { key: this.#encryption.key } };
         }))));
       yield* portableIO('PORTABLE_SESSION_PROVISION_FAILED', () => page.exposeFunction('OpenWA_PortableCommit',
         (token: unknown, documentId: unknown, expected: unknown, payload: string) =>
@@ -133,7 +138,7 @@ export class PortableSessionController {
           return this.active && this.listening();
         }))));
       // Credentials are provisioned only to the intended top-level origin. The
-      // private artifact receives a lexical bridge; its key never goes on window.
+      // private artifact receives keys through the lexical bridge, never on window.
       yield* portableIO('PORTABLE_SESSION_PROVISION_FAILED', () => page.addInitScript(`(() => {
         if (globalThis.top !== globalThis || globalThis.location.origin !== ${JSON.stringify(origin)}) return;
         const token = ${JSON.stringify(capability)};
@@ -186,6 +191,7 @@ export class PortableSessionController {
     return this.serial(Effect.gen({ self: this }, function* () {
       if (this.lease) yield* portableIO('PORTABLE_SESSION_REMOVE_FAILED', () => this.lease!.remove());
       this.payload = null;
+      this.#encryption = undefined;
     }));
   }
 
@@ -218,6 +224,7 @@ export class PortableSessionController {
       this.lease = undefined;
       this.page = undefined;
       this.payload = null;
+      this.#encryption = undefined;
       this.handler = undefined;
       this.listening = () => false;
     })));

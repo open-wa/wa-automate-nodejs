@@ -47,7 +47,8 @@ export function registerDebugRoutes(
     const config = options.getConfig();
     // Redact sensitive fields
     const redacted = { ...config } as Record<string, unknown>;
-    const sensitiveKeys = ['apiKey', 'licenseKey', 'elasticPassword', 'elasticUsername', 'sessionData', 'sessionDataBucketAuth'];
+    const sensitiveKeys = ['apiKey', 'licenseKey', 'elasticPassword', 'elasticUsername', 'sessionData', 'sessionDataBucketAuth',
+      'sessionDataEncryptionKey', 'sessionDataEncryptionKeyFile'];
     for (const key of sensitiveKeys) {
       if (redacted[key]) {
         redacted[key] = '***REDACTED***';

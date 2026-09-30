@@ -192,17 +192,17 @@ export const ChatSandboxConfigSchema = z.object({
 
 export const ConfigSchema = z.object({
   // Session & Authentication
-  legacyDataDirAuth: z
-    .boolean()
-    .default(false)
-    .describe('Use the previous browser-profile authentication instead of compact encrypted session files.'),
-
   sessionData: z
     .union([SessionDataSchema, z.string()])
     .optional()
     .describe(
       'Encrypted session seed: auth/data object, JSON, base64 JSON, or NUKE to reset. The obsolete v4 browser-token format is not supported.'
     ),
+
+  sessionDataEncryptionKey: z.string().regex(/^[A-Za-z0-9+/]{43}=$/, 'Expected a base64-encoded 32-byte encryption key')
+    .optional().describe('Customer key for compact session files. Keep the same secret across containers. Omit to use the baked default.'),
+  sessionDataEncryptionKeyFile: z.string().min(1).optional()
+    .describe('Mounted secret file containing the base64 encryption key. Mutually exclusive with sessionDataEncryptionKey.'),
 
   linkCode: z.string().optional().describe('Link code for new login method.'),
 
@@ -212,19 +212,19 @@ export const ConfigSchema = z.object({
     .string()
     .default('')
     .describe(
-      'Session file directory or explicit .data.json filename; defaults to {sessionId}.data.json in the working directory. With legacyDataDirAuth, this is the base directory for the browser profile.'
+      'Session file directory or explicit .data.json filename; defaults to {sessionId}.data.json in the working directory.'
     ),
 
   userDataDir: z
     .string()
     .optional()
-    .describe('Browser profile directory used when legacyDataDirAuth is true. Compact authentication uses a disposable profile.'),
+    .describe('Ignored by compact authentication, which always uses a disposable browser profile.'),
 
   ephemeral: z
     .boolean()
     .default(false)
     .describe(
-      'With legacyDataDirAuth, discard the browser profile on exit instead of persisting it. Compact authentication always uses a disposable profile and persists its encrypted session file.'
+      'Compact authentication always uses a disposable profile and persists its encrypted session file, regardless of this setting.'
     ),
 
   skipSessionSave: z

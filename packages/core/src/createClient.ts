@@ -33,10 +33,9 @@ import {
 } from '@open-wa/runtime-core';
 
 import type { SessionPersistenceConfig } from './transport/sessionPersistence';
+import type { SessionEncryptionOptions } from './transport/sessionEncryption';
 
-export interface CreateClientOptions extends SessionPersistenceConfig {
-  /** Use the previous browser-profile authentication instead of compact encrypted checkpoints. */
-  legacyDataDirAuth?: boolean;
+export interface CreateClientOptions extends SessionPersistenceConfig, SessionEncryptionOptions {
   driver: IDriver;
   deleteSessionDataOnLogout?: boolean;
   killClientOnLogout?: boolean;
@@ -78,8 +77,7 @@ export interface CreateClientOptions extends SessionPersistenceConfig {
   allowDangerousBrowserArgs?: boolean;
   userDataDir?: string;
   /**
-   * With legacyDataDirAuth, discard the browser profile on exit.
-   * Compact auth always uses a disposable profile and saves an encrypted session file.
+   * Compact auth always uses a disposable profile, regardless of this setting.
    * @default false
    */
   ephemeral?: boolean;
@@ -224,41 +222,11 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     debug: options.debug ?? false,
   });
 
-  // ── userDataDir Resolution ────────────────────────────────────────────────
-  // Compact auth restores into a disposable profile. Legacy auth retains the
-  // previous explicit or auto-derived profile directory.
-  let resolvedUserDataDir: string | undefined;
-
-  if (!options.legacyDataDirAuth && options.driver.name !== 'puppeteer' && options.driver.name !== 'playwright') {
-    throw new Error('Compact authentication requires Puppeteer or Playwright; set legacyDataDirAuth: true for this driver');
+  if (options.driver.name !== 'puppeteer' && options.driver.name !== 'playwright') {
+    throw new Error('Compact authentication requires Puppeteer or Playwright');
   }
-  if (options.ephemeral || !options.legacyDataDirAuth) {
-    // Ephemeral mode: intentionally use no persistent profile
-    resolvedUserDataDir = undefined;
-    logger.info('user_data_dir_resolved', {
-      mode: 'ephemeral',
-      userDataDir: null,
-      detail: options.legacyDataDirAuth ? 'Ephemeral browser profile enabled' : 'Compact authentication uses a disposable browser profile',
-    });
-  } else if (options.userDataDir) {
-    // Explicitly provided by caller
-    resolvedUserDataDir = options.userDataDir;
-    logger.info('user_data_dir_resolved', {
-      mode: 'explicit',
-      userDataDir: resolvedUserDataDir,
-      detail: 'Using explicitly configured userDataDir for session persistence',
-    });
-  } else {
-    // Auto-derive from sessionId (v4 parity)
-    const basePath = options.sessionDataPath || '.';
-    resolvedUserDataDir = `${basePath}/_IGNORE_${sessionId}`;
-    logger.info('user_data_dir_resolved', {
-      mode: 'derived',
-      userDataDir: resolvedUserDataDir,
-      sessionId,
-      detail: `Auto-derived userDataDir from sessionId for session persistence (set ephemeral=true to disable)`,
-    });
-  }
+  // Authentication always restores into a disposable browser profile.
+  const resolvedUserDataDir = undefined;
 
   const session = new SessionManager({
     sessionId,
@@ -269,12 +237,13 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
 
   const transport = new Transport({
     sessionId,
-    legacyDataDirAuth: options.legacyDataDirAuth,
     sessionDataPath: options.sessionDataPath,
     sessionData: options.sessionData,
     skipSessionSave: options.skipSessionSave,
     s3Sync: options.s3Sync,
     sessionDataBucketAuth: options.sessionDataBucketAuth,
+    sessionDataEncryptionKey: options.sessionDataEncryptionKey,
+    sessionDataEncryptionKeyFile: options.sessionDataEncryptionKeyFile,
     driver: options.driver,
     events,
     logger,
@@ -406,7 +375,9 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
 
     async start() {
       try {
-      events.emit('core.starting', { config: options });
+      events.emit('core.starting', { config: {
+        ...options, sessionDataEncryptionKey: undefined, sessionDataEncryptionKeyFile: undefined,
+      } });
 
       if (options.sessionAdmission) {
         const memoryMb = Math.max(1, Math.round(options.estimatedMemoryMb ?? 512));
