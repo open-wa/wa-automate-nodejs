@@ -39,7 +39,8 @@ function entries(body) {
       const level = bullet[1].match(/\*\((major|minor|patch)\)\*/)?.[1] || severity;
       const content = bullet[1]
         .replace(/^.*?Thanks \[.*?!\s*(?:-\s*)?/, "")
-        .replace(/^\*\((major|minor|patch)\)\*\s*/, "");
+        .replace(/^\[#\d+\]\([^)]+\)\s*/, "")
+        .replace(/^\*\((major|minor|patch)\)\*\s*(?:-\s*)?/, "");
       current = { severity: level, lines: [content] };
       result.push(current);
     } else if (current) {
@@ -52,9 +53,7 @@ function entries(body) {
   return result.map(({ severity, lines }) => ({ severity, markdown: lines.join("\n").trim() })).filter(e => e.markdown);
 }
 
-function collectChanges(version) {
-  // Include independently versioned companion packages only when their manifest
-  // changed in this aggregate release; don't replay an older package changelog.
+function previousReleaseTag(version) {
   let previous;
   try {
     const compare = (a, b) => {
@@ -69,6 +68,12 @@ function collectChanges(version) {
       .filter(tag => /^v\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(tag));
     previous = tags.filter(tag => compare(tag, `v${version}`) < 0).sort(compare).at(-1);
   } catch { /* Exact-version changelogs still work in a shallow checkout. */ }
+  return previous;
+}
+
+function collectChanges(version) {
+  // Include independently versioned companions without replaying old changelogs.
+  const previous = previousReleaseTag(version);
   const currentRelease = JSON.parse(fs.readFileSync(path.join(ROOT, "packages/core/package.json"), "utf8")).version === version;
   return ["packages", "integrations", "sdks"].flatMap(workspace => {
     const directory = path.join(ROOT, workspace);
@@ -92,20 +97,20 @@ function collectChanges(version) {
   });
 }
 
-function releaseContent(version, changes) {
+function groupChanges(version, changes) {
   const config = editorial[version] || {};
   const groups = new Map();
   const maintenance = new Set();
   for (const pkg of changes) {
     for (const entry of entries(pkg.body)) {
-      if (/^(?:Version bump(?: from group)?|Updated dependencies|Dependency updates?|No changes in this release)\b/i.test(entry.markdown)) {
+      if (/^(?:Version (?:bump|alignment)|Updated dependenc(?:y|ies)|Dependency (?:updates?|sync)|No changes in this release)\b/i.test(entry.markdown.replace(/^[^\p{L}\d]+/u, ""))) {
         maintenance.add(pkg.name);
         continue;
       }
       const key = entry.markdown.trim();
       const group = groups.get(key) || { markdown: key, severity: entry.severity, packages: [] };
       if (({ major: 3, minor: 2, patch: 1 }[entry.severity]) > ({ major: 3, minor: 2, patch: 1 }[group.severity])) group.severity = entry.severity;
-      group.packages.push(pkg.name);
+      if (!group.packages.includes(pkg.name)) group.packages.push(pkg.name);
       groups.set(key, group);
     }
   }
@@ -117,6 +122,13 @@ function releaseContent(version, changes) {
     const score = group => (/\b(?:security|vulnerability|breaking)\b/i.test(group.markdown) ? 4 : { major: 3, minor: 2, patch: 1 }[group.severity]);
     return score(b) - score(a) || priority(a.packages[0]) - priority(b.packages[0]) || a.packages[0].localeCompare(b.packages[0]);
   });
+  for (const group of ranked) for (const name of group.packages) maintenance.delete(name);
+  return { ranked, maintenance: [...maintenance].sort() };
+}
+
+function releaseContent(version, changes) {
+  const config = editorial[version] || {};
+  const { ranked, maintenance } = groupChanges(version, changes);
   const notesFile = path.join(ROOT, "RELEASE_BODY.md");
   const notes = fs.existsSync(notesFile) ? fs.readFileSync(notesFile, "utf8") : "";
   const heading = notes.match(/^# (.+)$/m)?.[1];
@@ -128,12 +140,12 @@ function releaseContent(version, changes) {
     label: group.packages.length > 5 ? `Across ${group.packages.length} packages` : group.packages.join(" · "),
     markdown: group.markdown,
   }));
-  if (maintenance.size) sections.push({
-    label: "Version alignment & dependency sync",
-    markdown: `${maintenance.size} packages received coordinated version bumps or dependency updates. See the package changelogs for exact versions.`,
+  if (maintenance.length) sections.push({
+    label: "🔖 Version alignment",
+    markdown: `${maintenance.length} companion packages receive version or dependency updates. No separate feature changes.`,
   });
   const markdown = sections.map((section, index) => `# OPENWA-CHANGE-${index}\n\n${section.markdown}`).join("\n\n");
   return { headline, summary, customHeadline: !!config.headline, customSummary: !!config.summary, badge: config.badge || `${ranked.length} substantive changes`, sections, html: renderMarkdown(markdown), coverHtml: renderMarkdown(`# ${headline}\n\n${summary}`) };
 }
 
-module.exports = { collectChanges, releaseContent, renderMarkdown };
+module.exports = { collectChanges, groupChanges, previousReleaseTag, releaseContent, renderMarkdown };
