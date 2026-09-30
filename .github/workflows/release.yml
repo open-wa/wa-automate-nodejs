@@ -120,9 +120,7 @@ jobs:
       # ── Post-publish: Generate release notes ─────────────────────
       - name: Generate release notes
         if: steps.aggregate.outputs.needed == 'true' && github.event_name == 'push'
-        run: pnpm tsx tools/release/generate-notes.ts --version ${{ steps.aggregate.outputs.version }}
-        env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: node tools/release/generate-notes.ts --version ${{ steps.aggregate.outputs.version }}
 
       - name: Load existing release notes
         if: steps.aggregate.outputs.needed == 'true' && github.event_name == 'workflow_dispatch'
@@ -199,7 +197,7 @@ jobs:
             args+=(--edit-messages "$DISCORD_MESSAGE_IDS")
           fi
           args+=(--approved-discord-post)
-          pnpm tsx tools/release/discord-notify.ts "${args[@]}"
+          node tools/release/discord-notify.ts "${args[@]}"
         env:
           VERSION: ${{ steps.aggregate.outputs.version }}
           DISCORD_MESSAGE_IDS: ${{ inputs.discord_message_ids }}

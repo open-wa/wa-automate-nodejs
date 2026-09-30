@@ -1,11 +1,11 @@
-#!/usr/bin/env tsx
+#!/usr/bin/env node
 /**
  * Discord webhook notification for @open-wa releases
  *
  * Posts a cover and numbered changelog pages to Discord.
  *
  * Usage:
- *   tsx tools/release/discord-notify.ts --version X.Y.Z [--notes RELEASE_BODY.md]
+ *   node tools/release/discord-notify.ts --version X.Y.Z [--notes RELEASE_BODY.md]
  *     [--image release.png] [--edit-messages ID,ID,...] --approved-discord-post
  *
  * Env:
@@ -63,9 +63,12 @@ function extractHighlights(notes: string): string {
   }
   // Extract the highlights section or first meaningful content
   const highlightsMatch = notes.match(
-    /## 🌟 Highlights\n([\s\S]*?)(?=\n## |$)/
+    /## (?:🌟 Highlights|✨ What's new)\n([\s\S]*?)(?=\n## |$)/
   );
-  if (highlightsMatch) return highlightsMatch[1].trim();
+  if (highlightsMatch) {
+    const upgrade = notes.match(/## 🚚 Upgrading\n([\s\S]*?)(?=\n## |$)/)?.[1].trim();
+    return [highlightsMatch[1].trim(), ...(upgrade ? [`**🚚 Upgrading**\n${upgrade}`] : [])].join("\n\n");
+  }
 
   // Fallback: extract first bullet-point section
   const lines = notes.split("\n").filter((l) => l.startsWith("- "));
@@ -166,7 +169,8 @@ async function sendWebhook(
   webhookUrl: string,
   payload: Record<string, unknown>,
   images: string[],
-  editMessageId = ""
+  editMessageId = "",
+  guildId = ""
 ) {
   const formData = new FormData();
   const attachments = images.map((image, index) => ({
@@ -175,7 +179,7 @@ async function sendWebhook(
     description: index === 0 && image.endsWith("release.png")
       ? "OpenWA release cover" : "OpenWA release notes page",
   }));
-  formData.append("payload_json", JSON.stringify({ ...payload, attachments }));
+  formData.append("payload_json", JSON.stringify({ ...payload, allowed_mentions: { parse: [] }, attachments }));
   for (const [index, image] of images.entries()) {
     formData.append(`files[${index}]`, new Blob([readFileSync(image)], { type: "image/png" }), image.split("/").pop()!);
   }
@@ -199,6 +203,7 @@ async function sendWebhook(
   }
   const message = (await response.json()) as {
     id?: string;
+    channel_id?: string;
     attachments?: Array<{ filename: string; size: number; url: string }>;
   };
   if (!message.id) throw new Error("Discord did not confirm a posted message");
@@ -213,6 +218,7 @@ async function sendWebhook(
     );
   }
   console.log(`Discord message ID: ${message.id}`);
+  if (guildId && message.channel_id) console.log(`Discord message URL: https://discord.com/channels/${guildId}/${message.channel_id}/${message.id}`);
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
@@ -232,7 +238,7 @@ async function main() {
   }
 
   const { version, notesPath, imagePath, editMessageIds, isTest, approved } = parseArgs();
-  if (!approved) throw new Error("Discord posting requires --approved-discord-post after draft review");
+  if (!approved) throw new Error("Discord posting requires --approved-discord-post for an authorized announcement");
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
 
   if (!webhookUrl) {
@@ -257,21 +263,25 @@ async function main() {
   if (new Set(existingMessages).size !== existingMessages.length) {
     throw new Error("Discord message IDs must be unique");
   }
+  // Read only the destination identity; never log the webhook URL or token.
+  const destinationResponse = await fetch(webhookUrl);
+  if (!destinationResponse.ok) throw new Error(`Discord destination unavailable: ${destinationResponse.status}`);
+  const destination = await destinationResponse.json() as { guild_id?: string };
   const cover = images[0];
   const intro = {
     username: "OpenWA",
-    content: `${isTest ? "[TEST] " : ""}**OpenWA v${version}** · ${images.length} readable release pages`,
+    content: `${isTest ? "[TEST] " : ""}✨ **OpenWA ${version} is here!**`,
     embeds: [buildEmbed(version, notes, isTest)],
   };
-  await sendWebhook(webhookUrl, intro, [cover], existingMessages[0]);
+  await sendWebhook(webhookUrl, intro, [cover], existingMessages[0], destination.guild_id);
 
   // Three sheets per message keep the long release browsable.
   for (let start = 1; start < images.length; start += 3) {
     const batch = images.slice(start, start + 3);
     await sendWebhook(webhookUrl, {
       username: "OpenWA",
-      content: `**OpenWA v${version}** · release notes, pages ${String(start + 1).padStart(2, "0")}–${String(start + batch.length).padStart(2, "0")} / ${String(images.length).padStart(2, "0")}`,
-    }, batch, existingMessages[1 + Math.floor((start - 1) / 3)]);
+      content: `📝 **What changed in OpenWA ${version}**`,
+    }, batch, existingMessages[1 + Math.floor((start - 1) / 3)], destination.guild_id);
   }
 
   // A clearer release can need fewer pages. Remove obsolete batches only after
