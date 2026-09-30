@@ -47,7 +47,7 @@ export function registerDebugRoutes(
     const config = options.getConfig();
     // Redact sensitive fields
     const redacted = { ...config } as Record<string, unknown>;
-    const sensitiveKeys = ['apiKey', 'licenseKey', 'elasticPassword', 'elasticUsername'];
+    const sensitiveKeys = ['apiKey', 'licenseKey', 'elasticPassword', 'elasticUsername', 'sessionData', 'sessionDataBucketAuth'];
     for (const key of sensitiveKeys) {
       if (redacted[key]) {
         redacted[key] = '***REDACTED***';
@@ -58,7 +58,7 @@ export function registerDebugRoutes(
       redacted.proxyServerCredentials = { ...redacted.proxyServerCredentials as Record<string, unknown>, password: '***REDACTED***' };
     }
     if (redacted.s3Sync) {
-      redacted.s3Sync = { ...redacted.s3Sync as Record<string, unknown>, secretAccessKey: '***REDACTED***' };
+      redacted.s3Sync = { ...redacted.s3Sync as Record<string, unknown>, accessKeyId: '***REDACTED***', secretAccessKey: '***REDACTED***', sessionToken: '***REDACTED***', headers: '***REDACTED***' };
     }
     return c.json(redacted);
   });

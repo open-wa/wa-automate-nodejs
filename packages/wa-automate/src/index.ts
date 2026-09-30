@@ -9,7 +9,7 @@ export { Config, ConfigSchema } from '@open-wa/config';
 export { createApiServer, createApiMiddleware } from '@open-wa/api';
 export * from '@open-wa/client';
 export { createClient } from '@open-wa/core';
-export type { CreateClientOptions, OpenWAClient } from '@open-wa/core';
+export type { CreateClientOptions, OpenWAClient, PortableSessionStatus } from '@open-wa/core';
 export { create } from './runtime-client';
 export type { CreateOptions } from './runtime-client';
 export { ensureBrowser } from '@open-wa/driver-puppeteer';

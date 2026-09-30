@@ -32,12 +32,14 @@ import {
   makeInMemoryObservability,
 } from '@open-wa/runtime-core';
 
-export interface CreateClientOptions {
-  sessionId?: string;
+import type { SessionPersistenceConfig } from './transport/sessionPersistence';
+
+export interface CreateClientOptions extends SessionPersistenceConfig {
+  /** Use the previous browser-profile authentication instead of compact encrypted checkpoints. */
+  legacyDataDirAuth?: boolean;
   driver: IDriver;
   deleteSessionDataOnLogout?: boolean;
   killClientOnLogout?: boolean;
-  sessionDataPath?: string;
 
   /**
    * Plugins can be provided directly as Plugin objects,
@@ -76,9 +78,8 @@ export interface CreateClientOptions {
   allowDangerousBrowserArgs?: boolean;
   userDataDir?: string;
   /**
-   * When true, prevents auto-derivation of userDataDir from sessionId.
-   * The browser launches with an ephemeral temp profile discarded on exit.
-   * Useful for testing without leaving `_IGNORE_` directories behind.
+   * With legacyDataDirAuth, discard the browser profile on exit.
+   * Compact auth always uses a disposable profile and saves an encrypted session file.
    * @default false
    */
   ephemeral?: boolean;
@@ -224,17 +225,20 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
   });
 
   // ── userDataDir Resolution ────────────────────────────────────────────────
-  // Matches v4 behavior: auto-derive _IGNORE_{sessionId} unless explicitly
-  // set or ephemeral mode is enabled.
+  // Compact auth restores into a disposable profile. Legacy auth retains the
+  // previous explicit or auto-derived profile directory.
   let resolvedUserDataDir: string | undefined;
 
-  if (options.ephemeral) {
+  if (!options.legacyDataDirAuth && options.driver.name !== 'puppeteer' && options.driver.name !== 'playwright') {
+    throw new Error('Compact authentication requires Puppeteer or Playwright; set legacyDataDirAuth: true for this driver');
+  }
+  if (options.ephemeral || !options.legacyDataDirAuth) {
     // Ephemeral mode: intentionally use no persistent profile
     resolvedUserDataDir = undefined;
     logger.info('user_data_dir_resolved', {
       mode: 'ephemeral',
       userDataDir: null,
-      detail: 'Ephemeral mode enabled — browser will use a disposable temp profile with no session persistence',
+      detail: options.legacyDataDirAuth ? 'Ephemeral browser profile enabled' : 'Compact authentication uses a disposable browser profile',
     });
   } else if (options.userDataDir) {
     // Explicitly provided by caller
@@ -264,6 +268,13 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
   });
 
   const transport = new Transport({
+    sessionId,
+    legacyDataDirAuth: options.legacyDataDirAuth,
+    sessionDataPath: options.sessionDataPath,
+    sessionData: options.sessionData,
+    skipSessionSave: options.skipSessionSave,
+    s3Sync: options.s3Sync,
+    sessionDataBucketAuth: options.sessionDataBucketAuth,
     driver: options.driver,
     events,
     logger,
