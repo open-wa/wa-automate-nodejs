@@ -93,6 +93,9 @@ export class SessionArchiveManager {
     }
 
     static createFromConfig(config: Config): SessionArchiveManager {
+        if (!config.legacyDataDirAuth) {
+            throw new Error('Profile archives require legacyDataDirAuth: true; compact sessions sync through the client');
+        }
         if (!config.s3Sync) {
             throw new Error('Session archive management requires s3Sync configuration');
         }

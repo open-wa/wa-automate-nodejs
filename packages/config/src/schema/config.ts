@@ -136,11 +136,16 @@ export const LightpandaOptionsSchema = z.object({
 
 export const S3SyncSchema = z.object({
   bucket: z.string().describe('S3 bucket name'),
-  region: z.string().describe('S3 region'),
+  region: z.string().default('us-east-1').describe('S3 region'),
   accessKeyId: z.string().describe('AWS access key ID'),
   secretAccessKey: z.string().describe('AWS secret access key'),
+  sessionToken: z.string().optional().describe('Temporary S3 credential token'),
+  provider: z.string().optional().describe('PicoS3 provider, such as AWS, R2, MINIO or DO'),
   endpoint: z.string().optional().describe('Custom S3 endpoint'),
   host: z.string().optional().describe('PicoS3 support'),
+  url: z.string().optional().describe('Compatibility alias for a custom S3 endpoint'),
+  directory: z.string().optional().describe('Portable-session object prefix; defaults to _sessionData'),
+  headers: z.record(z.string(), z.string()).optional().describe('S3 storage-encryption and temporary-credential headers'),
   syncInterval: z.number().default(600000).describe('Sync interval in ms'),
   enableLocalCompression: z.boolean().optional().describe('Enable local session compression'),
 });
@@ -187,11 +192,16 @@ export const ChatSandboxConfigSchema = z.object({
 
 export const ConfigSchema = z.object({
   // Session & Authentication
+  legacyDataDirAuth: z
+    .boolean()
+    .default(false)
+    .describe('Use the previous browser-profile authentication instead of compact encrypted session files.'),
+
   sessionData: z
     .union([SessionDataSchema, z.string()])
     .optional()
     .describe(
-      'Deprecated compatibility input for JSON or base64 session restore. This MD-obsolete flow remains only for legacy migration. Prefer userDataDir for persistent auth state.'
+      'Encrypted session seed: auth/data object, JSON, base64 JSON, or NUKE to reset. The obsolete v4 browser-token format is not supported.'
     ),
 
   linkCode: z.string().optional().describe('Link code for new login method.'),
@@ -202,26 +212,26 @@ export const ConfigSchema = z.object({
     .string()
     .default('')
     .describe(
-      'Deprecated legacy path for .data.json session restore files. This only exists for MD-obsolete JSON session compatibility. Prefer userDataDir.'
+      'Session file directory or explicit .data.json filename; defaults to {sessionId}.data.json in the working directory. With legacyDataDirAuth, this is the base directory for the browser profile.'
     ),
 
   userDataDir: z
     .string()
     .optional()
-    .describe('Browser profile directory used for persistent session storage.'),
+    .describe('Browser profile directory used when legacyDataDirAuth is true. Compact authentication uses a disposable profile.'),
 
   ephemeral: z
     .boolean()
     .default(false)
     .describe(
-      'When true, prevents auto-derivation of userDataDir from sessionId. The browser launches with an ephemeral temp profile that is discarded on exit. Useful for testing without leaving _IGNORE_ directories behind.'
+      'With legacyDataDirAuth, discard the browser profile on exit instead of persisting it. Compact authentication always uses a disposable profile and persists its encrypted session file.'
     ),
 
   skipSessionSave: z
     .boolean()
     .default(false)
     .describe(
-      'Deprecated legacy flag for .data.json session persistence. This only affects the MD-obsolete JSON restore path. Prefer userDataDir-managed persistence.'
+      'Disable the local encrypted session file while retaining durable S3 persistence. Requires S3 configuration.'
     ),
 
   licenseKey: z

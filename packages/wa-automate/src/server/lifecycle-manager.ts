@@ -13,8 +13,8 @@ export class APILifecycleManager {
     constructor(config: Config) {
         this.config = config;
         
-        // Initialize session manager if S3 sync is configured
-        if (config.s3Sync) {
+        // Compact checkpoints are synced by the client; profile archives are legacy-only.
+        if (config.legacyDataDirAuth && config.s3Sync) {
             this.sessionArchiveManager = SessionArchiveManager.createFromConfig(config);
         }
     }

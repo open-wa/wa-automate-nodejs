@@ -7,6 +7,7 @@ export const CORE_TRANSPORT_ASSETS = [
   'qr.min.js',
   'hash.js',
   'init_patch.js',
+  'pre_init.js',
   'prog_observer.js',
   'wapi.js',
   'launch.js',

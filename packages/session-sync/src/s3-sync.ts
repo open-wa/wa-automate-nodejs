@@ -4,16 +4,9 @@ import tar from 'tar-fs';
 const PicoS3 = require('pico-s3');
 const zstd = require('simple-zstd');
 import { Readable } from 'stream';
-
-export interface S3Config {
-    bucket: string;
-    region: string;
-    accessKeyId: string;
-    secretAccessKey: string;
-    endpoint?: string;
-    host?: string;
-    url?: string; // For compatibility
-}
+import { toS3Options, type S3Config } from './s3-options';
+import { acquireSessionFile, type SessionFileLease } from './session-file';
+export type { S3Config } from './s3-options';
 
 export class S3SyncManager {
     private p3: any; // PicoS3 types might be loose
@@ -21,15 +14,12 @@ export class S3SyncManager {
 
     constructor(config: S3Config) {
         this.config = config;
-        // @ts-ignore
-        this.p3 = new PicoS3.PicoS3({
-            bucket: config.bucket,
-            region: config.region,
-            accessKeyId: config.accessKeyId,
-            secretAccessKey: config.secretAccessKey,
-            endpoint: config.endpoint || config.host || config.url,
-            host: config.host // Explicit host support for some providers
-        });
+        this.p3 = new PicoS3.PicoS3(toS3Options(config));
+    }
+
+    /** Opaque JSON persistence; uses the existing PicoS3 transport without profile compression. */
+    public acquireSessionFile(filename: string): Promise<SessionFileLease> {
+        return acquireSessionFile(this.config, filename);
     }
 
     public async backupSession(sessionZstPath: string, remoteFilename?: string): Promise<string> {

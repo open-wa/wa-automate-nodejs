@@ -5,3 +5,5 @@ export * from './events/index';
 export * from './plugins/index';
 export * from './sessionmanager/index';
 export * from './transport/index';
+
+export type { PortableSessionStatus } from './transport/portableSession';
