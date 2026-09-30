@@ -1,5 +1,4 @@
 import { dirname, join } from 'node:path';
-import type { Config } from '@open-wa/config';
 import { createLogger } from '@open-wa/logger';
 import { LocalSessionCompression, S3SyncManager, type S3Config } from '@open-wa/session-sync';
 
@@ -90,23 +89,6 @@ export class SessionArchiveManager {
         }
 
         return this.s3Sync.getDownloadUrl(filename, expiresIn);
-    }
-
-    static createFromConfig(config: Config): SessionArchiveManager {
-        if (!config.legacyDataDirAuth) {
-            throw new Error('Profile archives require legacyDataDirAuth: true; compact sessions sync through the client');
-        }
-        if (!config.s3Sync) {
-            throw new Error('Session archive management requires s3Sync configuration');
-        }
-
-        return new SessionArchiveManager({
-            sessionId: config.sessionId,
-            dataDir: config.userDataDir || config.sessionDataPath || './.wwebjs',
-            s3Config: config.s3Sync,
-            syncInterval: config.s3Sync.syncInterval,
-            watchLocalChanges: config.s3Sync.enableLocalCompression !== false,
-        });
     }
 
     private get archivePath(): string {

@@ -1,4 +1,11 @@
 {
+  "5.4.0": {
+    "headline": "Your session. Your key.",
+    "summary": "Bring your own encryption key through config, an environment variable or a Docker secret. Compact auth comes built in.",
+    "badge": "Custom session encryption",
+    "notesFile": "v5.4-release-notes.md",
+    "packages": ["@open-wa/core", "@open-wa/config", "@open-wa/wa-automate", "@open-wa/client", "@open-wa/api"]
+  },
   "5.1.0": {
     "headline": "Buttons are back.",
     "summary": "Reply buttons, forms, carousels and booking cards. One API, with structured answers your code can use.",
