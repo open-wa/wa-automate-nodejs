@@ -2,7 +2,12 @@
   "$schema": "../node_modules/@varlock/bumpy/config-schema.json",
   "baseBranch": "release",
   "access": "public",
-  "changelog": "github",
+  "changelog": [
+    "github",
+    {
+      "thankContributors": false
+    }
+  ],
   "versionCommitMessage": "🔖 chore(release): version packages",
   "fixed": [
     [
