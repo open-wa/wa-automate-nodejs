@@ -4,9 +4,8 @@
 
 
 ## 5.3.0
-<sub>2026-09-30</sub>
 
-- *(minor)* Version bump from group with `@open-wa/client` v5.3.0, `@open-wa/config` v5.3.0, `@open-wa/core` v5.3.0, `@open-wa/session-sync` v5.3.0, `@open-wa/wa-automate` v5.3.0
+- 🔖 Version alignment with OpenWA 5.3.0; no separate feature changes.
 
 ## 5.2.0
 <sub>2026-09-29</sub>

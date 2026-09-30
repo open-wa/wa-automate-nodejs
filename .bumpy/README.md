@@ -61,3 +61,7 @@ As a PR evolves, make sure its bump file stays in sync. If the scope of changes 
 - `*.md` (other than README.md) — pending bump files
 
 📖 Full documentation: https://bumpy.varlock.dev
+
+## OpenWA release copy
+
+Write one to three concise gitmoji bullets about what changed for users. Include required migration steps and material limitations. Avoid self-thanks, commit-log prose, and repeated descriptions across packages. Aggregate notes deduplicate shared changes and put version-only or dependency bumps in a final maintenance section; see `tools/release/README.md`.

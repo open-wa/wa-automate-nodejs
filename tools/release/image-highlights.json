@@ -3,12 +3,36 @@
     "headline": "Buttons are back.",
     "summary": "Reply buttons, forms, carousels and booking cards. One API, with structured answers your code can use.",
     "badge": "Available to Insiders and above",
-    "packages": ["@open-wa/client", "@open-wa/schema", "@open-wa/api", "@open-wa/core", "@open-wa/wa-automate"]
+    "packages": [
+      "@open-wa/client",
+      "@open-wa/schema",
+      "@open-wa/api",
+      "@open-wa/core",
+      "@open-wa/wa-automate"
+    ]
   },
   "5.0.0": {
     "headline": "A new foundation.",
     "summary": "Three years in the making. A new foundation for everyone coming from v4.",
     "badge": "A guide for v4 users",
-    "packages": ["@open-wa/wa-automate", "@open-wa/core", "@open-wa/client"]
+    "packages": [
+      "@open-wa/wa-automate",
+      "@open-wa/core",
+      "@open-wa/client"
+    ]
+  },
+  "5.3.0": {
+    "headline": "Your session travels light.",
+    "summary": "Compact authentication is now the default. One encrypted JSON file, with S3 sync and pending-message replay.",
+    "badge": "Compact auth by default",
+    "notesFile": "v5.3-release-notes.md",
+    "packages": [
+      "@open-wa/core",
+      "@open-wa/wa-automate",
+      "@open-wa/client",
+      "@open-wa/session-sync",
+      "@open-wa/config",
+      "@open-wa/api"
+    ]
   }
 }
