@@ -2,6 +2,18 @@
 
 
 
+
+## 5.3.0
+<sub>2026-09-30</sub>
+
+- [#3471](https://github.com/open-wa/wa-automate-nodejs/pull/3471)  *(patch)* Thanks [@smashah](https://github.com/smashah)!
+  Make compact encrypted session files the default authentication method. The baked pre-init patch restores authentication and an acknowledged pending inbox from `{sessionId}.data.json`, without retaining a persistent browser profile. Existing file/path and seed settings remain available, and S3 persistence uses the existing PicoS3 transport with conditional ownership and writes.
+
+  Set `legacyDataDirAuth: true` to keep the previous profile authentication behavior and an existing linked profile. First use of compact authentication requires pairing; obsolete token JSON and profile directories are not automatically converted. Unsupported WhatsApp builds and drivers must use the legacy fallback. There is no public `portableSession` option or caller-supplied encryption key.
+
+  Incoming message handlers acknowledge pending messages after successful processing; retries remain at least once. This release has not received integrated browser/S3 acceptance, and abrupt-crash durability for all native operations is not established.
+- *(minor)* Version bump from group with `@open-wa/client` v5.3.0, `@open-wa/config` v5.3.0, `@open-wa/core` v5.3.0, `@open-wa/session-sync` v5.3.0, `@open-wa/wa-automate` v5.3.0
+
 ## 5.2.0
 <sub>2026-09-29</sub>
 
