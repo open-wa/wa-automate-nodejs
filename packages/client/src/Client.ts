@@ -1,8 +1,5 @@
 import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
-import * as fs from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import path from 'node:path';
 import type {
   OpenWAClient,
   OpenWAEventMap,
@@ -108,7 +105,7 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
       sessionId: config.client.sessionId,
       events: config.client.events,
       observability: config.client.observability,
-      portableTransport: config.transport.hasPortableSession ? config.transport : undefined,
+      portableTransport: config.transport,
     });
     
     // Bind method modules
@@ -473,89 +470,10 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   }
 
   private async _runLogoutCleanup(): Promise<void> {
-    const { deleteSessionDataOnLogout = false, killClientOnLogout = false } = this._client.config;
-
-    if (this._transport.hasPortableSession) {
-      await this._transport.invalidatePortableSession();
-      if (killClientOnLogout) await this._client.stop('LOGGED_OUT');
-      return;
-    }
-
-    if (!deleteSessionDataOnLogout && !killClientOnLogout) {
-      return;
-    }
-
-    await this._listenerManager.waitForQueuesToDrain();
-    await this._invalidateSessionData();
-
-    if (deleteSessionDataOnLogout) {
-      await this._deleteSessionData();
-    }
-
-    if (killClientOnLogout) {
-      this.logger.warn('client_logout_kill_requested', { sessionId: this.sessionId });
-      await this._client.stop('LOGGED_OUT');
-    }
+    await this._transport.invalidatePortableSession();
+    if (this._client.config.killClientOnLogout) await this._client.stop('LOGGED_OUT');
   }
 
-  private async _invalidateSessionData(): Promise<void> {
-    const sessionDataPath = this._resolveSessionDataFilePath();
-
-    if (!sessionDataPath) {
-      return;
-    }
-
-    this.logger.info('logout_invalidate_session_data', {
-      sessionId: this.sessionId,
-      sessionDataPath,
-    });
-
-    await fs.writeFile(sessionDataPath, 'LOGGED OUT', 'utf8');
-  }
-
-  private async _deleteSessionData(): Promise<void> {
-    const sessionDataPath = this._resolveSessionDataFilePath();
-    if (sessionDataPath) {
-      this.logger.info('logout_delete_session_data', {
-        sessionId: this.sessionId,
-        sessionDataPath,
-      });
-      await fs.unlink(sessionDataPath);
-    }
-
-    const userDataDir = this._client.config.userDataDir;
-    if (userDataDir && existsSync(userDataDir)) {
-      this.logger.info('logout_delete_user_data_dir', {
-        sessionId: this.sessionId,
-        userDataDir,
-      });
-      await fs.rm(userDataDir, { force: true, recursive: true });
-    }
-  }
-
-  private _resolveSessionDataFilePath(): string | undefined {
-    const configuredPath = this._client.config.sessionDataPath ?? '';
-    const sessionFileName = `${this.sessionId}.data.json`;
-    const candidate = configuredPath.includes('.data.json')
-      ? path.resolve(process.cwd(), configuredPath)
-      : path.resolve(process.cwd(), configuredPath, sessionFileName);
-
-    if (existsSync(candidate)) {
-      return candidate;
-    }
-
-    const mainPath = require?.main?.path ?? process?.mainModule?.path;
-    if (!mainPath) {
-      return undefined;
-    }
-
-    const alternate = configuredPath.includes('.data.json')
-      ? path.resolve(mainPath, configuredPath)
-      : path.resolve(mainPath, configuredPath, sessionFileName);
-
-    return existsSync(alternate) ? alternate : undefined;
-  }
-  
   // ─────────────────────────────────────────────────────────────────
   // Method declarations (implemented by bound modules)
   // These are filled in by _bindMethods at construction time.

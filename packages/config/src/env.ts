@@ -230,7 +230,18 @@ export function loadFromEnv(options: LoadEnvOptions = {}): PartialConfig {
   const config: Record<string, unknown> = {};
   const loadedVars: string[] = [];
 
-  for (const [envName, value] of Object.entries(env)) {
+  // Keep the documented OPENWA_ encryption aliases consistent with direct SDK
+  // launches. Select the value/file pair together so aliases cannot mix secrets.
+  const effectiveEnv = { ...env };
+  if (prefix === 'WA_') {
+    const name = 'SESSION_DATA_ENCRYPTION_KEY';
+    if (env[`OPENWA_${name}`] !== undefined || env[`OPENWA_${name}_FILE`] !== undefined) {
+      effectiveEnv[`WA_${name}`] = env[`OPENWA_${name}`];
+      effectiveEnv[`WA_${name}_FILE`] = env[`OPENWA_${name}_FILE`];
+    }
+  }
+
+  for (const [envName, value] of Object.entries(effectiveEnv)) {
     if (!envName.startsWith(prefix) || typeof value !== 'string') continue;
 
     const configKey = envNameToConfigKey(envName, prefix);
@@ -239,9 +250,8 @@ export function loadFromEnv(options: LoadEnvOptions = {}): PartialConfig {
     // Parse the value based on schema type
     const parsedValue = parseEnvValue(value, configKey);
     setConfigValue(config, configKey, parsedValue);
-    loadedVars.push(
-      `${envName}=${typeof parsedValue === 'string' ? parsedValue : JSON.stringify(parsedValue)}`
-    );
+    // Names identify configuration sources without printing secret values.
+    loadedVars.push(envName);
   }
 
   if (verbose && loadedVars.length > 0) {

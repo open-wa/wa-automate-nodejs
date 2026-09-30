@@ -1,22 +1,15 @@
 import { WAServer } from './hono-server';
 import type { Config } from '@open-wa/config';
-import { SessionArchiveManager } from '../session/SessionArchiveManager';
 import { getCliOutputSink } from '../cli/output-sink';
 
 export class APILifecycleManager {
     private config: Config;
     private server?: WAServer;
-    private sessionArchiveManager?: SessionArchiveManager;
     // @ts-ignore
     private _sessionConnected: boolean = false;
 
     constructor(config: Config) {
         this.config = config;
-        
-        // Compact checkpoints are synced by the client; profile archives are legacy-only.
-        if (config.legacyDataDirAuth && config.s3Sync) {
-            this.sessionArchiveManager = SessionArchiveManager.createFromConfig(config);
-        }
     }
 
     public async initialize(): Promise<void> {
@@ -33,11 +26,6 @@ export class APILifecycleManager {
                 sink.status({ phase: 'server.starting', sessionId: this.config.sessionId, detail: 'Starting minimal API (QR only)' });
                 await this.startMinimalAPI();
                 break;
-        }
-        
-        // Start session manager after all other initialization
-        if (this.sessionArchiveManager) {
-            await this.sessionArchiveManager.start();
         }
     }
 
@@ -65,12 +53,6 @@ export class APILifecycleManager {
     }
     
     public async stop(): Promise<void> {
-        // Stop session manager first
-        if (this.sessionArchiveManager) {
-            await this.sessionArchiveManager.stop();
-        }
-        
-        // Then stop server
         if (this.server) {
             await this.server.stop();
         }

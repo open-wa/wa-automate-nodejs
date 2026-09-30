@@ -3,9 +3,7 @@ import { Client } from '@open-wa/client';
 import { resolveConfig, type PartialConfig, type Config, type TrackedConfig } from '@open-wa/config';
 import { LightpandaDriver } from '@open-wa/driver-lightpanda';
 import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
-import { chmodSync, existsSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
-import { createHash } from 'node:crypto';
-import { homedir } from 'node:os';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { getCliOutputSink } from './cli/output-sink';
 
@@ -210,11 +208,12 @@ export function toCreateClientOptions(
         driver: driverSelection.driver,
         deleteSessionDataOnLogout: config.deleteSessionDataOnLogout,
         killClientOnLogout: config.killClientOnLogout,
-        legacyDataDirAuth: config.legacyDataDirAuth,
         sessionDataPath: config.sessionDataPath,
         sessionData: config.sessionData,
         skipSessionSave: config.skipSessionSave,
         sessionDataBucketAuth: config.sessionDataBucketAuth,
+        sessionDataEncryptionKey: config.sessionDataEncryptionKey,
+        sessionDataEncryptionKeyFile: config.sessionDataEncryptionKeyFile,
         s3Sync: config.s3Sync,
         debug: options.debug ?? (config.logLevel === 'debug' || config.logConsole),
         headless: config.headless,
@@ -250,25 +249,14 @@ export type CreateOptions = Omit<PartialConfig, 's3Sync'> & {
     driver?: CreateClientOptions['driver'];
 };
 
-/** Private profile storage, stable for this project directory and session name. */
-function privateSessionDirectory(sessionId: string): string {
-    const project = createHash('sha256').update(realpathSync(process.cwd())).digest('hex').slice(0, 24);
-    const session = createHash('sha256').update(sessionId).digest('hex').slice(0, 24);
-    const root = resolve(homedir(), '.open-wa', 'sessions');
-    const directory = resolve(root, project, session);
-    mkdirSync(directory, { recursive: true, mode: 0o700 });
-    // Protect existing directories too; Chromium stores authentication here.
-    for (const path of [root, dirname(directory), directory]) chmodSync(path, 0o700);
-    return directory;
-}
-
 /** Start WhatsApp, display QR login when needed, and return a ready messaging client. */
 export async function create(options: CreateOptions = {}): Promise<Client> {
-    const { driver, sessionData, sessionDataBucketAuth, s3Sync, ...configOverrides } = options;
+    const { driver, sessionData, sessionDataBucketAuth, s3Sync,
+        sessionDataEncryptionKey, sessionDataEncryptionKeyFile, ...configOverrides } = options;
     const { config, rawConfigs } = await resolveConfig({
         programmaticOverrides: {
             qrTimeout: 0, ...configOverrides,
-            // Session seeds and bucket credentials bypass tracked/debug config.
+            // Session seeds, encryption keys and bucket credentials bypass tracked/debug config.
         },
         skipConfigFile: true,
         skipEnv: true,
@@ -285,11 +273,9 @@ export async function create(options: CreateOptions = {}): Promise<Client> {
     if (driver) coreOptions.driver = driver;
     coreOptions.sessionData = sessionData;
     coreOptions.sessionDataBucketAuth = sessionDataBucketAuth;
+    coreOptions.sessionDataEncryptionKey = sessionDataEncryptionKey;
+    coreOptions.sessionDataEncryptionKeyFile = sessionDataEncryptionKeyFile;
     coreOptions.s3Sync = s3Sync;
-    if (config.legacyDataDirAuth && !config.ephemeral && configOverrides.userDataDir === undefined && configOverrides.sessionDataPath === undefined) {
-        coreOptions.userDataDir = privateSessionDirectory(config.sessionId);
-        coreOptions.sessionDataPath = coreOptions.userDataDir;
-    }
 
     const core = await createCoreClient(coreOptions);
     const sink = getCliOutputSink();
