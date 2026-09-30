@@ -1,3 +1,5 @@
+import { PortableSessionController, type PortableSessionStatus } from './portableSession';
+import { acquireSessionPersistence, type SessionPersistenceConfig } from './sessionPersistence';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile, stat } from 'node:fs/promises';
@@ -20,7 +22,7 @@ import { fetchPatches, validateLicense } from './httpClient';
 import { InjectionController, type GenerationSnapshot } from './InjectionController';
 import { getProgObserverScript, injectInitPatch } from './initPatchScripts';
 import { getRuntimeListenerSurfaceEntry, runtimeListenerSurface } from './runtimeListenerSurface';
-import { auditWapiHelperAssetRequirements } from './ScriptLoader';
+import { auditWapiHelperAssetRequirements, ScriptLoader } from './ScriptLoader';
 import { chromiumConfig, sanitizeBrowserArgs } from './browserConfig';
 
 export interface PatchFetchConfig {
@@ -45,7 +47,8 @@ export interface SessionDebugInfo {
   NUM_HASH?: string;
 }
 
-export interface TransportOptions {
+export interface TransportOptions extends SessionPersistenceConfig {
+  legacyDataDirAuth?: boolean;
   driver: IDriver;
   events: HyperEmitter<OpenWAEventMap>;
   logger: Logger;
@@ -465,7 +468,7 @@ export class Transport {
     this.executablePath = options.executablePath;
     this.browserArgs = options.browserArgs;
     this.allowDangerousBrowserArgs = options.allowDangerousBrowserArgs;
-    this.userDataDir = options.userDataDir;
+    this.userDataDir = options.legacyDataDirAuth ? options.userDataDir : undefined;
     this.linkCode = options.linkCode;
     this.qrMax = options.qrMax;
     this.ignoreNuke = options.ignoreNuke ?? false;
@@ -478,7 +481,37 @@ export class Transport {
     this.patchConfig = options.patchConfig ?? {};
     this.licenseConfig = options.licenseConfig ?? {};
     this.injectionController = new InjectionController(this.logger);
+    if (!options.legacyDataDirAuth) this.portable = new PortableSessionController({
+      acquire: sessionId => acquireSessionPersistence({ ...options, sessionId }),
+    }, options.sessionId ?? 'session');
   }
+
+  private portable?: PortableSessionController;
+
+  get hasPortableSession(): boolean { return !this.options.legacyDataDirAuth; }
+
+  setPortableMessageHandler(handler: (message: unknown) => Promise<boolean>, listening: () => boolean = () => true): () => void {
+    if (!this.portable) throw new Error('PORTABLE_SESSION_NOT_CONFIGURED');
+    return this.portable.setMessageHandler(async message => {
+      const accepted = await handler(message);
+      if (accepted) this.events.emit('message.received', {
+        ctx: { correlationId: 'portable-message-received', ts: Date.now() }, message,
+      });
+      return accepted;
+    }, listening);
+  }
+
+  getPortableSessionStatus(): Promise<PortableSessionStatus> {
+    if (!this.portable) throw new Error('PORTABLE_SESSION_NOT_CONFIGURED');
+    return this.portable.status();
+  }
+
+  replayPortableMessages(): Promise<void> {
+    if (!this.portable) throw new Error('PORTABLE_SESSION_NOT_CONFIGURED');
+    return this.portable.replay();
+  }
+
+  async invalidatePortableSession(): Promise<void> { await this.portable?.invalidate(); }
 
   async initialize(): Promise<void> {
     this.events.emit('launch.browser.init.before', {
@@ -513,6 +546,8 @@ export class Transport {
     this.page = await this.browser.newPage();
 
 
+    if (this.portable) await this.portable.install(this.page, new URL(this.waWebUrl).origin,
+      await new ScriptLoader().load('pre_init.js'));
     await this.configurePageRuntime(this.page);
 
     await this.page.setUserAgent(
@@ -561,10 +596,16 @@ export class Transport {
   async waitForInjectableSession(): Promise<boolean> {
     if (!this.page) return false;
 
-    await this.page.waitForFunction(PRE_AUTH_SURFACE_READY_CHECK_SCRIPT, {
+    const readyScript = this.portable
+      ? `(() => Boolean(globalThis.OpenWA_PortableSession?.startupFailure()) || (${PRE_AUTH_SURFACE_READY_CHECK_SCRIPT}))()`
+      : PRE_AUTH_SURFACE_READY_CHECK_SCRIPT;
+    await this.page.waitForFunction(readyScript, {
       timeoutMs: this.navigationTimeoutMs,
-      polling: 'mutation',
+      polling: this.portable ? 100 : 'mutation',
     });
+    if (this.portable && await this.page.evaluateScript<boolean>('Boolean(globalThis.OpenWA_PortableSession?.startupFailure())')) {
+      throw new Error('Compact session restore is unavailable for this WhatsApp build or session file. Update OpenWA, or use legacyDataDirAuth: true with a linked browser profile.');
+    }
     return true;
   }
 
@@ -638,6 +679,7 @@ export class Transport {
       messageReceivedSurface.event,
       messageReceivedSurface.bindingName,
       (message: unknown) => {
+        if (this.portable) return;
         this.events.emit('message.received', {
           ctx: { correlationId: 'runtime-message-received', ts: Date.now() },
           message,
@@ -733,6 +775,7 @@ export class Transport {
    */
   async activateRuntimeEventBridge(): Promise<void> {
     const bridgeReady = await this.injectionController.ensureRuntimeBridge();
+    if (this.portable) await this.portable.activate();
     const capability = await this.probeRuntimeCapability();
     this.logger.info('runtime_event_bridge_ready', {
       bridgeReady,
@@ -2098,15 +2141,18 @@ export class Transport {
   }
 
   async close(): Promise<void> {
-    this.disposePageListeners();
-    await this.injectionController.dispose();
-    if (this.page) {
-      await this.page.close();
-      this.page = null;
-    }
-    if (this.browser) {
-      await this.browser.close();
-      this.browser = null;
+    try {
+      await this.portable?.flush();
+    } finally {
+      this.disposePageListeners();
+      try {
+        await this.injectionController.dispose();
+        if (this.page) { await this.page.close(); this.page = null; }
+      } finally {
+        // Never release ownership while an old browser can still write.
+        if (this.browser) { await this.browser.close(); this.browser = null; }
+        await this.portable?.release();
+      }
     }
     this.logger.info('transport_closed');
   }

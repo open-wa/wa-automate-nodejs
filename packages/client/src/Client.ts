@@ -108,6 +108,7 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
       sessionId: config.client.sessionId,
       events: config.client.events,
       observability: config.client.observability,
+      portableTransport: config.transport.hasPortableSession ? config.transport : undefined,
     });
     
     // Bind method modules
@@ -321,6 +322,12 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
     return this._listenerManager.on('formResponse', callback, options);
   }
 
+  /** Counts only; never exposes the encrypted session's contents or keys. */
+  getPortableSessionStatus() { return this._transport.getPortableSessionStatus(); }
+
+  /** Retry pending delivery after a handler failure. Successful callbacks may repeat after a crash. */
+  replayPortableMessages(): Promise<void> { return this._transport.replayPortableMessages(); }
+
   /** Listen for all incoming messages. */
   onMessage(callback: (message: Message) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
     return this._listenerManager.on('message', async (payload) => {
@@ -467,6 +474,12 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
 
   private async _runLogoutCleanup(): Promise<void> {
     const { deleteSessionDataOnLogout = false, killClientOnLogout = false } = this._client.config;
+
+    if (this._transport.hasPortableSession) {
+      await this._transport.invalidatePortableSession();
+      if (killClientOnLogout) await this._client.stop('LOGGED_OUT');
+      return;
+    }
 
     if (!deleteSessionDataOnLogout && !killClientOnLogout) {
       return;

@@ -210,7 +210,12 @@ export function toCreateClientOptions(
         driver: driverSelection.driver,
         deleteSessionDataOnLogout: config.deleteSessionDataOnLogout,
         killClientOnLogout: config.killClientOnLogout,
+        legacyDataDirAuth: config.legacyDataDirAuth,
         sessionDataPath: config.sessionDataPath,
+        sessionData: config.sessionData,
+        skipSessionSave: config.skipSessionSave,
+        sessionDataBucketAuth: config.sessionDataBucketAuth,
+        s3Sync: config.s3Sync,
         debug: options.debug ?? (config.logLevel === 'debug' || config.logConsole),
         headless: config.headless,
         qrTimeoutMs: typeof config.qrTimeout === 'number' ? config.qrTimeout * 1000 : undefined,
@@ -236,7 +241,11 @@ export function toCreateClientOptions(
 }
 
 /** Options for the ready-to-use messaging client. */
-export type CreateOptions = PartialConfig & {
+export type CreateOptions = Omit<PartialConfig, 's3Sync'> & {
+    s3Sync?: Omit<NonNullable<PartialConfig['s3Sync']>, 'region' | 'syncInterval'> & {
+        region?: string;
+        syncInterval?: number;
+    };
     /** Override the default Puppeteer driver. */
     driver?: CreateClientOptions['driver'];
 };
@@ -255,9 +264,12 @@ function privateSessionDirectory(sessionId: string): string {
 
 /** Start WhatsApp, display QR login when needed, and return a ready messaging client. */
 export async function create(options: CreateOptions = {}): Promise<Client> {
-    const { driver, ...configOverrides } = options;
+    const { driver, sessionData, sessionDataBucketAuth, s3Sync, ...configOverrides } = options;
     const { config, rawConfigs } = await resolveConfig({
-        programmaticOverrides: { qrTimeout: 0, ...configOverrides },
+        programmaticOverrides: {
+            qrTimeout: 0, ...configOverrides,
+            // Session seeds and bucket credentials bypass tracked/debug config.
+        },
         skipConfigFile: true,
         skipEnv: true,
         includeRawConfigs: true,
@@ -271,7 +283,10 @@ export async function create(options: CreateOptions = {}): Promise<Client> {
 
     const coreOptions = toCreateClientOptions(config, driverSelection);
     if (driver) coreOptions.driver = driver;
-    if (!config.ephemeral && configOverrides.userDataDir === undefined && configOverrides.sessionDataPath === undefined) {
+    coreOptions.sessionData = sessionData;
+    coreOptions.sessionDataBucketAuth = sessionDataBucketAuth;
+    coreOptions.s3Sync = s3Sync;
+    if (config.legacyDataDirAuth && !config.ephemeral && configOverrides.userDataDir === undefined && configOverrides.sessionDataPath === undefined) {
         coreOptions.userDataDir = privateSessionDirectory(config.sessionId);
         coreOptions.sessionDataPath = coreOptions.userDataDir;
     }

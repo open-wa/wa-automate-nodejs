@@ -28,6 +28,7 @@
     "@open-wa/plugin-sdk": "workspace:*",
     "@open-wa/runtime-core": "workspace:*",
     "@open-wa/schema": "workspace:*",
+    "@open-wa/session-sync": "workspace:*",
     "effect": "catalog:",
     "hono": "catalog:",
     "uuid": "catalog:"
