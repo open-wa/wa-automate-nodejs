@@ -40,7 +40,7 @@ client.onMessage((message) => {
 | --- | --- |
 | `id` | The message ID. Pass this to `reply`, `forwardMessages`, or lookup methods. |
 | `body` | Text content for text messages. For media messages, this can be empty. |
-| `type` | WhatsApp message type, such as `chat`, `image`, `video`, `document`, `ptt`, `location`, `buttons_response`, or `list_response`. |
+| `type` | WhatsApp message type, such as `chat`, `image`, `video`, `album`, `document`, `ptt`, `location`, `buttons_response`, or `list_response`. |
 | `from` | The chat that sent the message. In direct chats this is the contact ID. In groups this is the group chat ID. |
 | `to` | The chat or account that received the message. |
 | `chatId` | The chat ID for the conversation. |
@@ -53,6 +53,9 @@ client.onMessage((message) => {
 | `isGroupMsg` | `true` when the message came from a group. |
 | `isMedia` / `isMMS` | Media flags. Use these before downloading or processing attachments. |
 | `caption` | Caption for image, video, or document messages. |
+| `expectedImageCount` / `expectedVideoCount` | Media counts declared by an album container. They don't confirm that all children have arrived. GIF videos contribute to the video count. |
+| `parentMsgKey` / `associationType` | Associated media's parent message ID and association type. Album children use `MEDIA_ALBUM`. |
+| `isGif` | Whether a video message plays as a WhatsApp GIF. |
 | `mentionedJidList` | Contact IDs mentioned in the message. |
 | `ack` | Delivery state for outgoing messages. Read `onAck` for updates. |
 | `quotedMsg` / `quotedMsgObj` | Quoted message payload when WhatsApp makes it available. |
@@ -148,6 +151,73 @@ snippet encodes the actual file instead of a placeholder payload. Use
 `sendVideoAsGif`; those names belong to the generated Easy API schema, so check
 their method references and runtime support before using them. Captions belong
 to the attachment message, not a separate text message.
+
+## Albums
+
+The next release adds album receiving and sending. An album arrives with
+`type: 'album'`, declared image/video counts, and an empty body. The container
+has no downloadable media; its images and videos are separate messages.
+Album children carry `associationType: 'MEDIA_ALBUM'` and a serialized
+`parentMsgKey` matching the container's ID. Captions belong to those children.
+
+```ts
+client.onMessage(async (message) => {
+  if (message.type === 'album') {
+    console.log('Album:', message.id,
+      message.expectedImageCount, message.expectedVideoCount);
+    const loaded = await client.getAlbumMessages(message.id);
+    if (loaded !== false) console.log('Loaded items:', loaded.length);
+  }
+  if (message.associationType === 'MEDIA_ALBUM' && message.parentMsgKey) {
+    console.log('Album item:', message.parentMsgKey, message.caption);
+    const dataUrl = await client.decryptMedia(message);
+    // Process this image or video in your application.
+    console.log('Downloaded bytes as a data URL:', dataUrl.length);
+  }
+});
+```
+
+`getAlbumMessages(albumId)` returns the currently loaded image/video children,
+including GIF videos, or `false` if the container isn't loaded or the ID isn't
+an album. Its array can be empty or incomplete when the parent arrives before
+its children. Process child events as they arrive, or call the lookup again
+later; the lookup doesn't wait for every declared item. Pass each child to
+`decryptMedia` or `downloadMedia`.
+
+Send an album from real media files:
+
+```ts
+import { readFile } from 'node:fs/promises';
+
+const encode = async (path: string, mime: string) =>
+  `data:${mime};base64,${(await readFile(path)).toString('base64')}`;
+
+const result = await client.sendAlbum(chatId, [
+  { file: await encode('./photo.jpg', 'image/jpeg'), filename: 'photo.jpg' },
+  { file: await encode('./clip.mp4', 'video/mp4'), filename: 'clip.mp4' },
+  { file: await encode('./loop.mp4', 'video/mp4'), filename: 'loop.mp4', isGif: true },
+  { file: await encode('./photo-2.jpg', 'image/jpeg'), filename: 'photo-2.jpg' },
+], 'One caption for the album');
+
+console.log(result.albumId, result.messageIds);
+```
+
+Images and videos can be mixed. For a WhatsApp GIF, provide an MP4 video with
+`isGif: true`; this API doesn't convert GIF files to MP4. Documents and audio
+are rejected. WhatsApp controls album availability, its minimum item count
+and upload limits. Phone-number IDs (`number@c.us`) are resolved to LIDs using
+WhatsApp's contact mapping, querying it when needed. LID, group and channel IDs
+are used directly. The destination chat must already be loaded and allow
+sending. The optional fourth argument quotes a loaded message in that chat on the
+first album item; the caption is also attached to that first item.
+
+The method prepares every item before submitting the container. It returns
+the parent ID and submitted media IDs in input order. These IDs confirm
+submission, not delivery or recipient rendering. If submission fails after
+the parent is created, the error includes the parent ID and submitted child
+IDs when the browser can report them. A lost connection can leave the outcome
+unknown, and the album may be partially sent, so inspect the chat before
+retrying. The method doesn't retry automatically.
 
 ## Quoted replies
 

@@ -6,7 +6,7 @@ icon: "BookOpen"
 
 # Messages Client API
 
-This page documents 39 schema-registry client methods in the `messages` namespace.
+This page documents 41 schema-registry client methods in the `messages` namespace.
 
 
 ## `deleteMessage`
@@ -200,6 +200,97 @@ In-process Client resolves to `Promise<MessageIdReturn[] \| boolean>`. The contr
 | --- | --- | --- | --- | --- |
 | Primary | `POST` | `/api/messages/forward` | `forwardMessages` | Active |
 | Alias | `POST` | `/api/forwardMessages` | `forwardMessages` | Active |
+
+</details>
+
+
+## `getAlbumMessages`
+
+Returns currently loaded image and video messages associated with an album, including GIF videos. The album can arrive before its media, so the array may be incomplete. Returns false if the album is not loaded or the ID belongs to another message type.
+
+**Signature** `client.getAlbumMessages(messageId: string): Promise<Message[] \| false>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.getAlbumMessages("false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB");
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getAlbumMessages({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -G "http://localhost:8080/api/messages/getAlbum" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "messageId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="GetAlbumMessagesParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<Message[] \| false>` |
+| Message | [View fields](/docs/reference/client/return-types#message) |
+
+A snapshot of currently loaded album media. An empty or partial array does not mean that the sender sent an empty or partial album. Each item retains its caption and can be passed to decryptMedia or downloadMedia.
+
+In-process Client resolves to `Promise<Message[] \| false>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+A snapshot of currently loaded album media. An empty or partial array does not mean that the sender sent an empty or partial album. Each item retains its caption and can be passed to decryptMedia or downloadMedia.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | `messageId` |
+| Aliases | `messages.getAlbum` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/messages/getAlbum` | `getAlbumMessages` | Active |
+| Alias | `GET` | `/api/getAlbumMessages` | `getAlbumMessages` | Active |
 
 </details>
 
@@ -1235,6 +1326,127 @@ This method is not declared on the in-process Client facade. Use the remote Node
 </details>
 
 </LicensedMethodSection>
+
+
+## `sendAlbum`
+
+Sends images and videos together as a native WhatsApp album with one caption on its first item. GIFs use MP4 video data with isGif: true. Documents are rejected. Phone-number IDs are resolved to LIDs; the destination chat must already be loaded and allow sending. WhatsApp controls the minimum item count and upload limits. Runtime failures include the parent and submitted child IDs when available; inspect the chat before retrying.
+
+**Signature** `client.sendAlbum(to: string, media: { file: string; filename: string; isGif?: boolean }[], caption?: string, quotedMsgId?: string): Promise<AlbumSendResult>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+import { readFile } from 'node:fs/promises';
+
+// Put these real image files in your process working directory.
+const media = await Promise.all(['photo-1.jpg', 'photo-2.jpg', 'photo-3.jpg', 'photo-4.jpg'].map(async filename => ({
+  filename,
+  file: `data:image/jpeg;base64,${(await readFile(filename)).toString('base64')}`,
+})));
+
+const result = await client.sendAlbum('447123456789@c.us', media, 'One caption for the album');
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+import { readFile } from 'node:fs/promises';
+
+// Put these real image files in your process working directory.
+const media = await Promise.all(['photo-1.jpg', 'photo-2.jpg', 'photo-3.jpg', 'photo-4.jpg'].map(async filename => ({
+  filename,
+  file: `data:image/jpeg;base64,${(await readFile(filename)).toString('base64')}`,
+})));
+
+const result = await client.sendAlbum({
+  to: '447123456789@c.us',
+  media,
+  caption: 'One caption for the album',
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+# Save an album request as album.json with "to", "caption", and "media".
+# Each media item needs "filename" and "file" containing a real image/video data URL.
+# See /docs/guides/messages#albums for encoding real files.
+curl -X POST "http://localhost:8080/api/messages/sendAlbum" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-binary @album.json
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {
+    "albumId": "true_447123456789@c.us_ALBUM123",
+    "messageIds": [
+      "true_447123456789@c.us_PHOTO1",
+      "true_447123456789@c.us_PHOTO2",
+      "true_447123456789@c.us_PHOTO3",
+      "true_447123456789@c.us_PHOTO4"
+    ]
+  }
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="SendAlbumParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<AlbumSendResult>` |
+| AlbumSendResult | [View fields](/docs/reference/client/return-types#albumsendresult) |
+
+Submitted album parent and child message IDs, in input order. Submission does not confirm recipient delivery. Runtime failures include the album ID and submitted child IDs when available. A lost connection can leave the send outcome unknown; inspect the chat before retrying.
+
+In-process Client resolves to `Promise<AlbumSendResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+Submitted album parent and child message IDs, in input order. Submission does not confirm recipient delivery. Runtime failures include the album ID and submitted child IDs when available. A lost connection can leave the send outcome unknown; inspect the chat before retrying.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `media`, `caption`, `quotedMsgId` |
+| Aliases | `messages.sendAlbum` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendAlbum` | `sendAlbum` | Active |
+| Alias | `POST` | `/api/sendAlbum` | `sendAlbum` | Active |
+
+</details>
 
 
 ## `sendAudio`

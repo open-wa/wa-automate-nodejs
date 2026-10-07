@@ -36,6 +36,7 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `demoteParticipant` | `groups` | `demoteParticipant` | `groupId`, `contactId` | `boolean \| string` |
 | `downloadMedia` | `media` | `downloadMedia` | `message`, `path` | `string` |
 | `forwardMessages` | `messages` | `forwardMessages` | `to`, `messages`, `skipMyMessages` | `MessageIdReturn[] \| boolean` |
+| `getAlbumMessages` | `messages` | `getAlbumMessages` | `messageId` | `Message[] \| false` |
 | `getAllChatIds` | `chatIds` | `getAllChatIds` | - | `ChatId[]` |
 | `getAllChats` | `chats` | `getAllChats` | `withNewMessagesOnly` | `Chat[]` |
 | `getAllCommunities` | `communities` | `getAllCommunities` | - | `GroupChatId[]` |
@@ -105,6 +106,7 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `removeParticipant` | `groups` | `removeParticipant` | `groupId`, `contactId` | `boolean` |
 | `revokeGroupInviteLink` | `groups` | `revokeGroupInviteLink` | `groupId` | `string \| boolean` |
 | `sendAdvancedButtons` | `messages` | `sendAdvancedButtons` | `to`, `body`, `buttons`, `text`, `footer`, `filename` | `MessageIdReturn \| boolean` |
+| `sendAlbum` | `messages` | `sendAlbum` | `to`, `media`, `caption`, `quotedMsgId` | `AlbumSendResult` |
 | `sendAudio` | `messages` | `sendAudio` | `to`, `file`, `filename`, `quotedMsgId` | `MessageIdReturn \| boolean` |
 | `sendBanner` | `messages` | `sendBanner` | `to`, `base64` | `MessageIdReturn \| boolean` |
 | `sendButtons` | `messages` | `sendButtons` | `to`, `body`, `buttons`, `title`, `footer` | `MessageIdReturn \| boolean` |

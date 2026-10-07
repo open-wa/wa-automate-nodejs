@@ -2,10 +2,11 @@ import { z } from 'zod';
 import * as common from '../src/common-types';
 import * as returns from '../src/return-types';
 import * as interactive from '../src/interactive';
-import { SendTextResultSchema } from '../src/methods/messaging';
+import { SendTextResultSchema, AlbumMediaSchema, AlbumSendResultSchema } from '../src/methods/messaging';
 
 export const namedSchemas = Object.fromEntries(
-  [...Object.entries(common), ...Object.entries(returns), ...Object.entries(interactive)]
+  [...Object.entries(common), ...Object.entries(returns), ...Object.entries(interactive),
+    ...Object.entries({ AlbumMediaSchema, AlbumSendResultSchema })]
     .filter(([name, value]) => name.endsWith('Schema') && value instanceof z.ZodType)
     .map(([name, value]) => [name.replace(/Schema$/, ''), value as z.ZodType]),
 );

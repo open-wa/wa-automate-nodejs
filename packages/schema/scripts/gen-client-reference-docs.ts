@@ -237,6 +237,8 @@ function summarizeSchema(schema: JsonSchema): string {
     return `{ ${sortStrings(propertyNames).map((name) => `${name}${required.has(name) ? '' : '?'}: ${summarizeSchema(schema.properties![name])}`).join('; ')} }`;
   }
 
+  if (schema.type === 'integer') return 'number';
+
   return (schema.type as string) ?? 'any';
 }
 
@@ -478,6 +480,11 @@ function responseValue(schema: z.ZodType, depth = 0): unknown {
   if (depth > 8) return undefined;
   const def = schema._zod.def as any;
   const name = describeType(schema);
+  if (name === 'AlbumSendResult') return {
+    albumId: 'true_447123456789@c.us_ALBUM123',
+    messageIds: ['true_447123456789@c.us_PHOTO1', 'true_447123456789@c.us_PHOTO2',
+      'true_447123456789@c.us_PHOTO3', 'true_447123456789@c.us_PHOTO4'],
+  };
   if (name === 'DataURL') return 'data:image/png;base64,...';
   if (/^(ChatId|ContactId)$/.test(name)) return '447123456789@c.us';
   if (/^(GroupId|GroupChatId)$/.test(name)) return '447123456789-1445627445@g.us';
@@ -531,11 +538,13 @@ function sampleValueForParameter(row: ParameterRow): string {
 }
 
 function buildPositionalCall(functionName: string, rows: ParameterRow[]): string {
+  if (functionName === 'sendAlbum') return `${buildAlbumMediaExample()}\n\nconst result = await client.sendAlbum('447123456789@c.us', media, 'One caption for the album');`;
   const argumentsList = rows.map((row) => sampleValueForParameter(row)).join(', ');
   return `const result = await client.${functionName}(${argumentsList});`;
 }
 
 function buildObjectCall(functionName: string, rows: ParameterRow[]): string {
+  if (functionName === 'sendAlbum') return `${buildAlbumMediaExample()}\n\nconst result = await client.sendAlbum({\n  to: '447123456789@c.us',\n  media,\n  caption: 'One caption for the album',\n});`;
   if (rows.length === 0) {
     return `const result = await client.${functionName}();`;
   }
@@ -545,6 +554,18 @@ function buildObjectCall(functionName: string, rows: ParameterRow[]): string {
   }
   const body = rows.map((row) => `  ${row.name}: ${sampleValueForParameter(row)},`).join('\n');
   return `const result = await client.${functionName}({\n${body}\n});`;
+}
+
+function buildAlbumMediaExample(): string {
+  return [
+    "import { readFile } from 'node:fs/promises';",
+    '',
+    '// Put these real image files in your process working directory.',
+    "const media = await Promise.all(['photo-1.jpg', 'photo-2.jpg', 'photo-3.jpg', 'photo-4.jpg'].map(async filename => ({",
+    '  filename,',
+    "  file: `data:image/jpeg;base64,${(await readFile(filename)).toString('base64')}`,",
+    '})));',
+  ].join('\n');
 }
 
 function buildJsonBody(rows: ParameterRow[], indent: string): string {
@@ -570,6 +591,9 @@ function buildCurlExample(route: HttpMethodDefinition | undefined, rows: Paramet
   }
 
   const url = `http://localhost:8080${route.path}`;
+  if (route.functionName === 'sendAlbum') {
+    return `# Save an album request as album.json with "to", "caption", and "media".\n# Each media item needs "filename" and "file" containing a real image/video data URL.\n# See /docs/guides/messages#albums for encoding real files.\ncurl -X ${route.httpMethod} "${url}" \\\n  -H "content-type: application/json" \\\n  -H "x-api-key: YOUR_API_KEY" \\\n  --data-binary @album.json`;
+  }
   if (rows.some((row) => row.name === 'message' && row.type.startsWith('{'))) {
     return `# Save the full incoming media message as the "message" field in request.json.\n# For downloadMedia, also set "path" to the destination filename.\ncurl -X ${route.httpMethod} "${url}" \\\n  -H "content-type: application/json" \\\n  -H "x-api-key: YOUR_API_KEY" \\\n  --data-binary @request.json`;
   }
