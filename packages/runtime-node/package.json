@@ -23,14 +23,18 @@
   },
   "dependencies": {
     "@open-wa/runtime-core": "workspace:*",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "@open-wa/core": "workspace:*",
+    "@open-wa/schema": "workspace:*",
+    "@effect/platform-node": "catalog:",
+    "@effect/platform-node-shared": "4.0.0-beta.100",
+    "ffmpeg-static": "5.3.0",
+    "ws": "^8.22.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:",
-    "@effect/platform-node": "catalog:",
-    "@effect/platform-node-shared": "4.0.0-beta.100"
+    "vitest": "catalog:"
   },
   "publishConfig": {
     "access": "public",

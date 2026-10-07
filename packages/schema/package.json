@@ -65,6 +65,17 @@
         "types": "./dist/http-manifest.d.mts",
         "default": "./dist/http-manifest.mjs"
       }
+    },
+    "./calling-media": {
+      "bun": "./src/calling-media.ts",
+      "import": {
+        "types": "./dist/calling-media.d.mts",
+        "default": "./dist/calling-media.mjs"
+      },
+      "require": {
+        "types": "./dist/calling-media.d.cts",
+        "default": "./dist/calling-media.cjs"
+      }
     }
   },
   "scripts": {
@@ -82,7 +93,8 @@
     "@open-wa/config": "workspace:*",
     "@open-wa/utils": "workspace:*",
     "zod": "catalog:",
-    "zod-to-json-schema": "^3.25.2"
+    "zod-to-json-schema": "^3.25.2",
+    "effect": "catalog:"
   },
   "devDependencies": {
     "ts-node": "catalog:",
@@ -140,6 +152,16 @@
         "import": {
           "types": "./dist/http-manifest.d.mts",
           "default": "./dist/http-manifest.mjs"
+        }
+      },
+      "./calling-media": {
+        "import": {
+          "types": "./dist/calling-media.d.mts",
+          "default": "./dist/calling-media.mjs"
+        },
+        "require": {
+          "types": "./dist/calling-media.d.cts",
+          "default": "./dist/calling-media.cjs"
         }
       }
     }

@@ -1173,19 +1173,31 @@ importers:
 
   packages/runtime-node:
     dependencies:
-      '@open-wa/runtime-core':
-        specifier: workspace:*
-        version: link:../runtime-core
-      effect:
-        specifier: 'catalog:'
-        version: 4.0.0-beta.100
-    devDependencies:
       '@effect/platform-node':
         specifier: 'catalog:'
         version: 4.0.0-beta.100(effect@4.0.0-beta.100)(ioredis@5.11.1(supports-color@10.2.2))
       '@effect/platform-node-shared':
         specifier: 4.0.0-beta.100
         version: 4.0.0-beta.100(effect@4.0.0-beta.100)
+      '@open-wa/core':
+        specifier: workspace:*
+        version: link:../core
+      '@open-wa/runtime-core':
+        specifier: workspace:*
+        version: link:../runtime-core
+      '@open-wa/schema':
+        specifier: workspace:*
+        version: link:../schema
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.0-beta.100
+      ffmpeg-static:
+        specifier: 5.3.0
+        version: 5.3.0(supports-color@10.2.2)
+      ws:
+        specifier: ^8.22.0
+        version: 8.22.0
+    devDependencies:
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.3
@@ -1207,6 +1219,9 @@ importers:
       '@open-wa/utils':
         specifier: workspace:*
         version: link:../utils
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.0-beta.100
       zod:
         specifier: 'catalog:'
         version: 4.6.5
@@ -1273,6 +1288,15 @@ importers:
 
   packages/socket-client:
     dependencies:
+      '@open-wa/runtime-core':
+        specifier: workspace:*
+        version: link:../runtime-core
+      '@open-wa/runtime-node':
+        specifier: workspace:*
+        version: link:../runtime-node
+      '@open-wa/schema':
+        specifier: workspace:*
+        version: link:../schema
       '@open-wa/wa-automate-types-only':
         specifier: workspace:*
         version: link:../types-only
@@ -1285,6 +1309,9 @@ importers:
       eventsource:
         specifier: ^5.1.2
         version: 5.1.2
+      hls.js:
+        specifier: ^1.7.3
+        version: 1.7.3
       isomorphic-ws:
         specifier: ^5.0.0
         version: 5.0.0(ws@8.22.0)
@@ -1823,6 +1850,10 @@ packages:
 
   '@dabh/diagnostics@2.0.9':
     resolution: {integrity: sha512-R6siwR65Hm+3yfgP7o8DKhNvputQAwfoz9zTc3kyDudnomj2/BcLmD+uGQQPICjuFUp8ounPBU+jmKsocwVVAg==}
+
+  '@derhuerst/http-basic@8.2.4':
+    resolution: {integrity: sha512-F9rL9k9Xjf5blCz8HsJRO4diy111cayL2vkY2XE4r4t3n0yPXVYy3KD3nJ1qbrSn9743UWSXH4IwuCa/HWlGFw==}
+    engines: {node: '>=6.0.0'}
 
   '@dotenvx/dotenvx@1.75.1':
     resolution: {integrity: sha512-/BITOC9dmS/edY2zQwZNicQ059O6RKabtQfyEafV0nGtfYRNHYy1DIPiYVcov40+tob9hfmBnbR963dS+EQ1DQ==}
@@ -4825,6 +4856,9 @@ packages:
   '@types/node-red__util@5.0.1':
     resolution: {integrity: sha512-GbtQYYGklLIRBg0xDAgxyUWPgCfyf40nuGkLfxgFm4tmPN3Fsd8gU+vITIiDEidIZAw4beLsnmwpOm5eFPSfpQ==}
 
+  '@types/node@10.17.60':
+    resolution: {integrity: sha512-F0KIgDJfy2nA3zMLmWGKxcH2ZVEtCZXHHdOQs2gSaQ27+lNeEfGxzkIw90aXswATX7AZ33tahPbzy6KAfUreVw==}
+
   '@types/node@24.19.0':
     resolution: {integrity: sha512-zY+5tKxXdhGh1PYI0ac+7juvEu4OI6vWtVVoj5i2m42jxAY1U+zHGt6QCyOFwykdP62sM3MJ9stoYYUw5aCWew==}
 
@@ -6110,6 +6144,9 @@ packages:
   caniuse-lite@1.0.30001812:
     resolution: {integrity: sha512-qN+QNNBr93TCmFrmte0bBCjSDMuRvt78VlHT99qIGPszm4QsqCX8lnyWUFkHi8B7ZBAPq8SH+UqyXNy/odMdng==}
 
+  caseless@0.12.0:
+    resolution: {integrity: sha512-4tYFyifaFfGacoiObjJegolkwSU4xQNGbVgUiNYVUxbQ2x2lUsFvY4hVgVzGiIe6WLOPqycWXA40l+PWsxthUw==}
+
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
 
@@ -7256,6 +7293,10 @@ packages:
   fetchdts@0.1.7:
     resolution: {integrity: sha512-YoZjBdafyLIop9lSxXVI33oLD5kN31q4Td+CasofLLYeLXRFeOsuOw0Uo+XNRi9PZlbfdlN2GmRtm4tCEQ9/KA==}
 
+  ffmpeg-static@5.3.0:
+    resolution: {integrity: sha512-H+K6sW6TiIX6VGend0KQwthe+kaceeH/luE8dIZyOP35ik7ahYojDuqlTV1bOrtEwl01sy2HFNGQfi5IDJvotg==}
+    engines: {node: '>=16'}
+
   figlet@1.11.4:
     resolution: {integrity: sha512-ZU41480OncL+NVLQrT0GVnbO0COL24sLSrzksioDgunmdJNYEUxhJJZ4Y3x1csN8XXqN5OcCZTLG8lKdquNyfQ==}
     engines: {node: '>= 17.0.0'}
@@ -7802,6 +7843,9 @@ packages:
     resolution: {integrity: sha512-nbfWpyRMcMrPMmDwJB+dhX/eiaPKtc2RB+0QZskqJ3WjRA/FDS0e9hZrx8EC/lbEv8gXy98FcDbNa/dspAaJMg==}
     engines: {node: '>=12.0.0'}
 
+  hls.js@1.7.3:
+    resolution: {integrity: sha512-MsPlx6yVW4Qv4C7mEVou4/gk/5cN2dVxOTnrNjPSmyH2f0Ln+/UkG10Ax1PE6OvrmTVPKgQYozTtBaPOuCzq7A==}
+
   hono@4.13.9:
     resolution: {integrity: sha512-7dMkQmZoC4E6F7AtaQSPhlWAdnBti+j7rreMZl8QB4jFiEhP9TWbGWUMi8WYzBCgmgulxuvLQupKqo+Co6Omyg==}
     engines: {node: '>=16.9.0'}
@@ -7850,6 +7894,9 @@ packages:
   http-proxy-agent@9.1.0:
     resolution: {integrity: sha512-2NxoveTT58mjYT4n3RPTEfCZGLMbidoO8XEieXfpSYxu+PQJ1qpx4ypwH6N+uF9twBPIvRRgvkvW5HUTYWENig==}
     engines: {node: '>= 20'}
+
+  http-response-object@3.0.2:
+    resolution: {integrity: sha512-bqX0XTF6fnXSQcEJ2Iuyr75yVakyjIDCqroJQ/aHfSdlM743Cwqoi2nDYMzLGWUcuTWGWy8AAvOKXTfiv6q9RA==}
 
   http2-wrapper@2.2.1:
     resolution: {integrity: sha512-V5nVw1PAOgfI3Lmeaj2Exmeg7fenjhRUgz1lPSezy1CuhPYbgQtbQj4jZfEAEMlaL+vupsvhjqCyjzob0yxsmQ==}
@@ -9423,6 +9470,9 @@ packages:
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
     engines: {node: '>=6'}
+
+  parse-cache-control@1.0.1:
+    resolution: {integrity: sha512-60zvsJReQPX5/QP0Kzfd/VrpjScIQ7SHBW6bFCYfEP+fp0Eppr1SHhIO5nd1PjZtvclzSzES9D/p5nFJurwfWg==}
 
   parse-entities@4.0.2:
     resolution: {integrity: sha512-GG2AQYWoLgL877gQIKeRPGO1xF9+eG1ujIb5soS5gPvLQ1y2o8FL90w2QWNdf9I361Mpp7726c+lj3U0qK1uGw==}
@@ -12317,6 +12367,13 @@ snapshots:
       '@so-ric/colorspace': 1.1.6
       enabled: 2.0.0
       kuler: 2.0.0
+
+  '@derhuerst/http-basic@8.2.4':
+    dependencies:
+      caseless: 0.12.0
+      concat-stream: 2.0.0
+      http-response-object: 3.0.2
+      parse-cache-control: 1.0.1
 
   '@dotenvx/dotenvx@1.75.1':
     dependencies:
@@ -15349,6 +15406,8 @@ snapshots:
       '@types/node-red__registry': 1.3.12
       '@types/node-red__runtime': 1.3.8
 
+  '@types/node@10.17.60': {}
+
   '@types/node@24.19.0':
     dependencies:
       undici-types: 7.24.6
@@ -16556,6 +16615,8 @@ snapshots:
     optional: true
 
   caniuse-lite@1.0.30001812: {}
+
+  caseless@0.12.0: {}
 
   ccount@2.0.1: {}
 
@@ -17988,6 +18049,15 @@ snapshots:
 
   fetchdts@0.1.7: {}
 
+  ffmpeg-static@5.3.0(supports-color@10.2.2):
+    dependencies:
+      '@derhuerst/http-basic': 8.2.4
+      env-paths: 2.2.1
+      https-proxy-agent: 5.0.1(supports-color@10.2.2)
+      progress: 2.0.3
+    transitivePeerDependencies:
+      - supports-color
+
   figlet@1.11.4:
     dependencies:
       commander: 14.0.3
@@ -18663,6 +18733,8 @@ snapshots:
 
   highlight.js@11.12.0: {}
 
+  hls.js@1.7.3: {}
+
   hono@4.13.9: {}
 
   hookable@6.1.2: {}
@@ -18725,6 +18797,10 @@ snapshots:
     transitivePeerDependencies:
       - kerberos
       - supports-color
+
+  http-response-object@3.0.2:
+    dependencies:
+      '@types/node': 10.17.60
 
   http2-wrapper@2.2.1:
     dependencies:
@@ -20541,6 +20617,8 @@ snapshots:
   parent-module@1.0.1:
     dependencies:
       callsites: 3.1.0
+
+  parse-cache-control@1.0.1: {}
 
   parse-entities@4.0.2:
     dependencies:
