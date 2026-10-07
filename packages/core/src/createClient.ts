@@ -19,6 +19,8 @@ import type {
   RuntimeValidationFailureReason,
 } from './transport/index';
 import { Effect } from 'effect';
+import type { CallingOptions } from '@open-wa/schema';
+import type { CallMediaHost } from './calling/ports';
 import {
   SessionScope,
   runStartupGraph,
@@ -37,6 +39,8 @@ import type { SessionEncryptionOptions } from './transport/sessionEncryption';
 
 export interface CreateClientOptions extends SessionPersistenceConfig, SessionEncryptionOptions {
   driver: IDriver;
+  calling?: CallingOptions;
+  callMediaHost?: CallMediaHost;
   deleteSessionDataOnLogout?: boolean;
   killClientOnLogout?: boolean;
 
@@ -270,6 +274,8 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     lightpanda: options.lightpanda,
     patchConfig: options.patchConfig,
     licenseConfig: options.licenseConfig,
+    calling: options.calling,
+    callMediaHost: options.callMediaHost,
   });
 
   const pluginHost = new PluginHost(events, logger);
@@ -1165,7 +1171,8 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         sessionId,
       });
       } catch (error) {
-        await resourceScope.close('startup-failure');
+        try { await resourceScope.close('startup-failure'); }
+        catch { logger.warn('Startup cleanup failed; preserving the original startup error.'); }
         throw error;
       }
     },

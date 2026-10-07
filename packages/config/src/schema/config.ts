@@ -6,6 +6,16 @@
  */
 import { z } from 'zod';
 
+const CallingDescriptorSchema = z.union([z.string(), z.object({
+  kind: z.enum(['file', 'url', 'device', 'remote']), path: z.string().optional(), url: z.string().optional(), deviceId: z.string().optional(),
+  raw: z.object({ encoding: z.enum(['pcm16le', 'float32le']), sampleRate: z.number().min(8000).max(192000), channels: z.union([z.literal(1), z.literal(2)]) }).optional(),
+  headers: z.record(z.string(), z.string()).optional(), overwrite: z.boolean().optional(), loop: z.boolean().optional(),
+}), z.null()]);
+export const CallingOptionsSchema = z.object({
+  defaults: z.object({ microphone: CallingDescriptorSchema.optional(), speaker: CallingDescriptorSchema.optional(), camera: CallingDescriptorSchema.optional(), onMediaFailure: z.enum(['end', 'keep-open']).optional() }).optional(),
+  verificationKeys: z.record(z.string(), z.string()).optional(), preparationTimeoutMs: z.number().positive().optional(),
+});
+
 // ============================================================================
 // Enums
 // ============================================================================
@@ -191,6 +201,8 @@ export const ChatSandboxConfigSchema = z.object({
 // ============================================================================
 
 export const ConfigSchema = z.object({
+  calling: CallingOptionsSchema.optional().describe('Calling media defaults and trusted license issuer keys. Calling actions handle admission automatically.'),
+  licenseConfig: z.object({ url: z.string().url().optional(), offlineLicenseMode: z.boolean().optional() }).optional().describe('Licensed implementation delivery endpoint.'),
   // Session & Authentication
   sessionData: z
     .union([SessionDataSchema, z.string()])

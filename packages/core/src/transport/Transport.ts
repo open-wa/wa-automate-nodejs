@@ -25,6 +25,7 @@ import { getProgObserverScript, injectInitPatch } from './initPatchScripts';
 import { getRuntimeListenerSurfaceEntry, runtimeListenerSurface } from './runtimeListenerSurface';
 import { auditWapiHelperAssetRequirements, ScriptLoader } from './ScriptLoader';
 import { chromiumConfig, sanitizeBrowserArgs } from './browserConfig';
+import { CallingService } from '../calling/CallingService';
 
 export interface PatchFetchConfig {
   /** Use GitHub raw patches as the primary source instead of the default CDN. */
@@ -35,6 +36,7 @@ export interface PatchFetchConfig {
 }
 
 export interface LicenseServerConfig {
+  url?: string;
   offlineLicenseMode?: boolean;
 }
 
@@ -76,6 +78,8 @@ export interface TransportOptions extends SessionPersistenceConfig, SessionEncry
   lightpanda?: LightpandaOptions;
   patchConfig?: PatchFetchConfig;
   licenseConfig?: LicenseServerConfig;
+  calling?: import('@open-wa/schema').CallingOptions;
+  callMediaHost?: import('../calling/ports').CallMediaHost;
 }
 
 const CRASH_LOG_URL_FRAGMENTS = [
@@ -284,6 +288,8 @@ export interface LicensePreloadOptions {
 }
 
 export interface LicenseArtifact {
+  callingGrant?: string;
+  account?: string;
   key: string;
   maskedKey: string;
   source: Exclude<LicenseSource, 'none'>;
@@ -451,6 +457,11 @@ export class Transport {
   private cachedLivePatchScripts: string[] = [];
   private frameNavCounter = 0;
   private readonly options: TransportOptions;
+  readonly calling: CallingService;
+  private retainedLicenseArtifact?: LicenseArtifact;
+  private callingRenewalTimer?: ReturnType<typeof setTimeout>;
+  private callingRenewing = false;
+  private callingRenewalAttempts = 0;
 
   constructor(options: TransportOptions) {
     this.options = options;
@@ -479,6 +490,20 @@ export class Transport {
     this.patchConfig = options.patchConfig ?? {};
     this.licenseConfig = options.licenseConfig ?? {};
     this.injectionController = new InjectionController(this.logger);
+    this.calling = new CallingService({
+      sessionId: options.sessionId ?? 'session', logger: this.logger,
+      config: options.calling, mediaHost: options.callMediaHost,
+      page: () => this.page,
+      generation: () => {
+        const value = this.injectionController.getHealthSnapshot().generation;
+        return value.documentId && value.runtimeId ? `${value.documentId}:${value.runtimeId}` : '';
+      },
+      emit: (type, snapshot) => {
+        const ctx = { correlationId: crypto.randomUUID(), ts: snapshot.observedAt };
+        if (type === 'incoming') this.events.emit('call.incoming', { ctx, call: snapshot });
+        else this.events.emit('call.state', { ctx, state: snapshot });
+      },
+    });
     this.portable = new PortableSessionController({
       acquire: sessionId => acquireSessionPersistence({ ...options, sessionId }),
     }, options.sessionId ?? 'session', options);
@@ -1304,6 +1329,7 @@ export class Transport {
       }
 
       const keyType = this.deriveLicenseKeyType(resolvedKey);
+      let callingGrant: string | undefined;
       // Attempt server validation if not in offline mode
       let payload: string;
       let payloadSource: 'server' | 'local_metadata';
@@ -1311,16 +1337,17 @@ export class Transport {
       if (!this.licenseConfig.offlineLicenseMode && options.sessionInfo?.hostNumber) {
 
         try {
-          const serverPayload = await validateLicense(DEFAULT_LICENSE_CHECK_URL, {
+          const serverPayload = await validateLicense(this.licenseConfig.url ?? DEFAULT_LICENSE_CHECK_URL, {
             key: resolvedKey,
             number: options.sessionInfo.hostNumber,
+            sessionId: options.sessionId,
             WA_VERSION: options.sessionInfo.WA_VERSION,
             WA_AUTOMATE_VERSION: options.sessionInfo.WA_AUTOMATE_VERSION,
             BROWSER_VERSION: options.sessionInfo.BROWSER_VERSION,
             PAGE_UA: options.sessionInfo.PAGE_UA,
             OS: options.sessionInfo.OS,
             NUM_HASH: options.sessionInfo.NUM_HASH,
-          });
+          }, { onCallingGrant: token => { callingGrant = token; } });
 
 
           if (serverPayload === false) {
@@ -1374,6 +1401,8 @@ export class Transport {
         payload,
         keyType,
         payloadSource,
+        callingGrant,
+        account: options.sessionInfo?.hostNumber.replace(/\D/g, ''),
       };
 
       const outcome: LicensePreloadResult = {
@@ -1532,6 +1561,46 @@ export class Transport {
     return result;
   }
 
+  private scheduleCallingRenewal(): void {
+    clearTimeout(this.callingRenewalTimer);
+    const expiry = this.calling.grantExpiresAt;
+    if (!expiry || !this.retainedLicenseArtifact?.callingGrant) return;
+    this.callingRenewalTimer = setTimeout(() => { void this.refreshCallingLicense(); }, Math.max(1000, expiry - Date.now() - 30_000));
+    this.callingRenewalTimer.unref?.();
+  }
+
+  private async refreshCallingLicense(): Promise<void> {
+    if (this.callingRenewing || !this.retainedLicenseArtifact || !this.page || this.page.isClosed()) return;
+    this.callingRenewing = true;
+    try {
+      const existing = this.retainedLicenseArtifact;
+      const refreshed = await this.preloadLicenseArtifact({ sessionId: this.options.sessionId ?? 'session', licenseKey: existing.key, sessionInfo: await this.getSessionDebugInfo() });
+      const artifact = refreshed.artifact;
+      if (!artifact || artifact.payloadSource !== 'server') { this.logger.warn('Calling license renewal is unavailable. Existing access remains bounded by its expiry.'); return; }
+      if (await this.calling.renew(artifact.callingGrant, artifact.account ?? '')) {
+        this.callingRenewalAttempts = 0;
+        this.retainedLicenseArtifact = artifact;
+        this.scheduleCallingRenewal();
+      } else if (!artifact.callingGrant) {
+        await this.calling.revoke();
+        this.logger.warn('Calling access was withdrawn. Messaging remains available.');
+      } else if (!await this.calling.getActive()) {
+        const checked = await this.checkLicenseArtifact(refreshed);
+        await this.applyLicenseArtifact(checked);
+      }
+    } catch { this.logger.warn('Calling license renewal is unavailable. Existing access remains bounded by its expiry.'); }
+    finally {
+      this.callingRenewing = false;
+      const remaining = (this.calling.grantExpiresAt ?? 0) - Date.now();
+      if (remaining > 1000 && remaining < 30_000 && this.callingRenewalAttempts < 3) {
+        clearTimeout(this.callingRenewalTimer);
+        const delay = Math.min(remaining - 500, 1000 * 2 ** this.callingRenewalAttempts++);
+        this.callingRenewalTimer = setTimeout(() => { void this.refreshCallingLicense(); }, delay);
+        this.callingRenewalTimer.unref?.();
+      }
+    }
+  }
+
   async applyLicenseArtifact(checked: LicenseCheckResult): Promise<LicenseApplyResult> {
     if (!this.page) {
       throw new Error('Transport not initialized');
@@ -1565,6 +1634,13 @@ export class Transport {
       const applied = await this.page.evaluateScript<boolean>(checked.artifact.payload);
       const launchError = await this.page.evaluateScript<string | null>('window.launchError || null');
       const detectedKeyType = await this.page.evaluateScript<string | false>('window.KEYTYPE || false');
+      if (checked.status === 'valid' && applied && !launchError) {
+        this.retainedLicenseArtifact = checked.artifact;
+        await this.calling.install(checked.artifact.callingGrant, checked.artifact.payload, checked.artifact.account ?? '').catch(error => {
+          this.logger.warn('Calling initialization is unavailable', { message: String(error) });
+        });
+        this.scheduleCallingRenewal();
+      }
 
       if (!applied || launchError) {
         result = {
@@ -2133,6 +2209,8 @@ export class Transport {
   }
 
   async close(): Promise<void> {
+    clearTimeout(this.callingRenewalTimer);
+    await this.calling.close();
     try {
       await this.portable.flush();
     } finally {
@@ -2251,6 +2329,7 @@ export class Transport {
     });
 
     this.injectionController.registerNavigationObserver('runtime.navigation_recovery', (_frame, generation) => {
+      void this.calling.invalidate().catch(error => this.logger.warn('Calling media could not close after navigation', { message: String(error) }));
       this.logger.info(`FRAME NAV DETECTED ${this.frameNavCounter}, ${_frame.url()}, Reinjecting APIs...`);
       this.queueRuntimeRecovery('main_frame_navigation', generation);
       this.frameNavCounter++;
@@ -2589,6 +2668,8 @@ export class Transport {
               `!!(typeof window.moi === 'function' && window.moi())`
             );
             if (livePatchIntact) {
+              await this.calling.bind();
+              this.scheduleCallingRenewal();
               this.logger.info('runtime_recovery_skipped_session_intact', {
                 trigger: request.trigger,
                 requestId: String(request.requestId),
@@ -2695,6 +2776,16 @@ export class Transport {
       || options.trigger === 'runtime_replaced';
 
     if (reinjected && isContextFlushRecovery) {
+      await this.calling.invalidate();
+      if (this.retainedLicenseArtifact?.callingGrant) {
+        try {
+          const refreshed = await this.preloadLicenseArtifact({ sessionId: this.options.sessionId ?? 'session', licenseKey: this.retainedLicenseArtifact.key, sessionInfo: await this.getSessionDebugInfo() });
+          const checked = await this.checkLicenseArtifact(refreshed);
+          if (checked.status === 'valid') await this.applyLicenseArtifact(checked);
+        } catch (error) {
+          this.logger.warn('Calling could not recover its licensed provider', { message: String(error) });
+        }
+      }
       try {
         this.logger.info('recovery_reapplying_init_patch', {
           trigger: options.trigger,

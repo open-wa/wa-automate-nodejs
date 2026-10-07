@@ -15,6 +15,17 @@ export interface ClientRuntimeListenerSurfaceEntry {
 }
 
 export const clientRuntimeMethodSurface = {
+  getCallCapabilities: { support: 'runtime', reason: 'calling admission service' },
+  getActiveCall: { support: 'licensed', reason: 'calling-enabled licensed provider' },
+  startCall: { support: 'licensed', reason: 'calling-enabled licensed provider' },
+  acceptCall: { support: 'licensed', reason: 'calling-enabled licensed provider' },
+  rejectCall: { support: 'licensed', reason: 'calling-enabled licensed provider' },
+  endCall: { support: 'licensed', reason: 'calling-enabled licensed provider' },
+  muteCall: { support: 'licensed', reason: 'calling-enabled licensed provider' },
+  clearCallAudio: { support: 'licensed', reason: 'calling-enabled licensed provider' },
+  setCallMedia: { support: 'licensed', reason: 'calling-enabled licensed provider' },
+  observeCallAudio: { support: 'licensed', reason: 'calling-enabled licensed provider' },
+  stopCallAudioObserver: { support: 'licensed', reason: 'calling-enabled licensed provider' },
   sendInteractive: {
     support: 'licensed', runtimeMethod: 'sendInteractive',
     reason: 'provided by the server-confirmed Insiders license payload',
@@ -156,6 +167,8 @@ export const clientRuntimeMethodSurface = {
 } as const satisfies Record<string, ClientRuntimeMethodSurfaceEntry>;
 
 export const clientRuntimeListenerSurface = {
+  onIncomingCall: { support: 'licensed', runtimeSupportEvent: 'call.incoming' },
+  onCallState: { support: 'licensed', runtimeSupportEvent: 'call.state' },
   onInteractiveResponse: { support: 'runtime', runtimeSupportEvent: 'interactive.response' },
   onFormResponse: { support: 'runtime', runtimeSupportEvent: 'interactive.response' },
   onMessage: { support: 'runtime', runtimeSupportEvent: 'message.received' },

@@ -32,3 +32,4 @@ export * from './session';
 // Media Methods
 export * from './media';
 export * from './interactive';
+export * from './calls';

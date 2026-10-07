@@ -6,6 +6,7 @@ import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { getCliOutputSink } from './cli/output-sink';
+import { makeNodeCallMediaHost } from '@open-wa/runtime-node';
 
 export interface ExecutablePathResolution {
     executablePath?: string;
@@ -235,12 +236,16 @@ export function toCreateClientOptions(
         safeMode: config.safeMode,
         lightpanda: config.useLightpanda ? config.lightpanda : undefined,
         licenseKey: config.licenseKey as any,
+        calling: config.calling,
+        callMediaHost: makeNodeCallMediaHost({ log: message => getCliOutputSink().write({ level: 'info', message }) }),
+        licenseConfig: config.licenseConfig,
         patchConfig: { ghPatch: config.ghPatch, cachedPatch: config.cachedPatch },
     };
 }
 
 /** Options for the ready-to-use messaging client. */
-export type CreateOptions = Omit<PartialConfig, 's3Sync'> & {
+export type CreateOptions = Omit<PartialConfig, 's3Sync' | 'calling'> & {
+    calling?: import('@open-wa/schema').CallingOptions;
     s3Sync?: Omit<NonNullable<PartialConfig['s3Sync']>, 'region' | 'syncInterval'> & {
         region?: string;
         syncInterval?: number;
@@ -251,7 +256,7 @@ export type CreateOptions = Omit<PartialConfig, 's3Sync'> & {
 
 /** Start WhatsApp, display QR login when needed, and return a ready messaging client. */
 export async function create(options: CreateOptions = {}): Promise<Client> {
-    const { driver, sessionData, sessionDataBucketAuth, s3Sync,
+    const { driver, sessionData, sessionDataBucketAuth, s3Sync, calling,
         sessionDataEncryptionKey, sessionDataEncryptionKeyFile, ...configOverrides } = options;
     const { config, rawConfigs } = await resolveConfig({
         programmaticOverrides: {
@@ -270,6 +275,7 @@ export async function create(options: CreateOptions = {}): Promise<Client> {
     });
 
     const coreOptions = toCreateClientOptions(config, driverSelection);
+    if (calling) coreOptions.calling = calling;
     if (driver) coreOptions.driver = driver;
     coreOptions.sessionData = sessionData;
     coreOptions.sessionDataBucketAuth = sessionDataBucketAuth;

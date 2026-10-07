@@ -29,6 +29,9 @@ import {
 } from '@open-wa/domain';
 import { ListenerManager, type ListenerHandle } from './events/index';
 import { throwUnsupportedListener } from './runtimeSurface';
+import { hydrateCall } from './calls';
+import { normalizeCallMedia } from '@open-wa/schema';
+import type { Call, CallActionResult, CallCapabilities, CallIdentity, CallMediaOptions, AudioInput, AudioOutput, VideoInput } from '@open-wa/schema';
 import type { QueueOptions } from '@open-wa/schema';
 
 import { interactiveMethods, type InteractiveMethods } from './methods/interactive';
@@ -372,6 +375,33 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   // Private helpers
   // ─────────────────────────────────────────────────────────────────
   
+  getCallCapabilities(): Promise<CallCapabilities> { return this._transport.calling.capabilities(); }
+  /** Used by the bundled API's authenticated binary media route. */
+  getCallingService() { return this._transport.calling; }
+  async getActiveCall(): Promise<Call | null> {
+    const snapshot = await this._transport.calling.getActive();
+    return snapshot ? hydrateCall(snapshot, this) : null;
+  }
+  onIncomingCall(callback: (call: Call) => unknown, options?: QueueOptions): ListenerHandle {
+    this._transport.calling.logListenerAvailability();
+    return this._listenerManager.on('incomingCall', async snapshot => { await callback(hydrateCall(snapshot, this)); }, options);
+  }
+  onCallState(callback: (call: Call) => unknown, options?: QueueOptions): ListenerHandle {
+    this._transport.calling.logListenerAvailability();
+    return this._listenerManager.on('callState', async snapshot => { await callback(hydrateCall(snapshot, this)); }, options);
+  }
+  acceptCall(call: CallIdentity, media?: CallMediaOptions): Promise<CallActionResult> { return this._transport.calling.accept(call, media); }
+  startCall(to: string, microphone?: AudioInput | CallMediaOptions, speaker?: AudioOutput, camera?: VideoInput): Promise<CallActionResult> {
+    return this._transport.calling.start(to, normalizeCallMedia(microphone, speaker, camera));
+  }
+  rejectCall(call: CallIdentity): Promise<CallActionResult> { return this._transport.calling.control('reject', call); }
+  endCall(call: CallIdentity): Promise<CallActionResult> { return this._transport.calling.control('end', call); }
+  muteCall(call: CallIdentity, muted: boolean): Promise<CallActionResult> { return this._transport.calling.control('mute', call, muted); }
+  clearCallAudio(call: CallIdentity): Promise<CallActionResult> { return this._transport.calling.control('clear', call); }
+  setCallMedia(call: CallIdentity, media: CallMediaOptions): Promise<CallActionResult> { return this._transport.calling.replace(call, media); }
+  observeCallAudio(call: CallIdentity, speaker: AudioOutput): Promise<CallActionResult & { observerId?: string }> { return this._transport.calling.observeAudio(call, speaker); }
+  stopCallAudioObserver(call: CallIdentity, observerId: string): Promise<CallActionResult> { return this._transport.calling.stopObserver(call, observerId); }
+
   private _bindMethods<T extends object>(
     methods: (client: Client) => T,
     target: Client

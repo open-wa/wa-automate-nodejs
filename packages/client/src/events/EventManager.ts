@@ -7,6 +7,7 @@ import {
 } from '@open-wa/runtime-core';
 import { eventRegistry, type QueueOptions } from '@open-wa/schema';
 import type { Message, MessageId, InteractiveResponse, FormResponse } from '@open-wa/schema';
+import type { CallSnapshot } from '@open-wa/schema';
 
 export interface EventContext {
   sessionId: string;
@@ -29,6 +30,8 @@ export interface ListenerManagerConfig {
 }
 
 type EventPayloadMap = {
+  incomingCall: CallSnapshot;
+  callState: CallSnapshot;
   interactiveResponse: InteractiveResponse;
   formResponse: FormResponse;
   message: Message;
@@ -48,6 +51,8 @@ type RuntimeBridge<K extends EventName> = {
 };
 
 const EVENT_BRIDGES: { [K in EventName]: RuntimeBridge<K> } = {
+  incomingCall: { runtimeEvent: 'call.incoming', transform: payload => (payload as OpenWAEventMap['call.incoming']).call as CallSnapshot },
+  callState: { runtimeEvent: 'call.state', transform: payload => (payload as OpenWAEventMap['call.state']).state as CallSnapshot },
   interactiveResponse: {
     runtimeEvent: 'interactive.response',
     transform: payload => (payload as OpenWAEventMap['interactive.response']).response as InteractiveResponse,

@@ -1,5 +1,7 @@
 export { createClient } from './createClient';
 export type { CreateClientOptions, OpenWAClient } from './createClient';
+export { CallingService } from './calling/CallingService';
+export type { CallMediaHost, PreparedCallMedia, AudioFrame } from './calling/ports';
 
 export * from './events/index';
 export * from './plugins/index';

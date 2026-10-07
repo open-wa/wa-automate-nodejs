@@ -1,4 +1,8 @@
 export { Client } from './Client';
+export { hydrateCall } from './calls';
+export type { CallActions } from './calls';
+export { DEFAULT_MIC, DEFAULT_SPEAKER, DEFAULT_CAM } from '@open-wa/schema';
+export type { Call, CallSnapshot, CallActionResult, CallCapabilities, CallAudioObserver, CallMediaOptions, CallingOptions, AudioInput, AudioOutput, VideoInput, MediaDescriptor, RawAudioFormat } from '@open-wa/schema';
 export type { ClientConfig, EvaluateFn } from './Client';
 export { SendTextError } from './SendTextError';
 export type { SendTextErrorCode, SendTextOutcome } from './SendTextError';
