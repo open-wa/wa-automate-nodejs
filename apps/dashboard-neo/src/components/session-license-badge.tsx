@@ -1,7 +1,11 @@
 import { useState } from "react"
 import { ExternalLink, ShieldCheck, Ticket } from "lucide-react"
-import { Button } from "@open-wa/ui-components/button"
-import { Popover, PopoverContent, PopoverTrigger } from "@open-wa/ui-components/popover"
+import { Button } from "@/components/ui/button"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@open-wa/ui-components/popover"
 import { useLicense } from "@/lib/hooks/use-license"
 import { useSession } from "@/lib/hooks/use-session"
 
@@ -11,7 +15,10 @@ const CHECKOUT_ORIGIN = "https://openwa.dev/checkout"
 
 function buildCheckoutUrl(sessionId: string | null, hostNumber: string | null) {
   const url = new URL(CHECKOUT_ORIGIN)
-  const session = sessionId?.replace(/[\u0000-\u001f\u007f]/g, "").trim().slice(0, 160)
+  const session = sessionId
+    ?.replace(/[\u0000-\u001f\u007f]/g, "")
+    .trim()
+    .slice(0, 160)
   const phone = hostNumber?.replace(/\D/g, "").slice(0, 32)
   if (session) url.searchParams.set("session", session)
   if (phone) url.searchParams.set("phone", phone)
@@ -27,8 +34,12 @@ export function SessionLicenseBadge() {
   const label =
     license.state === "licensed"
       ? license.tier === "insiders"
-        ? license.source === "demo" ? "Demo · Insiders" : "Insiders"
-        : license.source === "demo" ? "Demo · Restricted" : "Restricted"
+        ? license.source === "demo"
+          ? "Demo · Insiders"
+          : "Insiders"
+        : license.source === "demo"
+          ? "Demo · Restricted"
+          : "Restricted"
       : license.state === "unlicensed"
         ? "No licence"
         : license.state === "unavailable"
@@ -42,26 +53,30 @@ export function SessionLicenseBadge() {
 
   return (
     <div className="flex items-center gap-1">
-    <Popover open={detailsOpen} onOpenChange={setDetailsOpen}>
-      <PopoverTrigger asChild>
-      <Button
-        type="button"
-        variant={isLicensed ? "outline" : "ghost"}
-        size="sm"
-        className={
-          isLicensed
-            ? "ow-license-foil shadow-none"
-            : "text-muted-foreground"
-        }
-        aria-expanded={detailsOpen}
-        aria-label="Selected session licence status"
-      >
-        {isLicensed ? <Ticket size={14} /> : <ShieldCheck size={14} />}
-        <span>{label}</span>
-      </Button>
-      </PopoverTrigger>
+      <Popover open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant={isLicensed ? "outline" : "ghost"}
+            size="sm"
+            className={
+              isLicensed
+                ? "ow-license-foil shadow-none"
+                : "text-muted-foreground"
+            }
+            aria-expanded={detailsOpen}
+            aria-label="Selected session licence status"
+          >
+            {isLicensed ? <Ticket size={14} /> : <ShieldCheck size={14} />}
+            <span className="hidden sm:inline">{label}</span>
+          </Button>
+        </PopoverTrigger>
 
-      <PopoverContent align="end" sideOffset={8} className="w-80 max-w-[calc(100vw-1rem)] rounded-2xl p-4 text-popover-foreground">
+        <PopoverContent
+          align="end"
+          sideOffset={8}
+          className="w-80 max-w-[calc(100vw-1rem)] rounded-2xl p-4 text-popover-foreground"
+        >
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-sm font-semibold">Selected session</p>
@@ -69,7 +84,11 @@ export function SessionLicenseBadge() {
                 Licence status is read from this runtime session.
               </p>
             </div>
-            {isLicensed && <span className="ow-license-foil rounded-md px-2 py-1 text-xs font-medium">{license.source === "demo" ? "Demo data" : "Verified"}</span>}
+            {isLicensed && (
+              <span className="ow-license-foil rounded-md px-2 py-1 text-xs font-medium">
+                {license.source === "demo" ? "Demo data" : "Verified"}
+              </span>
+            )}
           </div>
 
           <div className="mt-4 rounded-xl border border-border/70 bg-muted/40 p-3 text-xs">
@@ -80,20 +99,33 @@ export function SessionLicenseBadge() {
             {isLicensed && (
               <div className="mt-2 flex items-center justify-between gap-3">
                 <span className="text-muted-foreground">License type</span>
-                <span className="font-medium">{license.tier === "insiders" ? "Insiders" : "Restricted"}</span>
+                <span className="font-medium">
+                  {license.tier === "insiders" ? "Insiders" : "Restricted"}
+                </span>
               </div>
             )}
             <div className="mt-2 flex items-center justify-between gap-3">
               <span className="text-muted-foreground">Session</span>
-              <code className="max-w-44 truncate">{session.sessionId || "Unavailable"}</code>
+              <code className="max-w-44 truncate">
+                {session.sessionId || "Unavailable"}
+              </code>
             </div>
           </div>
 
-          {license.detail && <p className="mt-3 text-xs text-muted-foreground">{license.detail}</p>}
+          {license.detail && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              {license.detail}
+            </p>
+          )}
 
           {isUnlicensed && (
             <div className="mt-4 flex flex-col items-start gap-3">
-              <p className="text-xs text-muted-foreground">Configure your license at openwa.dev with your session’s phone number already filled in when available. Add your GitHub username and use case, then continue to a prefilled Gumroad checkout.</p>
+              <p className="text-xs text-muted-foreground">
+                Configure your license at openwa.dev with your session’s phone
+                number already filled in when available. Add your GitHub
+                username and use case, then continue to a prefilled Gumroad
+                checkout.
+              </p>
               <a
                 href={checkoutUrl}
                 target="_blank"
@@ -108,12 +140,22 @@ export function SessionLicenseBadge() {
 
           {license.state === "unknown" || license.state === "unavailable" ? (
             <p className="mt-4 text-xs text-muted-foreground">
-              The dashboard cannot verify a tier for this session yet, so it will not label the session as unlicensed.
+              The dashboard cannot verify a tier for this session yet, so it
+              will not label the session as unlicensed.
             </p>
           ) : null}
-      </PopoverContent>
-    </Popover>
-    {isUnlicensed ? <a href={checkoutUrl} target="_blank" rel="noreferrer" className="hidden rounded-md bg-primary px-2.5 py-1.5 text-xs font-medium text-primary-foreground sm:inline-flex">Get a license</a> : null}
+        </PopoverContent>
+      </Popover>
+      {isUnlicensed ? (
+        <a
+          href={checkoutUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="hidden rounded-md bg-primary px-2.5 py-1.5 text-xs font-medium text-primary-foreground sm:inline-flex"
+        >
+          Get a license
+        </a>
+      ) : null}
     </div>
   )
 }

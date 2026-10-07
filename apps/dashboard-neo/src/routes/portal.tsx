@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button"
 import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { Tv, ArrowLeft, ArrowRight, XCircle } from "lucide-react"
@@ -30,7 +31,9 @@ function PortalPage() {
   const { connected } = useSocket()
   const { ws: wsOverride } = Route.useSearch()
   const [portalActive, setPortalActive] = useState(false)
-  const [status, setStatus] = useState<"idle" | "connecting" | "streaming" | "error">("idle")
+  const [status, setStatus] = useState<
+    "idle" | "connecting" | "streaming" | "error"
+  >("idle")
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [fps, setFps] = useState(0)
   const [navState, setNavState] = useState<NavStateMessage | null>(null)
@@ -58,13 +61,16 @@ function PortalPage() {
       maxHeight = Math.floor(rect.height) || maxHeight
     }
 
-    const wsUrl = wsOverride || (getApiUrl().replace(/^http/, "ws") + "/screencast")
+    const wsUrl =
+      wsOverride || getApiUrl().replace(/^http/, "ws") + "/screencast"
     setActiveWsUrl(wsUrl)
-    console.log(`[Portal] Connecting to WS: ${wsUrl}${wsOverride ? ' (OVERRIDE)' : ''}`)
-    const client = new ScreencastClient({ 
-      url: wsUrl, 
+    console.log(
+      `[Portal] Connecting to WS: ${wsUrl}${wsOverride ? " (OVERRIDE)" : ""}`
+    )
+    const client = new ScreencastClient({
+      url: wsUrl,
       autoStart: true,
-      defaultOptions: { maxWidth, maxHeight }
+      defaultOptions: { maxWidth, maxHeight },
     })
     clientRef.current = client
 
@@ -133,7 +139,10 @@ function PortalPage() {
 
   // Forward mouse events with normalized coords
   const handleMouseEvent = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>, action: "move" | "down" | "up") => {
+    (
+      e: React.MouseEvent<HTMLCanvasElement>,
+      action: "move" | "down" | "up"
+    ) => {
       const client = clientRef.current
       if (!client) return
       const canvas = canvasRef.current
@@ -142,10 +151,11 @@ function PortalPage() {
       const x = (e.clientX - rect.left) / rect.width
       const y = (e.clientY - rect.top) / rect.height
 
-      const button = e.button === 2 ? "right" : e.button === 1 ? "middle" : "left"
+      const button =
+        e.button === 2 ? "right" : e.button === 1 ? "middle" : "left"
       client.sendMouse(action, x, y, button)
     },
-    [],
+    []
   )
 
   // Forward keyboard events
@@ -157,7 +167,10 @@ function PortalPage() {
       if (!client) return
       e.preventDefault()
       const modifiers =
-        (e.altKey ? 1 : 0) | (e.ctrlKey ? 2 : 0) | (e.metaKey ? 4 : 0) | (e.shiftKey ? 8 : 0)
+        (e.altKey ? 1 : 0) |
+        (e.ctrlKey ? 2 : 0) |
+        (e.metaKey ? 4 : 0) |
+        (e.shiftKey ? 8 : 0)
       client.sendKey("down", e.key, e.code, modifiers)
     }
 
@@ -232,13 +245,20 @@ function PortalPage() {
   }, [portalActive])
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] flex-col">
+    <div className="flex h-full min-h-0 flex-col">
       {/* Toolbar */}
       <div className="flex items-center gap-3 border-b px-4 py-3">
-        <h1 className="text-lg font-semibold flex items-center gap-2"><Tv size={20} /> Magic Portal</h1>
-        <span className="text-xs text-muted-foreground">Headless Head — See your session live</span>
+        <h1 className="flex items-center gap-2 text-lg font-semibold">
+          <Tv size={20} /> Magic Portal
+        </h1>
+        <span className="text-xs text-muted-foreground">
+          Headless Head — See your session live
+        </span>
         {wsOverride && (
-          <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-mono text-blue-800 dark:bg-blue-900/30 dark:text-blue-400" title={activeWsUrl || wsOverride}>
+          <span
+            className="rounded-full bg-blue-100 px-2 py-0.5 font-mono text-[10px] text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+            title={activeWsUrl || wsOverride}
+          >
             🔌 {wsOverride}
           </span>
         )}
@@ -258,61 +278,75 @@ function PortalPage() {
 
         {navState && (
           <div className="flex items-center gap-1">
-            <button
+            <Button
+              variant="ghost"
               onClick={() => clientRef.current?.goBack()}
               disabled={!navState.canGoBack}
               className="rounded p-1 text-xs hover:bg-muted disabled:opacity-30"
               title="Go back"
             >
               <ArrowLeft size={16} />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="ghost"
               onClick={() => clientRef.current?.goForward()}
               disabled={!navState.canGoForward}
               className="rounded p-1 text-xs hover:bg-muted disabled:opacity-30"
               title="Go forward"
             >
               <ArrowRight size={16} />
-            </button>
+            </Button>
           </div>
         )}
 
         {status === "idle" || status === "error" ? (
-          <button
+          <Button
+            variant="ghost"
             onClick={startPortal}
             disabled={!connected && !wsOverride}
             className="rounded-md bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
             Start Portal
-          </button>
+          </Button>
         ) : status === "connecting" ? (
           <span className="text-xs text-muted-foreground">Connecting...</span>
         ) : (
-          <button
+          <Button
+            variant="ghost"
             onClick={stopPortal}
             className="rounded-md bg-destructive px-4 py-1.5 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
           >
             Stop
-          </button>
+          </Button>
         )}
       </div>
 
       {/* Canvas Area */}
-      <div 
+      <div
         ref={wrapperRef}
         className="flex flex-1 items-center justify-center overflow-hidden bg-black/5 dark:bg-black/20"
       >
         {status === "idle" && (
           <div className="text-center text-muted-foreground">
-            <Tv size={64} className="mx-auto text-muted-foreground opacity-50 mb-4" />
-            <p className="mt-4 text-sm">Click "Start Portal" to see your WhatsApp session in real-time</p>
-            <p className="mt-1 text-xs">Targeting API server at: {getApiUrl()}</p>
+            <Tv
+              size={64}
+              className="mx-auto mb-4 text-muted-foreground opacity-50"
+            />
+            <p className="mt-4 text-sm">
+              Click "Start Portal" to see your WhatsApp session in real-time
+            </p>
+            <p className="mt-1 text-xs">
+              Targeting API server at: {getApiUrl()}
+            </p>
           </div>
         )}
 
         {status === "error" && (
           <div className="text-center text-destructive">
-            <XCircle size={48} className="mx-auto text-destructive opacity-80 mb-2" />
+            <XCircle
+              size={48}
+              className="mx-auto mb-2 text-destructive opacity-80"
+            />
             <p className="mt-2 text-sm">{errorMsg}</p>
           </div>
         )}

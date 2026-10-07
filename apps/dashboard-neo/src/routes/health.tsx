@@ -1,3 +1,6 @@
+import { Chip } from "@/components/boardui/chip"
+import { StatCards } from "@/components/boardui/stat-cards"
+import { Button } from "@/components/ui/button"
 import { createFileRoute } from "@tanstack/react-router"
 import { useHealth } from "@/lib/hooks/use-health"
 import { useDemo } from "@/lib/demo/use-demo"
@@ -18,18 +21,30 @@ export const Route = createFileRoute("/health")({ component: HealthPage })
 
 function HealthPage() {
   const { isDemo } = useDemo()
-  const { timeline, patches, license, reconnections, loading, error, session, connected, refetch } = useHealth()
+  const {
+    timeline,
+    patches,
+    license,
+    reconnections,
+    loading,
+    error,
+    session,
+    connected,
+    refetch,
+  } = useHealth()
 
   const totalLaunchTime = timeline.reduce((sum, s) => sum + s.durationMs, 0)
   const hasData = timeline.length > 0 || patches.length > 0 || license !== null
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="dashboard-page space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight">System Health</h1>
+            <h1 className="text-title-1-medium text-text-primary">
+              System Health
+            </h1>
             {isDemo && (
               <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
                 Demo
@@ -46,19 +61,20 @@ function HealthPage() {
           </p>
         </div>
         {!isDemo && (
-          <button
+          <Button
+            variant="ghost"
             onClick={refetch}
-            className="flex items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-muted"
+            className="flex items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <RefreshCw size={12} />
             Refresh
-          </button>
+          </Button>
         )}
       </div>
 
       {/* Loading state */}
       {loading && !hasData && (
-        <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-xl border bg-card text-muted-foreground">
+        <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-border-button-default bg-card text-muted-foreground">
           <Loader2 size={32} className="animate-spin opacity-40" />
           <p className="text-sm">Loading health data…</p>
         </div>
@@ -70,23 +86,27 @@ function HealthPage() {
           <AlertTriangle size={32} className="text-amber-500 opacity-60" />
           <p className="text-sm">Could not reach the API server</p>
           <p className="text-xs opacity-60">{error}</p>
-          <button
+          <Button
+            variant="ghost"
             onClick={refetch}
-            className="mt-2 rounded-lg border px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
+            className="mt-2 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted"
           >
             Retry
-          </button>
+          </Button>
         </div>
       )}
 
       {/* No data state */}
       {!loading && !error && !hasData && (
-        <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-xl border bg-card text-muted-foreground">
+        <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-border-button-default bg-card text-muted-foreground">
           <HeartPulse size={48} className="opacity-30" />
           <p className="text-sm">No health data available yet</p>
           <p className="text-xs opacity-60">
-            Health data populates once a session starts launching.
-            Add <code className="rounded bg-muted px-1.5 py-0.5 font-mono">?demo=true</code> for a preview.
+            Health data populates once a session starts launching. Add{" "}
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono">
+              ?demo=true
+            </code>{" "}
+            for a preview.
           </p>
         </div>
       )}
@@ -98,16 +118,26 @@ function HealthPage() {
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <MiniCard
                 label="State"
-                value={(session as Record<string, unknown>).state as string || "UNKNOWN"}
+                value={
+                  ((session as Record<string, unknown>).state as string) ||
+                  "UNKNOWN"
+                }
                 icon={<HeartPulse size={14} />}
                 variant={
-                  (session as Record<string, unknown>).state === "READY" ? "success" :
-                  (session as Record<string, unknown>).state === "DISCONNECTED" ? "error" : "neutral"
+                  (session as Record<string, unknown>).state === "READY"
+                    ? "success"
+                    : (session as Record<string, unknown>).state ===
+                        "DISCONNECTED"
+                      ? "error"
+                      : "neutral"
                 }
               />
               <MiniCard
                 label="Status"
-                value={(session as Record<string, unknown>).status as string || (connected ? "ok" : "offline")}
+                value={
+                  ((session as Record<string, unknown>).status as string) ||
+                  (connected ? "ok" : "offline")
+                }
                 icon={<CheckCircle2 size={14} />}
                 variant={connected ? "success" : "error"}
               />
@@ -115,7 +145,13 @@ function HealthPage() {
                 label="License"
                 value={license?.status || "none"}
                 icon={<ShieldCheck size={14} />}
-                variant={license?.status === "valid" ? "success" : license ? "warning" : "neutral"}
+                variant={
+                  license?.status === "valid"
+                    ? "success"
+                    : license
+                      ? "warning"
+                      : "neutral"
+                }
               />
               <MiniCard
                 label="Reconnections"
@@ -128,24 +164,27 @@ function HealthPage() {
 
           {/* Launch Timeline */}
           {timeline.length > 0 && (
-            <div className="rounded-xl border bg-card">
+            <div className="rounded-2xl border border-border-button-default bg-card">
               <div className="flex items-center justify-between border-b px-5 py-3">
                 <div className="flex items-center gap-2">
                   <Rocket size={16} className="text-primary" />
                   <h2 className="text-sm font-semibold">Launch Timeline</h2>
                 </div>
-                <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
+                <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground tabular-nums">
                   {(totalLaunchTime / 1000).toFixed(1)}s total
                 </span>
               </div>
               <div className="p-5">
                 <div className="relative">
                   {/* Connector line */}
-                  <div className="absolute left-[13px] top-2 bottom-2 w-px bg-border" />
+                  <div className="absolute top-2 bottom-2 left-[13px] w-px bg-border" />
 
                   <div className="space-y-0">
                     {timeline.map((step, idx) => (
-                      <div key={`${step.step}-${idx}`} className="group relative flex gap-4 py-2">
+                      <div
+                        key={`${step.step}-${idx}`}
+                        className="group relative flex gap-4 py-2"
+                      >
                         {/* Status dot */}
                         <div className="relative z-10 mt-0.5 flex size-[28px] shrink-0 items-center justify-center">
                           {step.status === "done" ? (
@@ -168,9 +207,11 @@ function HealthPage() {
                         {/* Content */}
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <code className="text-xs font-semibold">{step.step}</code>
+                            <code className="text-xs font-semibold">
+                              {step.step}
+                            </code>
                             {step.durationMs > 0 && (
-                              <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] tabular-nums font-medium text-muted-foreground">
+                              <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground tabular-nums">
                                 {step.durationMs >= 1000
                                   ? `${(step.durationMs / 1000).toFixed(1)}s`
                                   : `${step.durationMs}ms`}
@@ -178,7 +219,7 @@ function HealthPage() {
                             )}
                           </div>
                           {step.details && (
-                            <p className="mt-0.5 text-xs text-muted-foreground truncate max-w-md">
+                            <p className="mt-0.5 max-w-md truncate text-xs text-muted-foreground">
                               {formatDetails(step.details)}
                             </p>
                           )}
@@ -186,11 +227,13 @@ function HealthPage() {
 
                         {/* Duration bar */}
                         {step.durationMs > 0 && (
-                          <div className="hidden sm:flex items-center gap-2 shrink-0">
+                          <div className="hidden shrink-0 items-center gap-2 sm:flex">
                             <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
                               <div
                                 className={`h-full rounded-full transition-all duration-700 ${
-                                  step.status === "done" ? "bg-emerald-500/70" : "bg-red-500/70"
+                                  step.status === "done"
+                                    ? "bg-emerald-500/70"
+                                    : "bg-red-500/70"
                                 }`}
                                 style={{
                                   width: `${Math.min((step.durationMs / Math.max(totalLaunchTime * 0.3, 1)) * 100, 100)}%`,
@@ -210,17 +253,21 @@ function HealthPage() {
           {/* Patches + License */}
           <div className="grid gap-4 lg:grid-cols-2">
             {/* Patches */}
-            <div className="rounded-xl border bg-card">
+            <div className="rounded-2xl border border-border-button-default bg-card">
               <div className="flex items-center gap-2 border-b px-5 py-3">
                 <Wrench size={16} className="text-primary" />
                 <h2 className="text-sm font-semibold">Applied Patches</h2>
-                <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-xs tabular-nums text-muted-foreground">
-                  {patches.filter((p) => p.outcome === "applied").length}/{patches.length}
+                <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground tabular-nums">
+                  {patches.filter((p) => p.outcome === "applied").length}/
+                  {patches.length}
                 </span>
               </div>
               <div className="divide-y">
                 {patches.map((patch) => (
-                  <div key={patch.patchId} className="flex items-center gap-3 px-5 py-3">
+                  <div
+                    key={patch.patchId}
+                    className="flex items-center gap-3 px-5 py-3"
+                  >
                     <div className="mt-0.5">
                       {patch.outcome === "applied" ? (
                         <CheckCircle2 size={16} className="text-emerald-500" />
@@ -231,8 +278,12 @@ function HealthPage() {
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <code className="text-xs font-semibold">{patch.patchId}</code>
-                      <p className="text-xs text-muted-foreground">{patch.description}</p>
+                      <code className="text-xs font-semibold">
+                        {patch.patchId}
+                      </code>
+                      <p className="text-xs text-muted-foreground">
+                        {patch.description}
+                      </p>
                     </div>
                     <span
                       className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
@@ -256,7 +307,7 @@ function HealthPage() {
             </div>
 
             {/* License */}
-            <div className="rounded-xl border bg-card">
+            <div className="rounded-2xl border border-border-button-default bg-card">
               <div className="flex items-center gap-2 border-b px-5 py-3">
                 <ShieldCheck size={16} className="text-primary" />
                 <h2 className="text-sm font-semibold">License</h2>
@@ -282,13 +333,17 @@ function HealthPage() {
                         />
                       </div>
                       <div>
-                        <div className="text-sm font-semibold capitalize">{license.status}</div>
+                        <div className="text-sm font-semibold capitalize">
+                          {license.status}
+                        </div>
                         <div className="text-xs text-muted-foreground capitalize">
                           {license.keyType} · {license.source}
                         </div>
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">{license.detail}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {license.detail}
+                    </p>
                   </div>
                 ) : (
                   <div className="flex h-24 items-center justify-center text-sm text-muted-foreground">
@@ -300,7 +355,7 @@ function HealthPage() {
           </div>
 
           {/* Reconnections */}
-          <div className="rounded-xl border bg-card">
+          <div className="rounded-2xl border border-border-button-default bg-card">
             <div className="flex items-center gap-2 border-b px-5 py-3">
               <RefreshCw size={16} className="text-primary" />
               <h2 className="text-sm font-semibold">Reconnection Log</h2>
@@ -315,10 +370,13 @@ function HealthPage() {
                   <div className="min-w-0 flex-1">
                     <code className="text-xs font-semibold">{r.reason}</code>
                     <p className="text-xs text-muted-foreground">
-                      Downtime: {r.downtimeMs < 1000 ? `${r.downtimeMs}ms` : `${(r.downtimeMs / 1000).toFixed(1)}s`}
+                      Downtime:{" "}
+                      {r.downtimeMs < 1000
+                        ? `${r.downtimeMs}ms`
+                        : `${(r.downtimeMs / 1000).toFixed(1)}s`}
                     </p>
                   </div>
-                  <span className="text-xs tabular-nums text-muted-foreground">
+                  <span className="text-xs text-muted-foreground tabular-nums">
                     {new Date(r.timestamp * 1000).toLocaleTimeString()}
                   </span>
                 </div>
@@ -349,21 +407,39 @@ function MiniCard({
   icon: React.ReactNode
   variant: "success" | "error" | "warning" | "neutral"
 }) {
-  const colors = {
-    success: "border-emerald-500/20 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400",
-    error: "border-red-500/20 bg-red-500/5 text-red-600 dark:text-red-400",
-    warning: "border-amber-500/20 bg-amber-500/5 text-amber-600 dark:text-amber-400",
-    neutral: "border-border bg-card text-muted-foreground",
-  }
-
+  const tone =
+    variant === "success"
+      ? "emerald"
+      : variant === "warning" || variant === "error"
+        ? "orange"
+        : "blue"
   return (
-    <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${colors[variant]}`}>
-      <div className="opacity-60">{icon}</div>
-      <div className="min-w-0">
-        <div className="text-[10px] uppercase tracking-wider opacity-60">{label}</div>
-        <div className="text-sm font-semibold capitalize truncate">{value}</div>
-      </div>
-    </div>
+    <StatCards
+      columns={1}
+      stats={[
+        {
+          label,
+          value: (
+            <Chip
+              color={
+                variant === "success"
+                  ? "lime"
+                  : variant === "error"
+                    ? "rose"
+                    : variant === "warning"
+                      ? "orange"
+                      : "neutral"
+              }
+              variant="caption"
+            >
+              {value}
+            </Chip>
+          ),
+          icon: ({ className }) => <span className={className}>{icon}</span>,
+          tone,
+        },
+      ]}
+    />
   )
 }
 

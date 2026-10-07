@@ -1,20 +1,16 @@
-import * as React from "react"
 import { Input as InputPrimitive } from "@base-ui/react/input"
-
+import type { ComponentProps } from "react"
 import { cn } from "@/lib/utils"
 
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+export function Input({ className, ...props }: ComponentProps<"input">) {
   return (
     <InputPrimitive
-      type={type}
+      {...props}
       data-slot="input"
       className={cn(
-        "h-9 w-full min-w-0 rounded-3xl border border-transparent bg-input/50 px-3 py-1 text-base transition-[color,box-shadow,background-color] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+        "h-9 w-full min-w-0 rounded-2lg border border-border-button-default bg-background-primary-default px-3 py-2 text-body-regular text-text-primary shadow-xs outline-none placeholder:text-text-tertiary hover:border-border-button-hover focus-visible:border-border-focus-ring focus-visible:ring-3 focus-visible:ring-border-focus-ring/20 disabled:cursor-not-allowed disabled:bg-background-primary-disabled disabled:text-text-tertiary aria-invalid:border-status-rose-text",
         className
       )}
-      {...props}
     />
   )
 }
-
-export { Input }

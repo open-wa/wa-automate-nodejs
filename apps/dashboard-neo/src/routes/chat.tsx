@@ -1,13 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect, useRef, useCallback } from "react"
-import { MessageSquare } from "lucide-react"
+import { MessageSquare, ArrowLeft, Send, Loader2 } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
 import { usePrivacy } from "@/lib/hooks/use-privacy"
 import { getClient } from "@/lib/api-client"
 import { useHealth } from "@/lib/hooks/use-health"
 import { toast } from "sonner"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { useDemo } from "@/lib/demo/use-demo"
+import { cn } from "@/lib/utils"
 
-export const Route = createFileRoute("/chat")({ component: ChatPage })
+export const Route = createFileRoute("/chat")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    chatId: typeof search.chatId === "string" ? search.chatId : undefined,
+  }),
+  component: ChatPage,
+})
 
 type ChatItem = {
   id: string
@@ -28,6 +37,9 @@ type MessageItem = {
 
 function ChatPage() {
   const { connected, ask } = useSocket()
+  const { isDemo } = useDemo()
+  const { chatId } = Route.useSearch()
+  const navigate = Route.useNavigate()
   const { canInvokeRuntime } = useHealth()
   const { privacyMode, redactName, redact } = usePrivacy()
   const [chats, setChats] = useState<ChatItem[]>([])
@@ -36,14 +48,31 @@ function ChatPage() {
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const [chatSearch, setChatSearch] = useState("")
+  const [chatError, setChatError] = useState<string | null>(null)
+  const [messageError, setMessageError] = useState<string | null>(null)
+  const [messagesLoading, setMessagesLoading] = useState(false)
+  const [refresh, setRefresh] = useState(0)
+  const [sending, setSending] = useState(false)
+  const activeChat = useRef(selectedChat?.id)
+  activeChat.current = selectedChat?.id
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // Fetch chats
   useEffect(() => {
-    if (!connected || !canInvokeRuntime) return
+    if (chatId)
+      setSelectedChat(
+        chats.find((chat) => chat.id === chatId) || { id: chatId, name: chatId }
+      )
+  }, [chatId, chats])
+
+  // Fetch chats.
+  useEffect(() => {
+    if ((!connected || !canInvokeRuntime) && !isDemo) return
+    let mounted = true
     setLoading(true)
+    setChatError(null)
     ask<ChatItem[]>("getAllChats")
       .then((data) => {
+        if (!mounted) return
         const chatList = (data || []).map((c: any) => ({
           id: c.id || c._serialized,
           name: c.name || c.formattedTitle || c.id,
@@ -58,13 +87,24 @@ function ChatPage() {
           )
         )
       })
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [connected, canInvokeRuntime, ask])
+      .catch(() => {
+        if (mounted) setChatError("Chats couldn't be loaded.")
+      })
+      .finally(() => {
+        if (mounted) setLoading(false)
+      })
+    return () => {
+      mounted = false
+    }
+  }, [connected, canInvokeRuntime, ask, isDemo, refresh])
 
   // Fetch messages for selected chat
   useEffect(() => {
-    if (!selectedChat || !connected || !canInvokeRuntime) return
+    setMessages([])
+    setMessagesLoading(false)
+    setMessageError(null)
+    if (!selectedChat || ((!connected || !canInvokeRuntime) && !isDemo)) return
+    setMessagesLoading(true)
     let mounted = true
     let scrollTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -92,17 +132,25 @@ function ChatPage() {
           100
         )
       })
-      .catch(() => {})
+      .catch(() => {
+        if (mounted)
+          setMessageError(
+            "Messages couldn't be loaded. Your draft is still available."
+          )
+      })
+      .finally(() => {
+        if (mounted) setMessagesLoading(false)
+      })
 
     return () => {
       mounted = false
       if (scrollTimer) clearTimeout(scrollTimer)
     }
-  }, [selectedChat, connected, canInvokeRuntime, ask])
+  }, [selectedChat, connected, canInvokeRuntime, ask, isDemo, refresh])
 
   // Listen for new messages
   useEffect(() => {
-    if (!connected || !canInvokeRuntime) return
+    if (isDemo || !connected || !canInvokeRuntime) return
     let mounted = true
     let scrollTimer: ReturnType<typeof setTimeout> | undefined
     let listenerId: string | undefined
@@ -150,31 +198,45 @@ function ChatPage() {
       if (listenerId)
         listenerClient?.stopListener("onMessage" as any, listenerId)
     }
-  }, [connected, canInvokeRuntime, selectedChat])
+  }, [connected, canInvokeRuntime, selectedChat, isDemo])
 
   const sendMessage = useCallback(async () => {
-    if (!input.trim() || !selectedChat) return
+    if (
+      !input.trim() ||
+      !selectedChat ||
+      sending ||
+      ((!connected || !canInvokeRuntime) && !isDemo)
+    )
+      return
+    const text = input
+    const target = selectedChat.id
+    setSending(true)
     try {
-      await ask("sendText", { to: selectedChat.id, content: input })
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: String(Date.now()),
-          body: input,
-          fromMe: true,
-          timestamp: Date.now() / 1000,
-          type: "chat",
-        },
-      ])
-      setInput("")
-      setTimeout(
-        () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }),
-        100
-      )
+      const id = await ask<string>("sendText", { to: target, content: text })
+      if (activeChat.current === target) {
+        setMessages((previous) =>
+          previous.some((message) => message.id === id)
+            ? previous
+            : [
+                ...previous,
+                {
+                  id: id || String(Date.now()),
+                  body: text,
+                  fromMe: true,
+                  timestamp: Date.now() / 1000,
+                  type: "chat",
+                },
+              ]
+        )
+        setInput((previous) => (previous === text ? "" : previous))
+        messagesEndRef.current?.scrollIntoView({ behavior: "auto" })
+      }
     } catch {
-      // Error sending
+      toast.error("Message couldn't be sent. Your draft has been kept.")
+    } finally {
+      setSending(false)
     }
-  }, [input, selectedChat, ask])
+  }, [input, selectedChat, sending, connected, canInvokeRuntime, isDemo, ask])
 
   const filteredChats = chatSearch
     ? chats.filter((c) =>
@@ -183,169 +245,265 @@ function ChatPage() {
     : chats
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)]">
-      {/* Chat List */}
-      <div className="flex w-80 flex-col border-e">
-        <div className="border-b p-3">
-          <input
-            type="text"
-            placeholder="Search chats..."
+    <div className="flex h-full min-h-0">
+      <section
+        aria-label="Chat list"
+        className={cn(
+          "min-h-0 w-full shrink-0 flex-col border-e md:flex md:w-72 lg:w-80",
+          selectedChat ? "hidden" : "flex"
+        )}
+      >
+        <div className="space-y-3 border-b p-4">
+          <h1 className="text-title-3-medium">Chats</h1>
+          <Input
+            type="search"
+            aria-label="Search chats"
+            placeholder="Search conversations…"
             value={chatSearch}
-            onChange={(e) => setChatSearch(e.target.value)}
-            className="h-8 w-full rounded-md border bg-background px-3 text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-ring focus:outline-none"
+            onChange={(event) => setChatSearch(event.target.value)}
           />
         </div>
-        <div className="flex-1 overflow-auto">
+        <div className="min-h-0 flex-1 overflow-y-auto">
           {loading ? (
-            <div className="flex h-32 items-center justify-center">
-              <div className="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <div
+              role="status"
+              aria-label="Loading chats"
+              className="space-y-3 p-4"
+            >
+              {Array.from({ length: 5 }, (_, index) => (
+                <div
+                  key={index}
+                  className="h-14 animate-pulse rounded-xl bg-muted"
+                />
+              ))}
             </div>
-          ) : filteredChats.length === 0 ? (
-            <div className="p-4 text-center text-sm text-muted-foreground">
-              {connected && canInvokeRuntime
-                ? "No chats found"
-                : "Connect to see chats"}
+          ) : chatError ? (
+            <div role="alert" className="space-y-3 p-4 text-body-regular">
+              <p>{chatError}</p>
+              <Button
+                variant="outline"
+                onClick={() => setRefresh((value) => value + 1)}
+              >
+                Try again
+              </Button>
             </div>
+          ) : !filteredChats.length ? (
+            <p className="p-6 text-center text-body-regular text-text-secondary">
+              {(connected && canInvokeRuntime) || isDemo
+                ? "No conversations match your search."
+                : "Connect your WhatsApp session to see chats."}
+            </p>
           ) : (
             filteredChats.map((chat) => (
-              <button
+              <Button
                 key={chat.id}
+                variant="ghost"
+                disabled={sending}
                 onClick={() => {
                   setSelectedChat(chat)
-                  if (privacyMode) {
-                    navigator.clipboard
-                      .writeText(chat.id)
-                      .then(() => {
-                        toast.success("Chat ID copied to clipboard")
-                      })
-                      .catch(() => {})
-                  }
+                  setInput("")
+                  void navigate({
+                    search: (previous) => ({ ...previous, chatId: chat.id }),
+                  })
                 }}
-                className={`flex w-full items-center gap-3 border-b px-3 py-3 text-start transition-colors hover:bg-muted/50 ${
-                  selectedChat?.id === chat.id ? "bg-primary/10" : ""
-                }`}
+                aria-pressed={selectedChat?.id === chat.id}
+                className={cn(
+                  "h-auto w-full justify-start gap-3 rounded-none border-b px-4 py-4 text-start",
+                  selectedChat?.id === chat.id &&
+                    "bg-background-secondary-active"
+                )}
               >
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium">
+                <span
+                  aria-hidden
+                  className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted text-body-medium"
+                >
                   {privacyMode ? "••" : chat.name.charAt(0).toUpperCase()}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="truncate text-sm font-medium">
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center justify-between gap-2">
+                    <span className="truncate text-body-medium">
                       {redactName(chat.name, chat.id)}
                     </span>
-                    {(chat.unreadCount ?? 0) > 0 && (
-                      <span className="ms-2 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                    {!!chat.unreadCount && (
+                      <span className="rounded-full bg-accent-600 px-1.5 text-caption-1-medium text-text-white">
                         {chat.unreadCount}
                       </span>
                     )}
-                  </div>
+                  </span>
                   {chat.lastMessage && (
-                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                      {chat.lastMessage}
-                    </p>
+                    <span className="mt-1 block truncate text-caption-1-regular text-text-secondary">
+                      {privacyMode ? "Message hidden" : chat.lastMessage}
+                    </span>
                   )}
-                </div>
-              </button>
+                </span>
+              </Button>
             ))
           )}
         </div>
-      </div>
-
-      {/* Messages Area */}
-      <div className="flex flex-1 flex-col">
+      </section>
+      <section
+        aria-label="Conversation"
+        className={cn(
+          "min-h-0 min-w-0 flex-1 flex-col",
+          selectedChat ? "flex" : "hidden md:flex"
+        )}
+      >
         {selectedChat ? (
           <>
-            {/* Chat Header */}
-            <div className="flex items-center gap-3 border-b px-4 py-3">
-              <div className="flex size-8 items-center justify-center rounded-full bg-muted text-sm font-medium">
-                {privacyMode ? "••" : selectedChat.name.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <div className="text-sm font-medium">
+            <header className="flex shrink-0 items-center gap-3 border-b px-4 py-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                aria-label="Back to chats"
+                disabled={sending}
+                onClick={() => {
+                  setSelectedChat(null)
+                  void navigate({
+                    search: (previous) => ({ ...previous, chatId: undefined }),
+                  })
+                }}
+              >
+                <ArrowLeft />
+              </Button>
+              <div className="min-w-0">
+                <h2 className="truncate text-body-medium">
                   {redactName(selectedChat.name, selectedChat.id)}
-                </div>
-                <div className="text-[10px] text-muted-foreground">
+                </h2>
+                <p className="truncate text-caption-1-regular text-text-tertiary">
                   {redact(selectedChat.id)}
-                </div>
+                </p>
               </div>
-            </div>
-
-            {/* Messages */}
-            <div className="flex-1 overflow-auto p-4">
-              <div className="flex flex-col gap-2">
-                {messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`flex ${msg.fromMe ? "justify-end" : "justify-start"}`}
+            </header>
+            <div className="min-h-0 flex-1 overflow-y-auto bg-muted/25 p-4 sm:p-6">
+              {messagesLoading ? (
+                <div
+                  role="status"
+                  aria-label="Loading messages"
+                  className="space-y-4"
+                >
+                  <div className="h-16 w-2/3 animate-pulse rounded-2xl bg-muted" />
+                  <div className="ms-auto h-16 w-2/3 animate-pulse rounded-2xl bg-muted" />
+                </div>
+              ) : messageError ? (
+                <div
+                  role="alert"
+                  className="space-y-3 rounded-xl border bg-card p-5"
+                >
+                  <p className="text-body-regular">{messageError}</p>
+                  <Button
+                    variant="outline"
+                    onClick={() => setRefresh((value) => value + 1)}
                   >
+                    Try again
+                  </Button>
+                </div>
+              ) : !messages.length ? (
+                <p className="p-6 text-center text-body-regular text-text-secondary">
+                  No messages to display in this conversation.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {messages.map((message) => (
                     <div
-                      className={`max-w-[70%] rounded-2xl px-3 py-2 text-sm ${
-                        msg.fromMe
-                          ? "rounded-br-sm bg-primary text-primary-foreground"
-                          : "rounded-bl-sm bg-muted"
-                      }`}
+                      key={message.id}
+                      className={
+                        message.fromMe
+                          ? "flex justify-end"
+                          : "flex justify-start"
+                      }
                     >
-                      {msg.sender && !msg.fromMe && (
-                        <div className="mb-0.5 text-[10px] font-semibold text-primary">
-                          {privacyMode ? "REDACTED" : msg.sender}
-                        </div>
-                      )}
-                      <div className="break-words whitespace-pre-wrap">
-                        {msg.body || `[${msg.type}]`}
-                      </div>
                       <div
-                        className={`mt-1 text-end text-[10px] ${
-                          msg.fromMe
-                            ? "text-primary-foreground/60"
-                            : "text-muted-foreground"
-                        }`}
+                        className={cn(
+                          "max-w-[85%] rounded-2xl border px-4 py-3 text-body-regular sm:max-w-[75%]",
+                          message.fromMe
+                            ? "rounded-br-md border-accent-600 bg-accent-600 text-text-white"
+                            : "rounded-bl-md bg-background"
+                        )}
                       >
-                        {new Date(msg.timestamp * 1000).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {message.sender && !message.fromMe && (
+                          <p className="mb-1 text-caption-1-semibold text-primary">
+                            {redactName(message.sender)}
+                          </p>
+                        )}
+                        <p className="break-words whitespace-pre-wrap">
+                          {privacyMode
+                            ? "Message hidden by privacy mode"
+                            : message.body || `[${message.type}]`}
+                        </p>
+                        <p
+                          className={cn(
+                            "mt-1 text-end text-caption-2-regular",
+                            message.fromMe
+                              ? "text-white/70"
+                              : "text-text-tertiary"
+                          )}
+                        >
+                          {new Date(
+                            message.timestamp * 1000
+                          ).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
                       </div>
                     </div>
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
+                  ))}
+                </div>
+              )}
+              <div ref={messagesEndRef} />
             </div>
-
-            {/* Input */}
-            <div className="border-t p-3">
+            <form
+              className="shrink-0 border-t p-4"
+              onSubmit={(event) => {
+                event.preventDefault()
+                void sendMessage()
+              }}
+            >
               <div className="flex gap-2">
-                <input
-                  type="text"
+                <Input
+                  aria-label="Message"
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) =>
-                    e.key === "Enter" && !e.shiftKey && sendMessage()
+                  onChange={(event) => setInput(event.target.value)}
+                  disabled={
+                    sending || ((!connected || !canInvokeRuntime) && !isDemo)
                   }
-                  placeholder="Type a message..."
-                  className="h-10 flex-1 rounded-lg border bg-background px-4 text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-ring focus:outline-none"
+                  placeholder={
+                    isDemo ? "Write a demo message…" : "Write a message…"
+                  }
                 />
-                <button
-                  onClick={sendMessage}
-                  disabled={!input.trim()}
-                  className="rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+                <Button
+                  type="submit"
+                  disabled={
+                    !input.trim() ||
+                    sending ||
+                    ((!connected || !canInvokeRuntime) && !isDemo)
+                  }
                 >
-                  Send
-                </button>
+                  {sending ? <Loader2 className="animate-spin" /> : <Send />}
+                  <span className="hidden sm:inline">
+                    {sending ? "Sending…" : "Send"}
+                  </span>
+                  <span className="sr-only sm:hidden">Send message</span>
+                </Button>
               </div>
-            </div>
+              {!isDemo && (!connected || !canInvokeRuntime) && (
+                <p className="mt-2 text-caption-1-regular text-status-orange-text">
+                  Reconnect WhatsApp to send messages.
+                </p>
+              )}
+            </form>
           </>
         ) : (
-          <div className="flex flex-1 items-center justify-center text-muted-foreground">
-            <div className="text-center">
-              <div className="mb-2 flex justify-center opacity-50">
-                <MessageSquare size={48} />
-              </div>
-              <p className="mt-2 text-sm">Select a chat to start messaging</p>
-            </div>
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
+            <MessageSquare className="size-10 text-text-tertiary" />
+            <p className="text-title-3-medium">Open a conversation</p>
+            <p className="max-w-sm text-body-regular text-text-secondary">
+              Choose a chat or open one from a contact's detail sheet.
+            </p>
           </div>
         )}
-      </div>
+      </section>
     </div>
   )
 }
