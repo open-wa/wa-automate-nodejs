@@ -483,6 +483,7 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   declare sendInteractive: InteractiveMethods['sendInteractive'];
   declare sendRawMessage: InteractiveMethods['sendRawMessage'];
   declare sendText: MessagingMethods['sendText'];
+  declare sendAlbum: MessagingMethods['sendAlbum'];
   declare sendImage: MessagingMethods['sendImage'];
   declare sendFile: MessagingMethods['sendFile'];
   declare sendLocation: MessagingMethods['sendLocation'];
@@ -495,6 +496,7 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   declare react: MessagingMethods['react'];
   declare sendSeen: MessagingMethods['sendSeen'];
   declare getMessageById: MessagingMethods['getMessageById'];
+  declare getAlbumMessages: MessagingMethods['getAlbumMessages'];
   declare sendFileFromUrl: MediaMethods['sendFileFromUrl'];
   declare decryptMedia: MediaMethods['decryptMedia'];
   declare downloadMedia: MediaMethods['downloadMedia'];

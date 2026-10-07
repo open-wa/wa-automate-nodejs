@@ -36,6 +36,8 @@ export type {
   DataURL,
   Base64,
   Content,
+  AlbumMedia,
+  AlbumSendResult,
 } from '@open-wa/schema';
 
 export type { InteractiveMethods } from './methods/interactive';

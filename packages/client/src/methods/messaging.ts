@@ -8,9 +8,11 @@ import type {
   DataURL,
   Base64,
   Content,
+  AlbumMedia,
+  AlbumSendResult,
 } from '@open-wa/schema';
 import { createUnsupportedMethodStub } from '../runtimeSurface';
-import { SendTextResultSchema } from '@open-wa/schema';
+import { SendTextResultSchema, AlbumSendResultSchema, sendAlbum as sendAlbumSchema } from '@open-wa/schema';
 import { SendTextError } from '../SendTextError';
 
 declare const WAPI: {
@@ -27,6 +29,8 @@ declare const WAPI: {
   react: (messageId: string, emoji: string) => Promise<boolean>;
   sendSeen: (chatId: string) => Promise<boolean>;
   getMessageById: (messageId: string) => Message | false | null;
+  getAlbumMessages: (messageId: string) => Promise<Message[] | false>;
+  sendAlbum: (to: string, media: AlbumMedia[], caption: string, quotedMsgId?: string) => Promise<AlbumSendResult>;
 };
 
 export interface MessagingMethods {
@@ -35,6 +39,8 @@ export interface MessagingMethods {
    * Throws SendTextError on failure and never retries an uncertain send.
    */
   sendText(to: ChatId | string, content: string): Promise<MessageId>;
+  /** Resolves phone-number IDs to LIDs and submits native album media in order. */
+  sendAlbum(to: ChatId, media: AlbumMedia[], caption?: string, quotedMsgId?: MessageId): Promise<AlbumSendResult>;
   sendImage(to: ChatId, file: DataURL | Base64, filename: string, caption?: string, quotedMsgId?: MessageId): Promise<MessageId | false>;
   sendFile(to: ChatId, file: DataURL | Base64, filename: string, caption?: string): Promise<MessageId>;
   sendLocation(to: ChatId, lat: number, lng: number, locationText: string, address?: string): Promise<MessageId | false>;
@@ -47,6 +53,8 @@ export interface MessagingMethods {
   react(messageId: MessageId, emoji: string): Promise<boolean>;
   sendSeen(chatId: ChatId): Promise<boolean>;
   getMessageById(messageId: MessageId): Promise<Message | false | null>;
+  /** Returns currently loaded album children; the snapshot can be incomplete. */
+  getAlbumMessages(messageId: MessageId): Promise<Message[] | false>;
 }
 
 export function messagingMethods(client: Client): MessagingMethods {
@@ -56,6 +64,15 @@ export function messagingMethods(client: Client): MessagingMethods {
   const unsupportedReact = createUnsupportedMethodStub<MessagingMethods['react']>('react');
   
   return {
+    async sendAlbum(to: ChatId, media: AlbumMedia[], caption = '', quotedMsgId?: MessageId): Promise<AlbumSendResult> {
+      const params = sendAlbumSchema.openWAInput.parse({ to, media, caption, quotedMsgId });
+      const result = await evaluate(
+        ({ to, media, caption, quotedMsgId }) => WAPI.sendAlbum(to, media, caption, quotedMsgId),
+        params
+      );
+      return AlbumSendResultSchema.parse(result);
+    },
+
     async sendText(to: ChatId | string, content: string): Promise<MessageId> {
       if (typeof to !== 'string' || to.trim().length === 0 || typeof content !== 'string' || content.length === 0) {
         throw new SendTextError('sendText requires a non-empty chat ID and a non-empty text string.', {
@@ -215,6 +232,13 @@ export function messagingMethods(client: Client): MessagingMethods {
     async getMessageById(messageId: MessageId): Promise<Message | false | null> {
       return evaluate(
         ({ messageId }) => WAPI.getMessageById(messageId),
+        { messageId }
+      );
+    },
+
+    async getAlbumMessages(messageId: MessageId): Promise<Message[] | false> {
+      return evaluate(
+        ({ messageId }) => WAPI.getAlbumMessages(messageId),
         { messageId }
       );
     },

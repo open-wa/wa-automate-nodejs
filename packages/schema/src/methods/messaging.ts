@@ -1,4 +1,4 @@
-import { MessageIdReturnSchema, MessageSchema } from '../common-types';
+import { MessageIdReturnSchema, MessageIdSchema, MessageSchema } from '../common-types';
 import { LLMMessageSchema, MessageInfoSchema } from '../return-types';
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
@@ -34,6 +34,42 @@ export const SendTextResultSchema = z.string()
     .regex(/^(true|false)_[^\s_]+@[^\s_]+_[^\s]+$/)
     .brand('MessageId')
     .describe('Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.');
+
+export const AlbumMediaSchema = z.object({
+    file: z.string().regex(/^data:(image|video)\/[^;,]+;base64,[A-Za-z0-9+/]+={0,2}$/)
+        .describe('Image or video as a base64 data URL. For a WhatsApp GIF, supply an MP4 video and set isGif to true.'),
+    filename: z.string().min(1).describe('Filename including its extension'),
+    isGif: z.boolean().optional().describe('Send an MP4 video as a looping WhatsApp GIF'),
+}).refine(media => !media.isGif || media.file.startsWith('data:video/mp4;base64,'), {
+    message: 'GIF album items require MP4 video data',
+    path: ['file'],
+});
+export type AlbumMedia = z.infer<typeof AlbumMediaSchema>;
+
+export const AlbumSendResultSchema = z.object({
+    albumId: MessageIdSchema,
+    messageIds: z.array(MessageIdSchema).min(2),
+}).describe('Submitted album parent and child message IDs, in input order. Submission does not confirm recipient delivery. Runtime failures include the album ID and submitted child IDs when available. A lost connection can leave the send outcome unknown; inspect the chat before retrying.');
+export type AlbumSendResult = z.infer<typeof AlbumSendResultSchema>;
+
+export const sendAlbum = defineMethodV2('sendAlbum', {
+    meta: {
+        description: 'Sends images and videos together as a native WhatsApp album with one caption on its first item. GIFs use MP4 video data with isGif: true. Documents are rejected. Phone-number IDs are resolved to LIDs; the destination chat must already be loaded and allow sending. WhatsApp controls the minimum item count and upload limits. Runtime failures include the parent and submitted child IDs when available; inspect the chat before retrying.',
+        action: 'send',
+        namespace: 'messages',
+        license: 'none',
+        functionality: 'both',
+        httpMethod: 'POST',
+    },
+    input: z.object({
+        to: toParam,
+        media: z.array(AlbumMediaSchema).min(2).describe('Album items in send order'),
+        caption: captionParam.optional().default(''),
+        quotedMsgId: messageIdParam.optional().describe('Message to quote on the first album item'),
+    }),
+    parameterOrder: ['to', 'media', 'caption', 'quotedMsgId'],
+    output: AlbumSendResultSchema,
+});
 
 /**
  * Sends a text message to a chat
@@ -606,6 +642,21 @@ export const getMessageById = defineMethodV2('getMessageById', {
     }),
     parameterOrder: ['messageId'],
     output: MessageSchema.nullable().or(z.literal(false)),
+});
+
+export const getAlbumMessages = defineMethodV2('getAlbumMessages', {
+    meta: {
+        description: 'Returns currently loaded image and video messages associated with an album, including GIF videos. The album can arrive before its media, so the array may be incomplete. Returns false if the album is not loaded or the ID belongs to another message type.',
+        action: 'read',
+        namespace: 'messages',
+        license: 'none',
+        functionality: 'both',
+        httpMethod: 'GET',
+    },
+    input: z.object({ messageId: messageIdParam.describe('Album container message ID') }),
+    parameterOrder: ['messageId'],
+    output: z.array(MessageSchema).or(z.literal(false))
+        .describe('A snapshot of currently loaded album media. An empty or partial array does not mean that the sender sent an empty or partial album. Each item retains its caption and can be passed to decryptMedia or downloadMedia.'),
 });
 
 /**
