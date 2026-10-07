@@ -11,6 +11,7 @@ import {
 import { LightpandaBrowser } from './LightpandaBrowser';
 import { LightpandaConnectError, LightpandaInvalidExecutableError, LightpandaPortExhaustionError, LightpandaRenderingError, LightpandaStartupError } from './errors';
 import { LightpandaProcessManager } from './process-manager';
+import { ensureLightpanda } from './ensureLightpanda';
 
 const LIGHTPANDA_CAPABILITIES: DriverCapabilities = {
     cdp: { supported: true },
@@ -45,8 +46,12 @@ export class LightpandaDriver implements IDriver {
 
         let processInfo;
         try {
-            processInfo = await processManager.start({
+            const executablePath = await ensureLightpanda({
                 executablePath: lightpandaOptions?.executablePath ?? options?.executablePath,
+                browser: options?.browser,
+            }, this.ctx);
+            processInfo = await processManager.start({
+                executablePath,
                 portStart: lightpandaOptions?.portStart,
                 host: lightpandaOptions?.host,
                 startupTimeoutMs: lightpandaOptions?.startupTimeoutMs ?? options?.timeoutMs,
@@ -104,7 +109,7 @@ export class LightpandaDriver implements IDriver {
     private async loadPuppeteer(): Promise<{ connect(options: { browserWSEndpoint?: string; timeout?: number; headers?: Record<string, string> }): Promise<any> }> {
         if (!this.puppeteer) {
             try {
-                const module = await import('puppeteer');
+                const module = await import('puppeteer-core');
                 this.puppeteer = module.default ?? module;
             } catch (error) {
                 throw this.normalizeConnectError(error);

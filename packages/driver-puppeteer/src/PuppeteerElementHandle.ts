@@ -1,5 +1,5 @@
 import { IElementHandle } from '@open-wa/driver-interface';
-import type { ElementHandle } from 'puppeteer';
+import type { ElementHandle } from 'puppeteer-core';
 
 export class PuppeteerElementHandle implements IElementHandle {
     constructor(private element: ElementHandle) {}

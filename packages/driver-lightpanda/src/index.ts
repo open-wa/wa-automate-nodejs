@@ -1,4 +1,5 @@
 export * from './LightpandaDriver';
+export * from './ensureLightpanda';
 export * from './LightpandaBrowser';
 export * from './LightpandaPage';
 export * from './port-utils';

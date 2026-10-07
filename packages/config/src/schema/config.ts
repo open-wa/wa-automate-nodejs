@@ -261,12 +261,15 @@ export const ConfigSchema = z.object({
   executablePath: z.string().optional().describe('Path to chrome instance.'),
 
   browser: z.object({
+    kind: z.enum(['chrome', 'chromium']).optional().describe('Managed browser to download and reuse when no executable path is supplied.'),
     download: z.enum(['auto', 'never']).optional().describe('Automatically provision a missing browser, or require a cached browser for offline deployments.'),
     cacheDirectory: z.string().optional().describe('Browser cache directory. Defaults to Puppeteer configuration and PUPPETEER_CACHE_DIR.'),
     downloadBaseUrl: z.string().url().optional().describe('Optional Chrome for Testing download mirror. Downloads honor HTTP_PROXY, HTTPS_PROXY and NO_PROXY.'),
   }).optional().describe('Puppeteer browser provisioning policy.'),
 
-  useChrome: z.boolean().default(false).describe('Automatically detect chrome instance.'),
+  useChrome: z.boolean().default(false).describe('Use installed Google Chrome, or download Chrome for Testing when missing. The CLI prefers installed Chrome by default.'),
+
+  useChromium: z.boolean().default(false).describe('Use installed Chromium, or download it when missing. Proprietary video/audio codecs may be unavailable.'),
 
   useLightpanda: z.boolean().default(false).describe('Enable Lightpanda local browser mode.'),
 

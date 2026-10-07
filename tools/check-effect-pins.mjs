@@ -1,10 +1,11 @@
 import { readFile } from 'node:fs/promises';
 
 const root = new URL('..', import.meta.url).pathname;
-const expected = '4.0.0-beta.100';
+const expected = '4.0.2';
 const family = [
   'effect',
   '@effect/platform-node',
+  '@effect/platform-node-shared',
   '@effect/platform-bun',
   '@effect/platform-browser',
 ];
@@ -19,10 +20,10 @@ for (const dependency of family) {
     failures.push(`${dependency} is not pinned to ${expected} in the workspace catalog`);
   }
 
-  const versionPattern = new RegExp(`${escaped.replace('/', '\\/')}@4\\.0\\.0-beta\\.(\\d+)`, 'g');
+  const versionPattern = new RegExp(`(?<![\\w/-])${escaped}@([0-9]+\\.[0-9]+\\.[0-9]+(?:-[a-zA-Z0-9.-]+)?)`, 'g');
   const versions = new Set([...lockfile.matchAll(versionPattern)].map((match) => match[1]));
-  if (versions.size !== 1 || !versions.has('100')) {
-    failures.push(`${dependency} resolves to beta versions: ${[...versions].join(', ') || 'none'}`);
+  if (versions.size !== 1 || !versions.has(expected)) {
+    failures.push(`${dependency} resolves to versions: ${[...versions].join(', ') || 'none'}`);
   }
 }
 

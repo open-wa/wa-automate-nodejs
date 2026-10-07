@@ -5,11 +5,15 @@ export { main as runCli, start as startCli, parseCliArgs } from './cli-runtime';
 export type { CliRuntimeResult } from './cli-runtime';
 export { createConsoleOutputSink, getCliOutputSink, resetCliOutputSink, setCliOutputSink } from './cli/output-sink';
 export type { CliOutputEntry, CliOutputLevel, CliOutputSink, CliQrPayload, CliStatusUpdate } from './cli/output-sink';
-export { Config, ConfigSchema } from '@open-wa/config';
+export { ConfigSchema } from '@open-wa/config';
+export type { Config } from '@open-wa/config';
 export { createApiServer, createApiMiddleware } from '@open-wa/api';
 export * from '@open-wa/client';
 export { createClient } from '@open-wa/core';
 export type { CreateClientOptions, OpenWAClient, PortableSessionStatus } from '@open-wa/core';
 export { create } from './runtime-client';
 export type { CreateOptions } from './runtime-client';
-export { ensureBrowser } from '@open-wa/driver-puppeteer';
+export async function ensureBrowser(...args: Parameters<typeof import('@open-wa/driver-puppeteer').ensureBrowser>): Promise<string> {
+    const { ensureBrowser: provisionBrowser } = await import('@open-wa/driver-puppeteer');
+    return provisionBrowser(...args);
+}
