@@ -30,7 +30,7 @@
     "typescript": "catalog:",
     "vitest": "catalog:",
     "@effect/platform-node": "catalog:",
-    "@effect/platform-node-shared": "4.0.0-beta.100"
+    "@effect/platform-node-shared": "catalog:"
   },
   "publishConfig": {
     "access": "public",

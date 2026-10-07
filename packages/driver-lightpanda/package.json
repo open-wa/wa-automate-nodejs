@@ -19,22 +19,15 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@open-wa/driver-interface": "workspace:*"
-  },
-  "peerDependencies": {
-    "@lightpanda/browser": ">=0.1.0",
-    "puppeteer": ">=22.0.0"
-  },
-  "peerDependenciesMeta": {
-    "@lightpanda/browser": {
-      "optional": true
-    },
-    "puppeteer": {
-      "optional": true
-    }
+    "@open-wa/driver-interface": "workspace:*",
+    "effect": "catalog:",
+    "proper-lockfile": "^4.1.2",
+    "proxy-agent": "^8.0.1",
+    "puppeteer-core": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@types/proper-lockfile": "^4.1.4",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },

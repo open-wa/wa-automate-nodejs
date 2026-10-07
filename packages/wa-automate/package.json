@@ -25,6 +25,7 @@
     "@open-wa/client": "workspace:*",
     "@open-wa/config": "workspace:*",
     "@open-wa/core": "workspace:*",
+    "@open-wa/driver-interface": "workspace:*",
     "@open-wa/driver-lightpanda": "workspace:*",
     "@open-wa/driver-puppeteer": "workspace:*",
     "@open-wa/logger": "workspace:*",
@@ -34,6 +35,7 @@
     "@open-wa/session-sync": "workspace:*",
     "boxen": "^9.0.0",
     "chrome-launcher": "^1.2.1",
+    "effect": "catalog:",
     "hono": "catalog:",
     "qrcode-terminal": "^0.12.0"
   },

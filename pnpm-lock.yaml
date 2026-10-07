@@ -5,19 +5,23 @@ settings:
   excludeLinksFromLockfile: false
 
 catalogs:
+
   default:
     '@base-ui/react':
       specifier: ^1.8.0
       version: 1.8.0
     '@effect/platform-browser':
-      specifier: 4.0.0-beta.100
-      version: 4.0.0-beta.100
+      specifier: 4.0.2
+      version: 4.0.2
     '@effect/platform-bun':
-      specifier: 4.0.0-beta.100
-      version: 4.0.0-beta.100
+      specifier: 4.0.2
+      version: 4.0.2
     '@effect/platform-node':
-      specifier: 4.0.0-beta.100
-      version: 4.0.0-beta.100
+      specifier: 4.0.2
+      version: 4.0.2
+    '@effect/platform-node-shared':
+      specifier: 4.0.2
+      version: 4.0.2
     '@elastic/elasticsearch':
       specifier: ^9.5.1
       version: 9.5.1
@@ -70,8 +74,8 @@ catalogs:
       specifier: 2.1.1
       version: 2.1.1
     effect:
-      specifier: 4.0.0-beta.100
-      version: 4.0.0-beta.100
+      specifier: 4.0.2
+      version: 4.0.2
     hono:
       specifier: ^4.13.9
       version: 4.13.9
@@ -82,6 +86,9 @@ catalogs:
       specifier: ^3.9.9
       version: 3.9.9
     puppeteer:
+      specifier: ^25.12.0
+      version: 25.12.0
+    puppeteer-core:
       specifier: ^25.12.0
       version: 25.12.0
     puppeteer-extra:
@@ -128,7 +135,7 @@ catalogs:
       version: 4.6.5
 
 overrides:
-  '@effect/platform-node-shared': 4.0.0-beta.100
+  '@effect/platform-node-shared': 4.0.2
   js-yaml@^3.0.0: 3.15.2
   js-yaml@^4.0.0: 4.3.2
   postcss: 8.5.28
@@ -469,7 +476,7 @@ importers:
         version: link:../../packages/plugin-sdk
       effect:
         specifier: 'catalog:'
-        version: 4.0.0-beta.100
+        version: 4.0.2
       hono:
         specifier: 'catalog:'
         version: 4.13.9
@@ -601,7 +608,7 @@ importers:
         version: link:../../packages/runtime-core
       effect:
         specifier: 'catalog:'
-        version: 4.0.0-beta.100
+        version: 4.0.2
       mime:
         specifier: ^4.1.0
         version: 4.1.0
@@ -629,7 +636,7 @@ importers:
         version: link:../../packages/runtime-core
       effect:
         specifier: 'catalog:'
-        version: 4.0.0-beta.100
+        version: 4.0.2
     devDependencies:
       '@open-wa/logger':
         specifier: workspace:*
@@ -776,7 +783,7 @@ importers:
         version: redaxios@0.5.1
       effect:
         specifier: 'catalog:'
-        version: 4.0.0-beta.100
+        version: 4.0.2
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -847,7 +854,7 @@ importers:
         version: link:../session-sync
       effect:
         specifier: 'catalog:'
-        version: 4.0.0-beta.100
+        version: 4.0.2
       hono:
         specifier: 'catalog:'
         version: 4.13.9
@@ -910,19 +917,29 @@ importers:
 
   packages/driver-lightpanda:
     dependencies:
-      '@lightpanda/browser':
-        specifier: '>=0.1.0'
-        version: 1.2.0
       '@open-wa/driver-interface':
         specifier: workspace:*
         version: link:../driver-interface
-      puppeteer:
-        specifier: '>=22.0.0'
-        version: 24.40.0(supports-color@10.2.2)(typescript@7.0.2)
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.2
+      proper-lockfile:
+        specifier: ^4.1.2
+        version: 4.1.2
+      proxy-agent:
+        specifier: ^8.0.1
+        version: 8.0.2(supports-color@10.2.2)
+      puppeteer-core:
+        specifier: 'catalog:'
+        version: 25.12.0(proxy-agent@8.0.2(supports-color@10.2.2))(yauzl@2.10.0)
+
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.3
+      '@types/proper-lockfile':
+        specifier: ^4.1.4
+        version: 4.1.4
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -957,18 +974,22 @@ importers:
       '@puppeteer/browsers':
         specifier: ^3.2.3
         version: 3.2.3(proxy-agent@8.0.2(supports-color@10.2.2))(yauzl@2.10.0)
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.2
       proper-lockfile:
         specifier: ^4.1.2
         version: 4.1.2
       proxy-agent:
         specifier: ^8.0.1
         version: 8.0.2(supports-color@10.2.2)
-      puppeteer:
+      puppeteer-core:
         specifier: 'catalog:'
         version: 25.12.0(proxy-agent@8.0.2(supports-color@10.2.2))(yauzl@2.10.0)
       puppeteer-extra:
         specifier: 'catalog:'
         version: 3.3.6(puppeteer-core@25.12.0(proxy-agent@8.0.2(supports-color@10.2.2))(yauzl@2.10.0))(puppeteer@25.12.0(proxy-agent@8.0.2(supports-color@10.2.2))(yauzl@2.10.0))(supports-color@10.2.2)
+
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1099,13 +1120,13 @@ importers:
     dependencies:
       '@effect/platform-browser':
         specifier: 'catalog:'
-        version: 4.0.0-beta.100(effect@4.0.0-beta.100)
+        version: 4.0.2(effect@4.0.2)
       '@open-wa/runtime-core':
         specifier: workspace:*
         version: link:../runtime-core
       effect:
         specifier: 'catalog:'
-        version: 4.0.0-beta.100
+        version: 4.0.2
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1121,13 +1142,13 @@ importers:
     dependencies:
       '@effect/platform-bun':
         specifier: 'catalog:'
-        version: 4.0.0-beta.100(effect@4.0.0-beta.100)
+        version: 4.0.2(effect@4.0.2)
       '@open-wa/runtime-core':
         specifier: workspace:*
         version: link:../runtime-core
       effect:
         specifier: 'catalog:'
-        version: 4.0.0-beta.100
+        version: 4.0.2
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1143,7 +1164,7 @@ importers:
     dependencies:
       effect:
         specifier: 'catalog:'
-        version: 4.0.0-beta.100
+        version: 4.0.2
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1162,7 +1183,7 @@ importers:
         version: link:../runtime-core
       effect:
         specifier: 'catalog:'
-        version: 4.0.0-beta.100
+        version: 4.0.2
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -1181,14 +1202,14 @@ importers:
         version: link:../runtime-core
       effect:
         specifier: 'catalog:'
-        version: 4.0.0-beta.100
+        version: 4.0.2
     devDependencies:
       '@effect/platform-node':
         specifier: 'catalog:'
-        version: 4.0.0-beta.100(effect@4.0.0-beta.100)(ioredis@5.11.1(supports-color@10.2.2))
+        version: 4.0.2(effect@4.0.2)(redis@6.3.0)
       '@effect/platform-node-shared':
-        specifier: 4.0.0-beta.100
-        version: 4.0.0-beta.100(effect@4.0.0-beta.100)
+        specifier: 'catalog:'
+        version: 4.0.2(effect@4.0.2)
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.3
@@ -1403,6 +1424,9 @@ importers:
       '@open-wa/core':
         specifier: workspace:*
         version: link:../core
+      '@open-wa/driver-interface':
+        specifier: workspace:*
+        version: link:../driver-interface
       '@open-wa/driver-lightpanda':
         specifier: workspace:*
         version: link:../driver-lightpanda
@@ -1430,12 +1454,16 @@ importers:
       chrome-launcher:
         specifier: ^1.2.1
         version: 1.2.1(supports-color@10.2.2)
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.2
       hono:
         specifier: 'catalog:'
         version: 4.13.9
       qrcode-terminal:
         specifier: ^0.12.0
         version: 0.12.0
+
     devDependencies:
       typescript:
         specifier: 'catalog:'
@@ -1832,29 +1860,6 @@ packages:
 
   '@dotenvx/primitives@0.8.0':
     resolution: {integrity: sha512-VYJy0uhFm9zTJ1TxBaW/pA8bjbOM/OttaNMwZ1RHG4JKyRG7DhSdiqD1ipQoAyoD22olUtxbP78W9xY3Wd11bg==}
-
-  '@effect/platform-browser@4.0.0-beta.100':
-    resolution: {integrity: sha512-Ezxkl9nQuPQrHqkxSdJWazQmjaD+ZOYhKoFEiQvfCdiSoEKLN7SWWGkaCKlbO451hLyO4NUO7s2UGTGU3CHVsw==}
-    peerDependencies:
-      effect: ^4.0.0-beta.100
-
-  '@effect/platform-bun@4.0.0-beta.100':
-    resolution: {integrity: sha512-UyH4bgzlV3aJOXbUr/3Zej3MBPe9TDrdkwStLDpVn9Yc6dKIKOJBd0G/8+OQhunGAuCL9a4SaNvwhkMJajahrg==}
-    peerDependencies:
-      effect: ^4.0.0-beta.100
-
-  '@effect/platform-node-shared@4.0.0-beta.100':
-    resolution: {integrity: sha512-PMsCXQeK2wnlmnqGCc79oqK9CX8ipZvoHxAy/CRojMF+zHIluxh61L3pzWAYEbMb19Be4Bxgqs7gK2hiV8H8Pg==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      effect: ^4.0.0-beta.100
-
-  '@effect/platform-node@4.0.0-beta.100':
-    resolution: {integrity: sha512-nH5xgxOLfPj5Bi0/o4OaDsR98Z59lHKGty+TDqckg7zRz6jry82hGW982NRPduzX0MJloDsGp/3rfeN4Hu7Keg==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      effect: ^4.0.0-beta.100
-      ioredis: ^5.7.0
 
   '@elastic/elasticsearch@9.5.1':
     resolution: {integrity: sha512-2ZZqCmgGPjSYn+OphFRYm9g46KVINA0i8fRmlPHJC60RvJeFB6NSHO0nKKOOYhm3WRXyGkLu1xkdXe724fnmnA==}
@@ -6853,9 +6858,6 @@ packages:
 
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
-
-  effect@4.0.0-beta.100:
-    resolution: {integrity: sha512-K4ed+BS3HyE+NoAZ8pJss2DpuK41mb856IO7ZlPfnwBXbq8oTtAAurrsVnwe2hzPamIuaZp/Pq4/xp9qORYv8Q==}
 
   electron-to-chromium@1.5.439:
     resolution: {integrity: sha512-qu6QIPXhsb+CRcAiTMNjR4A1y/7tCYKkKjr5CZXRVih6qkDf79peZ2BpEU3qoDBNCRrcy3Mra3X9nG5oruuA7Q==}
@@ -11860,6 +11862,75 @@ packages:
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
+  '@effect/platform-browser@4.0.2':
+    resolution: {integrity: sha512-juVpWmx+2e5pw3MsMSMzwsQ7sut3exkeweaQToAcn+4PKGNWvItZ72+qAalgRNQE5luPiodP507oe44gC36Vsg==}
+    peerDependencies:
+      effect: ^4.0.2
+
+  '@effect/platform-bun@4.0.2':
+    resolution: {integrity: sha512-wbQ9jQKtTjqHOYvMrgINWKuP05Q0cXe/Rze2c2gOAakztE34tVzT4aRvvooUR2l+JGWf/hL26nmHXJ4/Urkqiw==}
+    peerDependencies:
+      effect: ^4.0.2
+
+  '@effect/platform-node-shared@4.0.2':
+    resolution: {integrity: sha512-xn8aDw9p/QUPt1Yi0C3HUMcycT+MjHfAe19FDUDrUuzcwq0xxskkamVSqbdykF/Dsuus4aZTsCBZA/vkhHIfbQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      effect: ^4.0.2
+
+  '@effect/platform-node@4.0.2':
+    resolution: {integrity: sha512-RWesXBQStnFHdD465gR5thFKgXO7FSyCKRZ56nWXB7PedNVzr8vV0nb/3MULLdri493sMz/b/pmGBTb6K8cBjQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      effect: ^4.0.2
+      redis: '>=5.0.0 <7.0.0'
+
+  effect@4.0.2:
+    resolution: {integrity: sha512-YeYnLqSFrL4+tCOXRrfNP03w8FILoF/wDl+ukraJAGzXrjcS383W7LAAvGBbLatEyktmLxRq+9xJinx7QzXW5A==}
+
+  '@types/ws@8.18.2':
+    resolution: {integrity: sha512-67MQl+fpWKVTT1NYdnmo3U4sc/xPo/zQBncVnI74qmQa0z/b+1g6iYqNmGCPbxO+zz2aklb08a0oHfegiVd0/w==}
+
+  redis@6.3.0:
+    resolution: {integrity: sha512-XFQbPie1lGpKeUZ8ySYY43yLnQy/iIQtHNvIr/1XdaABpb96rUSdm3Mfl+98FEVbv9ZJIzINMno5s0Nh8E5LEw==}
+    engines: {node: '>= 20.0.0'}
+
+  '@redis/bloom@6.3.0':
+    resolution: {integrity: sha512-NQ5poYpZr0jv6zazN1cy6JY5kIipKFZ3R9GTL4kOUTX3a9YAfY29U8bsE4lWhVQEM+G4V0BXVC57mubIdDijeA==}
+    engines: {node: '>= 20.0.0'}
+    peerDependencies:
+      '@redis/client': ^6.3.0
+
+  '@redis/client@6.3.0':
+    resolution: {integrity: sha512-fHrjwGCBvAANGi+TuRuwKi83sIOzgHr8eh+Uf48w3fSX7Hhrz174NrWqfJhAC2vnN0d/tfaZpdr6+o6JC3QHwg==}
+    engines: {node: '>= 20.0.0'}
+    peerDependencies:
+      '@node-rs/xxhash': ^1.1.0
+      '@opentelemetry/api': '>=1 <2'
+    peerDependenciesMeta:
+      '@node-rs/xxhash':
+        optional: true
+      '@opentelemetry/api':
+        optional: true
+
+  '@redis/json@6.3.0':
+    resolution: {integrity: sha512-yt6vRfPBXtW/3qm53cF81TSQpLMjWdW4/2E9WQ2GgbvsKkuCKCFQIcMiKlil1ZMnezK+IQuS795xKU5psbaegw==}
+    engines: {node: '>= 20.0.0'}
+    peerDependencies:
+      '@redis/client': ^6.3.0
+
+  '@redis/search@6.3.0':
+    resolution: {integrity: sha512-RPXAZmKjZZG7Tm7m1w9keFdXzbL91PiSHQBfQRe9xwW40jNsTRbG0FwhIz4QlHPU4gKDAsCy8IQHj4yZl4H9rw==}
+    engines: {node: '>= 20.0.0'}
+    peerDependencies:
+      '@redis/client': ^6.3.0
+
+  '@redis/time-series@6.3.0':
+    resolution: {integrity: sha512-+fJOB8mN1z5WRakCJNh5lVdz1KqvHGSOistsKeitD24QsCtPwyRQXWC0iq6T/i/ubLE/YcguZqPm8F598MKk4A==}
+    engines: {node: '>= 20.0.0'}
+    peerDependencies:
+      '@redis/client': ^6.3.0
+
 snapshots:
 
   '@ai-sdk/gateway@3.0.13(zod@4.6.5)':
@@ -12369,39 +12440,6 @@ snapshots:
       yocto-spinner: 1.2.2
 
   '@dotenvx/primitives@0.8.0': {}
-
-  '@effect/platform-browser@4.0.0-beta.100(effect@4.0.0-beta.100)':
-    dependencies:
-      effect: 4.0.0-beta.100
-      multipasta: 0.2.8
-
-  '@effect/platform-bun@4.0.0-beta.100(effect@4.0.0-beta.100)':
-    dependencies:
-      '@effect/platform-node-shared': 4.0.0-beta.100(effect@4.0.0-beta.100)
-      effect: 4.0.0-beta.100
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
-  '@effect/platform-node-shared@4.0.0-beta.100(effect@4.0.0-beta.100)':
-    dependencies:
-      '@types/ws': 8.18.1
-      effect: 4.0.0-beta.100
-      ws: 8.22.0
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
-  '@effect/platform-node@4.0.0-beta.100(effect@4.0.0-beta.100)(ioredis@5.11.1(supports-color@10.2.2))':
-    dependencies:
-      '@effect/platform-node-shared': 4.0.0-beta.100(effect@4.0.0-beta.100)
-      effect: 4.0.0-beta.100
-      ioredis: 5.11.1(supports-color@10.2.2)
-      mime: 4.1.0
-      undici: 8.11.2
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
 
   '@elastic/elasticsearch@9.5.1(apache-arrow@21.1.0)(supports-color@10.2.2)':
     dependencies:
@@ -17354,19 +17392,6 @@ snapshots:
   eastasianwidth@0.2.0: {}
 
   ee-first@1.1.1: {}
-
-  effect@4.0.0-beta.100:
-    dependencies:
-      '@standard-schema/spec': 1.1.0
-      fast-check: 4.10.2
-      find-my-way-ts: 0.1.6
-      ini: 7.0.0
-      kubernetes-types: 1.30.0
-      msgpackr: 2.1.0
-      multipasta: 0.2.8
-      toml: 4.3.0
-      uuid: 14.0.2
-      yaml: 2.9.1
 
   electron-to-chromium@1.5.439: {}
 
@@ -23552,3 +23577,69 @@ snapshots:
   zod@4.6.5: {}
 
   zwitch@2.0.4: {}
+
+  '@effect/platform-browser@4.0.2(effect@4.0.2)':
+    dependencies:
+      effect: 4.0.2
+
+  '@effect/platform-bun@4.0.2(effect@4.0.2)':
+    dependencies:
+      '@effect/platform-node-shared': 4.0.2(effect@4.0.2)
+      effect: 4.0.2
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  '@effect/platform-node-shared@4.0.2(effect@4.0.2)':
+    dependencies:
+      '@types/ws': 8.18.2
+      effect: 4.0.2
+      ws: 8.22.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  '@effect/platform-node@4.0.2(effect@4.0.2)(redis@6.3.0)':
+    dependencies:
+      '@effect/platform-node-shared': 4.0.2(effect@4.0.2)
+      effect: 4.0.2
+      redis: 6.3.0
+      undici: 8.11.2
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  effect@4.0.2: {}
+
+  '@types/ws@8.18.2':
+    dependencies:
+      '@types/node': 26.6.3
+
+  redis@6.3.0:
+    dependencies:
+      '@redis/bloom': 6.3.0(@redis/client@6.3.0)
+      '@redis/client': 6.3.0
+      '@redis/json': 6.3.0(@redis/client@6.3.0)
+      '@redis/search': 6.3.0(@redis/client@6.3.0)
+      '@redis/time-series': 6.3.0(@redis/client@6.3.0)
+    transitivePeerDependencies:
+      - '@node-rs/xxhash'
+      - '@opentelemetry/api'
+
+  '@redis/bloom@6.3.0(@redis/client@6.3.0)':
+    dependencies:
+      '@redis/client': 6.3.0
+
+  '@redis/client@6.3.0': {}
+
+  '@redis/json@6.3.0(@redis/client@6.3.0)':
+    dependencies:
+      '@redis/client': 6.3.0
+
+  '@redis/search@6.3.0(@redis/client@6.3.0)':
+    dependencies:
+      '@redis/client': 6.3.0
+
+  '@redis/time-series@6.3.0(@redis/client@6.3.0)':
+    dependencies:
+      '@redis/client': 6.3.0

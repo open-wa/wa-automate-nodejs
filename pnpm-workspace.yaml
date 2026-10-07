@@ -11,9 +11,10 @@ packages:
 
 catalog:
   '@base-ui/react': ^1.8.0
-  '@effect/platform-browser': 4.0.0-beta.100
-  '@effect/platform-bun': 4.0.0-beta.100
-  '@effect/platform-node': 4.0.0-beta.100
+  '@effect/platform-browser': 4.0.2
+  '@effect/platform-bun': 4.0.2
+  '@effect/platform-node': 4.0.2
+  '@effect/platform-node-shared': 4.0.2
   '@discordjs/collection': ^2.1.1
   '@elastic/elasticsearch': ^9.5.1
   '@hono/node-server': ^2.1.1
@@ -41,7 +42,7 @@ catalog:
   clsx: 2.1.1
   cors: ^2.8.5
   dotenv: ^17.4.2
-  effect: 4.0.0-beta.100
+  effect: 4.0.2
   express: ^4.17.3
   express-request-id: 1.4.1
   helmet: ^6.0.0
@@ -56,6 +57,7 @@ catalog:
   prettier: ^3.9.9
   public-ip: 8.0.0
   puppeteer: ^25.12.0
+  puppeteer-core: ^25.12.0
   puppeteer-extra: ^3.3.6
   react: ^19.3.0
   react-dom: ^19.3.0
@@ -80,7 +82,7 @@ shamefullyHoist: true
 nodeLinker: hoisted
 strictPeerDependencies: false
 overrides:
-  '@effect/platform-node-shared': 4.0.0-beta.100
+  '@effect/platform-node-shared': 4.0.2
   'js-yaml@^3.0.0': 3.15.2
   'js-yaml@^4.0.0': 4.3.2
   postcss: 8.5.28
@@ -118,11 +120,11 @@ allowBuilds:
   # optional native accelerator for msgpackr; JS fallback is sufficient
   msgpackr-extract: false
 minimumReleaseAgeExclude:
-  - '@effect/platform-browser@4.0.0-beta.100'
-  - '@effect/platform-bun@4.0.0-beta.100'
-  - '@effect/platform-node-shared@4.0.0-beta.100'
-  - '@effect/platform-node@4.0.0-beta.100'
-  - effect@4.0.0-beta.100
+  - '@effect/platform-browser@4.0.2'
+  - '@effect/platform-bun@4.0.2'
+  - '@effect/platform-node-shared@4.0.2'
+  - '@effect/platform-node@4.0.2'
+  - effect@4.0.2
   - '@ai-sdk/gateway@4.0.26 || 4.0.98 || 4.0.100'
   - '@ai-sdk/mcp@2.0.16 || 2.0.61 || 2.0.62'
   - '@ai-sdk/provider@4.0.19'
