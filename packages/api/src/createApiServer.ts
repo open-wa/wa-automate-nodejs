@@ -242,12 +242,15 @@ export class ApiServer {
     this.dashboardDevServer = undefined;
     const server = this.server;
     this.server = undefined;
+    await this.screencastManager.destroy();
     if (server?.listening) {
       await new Promise<void>((resolve, reject) => {
         server.close((error) => (error ? reject(error) : resolve()));
+        // Dashboard SSE responses remain open by design. Once admission has
+        // stopped, close them so shutdown can release the listening socket.
+        server.closeAllConnections();
       });
     }
-    await this.screencastManager.destroy();
     if (this.elasticEmitter) {
       await this.elasticEmitter.stop();
     }
