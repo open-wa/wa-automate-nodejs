@@ -35,6 +35,7 @@
       "@open-wa/screencaster",
       "@open-wa/session-sync",
       "@open-wa/socket-client",
+      "@open-wa/stickers",
       "@open-wa/utils",
       "@open-wa/wa-automate",
       "@open-wa/wa-automate-types-only"
