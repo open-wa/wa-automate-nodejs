@@ -35,16 +35,10 @@ export const CallCapabilitiesSchema = Schema.Struct({
   control: Schema.Boolean, audio: Schema.Boolean, video: Schema.Boolean,
   reason: Schema.optional(CallReasonSchema),
 });
-export const CallingGrantSchema = Schema.Struct({
-  version: Schema.Literal(1), keyId: Schema.String, sessionId: Schema.String, account: Schema.String,
-  features: Schema.Array(Schema.Literals(['calls.control', 'calls.audio', 'calls.video'])),
-  issuedAt: Schema.Number, expiresAt: Schema.Number, artifactRevision: Schema.String, protocolVersion: Schema.Literal(1),
-});
 export type CallIdentity = typeof CallIdentitySchema.Type;
 export type CallSnapshot = typeof CallSnapshotSchema.Type;
 export type CallActionResult = typeof CallActionResultSchema.Type;
 export type CallCapabilities = typeof CallCapabilitiesSchema.Type;
-export type CallingGrant = typeof CallingGrantSchema.Type;
 export type CallAudioObserver = { ok: true; status: 'attached'; stop(): Promise<void> };
 
 /** Methods are hydrated locally; transports carry only CallSnapshot. */

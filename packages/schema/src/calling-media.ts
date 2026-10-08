@@ -33,8 +33,6 @@ export interface CallMediaOptions {
 }
 export interface CallingOptions {
   defaults?: CallMediaOptions;
-  /** Trusted issuer keys, keyed by the grant's key ID. Never supplied by an HTTP caller. */
-  verificationKeys?: Record<string, string>;
   preparationTimeoutMs?: number;
 }
 

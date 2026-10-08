@@ -288,8 +288,6 @@ export interface LicensePreloadOptions {
 }
 
 export interface LicenseArtifact {
-  callingGrant?: string;
-  account?: string;
   key: string;
   maskedKey: string;
   source: Exclude<LicenseSource, 'none'>;
@@ -1326,7 +1324,6 @@ export class Transport {
       }
 
       const keyType = this.deriveLicenseKeyType(resolvedKey);
-      let callingGrant: string | undefined;
       // Attempt server validation if not in offline mode
       let payload: string;
       let payloadSource: 'server' | 'local_metadata';
@@ -1337,14 +1334,13 @@ export class Transport {
           const serverPayload = await validateLicense(this.licenseConfig.url ?? DEFAULT_LICENSE_CHECK_URL, {
             key: resolvedKey,
             number: options.sessionInfo.hostNumber,
-            sessionId: options.sessionId,
             WA_VERSION: options.sessionInfo.WA_VERSION,
             WA_AUTOMATE_VERSION: options.sessionInfo.WA_AUTOMATE_VERSION,
             BROWSER_VERSION: options.sessionInfo.BROWSER_VERSION,
             PAGE_UA: options.sessionInfo.PAGE_UA,
             OS: options.sessionInfo.OS,
             NUM_HASH: options.sessionInfo.NUM_HASH,
-          }, { onCallingGrant: token => { callingGrant = token; } });
+          });
 
 
           if (serverPayload === false) {
@@ -1398,8 +1394,6 @@ export class Transport {
         payload,
         keyType,
         payloadSource,
-        callingGrant,
-        account: options.sessionInfo?.hostNumber.replace(/\D/g, ''),
       };
 
       const outcome: LicensePreloadResult = {
@@ -1560,8 +1554,8 @@ export class Transport {
 
   private scheduleCallingRenewal(): void {
     clearTimeout(this.callingRenewalTimer);
-    const expiry = this.calling.grantExpiresAt;
-    if (!expiry || !this.retainedLicenseArtifact?.callingGrant) return;
+    const expiry = this.calling.licenseExpiresAt;
+    if (!expiry || this.retainedLicenseArtifact?.payloadSource !== 'server') return;
     this.callingRenewalTimer = setTimeout(() => { void this.refreshCallingLicense(); }, Math.max(1000, expiry - Date.now() - 30_000));
     this.callingRenewalTimer.unref?.();
   }
@@ -1573,22 +1567,20 @@ export class Transport {
       const existing = this.retainedLicenseArtifact;
       const refreshed = await this.preloadLicenseArtifact({ sessionId: this.options.sessionId ?? 'session', licenseKey: existing.key, sessionInfo: await this.getSessionDebugInfo() });
       const artifact = refreshed.artifact;
-      if (!artifact || artifact.payloadSource !== 'server') { this.logger.warn('Calling license renewal is unavailable. Existing access remains bounded by its expiry.'); return; }
-      if (await this.calling.renew(artifact.callingGrant, artifact.account ?? '')) {
-        this.callingRenewalAttempts = 0;
-        this.retainedLicenseArtifact = artifact;
-        this.scheduleCallingRenewal();
-      } else if (!artifact.callingGrant) {
+      if (refreshed.status === 'invalid' || refreshed.status === 'expired') {
         await this.calling.revoke();
         this.logger.warn('Calling access was withdrawn. Messaging remains available.');
-      } else if (!await this.calling.getActive()) {
-        const checked = await this.checkLicenseArtifact(refreshed);
-        await this.applyLicenseArtifact(checked);
+        return;
       }
+      if (!artifact || artifact.payloadSource !== 'server') { this.logger.warn('Calling license refresh is unavailable. The current private patch remains bounded by its expiry.'); return; }
+      const checked = await this.checkLicenseArtifact(refreshed);
+      const applied = await this.applyLicenseArtifact(checked);
+      if (applied.applied && applied.status === 'valid') this.callingRenewalAttempts = 0;
+      else await this.calling.revoke();
     } catch { this.logger.warn('Calling license renewal is unavailable. Existing access remains bounded by its expiry.'); }
     finally {
       this.callingRenewing = false;
-      const remaining = (this.calling.grantExpiresAt ?? 0) - Date.now();
+      const remaining = (this.calling.licenseExpiresAt ?? 0) - Date.now();
       if (remaining > 1000 && remaining < 30_000 && this.callingRenewalAttempts < 3) {
         clearTimeout(this.callingRenewalTimer);
         const delay = Math.min(remaining - 500, 1000 * 2 ** this.callingRenewalAttempts++);
@@ -1633,7 +1625,7 @@ export class Transport {
       const detectedKeyType = await this.page.evaluateScript<string | false>('window.KEYTYPE || false');
       if (checked.status === 'valid' && applied && !launchError) {
         this.retainedLicenseArtifact = checked.artifact;
-        await this.calling.install(checked.artifact.callingGrant, checked.artifact.payload, checked.artifact.account ?? '').catch(error => {
+        await this.calling.install().catch(error => {
           this.logger.warn('Calling initialization is unavailable', { message: String(error) });
         });
         this.scheduleCallingRenewal();
@@ -2774,7 +2766,7 @@ export class Transport {
 
     if (reinjected && isContextFlushRecovery) {
       await this.calling.invalidate();
-      if (this.retainedLicenseArtifact?.callingGrant) {
+      if (this.retainedLicenseArtifact?.payloadSource === 'server') {
         try {
           const refreshed = await this.preloadLicenseArtifact({ sessionId: this.options.sessionId ?? 'session', licenseKey: this.retainedLicenseArtifact.key, sessionInfo: await this.getSessionDebugInfo() });
           const checked = await this.checkLicenseArtifact(refreshed);
@@ -3143,14 +3135,14 @@ export class Transport {
     const info = await this.page.evaluate(
       () => {
         const runtime = globalThis as any;
-        const connectionHost = runtime.Store?.Conn?.me?._serialized;
-        const patchedHost = !connectionHost && typeof runtime.moi === 'function'
-          ? runtime.moi()
-          : '';
+        const connectionIdentity = runtime.Store?.Conn?.me?._serialized;
+        const connectionHost = typeof connectionIdentity === 'string' && connectionIdentity.endsWith('@c.us')
+          ? connectionIdentity : '';
+        const patchedHost = typeof runtime.moi === 'function' ? runtime.moi() : '';
 
         return {
           waVersion: runtime.Debug?.VERSION ?? 'unknown',
-          hostNumber: connectionHost || (typeof patchedHost === 'string' ? patchedHost : ''),
+          hostNumber: (typeof patchedHost === 'string' ? patchedHost : '') || connectionHost,
           pageUA: navigator.userAgent,
           os: navigator.platform ?? 'unknown',
         };

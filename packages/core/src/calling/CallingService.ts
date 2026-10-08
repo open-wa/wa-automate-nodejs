@@ -5,9 +5,7 @@ import { SessionScope, ScopedTaskQueue } from '@open-wa/runtime-core';
 import { DEFAULT_MIC, DEFAULT_SPEAKER, DEFAULT_CAM, MediaDescriptorSchema, CallMediaOptionsSchema } from '@open-wa/schema';
 import type { CallActionResult, CallCapabilities, CallIdentity, CallMediaOptions, CallingOptions, CallSnapshot } from '@open-wa/schema';
 import { runToPromise } from '../effect/errors';
-import { verifyCallingGrant } from './grant';
-import { CALLING_ISSUER_KEYS } from './issuer-keys';
-import type { AudioFrame, CallMediaHost, CallingProviderEvent, CallingProviderInfo, PreparedCallMedia, VerifiedCallingLicense } from './ports';
+import type { AudioFrame, CallMediaHost, CallingProviderEvent, CallingProviderInfo, PreparedCallMedia } from './ports';
 import { RemoteMediaReservation, type RemoteMediaRequest, type RemoteAudioConnection } from './RemoteMedia';
 
 const LICENSE_MESSAGE = 'Calling needs a calling-enabled license. Set licenseKey or --license-key.';
@@ -15,7 +13,7 @@ class CallingFailure extends Data.TaggedError('CallingFailure')<{ code: string; 
 type Attachment = { id: string; scope: SessionScope; media: PreparedCallMedia; options: CallMediaOptions; receiveQueue: ScopedTaskQueue; started?: boolean; remoteId?: string; };
 
 export class CallingService {
-  private license?: VerifiedCallingLicense;
+  private licensed = false;
   private provider?: CallingProviderInfo;
   private active: CallSnapshot | null = null;
   private generation = '';
@@ -37,31 +35,31 @@ export class CallingService {
     emit: (type: 'incoming' | 'state', snapshot: CallSnapshot) => void;
   }) {}
 
-  async install(token: string | undefined, payload: string, account: string): Promise<void> {
-    await this.invalidate();
-    this.license = undefined;
-    if (!token) return;
-    const grant = await verifyCallingGrant(token, { ...CALLING_ISSUER_KEYS, ...this.options.config?.verificationKeys }, { sessionId: this.options.sessionId, account });
-    if (!grant) { this.options.logger.warn('Calling license grant could not be verified. Calling is unavailable.'); return; }
-    this.license = { grant, token, payload };
+  /** Called only after normal server-confirmed licence patch application. */
+  async install(): Promise<void> {
+    const info = await this.invoke<CallingProviderInfo | null>('describe', {}).catch(() => null);
+    if (!this.isProviderInfo(info)) {
+      if (this.licensed) await this.revoke();
+      else await this.invalidate();
+      this.licensed = false;
+      return;
+    }
+    const sameProvider = this.licensed && this.generation === this.options.generation()
+      && this.provider?.artifactRevision === info.artifactRevision;
+    if (!sameProvider) {
+      if (this.active) await this.invoke('command', { action: 'end', id: this.active.id }).catch(() => undefined);
+      await this.invalidate();
+    }
+    this.licensed = true;
     await this.bind();
-    this.scheduleExpiry();
   }
 
-  get grantExpiresAt(): number | undefined { return this.license?.grant.expiresAt; }
+  get licenseExpiresAt(): number | undefined { return this.provider?.expiresAt; }
 
-  async renew(token: string | undefined, account: string): Promise<boolean> {
-    const grant = token && await verifyCallingGrant(token, { ...CALLING_ISSUER_KEYS, ...this.options.config?.verificationKeys }, { sessionId: this.options.sessionId, account });
-    if (!grant || !this.license || grant.artifactRevision !== this.license.grant.artifactRevision) return false;
-    const audioWithdrawn = this.active && !grant.features.includes('calls.audio');
-    if (audioWithdrawn) {
-      await this.invoke('command', { action: 'end', id: this.active.id }).catch(() => undefined);
-      await this.invalidate('Calling audio access was withdrawn.');
-    }
-    this.license = { ...this.license, grant, token };
-    if (audioWithdrawn) await this.bind();
-    this.scheduleExpiry();
-    return true;
+  private isProviderInfo(info: CallingProviderInfo | null): info is CallingProviderInfo {
+    return !!info && info.protocolVersion === 1 && typeof info.artifactRevision === 'string' && !!info.artifactRevision
+      && Number.isFinite(info.expiresAt) && info.expiresAt > Date.now()
+      && typeof info.control === 'boolean' && typeof info.audio === 'boolean' && typeof info.video === 'boolean';
   }
 
   async revoke(): Promise<void> { await this.expire(); }
@@ -69,28 +67,30 @@ export class CallingService {
   async bind(): Promise<void> {
     const page = this.options.page();
     this.generation = this.options.generation();
-    if (!page || !this.generation || !this.license) return;
-    if (this.license.grant.expiresAt <= Date.now()) { await this.expire(); return; }
+    if (!page || !this.generation || !this.licensed) return;
     this.stateQueue ??= await ScopedTaskQueue.make({ name: 'calling-state', capacity: 64, concurrency: 1, overload: 'dropping', timeoutMs: 15_000 });
     if (!this.bindingPages.has(page)) {
       await page.exposeFunction('__openwaCallsHost', (event: CallingProviderEvent, generation: string) => this.dispatch(event, generation));
       this.bindingPages.add(page);
     }
-    if (this.license.grant.features.includes('calls.audio')) await page.grantMediaPermissions?.(new URL(page.url()).origin);
     const info = await this.invoke<CallingProviderInfo | null>('install', { generation: this.generation });
-    if (!info || info.protocolVersion !== 1 || info.artifactRevision !== this.license.grant.artifactRevision) {
+    if (!this.isProviderInfo(info)) {
       this.provider = undefined;
-      this.options.logger.warn('Licensed calling provider is unavailable or its revision does not match the grant.');
+      await this.expire();
+      this.options.logger.warn('The licensed calling patch is unavailable or expired. Refresh the calling-enabled licence.');
       return;
     }
     this.provider = info;
     this.scheduleExpiry();
+    if (info.audio) await page.grantMediaPermissions?.(new URL(page.url()).origin).catch(error => {
+      this.options.logger.warn('Calling device permission is unavailable', { message: String(error) });
+    });
   }
 
   private scheduleExpiry(): void {
     clearTimeout(this.expiryTimer);
-    if (!this.license) return;
-    this.expiryTimer = setTimeout(() => { void this.expire().catch(error => this.options.logger.warn('Calling cleanup failed', { message: String(error) })); }, Math.max(0, Math.min(this.license.grant.expiresAt - Date.now(), 2_147_483_647)));
+    if (!this.provider) return;
+    this.expiryTimer = setTimeout(() => { void this.expire().catch(error => this.options.logger.warn('Calling cleanup failed', { message: String(error) })); }, Math.max(0, Math.min(this.provider.expiresAt - Date.now(), 2_147_483_647)));
     this.expiryTimer.unref?.();
   }
 
@@ -234,11 +234,11 @@ export class CallingService {
     for (const remote of this.remotes.values()) await this.closeScope(remote.scope, 'interruption');
   }
 
-  async close(): Promise<void> { await this.invalidate('The calling session closed.'); this.license = undefined; await this.stateQueue?.close(); this.stateQueue = undefined; }
+  async close(): Promise<void> { await this.invalidate('The calling session closed.'); this.licensed = false; await this.stateQueue?.close(); this.stateQueue = undefined; }
 
   private availability(feature: 'calls.control' | 'calls.audio' | 'calls.video'): CallingFailure | undefined {
-    if (!this.license || !this.license.grant.features.includes(feature)) return new CallingFailure({ code: 'CALLING_LICENSE_REQUIRED', message: LICENSE_MESSAGE, status: 403 });
-    if (this.license.grant.expiresAt <= Date.now()) return new CallingFailure({ code: 'CALLING_LICENSE_EXPIRED', message: 'Calling access has expired. Renew the calling-enabled license.', status: 403 });
+    if (!this.licensed) return new CallingFailure({ code: 'CALLING_LICENSE_REQUIRED', message: LICENSE_MESSAGE, status: 403 });
+    if (this.provider && this.provider.expiresAt <= Date.now()) return new CallingFailure({ code: 'CALLING_LICENSE_EXPIRED', message: 'Calling access has expired. Refresh the calling-enabled license.', status: 403 });
     if (!this.provider || this.generation !== this.options.generation() || !this.provider[feature.split('.')[1] as 'control' | 'audio' | 'video']) return new CallingFailure({ code: 'CALLING_UNAVAILABLE', message: 'Calling is unavailable in the current browser or account. Use the supported Chrome calling profile.', status: 503 });
   }
 
@@ -395,8 +395,8 @@ export class CallingService {
   private async expire(): Promise<void> {
     const call = this.active;
     if (call) await this.invoke('command', { action: 'end', id: call.id }).catch(() => undefined);
-    await this.invalidate('Calling access expired. Renew the calling-enabled license before attaching media.'); this.license = undefined;
-    this.options.logger.warn('Calling access expired; call media was closed. Renew the calling-enabled license.');
+    await this.invalidate('Calling access expired or was withdrawn. Refresh the calling-enabled license before attaching media.'); this.licensed = false;
+    this.options.logger.warn('Calling access expired or was withdrawn; call media was closed. Messaging remains available.');
   }
 
   private async mediaFailure(message: string, attachmentId?: string): Promise<void> {

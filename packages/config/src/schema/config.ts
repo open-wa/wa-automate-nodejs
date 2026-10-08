@@ -13,7 +13,7 @@ const CallingDescriptorSchema = z.union([z.string(), z.object({
 }), z.null()]);
 export const CallingOptionsSchema = z.object({
   defaults: z.object({ microphone: CallingDescriptorSchema.optional(), speaker: CallingDescriptorSchema.optional(), camera: CallingDescriptorSchema.optional(), onMediaFailure: z.enum(['end', 'keep-open']).optional() }).optional(),
-  verificationKeys: z.record(z.string(), z.string()).optional(), preparationTimeoutMs: z.number().positive().optional(),
+  preparationTimeoutMs: z.number().positive().optional(),
 });
 
 // ============================================================================
@@ -201,7 +201,7 @@ export const ChatSandboxConfigSchema = z.object({
 // ============================================================================
 
 export const ConfigSchema = z.object({
-  calling: CallingOptionsSchema.optional().describe('Calling media defaults and trusted license issuer keys. Calling actions handle admission automatically.'),
+  calling: CallingOptionsSchema.optional().describe('Calling media defaults. Calling actions use the existing licensed patch flow automatically.'),
   licenseConfig: z.object({ url: z.string().url().optional(), offlineLicenseMode: z.boolean().optional() }).optional().describe('Licensed implementation delivery endpoint.'),
   // Session & Authentication
   sessionData: z

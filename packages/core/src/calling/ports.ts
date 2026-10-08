@@ -1,4 +1,4 @@
-import type { CallIdentity, CallMediaOptions, CallingGrant, CallSnapshot, RawAudioFormat } from '@open-wa/schema';
+import type { CallIdentity, CallMediaOptions, CallSnapshot, RawAudioFormat } from '@open-wa/schema';
 import type { SessionScope } from '@open-wa/runtime-core';
 
 export interface AudioFrame { samples: number[]; sampleRate: number; sequence: number; }
@@ -18,6 +18,7 @@ export interface CallMediaHost {
 export interface CallingProviderInfo {
   protocolVersion: 1;
   artifactRevision: string;
+  expiresAt: number;
   control: boolean;
   audio: boolean;
   video: boolean;
@@ -27,5 +28,4 @@ export type CallingProviderEvent =
   | { type: 'audio'; callId: string; attachmentId: string; frame: AudioFrame }
   | { type: 'media-error'; callId: string; attachmentId?: string; message: string };
 
-export interface VerifiedCallingLicense { grant: CallingGrant; token: string; payload: string; }
 export type CallingIdentity = CallIdentity;

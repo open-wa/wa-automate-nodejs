@@ -94,7 +94,7 @@ export async function fetchPatches(
 export async function validateLicense(
   url: string,
   body: LicenseValidationBody,
-  options?: HttpClientOptions & { onCallingGrant?: (token: string | undefined) => void },
+  options?: HttpClientOptions,
 ): Promise<string | false> {
   const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const retries = options?.retries ?? DEFAULT_RETRIES;
@@ -115,7 +115,6 @@ export async function validateLicense(
   }
 
   const data = result.data;
-  options?.onCallingGrant?.(result.headers?.get('x-openwa-calling-grant') ?? undefined);
 
   // Legacy: empty data or falsy data means invalid key
   if (!data || data === 'false' || data === 'null') {
