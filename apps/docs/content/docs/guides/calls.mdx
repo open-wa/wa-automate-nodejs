@@ -150,9 +150,13 @@ Start the Easy API with your license and dashboard enabled:
 npx @open-wa/wa-automate@latest --license-key YOUR_CALLING_LICENSE --dashboard
 ```
 
-Open `/dashboard/calls` on the API's address. Choose **Bundled OpenWA greeting**, select **Record received audio**, enter your controlled recipient and choose **Start audio call**. The speech starts after the peer answers. End the call from either side; the page shows the terminal state and offers **Download received audio**.
+Open `/dashboard/calls` on the API's address. Search for a contact by name, phone number or LID and select the result, or enter an international number or full contact ID and select it. Choose **Bundled OpenWA greeting**, select **Record received audio** and choose **Start audio call**. The speech starts after the peer answers. End the call from either side; the page shows the terminal state and offers **Download received audio**.
 
 For an incoming call, choose **Answer** or **Reject**. Choose **My microphone** for a conversation, **An audio file** for a local file, or **An HTTP audio URL** for a supported URL. The browser owns these local sources and asks for device permission when needed.
+
+You can also open an individual conversation in **Chat** and choose **Call** in its header. It uses the same audio settings. During a call, a compact control at the top of the dashboard shows ringing, connection progress and connected time. Hover over it or click to expand it, then answer, reject, mute or end the call from any page. Navigation preserves the call, audio settings and completed recording; reloading the browser closes its media attachment.
+
+The session's licence menu lists enabled and disabled features. Applications can read the same access list with `await client.getLicenseFeatures()`, which returns `status`, `keyType`, `expiresAt` and a boolean `features` map. For example, `features.patch_calls_audio` reports licensed call audio access. This is optional information for your UI; calling actions handle admission themselves, so you don't need a capability check before making a call.
 
 ## When media stops
 
