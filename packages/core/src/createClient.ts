@@ -1006,6 +1006,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       }
 
       await session.setState('READY');
+      transport.enableRuntimeRecovery();
 
       events.emit('launch.client.finalize.after', {
         correlationId: 'bootstrap-client-finalize',

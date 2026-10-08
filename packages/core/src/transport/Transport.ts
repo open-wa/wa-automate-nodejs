@@ -453,6 +453,7 @@ export class Transport {
   private pageListeners: DisposableHandle[] = [];
   private readonly injectionController: InjectionController;
   private runtimeRecoveryQueue: Promise<void> = Promise.resolve();
+  private runtimeRecoveryEnabled = false;
   private latestRuntimeRecoveryRequestId = 0;
   private pendingRuntimeRecoveryCount = 0;
   private consecutiveRecoveryAttempts = 0;
@@ -2360,6 +2361,8 @@ export class Transport {
 
   completeRuntimeReplacement(): void { this.runtimeRecoveryFailed = false; }
 
+  enableRuntimeRecovery(): void { this.runtimeRecoveryEnabled = true; }
+
   getPage(): IPage | null {
     return this.page;
   }
@@ -2520,7 +2523,7 @@ export class Transport {
     });
 
     this.injectionController.registerNavigationObserver('runtime.navigation_recovery', (_frame, generation) => {
-      if (this.plannedRuntimeMutation) return;
+      if (!this.runtimeRecoveryEnabled || this.plannedRuntimeMutation) return;
       void this.calling.invalidate().catch(error => this.logger.warn('Calling media could not close after navigation', { message: String(error) }));
       this.logger.info(`FRAME NAV DETECTED ${this.frameNavCounter}, ${_frame.url()}, Reinjecting APIs...`);
       this.queueRuntimeRecovery('main_frame_navigation', generation);
@@ -2767,7 +2770,9 @@ export class Transport {
     trigger: 'main_frame_navigation' | 'runtime_replaced',
     generation?: GenerationSnapshot,
   ): void {
-    if (this.plannedRuntimeMutation) return;
+    // Bootstrap owns the initial document until it has finished installing every
+    // artifact. Navigation and WAPI replacement callbacks must not race it.
+    if (!this.runtimeRecoveryEnabled || this.plannedRuntimeMutation) return;
     const requestId = ++this.latestRuntimeRecoveryRequestId;
     this.pendingRuntimeRecoveryCount += 1;
 
