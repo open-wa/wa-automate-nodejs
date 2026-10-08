@@ -33,9 +33,7 @@ const Background:React.FC<{t:number}> = ({t}) => <AbsoluteFill style={{backgroun
 
 const Header = () => <div style={{position:'absolute',left:72,right:72,top:60,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
   <div style={{fontSize:44,fontWeight:650,letterSpacing:-2.7,color:WHITE}}>open-wa</div>
-  <div style={{display:'flex',alignItems:'center',gap:11,border:'1px solid #35463d',borderRadius:30,padding:'12px 19px',background:'#09100cb0',color:'#bdcbc3',fontSize:20,fontWeight:450,letterSpacing:-0.3}}>
-    <span style={{width:7,height:7,borderRadius:7,background:GREEN,boxShadow:'0 0 12px #79ffc980'}}/>Experimental preview
-  </div>
+  <div style={{color:GREEN,fontSize:30,fontWeight:500,letterSpacing:-0.7,whiteSpace:'nowrap'}}>https://openwa.dev</div>
 </div>;
 
 const Footer = () => <div style={{position:'absolute',left:72,right:72,bottom:47,borderTop:'1px solid #233029',paddingTop:22,color:'#8d9b94',fontSize:21,lineHeight:1.65,letterSpacing:-0.3}}>
