@@ -1,3 +1,4 @@
+import { disposeClientStickers } from './stickers';
 import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
 import type {
@@ -185,6 +186,7 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
    * Stop the client gracefully.
    */
   async stop(reason?: string): Promise<void> {
+    await disposeClientStickers(this).catch(() => {});
     await this._listenerManager.dispose();
     return this._client.stop(reason);
   }

@@ -14,6 +14,12 @@ export interface InteractiveMethods {
   sendRawMessage(to: string, payload: Record<string, JsonValue>): Promise<MessageId>;
 }
 
+function containsSticker(value: JsonValue | undefined): boolean {
+  if (!value || typeof value !== 'object') return false;
+  if (Array.isArray(value)) return value.some(containsSticker);
+  return value.type === 'sticker' || Object.keys(value).some(key => key === 'stickerMessage' || containsSticker(value[key]));
+}
+
 async function invokeSender(client: Client, request:
   | { method: 'sendInteractive'; to: string; content: InteractiveContent }
   | { method: 'sendRawMessage'; to: string; payload: Record<string, JsonValue> }
@@ -68,6 +74,7 @@ export function interactiveMethods(client: Client): InteractiveMethods {
     },
     async sendRawMessage(to, payload) {
       const input = SendRawMessageInputSchema.parse({ to, payload });
+      if (containsSticker(input.payload)) throw new Error('Sticker payloads must use sendSticker so the donor finalizer can admit the final bytes.');
       return invokeSender(client, { method: 'sendRawMessage', ...input });
     },
   };

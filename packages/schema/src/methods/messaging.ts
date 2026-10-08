@@ -35,6 +35,34 @@ export const SendTextResultSchema = z.string()
     .brand('MessageId')
     .describe('Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.');
 
+export const StickerJobSchema = z.object({
+    effects: z.array(z.union([z.string(), z.object({ name: z.string(), options: z.record(z.string(), z.unknown()).optional() }).strict()])).max(8).optional(),
+    backend: z.enum(['auto','browser','standalone']).optional().describe('Defaults to browser when it supports the entire job; otherwise the entire job runs standalone.'),
+    quality: z.number().min(0.01).max(1).optional().describe('Maximum encoding quality; encoding can reduce quality to meet sticker byte limits.'),
+    fit: z.enum(['contain','cover']).optional(),
+    circle: z.boolean().optional(), background: z.string().max(64).optional(),
+    trim: z.tuple([z.number().nonnegative(),z.number().positive()]).refine(([start,end])=>end>start).optional(),
+    fps: z.number().int().min(1).max(30).optional(),
+    loopCount: z.number().int().min(0).max(65535).optional(),
+    author: z.string().max(128).optional(), pack: z.string().max(128).optional(),
+    quotedMsgId: messageIdParam.optional().describe('Reply with the sticker to a loaded message in the destination chat.'),
+}).strict();
+
+export const sendSticker = defineMethodV2('sendSticker', {
+    meta: {
+        description: 'Render a sticker locally using automatic whole-job backend selection and ordered effects, then submit through the private donor finalizer. Author and pack labels are configurable; donor app links are owned by the installed patch. Returns a submitted message ID, not a delivery receipt. Unknown send outcomes must be reconciled before retrying.',
+        action: 'send', namespace: 'messages', license: 'none', functionality: 'both', httpMethod: 'POST',
+        wapiOverride: 'sendStickerJob',
+    },
+    input: z.object({
+        to: toParam,
+        input: z.string().regex(/^(?:data:(?:image|video)\/[^;,]+;base64,[A-Za-z0-9+/]+={0,2}|https?:\/\/\S+)$/).describe('A media data URL or HTTP(S) URL. The local library additionally accepts bytes, Blob and local filenames.'),
+        job: StickerJobSchema.optional(),
+    }),
+    parameterOrder: ['to','input','job'],
+    output: SendTextResultSchema,
+});
+
 export const AlbumMediaSchema = z.object({
     file: z.string().regex(/^data:(image|video)\/[^;,]+;base64,[A-Za-z0-9+/]+={0,2}$/)
         .describe('Image or video as a base64 data URL. For a WhatsApp GIF, supply an MP4 video and set isGif to true.'),

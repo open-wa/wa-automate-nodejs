@@ -7,6 +7,8 @@ export type { ClientConfig, EvaluateFn } from './Client';
 export type { LicenseFeatures } from '@open-wa/schema';
 export { SendTextError } from './SendTextError';
 export type { SendTextErrorCode, SendTextOutcome } from './SendTextError';
+export { SendStickerError } from './SendStickerError';
+export type { StickerInput, StickerJob, StickerEffect, StickerResult } from '@open-wa/stickers';
 
 export type { MessagingMethods } from './methods/messaging';
 export type { MediaMethods } from './methods/media';
