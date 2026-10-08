@@ -30,7 +30,7 @@ for (const slug of slugs) {
     page.on('pageerror', (e) => errors.push(e.message));
     page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
     await page.goto(`http://127.0.0.1:${port}/${slug}/`, { waitUntil: 'networkidle' }).catch((e) => errors.push(String(e)));
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(name === "desktop" ? 9000 : 4000);
     if (name === 'desktop') await page.screenshot({ path: join(site, slug, 'gallery-thumb.jpg'), type: 'jpeg', quality: 72 });
     if (review) {
       await page.screenshot({ path: join(review, `${slug}-${name}.jpg`), type: 'jpeg', quality: 60, fullPage: true });
