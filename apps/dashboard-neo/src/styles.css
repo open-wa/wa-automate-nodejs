@@ -213,3 +213,22 @@
   --primary-foreground: #fff;
 }
 .dark { --primary: #8cb0ff; --primary-foreground: #0c1832; }
+
+/* Call controls belong to the shell, outside the route's scrolling content. */
+.ow-call-island {
+  position: fixed;
+  z-index: 45;
+  top: 4.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  max-width: calc(100vw - 1.5rem);
+  border: 1px solid var(--border);
+  border-radius: 1.75rem;
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: 0 10px 35px rgb(0 0 0 / 0.16), 0 2px 8px rgb(0 0 0 / 0.05);
+  transition: width 180ms ease, border-radius 180ms ease;
+}
+.ow-call-island.is-expanded { width: 380px; border-radius: 1.5rem; }
+@media (prefers-reduced-motion: reduce) { .ow-call-island { transition: none; } }

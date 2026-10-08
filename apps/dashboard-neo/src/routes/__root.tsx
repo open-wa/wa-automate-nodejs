@@ -14,6 +14,9 @@ import { PrivacyProvider } from "@/lib/hooks/use-privacy"
 import { Toaster } from "@/components/ui/sonner"
 import { useMessageToasts } from "@/lib/hooks/use-message-toasts"
 import { MoreHorizontal } from "lucide-react"
+import { CallingProvider, useCalling } from "@/lib/hooks/use-calling"
+import type { CSSProperties } from "react"
+import { CallIsland } from "@/components/call-island"
 import { Popover, PopoverContent, PopoverTrigger } from "@open-wa/ui-components/popover"
 
 export const Route = createRootRoute({
@@ -35,10 +38,11 @@ function RootComponent() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="wa-dashboard-theme">
       <PrivacyProvider>
+        <CallingProvider>
         <TooltipProvider>
           <SidebarProvider>
             <AppSidebar />
-            <SidebarInset>
+            <SidebarInset className="min-w-0">
               <header className="flex h-14 shrink-0 items-center gap-2 border-b border-primary/15 bg-background/95 px-2 sm:px-4 shadow-[0_1px_0_rgb(37_99_235_/_0.08)] backdrop-blur supports-[backdrop-filter]:bg-background/80">
                 <SidebarTrigger className="-ms-2" />
                 <Separator orientation="vertical" className="mx-1 h-4 sm:mx-2" />
@@ -57,17 +61,23 @@ function RootComponent() {
                   </div>
                 </div>
               </header>
-              <main className="flex-1 overflow-auto">
-                <Outlet />
-              </main>
+              <DashboardOutlet />
             </SidebarInset>
+            <CallIsland />
           </SidebarProvider>
         </TooltipProvider>
         <MessageToastListener />
         <Toaster position="bottom-right" />
+        </CallingProvider>
       </PrivacyProvider>
     </ThemeProvider>
   )
+}
+
+function DashboardOutlet() {
+  const { call, pendingPeer } = useCalling()
+  const space = call || pendingPeer ? '4.5rem' : '0rem'
+  return <div className="min-w-0 flex-1 overflow-auto" style={{ '--call-dock-space': space, paddingTop: space } as CSSProperties}><Outlet /></div>
 }
 
 function HeaderOverflow() {

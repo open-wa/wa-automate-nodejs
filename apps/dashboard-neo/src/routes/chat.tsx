@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect, useRef, useCallback } from "react"
-import { MessageSquare } from "lucide-react"
+import { MessageSquare, Phone } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { isCallRecipient, useCalling } from "@/lib/hooks/use-calling"
 import { useSocket } from "@/lib/hooks/use-socket"
 import { usePrivacy } from "@/lib/hooks/use-privacy"
 import { getClient } from "@/lib/api-client"
@@ -28,6 +30,7 @@ type MessageItem = {
 
 function ChatPage() {
   const { connected, ask } = useSocket()
+  const calling = useCalling()
   const { canInvokeRuntime } = useHealth()
   const { privacyMode, redactName, redact } = usePrivacy()
   const [chats, setChats] = useState<ChatItem[]>([])
@@ -183,7 +186,7 @@ function ChatPage() {
     : chats
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)]">
+    <div className="flex h-[calc(100dvh-3.5rem-var(--call-dock-space,0rem))] min-w-0">
       {/* Chat List */}
       <div className="flex w-80 flex-col border-e">
         <div className="border-b p-3">
@@ -260,7 +263,7 @@ function ChatPage() {
               <div className="flex size-8 items-center justify-center rounded-full bg-muted text-sm font-medium">
                 {privacyMode ? "••" : selectedChat.name.charAt(0).toUpperCase()}
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium">
                   {redactName(selectedChat.name, selectedChat.id)}
                 </div>
@@ -268,6 +271,11 @@ function ChatPage() {
                   {redact(selectedChat.id)}
                 </div>
               </div>
+              <Button variant="outline" size="sm" disabled={!calling.connected || calling.busy || !isCallRecipient(selectedChat.id)}
+                title={isCallRecipient(selectedChat.id) ? calling.active ? 'Show current call' : 'Start an audio call' : 'Calls are available for individual contacts'}
+                onClick={() => void calling.start({ id: selectedChat.id, name: selectedChat.name, aliases: [selectedChat.id] })}>
+                <Phone className="size-4" />{calling.active ? 'Current call' : 'Call'}
+              </Button>
             </div>
 
             {/* Messages */}
