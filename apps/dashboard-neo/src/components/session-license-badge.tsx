@@ -137,6 +137,7 @@ export function SessionLicenseBadge() {
               {refresh.busy ? 'Applying…' : 'Apply license'}
             </Button>
             <p className="text-xs text-muted-foreground">Checks your key and refreshes the session automatically. The browser stays running.</p>
+            <p className="text-xs text-amber-600 dark:text-amber-400">Warning: applying a license refreshes WhatsApp. You may miss messages during the refresh.</p>
             <SessionRefreshProgress snapshot={refresh.snapshot} error={refresh.error} />
           </form>}
 

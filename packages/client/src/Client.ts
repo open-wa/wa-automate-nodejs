@@ -184,8 +184,9 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
     return this._client.start();
   }
 
-  /** Rebuild public and licensed patches in the existing browser session. */
+  /** Rebuild public and licensed patches. Warning: messages may be missed during the page reload. */
   refresh(options?: SessionRefreshOptions): Promise<SessionRefreshResult> { return this._client.refresh(options); }
+  /** Start a background refresh. Warning: messages may be missed during the page reload. */
   requestRefresh(options?: SessionRefreshOptions): { operationId: string } { return this._client.requestRefresh(options); }
   getRefreshStatus(): Promise<SessionRefreshSnapshot> { return this._client.getRefreshStatus(); }
   

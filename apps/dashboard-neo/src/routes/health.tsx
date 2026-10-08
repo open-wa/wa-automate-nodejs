@@ -83,6 +83,7 @@ function HealthPage() {
         </Button>
         <SessionRefreshProgress snapshot={refresh.snapshot} error={refresh.error} />
         {!refresh.snapshot?.running && <span className="text-xs text-muted-foreground">Reloads WhatsApp while keeping the browser session running.</span>}
+        <p className="w-full text-xs text-amber-600 dark:text-amber-400">Warning: refreshing reloads WhatsApp. You may miss messages during the refresh.</p>
       </div>}
 
       {/* Loading state */}

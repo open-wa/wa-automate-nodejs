@@ -381,7 +381,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
 
   const getReadinessSnapshot = () => session.getReadinessSnapshot(transport.getOperationalReadinessSnapshot());
 
-  const refreshController = new SessionRefreshController({ transport, session, events, sessionId });
+  const refreshController = new SessionRefreshController({ transport, session, events, sessionId, logger });
   events.on('session.logout', () => refreshController.stop());
 
   const client: OpenWAClient = {

@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { HyperEmitter } from '@open-wa/hyperemitter';
+import type { Logger } from '@open-wa/logger';
 import type { SessionRefreshOptions, SessionRefreshSnapshot, SessionRefreshResult } from '@open-wa/schema';
 import type { SessionManager } from '../sessionmanager';
 import type { OpenWAEventMap } from '../events/eventMap';
@@ -23,7 +24,7 @@ export class SessionRefreshController {
     operationId: null, reason: 'manual_refresh', phase: 'idle', running: false,
     startedAt: null, finishedAt: null, patchTag: null, runtimeUsable: false, restored: false, error: null,
   };
-  constructor(private readonly options: { transport: Transport; session: SessionManager; events: HyperEmitter<OpenWAEventMap>; sessionId: string }) {
+  constructor(private readonly options: { transport: Transport; session: SessionManager; events: HyperEmitter<OpenWAEventMap>; sessionId: string; logger: Logger }) {
     options.transport.setRuntimeRefreshHandler(() => this.refresh());
   }
   getStatus(): SessionRefreshSnapshot {
@@ -52,6 +53,7 @@ export class SessionRefreshController {
     if (!transport.getPage() || !['READY', 'DISCONNECTED'].includes(session.getState())) {
       throw new SessionRefreshRequestError('SESSION_NOT_READY', 409, 'Refresh requires a ready authenticated session.');
     }
+    this.options.logger.warn('Warning: refreshing reloads WhatsApp. You may miss messages during the refresh.');
     this.candidateKey = candidate;
     this.snapshot = { operationId: randomUUID(), reason: candidate === undefined ? 'manual_refresh' : 'license_activation',
       phase: 'preparing', running: true, startedAt: Date.now(), finishedAt: null,
