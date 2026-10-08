@@ -11,9 +11,9 @@ Refresh rebuilds the page even when the downloaded patch tag hasn't changed. A p
 
 ## Apply a license during a session
 
-Open the dashboard's license badge, enter your key, and choose **Apply license**. OpenWA checks the key for the connected account and downloads fresh public patches in the background. Once preparation succeeds, it reloads the page, installs the public and licensed functionality, initializes the runtime, and restores its event bridge before reporting ready.
+Open the dashboard's license badge, enter your key, and choose **Apply license**. OpenWA downloads fresh public patches and reloads the page in the background. It then requests the usual license code for the connected account, evaluates it, initializes the runtime, and restores its event bridge.
 
-A rejected key or failed download leaves the current page running. The submitted key becomes the effective session key only after installation succeeds. Future refreshes and document recovery use that key to request fresh licensed material. A key entered in the dashboard lives in host session memory; configure `licenseKey` or `--license-key` separately if it should survive a process restart.
+A failed public patch download leaves the current page running. If the license code rejects the key, the dashboard reports the rejection and the refreshed session remains ready with public functionality. It doesn't restart the host or restore the entire page for a license rejection. The submitted key becomes the effective session key only after its code confirms successful application. Future refreshes and document recovery use that key to request fresh licensed material. A key entered in the dashboard lives in host session memory; configure `licenseKey` or `--license-key` separately if it should survive a process restart.
 
 The form clears the key after the server accepts the operation. Operation status and progress events contain no license key. License metadata alone doesn't mean licensed functionality was installed.
 
@@ -36,7 +36,7 @@ const { operationId } = await client.requestRefresh();
 const status = await client.getRefreshStatus();
 ```
 
-Inspect `phase`, `running`, `runtimeUsable`, `restored`, and `error`. `phase: 'ready'` means the replacement completed. `phase: 'failed', restored: true` means the requested update failed but the previous installation was restored. `runtimeUsable: false` means application operations remain blocked.
+Inspect `phase`, `running`, `runtimeUsable`, `restored`, and `error`. `phase: 'ready'` means the replacement completed. A license rejection reports `phase: 'failed'` with `SESSION_REFRESH_LICENSE_REJECTED` and `runtimeUsable: true`; the session stays available. `phase: 'failed', restored: true` means a runtime installation failed but the previous public patches were restored. `runtimeUsable: false` means application operations remain blocked.
 
 If `phase` is `needs_auth`, pair the session using its existing QR journey. The accepted operation retains ownership while waiting and resumes installation after pairing. Read status again to follow that continuation; `refresh()` can return the actionable pairing state before the background operation finishes.
 
@@ -55,10 +55,10 @@ Repeated requests with the same intent return the current operation ID. A confli
 
 ## When refresh fails
 
-Preparation, draining, and checkpoint failures don't intentionally navigate the page. If the page has already been replaced, OpenWA attempts one restoration using the previously installed public patches and the previous effective key, with fresh license authorization. Failed restoration leaves the session blocked and reports its status while retaining the browser and session data.
+Patch download, draining, and checkpoint failures don't intentionally navigate the page. If runtime installation fails after the page has been replaced, OpenWA attempts one restoration using the previously installed public patches and the previous effective key, requesting fresh license code. Failed restoration leaves the session blocked and reports its status while retaining the browser and session data. A license rejection alone doesn't trigger restoration.
 
-## Deployment prerequisite
+## License endpoint and browser source
 
-Licensed refresh requires the paired private service update for preparation on the existing `/license-check` route. It returns an explicit authorization decision, account subject, expiry, and protected program. The public SDK rejects an unavailable or unconfirmed preparation response before reloading. Deploy that private service change before making the new licensed refresh controls available.
+Licensed refresh uses the existing `/license-check` request and executable response. The response's own account and expiry guards decide whether licensed functionality can be installed. No preparation flag or additional license-service deployment is required.
 
 The generated pre-init asset includes the private portable-session reload handoff. Generate it from the private source; don't modify the generated asset or immutable `wapi.js` by hand.

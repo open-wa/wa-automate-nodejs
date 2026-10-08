@@ -9,8 +9,8 @@ Reload the WhatsApp page in the existing browser, then reinstall its complete do
 
 The two dashboard actions share one session-owned operation:
 
-- **Refresh patches** downloads fresh public patches and prepares fresh licensed material for the effective session key before replacing the page.
-- **Apply license** prepares the submitted key for the currently connected account, downloads patches concurrently, and performs the same replacement in the background.
+- **Refresh patches** downloads fresh public patches, replaces the page, and obtains fresh license code for the effective session key during installation.
+- **Apply license** performs the same replacement in the background and evaluates the submitted key's license code on the replacement page.
 
 Preparation happens while the old document remains available. Replacement interrupts WhatsApp operations and document-owned call media; it does not promise to preserve an active media stream across reload.
 
@@ -30,12 +30,12 @@ The private worktree carries the existing dirty primary `functions/portable-sess
 
 The ordered replacement is:
 
-1. **Prepare:** resolve the current account/version, fetch public patches afresh, and confirm licensed material when a key is selected. Failed or empty public downloads and rejected/unavailable license preparation fail before intentional navigation.
+1. **Download:** resolve the current account/version and fetch public patches afresh. Failed or empty public downloads fail before intentional navigation.
 2. **Drain:** claim planned runtime mutation ownership, settle prior recovery work, close application admission, and wait up to 15 seconds for admitted operations. New application calls receive `SESSION_REFRESHING`; mutations are never queued for replay.
 3. **Checkpoint:** pause portable acknowledged delivery, settle native writes and receipts, save through the host, and fence old-document commits. This stage has its own 15-second deadline and reversible abort path; it does not use terminal flush/release.
 4. **Reload:** mark document readiness pending, invalidate calling media, reload the existing page, wait for its bootstrap and authentication surface, and install the base runtime without replaying cached public patches ahead of the selected bundle.
-5. **Install:** apply every selected public artifact, confirm the account still matches, reprepare material if the WhatsApp version or installation expiry requires it, apply licensed code, run the initializer, and activate browser bindings and portable delivery.
-6. **Commit:** require existing runtime/operational readiness and the selected calling provider's attestation, then commit the key and installed patch tag, reopen application admission, and publish ready.
+5. **Install:** apply every selected public artifact, confirm the account still matches, request and evaluate fresh license code, run the initializer, and activate browser bindings and portable delivery. A license rejection remains a non-blocking feature-access result.
+6. **Commit:** require existing runtime/operational readiness and attestation for successfully installed licensed calling capabilities, commit an accepted key and the installed public patch tag, and reopen application admission. A rejected license reports an error while the public session stays ready.
 
 Startup-only plugin initialization, collectors, webhook registration, process finalizers, and `core.started` are not rerun. InjectionController retains browser-registration ownership; host listener handles survive.
 
@@ -43,21 +43,21 @@ Stop and confirmed logout supersede refresh. Planned reload callbacks cannot lau
 
 ## Failure and pairing behavior
 
-Before navigation, preparation or draining failures leave the installed state unchanged. A checkpoint failure attempts to resume the original document. Failed resumption leaves readiness blocked instead of claiming the document recovered.
+Before navigation, download or draining failures leave the installed state unchanged. A checkpoint failure attempts to resume the original document. Failed resumption leaves readiness blocked instead of claiming the document recovered.
 
-After navigation, the old document is gone. Allow one restoration with the previously installed public artifacts and effective key, obtaining a fresh protected program. Successful restoration reports the requested operation as failed with `restored: true` and a usable runtime. Failed restoration leaves the browser and data in place with application calls blocked.
+After navigation, the old document is gone. A runtime installation failure allows one restoration with the previously installed public artifacts and effective key, obtaining fresh license code. Successful restoration reports the requested operation as failed with `restored: true` and a usable runtime. Failed restoration leaves the browser and data in place with application calls blocked. A license rejection alone finishes public initialization, reports `SESSION_REFRESH_LICENSE_REJECTED` with `runtimeUsable: true`, and doesn't trigger restoration.
 
 If the replacement needs pairing, publish `needs_auth`, expose the existing QR journey, retain operation ownership, and resume installation after authentication. The pending continuation is bounded to 120 seconds; status remains available throughout. It cannot install material for a different account. An SDK call can return the actionable pairing state before the continuation completes.
 
-## License preparation contract
+## License evaluation
 
-The paired private service extends the existing `/license-check` request with `prepare: true`; its entitlement/account logic and protected-program generator remain authoritative. Prepared responses explicitly report authorization, the requested account subject, a conservative installation expiry, and the protected program. All selected executable feature files must be available before preparation succeeds.
+Use the existing `/license-check` request and executable response. Obtain fresh code immediately before applying it on the replacement page. The program's own account/expiry guards and `applyLicenseArtifact()` determine whether the key unlocks functionality before the initializer freezes WAPI.
 
-`packages/core/src/transport/httpClient.ts` accepts only an authorized, subject-matching, unexpired prepared response. Refresh does not fall back to local license metadata or accept arbitrary non-empty rejection JavaScript as authorization. The page still executes the program's own account/expiry guards before the initializer freezes WAPI.
+Refresh requires a server response for feature unlocks and doesn't fall back to local license metadata. Downloading non-empty JavaScript doesn't prove authorization; its evaluation result updates installed license state. Rejection doesn't stop the host or block public functionality.
 
 The committed key lives in host session memory. Omitting a key preserves it; an empty submitted key is invalid. Process-restart persistence, config-file edits, and license removal are outside this change.
 
-Deploy the private service change before releasing the licensed refresh path. Source authorization logic is not deployment evidence, and source installation code is not live-session acceptance.
+There is no license preparation flag or additional license-service deployment dependency. The Bitbucket branch removes that mode; its remaining server change removes credential logging. `open-wa-backoffice` already owns a `/license-check` route and needs no refresh-specific response contract. Source installation code is not live-session acceptance.
 
 ## SDK, API, and progress
 
