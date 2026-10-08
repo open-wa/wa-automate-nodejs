@@ -1,0 +1,64 @@
+---
+title: Refresh a Live Session
+description: Refresh patches or apply a license from the dashboard without restarting the browser process.
+---
+
+# Refresh a live session
+
+Choose **Refresh patches** on the dashboard's Health page to download the public patches again and rebuild the WhatsApp page. The browser process, Node process, API server, client object, host listeners, and session persistence lease stay alive. **Refresh status** only reloads the health information displayed in the dashboard.
+
+Refresh rebuilds the page even when the downloaded patch tag hasn't changed. A page reload temporarily interrupts WhatsApp operations and ends document-owned call media; attach fresh media after the session is ready. OpenWA finishes admitted operations and saves the session checkpoint before reloading. New operations during replacement receive `SESSION_REFRESHING` with HTTP 503 where applicable; sends and other mutations aren't replayed automatically.
+
+## Apply a license during a session
+
+Open the dashboard's license badge, enter your key, and choose **Apply license**. OpenWA checks the key for the connected account and downloads fresh public patches in the background. Once preparation succeeds, it reloads the page, installs the public and licensed functionality, initializes the runtime, and restores its event bridge before reporting ready.
+
+A rejected key or failed download leaves the current page running. The submitted key becomes the effective session key only after installation succeeds. Future refreshes and document recovery use that key to request fresh licensed material. A key entered in the dashboard lives in host session memory; configure `licenseKey` or `--license-key` separately if it should survive a process restart.
+
+The form clears the key after the server accepts the operation. Operation status and progress events contain no license key. License metadata alone doesn't mean licensed functionality was installed.
+
+## Use the client
+
+The in-process `Client`, HTTP/SSE `SocketClient`, and `TunnelSocketClient` expose the same controls:
+
+```ts
+const result = await client.refresh();
+// Or activate a key through the same operation:
+const activation = await client.refresh({ licenseKey: process.env.WA_LICENSE_KEY });
+
+const status = await client.getRefreshStatus();
+```
+
+To accept the work without waiting for installation:
+
+```ts
+const { operationId } = await client.requestRefresh();
+const status = await client.getRefreshStatus();
+```
+
+Inspect `phase`, `running`, `runtimeUsable`, `restored`, and `error`. `phase: 'ready'` means the replacement completed. `phase: 'failed', restored: true` means the requested update failed but the previous installation was restored. `runtimeUsable: false` means application operations remain blocked.
+
+If `phase` is `needs_auth`, pair the session using its existing QR journey. The accepted operation retains ownership while waiting and resumes installation after pairing. Read status again to follow that continuation; `refresh()` can return the actionable pairing state before the background operation finishes.
+
+## Use the HTTP controls
+
+Both routes use the configured API key policy and remain available while WAPI is being restored. Supply `X-API-Key` when an API key is configured.
+
+| Method | Route | Body | Result |
+| --- | --- | --- | --- |
+| `POST` | `/api/session/refresh` | `{}` or `{ "licenseKey": "YOUR_KEY" }` | `202 { "operationId": "…" }` |
+| `GET` | `/api/session/refresh` | None | Current operation snapshot |
+
+Acceptance isn't installation success. Follow the status route or `session.refresh.progress` on the existing event stream. Closing the requesting dashboard or client doesn't cancel the accepted server operation.
+
+Repeated requests with the same intent return the current operation ID. A conflicting key receives HTTP 409, invalid input receives 400, and an unavailable runtime owner receives 503.
+
+## When refresh fails
+
+Preparation, draining, and checkpoint failures don't intentionally navigate the page. If the page has already been replaced, OpenWA attempts one restoration using the previously installed public patches and the previous effective key, with fresh license authorization. Failed restoration leaves the session blocked and reports its status while retaining the browser and session data.
+
+## Deployment prerequisite
+
+Licensed refresh requires the paired private service update for preparation on the existing `/license-check` route. It returns an explicit authorization decision, account subject, expiry, and protected program. The public SDK rejects an unavailable or unconfirmed preparation response before reloading. Deploy that private service change before making the new licensed refresh controls available.
+
+The generated pre-init asset includes the private portable-session reload handoff. Generate it from the private source; don't modify the generated asset or immutable `wapi.js` by hand.
