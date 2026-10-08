@@ -11,12 +11,12 @@ slugs.sort((a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99)
 
 const esc = (s = '') => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
-mkdirSync(join(site, '_gallery'), { recursive: true });
-copyFileSync(join(root, '_shared/fonts/AnalogMonoPlus.ttf'), join(site, '_gallery/AnalogMonoPlus.ttf'));
+mkdirSync(join(site, 'gallery-assets'), { recursive: true });
+copyFileSync(join(root, '_shared/fonts/AnalogMonoPlus.ttf'), join(site, 'gallery-assets/AnalogMonoPlus.ttf'));
 
 const cards = slugs.map((slug, i) => {
   const c = JSON.parse(readFileSync(join(site, slug, 'concept.json'), 'utf8'));
-  const thumb = existsSync(join(site, slug, '__thumb.jpg')) ? `${slug}/__thumb.jpg` : null;
+  const thumb = existsSync(join(site, slug, 'gallery-thumb.jpg')) ? `${slug}/gallery-thumb.jpg` : null;
   const icon = ['favicon.svg', 'favicon.png', 'favicon.ico'].find((f) => existsSync(join(site, slug, f)));
   return `
   <li class="card">
@@ -44,7 +44,7 @@ const html = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>open-wa Concepts</title>
 <style>
-@font-face { font-family: "Analog Mono Plus"; src: url("_gallery/AnalogMonoPlus.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Analog Mono Plus"; src: url("gallery-assets/AnalogMonoPlus.ttf") format("truetype"); font-display: swap; }
 :root { --bg: #F3F2EE; --fg: #16161A; --muted: #5E5D66; --line: #D9D7D0; --card: #FFFFFF; --accent: #214BE6; color-scheme: light; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #111114; --fg: #EDEBE6; --muted: #A09EA8; --line: #2A2A31; --card: #18181D; --accent: #8EA6FF; color-scheme: dark; } }
 :root[data-theme="dark"] { --bg: #111114; --fg: #EDEBE6; --muted: #A09EA8; --line: #2A2A31; --card: #18181D; --accent: #8EA6FF; color-scheme: dark; }

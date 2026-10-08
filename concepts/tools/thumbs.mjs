@@ -22,7 +22,7 @@ const server = createServer((req, res) => {
 const port = server.address().port;
 
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
-const slugs = readdirSync(site).filter((s) => !s.startsWith('_') && existsSync(join(site, s, 'index.html')));
+const slugs = readdirSync(site).filter((s) => !s.startsWith('_') && s !== 'gallery-assets' && existsSync(join(site, s, 'index.html')));
 for (const slug of slugs) {
   for (const [name, viewport, mobile] of [['desktop', { width: 1280, height: 800 }, false], ['phone', { width: 390, height: 844 }, true]]) {
     const page = await browser.newPage({ viewport, deviceScaleFactor: 1, isMobile: mobile, hasTouch: mobile });
@@ -31,7 +31,7 @@ for (const slug of slugs) {
     page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
     await page.goto(`http://127.0.0.1:${port}/${slug}/`, { waitUntil: 'networkidle' }).catch((e) => errors.push(String(e)));
     await page.waitForTimeout(3000);
-    if (name === 'desktop') await page.screenshot({ path: join(site, slug, '__thumb.jpg'), type: 'jpeg', quality: 72 });
+    if (name === 'desktop') await page.screenshot({ path: join(site, slug, 'gallery-thumb.jpg'), type: 'jpeg', quality: 72 });
     if (review) {
       await page.screenshot({ path: join(review, `${slug}-${name}.jpg`), type: 'jpeg', quality: 60, fullPage: true });
     }

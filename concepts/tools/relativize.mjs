@@ -24,7 +24,7 @@ let rewritten = 0;
 
 for (const slug of readdirSync(out)) {
   const slugRoot = join(out, slug);
-  if (!statSync(slugRoot).isDirectory() || slug.startsWith('_')) continue;
+  if (!statSync(slugRoot).isDirectory() || slug.startsWith('_') || slug === 'gallery-assets') continue;
   const needle = `/${slug}/`;
   for (const file of walk(slugRoot)) {
     const ext = extname(file);
