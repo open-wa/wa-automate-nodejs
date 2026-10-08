@@ -164,4 +164,8 @@ Expected license, stale-call and source failures return `{ ok: false, status, re
 
 A media failure ends the call by default. Advanced applications can set `onMediaFailure: 'keep-open'` and attach a replacement explicitly. Browser recovery and expired calling access close devices, sockets and recordings; `onCallState` can report `call.media.state === 'ended'` with a reason while the native call's state remains separate. Old Call objects cannot control a new browser generation.
 
+Terminal snapshots include `call.endReason` with a `code`, readable `message` and `source` (`local`, `media`, `license`, `session` or `whatsapp`). The dashboard shows that message in the floating call control and recent call states. Media errors retain the audio source, queue or WebSocket failure that caused the shutdown. If WhatsApp ends a call without a reported cause, the message says so; it does not assume that the peer hung up or that the network failed.
+
+The current dashboard carries audio. Incoming video offers are labelled and can be answered with audio; live camera and received video are not available in this dashboard yet.
+
 See the [generated calls reference](/docs/reference/client/calls) for the wire methods and exact parameter schemas.
