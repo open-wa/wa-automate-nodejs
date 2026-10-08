@@ -26,6 +26,7 @@ import { getRuntimeListenerSurfaceEntry, runtimeListenerSurface } from './runtim
 import { auditWapiHelperAssetRequirements, ScriptLoader } from './ScriptLoader';
 import { chromiumConfig, sanitizeBrowserArgs } from './browserConfig';
 import { CallingService } from '../calling/CallingService';
+import type { LicenseFeatures } from '@open-wa/schema';
 
 export interface PatchFetchConfig {
   /** Use GitHub raw patches as the primary source instead of the default CDN. */
@@ -457,9 +458,10 @@ export class Transport {
   private readonly options: TransportOptions;
   readonly calling: CallingService;
   private retainedLicenseArtifact?: LicenseArtifact;
-  private callingRenewalTimer?: ReturnType<typeof setTimeout>;
-  private callingRenewing = false;
-  private callingRenewalAttempts = 0;
+  private licenseFeatures: LicenseFeatures = { status: 'missing', keyType: null, expiresAt: null, features: {} };
+  private licenseRenewalTimer?: ReturnType<typeof setTimeout>;
+  private licenseRenewing = false;
+  private licenseRenewalAttempts = 0;
 
   constructor(options: TransportOptions) {
     this.options = options;
@@ -1552,40 +1554,42 @@ export class Transport {
     return result;
   }
 
-  private scheduleCallingRenewal(): void {
-    clearTimeout(this.callingRenewalTimer);
-    const expiry = this.calling.licenseExpiresAt;
+  private scheduleLicenseRenewal(): void {
+    clearTimeout(this.licenseRenewalTimer);
+    const expiry = this.licenseFeatures.expiresAt ?? this.calling.licenseExpiresAt;
     if (!expiry || this.retainedLicenseArtifact?.payloadSource !== 'server') return;
-    this.callingRenewalTimer = setTimeout(() => { void this.refreshCallingLicense(); }, Math.max(1000, expiry - Date.now() - 30_000));
-    this.callingRenewalTimer.unref?.();
+    this.licenseRenewalTimer = setTimeout(() => { void this.refreshLicenseFeatures(); }, Math.max(1000, expiry - Date.now() - 30_000));
+    this.licenseRenewalTimer.unref?.();
   }
 
-  private async refreshCallingLicense(): Promise<void> {
-    if (this.callingRenewing || !this.retainedLicenseArtifact || !this.page || this.page.isClosed()) return;
-    this.callingRenewing = true;
+  private async refreshLicenseFeatures(): Promise<void> {
+    if (this.licenseRenewing || !this.retainedLicenseArtifact || !this.page || this.page.isClosed()) return;
+    this.licenseRenewing = true;
     try {
       const existing = this.retainedLicenseArtifact;
       const refreshed = await this.preloadLicenseArtifact({ sessionId: this.options.sessionId ?? 'session', licenseKey: existing.key, sessionInfo: await this.getSessionDebugInfo() });
       const artifact = refreshed.artifact;
       if (refreshed.status === 'invalid' || refreshed.status === 'expired') {
+        this.licenseFeatures = { ...this.licenseFeatures, status: refreshed.status, expiresAt: null };
+        this.retainedLicenseArtifact = undefined;
         await this.calling.revoke();
-        this.logger.warn('Calling access was withdrawn. Messaging remains available.');
+        this.logger.warn('Licensed feature access was withdrawn. Messaging remains available.');
         return;
       }
-      if (!artifact || artifact.payloadSource !== 'server') { this.logger.warn('Calling license refresh is unavailable. The current private patch remains bounded by its expiry.'); return; }
+      if (!artifact || artifact.payloadSource !== 'server') { this.logger.warn('Licence refresh is unavailable. Current feature access remains bounded by its expiry.'); return; }
       const checked = await this.checkLicenseArtifact(refreshed);
       const applied = await this.applyLicenseArtifact(checked);
-      if (applied.applied && applied.status === 'valid') this.callingRenewalAttempts = 0;
+      if (applied.applied && applied.status === 'valid') this.licenseRenewalAttempts = 0;
       else await this.calling.revoke();
-    } catch { this.logger.warn('Calling license renewal is unavailable. Existing access remains bounded by its expiry.'); }
+    } catch { this.logger.warn('Licence renewal is unavailable. Existing feature access remains bounded by its expiry.'); }
     finally {
-      this.callingRenewing = false;
-      const remaining = (this.calling.licenseExpiresAt ?? 0) - Date.now();
-      if (remaining > 1000 && remaining < 30_000 && this.callingRenewalAttempts < 3) {
-        clearTimeout(this.callingRenewalTimer);
-        const delay = Math.min(remaining - 500, 1000 * 2 ** this.callingRenewalAttempts++);
-        this.callingRenewalTimer = setTimeout(() => { void this.refreshCallingLicense(); }, delay);
-        this.callingRenewalTimer.unref?.();
+      this.licenseRenewing = false;
+      const remaining = this.retainedLicenseArtifact ? (this.licenseFeatures.expiresAt ?? this.calling.licenseExpiresAt ?? 0) - Date.now() : 0;
+      if (remaining > 1000 && remaining < 30_000 && this.licenseRenewalAttempts < 3) {
+        clearTimeout(this.licenseRenewalTimer);
+        const delay = Math.min(remaining - 500, 1000 * 2 ** this.licenseRenewalAttempts++);
+        this.licenseRenewalTimer = setTimeout(() => { void this.refreshLicenseFeatures(); }, delay);
+        this.licenseRenewalTimer.unref?.();
       }
     }
   }
@@ -1596,6 +1600,7 @@ export class Transport {
     }
 
     if ((checked.status !== 'valid' && checked.status !== 'metadata_only') || !checked.artifact) {
+      this.licenseFeatures = { status: checked.status, keyType: null, expiresAt: null, features: {} };
       return {
         status: checked.status,
         applied: false,
@@ -1620,15 +1625,28 @@ export class Transport {
     let result: LicenseApplyResult;
 
     try {
+      // A fresh accepted payload supplies the entire selection, including all
+      // keys in a multi-key response. Never retain a removed feature on refresh.
+      await this.page.evaluateScript('window.__OWA_LICENSE_FEATURES={};window.__OWA_LICENSE_FEATURE_EXPIRIES=[];');
       const applied = await this.page.evaluateScript<boolean>(checked.artifact.payload);
       const launchError = await this.page.evaluateScript<string | null>('window.launchError || null');
       const detectedKeyType = await this.page.evaluateScript<string | false>('window.KEYTYPE || false');
       if (checked.status === 'valid' && applied && !launchError) {
         this.retainedLicenseArtifact = checked.artifact;
+        this.licenseFeatures = { status: 'valid', keyType: detectedKeyType || checked.artifact.keyType || null, features: {}, expiresAt: null };
+        try {
+          const raw = await this.page.evaluateScript<unknown>('({features:window.__OWA_LICENSE_FEATURES,expiries:window.__OWA_LICENSE_FEATURE_EXPIRIES})');
+          if (raw && typeof raw === 'object' && 'features' in raw && 'expiries' in raw) {
+            const features = raw.features && typeof raw.features === 'object' && !Array.isArray(raw.features)
+              ? Object.fromEntries(Object.entries(raw.features).filter((entry): entry is [string, boolean] => typeof entry[1] === 'boolean')) : {};
+            const expiries = Array.isArray(raw.expiries) ? raw.expiries.filter((value): value is number => typeof value === 'number' && Number.isFinite(value)) : [];
+            this.licenseFeatures = { ...this.licenseFeatures, features: expiries.length ? features : {}, expiresAt: expiries.length ? Math.min(...expiries) : null };
+          }
+        } catch (error) { this.logger.warn('Licence feature list is unavailable', { message: String(error) }); }
         await this.calling.install().catch(error => {
           this.logger.warn('Calling initialization is unavailable', { message: String(error) });
         });
-        this.scheduleCallingRenewal();
+        this.scheduleLicenseRenewal();
       }
 
       if (!applied || launchError) {
@@ -1660,6 +1678,10 @@ export class Transport {
       };
     }
 
+    if (result.status !== 'valid' || !result.applied) {
+      this.licenseFeatures = { status: result.status, keyType: result.keyType || null, expiresAt: null, features: {} };
+    }
+
     this.events.emit('license.inject.after', {
       correlationId,
       ts: Date.now(),
@@ -1675,6 +1697,13 @@ export class Transport {
     });
 
     return result;
+  }
+
+  getLicenseFeatures(): LicenseFeatures {
+    const snapshot = this.licenseFeatures;
+    const status = snapshot.status === 'valid' && snapshot.expiresAt !== null && snapshot.expiresAt <= Date.now() ? 'expired' : snapshot.status;
+    const features = { patch_calls_control: false, patch_calls_audio: false, patch_calls_video: false, ...snapshot.features };
+    return { ...snapshot, status, features: Object.fromEntries(Object.entries(features).map(([feature, enabled]) => [feature, status === 'valid' && enabled])) };
   }
 
   async waitForQr(): Promise<string | null> {
@@ -2198,8 +2227,9 @@ export class Transport {
   }
 
   async close(): Promise<void> {
-    clearTimeout(this.callingRenewalTimer);
+    clearTimeout(this.licenseRenewalTimer);
     await this.calling.close();
+    this.licenseFeatures = { status: 'missing', keyType: null, expiresAt: null, features: {} };
     try {
       await this.portable.flush();
     } finally {
@@ -2658,7 +2688,7 @@ export class Transport {
             );
             if (livePatchIntact) {
               await this.calling.bind();
-              this.scheduleCallingRenewal();
+              this.scheduleLicenseRenewal();
               this.logger.info('runtime_recovery_skipped_session_intact', {
                 trigger: request.trigger,
                 requestId: String(request.requestId),

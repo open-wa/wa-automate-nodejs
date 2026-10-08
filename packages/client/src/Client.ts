@@ -376,6 +376,8 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   // ─────────────────────────────────────────────────────────────────
   
   getCallCapabilities(): Promise<CallCapabilities> { return this._transport.calling.capabilities(); }
+  /** Access selected by the accepted licence payload; no capability preflight is required. */
+  async getLicenseFeatures(): Promise<import('@open-wa/schema').LicenseFeatures> { return this._transport.getLicenseFeatures(); }
   /** Used by the bundled API's authenticated binary media route. */
   getCallingService() { return this._transport.calling; }
   async getActiveCall(): Promise<Call | null> {

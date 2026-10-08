@@ -1,204 +1,55 @@
-import { useEffect, useState } from "react"
-import { getClient } from "@/lib/api-client"
-import { useDemo } from "@/lib/demo/use-demo"
-import { useHealth } from "@/lib/hooks/use-health"
+import { useEffect, useState } from 'react';
+import type { LicenseFeatures } from '@open-wa/socket-client';
+import { getClient } from '@/lib/api-client';
+import { useDemo } from '@/lib/demo/use-demo';
+import { useSocket } from './use-socket';
 
-export type LicenseTier = "insiders" | "restricted"
-export type LicenseState = "loading" | "licensed" | "unlicensed" | "unknown" | "unavailable"
-
+export type LicenseTier = 'insiders' | 'restricted';
+export type LicenseState = 'loading' | 'licensed' | 'unlicensed' | 'unknown' | 'unavailable';
 export type LicenseSnapshot = {
-  state: LicenseState
-  tier: LicenseTier | null
-  detail: string | null
-  verifiedAt: number | null
-  source: "runtime" | "demo" | null
+  state: LicenseState;
+  tier: LicenseTier | null;
+  keyType: string | null;
+  features: Readonly<Record<string, boolean>>;
+  detail: string | null;
+  verifiedAt: number | null;
+  source: 'runtime' | 'demo' | null;
+};
+const initial: LicenseSnapshot = { state: 'loading', tier: null, keyType: null, features: {}, detail: null, verifiedAt: null, source: null };
+const demo: LicenseSnapshot = { ...initial, state: 'licensed', tier: 'insiders', keyType: 'Insiders Program', features: { patch_calls_control: false, patch_calls_audio: false, patch_calls_video: false }, source: 'demo', detail: 'Demo data only; this tier is not verified by a runtime session.' };
+function readTier(value: string | null): LicenseTier | null {
+  const normalized = value?.trim().toLowerCase().replace(/[ _-]+/g, ' ');
+  if (normalized === 'insiders' || normalized === 'insiders program') return 'insiders';
+  if (normalized === 'restricted' || normalized === 'b2b restricted volume license') return 'restricted';
+  return null;
 }
-
-const INITIAL_SNAPSHOT: LicenseSnapshot = {
-  state: "loading",
-  tier: null,
-  detail: null,
-  verifiedAt: null,
-  source: null,
-}
-
-function readTier(value: unknown): LicenseTier | null {
-  if (typeof value === "string") {
-    const normalized = value.trim().toLowerCase().replace(/[ _-]+/g, " ")
-    if (normalized === "insiders" || normalized === "insiders program") return "insiders"
-    if (normalized === "restricted" || normalized === "b2b restricted volume license") return "restricted"
-    return null
-  }
-
-  if (value && typeof value === "object") {
-    const record = value as Record<string, unknown>
-    return readTier(record.type ?? record.keyType ?? record.tier ?? record.licenseType)
-  }
-
-  return null
-}
-
-function isExplicitlyUnlicensed(value: unknown) {
-  if (value === false) return true
-  if (typeof value === "string") return value.trim().toLowerCase() === "none"
-  if (value && typeof value === "object") {
-    const record = value as Record<string, unknown>
-    return record.status === "missing" || record.status === "unlicensed" || record.licensed === false
-  }
-  return false
-}
-
 export function useLicense(): LicenseSnapshot {
-  const { isDemo } = useDemo()
-  const { health, sessionReady, license, loading: healthLoading, error: healthError } = useHealth()
-  const [snapshot, setSnapshot] = useState<LicenseSnapshot>(
-    isDemo
-      ? {
-          state: "licensed",
-          tier: "insiders",
-          detail: "Demo data only; this tier is not verified by a runtime session",
-          verifiedAt: Date.now(),
-          source: "demo",
-        }
-      : INITIAL_SNAPSHOT,
-  )
-
+  const { isDemo } = useDemo();
+  const { connected } = useSocket();
+  const [snapshot, setSnapshot] = useState<LicenseSnapshot>(isDemo ? demo : initial);
   useEffect(() => {
-    if (isDemo) {
-      setSnapshot({
-        state: "licensed",
-        tier: "insiders",
-        detail: "Demo data only; this tier is not verified by a runtime session",
-        verifiedAt: Date.now(),
-        source: "demo",
-      })
-      return
-    }
-
-    let mounted = true
-    if (!sessionReady) {
-      if (healthLoading) {
-        setSnapshot({
-          state: "loading",
-          tier: null,
-          detail: "Checking runtime session status before checking its license",
-          verifiedAt: null,
-          source: null,
-        })
-      } else {
-        const sessionState = typeof health?.session?.state === "string"
-          ? health.session.state.toUpperCase()
-          : null
-        const disconnected = sessionState === "DISCONNECTED" || sessionState === "STOPPED" || health?.connected === false
-        const unavailable = Boolean(healthError) || disconnected || !health
-
-        setSnapshot({
-          state: unavailable ? "unavailable" : "unknown",
-          tier: null,
-          detail: healthError
-            ? `Runtime health could not be read: ${healthError}`
-            : disconnected
-              ? "No connected runtime session. Connect a session before checking its license."
-              : sessionState
-                ? `The runtime session is ${sessionState.toLowerCase()}; its license cannot be checked until it is ready.`
-                : "Runtime session status is not available yet, so the license cannot be verified.",
-          verifiedAt: null,
-          source: null,
-        })
+    if (isDemo) { setSnapshot(demo); return; }
+    if (!connected) { setSnapshot({ ...initial, state: 'unavailable', detail: 'Connect a runtime session to read its licence access.' }); return; }
+    let mounted = true;
+    let timer: ReturnType<typeof setTimeout>;
+    const refresh = async () => {
+      try {
+        const client = await getClient();
+        const result: LicenseFeatures = await client.getLicenseFeatures();
+        if (!mounted) return;
+        const state: LicenseState = result.status === 'valid' ? 'licensed' : result.status === 'missing' ? 'unlicensed' : result.status === 'metadata_only' ? 'unknown' : 'unavailable';
+        setSnapshot({ state, tier: readTier(result.keyType), keyType: result.keyType, features: result.features, verifiedAt: Date.now(), source: 'runtime',
+          detail: result.status === 'valid' ? 'Access selected by the licence server and applied to this session.' : result.status === 'missing' ? 'No licence is applied to this session.' : result.status === 'metadata_only' ? 'The session has licence metadata, but no server-confirmed access.' : `The session licence is ${result.status}.` });
+        const untilExpiry = result.expiresAt === null ? Infinity : result.expiresAt - Date.now();
+        timer = setTimeout(refresh, Math.min(30_000, untilExpiry > 0 ? untilExpiry + 50 : 30_000));
+      } catch (reason) {
+        if (!mounted) return;
+        setSnapshot({ ...initial, state: 'unavailable', detail: reason instanceof Error ? reason.message : 'Licence access could not be read.' });
+        timer = setTimeout(refresh, 30_000);
       }
-      return () => {
-        mounted = false
-      }
-    }
-
-    setSnapshot((current) => ({ ...current, state: "loading", detail: null }))
-
-    if (license?.status === "missing") {
-      setSnapshot({
-        state: "unlicensed",
-        tier: null,
-        detail: license.detail || "No licence is applied to this session",
-        verifiedAt: Date.now(),
-        source: "runtime",
-      })
-      return () => {
-        mounted = false
-      }
-    }
-
-    if (license?.status === "invalid" || license?.status === "expired") {
-      setSnapshot({
-        state: "unavailable",
-        tier: null,
-        detail: license.detail || "The runtime did not accept this licence",
-        verifiedAt: Date.now(),
-        source: null,
-      })
-      return () => {
-        mounted = false
-      }
-    }
-
-    getClient()
-      .then((client) => client.ask("getLicenseType" as any, {}))
-      .then((value) => {
-        if (!mounted) return
-        const tier = readTier(value)
-        if (tier) {
-          if (license?.status !== "valid") {
-            setSnapshot({
-              state: "unknown",
-              tier: null,
-              detail: "The runtime reports a licence type, but it has not confirmed the licence",
-              verifiedAt: null,
-              source: null,
-            })
-            return
-          }
-          setSnapshot({
-            state: "licensed",
-            tier,
-            detail: "Confirmed by the selected runtime session",
-            verifiedAt: Date.now(),
-            source: "runtime",
-          })
-          return
-        }
-
-        if (isExplicitlyUnlicensed(value) && license?.status !== "valid" && license?.status !== "metadata_only") {
-          setSnapshot({
-            state: "unlicensed",
-            tier: null,
-            detail: "The selected runtime session reports no licence",
-            verifiedAt: Date.now(),
-            source: "runtime",
-          })
-          return
-        }
-
-        setSnapshot({
-          state: "unknown",
-          tier: null,
-          detail: "The runtime returned no recognised, confirmed licence tier",
-          verifiedAt: Date.now(),
-          source: null,
-        })
-      })
-      .catch((error: unknown) => {
-        if (!mounted) return
-        setSnapshot({
-          state: "unavailable",
-          tier: null,
-          detail: error instanceof Error ? error.message : "Licence status unavailable",
-          verifiedAt: null,
-          source: null,
-        })
-      })
-
-    return () => {
-      mounted = false
-    }
-  }, [isDemo, sessionReady, license?.status, license?.detail, healthLoading, healthError, health?.connected, health?.session?.state])
-
-  return snapshot
+    };
+    void refresh();
+    return () => { mounted = false; clearTimeout(timer); };
+  }, [isDemo, connected]);
+  return snapshot;
 }

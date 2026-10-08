@@ -48,3 +48,4 @@ export * from './calling';
 export * from './calling-media';
 
 export * from './calling-wire';
+export * from './license';

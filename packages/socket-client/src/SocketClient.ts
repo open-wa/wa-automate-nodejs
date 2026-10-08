@@ -559,6 +559,7 @@ export class SocketClient {
     // }
 
     public async getCallCapabilities(): Promise<CallCapabilities> { return this.ask('getCallCapabilities' as any) as Promise<CallCapabilities>; }
+    public async getLicenseFeatures(): Promise<import('@open-wa/schema').LicenseFeatures> { return this.ask('getLicenseFeatures' as any) as Promise<import('@open-wa/schema').LicenseFeatures>; }
     public async getActiveCall(): Promise<Call | null> { const snapshot = await this.ask('getActiveCall' as any) as CallSnapshot | null; return snapshot ? this.calls.hydrate(snapshot) : null; }
     private async logCallingAvailability() {
         const capabilities = await this.getCallCapabilities();
