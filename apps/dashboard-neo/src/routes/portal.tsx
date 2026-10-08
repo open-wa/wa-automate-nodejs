@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { Tv, ArrowLeft, ArrowRight, XCircle } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
+import { useHealth } from "@/lib/hooks/use-health"
 import { ScreencastClient } from "@open-wa/screencaster/client"
 import type { NavStateMessage } from "@open-wa/screencaster/client"
 import { getApiUrl } from "@/lib/api-client"
@@ -29,7 +30,9 @@ export const Route = createFileRoute("/portal")({
  */
 function PortalPage() {
   const { connected } = useSocket()
+  const { health } = useHealth()
   const { ws: wsOverride } = Route.useSearch()
+  const portalUnavailable = !wsOverride && health?.capabilities?.livePortalAvailable === false
   const [portalActive, setPortalActive] = useState(false)
   const [status, setStatus] = useState<
     "idle" | "connecting" | "streaming" | "error"
@@ -43,13 +46,16 @@ function PortalPage() {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const clientRef = useRef<ScreencastClient | null>(null)
   const fpsCountRef = useRef(0)
+  const fpsIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const receivedFrameRef = useRef(false)
 
   // Create and configure the ScreencastClient
   const startPortal = useCallback(() => {
-    if (!connected && !wsOverride) return
+    if (portalUnavailable || (!connected && !wsOverride)) return
 
     setStatus("connecting")
     setErrorMsg(null)
+    receivedFrameRef.current = false
 
     // Capture initial dimensions from wrapper
     let maxWidth = 1280
@@ -75,12 +81,15 @@ function PortalPage() {
     clientRef.current = client
 
     client.on("state-change", (state) => {
-      setStatus(state)
-      if (state === "streaming") setPortalActive(true)
-      if (state === "idle") setPortalActive(false)
+      // A connected socket does not prove that the browser can send frames.
+      setStatus(state === "streaming" && !receivedFrameRef.current ? "connecting" : state)
+      if (state === "idle" || state === "error") setPortalActive(false)
     })
 
     client.on("frame", (data) => {
+      receivedFrameRef.current = true
+      setStatus("streaming")
+      setPortalActive(true)
       fpsCountRef.current++
       renderFrame(data)
     })
@@ -95,32 +104,47 @@ function PortalPage() {
 
     client.on("error", (message) => {
       setErrorMsg(message)
+      setStatus("error")
+      setPortalActive(false)
+      if (fpsIntervalRef.current) clearInterval(fpsIntervalRef.current)
+      fpsIntervalRef.current = null
     })
 
-    client.connect()
-
     // FPS counter
-    const fpsInterval = setInterval(() => {
+    fpsIntervalRef.current = setInterval(() => {
       setFps(fpsCountRef.current)
       fpsCountRef.current = 0
     }, 1000)
 
     // Clean up FPS counter on disconnect
-    const cleanup = () => clearInterval(fpsInterval)
+    const cleanup = () => {
+      if (fpsIntervalRef.current) clearInterval(fpsIntervalRef.current)
+      fpsIntervalRef.current = null
+    }
     client.on("state-change", (s) => {
       if (s === "idle" || s === "error") cleanup()
     })
-  }, [connected, wsOverride])
+    client.connect()
+  }, [connected, wsOverride, portalUnavailable])
 
   const stopPortal = useCallback(() => {
     clientRef.current?.stop()
     clientRef.current?.disconnect()
     clientRef.current?.destroy()
     clientRef.current = null
+    if (fpsIntervalRef.current) clearInterval(fpsIntervalRef.current)
+    fpsIntervalRef.current = null
     setPortalActive(false)
     setStatus("idle")
     setNavState(null)
+    setFps(0)
+    fpsCountRef.current = 0
+    receivedFrameRef.current = false
   }, [])
+
+  useEffect(() => {
+    if (portalUnavailable) stopPortal()
+  }, [portalUnavailable, stopPortal])
 
   const renderFrame = (base64Data: string) => {
     const canvas = canvasRef.current
@@ -213,6 +237,8 @@ function PortalPage() {
     return () => {
       // Defer the destroy so StrictMode's immediate remount can cancel it
       cleanupTimeoutRef.current = setTimeout(() => {
+        if (fpsIntervalRef.current) clearInterval(fpsIntervalRef.current)
+        fpsIntervalRef.current = null
         clientRef.current?.destroy()
         clientRef.current = null
       }, 100)
@@ -303,13 +329,11 @@ function PortalPage() {
           <Button
             variant="ghost"
             onClick={startPortal}
-            disabled={!connected && !wsOverride}
+            disabled={portalUnavailable || (!connected && !wsOverride)}
             className="rounded-md bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
             Start Portal
           </Button>
-        ) : status === "connecting" ? (
-          <span className="text-xs text-muted-foreground">Connecting...</span>
         ) : (
           <Button
             variant="ghost"
@@ -326,7 +350,17 @@ function PortalPage() {
         ref={wrapperRef}
         className="flex flex-1 items-center justify-center overflow-hidden bg-black/5 dark:bg-black/20"
       >
-        {status === "idle" && (
+        {portalUnavailable && (
+          <div className="max-w-md px-6 text-center text-muted-foreground">
+            <Tv size={48} className="mx-auto mb-4 opacity-50" />
+            <p className="text-sm font-medium">Live Portal is unavailable with Lightpanda</p>
+            <p className="mt-2 text-sm">
+              {health?.capabilities?.livePortalUnavailableReason}
+            </p>
+          </div>
+        )}
+
+        {!portalUnavailable && status === "idle" && (
           <div className="text-center text-muted-foreground">
             <Tv
               size={64}
@@ -341,7 +375,7 @@ function PortalPage() {
           </div>
         )}
 
-        {status === "error" && (
+        {!portalUnavailable && status === "error" && (
           <div className="text-center text-destructive">
             <XCircle
               size={48}
@@ -351,10 +385,20 @@ function PortalPage() {
           </div>
         )}
 
-        {(status === "streaming" || status === "connecting") && (
+        {!portalUnavailable && status === "connecting" && (
+          <div className="max-w-md px-6 text-center text-muted-foreground">
+            <Tv size={48} className="mx-auto mb-4 opacity-50" />
+            <p className="text-sm">Waiting for rendered browser frames…</p>
+            <p className="mt-2 text-xs">
+              Live Portal requires Chrome or Chromium. Lightpanda cannot provide a visual feed.
+            </p>
+          </div>
+        )}
+
+        {!portalUnavailable && (status === "streaming" || status === "connecting") && (
           <canvas
             ref={canvasRef}
-            className="max-h-full max-w-full cursor-pointer"
+            className={status === "connecting" ? "hidden" : "max-h-full max-w-full cursor-pointer"}
             style={{ imageRendering: "auto" }}
             onMouseDown={(e) => handleMouseEvent(e, "down")}
             onMouseUp={(e) => handleMouseEvent(e, "up")}

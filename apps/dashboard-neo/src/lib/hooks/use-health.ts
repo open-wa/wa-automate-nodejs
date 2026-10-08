@@ -81,6 +81,8 @@ export interface HealthData {
     }
   }
   capabilities?: {
+    livePortalAvailable?: boolean
+    livePortalUnavailableReason?: string
     apiKeyConfigured: boolean
     mcpEnabled: boolean
     mcpAvailable: boolean
@@ -202,6 +204,14 @@ function ensureSocketListener() {
       })
 
       client.ev.on("launch.auth.qr.scanned", () => {
+        setCachedHealth((current) => ({
+          ...current,
+          qr: null,
+          lastEventAt: Date.now(),
+        }))
+      })
+
+      client.ev.on("launch.auth.qr.expired", () => {
         setCachedHealth((current) => ({
           ...current,
           qr: null,
