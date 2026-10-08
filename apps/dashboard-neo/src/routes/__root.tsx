@@ -19,6 +19,8 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
 import { Chip } from "@/components/boardui/chip"
 import { useMessageToasts } from "@/lib/hooks/use-message-toasts"
+import { CallingProvider, useCalling } from "@/lib/hooks/use-calling"
+import { CallIsland } from "@/components/call-island"
 import {
   Popover,
   PopoverContent,
@@ -46,6 +48,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/events": "Live events",
   "/contacts": "Contacts",
   "/chat": "Chats",
+  "/calls": "Calls",
   "/portal": "Live portal",
   "/api-docs": "API reference",
   "/playground": "Playground",
@@ -56,6 +59,8 @@ const PAGE_TITLES: Record<string, string> = {
 }
 
 function Workspace() {
+  const { call, pendingPeer } = useCalling()
+  const callSpace = call || pendingPeer ? "4.5rem" : "0rem"
   const matches = useMatches()
   const pathname = matches[matches.length - 1]?.pathname || "/"
   const search = useSearch({ from: "__root__" })
@@ -159,13 +164,17 @@ function Workspace() {
             return to your session.
           </div>
         )}
-        <main
-          id="main-content"
-          tabIndex={-1}
-          className="min-h-0 flex-1 overflow-auto"
-        >
-          <Outlet />
-        </main>
+        <div className="relative flex min-h-0 flex-1 flex-col">
+          <CallIsland />
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className="min-h-0 flex-1 overflow-auto"
+            style={{ paddingTop: callSpace }}
+          >
+            <Outlet />
+          </main>
+        </div>
       </section>
     </div>
   )
@@ -175,17 +184,19 @@ function RootComponent() {
   return (
     <ThemeProvider defaultTheme="system" storageKey="wa-dashboard-theme">
       <PrivacyProvider>
-        <TooltipProvider>
-          <a
-            href="#main-content"
-            className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-background focus:p-3 focus:text-primary"
-          >
-            Skip to content
-          </a>
-          <Workspace />
-        </TooltipProvider>
-        <MessageToastListener />
-        <Toaster position="bottom-right" />
+        <CallingProvider>
+          <TooltipProvider>
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-background focus:p-3 focus:text-primary"
+            >
+              Skip to content
+            </a>
+            <Workspace />
+          </TooltipProvider>
+          <MessageToastListener />
+          <Toaster position="bottom-right" />
+        </CallingProvider>
       </PrivacyProvider>
     </ThemeProvider>
   )

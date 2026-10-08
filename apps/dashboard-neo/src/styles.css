@@ -136,6 +136,26 @@
   max-width: 1480px;
   padding: 1.5rem;
 }
+/* The workspace owns call controls so navigation and route scrolling keep them visible. */
+.ow-call-island {
+  position: absolute;
+  z-index: 45;
+  top: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  max-width: calc(100% - 1.5rem);
+  border: 1px solid var(--border);
+  border-radius: 1.75rem;
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: var(--shadow-card);
+  transition: width 180ms ease, border-radius 180ms ease;
+}
+.ow-call-island.is-expanded {
+  width: 380px;
+  border-radius: 1.5rem;
+}
 .scalar-container {
   position: relative;
   height: 100%;
@@ -284,6 +304,9 @@
   .navigation-popup,
   .detail-sheet-fade,
   .button-press-motion {
+    transition: none;
+  }
+  .ow-call-island {
     transition: none;
   }
   .animate-scan,

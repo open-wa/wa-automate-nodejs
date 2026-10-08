@@ -2,6 +2,9 @@ import { EventEmitter2 } from 'eventemitter2';
 import { EventSource as EventSourcePolyfill } from 'eventsource';
 import type { SimpleListener, Chat, ChatId, Message } from "@open-wa/wa-automate-types-only";
 import type { BaseClient as _Client } from "@open-wa/wa-automate-types-only";
+import { RemoteCalls } from './calling';
+import { normalizeCallMedia } from '@open-wa/schema/calling-media';
+import type { Call, CallSnapshot, CallCapabilities, CallActionResult, CallMediaOptions, AudioInput, AudioOutput, VideoInput } from '@open-wa/schema';
 import { TunnelSocketClient } from './TunnelSocketClient';
 const uuidv4 = () => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 import { MessageCollector } from './MessageCollector';
@@ -20,6 +23,8 @@ type SseEventEnvelope = {
 type SocketLikeListener = (...args: any[]) => void;
 
 const DEFAULT_STREAM_EVENTS = [
+    'call.incoming',
+    'call.state',
     'message.received',
     'message.any',
     'ack.changed',
@@ -215,6 +220,10 @@ export class SocketClient {
         }
     } = {};
 
+    private readonly calls: RemoteCalls;
+    private incomingCalls = new Map<string, (call: Call) => unknown>();
+    private callStates = new Map<string, (call: Call) => unknown>();
+    private callingWarnings = new Set<string>();
     private stream: any = null;
     private streamOpenPromise: Promise<void> | null = null;
     private resolveStreamOpen: (() => void) | null = null;
@@ -268,6 +277,7 @@ export class SocketClient {
      * Disconnect the socket
      */
     public disconnect(): void {
+        void this.calls.close();
         this.closeStream('client disconnect');
     }
 
@@ -275,6 +285,7 @@ export class SocketClient {
      * Close the socket. Prevents not being able to close the node process.
      */
     public close(): void {
+        void this.calls.close();
         this.closeStream('client close');
     }
 
@@ -325,6 +336,7 @@ export class SocketClient {
         this.apiKey = apiKey ?? '';
         this.flushListenersOnDisconnect = flushListenersOnDisconnect ?? this.flushListenersOnDisconnect;
         this.socket = new SocketCompat(this);
+        this.calls = new RemoteCalls(this.getBaseUrl(), this.apiKey, (method, args) => this.ask(method as any, args));
         void this.openStream();
         return new Proxy(this, {
             get: function get(target: SocketClient, prop: string) {
@@ -405,6 +417,7 @@ export class SocketClient {
                 const wasConnected = this.socket.connected;
                 this.socket.connected = false;
                 if (wasConnected) {
+                    void this.calls.close();
                     this.socket.emitLocal('disconnect', 'eventsource error');
                 }
                 if (!this.hasOpenedStream) {
@@ -466,6 +479,15 @@ export class SocketClient {
         const resolvedEventName = envelope?.event || eventName;
         const payload = envelope && 'payload' in envelope ? envelope.payload : envelope ?? (event as any).data;
         debug('stream event', resolvedEventName);
+        if (resolvedEventName === 'call.incoming' || resolvedEventName === 'call.state') {
+            const snapshot = (payload as any)?.call ?? (payload as any)?.state;
+            if (snapshot?.id && snapshot?.generation) {
+                this.calls.observe(snapshot);
+                const call = this.calls.hydrate(snapshot);
+                const callbacks = resolvedEventName === 'call.incoming' ? this.incomingCalls : this.callStates;
+                for (const callback of callbacks.values()) void Promise.resolve().then(() => callback(call)).catch(error => this.socket.emitLocal('call:error', error));
+            }
+        }
 
         for (const dispatchEventName of getDispatchEventNames(resolvedEventName)) {
             this.ev.emit(dispatchEventName, payload);
@@ -502,6 +524,7 @@ export class SocketClient {
             this.socket.emitLocal('disconnect', reason);
         }
 
+        void this.calls.close();
         if (this.flushListenersOnDisconnect) {
             void this.flushListeners();
         }
@@ -536,10 +559,24 @@ export class SocketClient {
     //   [K in keyof Parameters<Pick<Client,M>[ M ]>]: Parameters<Pick<Client,M>[ M ]>[K]
     // }
 
+    public async getCallCapabilities(): Promise<CallCapabilities> { return this.ask('getCallCapabilities' as any) as Promise<CallCapabilities>; }
+    public async getLicenseFeatures(): Promise<import('@open-wa/schema').LicenseFeatures> { return this.ask('getLicenseFeatures' as any) as Promise<import('@open-wa/schema').LicenseFeatures>; }
+    public async getActiveCall(): Promise<Call | null> { const snapshot = await this.ask('getActiveCall' as any) as CallSnapshot | null; return snapshot ? this.calls.hydrate(snapshot) : null; }
+    private async logCallingAvailability() {
+        const capabilities = await this.getCallCapabilities();
+        if (capabilities.reason && !this.callingWarnings.has(capabilities.reason.code)) {
+            this.callingWarnings.add(capabilities.reason.code);
+            console.warn(capabilities.reason.message);
+        }
+    }
+    public async onIncomingCall(callback: (call: Call) => unknown): Promise<string> { await this.logCallingAvailability(); const id = uuidv4(); this.incomingCalls.set(id, callback); return id; }
+    public async onCallState(callback: (call: Call) => unknown): Promise<string> { await this.logCallingAvailability(); const id = uuidv4(); this.callStates.set(id, callback); return id; }
+    public async startCall(to: string, microphone?: AudioInput | CallMediaOptions, speaker?: AudioOutput, camera?: VideoInput): Promise<CallActionResult> { return this.calls.start(to, normalizeCallMedia(microphone, speaker, camera)); }
+
     public async ask<M extends ClientMethods, P extends Parameters<Pick<Client, M>[M]>>(method: M, args?: any[] | P | {
         [k: string]: unknown
     }): Promise<unknown> {
-        debug("ask", method, args)
+        debug("ask", method)
         if (typeof args !== "object" && !Array.isArray(args) && (typeof args === "string" || typeof args === "number")) args = [args] as any
 
         const headers: Record<string, string> = {
@@ -569,7 +606,7 @@ export class SocketClient {
             parsed = undefined;
         }
 
-        debug("resolve", method, parsed)
+        debug("resolve", method)
 
         if (parsed && typeof parsed === "object" && "success" in parsed) {
             if (parsed.success) {
@@ -611,6 +648,8 @@ export class SocketClient {
      */
     public stopListener(listener: SimpleListener, callbackId: string): boolean {
         debug("stop listener", callbackId)
+        if (String(listener) === 'onIncomingCall') return this.incomingCalls.delete(callbackId);
+        if (String(listener) === 'onCallState') return this.callStates.delete(callbackId);
         if (this.listeners[listener]?.[callbackId]) {
             delete this.listeners[listener][callbackId];
             return true

@@ -4,6 +4,11 @@
 
 
 
+export interface AcceptCallParams {
+  call: { generation: string; id: string; sessionId: string };
+  media?: { camera?: any; microphone?: any; onMediaFailure?: "end" | "keep-open" | null; speaker?: any } | null;
+}
+
 export interface AddLabelParams {
   /**
    * Label ID or name
@@ -83,6 +88,10 @@ export interface CheckReadReceiptsParams {
    * @remarks Key aliases: 'id'
    */
   contactId: string;
+}
+
+export interface ClearCallAudioParams {
+  call: { generation: string; id: string; sessionId: string };
 }
 
 export interface ClearChatParams {
@@ -174,6 +183,10 @@ export interface DownloadMediaParams {
    * File path to save the media
    */
   path: string;
+}
+
+export interface EndCallParams {
+  call: { generation: string; id: string; sessionId: string };
 }
 
 export interface ForwardMessagesParams {
@@ -559,6 +572,11 @@ export interface MarkAsUnreadParams {
   chatId: string;
 }
 
+export interface MuteCallParams {
+  call: { generation: string; id: string; sessionId: string };
+  muted: boolean;
+}
+
 export interface MuteChatParams {
   /**
    * Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c|g)\.us$|^\d+@lid$
@@ -570,6 +588,11 @@ export interface MuteChatParams {
    * Mute duration
    */
   muteDuration: number | string;
+}
+
+export interface ObserveCallAudioParams {
+  call: { generation: string; id: string; sessionId: string };
+  speaker?: unknown;
 }
 
 export interface PinChatParams {
@@ -646,6 +669,10 @@ export interface ReactParams {
    * Emoji reaction
    */
   emoji: string;
+}
+
+export interface RejectCallParams {
+  call: { generation: string; id: string; sessionId: string };
 }
 
 export interface RejectGroupJoinRequestParams {
@@ -1316,6 +1343,11 @@ export interface SendYouTubeLinkParams {
   customSize?: { height: number; width: number };
 }
 
+export interface SetCallMediaParams {
+  call: { generation: string; id: string; sessionId: string };
+  media?: { camera?: any; microphone?: any; onMediaFailure?: "end" | "keep-open" | null; speaker?: any } | null;
+}
+
 export interface SetChatEphemeralParams {
   /**
    * Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID Branded type: ChatId Pattern: ^\d+(-\d+)?@(c|g)\.us$|^\d+@lid$
@@ -1435,6 +1467,18 @@ export interface StarMessageParams {
    * @remarks Deprecated key aliases: 'msgId'
    */
   messageId: string;
+}
+
+export interface StartCallParams {
+  to: string;
+  microphone?: unknown | null;
+  speaker?: unknown | null;
+  camera?: unknown | null;
+}
+
+export interface StopCallAudioObserverParams {
+  call: { generation: string; id: string; sessionId: string };
+  observerId: string;
 }
 
 export interface UnarchiveChatParams {

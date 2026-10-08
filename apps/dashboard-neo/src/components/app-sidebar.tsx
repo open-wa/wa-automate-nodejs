@@ -8,6 +8,7 @@ import {
   FlaskConical,
   Bug,
   MessageSquare,
+  Phone,
   Contact,
   Tv,
   Puzzle,
@@ -126,6 +127,7 @@ export function AppSidebar({
       label: "Communication",
       items: [
         { title: "Chats", href: "/chat", icon: <MessageSquare size={20} /> },
+        { title: "Calls", href: "/calls", icon: <Phone size={20} /> },
         { title: "Contacts", href: "/contacts", icon: <Contact size={20} /> },
         { title: "Live portal", href: "/portal", icon: <Tv size={20} /> },
       ],

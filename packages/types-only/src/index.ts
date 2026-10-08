@@ -74,3 +74,6 @@ export {
   NotificationLanguage,
   QRFormat,
 } from '@open-wa/schema';
+
+export type { Call, CallAudioObserver, CallSnapshot, CallActionResult, CallCapabilities, CallIdentity, CallMediaOptions, CallingOptions, AudioInput, AudioOutput, VideoInput, MediaDescriptor, RawAudioFormat } from '@open-wa/schema';
+export { DEFAULT_MIC, DEFAULT_SPEAKER, DEFAULT_CAM, normalizeCallMedia } from '@open-wa/schema/calling-media';

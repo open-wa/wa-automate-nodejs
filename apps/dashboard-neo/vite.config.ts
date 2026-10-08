@@ -20,6 +20,9 @@ const config = defineConfig({
       // built. Resolve browser-safe package entry points to their TypeScript
       // sources so Vite can transpile them in the dev server.
       { find: /^@open-wa\/screencaster\/client$/, replacement: resolve(repoRoot, "packages/screencaster/src/client.ts") },
+      { find: /^@open-wa\/socket-client\/calling-platform$/, replacement: resolve(repoRoot, 'packages/socket-client/src/calling-platform.browser.ts') },
+      { find: /^@open-wa\/schema\/calling-media$/, replacement: resolve(repoRoot, 'packages/schema/src/calling-media.ts') },
+      { find: /^@open-wa\/runtime-core$/, replacement: resolve(repoRoot, 'packages/runtime-core/src/index.ts') },
       { find: /^@open-wa\/socket-client$/, replacement: resolve(repoRoot, "packages/socket-client/src/index.ts") },
       { find: "react/jsx-runtime", replacement: resolvePackageExport("react/jsx-runtime") },
       { find: "react/jsx-dev-runtime", replacement: resolvePackageExport("react/jsx-dev-runtime") },

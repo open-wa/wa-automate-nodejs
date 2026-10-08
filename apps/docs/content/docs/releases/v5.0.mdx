@@ -36,7 +36,7 @@ That separation makes ownership clearer: the session runs in one place, and the 
 
 The method schema powers interactive API documentation and generated metadata. Easy API exposes Swagger and Postman descriptions alongside its live methods, so you can inspect the service's actual contract while building an integration.
 
-For agent integrations, Easy API can expose that schema as MCP tools at `/mcp`. Discovery and execution require the Easy API key. Enable MCP through `wa.config.*`; `--mcp` isn't a V5 CLI option.
+For agent integrations, Easy API can expose that schema as MCP tools at `/mcp`. Discovery and execution require the Easy API key. Enable MCP through `wa.config.*`; the V5 CLI does not parse `--mcp`.
 
 ## Moving from V4
 

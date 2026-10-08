@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.4
 
 # Stage 1: Dependencies
-FROM node:22 AS deps
+FROM node:22-bookworm AS deps
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install build tools
@@ -19,36 +19,37 @@ WORKDIR /app
 
 # Copy package configuration files for dependency resolution
 COPY pnpm-lock.yaml package.json pnpm-workspace.yaml ./
-COPY packages/*/package.json ./packages/
-COPY apps/*/package.json ./apps/
 
 # Fetch dependencies (for deterministic builds)
 RUN pnpm fetch
 
 # Stage 2: Builder
-FROM node:22 AS builder
+FROM node:22-bookworm AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install pnpm
 RUN npm install -g pnpm@11.25.0
 
 # Copy source code and dependencies from deps stage
+WORKDIR /app
 COPY --from=deps /app ./
 
-# Build: monorepo
-RUN pnpm build
+# Install the workspace source and package the CLI with its dashboard.
+# Runtime dependencies include the managed audio decoder.
+COPY . .
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+RUN pnpm install --offline --frozen-lockfile
+RUN pnpm exec turbo build --filter=@open-wa/wa-automate...
 
 # Stage 3: Runtime
-FROM node:22-slim
+FROM node:22-bookworm-slim
 
 ENV APP_DIR=/usr/src/app
 ENV NODE_ENV=production
 ENV WA_HOST=0.0.0.0
-ENV WA_POPUP=true
 ENV IS_DOCKER=true
 ENV WA_DISABLE_SPINS=true
 ENV WA_EXECUTABLE_PATH=/usr/bin/google-chrome
-ENV WA_CLI_CONFIG=/config
 ENV CHROME_PATH=${WA_EXECUTABLE_PATH}
 ENV WA_USE_CHROME=true
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
@@ -126,4 +127,4 @@ USER owauser
 
 EXPOSE 8080
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["node", "packages/wa-automate/dist/cli.js", "--use-chrome", "--in-docker", "--qr-timeout", "0", "--popup", "--debug", "--force-port"]
+CMD ["node", "packages/wa-automate/dist/cli.cjs", "--dashboard"]

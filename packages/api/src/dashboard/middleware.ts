@@ -45,7 +45,7 @@ export async function setupViteDevServer(): Promise<any | null> {
     const viteServer = await vite.createServer({
       root: dashboardDir,
       configLoader: process.versions.bun ? 'native' : 'bundle',
-      server: { middlewareMode: true },
+      server: { middlewareMode: true, hmr: false },
       appType: 'spa',
       base: '/dashboard/',
     });

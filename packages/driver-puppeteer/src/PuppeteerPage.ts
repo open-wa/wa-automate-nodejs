@@ -314,6 +314,10 @@ export class PuppeteerPage implements IPage {
         return new Uint8Array(buffer);
     }
 
+    async grantMediaPermissions(origin: string): Promise<void> {
+        await this.page.browserContext().overridePermissions(origin, ['microphone', 'camera']);
+    }
+
     async exposeFunction(name: string, fn: (...args: any[]) => any): Promise<void> {
         await this.page.exposeFunction(name, fn);
     }

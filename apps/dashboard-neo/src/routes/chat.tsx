@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect, useRef, useCallback } from "react"
-import { MessageSquare, ArrowLeft, Send, Loader2 } from "lucide-react"
+import { MessageSquare, ArrowLeft, Send, Loader2, Phone } from "lucide-react"
+import { isCallRecipient, useCalling } from "@/lib/hooks/use-calling"
 import { useSocket } from "@/lib/hooks/use-socket"
 import { usePrivacy } from "@/lib/hooks/use-privacy"
 import { getClient } from "@/lib/api-client"
@@ -37,6 +38,7 @@ type MessageItem = {
 
 function ChatPage() {
   const { connected, ask } = useSocket()
+  const calling = useCalling()
   const { isDemo } = useDemo()
   const { chatId } = Route.useSearch()
   const navigate = Route.useNavigate()
@@ -366,7 +368,7 @@ function ChatPage() {
               >
                 <ArrowLeft />
               </Button>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <h2 className="truncate text-body-medium">
                   {redactName(selectedChat.name, selectedChat.id)}
                 </h2>
@@ -374,6 +376,16 @@ function ChatPage() {
                   {redact(selectedChat.id)}
                 </p>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!calling.connected || calling.busy || !isCallRecipient(selectedChat.id)}
+                title={isCallRecipient(selectedChat.id) ? calling.active ? "Show current call" : "Start an audio call" : "Calls are available for individual contacts"}
+                onClick={() => void calling.start({ id: selectedChat.id, name: selectedChat.name, aliases: [selectedChat.id] })}
+              >
+                <Phone className="size-4" />
+                {calling.active ? "Current call" : "Call"}
+              </Button>
             </header>
             <div className="min-h-0 flex-1 overflow-y-auto bg-muted/25 p-4 sm:p-6">
               {messagesLoading ? (

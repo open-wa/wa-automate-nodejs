@@ -285,6 +285,16 @@ export async function selectRuntimeDriver(
     };
 }
 
+/** Load the Node media runtime only when a call needs a source or sink. */
+export function makeDefaultCallMediaHost(): NonNullable<CreateClientOptions['callMediaHost']> {
+    return {
+        async prepare(...args) {
+            const { makeNodeCallMediaHost } = await import('@open-wa/runtime-node');
+            return makeNodeCallMediaHost({ log: message => getCliOutputSink().write({ level: 'info', message }) }).prepare(...args);
+        },
+    };
+}
+
 export function toCreateClientOptions(
     config: Config,
     driverSelection: DriverSelection,
@@ -325,12 +335,16 @@ export function toCreateClientOptions(
         safeMode: config.safeMode,
         lightpanda: config.useLightpanda ? { experimentalWhatsApp: true, ...config.lightpanda } : undefined,
         licenseKey: config.licenseKey as any,
+        calling: config.calling,
+        callMediaHost: makeDefaultCallMediaHost(),
+        licenseConfig: config.licenseConfig,
         patchConfig: { ghPatch: config.ghPatch, cachedPatch: config.cachedPatch },
     };
 }
 
 /** Options for the ready-to-use messaging client. */
-export type CreateOptions = Omit<PartialConfig, 's3Sync'> & {
+export type CreateOptions = Omit<PartialConfig, 's3Sync' | 'calling'> & {
+    calling?: import('@open-wa/schema').CallingOptions;
     s3Sync?: Omit<NonNullable<PartialConfig['s3Sync']>, 'region' | 'syncInterval'> & {
         region?: string;
         syncInterval?: number;
@@ -343,7 +357,7 @@ export type CreateOptions = Omit<PartialConfig, 's3Sync'> & {
 export async function create(options: CreateOptions = {}): Promise<Client> {
     const { createClient: createCoreClient } = await import('@open-wa/core');
     const { Client } = await import('@open-wa/client');
-    const { driver, sessionData, sessionDataBucketAuth, s3Sync,
+    const { driver, sessionData, sessionDataBucketAuth, s3Sync, calling,
         sessionDataEncryptionKey, sessionDataEncryptionKeyFile, ...configOverrides } = options;
     const { config, rawConfigs } = await resolveConfig({
         programmaticOverrides: {
@@ -367,6 +381,7 @@ export async function create(options: CreateOptions = {}): Promise<Client> {
     });
 
     const coreOptions = toCreateClientOptions(config, driverSelection);
+    if (calling) coreOptions.calling = calling;
     if (driver) coreOptions.driver = driver;
     coreOptions.sessionData = sessionData;
     coreOptions.sessionDataBucketAuth = sessionDataBucketAuth;

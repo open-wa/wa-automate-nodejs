@@ -101,6 +101,7 @@ allowBuilds:
   core-js: true
   deasync: true
   esbuild: true
+  ffmpeg-static: true
   fast-folder-size: true
   gifsicle: true
   highlight.js: true

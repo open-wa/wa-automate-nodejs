@@ -1,5 +1,58 @@
 [
   {
+    "id": "calls.acceptcall",
+    "anchor": "acceptcall",
+    "name": "acceptCall",
+    "namespacedName": "calls.acceptCall",
+    "namespace": "calls",
+    "description": "Prepare media and accept this incoming call.",
+    "license": "restricted",
+    "aliases": [
+      "calls.acceptCall"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "call",
+      "media"
+    ],
+    "parameters": [
+      {
+        "name": "call",
+        "type": "{ generation: string; id: string; sessionId: string }",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      },
+      {
+        "name": "media",
+        "type": "{ camera?: any; microphone?: any; onMediaFailure?: \"end\" | \"keep-open\" | null; speaker?: any } | null",
+        "required": false,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "{ ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
+    "returnTypeLinks": {},
+    "sdkReturnType": "CallActionResult",
+    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/calls/acceptCall",
+      "flatPath": "/api/acceptCall"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.acceptCall({});",
+      "nodeCall": "const result = await client.acceptCall({\n  call: {},\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.acceptCall({\n  call: {},\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/calls/acceptCall\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"call\": {}\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"ok\": true,\n    \"status\": \"requested\"\n  }\n}"
+    }
+  },
+  {
     "id": "labels.addlabel",
     "anchor": "addlabel",
     "name": "addLabel",
@@ -372,6 +425,49 @@
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.checkReadReceipts({\n  contactId: \"447123456789@c.us\",\n});",
       "http": "curl -G \"http://localhost:8080/api/contacts/checkReadReceipts\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"contactId=447123456789@c.us\"",
       "response": "{\n  \"success\": true,\n  \"data\": true\n}"
+    }
+  },
+  {
+    "id": "calls.clearcallaudio",
+    "anchor": "clearcallaudio",
+    "name": "clearCallAudio",
+    "namespacedName": "calls.clearCallAudio",
+    "namespace": "calls",
+    "description": "Discard queued outgoing audio.",
+    "license": "restricted",
+    "aliases": [
+      "calls.clearCallAudio"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "call"
+    ],
+    "parameters": [
+      {
+        "name": "call",
+        "type": "{ generation: string; id: string; sessionId: string }",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "{ ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
+    "returnTypeLinks": {},
+    "sdkReturnType": "CallActionResult",
+    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/calls/clearCallAudio",
+      "flatPath": "/api/clearCallAudio"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.clearCallAudio({});",
+      "nodeCall": "const result = await client.clearCallAudio({\n  call: {},\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.clearCallAudio({\n  call: {},\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/calls/clearCallAudio\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"call\": {}\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"ok\": true,\n    \"status\": \"requested\"\n  }\n}"
     }
   },
   {
@@ -835,6 +931,49 @@
     }
   },
   {
+    "id": "calls.endcall",
+    "anchor": "endcall",
+    "name": "endCall",
+    "namespacedName": "calls.endCall",
+    "namespace": "calls",
+    "description": "Request hangup for this call.",
+    "license": "restricted",
+    "aliases": [
+      "calls.endCall"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "call"
+    ],
+    "parameters": [
+      {
+        "name": "call",
+        "type": "{ generation: string; id: string; sessionId: string }",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "{ ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
+    "returnTypeLinks": {},
+    "sdkReturnType": "CallActionResult",
+    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/calls/endCall",
+      "flatPath": "/api/endCall"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.endCall({});",
+      "nodeCall": "const result = await client.endCall({\n  call: {},\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.endCall({\n  call: {},\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/calls/endCall\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"call\": {}\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"ok\": true,\n    \"status\": \"requested\"\n  }\n}"
+    }
+  },
+  {
     "id": "messages.forwardmessages",
     "anchor": "forwardmessages",
     "name": "forwardMessages",
@@ -903,6 +1042,37 @@
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.forwardMessages({\n  to: \"447123456789@c.us\",\n  messages: [\"false_447123456789@c.us_ABC123\",\"false_447123456789@c.us_DEF456\"],\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/forward\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"messages\": [\n      \"false_447123456789@c.us_ABC123\",\n      \"false_447123456789@c.us_DEF456\"\n    ]\n  }'",
       "response": "{\n  \"success\": true,\n  \"data\": []\n}"
+    }
+  },
+  {
+    "id": "calls.getactivecall",
+    "anchor": "getactivecall",
+    "name": "getActiveCall",
+    "namespacedName": "calls.getActiveCall",
+    "namespace": "calls",
+    "description": "Get the current call snapshot. SDK clients hydrate its bound methods.",
+    "license": "restricted",
+    "aliases": [
+      "calls.getActiveCall"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [],
+    "parameters": [],
+    "returnType": "{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: \"incoming\" | \"outgoing\"; video: boolean; terminal: boolean; observedAt: number | \"Infinity\" | \"-Infinity\" | \"NaN\"; endReason?: { code: string; message: string; source: \"local\" | \"media\" | \"license\" | \"session\" | \"whatsapp\" } | null; media?: { state: \"attached\" | \"ended\"; reason?: string | null } | null",
+    "returnTypeLinks": {},
+    "sdkReturnType": "Call | null",
+    "returnNotes": "Resolves to `{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: \"incoming\" \\| \"outgoing\"; video: boolean; terminal: boolean; observedAt: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\"; endReason?: { code: string; message: string; source: \"local\" \\| \"media\" \\| \"license\" \\| \"session\" \\| \"whatsapp\" } \\| null; media?: { state: \"attached\" \\| \"ended\"; reason?: string \\| null } \\| null`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/calls/getActiveCall",
+      "flatPath": "/api/getActiveCall"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.getActiveCall();",
+      "nodeCall": "const result = await client.getActiveCall();",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getActiveCall();",
+      "http": "curl -X POST \"http://localhost:8080/api/calls/getActiveCall\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{}'",
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"example\",\n    \"sessionId\": \"example\",\n    \"generation\": \"example\",\n    \"peer\": \"example\",\n    \"state\": \"example\",\n    \"direction\": \"incoming\",\n    \"video\": true,\n    \"terminal\": true,\n    \"observedAt\": 0\n  }\n}"
     }
   },
   {
@@ -1437,6 +1607,37 @@
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getBusinessProfile({\n  contactId: \"447123456789@c.us\",\n});",
       "http": "curl -G \"http://localhost:8080/api/business/getProfile\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"contactId=447123456789@c.us\"",
       "response": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"447123456789@c.us\"\n  }\n}"
+    }
+  },
+  {
+    "id": "calls.getcallcapabilities",
+    "anchor": "getcallcapabilities",
+    "name": "getCallCapabilities",
+    "namespacedName": "calls.getCallCapabilities",
+    "namespace": "calls",
+    "description": "Optional calling availability for UI and diagnostics. Actions perform admission automatically.",
+    "license": null,
+    "aliases": [
+      "calls.getCallCapabilities"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [],
+    "parameters": [],
+    "returnType": "{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" } | null }",
+    "returnTypeLinks": {},
+    "sdkReturnType": "CallCapabilities",
+    "returnNotes": "Resolves to `{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" } \\| null }`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/calls/getCallCapabilities",
+      "flatPath": "/api/getCallCapabilities"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.getCallCapabilities();",
+      "nodeCall": "const result = await client.getCallCapabilities();",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getCallCapabilities();",
+      "http": "curl -X POST \"http://localhost:8080/api/calls/getCallCapabilities\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{}'",
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"control\": true,\n    \"audio\": true,\n    \"video\": true\n  }\n}"
     }
   },
   {
@@ -2282,6 +2483,37 @@
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getKickedGroups();",
       "http": "curl -X GET \"http://localhost:8080/api/groups/getKicked\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{}'",
       "response": "{\n  \"success\": true,\n  \"data\": []\n}"
+    }
+  },
+  {
+    "id": "session.getlicensefeatures",
+    "anchor": "getlicensefeatures",
+    "name": "getLicenseFeatures",
+    "namespacedName": "session.getLicenseFeatures",
+    "namespace": "session",
+    "description": "Get enabled and disabled licensed features from the accepted licence patch. This reports licence access; actions check runtime availability automatically.",
+    "license": null,
+    "aliases": [
+      "session.getLicenseFeatures"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [],
+    "parameters": [],
+    "returnType": "{ status: \"valid\" | \"missing\" | \"invalid\" | \"expired\" | \"metadata_only\"; keyType: string | null; expiresAt: number | \"Infinity\" | \"-Infinity\" | \"NaN\" | null; features: Record<string, boolean> }",
+    "returnTypeLinks": {},
+    "sdkReturnType": "LicenseFeatures",
+    "returnNotes": "Resolves to `{ status: \"valid\" \\| \"missing\" \\| \"invalid\" \\| \"expired\" \\| \"metadata_only\"; keyType: string \\| null; expiresAt: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" \\| null; features: Record<string, boolean> }`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "GET",
+      "path": "/api/session/getLicenseFeatures",
+      "flatPath": "/api/getLicenseFeatures"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.getLicenseFeatures();",
+      "nodeCall": "const result = await client.getLicenseFeatures();",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getLicenseFeatures();",
+      "http": "curl -X GET \"http://localhost:8080/api/session/getLicenseFeatures\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{}'",
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"status\": \"valid\",\n    \"keyType\": \"example\",\n    \"expiresAt\": 0,\n    \"features\": {}\n  }\n}"
     }
   },
   {
@@ -3545,6 +3777,59 @@
     }
   },
   {
+    "id": "calls.mutecall",
+    "anchor": "mutecall",
+    "name": "muteCall",
+    "namespacedName": "calls.muteCall",
+    "namespace": "calls",
+    "description": "Mute or unmute the microphone without ending reception.",
+    "license": "restricted",
+    "aliases": [
+      "calls.muteCall"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "call",
+      "muted"
+    ],
+    "parameters": [
+      {
+        "name": "call",
+        "type": "{ generation: string; id: string; sessionId: string }",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      },
+      {
+        "name": "muted",
+        "type": "boolean",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "{ ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
+    "returnTypeLinks": {},
+    "sdkReturnType": "CallActionResult",
+    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/calls/muteCall",
+      "flatPath": "/api/muteCall"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.muteCall({}, true);",
+      "nodeCall": "const result = await client.muteCall({\n  call: {},\n  muted: true,\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.muteCall({\n  call: {},\n  muted: true,\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/calls/muteCall\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"call\": {},\n    \"muted\": true\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"ok\": true,\n    \"status\": \"requested\"\n  }\n}"
+    }
+  },
+  {
     "id": "chats.mutechat",
     "anchor": "mutechat",
     "name": "muteChat",
@@ -3599,6 +3884,59 @@
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.muteChat({\n  chatId: \"447123456789@c.us\",\n  muteDuration: 1,\n});",
       "http": "curl -X PUT \"http://localhost:8080/api/chats/mute\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"chatId\": \"447123456789@c.us\",\n    \"muteDuration\": 1\n  }'",
       "response": "{\n  \"success\": true,\n  \"data\": \"example\"\n}"
+    }
+  },
+  {
+    "id": "calls.observecallaudio",
+    "anchor": "observecallaudio",
+    "name": "observeCallAudio",
+    "namespacedName": "calls.observeCallAudio",
+    "namespace": "calls",
+    "description": "Attach an isolated receive-only audio sink. Its failure does not interrupt the call owner.",
+    "license": "restricted",
+    "aliases": [
+      "calls.observeCallAudio"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "call",
+      "speaker"
+    ],
+    "parameters": [
+      {
+        "name": "call",
+        "type": "{ generation: string; id: string; sessionId: string }",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      },
+      {
+        "name": "speaker",
+        "type": "unknown",
+        "required": false,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "{ ok: true; status: \"requested\"; observerId: string } | { ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
+    "returnTypeLinks": {},
+    "sdkReturnType": "CallActionResult & { observerId?: string }",
+    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; observerId: string } \\| { ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/calls/observeCallAudio",
+      "flatPath": "/api/observeCallAudio"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.observeCallAudio({});",
+      "nodeCall": "const result = await client.observeCallAudio({\n  call: {},\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.observeCallAudio({\n  call: {},\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/calls/observeCallAudio\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"call\": {}\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"ok\": true,\n    \"status\": \"requested\",\n    \"observerId\": \"example\"\n  }\n}"
     }
   },
   {
@@ -3943,6 +4281,49 @@
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.react({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  emoji: \"emoji\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/react\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"messageId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n    \"emoji\": \"emoji\"\n  }'",
       "response": "{\n  \"success\": true,\n  \"data\": true\n}"
+    }
+  },
+  {
+    "id": "calls.rejectcall",
+    "anchor": "rejectcall",
+    "name": "rejectCall",
+    "namespacedName": "calls.rejectCall",
+    "namespace": "calls",
+    "description": "Reject this call with native state confirmation.",
+    "license": "restricted",
+    "aliases": [
+      "calls.rejectCall"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "call"
+    ],
+    "parameters": [
+      {
+        "name": "call",
+        "type": "{ generation: string; id: string; sessionId: string }",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "{ ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
+    "returnTypeLinks": {},
+    "sdkReturnType": "CallActionResult",
+    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/calls/rejectCall",
+      "flatPath": "/api/rejectCall"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.rejectCall({});",
+      "nodeCall": "const result = await client.rejectCall({\n  call: {},\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.rejectCall({\n  call: {},\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/calls/rejectCall\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"call\": {}\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"ok\": true,\n    \"status\": \"requested\"\n  }\n}"
     }
   },
   {
@@ -6351,6 +6732,59 @@
     }
   },
   {
+    "id": "calls.setcallmedia",
+    "anchor": "setcallmedia",
+    "name": "setCallMedia",
+    "namespacedName": "calls.setCallMedia",
+    "namespace": "calls",
+    "description": "Prepare a replacement before releasing the working media.",
+    "license": "restricted",
+    "aliases": [
+      "calls.setCallMedia"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "call",
+      "media"
+    ],
+    "parameters": [
+      {
+        "name": "call",
+        "type": "{ generation: string; id: string; sessionId: string }",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      },
+      {
+        "name": "media",
+        "type": "{ camera?: any; microphone?: any; onMediaFailure?: \"end\" | \"keep-open\" | null; speaker?: any } | null",
+        "required": false,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "{ ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
+    "returnTypeLinks": {},
+    "sdkReturnType": "CallActionResult",
+    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/calls/setCallMedia",
+      "flatPath": "/api/setCallMedia"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.setCallMedia({});",
+      "nodeCall": "const result = await client.setCallMedia({\n  call: {},\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.setCallMedia({\n  call: {},\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/calls/setCallMedia\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"call\": {}\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"ok\": true,\n    \"status\": \"requested\"\n  }\n}"
+    }
+  },
+  {
     "id": "chats.setchatephemeral",
     "anchor": "setchatephemeral",
     "name": "setChatEphemeral",
@@ -6900,6 +7334,132 @@
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.starMessage({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "http": "curl -X PUT \"http://localhost:8080/api/messages/star\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"messageId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n  }'",
       "response": "{\n  \"success\": true,\n  \"data\": true\n}"
+    }
+  },
+  {
+    "id": "calls.startcall",
+    "anchor": "startcall",
+    "name": "startCall",
+    "namespacedName": "calls.startCall",
+    "namespace": "calls",
+    "description": "Prepare media and place an outgoing audio or video call.",
+    "license": "restricted",
+    "aliases": [
+      "calls.startCall"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "to",
+      "microphone",
+      "speaker",
+      "camera"
+    ],
+    "parameters": [
+      {
+        "name": "to",
+        "type": "string",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      },
+      {
+        "name": "microphone",
+        "type": "unknown | null",
+        "required": false,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      },
+      {
+        "name": "speaker",
+        "type": "unknown | null",
+        "required": false,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      },
+      {
+        "name": "camera",
+        "type": "unknown | null",
+        "required": false,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "{ ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
+    "returnTypeLinks": {},
+    "sdkReturnType": "CallActionResult",
+    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/calls/startCall",
+      "flatPath": "/api/startCall"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.startCall(\"to\");",
+      "nodeCall": "const result = await client.startCall({\n  to: \"to\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.startCall({\n  to: \"to\",\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/calls/startCall\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"to\"\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"ok\": true,\n    \"status\": \"requested\"\n  }\n}"
+    }
+  },
+  {
+    "id": "calls.stopcallaudioobserver",
+    "anchor": "stopcallaudioobserver",
+    "name": "stopCallAudioObserver",
+    "namespacedName": "calls.stopCallAudioObserver",
+    "namespace": "calls",
+    "description": "Stop an audio observer and finalize its sink.",
+    "license": "restricted",
+    "aliases": [
+      "calls.stopCallAudioObserver"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "call",
+      "observerId"
+    ],
+    "parameters": [
+      {
+        "name": "call",
+        "type": "{ generation: string; id: string; sessionId: string }",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      },
+      {
+        "name": "observerId",
+        "type": "string",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "{ ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
+    "returnTypeLinks": {},
+    "sdkReturnType": "CallActionResult",
+    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/calls/stopCallAudioObserver",
+      "flatPath": "/api/stopCallAudioObserver"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.stopCallAudioObserver({}, \"observerId\");",
+      "nodeCall": "const result = await client.stopCallAudioObserver({\n  call: {},\n  observerId: \"observerId\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.stopCallAudioObserver({\n  call: {},\n  observerId: \"observerId\",\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/calls/stopCallAudioObserver\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"call\": {},\n    \"observerId\": \"observerId\"\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"ok\": true,\n    \"status\": \"requested\"\n  }\n}"
     }
   },
   {

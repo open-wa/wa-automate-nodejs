@@ -84,6 +84,12 @@ for (const file of fs.readdirSync(sdkMethodsDir).filter((file) => file.endsWith(
     sdkReturnTypes.set(match[1], match[2]);
   }
 }
+// Calling controls and licence introspection are declared directly on Client.
+// Include those public declarations as well as the method-module interfaces.
+const sdkClientPath = path.resolve(sdkMethodsDir, '../Client.ts');
+for (const match of fs.readFileSync(sdkClientPath, 'utf8').matchAll(/^ {2}(?:async )?(\w+)\([^\n]*\):\s*Promise<(.+?)>\s*\{/gm)) {
+  sdkReturnTypes.set(match[1], match[2].replace(/import\(['"][^'"]+['"]\)\./g, ''));
+}
 const sdkAliases: Record<string, string> = { isPlugged: 'getIsPlugged', getLoadedMessageCount: 'getAmountOfLoadedMessages', getProfilePicture: 'getProfilePic' };
 
 function sortStrings(values: string[]): string[] {

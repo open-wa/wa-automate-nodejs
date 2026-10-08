@@ -1,6 +1,6 @@
 import { createClient } from '@open-wa/core';
 import { Client as ClientFacade } from '@open-wa/client';
-import { selectRuntimeDriver as selectSharedRuntimeDriver, resolveExecutablePath as resolveSharedExecutablePath, type DriverSelection } from './runtime-client';
+import { selectRuntimeDriver as selectSharedRuntimeDriver, resolveExecutablePath as resolveSharedExecutablePath, makeDefaultCallMediaHost, type DriverSelection } from './runtime-client';
 import { eventRegistry } from '@open-wa/schema';
 import { WAServer } from './server/hono-server';
 import { resolveConfig, type PartialConfig, type Config, type TrackedConfig } from '@open-wa/config';
@@ -581,6 +581,9 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         safeMode: config.safeMode,
         lightpanda: config.useLightpanda ? { experimentalWhatsApp: true, ...config.lightpanda } : undefined,
         licenseKey: config.licenseKey as any,
+        licenseConfig: config.licenseConfig,
+        calling: config.calling,
+        callMediaHost: makeDefaultCallMediaHost(),
         sandboxPolicy,
         executionSandbox,
         memoryObservation: (observability, getBrowserProcessId) => observeBrowserProcessMemory(

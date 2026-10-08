@@ -37,9 +37,11 @@ export function SessionLicenseBadge() {
         ? license.source === "demo"
           ? "Demo · Insiders"
           : "Insiders"
-        : license.source === "demo"
-          ? "Demo · Restricted"
-          : "Restricted"
+        : license.tier === "restricted"
+          ? license.source === "demo"
+            ? "Demo · Restricted"
+            : "Restricted"
+          : license.keyType || "Licensed"
       : license.state === "unlicensed"
         ? "No licence"
         : license.state === "unavailable"
@@ -48,7 +50,7 @@ export function SessionLicenseBadge() {
             ? "Licence unknown"
             : "Checking licence"
 
-  const isLicensed = license.state === "licensed" && license.tier !== null
+  const isLicensed = license.state === "licensed"
   const isUnlicensed = license.state === "unlicensed"
 
   return (
@@ -100,7 +102,7 @@ export function SessionLicenseBadge() {
               <div className="mt-2 flex items-center justify-between gap-3">
                 <span className="text-muted-foreground">License type</span>
                 <span className="font-medium">
-                  {license.tier === "insiders" ? "Insiders" : "Restricted"}
+                  {license.tier === "insiders" ? "Insiders" : license.tier === "restricted" ? "Restricted" : license.keyType}
                 </span>
               </div>
             )}
@@ -117,6 +119,16 @@ export function SessionLicenseBadge() {
               {license.detail}
             </p>
           )}
+
+          {Object.keys(license.features).length > 0 && <div className="mt-4 border-t pt-3">
+            <p className="mb-2 text-xs font-semibold">Licensed features</p>
+            <dl className="max-h-56 space-y-2 overflow-auto text-xs">
+              {Object.entries(license.features).sort(([a], [b]) => Number(b.startsWith('patch_calls_')) - Number(a.startsWith('patch_calls_')) || a.localeCompare(b)).map(([feature, enabled]) => <div key={feature} className="flex items-center justify-between gap-3">
+                <dt className="min-w-0 truncate" title={feature}>{({ patch_calls_control: 'Call controls', patch_calls_audio: 'Call audio', patch_calls_video: 'Call video' } as Record<string, string>)[feature] ?? feature.replace(/^patch_/, '').replace(/_/g, ' ')}</dt>
+                <dd className={enabled ? 'shrink-0 font-medium text-emerald-600 dark:text-emerald-400' : 'shrink-0 text-muted-foreground'}>{enabled ? 'Enabled' : 'Disabled'}</dd>
+              </div>)}
+            </dl>
+          </div>}
 
           {isUnlicensed && (
             <div className="mt-4 flex flex-col items-start gap-3">

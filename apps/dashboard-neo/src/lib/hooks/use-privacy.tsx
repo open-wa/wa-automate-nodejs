@@ -21,6 +21,7 @@ function redactValue(value: string, enabled: boolean): string {
   // Redact anything that contains @c.us, @g.us, @broadcast, or looks like a phone number
   if (
     value.includes("@c.us") ||
+    value.includes("@lid") ||
     value.includes("@g.us") ||
     value.includes("@broadcast") ||
     /^\+?\d[\d\s\-]{6,}$/.test(value.trim())
