@@ -8,6 +8,8 @@ import {
 } from "@open-wa/ui-components/popover"
 import { useLicense } from "@/lib/hooks/use-license"
 import { useSession } from "@/lib/hooks/use-session"
+import { useSessionRefresh } from "@/lib/hooks/use-session-refresh"
+import { SessionRefreshProgress } from "@/components/session-refresh-progress"
 
 // The first-party docs site owns the real checkout entry. Only non-secret
 // session context is forwarded; API/licence keys never leave the dashboard.
@@ -29,6 +31,8 @@ export function SessionLicenseBadge() {
   const license = useLicense()
   const { session } = useSession()
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const [licenseKey, setLicenseKey] = useState('')
+  const refresh = useSessionRefresh()
   const checkoutUrl = buildCheckoutUrl(session.sessionId, session.hostNumber)
 
   const label =
@@ -119,6 +123,22 @@ export function SessionLicenseBadge() {
               {license.detail}
             </p>
           )}
+
+          {license.source !== 'demo' && <form className="mt-4 space-y-2 border-t pt-3" onSubmit={async event => {
+            event.preventDefault()
+            if (await refresh.startRefresh({ licenseKey })) setLicenseKey('')
+          }}>
+            <label htmlFor="session-license-key" className="block text-xs font-semibold">Enter license key</label>
+            <input id="session-license-key" type="password" autoComplete="off" spellCheck={false}
+              value={licenseKey} onChange={event => setLicenseKey(event.target.value)} maxLength={2048}
+              disabled={!refresh.available || refresh.busy}
+              className="h-9 w-full rounded-md border bg-background px-3 text-sm" />
+            <Button type="submit" size="sm" disabled={!licenseKey.trim() || !refresh.available || refresh.busy}>
+              {refresh.busy ? 'Applying…' : 'Apply license'}
+            </Button>
+            <p className="text-xs text-muted-foreground">Checks your key and refreshes the session automatically. The browser stays running.</p>
+            <SessionRefreshProgress snapshot={refresh.snapshot} error={refresh.error} />
+          </form>}
 
           {Object.keys(license.features).length > 0 && <div className="mt-4 border-t pt-3">
             <p className="mb-2 text-xs font-semibold">Licensed features</p>

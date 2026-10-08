@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button"
 import { createFileRoute } from "@tanstack/react-router"
 import { useHealth } from "@/lib/hooks/use-health"
 import { useDemo } from "@/lib/demo/use-demo"
+import { useSessionRefresh } from "@/lib/hooks/use-session-refresh"
+import { SessionRefreshProgress } from "@/components/session-refresh-progress"
 import {
   HeartPulse,
   CheckCircle2,
@@ -21,6 +23,7 @@ export const Route = createFileRoute("/health")({ component: HealthPage })
 
 function HealthPage() {
   const { isDemo } = useDemo()
+  const refresh = useSessionRefresh()
   const {
     timeline,
     patches,
@@ -67,10 +70,20 @@ function HealthPage() {
             className="flex items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <RefreshCw size={12} />
-            Refresh
+            Refresh status
           </Button>
         )}
       </div>
+
+      {!isDemo && <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-card p-3">
+        <Button variant="outline" size="sm" disabled={!refresh.available || refresh.busy}
+          onClick={() => void refresh.startRefresh()}>
+          <RefreshCw size={14} className={refresh.busy ? 'animate-spin' : ''} />
+          Refresh patches
+        </Button>
+        <SessionRefreshProgress snapshot={refresh.snapshot} error={refresh.error} />
+        {!refresh.snapshot?.running && <span className="text-xs text-muted-foreground">Reloads WhatsApp while keeping the browser session running.</span>}
+      </div>}
 
       {/* Loading state */}
       {loading && !hasData && (
