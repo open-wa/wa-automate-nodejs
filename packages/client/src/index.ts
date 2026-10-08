@@ -2,7 +2,7 @@ export { Client } from './Client';
 export { hydrateCall } from './calls';
 export type { CallActions } from './calls';
 export { DEFAULT_MIC, DEFAULT_SPEAKER, DEFAULT_CAM } from '@open-wa/schema';
-export type { Call, CallSnapshot, CallActionResult, CallCapabilities, CallAudioObserver, CallMediaOptions, CallingOptions, AudioInput, AudioOutput, VideoInput, MediaDescriptor, RawAudioFormat } from '@open-wa/schema';
+export type { Call, CallSnapshot, CallEndReason, CallActionResult, CallCapabilities, CallAudioObserver, CallMediaOptions, CallingOptions, AudioInput, AudioOutput, VideoInput, MediaDescriptor, RawAudioFormat } from '@open-wa/schema';
 export type { ClientConfig, EvaluateFn } from './Client';
 export type { LicenseFeatures } from '@open-wa/schema';
 export { SendTextError } from './SendTextError';

@@ -36,6 +36,21 @@ export interface CallingOptions {
   preparationTimeoutMs?: number;
 }
 
+/** Keep the cause carried by Effect queue failures, whose own message can be empty. */
+export function describeCallMediaFailure(error: unknown): string {
+  let current = error;
+  const seen = new Set<unknown>();
+  while (current && typeof current === 'object' && !seen.has(current)) {
+    seen.add(current);
+    if ('_tag' in current && current._tag === 'TaskTimeoutError' && 'timeoutMs' in current) return `Call audio processing exceeded ${current.timeoutMs} ms.`;
+    if ('_tag' in current && current._tag === 'QueueOverloadedError') return 'Call audio processing exceeded its bounded receive queue.';
+    if ('cause' in current && current.cause !== undefined) { current = current.cause; continue; }
+    if ('message' in current && typeof current.message === 'string' && current.message.trim()) return current.message;
+    break;
+  }
+  return typeof current === 'string' && current.trim() ? current : 'Call media failed without reporting a cause.';
+}
+
 export function normalizeCallMedia(
   microphone?: AudioInput | CallMediaOptions,
   speaker?: AudioOutput,

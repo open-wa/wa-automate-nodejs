@@ -16,6 +16,11 @@ export const CallIdentitySchema = Schema.Struct({
   sessionId: Schema.String,
   generation: Schema.String,
 });
+export const CallEndReasonSchema = Schema.Struct({
+  code: Schema.String,
+  message: Schema.String,
+  source: Schema.Literals(['local', 'media', 'license', 'session', 'whatsapp']),
+});
 export const CallSnapshotSchema = Schema.Struct({
   ...CallIdentitySchema.fields,
   peer: Schema.String,
@@ -24,6 +29,7 @@ export const CallSnapshotSchema = Schema.Struct({
   video: Schema.Boolean,
   terminal: Schema.Boolean,
   observedAt: Schema.Number,
+  endReason: Schema.optional(CallEndReasonSchema),
   media: Schema.optional(Schema.Struct({ state: Schema.Literals(['attached', 'ended']), reason: Schema.optional(Schema.String) })),
 });
 export const CallReasonSchema = Schema.Struct({ code: Schema.String, message: Schema.String, status: Schema.Number });
@@ -37,6 +43,7 @@ export const CallCapabilitiesSchema = Schema.Struct({
 });
 export type CallIdentity = typeof CallIdentitySchema.Type;
 export type CallSnapshot = typeof CallSnapshotSchema.Type;
+export type CallEndReason = typeof CallEndReasonSchema.Type;
 export type CallActionResult = typeof CallActionResultSchema.Type;
 export type CallCapabilities = typeof CallCapabilitiesSchema.Type;
 export type CallAudioObserver = { ok: true; status: 'attached'; stop(): Promise<void> };

@@ -24,13 +24,23 @@ export async function prepareLocalMedia(media: CallMediaOptions) {
   let pump: (() => Promise<void>) | undefined;
   let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
   let closed = false;
+  let closing: Promise<void> | undefined;
+  let writer: WritableStreamDefaultWriter<Uint8Array> | undefined;
   let muted = false, clearSequence = 0;
   let outgoing: ((bytes: Uint8Array) => void) | undefined;
   let bufferSource: AudioBufferSourceNode | undefined;
   let hls: { destroy(): void } | undefined;
   let onRuntimeFailure: (error: Error) => void = () => {};
   let sourceFailure: Error | undefined;
-  const close = async () => { if (closed) return; closed = true; tracks.forEach(track => track.stop()); try { bufferSource?.stop(); } catch {} nodes.forEach(node => node.disconnect()); inputElement?.pause(); hls?.destroy(); if (revoked) URL.revokeObjectURL(revoked); try { if (reader) await within(reader.cancel(), 3000, 'The microphone stream did not close.'); } finally { await context.close(); } };
+  const close = (): Promise<void> => closing ??= (async () => {
+    closed = true; tracks.forEach(track => track.stop()); try { bufferSource?.stop(); } catch {}
+    nodes.forEach(node => node.disconnect()); inputElement?.pause(); hls?.destroy(); if (revoked) URL.revokeObjectURL(revoked);
+    try { if (reader) await within(reader.cancel(), 3000, 'The microphone stream did not close.'); }
+    finally {
+      try { await context.close(); }
+      finally { if (writer) { try { await within(writer.close(), 3000, 'The received audio stream did not close.'); } finally { writer.releaseLock(); } } }
+    }
+  })();
   try {
     await within(context.resume(), 15_000, 'Browser audio did not become ready.');
     const url = URL.createObjectURL(new Blob([processor], { type: 'application/javascript' }));
@@ -91,7 +101,6 @@ export async function prepareLocalMedia(media: CallMediaOptions) {
       });
     }
     const playbackGain = context.createGain(); playbackGain.gain.value = 0; nodes.push(playbackGain); worklet.connect(playbackGain); playbackGain.connect(context.destination);
-    let writer: WritableStreamDefaultWriter<Uint8Array> | undefined;
     if (speaker && typeof speaker === 'object' && 'getWriter' in speaker) writer = speaker.getWriter();
     else if (speaker === DEFAULT_SPEAKER || (speaker && typeof speaker === 'object' && 'kind' in speaker && speaker.kind === 'device')) {
       const deviceId = typeof speaker === 'object' ? speaker.deviceId : undefined;
@@ -118,7 +127,7 @@ export async function prepareLocalMedia(media: CallMediaOptions) {
       },
       async mute(value: boolean) { muted = value; worklet.port.postMessage({ type: 'mute', value }); },
       async clear() { clearSequence++; inputElement?.pause(); try { bufferSource?.stop(); } catch {} },
-      async close() { try { await close(); } finally { if (writer) { try { await within(writer.close(), 3000, 'The received audio stream did not close.'); } finally { writer.releaseLock(); } } } },
+      close,
     };
   } catch (error) { await close(); throw error; }
 }

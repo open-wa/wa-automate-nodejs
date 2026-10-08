@@ -36,6 +36,7 @@ export function registerCallingRoutes(app: Hono, options: {
     let service: CallingService | undefined;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let ticket = '';
+    let failure: string | undefined;
     return {
       onOpen(_event, ws) {
         if (!originAllowed) { ws.close(1008, 'Origin is not allowed'); return; }
@@ -64,11 +65,16 @@ export function registerCallingRoutes(app: Hono, options: {
             if (event.data.length > 4096) throw new Error('Oversized call media message');
             const message = JSON.parse(event.data);
             if (message.type === 'end') ws.close(1000, 'Media client ended');
+            else if (message.type === 'error' && typeof message.message === 'string') { failure = message.message.slice(0, 512).trim() || 'The dashboard media source failed.'; ws.close(1011, 'Media source failed'); }
           } else remote.push(new Uint8Array(event.data as ArrayBuffer));
-        } catch { ws.close(1008, 'Invalid or unavailable call media'); }
+        } catch (error) {
+          failure = remote && error instanceof Error ? error.message : 'Invalid or unavailable call media';
+          if (remote) ws.send(JSON.stringify({ type: 'error', message: failure }));
+          ws.close(1008, 'Invalid or unavailable call media');
+        }
       },
-      onClose() { clearTimeout(timer); if (ticket) void service?.remoteDisconnected(ticket); },
-      onError() { clearTimeout(timer); if (ticket) void service?.remoteDisconnected(ticket); },
+      onClose(event) { clearTimeout(timer); if (ticket) void service?.remoteDisconnected(ticket, failure ?? `Call media connection closed (WebSocket ${event.code}${event.reason ? `: ${event.reason}` : ''}).`); },
+      onError() { clearTimeout(timer); if (ticket) void service?.remoteDisconnected(ticket, failure ?? 'The call media WebSocket connection failed.'); },
     };
   }));
 }

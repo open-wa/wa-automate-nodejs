@@ -1,5 +1,5 @@
 import type { Call, CallIdentity, CallSnapshot, CallActionResult, CallMediaOptions, AudioInput, AudioOutput, VideoInput, CallAudioObserver } from '@open-wa/schema';
-import { normalizeCallMedia } from '@open-wa/schema/calling-media';
+import { normalizeCallMedia, describeCallMediaFailure } from '@open-wa/schema/calling-media';
 import { prepareLocalMedia } from '@open-wa/socket-client/calling-platform';
 import { ScopedTaskQueue } from '@open-wa/runtime-core';
 
@@ -49,9 +49,13 @@ export class RemoteCalls {
     let pendingBytes = 0;
     let receiveQueue: ScopedTaskQueue | undefined;
     let closing: Promise<void> | undefined;
-    const close = (): Promise<void> => closing ??= (async () => {
+    const close = (failure?: string): Promise<void> => closing ??= (async () => {
       closed = true;
       this.attachments.delete(ticket);
+      if (failure) {
+        console.warn('Calling media failed:', failure);
+        if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: 'error', message: failure.slice(0, 512) }));
+      }
       socket?.close(1000, 'Media ended');
       try { await receiveQueue?.waitForIdle(); await receiveQueue?.close(); }
       finally {
@@ -60,6 +64,7 @@ export class RemoteCalls {
         finally { clearTimeout(timer); }
       }
     })().catch(error => { console.warn('Calling media cleanup failed:', error instanceof Error ? error.message : String(error)); });
+    const fail = (error: unknown) => close(describeCallMediaFailure(error));
     try {
       // Admission precedes permission prompts, decoders, files and network acquisition.
       const previous = mode === 'replace' && call ? this.find(call.id) : undefined;
@@ -79,21 +84,33 @@ export class RemoteCalls {
       await new Promise<void>((resolve, reject) => {
         const timer = setTimeout(() => reject(new Error('Call media did not become ready.')), 10_000);
         socket!.onopen = () => socket!.send(JSON.stringify({ type: 'start', version: 1, ticket, ...(this.apiKey ? { apiKey: this.apiKey } : {}) }));
-        socket!.onmessage = ({ data }) => { if (typeof data !== 'string') return; try { if (JSON.parse(data).type === 'ready') { clearTimeout(timer); resolve(); } } catch { clearTimeout(timer); reject(new Error('Invalid call media handshake.')); } };
+        socket!.onmessage = ({ data }) => { if (typeof data !== 'string') return; try { const message = JSON.parse(data); if (message.type === 'ready') { clearTimeout(timer); resolve(); } else if (message.type === 'error') { clearTimeout(timer); reject(new Error(message.message ?? 'Call media admission failed.')); } } catch { clearTimeout(timer); reject(new Error('Invalid call media handshake.')); } };
         socket!.onerror = () => { clearTimeout(timer); reject(new Error('Call media connection failed.')); };
         socket!.onclose = () => { clearTimeout(timer); reject(new Error('Call media connection closed.')); };
       });
       let activated = false;
       socket.onmessage = ({ data }) => {
         if (data instanceof ArrayBuffer) {
-          if (closed || data.byteLength > 3840 || data.byteLength % 2 || pendingBytes + data.byteLength > 16_000) { void close(); return; }
+          if (closed) return;
+          if (data.byteLength > 3840 || data.byteLength % 2) { void fail(new Error('The received call audio frame is invalid.')); return; }
+          if (pendingBytes + data.byteLength > 16_000) { void fail(new Error('Dashboard audio playback exceeded its 500 ms receive buffer.')); return; }
           pendingBytes += data.byteLength;
-          void receiveQueue!.submit(() => local!.receive(new Uint8Array(data))).catch(() => close()).finally(() => { pendingBytes -= data.byteLength; });
+          void receiveQueue!.submit(() => local!.receive(new Uint8Array(data))).catch(fail).finally(() => { pendingBytes -= data.byteLength; });
         }
-        else { try { const message = JSON.parse(data); if (message.type === 'active' && !activated) { activated = true; void local!.start(bytes => { if (closed || socket!.readyState !== WebSocket.OPEN || socket!.bufferedAmount > 16_000) throw new Error('Call media connection is falling behind.'); socket!.send(bytes); }, () => { void close(); }).catch(() => close()); } } catch {} }
+        else {
+          try {
+            const message = JSON.parse(data);
+            if (message.type === 'error') { void fail(new Error(typeof message.message === 'string' ? message.message : 'The call media server reported a failure.')); return; }
+            if (message.type === 'active' && !activated) {
+              activated = true;
+              void local!.start(bytes => { if (closed) return; if (socket!.readyState !== WebSocket.OPEN || socket!.bufferedAmount > 16_000) throw new Error('Dashboard microphone exceeded its 500 ms send buffer.'); socket!.send(bytes); }, error => { void fail(error); }).catch(fail);
+            }
+          } catch (error) { void fail(error); }
+        }
       };
-      socket.onclose = () => { void close(); }; socket.onerror = () => { void close(); };
-      this.attachments.set(ticket, { ticket, observer: mode === 'observe', callId: call?.id, close, mute: local.mute, clear: local.clear });
+      socket.onclose = event => { if (!closed) void fail(new Error(`Call media connection closed (WebSocket ${event.code}${event.reason ? `: ${event.reason}` : ''}).`)); };
+      socket.onerror = () => { if (!closed) void fail(new Error('The call media WebSocket connection failed.')); };
+      this.attachments.set(ticket, { ticket, observer: mode === 'observe', callId: call?.id, close: () => close(), mute: local.mute, clear: local.clear });
       invoking = true;
       const result: CallActionResult & { observerId?: string } = mode === 'start' ? await this.rpc('startCall', [to, admission.media]) : mode === 'observe' ? await this.rpc('observeCallAudio', [call, admission.media.speaker]) : await this.rpc(mode === 'accept' ? 'acceptCall' : 'setCallMedia', [call, admission.media]);
       if (!result.ok) { await close(); return result; }

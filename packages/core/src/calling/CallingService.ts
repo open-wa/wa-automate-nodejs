@@ -2,8 +2,8 @@ import { Data, Effect, Schema } from 'effect';
 import type { IPage } from '@open-wa/driver-interface';
 import type { Logger } from '@open-wa/logger';
 import { SessionScope, ScopedTaskQueue } from '@open-wa/runtime-core';
-import { DEFAULT_MIC, DEFAULT_SPEAKER, DEFAULT_CAM, MediaDescriptorSchema, CallMediaOptionsSchema } from '@open-wa/schema';
-import type { CallActionResult, CallCapabilities, CallIdentity, CallMediaOptions, CallingOptions, CallSnapshot } from '@open-wa/schema';
+import { DEFAULT_MIC, DEFAULT_SPEAKER, DEFAULT_CAM, MediaDescriptorSchema, CallMediaOptionsSchema, describeCallMediaFailure } from '@open-wa/schema';
+import type { CallActionResult, CallCapabilities, CallEndReason, CallIdentity, CallMediaOptions, CallingOptions, CallSnapshot } from '@open-wa/schema';
 import { runToPromise } from '../effect/errors';
 import type { AudioFrame, CallMediaHost, CallingProviderEvent, CallingProviderInfo, PreparedCallMedia } from './ports';
 import { RemoteMediaReservation, type RemoteMediaRequest, type RemoteAudioConnection } from './RemoteMedia';
@@ -28,6 +28,7 @@ export class CallingService {
   private observers = new Map<string, { attachment: Attachment; queue: ScopedTaskQueue; call: CallIdentity }>();
   private stateQueue?: ScopedTaskQueue;
   private reconciling = false;
+  private ending?: { callId: string; reason: CallEndReason };
 
   constructor(private readonly options: {
     sessionId: string; logger: Logger; config?: CallingOptions; mediaHost?: CallMediaHost;
@@ -47,7 +48,10 @@ export class CallingService {
     const sameProvider = this.licensed && this.generation === this.options.generation()
       && this.provider?.artifactRevision === info.artifactRevision;
     if (!sameProvider) {
-      if (this.active) await this.invoke('command', { action: 'end', id: this.active.id }).catch(() => undefined);
+      if (this.active) {
+        this.ending = { callId: this.active.id, reason: { code: 'CALL_PROVIDER_CHANGED', message: 'The calling implementation changed and its media was closed.', source: 'session' } };
+        await this.invoke('command', { action: 'end', id: this.active.id }).catch(() => undefined);
+      }
       await this.invalidate();
     }
     this.licensed = true;
@@ -128,11 +132,11 @@ export class CallingService {
     return reservation;
   }
 
-  async remoteDisconnected(ticket: string): Promise<void> {
+  async remoteDisconnected(ticket: string, message = 'The calling media client disconnected.'): Promise<void> {
     const remote = this.remotes.get(ticket);
     if (!remote) return;
     const owner = [this.attachment?.options.microphone, this.attachment?.options.speaker, this.pending?.options.microphone, this.pending?.options.speaker].some(value => value && typeof value === 'object' && 'remoteId' in value && value.remoteId === ticket);
-    if (remote.claimed && owner) await this.mediaFailure('The calling media client disconnected.');
+    if (remote.claimed && owner) await this.mediaFailure(message);
     for (const observer of this.observers.values()) if (observer.attachment.remoteId === ticket) await this.closeScope(observer.attachment.scope, 'interruption');
     await this.closeScope(remote.scope, 'interruption');
   }
@@ -140,7 +144,10 @@ export class CallingService {
   async control(action: 'reject' | 'end' | 'mute' | 'clear', call: CallIdentity, value?: boolean): Promise<CallActionResult> {
     return this.action(async () => {
       this.require('calls.control', call);
+      const ending = action === 'end' || action === 'reject' ? { callId: call.id, reason: { code: action === 'reject' ? 'CALL_REJECTED_LOCALLY' : 'CALL_ENDED_LOCALLY', message: action === 'reject' ? 'The call was rejected from this session.' : 'The call was ended from this session.', source: 'local' as const } } : undefined;
+      if (ending) this.ending = ending;
       const result = await this.invoke<CallActionResult>('command', { action, id: call.id, value });
+      if (ending && !result?.ok && this.ending === ending) this.ending = undefined;
       if (result?.ok && action === 'mute') await this.attachment?.media.mute(value === true);
       if (result?.ok && action === 'clear') await this.attachment?.media.clear();
       return result ?? this.unavailableResult();
@@ -280,7 +287,7 @@ export class CallingService {
         localOptions = { ...options, microphone: remote.request.microphone ? remote.input : null, speaker: remote.request.speaker ? remote.output : null };
       }
       const prepared = await this.options.mediaHost.prepare(localOptions, scope, error => {
-        if (action.mode !== 'observe' && generation === this.generation) void this.mediaFailure(error.message, id).catch(failure => this.options.logger.warn('Calling media cleanup failed', { message: String(failure) }));
+        if (action.mode !== 'observe' && generation === this.generation) void this.mediaFailure(describeCallMediaFailure(error), id).catch(failure => this.options.logger.warn('Calling media cleanup failed', { message: String(failure) }));
       }, remoteId ? { encoding: 'pcm16le', sampleRate: 16_000, channels: 1 } : undefined);
       const receiveQueue = await ScopedTaskQueue.make({ name: 'calling-receive', capacity: 10, concurrency: 1, overload: 'dropping', timeoutMs: 1000 });
       await scope.addFinalizer('receive-queue', async () => { await receiveQueue.waitForIdle(); await receiveQueue.close(); });
@@ -295,9 +302,13 @@ export class CallingService {
 
   private async activate(attachment: Attachment): Promise<void> {
     if (attachment.started || this.active?.state !== 'active' || this.attachment !== attachment) return;
+    const callId = this.active.id;
     attachment.started = true;
     await attachment.media.start(frame => this.invoke('writeAudio', { attachmentId: attachment.id, frame }));
-    if (attachment.remoteId) this.remotes.get(attachment.remoteId)?.connection?.activate(this.active.id);
+    if (this.attachment !== attachment || this.active?.id !== callId) return;
+    this.active = { ...this.active, media: { state: 'attached' }, observedAt: Date.now() };
+    this.options.emit('state', this.active);
+    if (attachment.remoteId) this.remotes.get(attachment.remoteId)?.connection?.activate(callId);
   }
 
   private unavailableResult(): CallActionResult { return { ok: false, status: 'unavailable', reason: { code: 'CALLING_UNAVAILABLE', message: 'The calling provider is unavailable in this browser document.', status: 503 } }; }
@@ -363,7 +374,7 @@ export class CallingService {
       if (!Array.isArray(event.frame.samples) || event.frame.samples.length > 3840 || !Number.isFinite(event.frame.sampleRate) || event.frame.sampleRate < 8000 || event.frame.sampleRate > 192000 || event.frame.samples.length > event.frame.sampleRate * 0.12 || !event.frame.samples.every(Number.isFinite)) return;
       if (target?.id === event.attachmentId && event.callId === this.active?.id && this.active.state === 'active') {
         for (const observer of this.observers.values()) if (observer.call.id === event.callId) void observer.queue.submit(() => observer.attachment.media.receive(event.frame)).catch(async () => { this.options.logger.warn('An audio observer fell behind or failed; its sink was closed.'); await this.closeScope(observer.attachment.scope, 'failure'); });
-        try { await target.receiveQueue.submit(() => target.media.receive(event.frame)); } catch (error) { await this.mediaFailure(error instanceof Error ? error.message : String(error), target.id); }
+        try { await target.receiveQueue.submit(() => target.media.receive(event.frame)); } catch (error) { await this.mediaFailure(describeCallMediaFailure(error), target.id); }
       }
       return;
     }
@@ -371,29 +382,40 @@ export class CallingService {
       if (event.callId !== this.active?.id || (event.attachmentId && event.attachmentId !== this.attachment?.id && event.attachmentId !== this.pending?.id)) return;
       await this.mediaFailure(event.message, event.attachmentId); return;
     }
-    const snapshot = event.snapshot ?? event.terminal;
+    const raw = event.snapshot ?? event.terminal;
+    const snapshot = raw ? { ...raw,
+      ...(raw.terminal ? { endReason: this.ending?.callId === raw.id ? this.ending.reason : raw.endReason ?? { code: 'WHATSAPP_CALL_ENDED', message: 'WhatsApp ended the call without reporting a cause.', source: 'whatsapp' as const } } : {}),
+      ...(this.active?.id === raw.id && this.active.media ? { media: this.active.media } : {}),
+    } : undefined;
     if (!event.snapshot || (snapshot && this.active && snapshot.id !== this.active.id)) {
+      // Retire ownership before closing the socket; a normal end must not be
+      // reported by its close callback as a new media failure.
+      const attachment = this.attachment; this.attachment = undefined;
+      const pending = !event.snapshot ? this.pending : undefined;
+      if (!event.snapshot) this.pending = undefined;
       await this.closeObservers();
-      await this.closeScope(this.attachment?.scope); this.attachment = undefined;
-      if (!event.snapshot) { await this.closeScope(this.pending?.scope); this.pending = undefined; }
+      await this.closeScope(attachment?.scope);
+      await this.closeScope(pending?.scope);
     }
     if (generation !== this.generation || generation !== this.options.generation()) return;
-    this.active = event.snapshot ? { ...event.snapshot, sessionId: this.options.sessionId, generation } : null;
+    this.active = event.snapshot && snapshot ? { ...snapshot, sessionId: this.options.sessionId, generation } : null;
     if (snapshot) {
       const bound = { ...snapshot, sessionId: this.options.sessionId, generation };
+      this.options.logger.info('Calling state changed', { callId: bound.id, state: bound.state, video: bound.video, ...(bound.endReason ? { endReason: bound.endReason } : {}) });
       this.options.emit('state', bound);
       if (bound.direction === 'incoming' && bound.state === 'ringing' && !this.seenIncoming.has(bound.id)) {
         if (this.seenIncoming.size >= 128) this.seenIncoming.delete(this.seenIncoming.values().next().value!);
         this.seenIncoming.add(bound.id); this.options.emit('incoming', bound);
       }
       if (this.pending && bound.direction === 'outgoing' && !bound.terminal) { this.attachment = this.pending; this.pending = undefined; }
-      if (bound.terminal) { await this.closeScope(this.attachment?.scope); this.attachment = undefined; }
+      if (bound.terminal) { const attachment = this.attachment; this.attachment = undefined; await this.closeScope(attachment?.scope); }
       else if (this.attachment) await this.activate(this.attachment);
     }
   }
 
   private async expire(): Promise<void> {
     const call = this.active;
+    if (call) this.ending = { callId: call.id, reason: { code: 'CALLING_LICENSE_EXPIRED', message: 'Calling access expired or was withdrawn.', source: 'license' } };
     if (call) await this.invoke('command', { action: 'end', id: call.id }).catch(() => undefined);
     await this.invalidate('Calling access expired or was withdrawn. Refresh the calling-enabled license before attaching media.'); this.licensed = false;
     this.options.logger.warn('Calling access expired or was withdrawn; call media was closed. Messaging remains available.');
@@ -402,11 +424,16 @@ export class CallingService {
   private async mediaFailure(message: string, attachmentId?: string): Promise<void> {
     const failed = this.attachment ?? this.pending;
     if (!failed || (attachmentId && failed.id !== attachmentId)) return;
-    this.options.logger.warn('Calling media failed', { message });
+    message = message.trim() || 'Call media failed without reporting a cause.';
+    this.options.logger.warn('Calling media failed', { callId: this.active?.id, attachmentId: failed.id, message });
     const call = this.active;
     if (this.attachment === failed) this.attachment = undefined;
     if (this.pending === failed) this.pending = undefined;
-    if (call) this.options.emit('state', { ...call, media: { state: 'ended', reason: message }, observedAt: Date.now() });
+    if (call) {
+      if (failed.options.onMediaFailure !== 'keep-open') this.ending = { callId: call.id, reason: { code: 'CALL_MEDIA_FAILED', message, source: 'media' } };
+      this.active = { ...call, media: { state: 'ended', reason: message }, observedAt: Date.now() };
+      this.options.emit('state', this.active);
+    }
     if (failed.options.onMediaFailure !== 'keep-open' && call) await this.invoke('command', { action: 'end', id: call.id }).catch(() => undefined);
     // The failure may originate in a fiber owned by this scope. Close from a
     // separate task so that finalization never waits for its own failing pump.
