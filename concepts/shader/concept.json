@@ -1,0 +1,9 @@
+{
+  "slug": "shader",
+  "name": "Signal",
+  "direction": "Dev tool",
+  "tagline": "A precise dark product page for developers whose live GPU hero shows one server fanning messages out to many chats, then gets out of the way for the command, the code and the facts.",
+  "logo": "A source dot fanning three lanes to three endpoints; on hover or focus, ember packets run down each lane, the endpoints flash on arrival, and the hero shader fires a packet down every lane at once.",
+  "brandFont": true,
+  "stack": ["Astro 7", "Hand-written WebGL1 fragment shader (no library)", "Instrument Sans + Instrument Serif via Fontsource", "Analog Mono Plus"]
+}

@@ -1,0 +1,464 @@
+---
+import '@fontsource-variable/instrument-sans/wdth.css';
+import '@fontsource/instrument-serif/latin-400-italic.css';
+import '../styles/site.css';
+
+const base = import.meta.env.BASE_URL;
+
+const LINKS = {
+  quickstart: 'https://openwa.dev/docs/getting-started/quickstart',
+  docs: 'https://openwa.dev/docs',
+  reference: 'https://openwa.dev/docs/reference/client/client',
+  github: 'https://github.com/open-wa/wa-automate-nodejs',
+  discord: 'https://discord.gg/dpan7EYE3t',
+  licensing: 'https://openwa.dev/docs/licensing/licensed-features',
+};
+
+// ---------- tiny build-time highlighter ----------
+const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const KW = new Set(['import', 'from', 'const', 'await', 'async', 'export', 'default', 'if', 'new', 'true', 'false', 'return']);
+const CMD = new Set(['npx', 'curl', 'docker']);
+function hl(code: string, lang: 'bash' | 'ts') {
+  let out = '';
+  let i = 0;
+  const wrap = (cls: string, s: string) => `<span class="t-${cls}">${esc(s)}</span>`;
+  while (i < code.length) {
+    const rest = code.slice(i);
+    const prev = code[i - 1] ?? ' ';
+    let m: RegExpMatchArray | null;
+    if (lang === 'ts' && (m = rest.match(/^\/\/.*/))) { out += wrap('c', m[0]); i += m[0].length; continue; }
+    if ((m = rest.match(/^("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/))) { out += wrap('s', m[0]); i += m[0].length; continue; }
+    if (lang === 'bash' && /\s/.test(prev) && (m = rest.match(/^--?[a-zA-Z][\w-]*/))) { out += wrap('f', m[0]); i += m[0].length; continue; }
+    if (lang === 'bash' && (m = rest.match(/^\\$/m))) { out += wrap('p', m[0]); i += 1; continue; }
+    if ((m = rest.match(/^[A-Za-z_$][\w$]*/))) {
+      const w = m[0];
+      const next = code[i + w.length];
+      let cls = '';
+      if (lang === 'bash') cls = CMD.has(w) && /\s|^/.test(prev) ? 'k' : '';
+      else if (KW.has(w)) cls = 'k';
+      else if (next === '(') cls = 'fn';
+      else if (/^[A-Z]/.test(w)) cls = 'ty';
+      else if (code[i - 1] === '.') cls = 'pr';
+      out += cls ? wrap(cls, w) : esc(w);
+      i += w.length;
+      continue;
+    }
+    if ((m = rest.match(/^\d+/))) { out += wrap('n', m[0]); i += m[0].length; continue; }
+    if ((m = rest.match(/^[{}()[\];,.:=>]+/))) { out += wrap('p', m[0]); i += m[0].length; continue; }
+    out += esc(code[i]);
+    i += 1;
+  }
+  return out;
+}
+
+// command lines: keep each token unbroken so phones wrap only between arguments
+const cmdHtml = (cmd: string) => cmd.split(' ').map((t) => `<span class="w">${hl(t, 'bash')}</span>`).join(' ');
+
+// ---------- real snippets (BRIEF.md) ----------
+const START = 'npx @open-wa/wa-automate@latest --port 8080';
+const RUNS = [
+  { cmd: START, note: 'Start the Easy API on port 8080' },
+  { cmd: 'npx @open-wa/wa-automate@latest --port 8080 --api-key "your-secure-key"', note: 'Require an API key' },
+  { cmd: 'npx @open-wa/wa-automate@latest --session-id sales --port 8081', note: 'Run a second named session' },
+  { cmd: 'docker run -p 8080:8080 --init openwa/wa-automate', note: 'Or run the container' },
+];
+
+const TABS = [
+  {
+    id: 'http', label: 'HTTP', file: 'terminal', lang: 'bash' as const,
+    note: 'Call the local HTTP API from anything that can send a request. Live docs at /api-docs/.',
+    code: `curl -X POST http://localhost:8080/api/messages/sendText \\
+  -H "Content-Type: application/json" \\
+  -d '{"to": "447123456789@c.us", "content": "Your order is ready to collect!"}'`,
+  },
+  {
+    id: 'socket', label: 'SocketClient', file: 'bot.ts', lang: 'ts' as const,
+    note: 'Connect another Node.js app to a running Easy API. Commands go over HTTP RPC, events arrive over Server-Sent Events.',
+    code: `import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'your-secure-key');
+client.onMessage(async (message) => {
+  if (message.body === 'Hi') await client.sendText(message.from, 'Hello!');
+});`,
+  },
+  {
+    id: 'embed', label: 'createClient', file: 'app.ts', lang: 'ts' as const,
+    note: 'Embed the runtime in your own Node.js process, with a pluggable browser driver.',
+    code: `import { createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+const client = await createClient({ sessionId: 'sales', driver: new PuppeteerDriver(), headless: true });`,
+  },
+  {
+    id: 'mcp', label: 'MCP', file: 'wa.config.mjs', lang: 'ts' as const,
+    note: 'Turn on the built-in MCP server and every Easy API method becomes a tool for Claude, Cursor or Windsurf.',
+    code: `// wa.config.mjs: MCP
+export default { apiKey: process.env.WA_API_KEY, port: 8080, mcp: { enabled: true, path: '/mcp' } };`,
+  },
+];
+
+const SURFACES = [
+  { name: 'Easy API (CLI)', tag: '/api-docs/', body: 'A local HTTP API with live docs at /api-docs/, OpenAPI at /meta/swagger.json and Postman at /meta/postman.json.' },
+  { name: 'SocketClient', tag: '@open-wa/socket-client', body: 'Connect another Node.js app to a running Easy API. HTTP RPC for commands, Server-Sent Events for events.' },
+  { name: 'Embedded runtime', tag: 'createClient()', body: 'createClient inside your own Node.js app, with a pluggable browser driver.' },
+  { name: 'Webhooks and plugins', tag: 'wa.config.*', body: 'plugins and pluginConfig in wa.config.*. Write your own with @open-wa/plugin-sdk.' },
+  { name: 'MCP', tag: '/mcp', body: 'Every Easy API method becomes a tool for Claude, Cursor or Windsurf.' },
+  { name: 'Cloudflare proxy', tag: 'no public ports', body: 'Remote access to a local session without opening public ports.' },
+];
+
+const DRIVERS = ['Puppeteer', 'Playwright', 'Lightpanda'];
+const INTEGRATIONS = ['Webhook', 'Chatwoot', 'S3', 'Cloudflare session proxy', 'Node-RED'];
+const FOR = ['Order, booking and delivery updates', 'Support inboxes', 'Bots and community tools', 'CRM and helpdesk bridges', 'An AI agent with a WhatsApp number'];
+
+const STATS = [
+  { value: '3.6k', label: 'GitHub stars', title: '3,666 stars', href: LINKS.github },
+  { value: '723', label: 'Forks', title: '723 forks', href: `${LINKS.github}/forks` },
+  { value: '2019', label: 'Open source since August', title: 'August 2019' },
+  { value: '5.0.0', label: 'Current stable line', title: 'v5.0.0' },
+];
+
+function roll(v: string) {
+  let k = 0;
+  return [...v].map((ch) => {
+    if (!/\d/.test(ch)) return `<span class="ch">${esc(ch)}</span>`;
+    const n = Number(ch);
+    const strip = Array.from({ length: 20 }, (_, j) => `<span>${j % 10}</span>`).join('');
+    return `<span class="d" style="--n:${n};--k:${k++}"><span class="strip">${strip}</span></span>`;
+  }).join('');
+}
+
+// ---------- static fan for fallback + closing section ----------
+const LANES = 7;
+function fan(vertical: boolean) {
+  const paths: string[] = [];
+  const ends: string[] = [];
+  const s0 = vertical ? 8 : 6, L = vertical ? 84 : 86, W = 42, mid = 50;
+  for (let i = -LANES; i <= LANES; i++) {
+    const e = mid - (i / LANES) * W;
+    const y0 = mid + (e - mid) * 0.015;
+    const P = [[s0, y0], [s0 + 0.32 * L, mid], [s0 + 0.58 * L, e], [s0 + 0.9 * L, e], [s0 + L, e]];
+    const pt = ([a, b]: number[]) => (vertical ? `${(100 - b).toFixed(2)} ${a.toFixed(2)}` : `${a.toFixed(2)} ${b.toFixed(2)}`);
+    paths.push(`M${pt([s0, mid])} L${pt(P[0])} C${pt(P[1])} ${pt(P[2])} ${pt(P[3])} L${pt(P[4])}`);
+    ends.push(`M${pt(P[4])} l0.001 0`);
+  }
+  return { paths, ends };
+}
+const FAN_H = fan(false);
+const FAN_V = fan(true);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0c0e1b" />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="preload" href={`${base}fonts/AnalogMonoPlus.woff2`} as="font" type="font/woff2" crossorigin />
+    <title>open-wa: connect WhatsApp to your application</title>
+    <meta name="description" content="Turn a WhatsApp account into an API, bot runtime, webhook bridge, and AI tool surface. WhatsApp automation on your own infrastructure." />
+    <style set:html={`@font-face{font-family:'Analog Mono Plus';src:url('${base}fonts/AnalogMonoPlus.woff2') format('woff2');font-display:swap;font-weight:400;}`}></style>
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <p id="live" class="sr" aria-live="polite"></p>
+
+    <header class="nav">
+      <div class="wrap nav-in">
+        <a class="logo" href={base} aria-label="open-wa home" data-logo>
+          <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+            <g class="lanes">
+              <path pathLength="100" d="M8 16C15 16 15 8 24.5 8" />
+              <path pathLength="100" d="M8 16H24.5" />
+              <path pathLength="100" d="M8 16C15 16 15 24 24.5 24" />
+            </g>
+            <g class="pk">
+              <path pathLength="100" d="M8 16C15 16 15 8 24.5 8" />
+              <path pathLength="100" d="M8 16H24.5" />
+              <path pathLength="100" d="M8 16C15 16 15 24 24.5 24" />
+            </g>
+            <g class="ends">
+              <circle cx="24.5" cy="8" r="2.3" />
+              <circle cx="24.5" cy="16" r="2.3" />
+              <circle cx="24.5" cy="24" r="2.3" />
+            </g>
+            <circle class="src" cx="8" cy="16" r="3.4" />
+          </svg>
+          <span class="word">open-wa</span>
+          <span class="ver">v5</span>
+        </a>
+        <nav aria-label="Primary">
+          <ul class="nav-links">
+            <li class="hide-sm"><a href={LINKS.docs}>Docs</a></li>
+            <li class="hide-sm"><a href={LINKS.reference}>API reference</a></li>
+            <li class="hide-sm"><a href={LINKS.discord}>Discord</a></li>
+            <li><a class="gh" href={LINKS.github}><span>GitHub</span> <span class="mono dim" aria-label="3.6k stars">3.6k</span></a></li>
+            <li class="hide-sm"><a class="btn btn-sm" href={LINKS.quickstart}>Send your first message</a></li>
+            <li class="show-sm"><a href={LINKS.docs}>Docs</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title" data-hero>
+        <canvas class="hero-gl" aria-hidden="true"></canvas>
+        <div class="wrap hero-in">
+          <div class="hero-copy">
+            <p class="eyebrow mono i1"><span class="dot" aria-hidden="true"></span>v5.0.0 <span class="sep">/</span> open source since 2019</p>
+            <h1 id="hero-title" class="i2">Connect WhatsApp to your <em>application.</em></h1>
+            <p class="lede i3">Turn a WhatsApp account into an API, bot runtime, webhook bridge, and AI tool surface. It runs on your own machine or server.</p>
+            <div class="cmd i4">
+              <span class="prompt mono" aria-hidden="true">$</span>
+              <code class="mono" set:html={cmdHtml(START)} />
+              <button class="copy" type="button" data-copy={START} aria-label="Copy the start command">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="8.5" height="8.5" rx="1.5"/><path d="M3 10.5V3.8C3 3.4 3.4 3 3.8 3h6.7"/></svg>
+                <span data-copy-label>Copy</span>
+              </button>
+            </div>
+            <p class="cmd-note mono i4">Log in once with a QR code or link code. Live docs at <span class="hi">localhost:8080/api-docs/</span></p>
+            <div class="ctas i5">
+              <a class="btn" href={LINKS.quickstart} data-boost>Send your first message <span aria-hidden="true">→</span></a>
+              <a class="btn btn-ghost" href={LINKS.docs}>Read the docs</a>
+            </div>
+          </div>
+          <div class="stage" data-stage aria-hidden="true">
+            <svg class="fallback fb-h" viewBox="0 0 100 100" preserveAspectRatio="none">
+              {FAN_H.paths.map((d) => <path class="fl" d={d} />)}
+              {FAN_H.ends.map((d) => <path class="fe" d={d} />)}
+              <path class="fg" d="M6 50 l0.001 0" /><path class="fs" d="M6 50 l0.001 0" />
+            </svg>
+            <svg class="fallback fb-v" viewBox="0 0 100 100" preserveAspectRatio="none">
+              {FAN_V.paths.map((d) => <path class="fl" d={d} />)}
+              {FAN_V.ends.map((d) => <path class="fe" d={d} />)}
+              <path class="fg" d="M50 8 l0.001 0" /><path class="fs" d="M50 8 l0.001 0" />
+            </svg>
+            <span class="tag tag-src mono"><b>your server</b>localhost:8080</span>
+            <span class="tag tag-end mono"><b>chats</b>one session, many endpoints</span>
+          </div>
+        </div>
+        <div class="wrap for" data-reveal>
+          <span class="mono for-k">Built for</span>
+          <ul class="for-list">
+            {FOR.map((f) => <li>{f}</li>)}
+          </ul>
+        </div>
+      </section>
+
+      <section class="sec" id="start" aria-labelledby="start-title">
+        <div class="wrap">
+          <div class="sec-head" data-reveal>
+            <p class="idx mono"><span>01</span> Start</p>
+            <div>
+              <h2 id="start-title">One command. A whole API.</h2>
+              <p class="sec-lede">Run it, scan the QR code once, and a local HTTP API is waiting on the port you chose. Requires Node.js 22.21.1 or newer.</p>
+            </div>
+          </div>
+          <ol class="runs" data-reveal>
+            {RUNS.map((r, i) => (
+              <li class="run" style={`--s:${i}`}>
+                <span class="run-note">{r.note}</span>
+                <div class="run-cmd">
+                  <code class="mono" set:html={cmdHtml(r.cmd)} />
+                  <button class="copy" type="button" data-copy={r.cmd} aria-label={`Copy: ${r.note}`}>
+                    <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="8.5" height="8.5" rx="1.5"/><path d="M3 10.5V3.8C3 3.4 3.4 3 3.8 3h6.7"/></svg>
+                    <span data-copy-label>Copy</span>
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <dl class="routes mono" data-reveal>
+            <div><dt>Live docs</dt><dd>/api-docs/</dd></div>
+            <div><dt>OpenAPI</dt><dd>/meta/swagger.json</dd></div>
+            <div><dt>Postman</dt><dd>/meta/postman.json</dd></div>
+            <div><dt>MCP</dt><dd>/mcp</dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="sec" id="code" aria-labelledby="code-title">
+        <div class="wrap">
+          <div class="sec-head" data-reveal>
+            <p class="idx mono"><span>02</span> Connect</p>
+            <div>
+              <h2 id="code-title">Same session. Four ways in.</h2>
+              <p class="sec-lede">Talk to it over HTTP, from another Node.js app, embedded in your own process, or through an AI agent.</p>
+            </div>
+          </div>
+          <div class="panel" data-reveal>
+            <div class="panel-bar">
+              <div class="tabs" role="tablist" aria-label="Ways to connect">
+                {TABS.map((t, i) => (
+                  <button class="tab mono" role="tab" id={`tab-${t.id}`} aria-controls={`panel-${t.id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} type="button">{t.label}</button>
+                ))}
+                <span class="tab-ind" aria-hidden="true"></span>
+              </div>
+            </div>
+            {TABS.map((t, i) => (
+              <div class="tabpanel" role="tabpanel" id={`panel-${t.id}`} aria-labelledby={`tab-${t.id}`} hidden={i !== 0} tabindex="0">
+                <div class="file mono">
+                  <span class="file-name">{t.file}</span>
+                  <button class="copy copy-sm" type="button" data-copy={t.code} aria-label={`Copy the ${t.label} example`}>
+                    <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="8.5" height="8.5" rx="1.5"/><path d="M3 10.5V3.8C3 3.4 3.4 3 3.8 3h6.7"/></svg>
+                    <span data-copy-label>Copy</span>
+                  </button>
+                </div>
+                <pre class="code mono"><code set:html={hl(t.code, t.lang)} /></pre>
+                <p class="panel-note">{t.note}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="sec" id="surfaces" aria-labelledby="surfaces-title">
+        <div class="wrap">
+          <div class="sec-head" data-reveal>
+            <p class="idx mono"><span>03</span> Surfaces</p>
+            <div>
+              <h2 id="surfaces-title">Six surfaces, one runtime.</h2>
+              <p class="sec-lede">Pick the one that fits the job. They all drive the same named session.</p>
+            </div>
+          </div>
+          <ul class="grid" data-reveal>
+            {SURFACES.map((s, i) => (
+              <li class="cell" style={`--s:${i}`}>
+                <div class="cell-top mono"><span class="cell-n">{String(i + 1).padStart(2, '0')}</span><span class="cell-tag">{s.tag}</span></div>
+                <h3>{s.name}</h3>
+                <p>{s.body}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section class="sec" id="drivers" aria-labelledby="drivers-title">
+        <div class="wrap">
+          <div class="sec-head" data-reveal>
+            <p class="idx mono"><span>04</span> Drivers and integrations</p>
+            <div>
+              <h2 id="drivers-title">Pluggable at both ends.</h2>
+              <p class="sec-lede">Choose the browser driver underneath. Route events out to the tools you already run.</p>
+            </div>
+          </div>
+          <div class="route" data-reveal>
+            <div class="route-col">
+              <p class="route-k mono">Browser drivers <span>3</span></p>
+              <ul>{DRIVERS.map((d, i) => <li class="chip in-l" style={`--s:${i}`}>{d}</li>)}</ul>
+            </div>
+            <div class="route-core">
+              <svg class="mark mark-lg" viewBox="0 0 32 32" aria-hidden="true">
+                <g class="lanes"><path d="M8 16C15 16 15 8 24.5 8" /><path d="M8 16H24.5" /><path d="M8 16C15 16 15 24 24.5 24" /></g>
+                <g class="ends"><circle cx="24.5" cy="8" r="2.3" /><circle cx="24.5" cy="16" r="2.3" /><circle cx="24.5" cy="24" r="2.3" /></g>
+                <circle class="src" cx="8" cy="16" r="3.4" />
+              </svg>
+              <p class="mono">open-wa runtime</p>
+              <p class="route-sub">one named session</p>
+            </div>
+            <div class="route-col">
+              <p class="route-k mono">Integrations <span>5</span></p>
+              <ul>{INTEGRATIONS.map((d, i) => <li class="chip in-r" style={`--s:${i}`}>{d}</li>)}</ul>
+            </div>
+          </div>
+          <div data-reveal><p class="route-foot mono">Need something else? Write a plugin with <span class="hi">@open-wa/plugin-sdk</span></p></div>
+        </div>
+      </section>
+
+      <section class="sec" id="numbers" aria-labelledby="numbers-title">
+        <div class="wrap">
+          <div class="sec-head" data-reveal>
+            <p class="idx mono"><span>05</span> Record</p>
+            <div>
+              <h2 id="numbers-title">Seven years in the open.</h2>
+            </div>
+          </div>
+          <ul class="stats" data-reveal>
+            {STATS.map((s) => (
+              <li class="stat">
+                {s.href ? (
+                  <a class="stat-v mono" href={s.href} aria-label={`${s.title}, ${s.label}`}><span aria-hidden="true" set:html={roll(s.value)} /></a>
+                ) : (
+                  <span class="stat-v mono" role="text" aria-label={`${s.title}, ${s.label}`}><span aria-hidden="true" set:html={roll(s.value)} /></span>
+                )}
+                <span class="stat-k">{s.label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section class="sec sec-lic" id="licensing" aria-labelledby="lic-title">
+        <div class="wrap">
+          <div class="lic" data-reveal>
+            <p class="idx mono"><span>06</span> Licensing</p>
+            <div>
+              <h2 id="lic-title">Open source, with a few licensed methods.</h2>
+              <p class="sec-lede">Some methods need a Restricted or Insiders license. Check the list before you build on them.</p>
+            </div>
+            <a class="btn btn-ghost" href={LINKS.licensing}>Licensed features <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="end" aria-labelledby="end-title">
+        <div class="wrap end-in" data-reveal>
+          <svg class="end-fan" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            {FAN_H.paths.map((d, i) => <path class="fl" d={d} style={`--s:${Math.abs(i - LANES)}`} />)}
+            {FAN_H.ends.map((d, i) => <path class="fe" d={d} style={`--s:${Math.abs(i - LANES)}`} />)}
+            <path class="fg" d="M6 50 l0.001 0" /><path class="fs" d="M6 50 l0.001 0" />
+          </svg>
+          <div class="end-copy">
+            <h2 id="end-title">Send your <em>first</em> message.</h2>
+            <p class="sec-lede">Start the Easy API, scan the QR code, then POST to <span class="mono hi">/api/messages/sendText</span>.</p>
+            <div class="ctas">
+              <a class="btn" href={LINKS.quickstart} data-boost>Open the quickstart <span aria-hidden="true">→</span></a>
+              <a class="btn btn-ghost" href={LINKS.github}>GitHub</a>
+              <a class="btn btn-ghost" href={LINKS.discord}>Discord</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div class="wrap foot-in">
+        <a class="logo" href={base} aria-label="open-wa home">
+          <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+            <g class="lanes"><path pathLength="100" d="M8 16C15 16 15 8 24.5 8" /><path pathLength="100" d="M8 16H24.5" /><path pathLength="100" d="M8 16C15 16 15 24 24.5 24" /></g>
+            <g class="pk"><path pathLength="100" d="M8 16C15 16 15 8 24.5 8" /><path pathLength="100" d="M8 16H24.5" /><path pathLength="100" d="M8 16C15 16 15 24 24.5 24" /></g>
+            <g class="ends"><circle cx="24.5" cy="8" r="2.3" /><circle cx="24.5" cy="16" r="2.3" /><circle cx="24.5" cy="24" r="2.3" /></g>
+            <circle class="src" cx="8" cy="16" r="3.4" />
+          </svg>
+          <span class="word">open-wa</span>
+        </a>
+        <ul class="foot-links">
+          <li><a href={LINKS.docs}>Docs</a></li>
+          <li><a href={LINKS.reference}>Client API reference</a></li>
+          <li><a href={LINKS.licensing}>Licensed features</a></li>
+          <li><a href={LINKS.github}>GitHub</a></li>
+          <li><a href={LINKS.discord}>Discord</a></li>
+        </ul>
+        <p class="disclaimer mono">open-wa is unofficial and not affiliated with WhatsApp or Meta.</p>
+      </div>
+    </footer>
+
+    <script>
+      import { initSignal } from '../scripts/signal.js';
+      import { initCopy, initTabs, initReveal } from '../scripts/ui.js';
+
+      const hero = document.querySelector('[data-hero]');
+      let sig = null;
+      try { sig = hero ? initSignal(hero) : null; } catch (e) { if (hero) hero.dataset.gl = 'off'; }
+      const send = () => sig?.boost();
+      initCopy(send);
+      initTabs();
+      initReveal();
+      document.querySelectorAll('[data-boost], [data-logo]').forEach((el) => {
+        el.addEventListener('pointerenter', send);
+        el.addEventListener('focus', send);
+      });
+    </script>
+  </body>
+</html>
