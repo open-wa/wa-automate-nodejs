@@ -1,5 +1,6 @@
 # WhatsApp QR through the Lightpanda driver
 
+> Historical notes from the earlier investigation. Read [research.md](research.md) for the full 7–8 October record, later successful milestones, and unresolved failures. Status statements below describe the run at that point, not the current session.
 The source `LightpandaDriver` reached a real WhatsApp Web QR on 7 October 2026. This is an experimental v1 path with a separate modified binary and ephemeral browser API bridges. Stock 1.0.0 still fails the browser gate. The original benchmark results remain stock-binary measurements.
 
 The clean driver command reached QR in 13.629 seconds with 281.7 MiB peak Lightpanda RSS. Running the documented preparation command and its resulting copy also reached QR in 24.706 seconds with 237.5 MiB peak RSS. These are individual live observations, including driver launch, with RSS sampled every 100 ms after page creation. They exclude Bun/controller memory and are not a repeated Chrome comparison. Per-run progress files remain local diagnostic data.
@@ -8,7 +9,7 @@ Current release-preparation status, 8 October 2026: later reloads failed with se
 
 ## Reproduce on this Mac
 
-Run from `/Users/Mohammed/projects/tools/wa`. The input is the official ARM64 macOS [Lightpanda 1.0.0 release](https://github.com/lightpanda-io/browser/releases/tag/1.0.0), whose SHA256 is `955440053a84754dd64c62f970449a56a2b350cdf43ea5f2e809a73047b8173d`.
+Run from `[local checkout path omitted]`. The input is the official ARM64 macOS [Lightpanda 1.0.0 release](https://github.com/lightpanda-io/browser/releases/tag/1.0.0), whose SHA256 is `955440053a84754dd64c62f970449a56a2b350cdf43ea5f2e809a73047b8173d`.
 
 ```sh
 python3 architecture/benchmarks/lightpanda-1.0.0-2026-10-07/prepare-ua-experiment.py \
@@ -66,7 +67,7 @@ The CLI frontend needed a Bun source export so a source run used the current run
 
 ### Pairing failure and stale QR correction
 
-A phone scan of the first Easy API QR returned “Couldn't link device, try again later.” Live inspection found that WhatsApp had replaced its QR payload while `/health` and `/qr` still held the initial one: the native page hash was `dafc980202fd`, while the API hash remained `da52e7718741`, with only one emitted QR event. Lightpanda's Smart QR DOM observer had missed the updates. The transport now reads the current QR surface through short CDP evaluations once per second in Lightpanda mode, emits changed payloads through the existing QR event path, and cancels that polling on authentication, close, or replacement of a watcher. The requested Easy API run then emitted eight successive QR payloads, and a native/API comparison matched after a rotation. This corrects stale QR delivery; successful phone pairing is still required before claiming login works.
+A phone scan of the first Easy API QR returned “Couldn't link device, try again later.” Live inspection found that WhatsApp had replaced its QR payload while `/health` and `/qr` still held the initial one: the native QR had rotated while the API still held an earlier QR, with only one emitted QR event. Lightpanda's Smart QR DOM observer had missed the updates. The transport now reads the current QR surface through short CDP evaluations once per second in Lightpanda mode, emits changed payloads through the existing QR event path, and cancels that polling on authentication, close, or replacement of a watcher. The requested Easy API run then emitted eight successive QR payloads, and a native/API comparison matched after a rotation. This corrects stale QR delivery; successful phone pairing is still required before claiming login works.
 
 The visible `UNINITIALIZED HANDSHAKE` warning was initially suspected to identify the pairing failure. Reading the actual delivered WhatsApp bundle showed it is a rejected-promise placeholder immediately followed by a catch handler in `WANoiseHandshake` and `WANoiseSocket`. Native WebSocket instrumentation showed an open socket exchanging binary frames and cryptographic calls completing. That warning and the pre-authentication `DISCONNECTED` model label do not, by themselves, establish that the Noise handshake failed. Diagnostics retained only payload hashes, socket metadata and errors, without WebSocket frame contents, credentials, or key material.
 
@@ -115,7 +116,7 @@ The private inbox now separates captured-message body failures from historical u
 
 ### 8 October 2026: saved session restored, SDK READY and dashboard chat/contact data observed
 
-Mohammed approved restarting with the preserved encrypted session. The process resumed native authentication without a QR scan. Two additional adapter defects became visible: restored WhatsApp reported `WAPI.isSessionLoaded() === true` with native CONNECTED and a populated chat shell while `Cmd.isOfflineDeliveryEnd` stayed false, and checkpointing inside an accepted native message write called `clearOfflineSnapShot`, which waits for the same native queue and receipt batches. Source inspection of the actual WhatsApp assets confirmed that circular wait.
+the user approved restarting with the preserved encrypted session. The process resumed native authentication without a QR scan. Two additional adapter defects became visible: restored WhatsApp reported `WAPI.isSessionLoaded() === true` with native CONNECTED and a populated chat shell while `Cmd.isOfflineDeliveryEnd` stayed false, and checkpointing inside an accepted native message write called `clearOfflineSnapShot`, which waits for the same native queue and receipt batches. Source inspection of the actual WhatsApp assets confirmed that circular wait.
 
 Private fixes now use the SDK's loaded-session truth and authenticated native socket, capture accepted message references without checkpointing inside their native queue, and save at the receipt boundary after native Signal snapshots have committed. Checkpointing flushes Signal writes directly instead of draining message or receipt queues. Phase and in-flight capture counts are available in portable status. Generated artifacts were produced from private source; immutable wapi.js was not edited.
 
@@ -125,7 +126,7 @@ This establishes saved-session restoration, authenticated library readiness, and
 
 ### 8 October 2026: removed permanent native-write failure stop; reload defect isolated
 
-Mohammed requested trying the session without the adapter permanently stopping after a native message-write error. The private write hook now releases its in-flight tracking on success or rejection and returns the original failure to WhatsApp without setting the adapter terminal flag. Saved encrypted session data was backed up and retained. The actual Easy API restarted at 00:37:45 UTC, restored without a QR scan, reached library READY at 00:38:02 UTC and served 362 chats and 2,017 contacts. Encrypted checkpoints continued saving. Neither the original native write error nor `PORTABLE_SESSION_STOPPED` was observed in this run, so recovery from that specific error remains unproven.
+the user requested trying the session without the adapter permanently stopping after a native message-write error. The private write hook now releases its in-flight tracking on success or rejection and returns the original failure to WhatsApp without setting the adapter terminal flag. Saved encrypted session data was backed up and retained. The actual Easy API restarted at 00:37:45 UTC, restored without a QR scan, reached library READY at 00:38:02 UTC and served 362 chats and 2,017 contacts. Encrypted checkpoints continued saving. Neither the original native write error nor `PORTABLE_SESSION_STOPPED` was observed in this run, so recovery from that specific error remains unproven.
 
 At 00:43:02 UTC, approximately five minutes after READY, the page reloaded and disconnected. Read-only native IndexedDB diagnostics isolated the cause: enumeration of the encryption-key table succeeded with one row, but reading that row threw `CryptoKey reference belongs to another page`. This error is from our experimental driver bridge, which stored a reference to a CryptoKey held in a page-local map. Native IndexedDB survives navigation; that map does not. Key initialization then never resolves, and WhatsApp never launches its socket. Removing the message-write stop cannot resolve this earlier initialization failure.
 

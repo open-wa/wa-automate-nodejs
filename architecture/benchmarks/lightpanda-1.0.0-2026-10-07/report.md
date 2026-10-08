@@ -84,7 +84,7 @@ Lightpanda's smaller memory use on this live URL is not comparable workload perf
 
 The current TypeScript Lightpanda driver launched the pinned binary, connected over CDP, opened a page and returned 42 through an exposed Node callback. The engine's CDP version string was `Chrome/124.0.6367.29`, so the binary CLI version and digest are the version authority.
 
-Source inspection at `packages/core/src/createClient.ts:228` shows the compact-authentication guard rejecting every driver name except `puppeteer` and `playwright`. This is working-tree evidence at commit `bab232462e64a6b66e6dac64a31ccec18d3eed59`; pre-existing runtime edits were present. A full current-source `createClient` execution could not be evaluated through Bun because importing core failed first: `require() async module "/Users/Mohammed/projects/tools/wa/node_modules/strip-ansi/index.js" is unsupported. use "await import()" instead.`. That import failure is recorded separately and is not presented as execution of the driver guard.
+Source inspection at `packages/core/src/createClient.ts:228` shows the compact-authentication guard rejecting every driver name except `puppeteer` and `playwright`. This is working-tree evidence at commit `bab232462e64a6b66e6dac64a31ccec18d3eed59`; pre-existing runtime edits were present. A full current-source `createClient` execution could not be evaluated through Bun because importing core failed first: `require() async module "[local checkout path omitted]" is unsupported. use "await import()" instead.`. That import failure is recorded separately and is not presented as execution of the driver guard.
 
 ## Limits and rerunning
 

@@ -10,7 +10,7 @@
   },
   "createClient": {
     "status": "import_failed",
-    "error": "require() async module \"/Users/Mohammed/projects/tools/wa/node_modules/strip-ansi/index.js\" is unsupported. use \"await import()\" instead."
+    "error": "require() async module \"[local module path omitted]\" is unsupported. use \"await import()\" instead."
   },
   "sourceGuard": {
     "file": "packages/core/src/createClient.ts",
