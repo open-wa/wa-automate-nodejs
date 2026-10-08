@@ -1,0 +1,24 @@
+---
+/**
+ * A row of split-flap tiles rendered server-side with their final characters,
+ * so the text is there without JS. The flap engine takes them over on load.
+ */
+interface Props {
+  text: string;
+  class?: string;
+  /** "view": blank on load and flip in when scrolled into view. */
+  reveal?: 'view' | 'none';
+}
+const { text, class: cls = '', reveal = 'view' } = Astro.props;
+const chars = [...text];
+---
+<span class={`flaps ${cls}`} aria-hidden="true" data-reveal={reveal}>
+  {chars.map((c) => (
+    <span class={`f${c === ' ' ? ' sp' : ''}`} data-c={c}>
+      <span class="h t"><span>{c}</span></span>
+      <span class="h b"><span>{c}</span></span>
+      <span class="h lt"><span>{c}</span></span>
+      <span class="h lb"><span>{c}</span></span>
+    </span>
+  ))}
+</span>

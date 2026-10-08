@@ -1,0 +1,399 @@
+---
+import '@fontsource-variable/archivo/wdth.css';
+import '../styles/site.css';
+import Flaps from '../components/Flaps.astro';
+
+const base = import.meta.env.BASE_URL;
+const fontFace = `@font-face{font-family:'Analog Mono';src:url('${base}fonts/AnalogMonoPlus.woff2') format('woff2');font-display:swap;font-weight:400}`;
+
+const LINKS = {
+  quickstart: 'https://openwa.dev/docs/getting-started/quickstart',
+  docs: 'https://openwa.dev/docs',
+  reference: 'https://openwa.dev/docs/reference/client/client',
+  github: 'https://github.com/open-wa/wa-automate-nodejs',
+  discord: 'https://discord.gg/dpan7EYE3t',
+  licensing: 'https://openwa.dev/docs/licensing/licensed-features',
+};
+
+// Tiny build-time highlighter: comments, strings, a handful of keywords.
+const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const hl = (src: string) =>
+  src.replace(
+    /(\/\/[^\n]*)|('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*")|\b(import|from|const|await|async|if|export|default)\b|([^]+?)(?=\/\/|'|"|\b(?:import|from|const|await|async|if|export|default)\b|$)/g,
+    (_m, c, s, k, rest) =>
+      c ? `<span class="c">${esc(c)}</span>`
+      : s ? `<span class="s">${esc(s)}</span>`
+      : k ? `<span class="k">${k}</span>`
+      : esc(rest ?? ''),
+  );
+
+const START = [
+  { id: 'start-port', label: 'Port 8080', code: 'npx @open-wa/wa-automate@latest --port 8080' },
+  { id: 'start-key', label: 'With API key', code: 'npx @open-wa/wa-automate@latest --port 8080 --api-key "your-secure-key"' },
+  { id: 'start-session', label: 'Named session', code: 'npx @open-wa/wa-automate@latest --session-id sales --port 8081' },
+  { id: 'start-docker', label: 'Docker', code: 'docker run -p 8080:8080 --init openwa/wa-automate' },
+];
+
+const CURL = `curl -X POST http://localhost:8080/api/messages/sendText \\
+  -H "Content-Type: application/json" \\
+  -d '{"to": "447123456789@c.us", "content": "Your order is ready to collect!"}'`;
+
+const CHANGE = [
+  {
+    id: 'chg-socket', label: 'SocketClient',
+    code: `import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'your-secure-key');
+client.onMessage(async (message) => {
+  if (message.body === 'Hi') await client.sendText(message.from, 'Hello!');
+});`,
+  },
+  {
+    id: 'chg-embed', label: 'createClient',
+    code: `import { createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+const client = await createClient({ sessionId: 'sales', driver: new PuppeteerDriver(), headless: true });`,
+  },
+  {
+    id: 'chg-mcp', label: 'MCP',
+    code: `// wa.config.mjs: MCP
+export default { apiKey: process.env.WA_API_KEY, port: 8080, mcp: { enabled: true, path: '/mcp' } };`,
+  },
+];
+
+const PLATFORMS = [
+  { n: 1, name: 'Easy API', kind: 'CLI', desc: 'A local HTTP API with live docs, an OpenAPI spec and a Postman collection.', calls: ['/api-docs/', '/meta/swagger.json', '/meta/postman.json'] },
+  { n: 2, name: 'SocketClient', kind: 'Remote client', desc: 'Connect another Node.js app to a running Easy API. HTTP RPC for commands, Server-Sent Events for events.', calls: ['@open-wa/socket-client', 'SSE'] },
+  { n: 3, name: 'Embedded runtime', kind: 'In your app', desc: 'createClient inside your own Node.js app, with a pluggable browser driver.', calls: ['createClient', 'PuppeteerDriver'] },
+  { n: 4, name: 'Webhooks and plugins', kind: 'Config', desc: 'plugins and pluginConfig in wa.config.*, and @open-wa/plugin-sdk to write your own.', calls: ['wa.config.*', '@open-wa/plugin-sdk'] },
+  { n: 5, name: 'MCP', kind: 'AI tool surface', desc: 'Every Easy API method becomes a tool for Claude, Cursor or Windsurf.', calls: ['/mcp'] },
+  { n: 6, name: 'Cloudflare proxy', kind: 'Remote access', desc: 'Reach a local session remotely without opening public ports.', calls: ['session proxy'] },
+];
+
+const INTEGRATIONS = [
+  { name: 'Webhook', mark: 'W', color: '#e4472d' },
+  { name: 'Chatwoot', mark: 'C', color: '#22397a' },
+  { name: 'S3', mark: 'S', color: '#c47f00' },
+  { name: 'Cloudflare session proxy', mark: 'P', color: '#4aa9b8' },
+  { name: 'Node-RED', mark: 'N', color: '#7a2f1f' },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0c0c0b" />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="preload" href={`${base}fonts/AnalogMonoPlus.woff2`} as="font" type="font/woff2" crossorigin />
+    <title>open-wa · Departures</title>
+    <meta name="description" content="open-wa turns a WhatsApp account into an API, bot runtime, webhook bridge and AI tool surface, running on your own infrastructure." />
+    <style set:html={fontFace}></style>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="top">
+      <div class="wrap">
+        <a class="logo" href="#top" data-logo aria-label="open-wa, back to top">
+          <Flaps text="open-wa" reveal="none" />
+          <span class="logo-sub" aria-hidden="true">Departures</span>
+        </a>
+        <nav class="nav" aria-label="Sections">
+          <a class="sec" href="#platforms">Platforms</a>
+          <a class="sec" href="#connections">Connections</a>
+          <a class="sec" href="#timetable">Timetable</a>
+          <a class="sec" href="#notices">Notices</a>
+          <a href={LINKS.docs}>Docs</a>
+          <a class="gh" href={LINKS.github} aria-label="GitHub, 3,666 stars">GitHub <span aria-hidden="true">3.6k ★</span></a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="wrap">
+          <div class="board" data-board role="img" aria-label="Departures board. Each outgoing WhatsApp message is shown as a departure: an order update via the Easy API, a booking reminder via webhook, a support reply via Chatwoot, each moving from boarding to departed.">
+            <div class="board-head">
+              <p class="board-title">
+                <b>Departures</b>
+                <small>Messages leaving <i>your server</i></small>
+              </p>
+              <div class="clock">
+                <span class="clock-label">Local time</span>
+                <span data-clock><Flaps text="00:00" reveal="none" /></span>
+              </div>
+            </div>
+            <div class="labels" data-labels></div>
+            <div class="grid" data-grid></div>
+            <div class="notice" data-notice></div>
+          </div>
+          <p class="caption" data-caption aria-hidden="true"></p>
+
+          <div class="hero-copy">
+            <h1 id="hero-title">Every message is a <em>departure.</em></h1>
+            <div>
+              <p class="lede">
+                open-wa turns a WhatsApp account into an API, bot runtime, webhook bridge and AI tool surface.
+                Order updates, booking reminders and support replies leave from your own machine or server.
+              </p>
+              <div class="ctas">
+                <a class="btn btn-primary" href={LINKS.quickstart}>Send your first message <span class="arr" aria-hidden="true">→</span></a>
+                <a class="btn btn-ghost" href={LINKS.github}>View on GitHub</a>
+              </div>
+              <div class="ticket">
+                <div class="ticket-stub" aria-hidden="true">Single<b>8080</b></div>
+                <div class="ticket-main">
+                  <code id="ticket-cmd">npx @open-wa/wa-automate@latest --port 8080</code>
+                  <button class="copy" type="button" data-copy="ticket-cmd" aria-label="Copy start command"><span class="copy-label">Copy</span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sec platforms" id="platforms" aria-labelledby="platforms-title">
+        <div class="wrap">
+          <div class="sec-head">
+            <Flaps text="PLATFORMS 1-6" />
+            <h2 id="platforms-title">Six ways to leave the station.</h2>
+            <p>Pick the surface that fits your app. Every one runs on your own infrastructure, and you log in once per named session by QR code or link code.</p>
+          </div>
+          <div class="rail" aria-hidden="true"></div>
+          <ul class="signs">
+            {PLATFORMS.map((p) => (
+              <li>
+                <article class="sign" aria-labelledby={`p${p.n}`}>
+                  <div class="sign-top">
+                    <span class="pnum" aria-hidden="true">{p.n}</span>
+                    <div>
+                      <p class="plabel">Platform {p.n} · {p.kind}</p>
+                      <h3 id={`p${p.n}`}>{p.name}</h3>
+                    </div>
+                  </div>
+                  <p class="desc">{p.desc}</p>
+                  <p class="calls">Calling at<br />{p.calls.map((c) => <code>{c}</code>)}</p>
+                </article>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section class="sec connections" id="connections" aria-labelledby="connections-title">
+        <div class="wrap">
+          <div class="sec-head">
+            <Flaps text="CONNECTIONS" />
+            <h2 id="connections-title">Change here for the rest of your stack.</h2>
+            <p>Five integrations, three browser drivers and a built-in Model Context Protocol server, so WhatsApp connects to the tools you already run.</p>
+          </div>
+          <div class="conn-board">
+            <div class="conn-sign">
+              <h3>Change here for</h3>
+              <p class="sub">5 integrations</p>
+              <ul class="lines">
+                {INTEGRATIONS.map((i) => (
+                  <li>
+                    <span class="rd" style={`background:${i.color}`} aria-hidden="true">{i.mark}</span>
+                    <span>{i.name}</span>
+                    <small aria-hidden="true">→</small>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div class="conn-right">
+              <div class="conn-mcp">
+                <h3>AI agents: platform /mcp</h3>
+                <p>A built-in MCP server at <code>/mcp</code>. Every Easy API method becomes a tool for Claude, Cursor or Windsurf, so an agent can have a WhatsApp number.</p>
+                <pre class="code"><code set:html={hl(CHANGE[2].code)} /></pre>
+              </div>
+              <div class="conn-drivers">
+                <h3>Rolling stock</h3>
+                <p>Three browser drivers. Plug the one you want into the embedded runtime.</p>
+                <ul class="drivers">
+                  <li>Puppeteer</li>
+                  <li>Playwright</li>
+                  <li>Lightpanda</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sec timetable" id="timetable" aria-labelledby="timetable-title">
+        <div class="wrap">
+          <div class="sec-head">
+            <Flaps text="TIMETABLE" />
+            <h2 id="timetable-title">Start, link, send.</h2>
+            <p>Three stops from nothing to your first message. The Easy API starts a local HTTP server; everything else calls it.</p>
+          </div>
+          <div class="tt-meta" aria-hidden="true">
+            <span>Service: getting started</span>
+            <span>Valid on the v5.0.0 line</span>
+            <span>Node.js 22.21.1 or newer</span>
+          </div>
+          <ol class="stops">
+            <li class="stop">
+              <div class="stop-n"><b>1</b><span>START</span></div>
+              <div>
+                <h3>Start the Easy API</h3>
+                <p>One command starts a local HTTP API with live docs at <code>/api-docs/</code>. Add an API key, name a session or run it in Docker.</p>
+                <span class="leader">calls at localhost:8080 ··· /api-docs/</span>
+              </div>
+              <div class="term">
+                <div class="term-bar">
+                  <div class="tablist" role="tablist" aria-label="Start command">
+                    {START.map((t, i) => (
+                      <button class="tab" role="tab" type="button" id={`tab-${t.id}`} aria-controls={t.id} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>{t.label}</button>
+                    ))}
+                  </div>
+                </div>
+                {START.map((t, i) => (
+                  <div role="tabpanel" id={t.id} aria-labelledby={`tab-${t.id}`} hidden={i !== 0}>
+                    <pre class="code"><code id={`${t.id}-code`}>{t.code}</code></pre>
+                    <div style="display:flex;justify-content:flex-end;padding:0 10px 10px;background:#1c1b19">
+                      <button class="copy" type="button" data-copy={`${t.id}-code`} aria-label={`Copy command: ${t.label}`}><span class="copy-label">Copy</span></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </li>
+            <li class="stop">
+              <div class="stop-n"><b>2</b><span>LINK</span></div>
+              <div>
+                <h3>Link your account</h3>
+                <p>Log in by QR code or link code, once per named session. Run several sessions side by side, each on its own port.</p>
+                <span class="leader">--session-id sales ··· --port 8081</span>
+              </div>
+              <div class="term term-solo">
+                <div class="term-bar"><span>Second session</span>
+                  <button class="copy" type="button" data-copy="link-code" aria-label="Copy named session command"><span class="copy-label">Copy</span></button>
+                </div>
+                <pre class="code"><code id="link-code">npx @open-wa/wa-automate@latest --session-id sales --port 8081</code></pre>
+              </div>
+            </li>
+            <li class="stop">
+              <div class="stop-n"><b>3</b><span>SEND</span></div>
+              <div>
+                <h3>Send your first message</h3>
+                <p>POST to the running API. Then change here for a client in your own Node.js app, or hand the whole API to an AI agent.</p>
+                <span class="leader">/api/messages/sendText ··· delivered</span>
+              </div>
+              <div class="term">
+                <div class="term-bar">
+                  <div class="tablist" role="tablist" aria-label="Send a message">
+                    <button class="tab" role="tab" type="button" id="tab-send-curl" aria-controls="send-curl" aria-selected="true" tabindex="0">curl</button>
+                    {CHANGE.map((t) => (
+                      <button class="tab" role="tab" type="button" id={`tab-${t.id}`} aria-controls={t.id} aria-selected="false" tabindex="-1">{t.label}</button>
+                    ))}
+                  </div>
+                </div>
+                <div role="tabpanel" id="send-curl" aria-labelledby="tab-send-curl">
+                  <pre class="code"><code id="send-curl-code">{CURL}</code></pre>
+                  <div style="display:flex;justify-content:flex-end;padding:0 10px 10px;background:#1c1b19">
+                    <button class="copy" type="button" data-copy="send-curl-code" aria-label="Copy curl command"><span class="copy-label">Copy</span></button>
+                  </div>
+                </div>
+                {CHANGE.map((t) => (
+                  <div role="tabpanel" id={t.id} aria-labelledby={`tab-${t.id}`} hidden>
+                    <pre class="code"><code id={`${t.id}-code`} set:html={hl(t.code)} /></pre>
+                    <div style="display:flex;justify-content:flex-end;padding:0 10px 10px;background:#1c1b19">
+                      <button class="copy" type="button" data-copy={`${t.id}-code`} aria-label={`Copy ${t.label} snippet`}><span class="copy-label">Copy</span></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </li>
+          </ol>
+          <div class="tt-cta">
+            <a class="btn btn-primary" href={LINKS.quickstart}>Send your first message <span class="arr" aria-hidden="true">→</span></a>
+            <a class="btn btn-ghost" href={LINKS.reference}>Client API reference</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="sec notices" id="notices" aria-labelledby="notices-title">
+        <div class="wrap">
+          <div class="sec-head">
+            <Flaps text="SERVICE NOTICES" />
+            <h2 id="notices-title">Read before you travel.</h2>
+            <p>What you need, what costs extra, and who runs this line.</p>
+          </div>
+          <div class="notices-grid">
+            <article class="poster">
+              <div class="poster-head"><span>Notice</span><span>01</span></div>
+              <h3>Requirements</h3>
+              <p class="big">Node.js 22.21.1+</p>
+              <p>Runs on Node.js 22.21.1 or newer, with one of three browser drivers: Puppeteer, Playwright or Lightpanda.</p>
+            </article>
+            <article class="poster navy">
+              <div class="poster-head"><span>Notice</span><span>02</span></div>
+              <h3>Licensed features</h3>
+              <p>Some methods need a Restricted or Insiders license. Check before you plan a route that depends on one.</p>
+              <p><a href={LINKS.licensing}>See licensed features</a></p>
+            </article>
+            <article class="poster red">
+              <div class="poster-head"><span>Notice</span><span>03</span></div>
+              <h3>Unofficial service</h3>
+              <p><strong>open-wa is unofficial and not affiliated with WhatsApp or Meta.</strong></p>
+              <p>Automating a WhatsApp account carries risk, including bans. Nothing here makes it risk-free.</p>
+            </article>
+          </div>
+
+          <div class="history">
+            <h3>Line history</h3>
+            <ul class="stats">
+              <li><Flaps text="3666" /><span class="l">GitHub stars</span></li>
+              <li><Flaps text="723" /><span class="l">Forks</span></li>
+              <li><Flaps text="2019" /><span class="l">Open source since August</span></li>
+              <li><Flaps text="V5.0.0" /><span class="l">Current stable line</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="lastcall" aria-labelledby="lastcall-title">
+        <div class="wrap">
+          <div class="lc-lines">
+            <Flaps text="YOUR FIRST MESSAGE" />
+            <Flaps text="BOARDING NOW" class="amber" />
+          </div>
+          <h2 id="lastcall-title">Last call. Your app is on the platform.</h2>
+          <div class="ctas">
+            <a class="btn btn-primary" href={LINKS.quickstart}>Send your first message <span class="arr" aria-hidden="true">→</span></a>
+            <a class="btn btn-ghost" href={LINKS.docs}>Read the docs</a>
+            <a class="btn btn-ghost" href={LINKS.discord}>Join the Discord</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        <a class="logo" href="#top" data-logo aria-label="open-wa, back to top">
+          <Flaps text="open-wa" reveal="none" />
+        </a>
+        <ul class="foot-links">
+          <li><a href={LINKS.docs}>Docs</a></li>
+          <li><a href={LINKS.reference}>Client API reference</a></li>
+          <li><a href={LINKS.licensing}>Licensed features</a></li>
+          <li><a href={LINKS.github}>GitHub</a></li>
+          <li><a href={LINKS.discord}>Discord</a></li>
+        </ul>
+        <p class="disclaimer">
+          <strong>open-wa is unofficial and not affiliated with WhatsApp or Meta.</strong>
+          <span>@open-wa/wa-automate · open source since August 2019</span>
+        </p>
+      </div>
+    </footer>
+
+    <p class="sr-only" aria-live="polite" data-copy-status></p>
+
+    <script>
+      import '../scripts/main.js';
+    </script>
+  </body>
+</html>

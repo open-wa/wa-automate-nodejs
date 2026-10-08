@@ -1,0 +1,9 @@
+{
+  "slug": "departures",
+  "name": "Departures",
+  "direction": "Metaphor",
+  "tagline": "open-wa as a station departures board: every outgoing WhatsApp message is a departure, flipping from BOARDING to DEPARTED on a mechanical split-flap board, for developers who send order, booking and support messages from their own servers.",
+  "logo": "A seven-tile split-flap wordmark, open-wa in the brand mono with an amber hyphen; the tiles riffle through letters and land back on themselves, left to right, on load, hover and focus. The favicon is the single 'o' flap tile with its axle pins.",
+  "brandFont": true,
+  "stack": ["Astro 7", "Hand-built CSS 3D flaps", "Web Animations API", "Archivo Variable (Fontsource)", "Analog Mono Plus"]
+}

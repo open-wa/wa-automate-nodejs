@@ -1,0 +1,14 @@
+{
+  "name": "openwa-concept-departures",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@fontsource-variable/archivo": "5.2.8",
+    "astro": "7.3.5"
+  }
+}
