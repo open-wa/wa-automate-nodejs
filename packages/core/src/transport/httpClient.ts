@@ -34,24 +34,6 @@ export interface HttpClientOptions {
 const DEFAULT_TIMEOUT_MS = 15_000;
 const DEFAULT_RETRIES = 1;
 
-/** Authorize without executing license code against the currently frozen runtime. */
-export async function prepareLicense(url: string, body: LicenseValidationBody): Promise<{ payload: string; expiresAt: number }> {
-  const result = await fetchWithRetry(url, DEFAULT_TIMEOUT_MS, DEFAULT_RETRIES, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, prepare: true }),
-  });
-  if (!result.ok) throw new Error('License authorization is unavailable.');
-  let prepared: unknown;
-  try { prepared = JSON.parse(result.data); } catch { throw new Error('The license server did not confirm preparation.'); }
-  if (!prepared || typeof prepared !== 'object' || !('authorized' in prepared) || prepared.authorized !== true
-    || !('number' in prepared) || prepared.number !== body.number.replace(/@c\.us$/, '').replace(/\D/g, '')
-    || !('payload' in prepared) || typeof prepared.payload !== 'string' || !prepared.payload.trim()
-    || !('expiresAt' in prepared) || typeof prepared.expiresAt !== 'number' || !Number.isSafeInteger(prepared.expiresAt)
-    || prepared.expiresAt <= Date.now() || prepared.expiresAt > Date.now() + 300_000) {
-    throw new Error('The license was not authorized for this account.');
-  }
-  return { payload: prepared.payload, expiresAt: prepared.expiresAt };
-}
-
 /**
  * Fetch patches from a remote endpoint.
  *

@@ -19,7 +19,7 @@ import type {
 import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
 import type { OpenWAEventMap, STATE } from '../events/eventMap';
-import { fetchPatches, validateLicense, prepareLicense } from './httpClient';
+import { fetchPatches, validateLicense } from './httpClient';
 import { LivePatchActivityGate } from '../livePatch/ActivityGate';
 import { installDocumentRuntime } from '../livePatch/installDocument';
 import { InjectionController, type GenerationSnapshot } from './InjectionController';
@@ -298,7 +298,6 @@ export interface LicenseArtifact {
   payload: string;
   keyType: string;
   payloadSource: 'server' | 'local_metadata';
-  expiresAt?: number;
 }
 
 export interface LicensePreloadResult {
@@ -1384,7 +1383,6 @@ export class Transport {
       // Attempt server validation if not in offline mode
       let payload: string;
       let payloadSource: 'server' | 'local_metadata';
-      let expiresAt: number | undefined;
 
       if (!this.licenseConfig.offlineLicenseMode && options.sessionInfo?.hostNumber) {
 
@@ -1399,9 +1397,7 @@ export class Transport {
             OS: options.sessionInfo.OS,
             NUM_HASH: options.sessionInfo.NUM_HASH,
           };
-          const prepared = options.strict ? await prepareLicense(this.licenseConfig.url ?? DEFAULT_LICENSE_CHECK_URL, body) : null;
-          const serverPayload = options.strict ? prepared?.payload ?? false : await validateLicense(this.licenseConfig.url ?? DEFAULT_LICENSE_CHECK_URL, body);
-          expiresAt = prepared?.expiresAt;
+          const serverPayload = await validateLicense(this.licenseConfig.url ?? DEFAULT_LICENSE_CHECK_URL, body);
 
 
           if (serverPayload === false) {
@@ -1434,9 +1430,9 @@ export class Transport {
 
           payload = serverPayload;
           payloadSource = 'server';
-          this.logger.info('license_server_validation_success', { maskedKey: this.maskLicenseKey(resolvedKey) });
+          this.logger.info('license_server_response_downloaded', { maskedKey: this.maskLicenseKey(resolvedKey) });
         } catch (serverError) {
-          if (options.strict) throw new Error('License authorization is unavailable or the key was rejected.');
+          if (options.strict) throw new Error('The license response could not be downloaded.');
           const serverMsg = serverError instanceof Error ? serverError.message : String(serverError);
           this.logger.warn('license_server_validation_failed', { error: serverMsg });
           // Fall back to local metadata injection
@@ -1457,7 +1453,6 @@ export class Transport {
         payload,
         keyType,
         payloadSource,
-        expiresAt,
       };
 
       const outcome: LicensePreloadResult = {
@@ -1467,7 +1462,7 @@ export class Transport {
         artifact,
         blockingFailure: false,
         detail: payloadSource === 'server'
-          ? 'License capability was confirmed by the validation server.'
+          ? 'License response downloaded; its code must run to confirm access.'
           : 'License metadata fallback was prepared without server confirmation.',
       };
 
@@ -1583,7 +1578,7 @@ export class Transport {
         artifact: preloaded.artifact,
         blockingFailure: false,
         detail: preloaded.artifact.payloadSource === 'server'
-          ? 'License capability remained server-confirmed at check time.'
+          ? 'License response is available for evaluation.'
           : 'License metadata fallback is available, but capability is not server-confirmed.',
       };
     }

@@ -5,7 +5,7 @@ export async function installDocumentRuntime(
   transport: Transport,
   patches: LivePatchPreloadResult,
   license: () => Promise<LicensePreloadResult>,
-  strictLicense = false,
+  attestLicense = false,
   afterPublic?: () => Promise<void>,
 ) {
   const livePatchApply = await transport.applyLivePatchArtifacts(patches);
@@ -14,16 +14,14 @@ export async function installDocumentRuntime(
   const capability = await transport.validateRuntimeCapabilityOnly('post_patch');
   if (!capability.usable) throw new Error('The patched WhatsApp runtime is unavailable.');
   await afterPublic?.();
-  const licenseCheck = await transport.checkLicenseArtifact(await license());
-  if (licenseCheck.blockingFailure || licenseCheck.status === 'invalid' || licenseCheck.status === 'expired'
-    || (strictLicense && licenseCheck.status !== 'missing' && licenseCheck.status !== 'valid')) {
-    throw new Error('The license could not be confirmed for this session.');
-  }
-  const licenseApply = licenseCheck.status === 'missing' ? null : await transport.applyLicenseArtifact(licenseCheck);
-  if (licenseApply && (!licenseApply.applied || licenseApply.blockingFailure)) throw new Error('Licensed functionality could not be installed.');
+  const downloadedLicense = await transport.checkLicenseArtifact(await license());
+  const licenseApply = downloadedLicense.status === 'missing' ? null : await transport.applyLicenseArtifact(downloadedLicense);
+  // A rejected license is a feature-access result. Finish installing the public runtime.
+  const licenseCheck = licenseApply ? { ...downloadedLicense, status: licenseApply.status,
+    blockingFailure: false, detail: licenseApply.detail } : downloadedLicense;
   const initPatchApply = await transport.applyDeferredInitPatchArtifact();
   if (initPatchApply.blockingFailure) throw new Error('Runtime initialization could not finish.');
   await transport.activateRuntimeEventBridge();
-  if (strictLicense) await transport.assertInstalledLicenseCapabilities();
+  if (attestLicense && licenseApply?.status === 'valid' && licenseApply.applied) await transport.assertInstalledLicenseCapabilities();
   return { livePatchApply, licenseCheck, licenseApply, initPatchApply };
 }

@@ -76,11 +76,9 @@ export class SessionRefreshController {
     this.publish();
   }
   private async license(key: string | undefined, account: SessionDebugInfo): Promise<LicensePreloadResult> {
-    const result = await this.options.transport.preloadLicenseArtifact({ sessionId: this.options.sessionId, licenseKey: key, sessionInfo: account, strict: true });
-    if (result.blockingFailure || (key && (result.status !== 'valid' || result.artifact?.payloadSource !== 'server'))) throw new Error('SESSION_REFRESH_LICENSE_REJECTED');
-    return result;
+    return this.options.transport.preloadLicenseArtifact({ sessionId: this.options.sessionId, licenseKey: key, sessionInfo: account, strict: true });
   }
-  private async install(patches: LivePatchPreloadResult, license: LicensePreloadResult, expected: SessionDebugInfo, key?: string): Promise<void> {
+  private async install(patches: LivePatchPreloadResult, expected: SessionDebugInfo, key?: string): Promise<boolean> {
     const { transport, session } = this.options;
     this.ensureActive();
     this.phase('reloading');
@@ -101,8 +99,7 @@ export class SessionRefreshController {
       if (transport.getDocumentGeneration().documentId !== documentId) throw new Error('SESSION_REFRESH_DOCUMENT_CHANGED');
       const account = await transport.getSessionDebugInfo();
       if (!account.hostNumber || account.hostNumber !== expected.hostNumber) throw new Error('SESSION_REFRESH_ACCOUNT_CHANGED');
-      if (key && ((license.artifact?.expiresAt ?? 0) < Date.now() + 30_000 || current.WA_VERSION !== expected.WA_VERSION)) license = await this.license(key, account);
-      return license;
+      return this.license(key, account);
     }, true);
     this.ensureActive();
     const validation = await transport.validateRuntimeUsability('post_overlay');
@@ -110,7 +107,7 @@ export class SessionRefreshController {
     if (!validation.usable) throw new Error('SESSION_REFRESH_RUNTIME_UNAVAILABLE');
     session.updateReadiness('runtimeUsable', 'satisfied', 'Refreshed document is usable');
     session.updateReadiness('patchLifecycle', 'satisfied', 'Public patches and initialization installed');
-    session.updateReadiness('licenseLifecycle', result.licenseCheck.status === 'valid' ? 'satisfied' : 'non_blocking', 'Refreshed license installation completed');
+    session.updateReadiness('licenseLifecycle', result.licenseCheck.status === 'valid' ? 'satisfied' : 'non_blocking', result.licenseCheck.detail);
     transport.completeRuntimeReplacement();
     const operational = await transport.waitForOperationalReadiness();
     this.ensureActive();
@@ -119,6 +116,18 @@ export class SessionRefreshController {
     await session.setState('READY', 'session_refresh_complete');
     this.ensureActive();
     this.snapshot.patchTag = patches.tag;
+    return !key || (result.licenseApply?.status === 'valid' && result.licenseApply.applied === true);
+  }
+  private completeInstallation(key: string | undefined, previousKey: string | undefined, licenseAccepted: boolean): void {
+    this.effectiveKey = licenseAccepted ? key : previousKey;
+    this.options.transport.commitEffectiveLicenseKey(this.effectiveKey);
+    this.installedPatches = this.options.transport.getActiveLivePatchPreload();
+    this.snapshot.phase = licenseAccepted ? 'ready' : 'failed';
+    this.snapshot.runtimeUsable = true;
+    this.snapshot.error = licenseAccepted ? null : {
+      code: 'SESSION_REFRESH_LICENSE_REJECTED',
+      message: 'The license could not be applied. The session is ready with public functionality; check the key and try again.',
+    };
   }
   private async run(candidate?: string): Promise<SessionRefreshResult> {
     const { transport, session } = this.options;
@@ -134,13 +143,12 @@ export class SessionRefreshController {
       account = await transport.getSessionDebugInfo();
       expectedDocument = transport.getDocumentGeneration().documentId;
       if (!account.hostNumber || !/\d/.test(account.hostNumber)) throw new Error('SESSION_REFRESH_ACCOUNT_UNAVAILABLE');
-      const [patches, license] = await Promise.all([
-        transport.preloadLivePatchArtifacts({ sessionInfo: account, fresh: true }), this.license(key, account),
-      ]);
+      const patches = await transport.preloadLivePatchArtifacts({ sessionInfo: account, fresh: true });
       preparedPatches = patches;
       this.ensureActive();
       if (patches.blockingFailure || patches.source !== 'remote') throw new Error('SESSION_REFRESH_PATCH_DOWNLOAD_FAILED');
       this.phase('draining');
+      let licenseAccepted = false;
       await transport.runPlannedRuntimeMutation(async () => {
         await gate.quiesce();
         this.ensureActive();
@@ -149,26 +157,22 @@ export class SessionRefreshController {
         await this.checkpoint(transport);
         this.ensureActive();
         navigated = true;
-        await this.install(patches, license, account!, key);
+        licenseAccepted = await this.install(patches, account!, key);
       });
       this.ensureActive();
-      this.effectiveKey = key;
-      transport.commitEffectiveLicenseKey(key);
-      this.installedPatches = transport.getActiveLivePatchPreload();
-      this.snapshot.phase = 'ready'; this.snapshot.runtimeUsable = true;
+      this.completeInstallation(key, previousKey, licenseAccepted);
     } catch (error) {
       const code = error instanceof Error && /^SESSION_REFRESH_[A-Z_]+$/.test(error.message) ? error.message : 'SESSION_REFRESH_FAILED';
-      this.snapshot.error = { code, message: this.message(code, navigated) };
+      this.snapshot.error = { code, message: this.message(code) };
       if (!this.stopped && !navigated) {
         try { if (checkpointing) await transport.abortDocumentReload(); this.snapshot.runtimeUsable = session.getReadinessSnapshot(transport.getOperationalReadinessSnapshot()).ready; }
         catch { session.setFinalization('failed', 'The document could not resume after checkpoint failure'); this.snapshot.runtimeUsable = false; }
       } else if (!this.stopped && previous && account && code !== 'SESSION_REFRESH_ACCOUNT_CHANGED' && code !== 'SESSION_REFRESH_NEEDS_AUTH') {
         try {
           this.phase('restoring');
-          const license = await this.license(previousKey, account);
           await transport.runPlannedRuntimeMutation(async () => {
             await this.checkpoint(transport);
-            await this.install(previous, license, account!, previousKey);
+            await this.install(previous, account!, previousKey);
           });
           this.snapshot.restored = true; this.snapshot.runtimeUsable = true;
         } catch { this.snapshot.runtimeUsable = false; }
@@ -219,12 +223,10 @@ export class SessionRefreshController {
         if (auth.outcome !== 'authenticated') return;
         this.snapshot.running = true; this.snapshot.finishedAt = null; this.snapshot.error = null;
         this.phase('checkpointing');
-        const license = await this.license(target.key, target.account);
         await this.checkpoint(transport);
-        await this.install(target.patches, license, target.account, target.key);
-        this.effectiveKey = target.key; transport.commitEffectiveLicenseKey(target.key);
-        this.installedPatches = transport.getActiveLivePatchPreload();
-        this.snapshot.phase = 'ready'; this.snapshot.runtimeUsable = true;
+        const previousKey = this.effectiveKey ?? transport.getEffectiveLicenseKey();
+        const licenseAccepted = await this.install(target.patches, target.account, target.key);
+        this.completeInstallation(target.key, previousKey, licenseAccepted);
         transport.getLivePatchActivityGate().resume();
       });
     } catch {
@@ -238,10 +240,7 @@ export class SessionRefreshController {
       this.snapshot.running = false; this.snapshot.finishedAt = Date.now(); this.publish();
     }
   }
-  private message(code: string, navigated: boolean): string {
-    if (code === 'SESSION_REFRESH_LICENSE_REJECTED') return navigated
-      ? 'The license could not be confirmed for the replacement page. Check session readiness before retrying.'
-      : 'The license could not be confirmed. The current session was left running.';
+  private message(code: string): string {
     if (code === 'SESSION_REFRESH_DRAIN_TIMEOUT') return 'Existing operations did not finish in time. The page was left running.';
     if (code === 'SESSION_REFRESH_NEEDS_AUTH') return 'The refreshed page needs pairing. Reconnect using the session QR code.';
     if (code === 'SESSION_REFRESH_CHECKPOINT_TIMEOUT') return 'The session checkpoint did not finish in time. The page was not intentionally reloaded.';
