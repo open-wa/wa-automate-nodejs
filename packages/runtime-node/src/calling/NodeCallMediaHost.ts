@@ -185,18 +185,23 @@ async function decodeSource(source: string, scope: SessionScope, input: MediaDes
   if (raw) args.push('-f', raw.encoding === 'float32le' ? 'f32le' : 's16le', '-ar', String(raw.sampleRate), '-ac', String(raw.channels));
   args.push('-i', source, '-vn', '-f', 'f32le', '-ar', String(HOST_AUDIO_RATE), '-ac', '1', 'pipe:1');
   const child = spawn(binary, args, { stdio: [inputStream ? 'pipe' : 'ignore', 'pipe', 'pipe'] });
+  const { stdout, stderr, stdin } = child;
+  if (!stdout || !stderr || (inputStream && !stdin)) {
+    child.kill();
+    throw new CallMediaError('The calling decoder could not open its audio pipes.');
+  }
   let errors = '';
-  child.stderr.on('data', chunk => { errors = (errors + String(chunk)).slice(-2000); });
+  stderr.on('data', chunk => { errors = (errors + String(chunk)).slice(-2000); });
   const failed = new Promise<never>((_, reject) => { child.once('error', error => reject(new CallMediaError(`Cannot start the calling decoder: ${error.message}`))); child.once('exit', code => { if (code !== 0 && code !== null) reject(new CallMediaError(`Cannot decode microphone source: ${errors}`)); }); });
   void failed.catch(() => undefined);
-  await scope.addFinalizer('decoder', async () => { child.stdout.destroy(); if (child.exitCode === null) child.kill('SIGKILL'); });
-  if (inputStream) {
+  await scope.addFinalizer('decoder', async () => { stdout.destroy(); if (child.exitCode === null) child.kill('SIGKILL'); });
+  if (inputStream && stdin) {
     const inputPump = Stream.runForEach(inputStream, bytes => Effect.tryPromise({ try: () => new Promise<void>((resolve, reject) => {
-      child.stdin!.write(bytes, error => error ? reject(error) : resolve());
-    }), catch: error => error })).pipe(Effect.onExit(() => Effect.sync(() => child.stdin?.end())));
+      stdin.write(bytes, error => error ? reject(error) : resolve());
+    }), catch: error => error })).pipe(Effect.onExit(() => Effect.sync(() => stdin.end())));
     await scope.fork(inputPump);
   }
-  const iterator = child.stdout[Symbol.asyncIterator]();
+  const iterator = stdout[Symbol.asyncIterator]();
   let timer: ReturnType<typeof setTimeout> | undefined;
   const ready = await Promise.race([iterator.next(), failed, new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new CallMediaError('Microphone source did not become ready within 15 seconds.')), 15_000); })]).finally(() => clearTimeout(timer));
   if (ready.done) throw new CallMediaError('The selected microphone source contains no decodable audio.');
