@@ -15,11 +15,18 @@ This page documents 11 schema-registry client methods in the `calls` namespace.
 
 Prepare media and accept this incoming call.
 
-**Signature** `client.acceptCall(call: { generation: string; id: string; sessionId: string }, media?: { camera?: any; microphone?: any; onMediaFailure?: "end" \| "keep-open" \| null; speaker?: any } \| null): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+**Signature** `client.acceptCall(call: { generation: string; id: string; sessionId: string }, media?: { camera?: any; microphone?: any; onMediaFailure?: "end" \| "keep-open" \| null; speaker?: any } \| null): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
 
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.acceptCall({});
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -66,11 +73,11 @@ Example response envelope:
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>` |
 
-Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<CallActionResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -107,11 +114,18 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 Discard queued outgoing audio.
 
-**Signature** `client.clearCallAudio(call: { generation: string; id: string; sessionId: string }): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+**Signature** `client.clearCallAudio(call: { generation: string; id: string; sessionId: string }): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
 
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.clearCallAudio({});
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -158,11 +172,11 @@ Example response envelope:
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>` |
 
-Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<CallActionResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -199,11 +213,18 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 Request hangup for this call.
 
-**Signature** `client.endCall(call: { generation: string; id: string; sessionId: string }): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+**Signature** `client.endCall(call: { generation: string; id: string; sessionId: string }): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
 
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.endCall({});
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -250,11 +271,11 @@ Example response envelope:
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>` |
 
-Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<CallActionResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -291,11 +312,18 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 Get the current call snapshot. SDK clients hydrate its bound methods.
 
-**Signature** `client.getActiveCall(): Promise<{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: "incoming" \| "outgoing"; video: boolean; terminal: boolean; observedAt: number \| "NaN" \| "Infinity" \| "-Infinity"; media?: { state: "attached" \| "ended"; reason?: string \| null } \| null>`
+**Signature** `client.getActiveCall(): Promise<{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: "incoming" \| "outgoing"; video: boolean; terminal: boolean; observedAt: number \| "Infinity" \| "-Infinity" \| "NaN"; endReason?: { code: string; message: string; source: "local" \| "media" \| "license" \| "session" \| "whatsapp" } \| null; media?: { state: "attached" \| "ended"; reason?: string \| null } \| null>`
 
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.getActiveCall();
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -345,11 +373,11 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: "incoming" \| "outgoing"; video: boolean; terminal: boolean; observedAt: number \| "NaN" \| "Infinity" \| "-Infinity"; media?: { state: "attached" \| "ended"; reason?: string \| null } \| null>` |
+| Return type | `Promise<{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: "incoming" \| "outgoing"; video: boolean; terminal: boolean; observedAt: number \| "Infinity" \| "-Infinity" \| "NaN"; endReason?: { code: string; message: string; source: "local" \| "media" \| "license" \| "session" \| "whatsapp" } \| null; media?: { state: "attached" \| "ended"; reason?: string \| null } \| null>` |
 
-Resolves to `{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: "incoming" \| "outgoing"; video: boolean; terminal: boolean; observedAt: number \| "NaN" \| "Infinity" \| "-Infinity"; media?: { state: "attached" \| "ended"; reason?: string \| null } \| null`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: "incoming" \| "outgoing"; video: boolean; terminal: boolean; observedAt: number \| "Infinity" \| "-Infinity" \| "NaN"; endReason?: { code: string; message: string; source: "local" \| "media" \| "license" \| "session" \| "whatsapp" } \| null; media?: { state: "attached" \| "ended"; reason?: string \| null } \| null`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<Call \| null>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -384,11 +412,18 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 Optional calling availability for UI and diagnostics. Actions perform admission automatically.
 
-**Signature** `client.getCallCapabilities(): Promise<{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" } \| null }>`
+**Signature** `client.getCallCapabilities(): Promise<{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" } \| null }>`
 
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.getCallCapabilities();
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -432,11 +467,11 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" } \| null }>` |
+| Return type | `Promise<{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" } \| null }>` |
 
-Resolves to `{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" } \| null }`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" } \| null }`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<CallCapabilities>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -471,11 +506,18 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 Mute or unmute the microphone without ending reception.
 
-**Signature** `client.muteCall(call: { generation: string; id: string; sessionId: string }, muted: boolean): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+**Signature** `client.muteCall(call: { generation: string; id: string; sessionId: string }, muted: boolean): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
 
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.muteCall({}, true);
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -524,11 +566,11 @@ Example response envelope:
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>` |
 
-Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<CallActionResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -565,11 +607,18 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 Attach an isolated receive-only audio sink. Its failure does not interrupt the call owner.
 
-**Signature** `client.observeCallAudio(call: { generation: string; id: string; sessionId: string }, speaker?: unknown): Promise<{ ok: true; status: "requested"; observerId: string } \| { ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+**Signature** `client.observeCallAudio(call: { generation: string; id: string; sessionId: string }, speaker?: unknown): Promise<{ ok: true; status: "requested"; observerId: string } \| { ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
 
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.observeCallAudio({});
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -617,11 +666,11 @@ Example response envelope:
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<{ ok: true; status: "requested"; observerId: string } \| { ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+| Return type | `Promise<{ ok: true; status: "requested"; observerId: string } \| { ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>` |
 
-Resolves to `{ ok: true; status: "requested"; observerId: string } \| { ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `{ ok: true; status: "requested"; observerId: string } \| { ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<CallActionResult & { observerId?: string }>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -658,11 +707,18 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 Reject this call with native state confirmation.
 
-**Signature** `client.rejectCall(call: { generation: string; id: string; sessionId: string }): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+**Signature** `client.rejectCall(call: { generation: string; id: string; sessionId: string }): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
 
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.rejectCall({});
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -709,11 +765,11 @@ Example response envelope:
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>` |
 
-Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<CallActionResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -750,11 +806,18 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 Prepare a replacement before releasing the working media.
 
-**Signature** `client.setCallMedia(call: { generation: string; id: string; sessionId: string }, media?: { camera?: any; microphone?: any; onMediaFailure?: "end" \| "keep-open" \| null; speaker?: any } \| null): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+**Signature** `client.setCallMedia(call: { generation: string; id: string; sessionId: string }, media?: { camera?: any; microphone?: any; onMediaFailure?: "end" \| "keep-open" \| null; speaker?: any } \| null): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
 
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.setCallMedia({});
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -801,11 +864,11 @@ Example response envelope:
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>` |
 
-Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<CallActionResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -842,11 +905,18 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 Prepare media and place an outgoing audio or video call.
 
-**Signature** `client.startCall(to: string, microphone?: unknown \| null, speaker?: unknown \| null, camera?: unknown \| null): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+**Signature** `client.startCall(to: string, microphone?: unknown \| null, speaker?: unknown \| null, camera?: unknown \| null): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
 
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.startCall("to");
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -893,11 +963,11 @@ Example response envelope:
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>` |
 
-Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<CallActionResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -934,11 +1004,18 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 Stop an audio observer and finalize its sink.
 
-**Signature** `client.stopCallAudioObserver(call: { generation: string; id: string; sessionId: string }, observerId: string): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+**Signature** `client.stopCallAudioObserver(call: { generation: string; id: string; sessionId: string }, observerId: string): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
 
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.stopCallAudioObserver({}, "observerId");
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -987,11 +1064,11 @@ Example response envelope:
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>` |
 
-Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<CallActionResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>

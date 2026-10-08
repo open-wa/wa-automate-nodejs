@@ -52,6 +52,7 @@
   "getGroupMembersId": "/docs/reference/client/client#getgroupmembersid",
   "getHostNumber": "/docs/reference/client/client#gethostnumber",
   "getKickedGroups": "/docs/reference/client/client#getkickedgroups",
+  "getLicenseFeatures": "/docs/reference/client/client#getlicensefeatures",
   "getLicenseType": "/docs/reference/client/client#getlicensetype",
   "getLoadedMessageCount": "/docs/reference/client/client#getloadedmessagecount",
   "getMe": "/docs/reference/client/client#getme",

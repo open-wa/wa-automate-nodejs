@@ -19,7 +19,7 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 
 | Method | Namespace | Dispatch target | Parameter order | Output |
 | --- | --- | --- | --- | --- |
-| `acceptCall` | `calls` | `acceptCall` | `call`, `media` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string` |
+| `acceptCall` | `calls` | `acceptCall` | `call`, `media` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
 | `addLabel` | `labels` | `addLabel` | `label`, `chatId` | `boolean` |
 | `addParticipant` | `groups` | `addParticipant` | `groupId`, `contactId` | `boolean` |
 | `approveGroupJoinRequest` | `groups` | `approveGroupJoinRequest` | `groupId`, `contactId` | `string \| boolean` |
@@ -27,7 +27,7 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `blockContact` | `contacts` | `contactBlock` | `contactId` | `boolean` |
 | `checkNumberStatus` | `contacts` | `checkNumberStatus` | `contactId` | `NumberCheck` |
 | `checkReadReceipts` | `contacts` | `checkReadReceipts` | `contactId` | `boolean \| string` |
-| `clearCallAudio` | `calls` | `clearCallAudio` | `call` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string` |
+| `clearCallAudio` | `calls` | `clearCallAudio` | `call` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
 | `clearChat` | `chats` | `clearChat` | `chatId` | `boolean` |
 | `createGroup` | `groups` | `createGroup` | `name`, `contacts` | `GroupCreationResult \| null` |
 | `decryptMedia` | `media` | `decryptMedia` | `message` | `DataURL` |
@@ -37,9 +37,9 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `deleteStatus` | `status` | `deleteStatus` | `statusesToDelete` | `boolean` |
 | `demoteParticipant` | `groups` | `demoteParticipant` | `groupId`, `contactId` | `boolean \| string` |
 | `downloadMedia` | `media` | `downloadMedia` | `message`, `path` | `string` |
-| `endCall` | `calls` | `endCall` | `call` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string` |
+| `endCall` | `calls` | `endCall` | `call` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
 | `forwardMessages` | `messages` | `forwardMessages` | `to`, `messages`, `skipMyMessages` | `MessageIdReturn[] \| boolean` |
-| `getActiveCall` | `calls` | `getActiveCall` | - | `{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: "incoming" \| "outgoing"; video: boolean; terminal: boolean; observedAt: number \| "NaN" \| "Infinity" \| "-Infinity"; media?: { state: "attached" \| "ended"; reason?: string \| null } \| null` |
+| `getActiveCall` | `calls` | `getActiveCall` | - | `{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: "incoming" \| "outgoing"; video: boolean; terminal: boolean; observedAt: number \| "Infinity" \| "-Infinity" \| "NaN"; endReason?: { code: string; message: string; source: "local" \| "media" \| "license" \| "session" \| "whatsapp" } \| null; media?: { state: "attached" \| "ended"; reason?: string \| null } \| null` |
 | `getAlbumMessages` | `messages` | `getAlbumMessages` | `messageId` | `Message[] \| false` |
 | `getAllChatIds` | `chatIds` | `getAllChatIds` | - | `ChatId[]` |
 | `getAllChats` | `chats` | `getAllChats` | `withNewMessagesOnly` | `Chat[]` |
@@ -52,7 +52,7 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `getBlockedIds` | `contacts` | `getBlockedIds` | - | `ContactId[] \| false` |
 | `getBusinessProducts` | `business` | `getBusinessProfilesProducts` | `contactId` | `Product[] \| false` |
 | `getBusinessProfile` | `business` | `getBusinessProfile` | `contactId` | `BusinessProfile` |
-| `getCallCapabilities` | `calls` | `getCallCapabilities` | - | `{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" } \| null }` |
+| `getCallCapabilities` | `calls` | `getCallCapabilities` | - | `{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" } \| null }` |
 | `getChat` | `chats` | `getChat` | `chatId` | `Chat \| null \| undefined \| false` |
 | `getChatsByLabel` | `labels` | `getChatsByLabel` | `label` | `Chat[]` |
 | `getChatWithNonContacts` | `chats` | `getChatWithNonContacts` | - | `Contact[]` |
@@ -72,6 +72,7 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `getGroupMembersId` | `groups` | `getGroupMembersId` | `groupId` | `ContactId[]` |
 | `getHostNumber` | `session` | `getHostNumber` | - | `string` |
 | `getKickedGroups` | `groups` | `getKickedGroups` | - | `GroupChatId[]` |
+| `getLicenseFeatures` | `session` | `getLicenseFeatures` | - | `{ status: "valid" \| "missing" \| "invalid" \| "expired" \| "metadata_only"; keyType: string \| null; expiresAt: number \| "Infinity" \| "-Infinity" \| "NaN" \| null; features: Record<string, boolean> }` |
 | `getLicenseType` | `session` | `getLicenseType` | - | `LicenseType \| false` |
 | `getLoadedMessageCount` | `session` | `getAmountOfLoadedMessages` | - | `number` |
 | `getMe` | `session` | `getMe` | - | `HostAccount` |
@@ -99,16 +100,16 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `loadEarlierMessages` | `messages` | `loadEarlierMessages` | `chatId`, `count`, `includeMe` | `Message[]` |
 | `markAsRead` | `chats` | `markAsRead` | `chatId` | `boolean` |
 | `markAsUnread` | `chats` | `markAsUnread` | `chatId` | `boolean` |
-| `muteCall` | `calls` | `muteCall` | `call`, `muted` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string` |
+| `muteCall` | `calls` | `muteCall` | `call`, `muted` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
 | `muteChat` | `chats` | `muteChat` | `chatId`, `muteDuration` | `string \| boolean \| number` |
-| `observeCallAudio` | `calls` | `observeCallAudio` | `call`, `speaker` | `{ ok: true; status: "requested"; observerId: string } \| { ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string` |
+| `observeCallAudio` | `calls` | `observeCallAudio` | `call`, `speaker` | `{ ok: true; status: "requested"; observerId: string } \| { ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
 | `pinChat` | `chats` | `pinChat` | `chatId` | `boolean` |
 | `postImageStatus` | `status` | `postImageStatus` | `image`, `caption` | `MessageId \| string \| boolean` |
 | `postTextStatus` | `status` | `postTextStatus` | `text`, `backgroundColor`, `font` | `MessageId \| string \| boolean` |
 | `postVideoStatus` | `status` | `postVideoStatus` | `video`, `caption` | `MessageId \| string \| boolean` |
 | `promoteParticipant` | `groups` | `promoteParticipant` | `groupId`, `contactId` | `boolean \| string` |
 | `react` | `messages` | `react` | `messageId`, `emoji` | `boolean` |
-| `rejectCall` | `calls` | `rejectCall` | `call` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string` |
+| `rejectCall` | `calls` | `rejectCall` | `call` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
 | `rejectGroupJoinRequest` | `groups` | `rejectGroupJoinRequest` | `groupId`, `contactId` | `string \| boolean` |
 | `removeLabel` | `labels` | `removeLabel` | `label`, `chatId` | `boolean` |
 | `removeParticipant` | `groups` | `removeParticipant` | `groupId`, `contactId` | `boolean` |
@@ -139,7 +140,7 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `sendVCard` | `messages` | `sendVCard` | `to`, `vcard`, `contactName`, `contactNumber` | `boolean` |
 | `sendVideoAsGif` | `messages` | `sendVideoAsGif` | `to`, `file`, `filename`, `caption`, `quotedMsgId` | `MessageIdReturn \| boolean` |
 | `sendYouTubeLink` | `messages` | `sendYoutubeLink` | `to`, `url`, `text`, `thumbnail`, `quotedMsgId`, `customSize` | `MessageIdReturn \| boolean` |
-| `setCallMedia` | `calls` | `setCallMedia` | `call`, `media` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string` |
+| `setCallMedia` | `calls` | `setCallMedia` | `call`, `media` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
 | `setChatEphemeral` | `chats` | `setChatEphemeral` | `chatId`, `ephemeral` | `boolean` |
 | `setGroupDescription` | `groups` | `setGroupDescription` | `groupId`, `description` | `boolean` |
 | `setGroupEditToAdminsOnly` | `groups` | `setGroupEditToAdminsOnly` | `groupId`, `onlyAdmins` | `boolean` |
@@ -150,8 +151,8 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `setMyStatus` | `session` | `setMyStatus` | `statusText` | `boolean` |
 | `setProfilePicture` | `session` | `setProfilePic` | `image` | `boolean` |
 | `starMessage` | `messages` | `starMessage` | `messageId` | `boolean` |
-| `startCall` | `calls` | `startCall` | `to`, `microphone`, `speaker`, `camera` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string` |
-| `stopCallAudioObserver` | `calls` | `stopCallAudioObserver` | `call`, `observerId` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string` |
+| `startCall` | `calls` | `startCall` | `to`, `microphone`, `speaker`, `camera` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
+| `stopCallAudioObserver` | `calls` | `stopCallAudioObserver` | `call`, `observerId` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
 | `unarchiveChat` | `chats` | `unarchiveChat` | `chatId` | `boolean` |
 | `unblockContact` | `contacts` | `contactUnblock` | `contactId` | `boolean` |
 | `unmuteChat` | `chats` | `unmuteChat` | `chatId` | `string \| boolean \| number` |
