@@ -1,8 +1,8 @@
 import { SessionScope } from '@open-wa/runtime-core';
 import type { CallIdentity, CallMediaOptions } from '@open-wa/schema';
 
-export interface RemoteMediaRequest { call?: CallIdentity; to?: string; mode: 'accept' | 'start' | 'replace' | 'observe'; microphone: boolean; speaker: boolean; replacesId?: string; }
-export interface RemoteAudioConnection { send(bytes: Uint8Array): Promise<void>; activate(callId: string): void; close(): void; }
+export interface RemoteMediaRequest { call?: CallIdentity; to?: string; mode: 'accept' | 'start' | 'replace' | 'observe'; microphone: boolean; speaker: boolean; replacesId?: string; onMediaFailure?: 'end' | 'keep-open'; }
+export interface RemoteAudioConnection { send(bytes: Uint8Array, timestampMs?: number): Promise<void>; activate(callId: string): void; close(): void; }
 const INPUT_BUFFER_BYTES = 16_000 * 2 * 0.2;
 export class RemoteMediaReservation {
   readonly id = crypto.randomUUID();
@@ -13,6 +13,7 @@ export class RemoteMediaReservation {
   consumed = false;
   claimed = false;
   connection?: RemoteAudioConnection;
+  outputTimestampMs?: number;
   private controller?: ReadableStreamDefaultController<Uint8Array>;
   private timer?: ReturnType<typeof setTimeout>;
   private closed = false;
@@ -38,9 +39,9 @@ export class RemoteMediaReservation {
     }, { highWaterMark: 0 });
     this.output = new WritableStream({ write: async bytes => {
       if (!this.connection) throw new Error('The call media client disconnected.');
-      await this.connection.send(bytes);
+      await this.connection.send(bytes, this.outputTimestampMs);
     } });
-    this.media = { microphone: request.microphone ? { kind: 'remote', remoteId: this.id } : null, speaker: request.speaker ? { kind: 'remote', remoteId: this.id } : null, camera: null };
+    this.media = { microphone: request.microphone ? { kind: 'remote', remoteId: this.id } : null, speaker: request.speaker ? { kind: 'remote', remoteId: this.id } : null, camera: null, ...(request.onMediaFailure ? { onMediaFailure: request.onMediaFailure } : {}) };
   }
   static async make(request: RemoteMediaRequest, generation: string, onDrop?: (stats: { discardedMs: number; bufferedMs: number }) => void): Promise<RemoteMediaReservation> {
     const scope = await SessionScope.make();

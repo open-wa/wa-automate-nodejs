@@ -1,7 +1,7 @@
 import type { Call, CallIdentity, CallSnapshot, CallActionResult, CallMediaOptions, AudioInput, AudioOutput, VideoInput, CallAudioObserver } from '@open-wa/schema';
-import { normalizeCallMedia, describeCallMediaFailure } from '@open-wa/schema/calling-media';
+import { normalizeCallMedia, describeCallMediaFailure, decodeAudioPacket } from '@open-wa/schema/calling-media';
 import { prepareLocalMedia } from '@open-wa/socket-client/calling-platform';
-import { ScopedTaskQueue } from '@open-wa/runtime-core';
+import { ScopedTaskQueue, QueueOverloadedError } from '@open-wa/runtime-core';
 
 export type CallRpc = (method: string, args: unknown[]) => Promise<any>;
 export class RemoteCalls {
@@ -49,6 +49,11 @@ export class RemoteCalls {
     let pendingBytes = 0;
     let receiveQueue: ScopedTaskQueue | undefined;
     let closing: Promise<void> | undefined;
+    const drops = { input: { durationMs: 0, lastNoticeAt: 0 }, receive: { durationMs: 0, lastNoticeAt: 0 } };
+    const warnDrop = (direction: 'input' | 'receive', durationMs: number) => {
+      const stats = drops[direction]; stats.durationMs += durationMs;
+      if (Date.now() - stats.lastNoticeAt >= 5000) { console.warn('Calling audio dropped samples while processing caught up; the call remains open.', { direction, discardedMs: stats.durationMs }); stats.durationMs = 0; stats.lastNoticeAt = Date.now(); }
+    };
     const close = (failure?: string): Promise<void> => closing ??= (async () => {
       closed = true;
       this.attachments.delete(ticket);
@@ -65,12 +70,19 @@ export class RemoteCalls {
       }
     })().catch(error => { console.warn('Calling media cleanup failed:', error instanceof Error ? error.message : String(error)); });
     const fail = (error: unknown) => close(describeCallMediaFailure(error));
+    const inputFailed = (error: unknown) => {
+      if (closed) return;
+      if (media.onMediaFailure === 'end') { void fail(error); return; }
+      const message = describeCallMediaFailure(error);
+      console.warn('The microphone source stopped; the call and received audio remain open.', message);
+      if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: 'input-error', message: message.slice(0, 512) }));
+    };
     try {
       // Admission precedes permission prompts, decoders, files and network acquisition.
       const previous = mode === 'replace' && call ? this.find(call.id) : undefined;
       const response = await fetch(`${this.url.replace(/\/$/, '')}/api/calls/media`, {
         method: 'POST', headers: { 'Content-Type': 'application/json', ...(this.apiKey ? { 'X-API-Key': this.apiKey } : {}) },
-        body: JSON.stringify({ call, to, mode, microphone: media.microphone !== null, speaker: media.speaker !== null, replacesId: previous?.ticket }),
+        body: JSON.stringify({ call, to, mode, microphone: media.microphone !== null, speaker: media.speaker !== null, replacesId: previous?.ticket, onMediaFailure: media.onMediaFailure }),
       });
       const admission = await response.json();
       if (response.status === 401) throw Object.assign(new Error('Calling media API authentication failed.'), { status: 401, code: 'UNAUTHORIZED' });
@@ -78,7 +90,7 @@ export class RemoteCalls {
       if (!admission.ok) return admission.reason ? admission : { ok: false, status: 'unavailable', reason: { code: 'CALLING_UNAVAILABLE', message: admission.error ?? 'Calling media is unavailable.', status: response.status } };
       ticket = admission.ticket;
       local = await prepareLocalMedia(media);
-      receiveQueue = await ScopedTaskQueue.make({ name: 'remote-call-receive', capacity: 25, concurrency: 1, overload: 'dropping', timeoutMs: 1000 });
+      receiveQueue = await ScopedTaskQueue.make({ name: 'remote-call-receive', capacity: 4, concurrency: 1, overload: 'dropping', timeoutMs: 1000 });
       const wsUrl = new URL(`${this.url.replace(/\/$/, '')}/api/calls/media/ws`); wsUrl.protocol = wsUrl.protocol === 'https:' ? 'wss:' : 'ws:';
       socket = new WebSocket(wsUrl); socket.binaryType = 'arraybuffer';
       await new Promise<void>((resolve, reject) => {
@@ -92,10 +104,15 @@ export class RemoteCalls {
       socket.onmessage = ({ data }) => {
         if (data instanceof ArrayBuffer) {
           if (closed) return;
-          if (data.byteLength > 3840 || data.byteLength % 2) { void fail(new Error('The received call audio frame is invalid.')); return; }
-          if (pendingBytes + data.byteLength > 16_000) { void fail(new Error('Dashboard audio playback exceeded its 500 ms receive buffer.')); return; }
-          pendingBytes += data.byteLength;
-          void receiveQueue!.submit(() => local!.receive(new Uint8Array(data))).catch(fail).finally(() => { pendingBytes -= data.byteLength; });
+          let packet: ReturnType<typeof decodeAudioPacket>;
+          try {
+            packet = decodeAudioPacket(new Uint8Array(data));
+            if (!packet.audio.length || packet.audio.length > 3840 || packet.audio.length % 2 || packet.timestampMs < 0) throw new Error('The received call audio frame is invalid.');
+          } catch (error) { void fail(error); return; }
+          const bytes = packet.audio;
+          if (pendingBytes + bytes.length > 16_000) { warnDrop('receive', bytes.length / 32); return; }
+          pendingBytes += bytes.length;
+          void receiveQueue!.submit(() => local!.receive(bytes, packet.timestampMs)).catch(error => { if (error instanceof QueueOverloadedError) warnDrop('receive', bytes.length / 32); else void fail(error); }).finally(() => { pendingBytes -= bytes.length; });
         }
         else {
           try {
@@ -103,7 +120,12 @@ export class RemoteCalls {
             if (message.type === 'error') { void fail(new Error(typeof message.message === 'string' ? message.message : 'The call media server reported a failure.')); return; }
             if (message.type === 'active' && !activated) {
               activated = true;
-              void local!.start(bytes => { if (closed) return; if (socket!.readyState !== WebSocket.OPEN || socket!.bufferedAmount > 16_000) throw new Error('Dashboard microphone exceeded its 500 ms send buffer.'); socket!.send(bytes); }, error => { void fail(error); }).catch(fail);
+              void local!.start(bytes => {
+                if (closed) return;
+                if (socket!.readyState !== WebSocket.OPEN) throw new Error('Call media connection is unavailable.');
+                if (socket!.bufferedAmount > 16_000) { warnDrop('input', bytes.length / 32); return; }
+                socket!.send(bytes);
+              }, inputFailed).catch(inputFailed);
             }
           } catch (error) { void fail(error); }
         }

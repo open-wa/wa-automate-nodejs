@@ -4,11 +4,13 @@ import type { CallingService } from '@open-wa/core';
 import type { upgradeWebSocket } from '@hono/node-server';
 import { z } from 'zod';
 import { getConnInfo } from '@hono/node-server/conninfo';
+import { encodeAudioPacket } from '@open-wa/schema';
 
 const requestSchema = z.object({
   call: z.object({ id: z.string(), sessionId: z.string(), generation: z.string() }).optional(),
   to: z.string().optional(), mode: z.enum(['accept', 'start', 'replace', 'observe']), microphone: z.boolean(), speaker: z.boolean(),
   replacesId: z.string().optional(),
+  onMediaFailure: z.enum(['end', 'keep-open']).optional(),
 });
 
 export function registerCallingRoutes(app: Hono, options: {
@@ -37,6 +39,7 @@ export function registerCallingRoutes(app: Hono, options: {
     let timer: ReturnType<typeof setTimeout> | undefined;
     let ticket = '';
     let failure: string | undefined;
+    let sequence = 0, audioTimeMs = 0, lastDropNoticeAt = 0, droppedMs = 0;
     return {
       onOpen(_event, ws) {
         if (!originAllowed) { ws.close(1008, 'Origin is not allowed'); return; }
@@ -53,7 +56,17 @@ export function registerCallingRoutes(app: Hono, options: {
             if (!service) throw new Error('Calling session unavailable');
             ticket = handshake.ticket;
             remote = service.connectRemote(ticket, {
-              async send(bytes) { if (ws.readyState !== 1) throw new Error('Call media disconnected'); if ((ws.raw as { bufferedAmount?: number })?.bufferedAmount && (ws.raw as { bufferedAmount: number }).bufferedAmount > 16_000) throw new Error('Call media playback is falling behind'); ws.send(bytes); },
+              async send(bytes, timestampMs) {
+                if (ws.readyState !== 1) throw new Error('Call media disconnected');
+                const time = timestampMs ?? audioTimeMs; audioTimeMs = time + bytes.length / 32;
+                const frameSequence = sequence++;
+                if (((ws.raw as { bufferedAmount?: number })?.bufferedAmount ?? 0) > 16_000) {
+                  droppedMs += bytes.length / 32;
+                  if (Date.now() - lastDropNoticeAt >= 5000) { console.warn('Calling playback transport dropped audio while the client caught up; the call remains open.', { discardedMs: droppedMs }); droppedMs = 0; lastDropNoticeAt = Date.now(); }
+                  return;
+                }
+                ws.send(encodeAudioPacket(bytes, frameSequence, time));
+              },
               activate(callId) { ws.send(JSON.stringify({ type: 'active', callId })); },
               close() { ws.close(1000, 'Call ended'); },
             });
@@ -65,6 +78,7 @@ export function registerCallingRoutes(app: Hono, options: {
             if (event.data.length > 4096) throw new Error('Oversized call media message');
             const message = JSON.parse(event.data);
             if (message.type === 'end') ws.close(1000, 'Media client ended');
+            else if (message.type === 'input-error' && typeof message.message === 'string') void service?.remoteInputFailed(ticket, message.message.slice(0, 512)).catch(error => console.warn('Calling microphone recovery failed:', String(error)));
             else if (message.type === 'error' && typeof message.message === 'string') { failure = message.message.slice(0, 512).trim() || 'The dashboard media source failed.'; ws.close(1011, 'Media source failed'); }
           } else remote.push(new Uint8Array(event.data as ArrayBuffer));
         } catch (error) {

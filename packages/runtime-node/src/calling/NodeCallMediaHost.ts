@@ -43,6 +43,7 @@ export function makeNodeCallMediaHost(options: { log?: (message: string) => void
       }
       const output = speaker && !deviceSpeaker ? await prepareOutput(speaker, scope, options.log).catch(error => { throw error instanceof CallMediaError ? error : new CallMediaError(`Cannot open the received audio output: ${error instanceof Error ? error.message : String(error)}`); }) : undefined;
       const receiveResampler = new AudioResampler(16_000);
+      let receivedUntilMs: number | undefined;
       const result: PreparedCallMedia = {
         microphone: microphone === null ? 'disabled' : deviceMic ? 'device' : 'injected',
         speaker: speaker === null ? 'disabled' : deviceSpeaker ? 'device' : 'captured',
@@ -92,10 +93,24 @@ export function makeNodeCallMediaHost(options: { log?: (message: string) => void
               const tail = new Float32Array(frameSize); if (!muted) tail.set(audio);
               if (!source!.realtime || tail.some(sample => sample !== 0)) yield* Effect.tryPromise({ try: () => write({ samples: Array.from(tail), sampleRate: HOST_AUDIO_RATE, sequence: sequence++ }), catch: error => error });
             }
-          })), Effect.catch(error => Effect.sync(() => (onFailure ?? options.onFailure)?.(error instanceof Error ? error : new Error(String(error))))));
+          })), Effect.catch(error => Effect.sync(() => {
+            sourceCleared = true;
+            onFailure?.(error instanceof Error ? error : new Error(String(error)), 'microphone');
+            if (!onFailure) options.onFailure?.(error instanceof Error ? error : new Error(String(error)));
+          })));
           await scope.fork(pump);
         },
-        async receive(frame) { if (output) await output(encodePcm(receiveResampler.process(Float32Array.from(frame.samples), frame.sampleRate))); },
+        async receive(frame, receiveOptions) {
+          if (!output) return;
+          if (receiveOptions?.padGaps !== false && frame.timestampMs !== undefined) {
+            receivedUntilMs ??= frame.timestampMs;
+            let missing = Math.max(0, Math.round((frame.timestampMs - receivedUntilMs) * 16));
+            // Bound each silence allocation even when a recording spans a long gap.
+            while (missing > 0) { const samples = Math.min(missing, 16_000); await output(new Uint8Array(samples * 2)); missing -= samples; }
+          }
+          await output(encodePcm(receiveResampler.process(Float32Array.from(frame.samples), frame.sampleRate)));
+          if (frame.timestampMs !== undefined) receivedUntilMs = frame.timestampMs + frame.samples.length * 1000 / frame.sampleRate;
+        },
         async clear() { clearSequence++; if (source?.finite) sourceCleared = true; source?.clear?.(); },
         async mute(value) { muted = value; },
       };
@@ -263,6 +278,7 @@ async function prepareSocketSource(input: MediaDescriptor, scope: SessionScope):
   let wake: (() => void) | undefined;
   let failure: Error | undefined;
   let closed = false, buffered = 0, expected: number | undefined;
+  let droppedMs = 0, lastDropNoticeAt = 0;
   const { ws, format: negotiated } = await socket(input, 'microphone', scope, data => {
     try {
       if (typeof data !== 'string') {
@@ -271,7 +287,11 @@ async function prepareSocketSource(input: MediaDescriptor, scope: SessionScope):
         if (packet.audio.length % width || packet.audio.length > format.sampleRate * width * 0.12) throw new CallMediaError('Invalid audio packet duration.');
         if (expected !== undefined && packet.sequence !== expected) { queue.length = 0; buffered = 0; }
         expected = packet.sequence + 1;
-        if (buffered + packet.audio.length > format.sampleRate * width * 0.5) throw new CallMediaError('Media WebSocket exceeded its 500 ms audio buffer.');
+        while (buffered + packet.audio.length > format.sampleRate * width * 0.5 && queue.length) {
+          const stale = queue.shift()!;
+          if (stale instanceof Uint8Array) { buffered -= stale.length; droppedMs += stale.length * 1000 / (format.sampleRate * width); }
+        }
+        if (droppedMs && Date.now() - lastDropNoticeAt >= 5000) { console.warn('Calling microphone WebSocket discarded stale audio; the call remains open.', { discardedMs: droppedMs }); droppedMs = 0; lastDropNoticeAt = Date.now(); }
         buffered += packet.audio.length; queue.push(packet.audio);
       } else {
         const message = JSON.parse(data);
@@ -292,17 +312,21 @@ async function prepareSocketSource(input: MediaDescriptor, scope: SessionScope):
       else await new Promise<void>(resolve => { wake = resolve; });
     }
   }
-  return { stream: streamFrom(chunks()), format, clear() { queue.length = 0; buffered = 0; ws.send(JSON.stringify({ type: 'clear' })); } };
+  return { stream: streamFrom(chunks()), format, realtime: true, clear() { queue.length = 0; buffered = 0; ws.send(JSON.stringify({ type: 'clear' })); } };
 }
 
 async function prepareSocketOutput(output: MediaDescriptor, scope: SessionScope): Promise<Output> {
   const { ws, format } = await socket(output, 'speaker', scope, () => {});
   const resampler = new AudioResampler(format.sampleRate);
-  let sequence = 0, timestamp = 0;
+  let sequence = 0, timestamp = 0, droppedMs = 0, lastDropNoticeAt = 0;
   const write: Output = async bytes => {
     if (ws.readyState !== ws.OPEN) throw new CallMediaError('Speaker WebSocket disconnected.');
     const width = (format.encoding === 'pcm16le' ? 2 : 4) * format.channels;
-    if (ws.bufferedAmount > format.sampleRate * width * 0.5) throw new CallMediaError('Speaker WebSocket is more than 500 ms behind.');
+    if (ws.bufferedAmount > format.sampleRate * width * 0.5) {
+      const durationMs = bytes.length / 32; timestamp += durationMs; sequence++; droppedMs += durationMs;
+      if (Date.now() - lastDropNoticeAt >= 5000) { console.warn('Calling speaker WebSocket dropped audio while the sink caught up; the call remains open.', { discardedMs: droppedMs }); droppedMs = 0; lastDropNoticeAt = Date.now(); }
+      return;
+    }
     const mono = resampler.process(decodePcm(bytes, RAW_AUDIO_DEFAULT), 16_000);
     const interleaved = format.channels === 2 ? Float32Array.from(Array.from(mono).flatMap(sample => [sample, sample])) : mono;
     const converted = encodePcm(interleaved, format.encoding);

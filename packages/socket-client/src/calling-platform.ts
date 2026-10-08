@@ -25,10 +25,10 @@ export async function prepareLocalMedia(media: CallMediaOptions) {
           try { send(bytes); } catch (error) { failure(error instanceof Error ? error : new Error(String(error))); throw error; }
         });
       },
-      async receive(bytes: Uint8Array) {
+      async receive(bytes: Uint8Array, timestampMs?: number) {
         const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
         const samples = Array.from({ length: bytes.length / 2 }, (_, i) => view.getInt16(i * 2, true) / 32768);
-        await host.receive({ samples, sampleRate: 16_000, sequence: 0 });
+        await host.receive({ samples, sampleRate: 16_000, sequence: 0, timestampMs });
       },
       async mute(value: boolean) { await host.mute(value); },
       async clear() { await host.clear(); },

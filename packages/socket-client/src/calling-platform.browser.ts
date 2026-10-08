@@ -3,13 +3,14 @@ import type { CallMediaOptions } from '@open-wa/schema/calling-media';
 
 const processor = `
 class OpenWACallAudio extends AudioWorkletProcessor {
-  constructor() { super(); this.input=[]; this.output=[]; this.cursor=0; this.muted=false; this.active=false;
-    this.port.onmessage=({data})=>{if(data.type==='audio'){if(this.output.length<40)this.output.push(data.samples);else this.port.postMessage({type:'error',message:'Call playback is falling behind.'});}
-      if(data.type==='active'){this.active=true;this.input=[];}if(data.type==='mute')this.muted=data.value;if(data.type==='clear'){this.output=[];this.cursor=0;}};
+  constructor() { super(); this.input=[]; this.output=[]; this.cursor=0; this.buffered=0; this.dropped=0; this.lastNotice=0; this.muted=false; this.active=false;
+    this.port.onmessage=({data})=>{if(data.type==='audio'){while(this.buffered+data.samples.length>8000&&this.output.length){const stale=this.output.shift();const remaining=stale.length-this.cursor;this.buffered-=remaining;this.dropped+=remaining;this.cursor=0;}this.output.push(data.samples);this.buffered+=data.samples.length;
+      if(this.dropped&&currentTime-this.lastNotice>=5){this.port.postMessage({type:'backlog',discardedMs:this.dropped/16});this.dropped=0;this.lastNotice=currentTime;}}
+      if(data.type==='active'){this.active=true;this.input=[];}if(data.type==='mute')this.muted=data.value;if(data.type==='clear'){this.output=[];this.cursor=0;this.buffered=0;}};
   }
   process(inputs,outputs) {
     const input=inputs[0];if(this.active&&input?.[0])for(let i=0;i<input[0].length;i++){let x=0;for(const channel of input)x+=channel[i];this.input.push(this.muted?0:x/input.length);if(this.input.length===320){const pcm=new Int16Array(this.input.map(x=>Math.max(-32768,Math.min(32767,Math.round(x*32767)))));this.port.postMessage({type:'audio',bytes:pcm.buffer},[pcm.buffer]);this.input=[];}}
-    const output=outputs[0];if(output?.[0])for(let i=0;i<output[0].length;i++){const frame=this.output[0];const x=frame?frame[this.cursor++]:0;for(const channel of output)channel[i]=x;if(frame&&this.cursor>=frame.length){this.output.shift();this.cursor=0;}}return true;
+    const output=outputs[0];if(output?.[0])for(let i=0;i<output[0].length;i++){const frame=this.output[0];const x=frame?frame[this.cursor++]:0;if(frame)this.buffered--;for(const channel of output)channel[i]=x;if(frame&&this.cursor>=frame.length){this.output.shift();this.cursor=0;}}return true;
   }
 }registerProcessor('openwa-call-audio',OpenWACallAudio);`;
 
@@ -32,6 +33,7 @@ export async function prepareLocalMedia(media: CallMediaOptions) {
   let hls: { destroy(): void } | undefined;
   let onRuntimeFailure: (error: Error) => void = () => {};
   let sourceFailure: Error | undefined;
+  let receivedUntilMs: number | undefined;
   const close = (): Promise<void> => closing ??= (async () => {
     closed = true; tracks.forEach(track => track.stop()); try { bufferSource?.stop(); } catch {}
     nodes.forEach(node => node.disconnect()); inputElement?.pause(); hls?.destroy(); if (revoked) URL.revokeObjectURL(revoked);
@@ -117,10 +119,19 @@ export async function prepareLocalMedia(media: CallMediaOptions) {
         bufferSource?.start();
         if (inputElement) await inputElement.play();
         if (pump) void pump().catch(error => onFailure(error instanceof Error ? error : new Error(String(error))));
-        worklet.port.onmessage = ({ data }) => { try { if (data.type === 'audio') send(new Uint8Array(data.bytes)); else if (data.type === 'error') onFailure(new Error(data.message)); } catch (error) { onFailure(error instanceof Error ? error : new Error(String(error))); } };
+        worklet.port.onmessage = ({ data }) => { try { if (data.type === 'audio') send(new Uint8Array(data.bytes)); else if (data.type === 'backlog') console.warn('Calling speaker playback discarded stale audio; the call remains open.', { discardedMs: data.discardedMs }); } catch (error) { onFailure(error instanceof Error ? error : new Error(String(error))); } };
       },
-      async receive(bytes: Uint8Array) {
-        if (writer) { await writer.write(bytes); return; }
+      async receive(bytes: Uint8Array, timestampMs?: number) {
+        if (writer) {
+          if (timestampMs !== undefined) {
+            receivedUntilMs ??= timestampMs;
+            let missing = Math.max(0, Math.round((timestampMs - receivedUntilMs) * 16));
+            while (missing > 0) { const samples = Math.min(missing, 16_000); await writer.write(new Uint8Array(samples * 2)); missing -= samples; }
+          }
+          await writer.write(bytes);
+          if (timestampMs !== undefined) receivedUntilMs = timestampMs + bytes.length / 32;
+          return;
+        }
         const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
         const samples = Float32Array.from({ length: bytes.length / 2 }, (_, i) => view.getInt16(i * 2, true) / 32768);
         worklet.port.postMessage({ type: 'audio', samples }, [samples.buffer]);

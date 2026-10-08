@@ -1,3 +1,4 @@
+export { decodeAudioPacket } from './calling-wire';
 /** Device defaults are serializable so embedded and remote clients share the same API. */
 export const DEFAULT_MIC = 'default:microphone' as const;
 export const DEFAULT_SPEAKER = 'default:speaker' as const;
