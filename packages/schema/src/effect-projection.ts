@@ -1,7 +1,7 @@
 import { Schema } from 'effect';
 import { z } from 'zod';
 
-type JsonSchema = { $ref?: string; type?: string; const?: unknown; enum?: unknown[]; anyOf?: JsonSchema[]; oneOf?: JsonSchema[]; properties?: Record<string, JsonSchema>; required?: string[]; items?: JsonSchema };
+type JsonSchema = { $ref?: string; type?: string; const?: unknown; enum?: unknown[]; anyOf?: JsonSchema[]; oneOf?: JsonSchema[]; properties?: Record<string, JsonSchema>; required?: string[]; items?: JsonSchema; additionalProperties?: boolean | JsonSchema };
 
 /** A focused projection of calling contracts into the currently serving registry. */
 export function projectEffectSchema(schema: Schema.Top): z.ZodType {
@@ -26,11 +26,15 @@ export function projectEffectSchema(schema: Schema.Top): z.ZodType {
       case 'null': return z.null();
       case 'array': return z.array(project(node.items ?? {}));
       case 'object': {
+        const properties = node.properties ?? {};
+        const values = typeof node.additionalProperties === 'object' ? project(node.additionalProperties) : node.additionalProperties ? z.unknown() : undefined;
+        if (!Object.keys(properties).length && values) return z.record(z.string(), values);
         const required = new Set(node.required ?? []);
-        return z.object(Object.fromEntries(Object.entries(node.properties ?? {}).map(([key, value]) => {
+        const object = z.object(Object.fromEntries(Object.entries(properties).map(([key, value]) => {
           const field = project(value);
           return [key, required.has(key) ? field : field.optional()];
         })));
+        return values ? object.catchall(values) : object;
       }
       default: return z.unknown();
     }
