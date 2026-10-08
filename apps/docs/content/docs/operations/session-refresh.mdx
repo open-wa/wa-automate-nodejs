@@ -7,6 +7,8 @@ description: Refresh patches or apply a license from the dashboard without resta
 
 Choose **Refresh patches** on the dashboard's Health page to download the public patches again and rebuild the WhatsApp page. The browser process, Node process, API server, client object, host listeners, and session persistence lease stay alive. **Refresh status** only reloads the health information displayed in the dashboard.
 
+**Warning:** Refreshing reloads WhatsApp. You may miss messages during the refresh. This also applies when entering a license key triggers a refresh.
+
 Refresh rebuilds the page even when the downloaded patch tag hasn't changed. A page reload temporarily interrupts WhatsApp operations and ends document-owned call media; attach fresh media after the session is ready. OpenWA finishes admitted operations and saves the session checkpoint before reloading. New operations during replacement receive `SESSION_REFRESHING` with HTTP 503 where applicable; sends and other mutations aren't replayed automatically.
 
 ## Apply a license during a session
