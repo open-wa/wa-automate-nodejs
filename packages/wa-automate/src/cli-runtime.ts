@@ -580,6 +580,7 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         safeMode: config.safeMode,
         lightpanda: config.useLightpanda ? config.lightpanda : undefined,
         licenseKey: config.licenseKey as any,
+        licenseConfig: { runtime: config.runtimeLicense },
         sandboxPolicy,
         executionSandbox,
         memoryObservation: (observability, getBrowserProcessId) => observeBrowserProcessMemory(

@@ -321,6 +321,7 @@ export function toCreateClientOptions(
         safeMode: config.safeMode,
         lightpanda: config.useLightpanda ? config.lightpanda : undefined,
         licenseKey: config.licenseKey as any,
+        licenseConfig: { runtime: config.runtimeLicense },
         patchConfig: { ghPatch: config.ghPatch, cachedPatch: config.cachedPatch },
     };
 }

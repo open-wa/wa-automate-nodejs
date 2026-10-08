@@ -239,6 +239,12 @@ export const ConfigSchema = z.object({
     .optional()
     .describe('License key for unknown number messaging.'),
 
+  runtimeLicense: z.object({
+    url: z.string().url().optional(),
+    publicKey: z.string().min(1).optional(),
+    environment: z.enum(['development', 'production']).optional(),
+  }).optional().describe('Signed OWA runtime server and operator-pinned public trust key. Default: production OpenWA.'),
+
   // Browser Configuration
   browserWSEndpoint: z
     .string()

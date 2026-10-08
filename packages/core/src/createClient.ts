@@ -99,8 +99,8 @@ export interface CreateClientOptions extends SessionPersistenceConfig, SessionEn
   patchConfig?: PatchFetchConfig;
 
   /**
-   * Configuration for remote license validation via funcs.openwa.dev.
-   * Controls offline mode.
+   * Gumroad validation and signed OpenWA runtime authorization settings.
+   * OpenWA keys require online authorization even when offline mode is selected.
    */
   licenseConfig?: LicenseServerConfig;
 

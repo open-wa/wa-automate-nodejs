@@ -25,6 +25,7 @@ import { getProgObserverScript, injectInitPatch } from './initPatchScripts';
 import { getRuntimeListenerSurfaceEntry, runtimeListenerSurface } from './runtimeListenerSurface';
 import { auditWapiHelperAssetRequirements, ScriptLoader } from './ScriptLoader';
 import { chromiumConfig, sanitizeBrowserArgs } from './browserConfig';
+import { authorizeRuntimeLicense, prepareRuntimeLicense, runtimeRenewalPayload, type PreparedRuntimeLicense, type RuntimeLicenseConfig } from './runtimeLicense';
 
 export interface PatchFetchConfig {
   /** Use GitHub raw patches as the primary source instead of the default CDN. */
@@ -36,6 +37,7 @@ export interface PatchFetchConfig {
 
 export interface LicenseServerConfig {
   offlineLicenseMode?: boolean;
+  runtime?: RuntimeLicenseConfig;
 }
 
 export interface SessionDebugInfo {
@@ -290,6 +292,9 @@ export interface LicenseArtifact {
   payload: string;
   keyType: string;
   payloadSource: 'server' | 'local_metadata';
+  /** OpenWA preflight waits for an authenticated phone identity; it cannot unlock metadata. */
+  pendingRuntime?: boolean;
+  runtime?: PreparedRuntimeLicense;
 }
 
 export interface LicensePreloadResult {
@@ -441,6 +446,8 @@ export class Transport {
   private lastRuntimeState: STATE | null = null;
   private patchConfig: PatchFetchConfig;
   private licenseConfig: LicenseServerConfig;
+  private runtimeLicenseTimer: ReturnType<typeof setTimeout> | null = null;
+  private runtimeLicenseContext: { key: string; sessionId: string; hostNumber: string } | null = null;
   private pageListeners: DisposableHandle[] = [];
   private readonly injectionController: InjectionController;
   private runtimeRecoveryQueue: Promise<void> = Promise.resolve();
@@ -1303,6 +1310,25 @@ export class Transport {
         return outcome;
       }
 
+      if (resolvedKey.startsWith('OWA_')) {
+        if (this.licenseConfig.offlineLicenseMode) throw new Error('OpenWA runtime licenses require online signed authorization.');
+        const ready = options.sessionInfo?.hostNumber
+          ? await prepareRuntimeLicense(resolvedKey, options.sessionId, options.sessionInfo.hostNumber, this.licenseConfig.runtime)
+          : null;
+        const outcome: LicensePreloadResult = {
+          outcome: 'ready', status: ready ? 'valid' : 'metadata_only', source,
+          artifact: { key: resolvedKey, maskedKey: this.maskLicenseKey(resolvedKey), source,
+            payload: ready?.payload ?? '', keyType: ready?.keyType ?? '', payloadSource: ready ? 'server' : 'local_metadata',
+            pendingRuntime: !ready, runtime: ready ?? undefined },
+          blockingFailure: false,
+          detail: ready ? 'Signed runtime grant and every required artifact verified.' : 'OpenWA preflight awaits the authenticated phone identity.',
+        };
+        this.events.emit('launch.license.preload.after', { correlationId, ts: Date.now(), step: 'license_preload',
+          durationMs: Date.now() - startTime, details: { success: !!ready, status: outcome.status, source,
+            payloadSource: outcome.artifact?.payloadSource, detail: outcome.detail, blockingFailure: false } });
+        return outcome;
+      }
+
       const keyType = this.deriveLicenseKeyType(resolvedKey);
       // Attempt server validation if not in offline mode
       let payload: string;
@@ -1476,6 +1502,9 @@ export class Transport {
         blockingFailure: false,
         detail: preloaded.detail ?? 'No license material was available for this session.',
       };
+    } else if (preloaded.artifact.pendingRuntime || (preloaded.artifact.runtime && preloaded.artifact.runtime.grant.expiresAt <= Date.now())) {
+      result = { status: 'invalid', source, artifact: null, blockingFailure: true,
+        detail: 'The OpenWA license has no current signed authorization for this authenticated host.' };
     } else if (this.isExpiredLicenseKey(preloaded.artifact.key)) {
       result = {
         status: 'expired',
@@ -1583,6 +1612,11 @@ export class Transport {
             ? 'License capability was unlocked using a server-confirmed payload.'
             : 'Metadata-only license fallback injected session metadata without server-confirmed unlock.',
         };
+        if (checked.artifact.runtime) {
+          this.runtimeLicenseContext = { key: checked.artifact.key, sessionId: checked.artifact.runtime.sessionId,
+            hostNumber: checked.artifact.runtime.grant.number };
+          this.scheduleRuntimeLicenseRenewal(checked.artifact.runtime.grant.expiresAt);
+        }
       }
 
     } catch (error) {
@@ -1610,6 +1644,35 @@ export class Transport {
     });
 
     return result;
+  }
+
+  private scheduleRuntimeLicenseRenewal(expiresAt: number): void {
+    if (this.runtimeLicenseTimer) clearTimeout(this.runtimeLicenseTimer);
+    const delay = Math.max(1000, Math.min(60_000, expiresAt - Date.now() - 30_000));
+    this.runtimeLicenseTimer = setTimeout(() => { void this.renewRuntimeLicense(); }, delay);
+    this.runtimeLicenseTimer.unref?.();
+  }
+
+  private async renewRuntimeLicense(): Promise<void> {
+    const context = this.runtimeLicenseContext;
+    if (!context || !this.page) return;
+    let next = Date.now() + 60_000;
+    try {
+      const grant = await authorizeRuntimeLicense(context.key, context.sessionId, context.hostNumber, this.licenseConfig.runtime);
+      if (!this.page || this.runtimeLicenseContext !== context) return;
+      const applied = await this.page.evaluateScript<boolean>(runtimeRenewalPayload(grant));
+      if (!applied) throw new Error('The installed release or capability set changed; restart this session to install the selected generation.');
+      next = grant.expiresAt;
+      this.events.emit('license.check.after', { correlationId: 'runtime-license-renewal', ts: Date.now(), step: 'license_check',
+        details: { status: 'valid', source: 'remote', payloadSource: 'server', blockingFailure: false, detail: 'Signed runtime lease renewed.' } });
+    } catch {
+      if (!this.page || this.runtimeLicenseContext !== context) return;
+      try { await this.page.evaluateScript(runtimeRenewalPayload(null)); } catch { /* A lost context cannot retain callable browser capabilities. */ }
+      this.events.emit('license.check.after', { correlationId: 'runtime-license-renewal', ts: Date.now(), step: 'license_check',
+        details: { status: 'invalid', source: 'remote', payloadSource: 'server', blockingFailure: true,
+          detail: 'Signed runtime authorization could not be renewed. Licensed methods are disabled.' } });
+    }
+    if (this.runtimeLicenseContext === context && this.page) this.scheduleRuntimeLicenseRenewal(next);
   }
 
   async waitForQr(): Promise<string | null> {
@@ -2133,6 +2196,9 @@ export class Transport {
   }
 
   async close(): Promise<void> {
+    this.runtimeLicenseContext = null;
+    if (this.runtimeLicenseTimer) clearTimeout(this.runtimeLicenseTimer);
+    this.runtimeLicenseTimer = null;
     try {
       await this.portable.flush();
     } finally {
@@ -2695,6 +2761,16 @@ export class Transport {
       || options.trigger === 'runtime_replaced';
 
     if (reinjected && isContextFlushRecovery) {
+      if (this.runtimeLicenseContext) {
+        // Fresh authorization and integrity precede deferred init/freeze after a context flush.
+        const context = this.runtimeLicenseContext;
+        const prepared = await prepareRuntimeLicense(context.key, context.sessionId, context.hostNumber, this.licenseConfig.runtime);
+        await this.page!.evaluateScript(`if (typeof window.__owaUpdateLicense === 'function') window.__owaUpdateLicense(null); delete window.__owaUpdateLicense; delete window.__owaLicenseState;`);
+        const license = await this.applyLicenseArtifact({ status: 'valid', source: 'remote', blockingFailure: false,
+          artifact: { key: context.key, maskedKey: this.maskLicenseKey(context.key), source: 'remote', payload: prepared.payload,
+            keyType: prepared.keyType, payloadSource: 'server', runtime: prepared } });
+        if (!license.applied || license.blockingFailure) throw new Error(license.detail ?? 'Licensed context recovery failed.');
+      }
       try {
         this.logger.info('recovery_reapplying_init_patch', {
           trigger: options.trigger,
