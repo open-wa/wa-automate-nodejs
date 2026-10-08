@@ -1,8 +1,8 @@
 import type { SessionRefreshSnapshot } from '@open-wa/socket-client';
 
 const labels = {
-  idle: '', preparing: 'Downloading patches…', draining: 'Finishing current session operations…',
-  checkpointing: 'Saving session state…', reloading: 'Reloading WhatsApp…', installing: 'Restoring session functionality…',
+  idle: '', preparing: 'Downloading patches…',
+  reloading: 'Reloading WhatsApp…', installing: 'Restoring session functionality…',
   restoring: 'Restoring the previous installation…', needs_auth: 'Pair the session using its QR code to continue.',
   ready: 'Patches refreshed. The session is ready.', failed: 'Refresh could not complete.',
 };

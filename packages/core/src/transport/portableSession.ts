@@ -51,8 +51,6 @@ export class PortableSessionController {
   private leaseCloseResult?: Exit.Exit<void, never>;
   private installAttempted = false;
   private page?: IPage;
-  private reloadDocumentId?: string;
-  private reloadAttempt = 0;
   #encryption?: SessionEncryptionCredentials;
 
   constructor(private readonly persistence: SessionPersistence, private readonly sessionId: string,
@@ -110,7 +108,6 @@ export class PortableSessionController {
           yield* authorize(token);
           if (this.flushing) return yield* Effect.fail(portableFailure('PORTABLE_SESSION_FENCED'));
           this.documentId = randomUUID();
-          this.reloadDocumentId = undefined;
           this.active = false;
           yield* authorize(token);
           if (this.flushing) return yield* Effect.fail(portableFailure('PORTABLE_SESSION_FENCED'));
@@ -209,43 +206,6 @@ export class PortableSessionController {
         yield* portableIO('PORTABLE_SESSION_FLUSH_FAILED', () => page.evaluateScript('globalThis.OpenWA_PortableSession.flush()'));
       }
     }).pipe(Effect.ensuring(this.writes.withPermit(Effect.void))));
-  }
-
-  /** Keep the lease; pause and durably checkpoint before retiring this document. */
-  async prepareDocumentReload(): Promise<void> {
-    const attempt = ++this.reloadAttempt;
-    const page = this.page;
-    const documentId = this.documentId;
-    if (!page || !documentId || this.invalidated || this.flushing || this.releasing) {
-      throw toPublicError(portableFailure('PORTABLE_SESSION_FENCED'));
-    }
-    const prepared = await page.evaluateScript<boolean>('globalThis.OpenWA_PortableSession.prepareReload()');
-    if (!prepared) throw toPublicError(portableFailure('PORTABLE_SESSION_SAVE_FAILED'));
-    await this.serial(Effect.gen({ self: this }, function* () {
-      if (attempt !== this.reloadAttempt || this.invalidated || this.flushing || this.releasing || this.documentId !== documentId) {
-        return yield* Effect.fail(portableFailure('PORTABLE_SESSION_FENCED'));
-      }
-      this.reloadDocumentId = documentId;
-      this.active = false;
-      this.documentId = ''; // Fence the old document's commit/delivery callbacks.
-    }));
-  }
-
-  async abortDocumentReload(): Promise<void> {
-    ++this.reloadAttempt;
-    if (!this.page || this.invalidated || this.flushing || this.releasing) {
-      throw toPublicError(portableFailure('PORTABLE_SESSION_FENCED'));
-    }
-    if (this.reloadDocumentId) {
-      if (this.documentId) throw toPublicError(portableFailure('PORTABLE_SESSION_FENCED'));
-      this.documentId = this.reloadDocumentId;
-      this.reloadDocumentId = undefined;
-    }
-    await this.page.evaluateScript('globalThis.OpenWA_PortableSession.resumeReload()');
-    const status = await this.status();
-    if (!status.ready || status.paused) throw toPublicError(portableFailure('PORTABLE_SESSION_NOT_ACTIVE'));
-    if (this.invalidated || this.flushing || this.releasing) throw toPublicError(portableFailure('PORTABLE_SESSION_FENCED'));
-    this.active = true;
   }
 
   /** Called only after the transport has confirmed browser closure. */

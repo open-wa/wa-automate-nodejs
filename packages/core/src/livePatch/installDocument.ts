@@ -5,7 +5,6 @@ export async function installDocumentRuntime(
   transport: Transport,
   patches: LivePatchPreloadResult,
   license: () => Promise<LicensePreloadResult>,
-  attestLicense = false,
   afterPublic?: () => Promise<void>,
 ) {
   const livePatchApply = await transport.applyLivePatchArtifacts(patches);
@@ -22,6 +21,5 @@ export async function installDocumentRuntime(
   const initPatchApply = await transport.applyDeferredInitPatchArtifact();
   if (initPatchApply.blockingFailure) throw new Error('Runtime initialization could not finish.');
   await transport.activateRuntimeEventBridge();
-  if (attestLicense && licenseApply?.status === 'valid' && licenseApply.applied) await transport.assertInstalledLicenseCapabilities();
   return { livePatchApply, licenseCheck, licenseApply, initPatchApply };
 }

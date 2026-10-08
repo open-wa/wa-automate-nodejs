@@ -102,7 +102,7 @@ export class SessionRefreshController {
       const account = await transport.getSessionDebugInfo();
       if (!account.hostNumber || account.hostNumber !== expected.hostNumber) throw new Error('SESSION_REFRESH_ACCOUNT_CHANGED');
       return this.license(key, account);
-    }, true);
+    });
     this.ensureActive();
     const validation = await transport.validateRuntimeUsability('post_overlay');
     if (transport.getDocumentGeneration().documentId !== documentId) throw new Error('SESSION_REFRESH_DOCUMENT_CHANGED');
@@ -133,11 +133,10 @@ export class SessionRefreshController {
   }
   private async run(candidate?: string): Promise<SessionRefreshResult> {
     const { transport, session } = this.options;
-    const gate = transport.getLivePatchActivityGate();
     const previous = this.installedPatches ?? transport.getActiveLivePatchPreload();
     const previousKey = this.effectiveKey ?? transport.getEffectiveLicenseKey();
     const key = candidate ?? previousKey;
-    let navigated = false, checkpointing = false;
+    let navigated = false;
     let account: SessionDebugInfo | undefined;
     let expectedDocument: string | null = null;
     let preparedPatches: LivePatchPreloadResult | null = null;
@@ -149,15 +148,10 @@ export class SessionRefreshController {
       preparedPatches = patches;
       this.ensureActive();
       if (patches.blockingFailure || patches.source !== 'remote') throw new Error('SESSION_REFRESH_PATCH_DOWNLOAD_FAILED');
-      this.phase('draining');
       let licenseAccepted = false;
       await transport.runPlannedRuntimeMutation(async () => {
-        await gate.quiesce();
         this.ensureActive();
         if (transport.getDocumentGeneration().documentId !== expectedDocument) throw new Error('SESSION_REFRESH_DOCUMENT_CHANGED');
-        this.phase('checkpointing'); checkpointing = true;
-        await this.checkpoint(transport);
-        this.ensureActive();
         navigated = true;
         licenseAccepted = await this.install(patches, account!, key);
       });
@@ -167,13 +161,11 @@ export class SessionRefreshController {
       const code = error instanceof Error && /^SESSION_REFRESH_[A-Z_]+$/.test(error.message) ? error.message : 'SESSION_REFRESH_FAILED';
       this.snapshot.error = { code, message: this.message(code) };
       if (!this.stopped && !navigated) {
-        try { if (checkpointing) await transport.abortDocumentReload(); this.snapshot.runtimeUsable = session.getReadinessSnapshot(transport.getOperationalReadinessSnapshot()).ready; }
-        catch { session.setFinalization('failed', 'The document could not resume after checkpoint failure'); this.snapshot.runtimeUsable = false; }
+        this.snapshot.runtimeUsable = session.getReadinessSnapshot(transport.getOperationalReadinessSnapshot()).ready;
       } else if (!this.stopped && previous && account && code !== 'SESSION_REFRESH_ACCOUNT_CHANGED' && code !== 'SESSION_REFRESH_NEEDS_AUTH') {
         try {
           this.phase('restoring');
           await transport.runPlannedRuntimeMutation(async () => {
-            await this.checkpoint(transport);
             await this.install(previous, account!, previousKey);
           });
           this.snapshot.restored = true; this.snapshot.runtimeUsable = true;
@@ -199,18 +191,9 @@ export class SessionRefreshController {
     } finally {
       this.snapshot.running = this.authResume !== null && !this.stopped;
       this.snapshot.finishedAt = this.snapshot.running ? null : Date.now();
-      if (this.snapshot.runtimeUsable && !this.stopped) gate.resume();
       this.publish();
     }
     return this.getStatus();
-  }
-  private async checkpoint(transport: Transport): Promise<void> {
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    try {
-      await Promise.race([transport.prepareDocumentReload(), new Promise<never>((_, reject) => {
-        timer = setTimeout(() => reject(new Error('SESSION_REFRESH_CHECKPOINT_TIMEOUT')), 15_000);
-      })]);
-    } finally { clearTimeout(timer); }
   }
   private async resumeAfterPairing(target: { patches: LivePatchPreloadResult; account: SessionDebugInfo; key?: string }): Promise<void> {
     const { transport, session } = this.options;
@@ -224,12 +207,9 @@ export class SessionRefreshController {
         this.ensureActive();
         if (auth.outcome !== 'authenticated') return;
         this.snapshot.running = true; this.snapshot.finishedAt = null; this.snapshot.error = null;
-        this.phase('checkpointing');
-        await this.checkpoint(transport);
         const previousKey = this.effectiveKey ?? transport.getEffectiveLicenseKey();
         const licenseAccepted = await this.install(target.patches, target.account, target.key);
         this.completeInstallation(target.key, previousKey, licenseAccepted);
-        transport.getLivePatchActivityGate().resume();
       });
     } catch {
       if (!this.stopped) {
@@ -243,9 +223,7 @@ export class SessionRefreshController {
     }
   }
   private message(code: string): string {
-    if (code === 'SESSION_REFRESH_DRAIN_TIMEOUT') return 'Existing operations did not finish in time. The page was left running.';
     if (code === 'SESSION_REFRESH_NEEDS_AUTH') return 'The refreshed page needs pairing. Reconnect using the session QR code.';
-    if (code === 'SESSION_REFRESH_CHECKPOINT_TIMEOUT') return 'The session checkpoint did not finish in time. The page was not intentionally reloaded.';
     if (code === 'SESSION_REFRESH_ACCOUNT_CHANGED') return 'The connected account changed. Licensed code was not installed.';
     return 'Refresh could not complete. Check session readiness before retrying.';
   }

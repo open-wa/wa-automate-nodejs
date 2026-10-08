@@ -1,5 +1,5 @@
 export interface SessionRefreshOptions { licenseKey?: string }
-export type SessionRefreshPhase = 'idle' | 'preparing' | 'draining' | 'checkpointing' | 'reloading' | 'installing' | 'restoring' | 'needs_auth' | 'ready' | 'failed';
+export type SessionRefreshPhase = 'idle' | 'preparing' | 'reloading' | 'installing' | 'restoring' | 'needs_auth' | 'ready' | 'failed';
 export interface SessionRefreshSnapshot {
   operationId: string | null;
   reason: 'manual_refresh' | 'license_activation';

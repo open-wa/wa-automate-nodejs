@@ -925,7 +925,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
             });
           }
           return prepared;
-        }, false, async () => {
+        }, async () => {
           const capability = await transport.validateRuntimeCapabilityOnly('post_patch');
           session.recordValidation({ stage: 'post_patch', attempt: 1, usable: capability.usable,
             repairable: capability.repairable, repaired: false, checkedAt: Date.now(), failureReason: capability.failureReason,

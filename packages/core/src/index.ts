@@ -1,6 +1,5 @@
 export { createClient } from './createClient';
 export type { CreateClientOptions, OpenWAClient } from './createClient';
-export { SessionRefreshingError } from './livePatch/ActivityGate';
 export type { SessionRefreshOptions, SessionRefreshResult, SessionRefreshSnapshot } from '@open-wa/schema';
 export { CallingService } from './calling/CallingService';
 export type { CallMediaHost, PreparedCallMedia, AudioFrame } from './calling/ports';

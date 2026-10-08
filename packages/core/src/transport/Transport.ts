@@ -20,7 +20,6 @@ import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
 import type { OpenWAEventMap, STATE } from '../events/eventMap';
 import { fetchPatches, validateLicense } from './httpClient';
-import { LivePatchActivityGate } from '../livePatch/ActivityGate';
 import { installDocumentRuntime } from '../livePatch/installDocument';
 import { InjectionController, type GenerationSnapshot } from './InjectionController';
 import { getProgObserverScript, injectInitPatch } from './initPatchScripts';
@@ -467,7 +466,6 @@ export class Transport {
   private licenseRenewalTimer?: ReturnType<typeof setTimeout>;
   private licenseRenewing = false;
   private licenseRenewalAttempts = 0;
-  private readonly activityGate = new LivePatchActivityGate();
   private plannedRuntimeMutation = 0;
   private runtimeRecoveryFailed = false;
   private activeLivePatchPreload: LivePatchPreloadResult | null = null;
@@ -504,8 +502,6 @@ export class Transport {
     this.calling = new CallingService({
       sessionId: options.sessionId ?? 'session', logger: this.logger,
       config: options.calling, mediaHost: options.callMediaHost,
-      isRefreshing: () => this.activityGate.isFrozen(),
-      runOperation: operation => this.activityGate.runOperation(operation),
       page: () => this.page,
       generation: () => {
         const value = this.injectionController.getHealthSnapshot().generation;
@@ -1621,12 +1617,12 @@ export class Transport {
   }
 
   private async refreshLicenseFeatures(): Promise<void> {
-    if (this.activityGate.isFrozen() || this.plannedRuntimeMutation || this.runtimeRecoveryFailed) return;
-    await this.activityGate.runOperation(() => this.renewLicenseFeatures());
+    if (this.plannedRuntimeMutation || this.runtimeRecoveryFailed) return;
+    await this.renewLicenseFeatures();
   }
 
   private async renewLicenseFeatures(): Promise<void> {
-    if (this.activityGate.isFrozen() || this.plannedRuntimeMutation) return;
+    if (this.plannedRuntimeMutation) return;
     if (this.licenseRenewing || !this.retainedLicenseArtifact || !this.page || this.page.isClosed()) return;
     this.licenseRenewing = true;
     try {
@@ -2319,24 +2315,20 @@ export class Transport {
       throw new Error('Transport not initialized');
     }
     const page = this.page;
-    return this.activityGate.runOperation(() => page.evaluate(fn, arg));
+    return page.evaluate(fn, arg);
   }
 
   async evaluateScript<T = unknown>(script: string): Promise<T | null> {
     const page = this.page;
     if (!page || page.isClosed()) return null;
-    return this.activityGate.runOperation(() => page.evaluateScript<T>(script));
+    return page.evaluateScript<T>(script);
   }
 
-  getLivePatchActivityGate(): LivePatchActivityGate { return this.activityGate; }
   getActiveLivePatchPreload(): LivePatchPreloadResult | null { return this.activeLivePatchPreload; }
   getEffectiveLicenseKey(): string | undefined { return this.effectiveLicenseKey; }
   getDocumentGeneration(): GenerationSnapshot { return { ...this.injectionController.getHealthSnapshot().generation }; }
-  async assertInstalledLicenseCapabilities(): Promise<void> { await this.calling.assertLicenseSelection(this.licenseFeatures.features); }
   commitEffectiveLicenseKey(key: string | undefined): void { this.effectiveLicenseKey = key; }
   setRuntimeRefreshHandler(handler: () => Promise<unknown>): void { this.refreshHandler = handler; }
-  async prepareDocumentReload(): Promise<void> { await this.portable.prepareDocumentReload(); }
-  async abortDocumentReload(): Promise<void> { await this.portable.abortDocumentReload(); }
 
   async runPlannedRuntimeMutation<T>(operation: () => Promise<T>): Promise<T> {
     this.plannedRuntimeMutation++;
@@ -2783,8 +2775,8 @@ export class Transport {
     });
 
     this.runtimeRecoveryQueue = this.runtimeRecoveryQueue.then(
-      () => this.recoverWithAdmission({ requestId, trigger, generation }),
-      () => this.recoverWithAdmission({ requestId, trigger, generation }),
+      () => this.recoverDocument({ requestId, trigger, generation }),
+      () => this.recoverDocument({ requestId, trigger, generation }),
     ).catch((error) => {
       this.runtimeRecoveryFailed = true;
       this.logger.warn('runtime_recovery_failed', {
@@ -2795,19 +2787,16 @@ export class Transport {
     });
   }
 
-  private async recoverWithAdmission(request: Parameters<Transport['runRuntimeRecovery']>[0]): Promise<void> {
+  private async recoverDocument(request: Parameters<Transport['runRuntimeRecovery']>[0]): Promise<void> {
     // Own callbacks during recovery itself without waiting on our own queue.
     this.plannedRuntimeMutation++;
     clearTimeout(this.licenseRenewalTimer);
     try {
-      try { await this.activityGate.quiesce(); }
-      catch (error) { this.pendingRuntimeRecoveryCount = Math.max(0, this.pendingRuntimeRecoveryCount - 1); throw error; }
       await this.runRuntimeRecovery(request);
     }
     catch (error) { this.runtimeRecoveryFailed = true; throw error; }
     finally {
       this.plannedRuntimeMutation--;
-      if (!this.plannedRuntimeMutation && !this.runtimeRecoveryFailed) this.activityGate.resume();
       this.scheduleLicenseRenewal();
     }
   }
@@ -2985,7 +2974,7 @@ export class Transport {
         const license = await this.preloadLicenseArtifact({ sessionId: this.options.sessionId ?? 'session',
           licenseKey: this.effectiveLicenseKey, sessionInfo: await this.getSessionDebugInfo(), strict: true });
         return license;
-      }, true);
+      });
       if (this.getDocumentGeneration().documentId !== documentId || !shouldContinue()) throw new Error('Document recovery was superseded.');
       this.completeRuntimeReplacement();
     }
