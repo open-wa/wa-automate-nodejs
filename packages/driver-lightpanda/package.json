@@ -21,6 +21,7 @@
   "dependencies": {
     "@open-wa/driver-interface": "workspace:*",
     "effect": "catalog:",
+    "fflate": "^0.8.3",
     "proper-lockfile": "^4.1.2",
     "proxy-agent": "^8.0.1",
     "puppeteer-core": "catalog:"

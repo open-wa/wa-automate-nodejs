@@ -855,6 +855,9 @@ importers:
       effect:
         specifier: 'catalog:'
         version: 4.0.2
+      eventemitter2:
+        specifier: ^6.4.9
+        version: 6.4.9
       hono:
         specifier: 'catalog:'
         version: 4.13.9
@@ -923,6 +926,9 @@ importers:
       effect:
         specifier: 'catalog:'
         version: 4.0.2
+      fflate:
+        specifier: ^0.8.3
+        version: 0.8.3
       proper-lockfile:
         specifier: ^4.1.2
         version: 4.1.2
@@ -7287,6 +7293,9 @@ packages:
   file-type@21.3.4:
     resolution: {integrity: sha512-Ievi/yy8DS3ygGvT47PjSfdFoX+2isQueoYP1cntFW1JLYAuS4GD7NUPGg4zv2iZfV52uDyk5w5Z0TdpRS6Q1g==}
     engines: {node: '>=20'}
+
+  fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
 
   fill-range@7.1.1:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
@@ -18074,6 +18083,8 @@ snapshots:
       uint8array-extras: 1.6.0
     transitivePeerDependencies:
       - supports-color
+
+  fflate@0.8.3: {}
 
   fill-range@7.1.1:
     dependencies:

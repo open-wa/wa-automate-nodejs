@@ -5,6 +5,23 @@
   "description": "WhatsApp automation CLI and API server",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "bun": "./src/index.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.cjs",
+      "types": "./dist/index.d.cts"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "require": "./dist/index.cjs",
+        "import": "./dist/index.cjs",
+        "types": "./dist/index.d.cts"
+      }
+    }
+  },
   "bin": {
     "wa-automate": "./dist/cli.cjs"
   },
