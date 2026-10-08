@@ -1,0 +1,9 @@
+{
+  "slug": "explorer",
+  "name": "Playground",
+  "direction": "Explorer",
+  "tagline": "A bright, hands-on playground starring Wally the walrus: pick a trigger and an action, then watch a phone, a flow diagram and the real open-wa code play the combo out.",
+  "logo": "A sunny speech bubble that is also Wally's face (round spectacles, cream muzzle, two tusks); on hover or focus it wiggles on a spring, blinks and flexes its tusks, and it blinks now and then on its own.",
+  "brandFont": false,
+  "stack": ["Astro 7", "Motion 13 (springs, press, inView)", "Bricolage Grotesque", "Figtree", "Recursive Mono Casual (subset)"]
+}
