@@ -654,11 +654,8 @@ export class Transport {
     try {
       await this.runPreApiHelperPhase();
       success = await this.performRuntimeInjection();
-
-      if (success) {
-        await this.configureRuntimeEventBridge();
-      }
-
+      // Bootstrap activates bridges after authentication, live patches and the
+      // deferred init patch. Pre-patch activation can wait on unloaded methods.
       return success;
     } finally {
       this.events.emit('launch.wapi.inject.after', {
