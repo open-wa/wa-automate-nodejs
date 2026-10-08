@@ -1,0 +1,1265 @@
+diff --git a/build.zig b/build.zig
+index 5e67e4528..d0753e49e 100644
+--- a/build.zig
++++ b/build.zig
+@@ -166,6 +166,8 @@ pub fn build(b: *Build) !void {
+         // browser
+         const exe = addExe(b, exe_config, "lightpanda", "lightpanda_exe_check", "src/main.zig");
+         b.installArtifact(exe);
++        const session_executable = b.step("session-executable", "Produce the session browser executable");
++        session_executable.dependOn(&b.addInstallArtifact(exe, .{}).step);
+ 
+         const run_cmd = b.addRunArtifact(exe);
+         run_cmd.addPassthruArgs();
+diff --git a/src/Config.zig b/src/Config.zig
+index 227a044fb..21a297fc9 100644
+--- a/src/Config.zig
++++ b/src/Config.zig
+@@ -126,10 +126,7 @@ fn httpHeaderValidator(allocator: Allocator, args: *std.process.Args.Iterator, l
+         return error.InvalidArgument;
+     }
+ 
+-    if (std.ascii.eqlIgnoreCase(header.name, "Sec-Ch-Ua")) {
+-        log.fatal(.app, "invalid option value", .{ .arg = "--http-header", .value = str, .hint = "Sec-Ch-Ua is not overridable" });
+-        return error.InvalidArgument;
+-    }
++
+ 
+     try list.append(allocator, .{
+         .name = try allocator.dupe(u8, header.name),
+@@ -1669,9 +1666,7 @@ pub fn validateUserAgent(ua: []const u8) !void {
+         }
+     }
+ 
+-    if (std.ascii.findIgnoreCase(ua, "mozilla") != null) {
+-        return error.Reserved;
+-    }
++
+ }
+ 
+ fn localeValidator(allocator: Allocator, args: *std.process.Args.Iterator, field: *[:0]const u8) !void {
+diff --git a/src/browser/Session.zig b/src/browser/Session.zig
+index 29ced435f..8edbcf89b 100644
+--- a/src/browser/Session.zig
++++ b/src/browser/Session.zig
+@@ -78,6 +78,9 @@ shared_workers: std.StringHashMapUnmanaged(*SharedWorkerGlobalScope) = .empty,
+ // pages by url.
+ service_workers: std.StringHashMapUnmanaged(*ServiceWorkerGlobalScope) = .empty,
+ 
++// Origin-scoped lock requests shared by windows and native workers.
++web_locks: std.ArrayList(*@import("webapi/LockManager.zig").Request) = .empty,
++
+ _page_destruction_queue: std.ArrayList(*Page) = .empty,
+ 
+ // Round-robin cursor for fair page iteration (processQueuedNavigation)
+diff --git a/src/browser/js/Context.zig b/src/browser/js/Context.zig
+index 2b496293c..557c0bf32 100644
+--- a/src/browser/js/Context.zig
++++ b/src/browser/js/Context.zig
+@@ -255,8 +255,14 @@ pub fn setOrigin(self: *Context, key: ?[]const u8) !void {
+ 
+         // navigator.serviceWorker is [SecureContext]. With the feature
+         // disabled, Env.createContext has already removed it.
+-        if (self.global == .frame and self.page.session.experimental_features.serviceworker and self.execution.isSecureContext() == false) {
+-            env.hideServiceWorker(true, ls.local.handle, v8.v8__Context__Global(ls.local.handle).?);
++        if (self.execution.isSecureContext() == false) {
++            const global_obj = v8.v8__Context__Global(ls.local.handle).?;
++            if (self.global == .frame) {
++                if (self.page.session.experimental_features.serviceworker) env.hideServiceWorker(true, ls.local.handle, global_obj);
++                env.hideCacheStorage(true, ls.local.handle, global_obj);
++            } else {
++                env.hideCacheStorage(false, ls.local.handle, global_obj);
++            }
+         }
+     }
+ }
+diff --git a/src/browser/js/Env.zig b/src/browser/js/Env.zig
+index fd959d13e..bd5960275 100644
+--- a/src/browser/js/Env.zig
++++ b/src/browser/js/Env.zig
+@@ -452,6 +452,11 @@ pub fn hideServiceWorker(self: *const Env, comptime is_frame: bool, v8_context:
+         self.deletePrototypeMember(v8_context, global_obj, "navigator", "service_worker");
+     }
+ 
++}
++
++// CacheStorage is usable by windows and dedicated workers independently of
++// ServiceWorker registration. Hide it only for an insecure execution context.
++pub fn hideCacheStorage(self: *const Env, comptime is_frame: bool, v8_context: *const v8.Context, global_obj: *const v8.Object) void {
+     // A [Global] interface's members are on its prototype and mirrored onto the
+     // global itself.
+     self.deletePrototypeMember(v8_context, global_obj, if (comptime is_frame) "window" else "worker_global_scope", "caches");
+diff --git a/src/browser/js/Value.zig b/src/browser/js/Value.zig
+index edfca281c..b47da3c93 100644
+--- a/src/browser/js/Value.zig
++++ b/src/browser/js/Value.zig
+@@ -28,6 +28,7 @@ const bridge = js.bridge;
+ const Allocator = std.mem.Allocator;
+ 
+ const Value = @This();
++const MessagePort = @import("../webapi/MessagePort.zig");
+ 
+ local: *const js.Local,
+ handle: *const v8.Value,
+@@ -395,6 +396,66 @@ pub fn structuredCloneTo(self: Value, target: *const js.Local) !Value {
+     return deserialize(target, serialized.bytes());
+ }
+ 
++// Native cross-realm messages own their cloned value and transferred ports.
++pub const ClonedMessage = struct {
++    data: js.Value.Global,
++    ports: []const *MessagePort = &.{},
++
++    pub fn release(self: ClonedMessage) void {
++        self.data.release();
++    }
++};
++
++pub fn cloneMessageTo(self: Value, target: *const js.Local, options: ?Value, forbidden: ?*MessagePort) !ClonedMessage {
++    const allocator = self.local.call_arena;
++    var sources: std.ArrayList(*MessagePort) = .empty;
++    var buffers: std.ArrayList(Value) = .empty;
++    var entries: std.ArrayList(Value) = .empty;
++    if (options) |opts| {
++        const list = if (opts.isArray()) opts else if (opts.isNullOrUndefined()) opts else try opts.toObject().get("transfer");
++        if (!list.isNullOrUndefined()) {
++    const transfer_iterator = (try list.iterator()) orelse return error.TypeError;
++            while (try transfer_iterator.next()) |entry| {
++                for (entries.items) |previous| {
++                    if (entry.strictEquals(previous)) return error.DataClone;
++                }
++                try entries.append(allocator, entry);
++                if (entry.toZig(*MessagePort)) |port| {
++                    if (port._closed or port == forbidden) return error.DataClone;
++                    try sources.append(allocator, port);
++                } else |_| {
++                    if (!v8.v8__Value__IsArrayBuffer(entry.handle)) return error.DataClone;
++                    const detached = try entry.toObject().get("detached");
++                    if (detached.isTrue()) return error.DataClone;
++                    try buffers.append(allocator, entry);
++                }
++            }
++        }
++    }
++    const serialized = try self.serializeWithPorts(sources.items);
++    defer serialized.deinit();
++    const exec = &target.ctx.execution;
++    const ports = try exec.arena.alloc(*MessagePort, sources.items.len);
++    var prepared: usize = 0;
++    errdefer for (ports[0..prepared]) |port| port.close();
++    for (sources.items, 0..) |source, index| {
++        ports[index] = try source.prepareTransfer(target);
++        prepared += 1;
++    }
++    const cloned = try deserializeWithPorts(target, serialized.bytes(), ports);
++    const data = try cloned.persist();
++    errdefer data.release();
++    // V8's ArrayBuffer transfer intrinsic detaches only after serialization has
++    // succeeded. The receiver already owns its independent native backing store.
++    for (buffers.items) |buffer| {
++        const method = try (try buffer.toObject().get("transfer")).toZig(js.Function);
++        const bound = try method.withThis(buffer.toObject());
++        try bound.call(void, .{});
++    }
++    for (sources.items, ports) |source, destination| source.commitTransfer(destination);
++    return .{ .data = data, .ports = ports };
++}
++
+ // A structured-serialized value: a V8-owned byte buffer. Caller must free it
+ // and must dupe the bytes if they want it to outlive the current local scope.
+ pub const Serialized = struct {
+@@ -413,9 +474,14 @@ pub const Serialized = struct {
+ // Serialize `self` into a V8-owned buffer. The caller must call deinit on the
+ // result. Raises a JS exception (DataCloneError) for unserializable values.
+ pub fn serialize(self: Value) !Serialized {
++    return self.serializeWithPorts(&.{});
++}
++
++fn serializeWithPorts(self: Value, ports: []const *MessagePort) !Serialized {
+     var delegate_ctx = CloneDelegate.SerializeContext{
+         .local = self.local,
+         .serializer = undefined,
++        .ports = ports,
+     };
+     const serializer = v8.v8__ValueSerializer__New(self.local.isolate.handle, &.{
+         .data = &delegate_ctx,
+@@ -443,9 +509,14 @@ pub fn serialize(self: Value) !Serialized {
+ // Deserialize a structured-serialized buffer (from `serialize`) into a value in
+ // `local`'s context. A malformed buffer surfaces as error.JsException.
+ pub fn deserialize(local: *const js.Local, bytes: []const u8) !Value {
++    return deserializeWithPorts(local, bytes, &.{});
++}
++
++fn deserializeWithPorts(local: *const js.Local, bytes: []const u8, ports: []const *MessagePort) !Value {
+     var delegate_ctx = CloneDelegate.DeserializeContext{
+         .local = local,
+         .deserializer = undefined,
++        .ports = ports,
+     };
+     const deserializer = v8.v8__ValueDeserializer__New(local.isolate.handle, bytes.ptr, bytes.len, &.{
+         .data = &delegate_ctx,
+@@ -473,6 +544,7 @@ const cloneable_types = .{
+     @import("../webapi/File.zig"),
+     @import("../webapi/FileList.zig"),
+     @import("../webapi/ImageData.zig"),
++    @import("../webapi/CryptoKey.zig"),
+     @import("../webapi/DOMPointReadOnly.zig"),
+     @import("../webapi/DOMPoint.zig"),
+     @import("../webapi/DOMRectReadOnly.zig"),
+@@ -542,11 +614,13 @@ const CloneDelegate = struct {
+     const SerializeContext = struct {
+         local: *const js.Local,
+         serializer: *v8.ValueSerializer,
++        ports: []const *MessagePort = &.{},
+     };
+ 
+     const DeserializeContext = struct {
+         local: *const js.Local,
+         deserializer: *v8.ValueDeserializer,
++        ports: []const *MessagePort = &.{},
+     };
+ 
+     // Called when V8 encounters an object with embedder fields, i.e. one of
+@@ -561,6 +635,17 @@ const CloneDelegate = struct {
+             const tao = TaggedOpaque.fromObject(obj) orelse break :blk;
+ 
+             const prototype_chain = tao.prototype_chain[0..tao.prototype_len];
++            if (prototype_chain[0].index == bridge.JsApiLookup.getId(MessagePort.JsApi)) {
++                const port: *MessagePort = @ptrCast(@alignCast(tao.value));
++                for (ctx.ports, 0..) |transferred, index| {
++                    if (transferred == port) {
++                        v8.v8__ValueSerializer__WriteUint32(ctx.serializer, std.math.maxInt(u32));
++                        v8.v8__ValueSerializer__WriteUint32(ctx.serializer, @intCast(index));
++                        return .{ .has_value = true, .value = true };
++                    }
++                }
++                break :blk;
++            }
+             if (writeCloneable(ctx, prototype_chain[0].index, tao.value)) |result| {
+                 return result;
+             }
+@@ -608,6 +693,15 @@ const CloneDelegate = struct {
+ 
+         var tag: u32 = undefined;
+         if (v8.v8__ValueDeserializer__ReadUint32(ctx.deserializer, &tag)) {
++            if (tag == std.math.maxInt(u32)) {
++                var index: u32 = undefined;
++                if (!v8.v8__ValueDeserializer__ReadUint32(ctx.deserializer, &index) or index >= ctx.ports.len) {
++                    throwDataCloneException(local, null);
++                    return null;
++                }
++                const object = local.mapZigInstanceToJs(null, ctx.ports[index]) catch return null;
++                return object.handle;
++            }
+             var reader = StructuredReader{ .local = local, .deserializer = ctx.deserializer };
+             inline for (cloneable_types, 0..) |T, i| {
+                 if (tag == i) {
+diff --git a/src/browser/js/bridge.zig b/src/browser/js/bridge.zig
+index 964c76a9a..5d1aef87c 100644
+--- a/src/browser/js/bridge.zig
++++ b/src/browser/js/bridge.zig
+@@ -1044,6 +1044,7 @@ pub const PageJsApis = flattenTypes(&.{
+     @import("../webapi/Crypto.zig"),
+     @import("../webapi/Permissions.zig"),
+     @import("../webapi/StorageManager.zig"),
++    @import("../webapi/LockManager.zig"),
+     @import("../webapi/CSS.zig"),
+     @import("../webapi/css/CSSRule.zig"),
+     @import("../webapi/css/CSSRuleList.zig"),
+@@ -1344,6 +1345,7 @@ const worker_common_apis = [_]type{
+     @import("../webapi/NavigatorUAData.zig"),
+     @import("../webapi/Permissions.zig"),
+     @import("../webapi/StorageManager.zig"),
++    @import("../webapi/LockManager.zig"),
+     @import("../webapi/EventTarget.zig"),
+     @import("../webapi/Event.zig"),
+     @import("../webapi/event/MessageEvent.zig"),
+diff --git a/src/browser/webapi/CryptoKey.zig b/src/browser/webapi/CryptoKey.zig
+index 73b30c0b6..64aa22918 100644
+--- a/src/browser/webapi/CryptoKey.zig
++++ b/src/browser/webapi/CryptoKey.zig
+@@ -131,6 +131,108 @@ pub fn acquireRef(self: *CryptoKey) void {
+     self._rc.acquire();
+ }
+ 
++// Structured cloning is browser-internal storage, not SubtleCrypto.exportKey.
++// Preserve non-extractability and usages while storing the actual key, so an
++// IndexedDB record remains usable after its creating document is destroyed.
++pub fn structuredSerialize(self: *const CryptoKey, writer: *js.StructuredWriter) !void {
++    writer.writeUint32(1);
++    writer.writeUint32(@intFromEnum(self._type));
++    writer.writeUint32(@intFromEnum(self._kind));
++    writer.writeUint32(@intFromBool(self._extractable));
++    writer.writeUint32(self._usages);
++    writer.writeBytes(self._algorithm.name);
++    writer.writeBytes(self._algorithm.hash orelse "");
++    writer.writeBytes(self._algorithm.named_curve orelse "");
++    writer.writeBytes(self._key);
++    switch (self._vary) {
++        .none => writer.writeUint32(0),
++        .digest => writer.writeUint32(1),
++        .pkey => |pkey| {
++            if (self._type == .x25519) {
++                // BoringSSL's legacy private-key DER encoder excludes X25519.
++                // Its native raw key bytes are already included above.
++                writer.writeUint32(3);
++                return;
++            }
++            writer.writeUint32(2);
++            const encode: *const fn (*const crypto.EVP_PKEY, ?*[*c]u8) callconv(.c) c_int = if (self._kind == .private) crypto.i2d_PrivateKey else crypto.i2d_PUBKEY;
++            const size = encode(pkey, null);
++            if (size <= 0) return error.DataClone;
++            const bytes = try writer.local.call_arena.alloc(u8, @intCast(size));
++            var out: [*c]u8 = bytes.ptr;
++            if (encode(pkey, &out) != size) return error.DataClone;
++            writer.writeBytes(bytes);
++        },
++    }
++}
++
++pub fn structuredDeserialize(reader: *js.StructuredReader, page: *Page) !*CryptoKey {
++    if (try reader.readUint32() != 1) return error.DataClone;
++    const key_type = try reader.readUint32();
++    const kind = try reader.readUint32();
++    const extractable = try reader.readUint32();
++    const usages = try reader.readUint32();
++    if (key_type > @intFromEnum(Type.ec) or kind > @intFromEnum(Kind.private) or extractable > 1 or usages > 255) return error.DataClone;
++    const name = try reader.readBytes();
++    const hash = try reader.readBytes();
++    const curve = try reader.readBytes();
++    const key = try reader.readBytes();
++    const variant = try reader.readUint32();
++    if (variant > 3) return error.DataClone;
++    const native_type: Type = @enumFromInt(key_type);
++    switch (native_type) {
++        .hmac => if (variant != 1 or kind != @intFromEnum(Kind.secret)) return error.DataClone,
++        .aes, .derive => if (variant != 0 or kind != @intFromEnum(Kind.secret)) return error.DataClone,
++        .rsa, .ec => if (variant != 2 or kind == @intFromEnum(Kind.secret)) return error.DataClone,
++        .x25519 => if (variant != 3 or kind == @intFromEnum(Kind.secret) or key.len != 32) return error.DataClone,
++    }
++
++    const arena = try page.getArena(key.len + name.len + hash.len + curve.len + 256, "CryptoKey.clone");
++    errdefer arena.release();
++    const self = try arena.create(CryptoKey);
++    self.* = .{
++        ._arena = arena,
++        ._type = native_type,
++        ._kind = @enumFromInt(kind),
++        ._extractable = extractable == 1,
++        ._usages = @intCast(usages),
++        ._key = try arena.dupe(u8, key),
++        ._algorithm = .{
++            .name = try arena.dupe(u8, name),
++            .hash = if (hash.len == 0) null else try arena.dupe(u8, hash),
++            .named_curve = if (curve.len == 0) null else try arena.dupe(u8, curve),
++        },
++    };
++    switch (variant) {
++        0 => {},
++        1 => {
++            if (self._type != .hmac or hash.len == 0) return error.DataClone;
++            self._vary = .{ .digest = crypto.findDigest(hash) catch return error.DataClone };
++        },
++        2 => {
++            if (self._kind == .secret) return error.DataClone;
++            const encoded = try reader.readBytes();
++            var input: [*c]const u8 = encoded.ptr;
++            const decode: *const fn (?*?*crypto.EVP_PKEY, *[*c]const u8, c_long) callconv(.c) ?*crypto.EVP_PKEY = if (self._kind == .private) crypto.d2i_AutoPrivateKey else crypto.d2i_PUBKEY;
++            const pkey = decode(null, &input, @intCast(encoded.len)) orelse return error.DataClone;
++            if (@intFromPtr(input) != @intFromPtr(encoded.ptr) + encoded.len) {
++                crypto.EVP_PKEY_free(pkey);
++                return error.DataClone;
++            }
++            self._vary = .{ .pkey = pkey };
++        },
++        3 => {
++            const pkey = if (self._kind == .private)
++                crypto.EVP_PKEY_new_raw_private_key(crypto.EVP_PKEY_X25519, null, key.ptr, key.len)
++            else
++                crypto.EVP_PKEY_new_raw_public_key(crypto.EVP_PKEY_X25519, null, key.ptr, key.len);
++            self._vary = .{ .pkey = pkey orelse return error.DataClone };
++        },
++        else => unreachable,
++    }
++    return self;
++}
++
+ pub fn canEncrypt(self: *const CryptoKey) bool {
+     return self._usages & Usages.encrypt != 0;
+ }
+diff --git a/src/browser/webapi/DedicatedWorkerGlobalScope.zig b/src/browser/webapi/DedicatedWorkerGlobalScope.zig
+index a8318c1e7..a169c2018 100644
+--- a/src/browser/webapi/DedicatedWorkerGlobalScope.zig
++++ b/src/browser/webapi/DedicatedWorkerGlobalScope.zig
+@@ -48,7 +48,7 @@ _on_messageerror: ?js.Function.Global = null,
+ // and delivered once the worker is ready (i.e. once onmessage can be set).
+ // Drained by drainPendingMessages, called from Worker.loadInitialScript
+ // after the initial script has been evaluated.
+-_pending_messages: std.ArrayList(?js.Value.Global) = .empty,
++_pending_messages: std.ArrayList(?js.Value.ClonedMessage) = .empty,
+ 
+ pub fn init(worker: *Worker, url: [:0]const u8) !*DedicatedWorkerGlobalScope {
+     return WorkerGlobalScope.init(
+@@ -75,8 +75,8 @@ pub fn deinit(self: *DedicatedWorkerGlobalScope) void {
+     self._proto.deinit();
+ }
+ 
+-pub fn postMessage(self: *DedicatedWorkerGlobalScope, data: js.Value) !void {
+-    try self._worker.receiveMessage(data);
++pub fn postMessage(self: *DedicatedWorkerGlobalScope, data: js.Value, options: ?js.Value) !void {
++    try self._worker.receiveMessage(data, options);
+ }
+ 
+ pub fn close(self: *DedicatedWorkerGlobalScope) void {
+@@ -86,6 +86,10 @@ pub fn close(self: *DedicatedWorkerGlobalScope) void {
+     self._closed = true;
+ }
+ 
++fn getName(self: *const DedicatedWorkerGlobalScope) []const u8 {
++    return self._worker._name;
++}
++
+ fn getOnMessage(self: *const DedicatedWorkerGlobalScope) ?js.Function.Global {
+     return self._on_message;
+ }
+@@ -116,20 +120,19 @@ pub fn cancelAnimationFrame(self: *DedicatedWorkerGlobalScope, id: u32) void {
+ }
+ 
+ // Called internally by Worker when it wants to post a message to us
+-pub fn receiveMessage(self: *DedicatedWorkerGlobalScope, data: js.Value) !void {
++pub fn receiveMessage(self: *DedicatedWorkerGlobalScope, data: js.Value, options: ?js.Value) !void {
+     if (self._closed) {
+         return;
+     }
+ 
+-    const cloned_data: ?js.Value.Global = blk: {
++    const cloned_data: ?js.Value.ClonedMessage = blk: {
+         // Enter our context to clone the message
+         var ls: js.Local.Scope = undefined;
+         self._proto.js.localScope(&ls);
+         defer ls.deinit();
+ 
+         // clones from where it currently is (the Worker's Page context) to our Context
+-        const cloned = data.structuredCloneTo(&ls.local) catch break :blk null;
+-        break :blk cloned.persist() catch break :blk null;
++        break :blk try data.cloneMessageTo(&ls.local, options, null);
+     };
+ 
+     if (!self._worker._script_loaded) {
+@@ -145,7 +148,7 @@ pub fn receiveMessage(self: *DedicatedWorkerGlobalScope, data: js.Value) !void {
+     try self.scheduleMessage(cloned_data);
+ }
+ 
+-fn scheduleMessage(self: *DedicatedWorkerGlobalScope, cloned_data: ?js.Value.Global) !void {
++fn scheduleMessage(self: *DedicatedWorkerGlobalScope, cloned_data: ?js.Value.ClonedMessage) !void {
+     const wgs = self._proto;
+     const session = wgs._session;
+ 
+@@ -180,7 +183,7 @@ pub fn drainPendingMessages(self: *DedicatedWorkerGlobalScope) void {
+ }
+ 
+ const ReceiveMessageCallback = struct {
+-    data: ?js.Value.Global,
++    data: ?js.Value.ClonedMessage,
+     arena: *lp.Arena,
+     worker_scope: *DedicatedWorkerGlobalScope,
+ 
+@@ -227,7 +230,8 @@ const ReceiveMessageCallback = struct {
+         }
+ 
+         const event = (try MessageEvent.initTrusted(comptime .wrap("message"), .{
+-            .data = .{ .value = self.data.? },
++            .data = .{ .value = self.data.?.data },
++            .ports = self.data.?.ports,
+             .bubbles = false,
+             .cancelable = false,
+         }, wsg.page)).asEvent();
+@@ -245,6 +249,7 @@ pub const JsApi = struct {
+         pub var class_id: bridge.ClassId = undefined;
+     };
+ 
++    pub const name = bridge.accessor(DedicatedWorkerGlobalScope.getName, null, .{});
+     pub const postMessage = bridge.function(DedicatedWorkerGlobalScope.postMessage, .{});
+     pub const close = bridge.function(DedicatedWorkerGlobalScope.close, .{});
+     pub const onmessage = bridge.accessor(DedicatedWorkerGlobalScope.getOnMessage, DedicatedWorkerGlobalScope.setOnMessage, .{});
+diff --git a/src/browser/webapi/LockManager.zig b/src/browser/webapi/LockManager.zig
+new file mode 100644
+index 000000000..771a2d3e2
+--- /dev/null
++++ b/src/browser/webapi/LockManager.zig
+@@ -0,0 +1,269 @@
++// Copyright (C) 2023-2026 Lightpanda (Selecy SAS)
++//
++// Francis Bouvier <francis@lightpanda.io>
++// Pierre Tachoire <pierre@lightpanda.io>
++//
++// This program is free software: you can redistribute it and/or modify
++// it under the terms of the GNU Affero General Public License as
++// published by the Free Software Foundation, either version 3 of the
++// License, or (at your option) any later version.
++//
++// This program is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU Affero General Public License for more details.
++//
++// You should have received a copy of the GNU Affero General Public License
++// along with this program.  If not, see <https://www.gnu.org/licenses/>.
++
++const std = @import("std");
++const js = @import("../js/js.zig");
++const AbortSignal = @import("AbortSignal.zig");
++const DOMException = @import("DOMException.zig");
++
++const LockManager = @This();
++_pad: bool = false,
++
++pub fn registerTypes() []const type {
++    return &.{ LockManager, Lock };
++}
++
++const Mode = enum {
++    exclusive,
++    shared,
++    pub const js_enum_from_string = true;
++};
++
++const Options = struct {
++    ifAvailable: bool = false,
++    mode: Mode = .exclusive,
++    signal: ?*AbortSignal = null,
++    steal: bool = false,
++};
++
++fn request(_: *LockManager, name: []const u8, options_or_callback: js.Value, callback: ?js.Function.Global, exec: *const js.Execution) !js.Promise {
++    const local = exec.js.local.?;
++    const resolver = local.createPromiseResolver();
++    const is_callback = options_or_callback.isFunction();
++    const cb = if (is_callback) try options_or_callback.toZig(js.Function.Global) else callback orelse {
++        resolver.rejectError("LockManager.request", .{ .type_error = "A lock callback is required" });
++        return resolver.promise();
++    };
++    errdefer cb.release();
++    const options: Options = if (is_callback) .{} else try options_or_callback.toZig(Options);
++    if (exec.origin() == null or std.mem.startsWith(u8, name, "-") or
++        (options.steal and (options.ifAvailable or options.mode != .exclusive)) or
++        (options.signal != null and (options.steal or options.ifAvailable))) {
++        cb.release();
++        resolver.rejectError("LockManager.request", .{ .dom_exception = .{ .err = if (exec.origin() == null) error.SecurityError else error.NotSupportedError } });
++        return resolver.promise();
++    }
++    if (options.signal) |signal| {
++        if (signal.getAborted()) {
++            const reason = try AbortSignal.reasonJsValue(signal._reason, local);
++            cb.release();
++            try resolver.rejectValue(reason);
++            return resolver.promise();
++        }
++    }
++    const req = try exec.arena.create(Request);
++    const global_resolver = try resolver.persist();
++    errdefer global_resolver.release();
++    req.* = .{
++        .exec = exec.*,
++        .name = try exec.dupeString(name),
++        .origin = try exec.dupeString(exec.origin().?),
++        .mode = options.mode,
++        .if_available = options.ifAvailable,
++        .signal = options.signal,
++        .callback = cb,
++        .resolver = global_resolver,
++    };
++    const requests = &exec.session.web_locks;
++    if (options.steal) {
++        // A stolen holder's returned request promise rejects in its own realm.
++        // Pending requests stay queued behind the new exclusive request.
++        for (requests.items) |other| {
++            if (other.phase == .held and req.sameResource(other)) other.preempted = true;
++        }
++        try requests.insert(exec.session.arena.allocator(), 0, req);
++    } else {
++        try requests.append(exec.session.arena.allocator(), req);
++    }
++    errdefer req.remove();
++    try exec.js.scheduler.add(req, Request.run, 0, .{
++        .name = "LockManager.request",
++        .blocks_done = false,
++        .finalizer = Request.cancelled,
++    });
++    return resolver.promise();
++}
++
++fn query(_: *LockManager, exec: *const js.Execution) !js.Promise {
++    const Info = struct { name: []const u8, mode: []const u8, clientId: []const u8 };
++    var held: std.ArrayList(Info) = .empty;
++    var pending: std.ArrayList(Info) = .empty;
++    if (exec.origin()) |origin| {
++        for (exec.session.web_locks.items) |req| {
++            if (req.preempted or !std.mem.eql(u8, req.origin, origin)) continue;
++            const info: Info = .{
++                .name = req.name,
++                .mode = @tagName(req.mode),
++                .clientId = try std.fmt.allocPrint(exec.local_arena, "client-{d}", .{req.exec.frameId()}),
++            };
++            switch (req.phase) {
++                .held => try held.append(exec.local_arena, info),
++                .waiting => try pending.append(exec.local_arena, info),
++                .unavailable, .done => {},
++            }
++        }
++    }
++    return exec.js.local.?.resolvePromise(.{ .held = held.items, .pending = pending.items });
++}
++
++pub const Request = struct {
++    exec: js.Execution,
++    name: []const u8,
++    origin: []const u8,
++    mode: Mode,
++    if_available: bool,
++    signal: ?*AbortSignal,
++    callback: ?js.Function.Global,
++    resolver: ?js.PromiseResolver.Global,
++    waiting: ?js.Promise.Global = null,
++    phase: enum { waiting, held, unavailable, done } = .waiting,
++    preempted: bool = false,
++
++    fn sameResource(self: *const Request, other: *const Request) bool {
++        return std.mem.eql(u8, self.name, other.name) and std.mem.eql(u8, self.origin, other.origin);
++    }
++
++    fn remove(self: *Request) void {
++        const requests = &self.exec.session.web_locks;
++        for (requests.items, 0..) |other, i| {
++            if (other == self) {
++                _ = requests.orderedRemove(i);
++                break;
++            }
++        }
++    }
++
++    fn cleanup(self: *Request) void {
++        if (self.phase == .done) return;
++        self.phase = .done;
++        self.remove();
++        if (self.callback) |cb| cb.release();
++        if (self.resolver) |resolver| resolver.release();
++        if (self.waiting) |waiting| waiting.release();
++        self.callback = null;
++        self.resolver = null;
++        self.waiting = null;
++    }
++
++    fn cancelled(ctx: *anyopaque) void {
++        const self: *Request = @ptrCast(@alignCast(ctx));
++        // Destroying a document/worker releases its locks before its arena dies.
++        self.cleanup();
++    }
++
++    fn grantable(self: *Request) bool {
++        var before = true;
++        for (self.exec.session.web_locks.items) |other| {
++            if (other == self) { before = false; continue; }
++            if (other.preempted or !self.sameResource(other)) continue;
++            if (other.phase == .held and (self.mode == .exclusive or other.mode == .exclusive)) return false;
++            if (before and other.phase == .waiting and (self.mode == .exclusive or other.mode == .exclusive)) return false;
++        }
++        return true;
++    }
++
++    fn finish(self: *Request, local: *const js.Local, value: js.Value, rejected: bool) !void {
++        const resolver = self.resolver.?.local(local);
++        // Release the lock before promise reactions can request another lock,
++        // close their worker, or navigate the document.
++        self.cleanup();
++        if (rejected) {
++            try resolver.rejectValue(value);
++        } else {
++            resolver.resolve("LockManager.request", value);
++        }
++    }
++
++    fn run(ctx: *anyopaque) !?u32 {
++        const self: *Request = @ptrCast(@alignCast(ctx));
++        if (self.phase == .done) return null;
++        errdefer self.cleanup();
++        var ls: js.Local.Scope = undefined;
++        self.exec.js.localScope(&ls);
++        defer ls.deinit();
++        const local = &ls.local;
++        if (self.preempted) {
++            try self.finish(local, try local.zigValueToJs(DOMException.fromError(error.AbortError).?, .{}), true);
++            return null;
++        }
++        if (self.phase == .waiting) {
++            if (self.signal) |signal| {
++                if (signal.getAborted()) {
++                    try self.finish(local, try AbortSignal.reasonJsValue(signal._reason, local), true);
++                    return null;
++                }
++            }
++            const available = self.grantable();
++            if (!available and !self.if_available) return 10;
++            self.phase = if (available) .held else .unavailable;
++            const lock: ?*Lock = if (available) try self.exec._factory.create(Lock{ ._name = self.name, ._mode = self.mode }) else null;
++            var cb = self.callback.?.local(local);
++            var caught: js.TryCatch = undefined;
++            caught.init(local);
++            defer caught.deinit();
++            const result = cb.callRethrow(js.Value, .{lock}) catch |err| {
++                const exception = caught.exceptionValue() orelse return err;
++                try self.finish(local, exception, true);
++                return null;
++            };
++            // close() may reset the scheduler from inside the callback.
++            if (self.phase == .done) return null;
++            const waiting_resolver = local.createPromiseResolver();
++            const waiting = waiting_resolver.promise();
++            waiting.markAsHandled();
++            self.waiting = try waiting.persist();
++            waiting_resolver.resolve("LockManager.callback", result);
++            if (self.phase == .done) return null;
++        }
++        const waiting = self.waiting.?.local(local);
++        switch (waiting.state()) {
++            .pending => return 50,
++            .fulfilled => try self.finish(local, waiting.result(), false),
++            .rejected => try self.finish(local, waiting.result(), true),
++        }
++        return null;
++    }
++};
++
++const Lock = struct {
++    _name: []const u8,
++    _mode: Mode,
++    fn getName(self: *const Lock) []const u8 { return self._name; }
++    fn getMode(self: *const Lock) []const u8 { return @tagName(self._mode); }
++    pub const JsApi = struct {
++        pub const bridge = js.Bridge(Lock);
++        pub const Meta = struct {
++            pub const name = "Lock";
++            pub const prototype_chain = bridge.prototypeChain();
++            pub var class_id: bridge.ClassId = undefined;
++        };
++        pub const name = bridge.accessor(Lock.getName, null, .{});
++        pub const mode = bridge.accessor(Lock.getMode, null, .{});
++    };
++};
++
++pub const JsApi = struct {
++    pub const bridge = js.Bridge(LockManager);
++    pub const Meta = struct {
++        pub const name = "LockManager";
++        pub const prototype_chain = bridge.prototypeChain();
++        pub var class_id: bridge.ClassId = undefined;
++    };
++    pub const request = bridge.function(LockManager.request, .{});
++    pub const query = bridge.function(LockManager.query, .{});
++};
+diff --git a/src/browser/webapi/MessagePort.zig b/src/browser/webapi/MessagePort.zig
+index 86aea188f..f9c7fcc6f 100644
+--- a/src/browser/webapi/MessagePort.zig
++++ b/src/browser/webapi/MessagePort.zig
+@@ -43,7 +43,7 @@ _on_message_error: ?js.Function.Global = null,
+ _entangled_port: ?*MessagePort = null,
+ 
+ // queued message received before the port is started.
+-_pending: std.ArrayList(js.Value.Global) = .empty,
++_pending: std.ArrayList(js.Value.ClonedMessage) = .empty,
+ 
+ // Link list into the owning Frame or WorkerGlobalScope. When the frame/WGS is
+ // shutdown, the port will be closed.
+@@ -67,7 +67,7 @@ pub fn entangle(port1: *MessagePort, port2: *MessagePort) void {
+     port2._entangled_port = port1;
+ }
+ 
+-pub fn postMessage(self: *MessagePort, message: js.Value) !void {
++pub fn postMessage(self: *MessagePort, message: js.Value, options: ?js.Value) !void {
+     if (self._closed) {
+         return;
+     }
+@@ -93,10 +93,10 @@ pub fn postMessage(self: *MessagePort, message: js.Value) !void {
+         try_catch.init(&ls.local);
+         defer try_catch.deinit();
+ 
+-        const c = message.structuredCloneTo(&ls.local) catch {
++        const c = message.cloneMessageTo(&ls.local, options, self) catch {
+             return error.DataClone;
+         };
+-        break :blk try c.persist();
++        break :blk c;
+     };
+     errdefer cloned.release();
+ 
+@@ -108,6 +108,26 @@ pub fn postMessage(self: *MessagePort, message: js.Value) !void {
+     try other.scheduleDelivery(cloned);
+ }
+ 
++pub fn prepareTransfer(self: *MessagePort, target: *const js.Local) !*MessagePort {
++    const destination = try MessagePort.init(&target.ctx.execution);
++    errdefer destination.close();
++    for (self._pending.items) |message| {
++        if (message.ports.len != 0) return error.DataClone;
++        const cloned = try message.data.local(target).structuredCloneTo(target);
++        const persisted = try cloned.persist();
++        errdefer persisted.release();
++        try destination._pending.append(destination._exec.arena, .{ .data = persisted });
++    }
++    return destination;
++}
++
++pub fn commitTransfer(self: *MessagePort, destination: *MessagePort) void {
++    destination._entangled_port = self._entangled_port;
++    if (self._entangled_port) |peer| peer._entangled_port = destination;
++    self._entangled_port = null;
++    self.close();
++}
++
+ pub fn start(self: *MessagePort) void {
+     if (self._closed or self._enabled) {
+         return;
+@@ -163,7 +183,7 @@ fn setOnMessageError(self: *MessagePort, cb: ?js.Function.Global) !void {
+ 
+ // Queues delivery of `message` (a clone already living in this port's
+ // context) on this port's scheduler.
+-fn scheduleDelivery(self: *MessagePort, message: js.Value.Global) !void {
++fn scheduleDelivery(self: *MessagePort, message: js.Value.ClonedMessage) !void {
+     const exec = self._exec;
+     const callback = try exec._factory.create(DeliverCallback{
+         .port = self,
+@@ -179,7 +199,7 @@ fn scheduleDelivery(self: *MessagePort, message: js.Value.Global) !void {
+ 
+ const DeliverCallback = struct {
+     port: *MessagePort,
+-    message: js.Value.Global,
++    message: js.Value.ClonedMessage,
+ 
+     // Called by the scheduler if the task is dropped before it runs. `run` and
+     // `cancelled` are mutually exclusive, so the temp is released exactly once.
+@@ -214,7 +234,8 @@ const DeliverCallback = struct {
+         }
+ 
+         const event = (MessageEvent.initTrusted(comptime .wrap("message"), .{
+-            .data = .{ .value = self.message },
++            .data = .{ .value = self.message.data },
++            .ports = self.message.ports,
+             .origin = "",
+             .source = null,
+         }, exec.page) catch |err| {
+diff --git a/src/browser/webapi/Navigator.zig b/src/browser/webapi/Navigator.zig
+index e9b8195c8..ba8b1295b 100644
+--- a/src/browser/webapi/Navigator.zig
++++ b/src/browser/webapi/Navigator.zig
+@@ -27,6 +27,7 @@ const PluginArray = @import("PluginArray.zig");
+ const Permissions = @import("Permissions.zig");
+ const ModelContext = @import("ModelContext.zig");
+ const StorageManager = @import("StorageManager.zig");
++const LockManager = @import("LockManager.zig");
+ const NavigatorUAData = @import("NavigatorUAData.zig");
+ const Geolocation = @import("geolocation/Geolocation.zig");
+ const ServiceWorkerContainer = @import("ServiceWorkerContainer.zig");
+@@ -37,7 +38,7 @@ comptime {
+     // Ensure we don't cause an identity map conflict. Because _geolocation is
+     // lazy and, for now, Zig orders the highest-aligned field first, none of
+     // the other fields land at offset 0.
+-    for ([_][]const u8{ "_plugins", "_permissions", "_storage", "_ua_data" }) |name| {
++    for ([_][]const u8{ "_plugins", "_permissions", "_storage", "_locks", "_ua_data" }) |name| {
+         if (@offsetOf(Navigator, name) == 0) @compileError(name ++ " aliases the Navigator");
+     }
+ }
+@@ -46,6 +47,7 @@ _plugins: PluginArray = .{},
+ _permissions: Permissions = .{},
+ _geolocation: ?*Geolocation = null,
+ _storage: StorageManager = .{},
++_locks: LockManager = .{},
+ _ua_data: NavigatorUAData = .{},
+ _service_worker: ?*ServiceWorkerContainer = null,
+ 
+@@ -160,6 +162,10 @@ fn getGeolocation(self: *Navigator, exec: *Execution) !*Geolocation {
+     return g;
+ }
+ 
++fn getLocks(self: *Navigator) *LockManager {
++    return &self._locks;
++}
++
+ fn getStorage(self: *Navigator) *StorageManager {
+     return &self._storage;
+ }
+@@ -283,6 +289,7 @@ pub const JsApi = struct {
+     pub const sendBeacon = bridge.function(Navigator.sendBeacon, .{});
+     pub const permissions = bridge.accessor(Navigator.getPermissions, null, .{});
+     pub const storage = bridge.accessor(Navigator.getStorage, null, .{});
++    pub const locks = bridge.accessor(Navigator.getLocks, null, .{});
+     pub const serviceWorker = bridge.accessor(Navigator.getServiceWorker, null, .{});
+     pub const userAgentData = bridge.accessor(Navigator.getUserAgentData, null, .{});
+     pub const plugins = bridge.accessor(Navigator.getPlugins, null, .{});
+diff --git a/src/browser/webapi/SubtleCrypto.zig b/src/browser/webapi/SubtleCrypto.zig
+index 413209b3a..acf80d6cb 100644
+--- a/src/browser/webapi/SubtleCrypto.zig
++++ b/src/browser/webapi/SubtleCrypto.zig
+@@ -400,10 +400,10 @@ pub fn encrypt(
+     _: *const SubtleCrypto,
+     algo: algorithm.Encrypt,
+     key: *CryptoKey,
+-    data: js.TypedArray(u8),
++    data: js.BufferSource,
+     exec: *const Execution,
+ ) !js.Promise {
+-    return cryptOp(algo, key, data.values, true, exec);
++    return cryptOp(algo, key, data.bytes, true, exec);
+ }
+ 
+ /// Decrypts data with the given key and algorithm.
+@@ -411,10 +411,10 @@ pub fn decrypt(
+     _: *const SubtleCrypto,
+     algo: algorithm.Encrypt,
+     key: *CryptoKey,
+-    data: js.TypedArray(u8),
++    data: js.BufferSource,
+     exec: *const Execution,
+ ) !js.Promise {
+-    return cryptOp(algo, key, data.values, false, exec);
++    return cryptOp(algo, key, data.bytes, false, exec);
+ }
+ 
+ fn cryptOp(
+@@ -441,12 +441,12 @@ pub fn sign(
+     /// https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/sign#algorithm
+     algo: algorithm.Sign,
+     key: *CryptoKey,
+-    data: []const u8, // ArrayBuffer.
++    data: js.BufferSource,
+     exec: *const Execution,
+ ) !js.Promise {
+     return switch (key._type) {
+         // Call sign for HMAC.
+-        .hmac => return HMAC.sign(algo, key, data, exec),
++        .hmac => return HMAC.sign(algo, key, data.bytes, exec),
+         else => {
+             log.debug(.not_implemented, "SubtleCrypto.sign", .{ .key_type = key._type });
+             return error.InvalidAccessError;
+@@ -459,8 +459,8 @@ pub fn verify(
+     _: *const SubtleCrypto,
+     algo: algorithm.Sign,
+     key: *const CryptoKey,
+-    signature: []const u8, // ArrayBuffer.
+-    data: []const u8, // ArrayBuffer.
++    signature: js.BufferSource,
++    data: js.BufferSource,
+     exec: *const Execution,
+ ) !js.Promise {
+     if (!algo.isHMAC()) {
+@@ -468,7 +468,7 @@ pub fn verify(
+     }
+ 
+     return switch (key._type) {
+-        .hmac => HMAC.verify(key, signature, data, exec),
++        .hmac => HMAC.verify(key, signature.bytes, data.bytes, exec),
+         else => error.InvalidAccessError,
+     };
+ }
+@@ -489,7 +489,7 @@ const DigestInput = union(enum) {
+ };
+ 
+ /// Generates a digest of the given data, using the specified hash function.
+-pub fn digest(_: *const SubtleCrypto, algo: DigestInput, data: js.TypedArray(u8), exec: *const Execution) !js.Promise {
++pub fn digest(_: *const SubtleCrypto, algo: DigestInput, data: js.BufferSource, exec: *const Execution) !js.Promise {
+     const local = exec.js.local.?;
+ 
+     const algo_name = algo.name() orelse {
+@@ -502,7 +502,7 @@ pub fn digest(_: *const SubtleCrypto, algo: DigestInput, data: js.TypedArray(u8)
+     const normalized = std.ascii.upperString(exec.buf, algo_name);
+     const digest_type = crypto.findDigest(normalized) catch return error.NotSupported;
+ 
+-    const bytes = data.values;
++    const bytes = data.bytes;
+     const out = exec.buf[0..crypto.EVP_MAX_MD_SIZE];
+     var out_size: c_uint = 0;
+     const result = crypto.EVP_Digest(bytes.ptr, bytes.len, out, &out_size, digest_type, null);
+diff --git a/src/browser/webapi/Window.zig b/src/browser/webapi/Window.zig
+index 64942f43e..0f7e209a1 100644
+--- a/src/browser/webapi/Window.zig
++++ b/src/browser/webapi/Window.zig
+@@ -885,9 +885,10 @@ fn atob(_: *const Window, input: base64.BinInput, frame: *Frame) !js.String.OneB
+     return .{ .bytes = decoded };
+ }
+ 
+-pub fn structuredClone(_: *const Window, value: js.Value) !js.Value {
+-    // the serializer already threw (e.g. a DataCloneError); keep it
+-    return value.structuredClone() catch error.TryCatchRethrow;
++pub fn structuredClone(_: *const Window, value: js.Value, options: ?js.Value) !js.Value {
++    const cloned = try value.cloneMessageTo(value.local, options, null);
++    defer cloned.release();
++    return cloned.data.local(value.local);
+ }
+ 
+ fn getFrame(self: *Window, idx: usize) !?*Window {
+diff --git a/src/browser/webapi/Worker.zig b/src/browser/webapi/Worker.zig
+index fa946eeb1..a746bc33f 100644
+--- a/src/browser/webapi/Worker.zig
++++ b/src/browser/webapi/Worker.zig
+@@ -54,6 +54,7 @@ _worker_scope: *DedicatedWorkerGlobalScope,
+ 
+ _url: [:0]const u8,
+ _type: WorkerType = .classic,
++_name: []const u8 = "",
+ _script_loaded: bool = false,
+ _script_arena: ?*lp.Arena = null,
+ _script_buffer: std.ArrayList(u8) = .empty,
+@@ -65,6 +66,7 @@ _on_message: ?js.Function.Global = null,
+ _on_messageerror: ?js.Function.Global = null,
+ 
+ const WorkerOptions = struct {
++    name: []const u8 = "",
+     type: WorkerType = .classic,
+ };
+ 
+@@ -81,6 +83,7 @@ pub fn init(url: []const u8, options: ?WorkerOptions, frame: *Frame) !*Worker {
+         ._frame = frame,
+         ._url = resolved_url,
+         ._type = if (options) |o| o.type else .classic,
++        ._name = try arena.allocator().dupe(u8, if (options) |o| o.name else ""),
+         ._worker_scope = undefined,
+         ._frame_id = session.nextFrameId(),
+         ._loader_id = session.nextLoaderId(),
+@@ -336,12 +339,12 @@ pub fn terminate(self: *Worker) void {
+ }
+ 
+ // Posts a message from the frame to the worker.
+-pub fn postMessage(self: *Worker, data: js.Value) !void {
+-    try self._worker_scope.receiveMessage(data);
++pub fn postMessage(self: *Worker, data: js.Value, options: ?js.Value) !void {
++    try self._worker_scope.receiveMessage(data, options);
+ }
+ 
+ // Called internally by DedicatedWorkerGlobalScope when it wants to post a message to us
+-pub fn receiveMessage(self: *Worker, data: js.Value) !void {
++pub fn receiveMessage(self: *Worker, data: js.Value, options: ?js.Value) !void {
+     const frame = self._frame;
+     const cloned_data = blk: {
+         var ls: js.Local.Scope = undefined;
+@@ -349,8 +352,7 @@ pub fn receiveMessage(self: *Worker, data: js.Value) !void {
+         defer ls.deinit();
+ 
+         // clones from where it currently is (the Worker context) to our Page's context
+-        const cloned = data.structuredCloneTo(&ls.local) catch |err| break :blk err;
+-        break :blk cloned.persist();
++        break :blk try data.cloneMessageTo(&ls.local, options, null);
+     };
+ 
+     const message_arena = try frame.getArena(.tiny, "Worker.receiveMessage");
+@@ -407,7 +409,7 @@ fn getFunctionFromSetter(setter_: ?FunctionSetter) ?js.Function.Global {
+ }
+ 
+ const ReceiveMessageCallback = struct {
+-    data: anyerror!js.Value.Global,
++    data: anyerror!js.Value.ClonedMessage,
+     arena: *lp.Arena,
+     worker: *Worker,
+ 
+@@ -455,7 +457,8 @@ const ReceiveMessageCallback = struct {
+         }
+ 
+         const event = (try MessageEvent.initTrusted(comptime .wrap("message"), .{
+-            .data = .{ .value = data },
++            .data = .{ .value = data.data },
++            .ports = data.ports,
+             .bubbles = false,
+             .cancelable = false,
+         }, frame.page)).asEvent();
+diff --git a/src/browser/webapi/WorkerGlobalScope.zig b/src/browser/webapi/WorkerGlobalScope.zig
+index 4abbb39be..d4f80fe86 100644
+--- a/src/browser/webapi/WorkerGlobalScope.zig
++++ b/src/browser/webapi/WorkerGlobalScope.zig
+@@ -362,8 +362,10 @@ fn atob(_: *const WorkerGlobalScope, input: base64.BinInput, exec: *JS.Execution
+     return .{ .bytes = bytes };
+ }
+ 
+-pub fn structuredClone(_: *const WorkerGlobalScope, value: JS.Value) !JS.Value {
+-    return value.structuredClone();
++pub fn structuredClone(_: *const WorkerGlobalScope, value: JS.Value, options: ?JS.Value) !JS.Value {
++    const cloned = try value.cloneMessageTo(value.local, options, null);
++    defer cloned.release();
++    return cloned.data.local(value.local);
+ }
+ 
+ pub fn unhandledPromiseRejection(self: *WorkerGlobalScope, no_handler: bool, rejection: JS.PromiseRejection) !void {
+diff --git a/src/browser/webapi/WorkerNavigator.zig b/src/browser/webapi/WorkerNavigator.zig
+index bbc92647d..e5891a905 100644
+--- a/src/browser/webapi/WorkerNavigator.zig
++++ b/src/browser/webapi/WorkerNavigator.zig
+@@ -22,13 +22,14 @@ const Execution = js.Execution;
+ const Navigator = @import("Navigator.zig");
+ const Permissions = @import("Permissions.zig");
+ const StorageManager = @import("StorageManager.zig");
++const LockManager = @import("LockManager.zig");
+ const NavigatorUAData = @import("NavigatorUAData.zig");
+ 
+ const WorkerNavigator = @This();
+ 
+ comptime {
+     // protect against identity_map conflict (make sure _pad: bool does its job)
+-    for ([_][]const u8{ "_permissions", "_storage", "_ua_data" }) |name| {
++    for ([_][]const u8{ "_permissions", "_storage", "_locks", "_ua_data" }) |name| {
+         if (@offsetOf(WorkerNavigator, name) == 0) {
+             @compileError(name ++ " aliases the WorkerNavigator");
+         }
+@@ -38,6 +39,7 @@ comptime {
+ _pad: bool = false,
+ _permissions: Permissions = .{},
+ _storage: StorageManager = .{},
++_locks: LockManager = .{},
+ _ua_data: NavigatorUAData = .{},
+ 
+ pub const init: WorkerNavigator = .{};
+@@ -98,6 +100,10 @@ fn getPermissions(self: *WorkerNavigator) *Permissions {
+     return &self._permissions;
+ }
+ 
++fn getLocks(self: *WorkerNavigator) *LockManager {
++    return &self._locks;
++}
++
+ fn getStorage(self: *WorkerNavigator) *StorageManager {
+     return &self._storage;
+ }
+@@ -131,5 +137,6 @@ pub const JsApi = struct {
+ 
+     pub const permissions = bridge.accessor(WorkerNavigator.getPermissions, null, .{});
+     pub const storage = bridge.accessor(WorkerNavigator.getStorage, null, .{});
++    pub const locks = bridge.accessor(WorkerNavigator.getLocks, null, .{});
+     pub const userAgentData = bridge.accessor(WorkerNavigator.getUserAgentData, null, .{});
+ };
+diff --git a/src/browser/webapi/collections/DOMStringList.zig b/src/browser/webapi/collections/DOMStringList.zig
+index 3eca581ca..880085e43 100644
+--- a/src/browser/webapi/collections/DOMStringList.zig
++++ b/src/browser/webapi/collections/DOMStringList.zig
+@@ -79,22 +79,31 @@ pub fn contains(self: *const DOMStringList, string: []const u8) bool {
+ }
+ 
+ pub fn keys(self: *const DOMStringList, exec: *Execution) !*KeyIterator {
+-    return .init(.{ .items = self._items }, exec);
++    return .init(.{ .items = self._items, .list = @constCast(self) }, exec);
+ }
+ 
+ pub fn values(self: *const DOMStringList, exec: *Execution) !*ValueIterator {
+-    return .init(.{ .items = self._items }, exec);
++    return .init(.{ .items = self._items, .list = @constCast(self) }, exec);
+ }
+ 
+ pub fn entries(self: *const DOMStringList, exec: *Execution) !*EntryIterator {
+-    return .init(.{ .items = self._items }, exec);
++    return .init(.{ .items = self._items, .list = @constCast(self) }, exec);
+ }
+ 
+-// The iterator borrows the (page-arena) slice rather than the DOMStringList, so
+-// it's safe regardless of the wrapper's lifetime.
++// IndexedDB lists own an arena independent of their JS wrapper. An iterator
++// retains that arena so collecting the list cannot free its borrowed strings.
+ const Iterator = struct {
+     index: u32 = 0,
+     items: []const []const u8,
++    list: *DOMStringList,
++
++    pub fn acquireRef(self: *Iterator) void {
++        self.list.acquireRef();
++    }
++
++    pub fn releaseRef(self: *Iterator, page: *Page) void {
++        self.list.releaseRef(page);
++    }
+ 
+     const Entry = struct { u32, []const u8 };
+ 
+diff --git a/src/browser/webapi/storage/idb/IDBRequest.zig b/src/browser/webapi/storage/idb/IDBRequest.zig
+index 6dddeabdc..b92baaa73 100644
+--- a/src/browser/webapi/storage/idb/IDBRequest.zig
++++ b/src/browser/webapi/storage/idb/IDBRequest.zig
+@@ -60,6 +60,10 @@ _result: Result = .{ .none = js.Undefined{} },
+ // whether or not we own th result value, if we do, we can free it once we know
+ // it cannot be used
+ _result_owned: bool = false,
++// Keep the original JS request (including application expandos) alive until its
++// completion event is delivered. A native pointer alone does not pin a weak
++// identity wrapper while a batch of requests waits for the transaction drain.
++_pending_wrapper: ?*js.GlobalSlot = null,
+ 
+ _on_success: ?js.Function.Global = null,
+ _on_error: ?js.Function.Global = null,
+@@ -213,6 +217,7 @@ pub fn failWithAbort(self: *IDBRequest) void {
+ }
+ 
+ pub fn deliver(self: *IDBRequest, exec: *Execution) !void {
++    defer if (self.delivered()) self.releasePendingWrapper();
+     self._ready_state = .done;
+     if (self._error != null) {
+         return self.fireError(exec);
+@@ -453,6 +458,11 @@ pub fn submit(self: *IDBRequest, op: Operation, exec: *Execution) !*IDBRequest {
+     self._op = op;
+     self._source = op.source();
+     const txn = self._txn.owned;
++    if (self._pending_wrapper == null) {
++        const wrapper = try exec.js.local.?.mapZigInstanceToJs(null, self);
++        self._pending_wrapper = try txn.persist(wrapper.toValue());
++    }
++    errdefer self.releasePendingWrapper();
+     try txn.enqueue(self);
+ 
+     if (txn.getMode() == .versionchange) {
+@@ -466,6 +476,13 @@ pub fn submit(self: *IDBRequest, op: Operation, exec: *Execution) !*IDBRequest {
+     return self;
+ }
+ 
++fn releasePendingWrapper(self: *IDBRequest) void {
++    if (self._pending_wrapper) |wrapper| {
++        wrapper.reset();
++        self._pending_wrapper = null;
++    }
++}
++
+ pub fn execute(self: *IDBRequest, exec: *Execution) !void {
+     const op = self._op;
+     if (op == .none) {
+diff --git a/src/network/HttpClient.zig b/src/network/HttpClient.zig
+index 24159230b..3e1a163b2 100644
+--- a/src/network/HttpClient.zig
++++ b/src/network/HttpClient.zig
+@@ -469,8 +469,8 @@ pub fn getLanguages(self: *const Client) []const []const u8 {
+ pub fn baselineHeaders(self: *const Client) [4]Transfer.RequestHeader {
+     return .{
+         .{ .name = "User-Agent", .value = self.getUserAgent() },
+-        .{ .name = "Sec-Ch-Ua", .value = lp.Config.HttpHeaders.sec_ch_ua, .source = .fixed },
+-        .{ .name = "Sec-Ch-Ua-Full-Version-List", .value = lp.Config.HttpHeaders.sec_ch_ua_full_version_list, .source = .fixed },
++        .{ .name = "Sec-Ch-Ua", .value = lp.Config.HttpHeaders.sec_ch_ua },
++        .{ .name = "Sec-Ch-Ua-Full-Version-List", .value = lp.Config.HttpHeaders.sec_ch_ua_full_version_list },
+         // Omitting Accept-Language triggers bot-protection on some CDNs
+         // (Akamai) when Accept-Encoding is present.
+         .{ .name = "Accept-Language", .value = self.getAcceptLanguage() },
+diff --git a/src/server/cdp/domains/emulation.zig b/src/server/cdp/domains/emulation.zig
+index 65fda606d..786d10afb 100644
+--- a/src/server/cdp/domains/emulation.zig
++++ b/src/server/cdp/domains/emulation.zig
+@@ -153,7 +153,7 @@ pub fn setUserAgentOverride(cmd: *CDP.Command) !void {
+     const ua = params.userAgent;
+     const reserved = if (Config.validateUserAgent(ua)) false else |err| switch (err) {
+         error.NonPrintable => return cmd.sendError(-32602, "User agent contains non-printable characters", .{}),
+-        error.Reserved => true,
++
+     };
+ 
+     const bc = cmd.browser_context orelse return error.BrowserContextNotLoaded;
+diff --git a/src/sys/libcrypto.zig b/src/sys/libcrypto.zig
+index 37c3c9cf2..776af699f 100644
+--- a/src/sys/libcrypto.zig
++++ b/src/sys/libcrypto.zig
+@@ -136,6 +136,8 @@ pub extern fn EC_KEY_set_public_key(key: *EC_KEY, point: *const EC_POINT) c_int;
+ // DER decoders (advance `inp` past the parsed structure).
+ pub extern fn d2i_PUBKEY(out: ?*?*EVP_PKEY, inp: *[*c]const u8, len: c_long) ?*EVP_PKEY;
+ pub extern fn d2i_AutoPrivateKey(out: ?*?*EVP_PKEY, inp: *[*c]const u8, len: c_long) ?*EVP_PKEY;
++pub extern fn i2d_PUBKEY(pkey: *const EVP_PKEY, out: ?*[*c]u8) c_int;
++pub extern fn i2d_PrivateKey(pkey: *const EVP_PKEY, out: ?*[*c]u8) c_int;
+ 
+ const NID_X25519 = @as(c_int, 948);
+ pub const EVP_PKEY_X25519 = NID_X25519;

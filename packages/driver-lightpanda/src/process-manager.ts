@@ -136,7 +136,6 @@ export class LightpandaProcessManager {
                     '--load-resources', 'iframe',
                     '--load-resources', 'stylesheet',
                     ...(config.experimentalWhatsApp ? [
-                        '--experimental-features', 'serviceworker',
                         // v1 applies its HTTP transfer deadline to WebSockets too.
                         // WhatsApp's pairing and messaging socket must stay open.
                         '--http-timeout', '0',

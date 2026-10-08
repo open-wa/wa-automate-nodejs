@@ -21,6 +21,12 @@ experimental WhatsApp mode uses the pinned release for its prepared cached copy.
 Set `browser.download: 'never'` to require an existing binary, or
 `browser.cacheDirectory` to choose another cache.
 
+WhatsApp startup currently requires the custom native executable described in
+[native/README.md](native/README.md). The official release lacks the native
+CryptoKey cloning, MessagePort transfer and Web Locks required by this path;
+the driver checks these capabilities before opening the session. Dedicated
+workers are enabled, while experimental Service Workers remain disabled.
+
 Lightpanda provides lightweight basic automation with experimental WhatsApp
 support. It has low compatibility and no rendering, screenshots or video.
 Use Chrome for the widest media and browser compatibility. Windows users must

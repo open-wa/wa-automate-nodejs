@@ -791,6 +791,9 @@ export class Transport {
    * stage), this becomes a no-op via the `already_registered` check.
    */
   async activateRuntimeEventBridge(): Promise<void> {
+    // Live patches restore native collection bindings after document startup.
+    // Wait for that restoration before probing and wiring event listeners.
+    await this.page?.evaluateScript('globalThis.OpenWA_ensureRuntimeCollections?.()');
     const bridgeReady = await this.injectionController.ensureRuntimeBridge();
     await this.portable.activate();
     const capability = await this.probeRuntimeCapability();
@@ -2189,6 +2192,8 @@ export class Transport {
     const driverActiveGeneration = Boolean(
       this.page
       && !this.page.isClosed()
+      && this.browser?.isConnected()
+      && this.page.mainFrame()
       && health.phase !== 'disposed'
       && health.generation.documentId
       && health.generation.runtimeId
@@ -2328,11 +2333,19 @@ export class Transport {
         return;
       }
 
+      const logoutReason = this.portable.logoutReason();
+      if (!logoutReason) {
+        // WhatsApp also uses post_logout for local initialization failures.
+        // Navigation alone does not prove that this device was revoked.
+        this.logger.warn('runtime_local_logout_checkpoint_preserved');
+        return;
+      }
+
       this.events.emit('session.logout', {
         correlationId: 'page-post-logout',
         ts: Date.now(),
         step: 'session_logout',
-        details: { reason: 'post_logout=1' },
+        details: { reason: logoutReason },
       });
     });
 
@@ -2675,6 +2688,9 @@ export class Transport {
               `!!(typeof window.moi === 'function' && window.moi())`
             );
             if (livePatchIntact) {
+              // Navigation resets host generation health even when the page's
+              // patches survive. Rebind and reactivate that surviving runtime.
+              await this.configureRuntimeEventBridge();
               this.logger.info('runtime_recovery_skipped_session_intact', {
                 trigger: request.trigger,
                 requestId: String(request.requestId),
@@ -2744,6 +2760,10 @@ export class Transport {
       // For non-auth triggers: if runtime is present, skip reinjection.
       // The bridge will be wired after the full recovery sequence.
       if (!isPostAuth || storeReady) {
+        if (storeReady && capability.sessionLoaded
+          && (options.trigger === 'main_frame_navigation' || options.trigger === 'runtime_replaced')) {
+          await this.configureRuntimeEventBridge();
+        }
         this.logger.debug('runtime_recovery_runtime_present_skip_reinject', {
           trigger: options.trigger,
           hasStoreMsg: storeReady,
@@ -2800,10 +2820,8 @@ export class Transport {
       // ── Step 3: Wire the bridge (AFTER all patches are applied) ──
       // This matches the v4 order: patches → init → client.loaded() (bridge)
       try {
-        const bridgeReady = await this.injectionController.ensureRuntimeBridge();
-        // A replacement document gets a new portable owner at bootstrap. Resume
-        // its checkpointing and delivery only after the runtime is loaded again.
-        await this.portable.activate();
+        await this.activateRuntimeEventBridge();
+        const bridgeReady = this.injectionController.getHealthSnapshot().bridgeReady;
         this.logger.info('recovery_bridge_wired', {
           trigger: options.trigger,
           bridgeReady,

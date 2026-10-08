@@ -104,7 +104,8 @@ export class LightpandaPage implements IPage {
 
     mainFrame(): IFrame | null {
         const page = this.requirePage();
-        return new LightpandaFrame(page.mainFrame(), true);
+        const frame = page.frames().find((candidate: any) => !candidate.parentFrame() && !candidate.detached);
+        return frame ? new LightpandaFrame(frame, true) : null;
     }
 
     async evaluateOnNewDocument<Arg, Ret>(fn: (arg: Arg) => Ret | Promise<Ret>, arg: Arg): Promise<void> {

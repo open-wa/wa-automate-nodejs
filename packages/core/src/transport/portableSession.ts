@@ -32,6 +32,7 @@ export interface PortableSessionStatus {
   paused: boolean;
   phase: string;
   inFlightNativeWrites: number;
+  logoutReason?: string | null;
 }
 
 /** Host-only opaque persistence and acknowledged delivery. No storage adapter lives here. */
@@ -45,6 +46,7 @@ export class PortableSessionController {
   private handler?: (message: unknown) => Promise<boolean>;
   private listening: () => boolean = () => false;
   private invalidated = false;
+  private confirmedLogoutReason?: string;
   private active = false;
   private flushing = false;
   private releasing = false;
@@ -62,6 +64,8 @@ export class PortableSessionController {
     this.listening = listening;
     return () => { if (this.handler === handler) { this.handler = undefined; this.listening = () => false; } };
   }
+
+  logoutReason(): string | undefined { return this.confirmedLogoutReason; }
 
   private serial<A>(effect: Effect.Effect<A, PortableSessionFailure>): Promise<A> {
     // These providers have a Promise contract, not cancellation support. Never free
@@ -122,11 +126,30 @@ export class PortableSessionController {
             if (expected !== this.revision) return yield* Effect.fail(portableFailure('PORTABLE_SESSION_REVISION_CONFLICT'));
             yield* validatePortablePayload(payload);
             yield* portableIO('PORTABLE_SESSION_SAVE_FAILED', () => lease.write(payload)).pipe(
-              Effect.tapError(() => Effect.sync(() => { this.invalidated = true; this.active = false; })),
+              Effect.catch(error => Effect.gen({ self: this }, function* () {
+                // A durable replacement can succeed before its acknowledgement
+                // fails. Reconcile the exact ciphertext before retrying a save.
+                const stored = yield* portableIO('PORTABLE_SESSION_SAVE_FAILED', () => lease.read());
+                if (stored === payload) return;
+                if (stored !== this.payload) {
+                  this.invalidated = true;
+                  this.active = false;
+                  return yield* Effect.fail(portableFailure('PORTABLE_SESSION_REVISION_CONFLICT'));
+                }
+                return yield* Effect.fail(error);
+              })),
             );
             this.payload = payload;
             return ++this.revision;
           }))));
+      yield* portableIO('PORTABLE_SESSION_PROVISION_FAILED', () => page.exposeFunction('OpenWA_PortableLogout',
+        (token: unknown, documentId: unknown, reason: unknown) => this.serial(Effect.gen({ self: this }, function* () {
+          yield* authorize(token, documentId);
+          if (typeof reason !== 'string' || !['user_initiated', 'unknown_companion', 'invalid_adv_status',
+            'primary_identity_key_change', 'md_opt_out'].includes(reason)) return false;
+          this.confirmedLogoutReason = reason;
+          return true;
+        }))));
       yield* portableIO('PORTABLE_SESSION_PROVISION_FAILED', () => page.exposeFunction('OpenWA_PortableDeliver',
         (token: unknown, documentId: unknown, message: unknown) => runPortable(Effect.gen({ self: this }, function* () {
           yield* authorize(token, documentId);
@@ -147,6 +170,7 @@ export class PortableSessionController {
         const bridge = Object.freeze({
           bootstrap: () => globalThis.OpenWA_PortableBootstrap(token),
           commit: (documentId, revision, payload) => globalThis.OpenWA_PortableCommit(token, documentId, revision, payload),
+          logout: (documentId, reason) => globalThis.OpenWA_PortableLogout(token, documentId, reason),
           deliver: (documentId, message) => globalThis.OpenWA_PortableDeliver(token, documentId, message),
           hasListener: documentId => globalThis.OpenWA_PortableListening(token, documentId)
         });

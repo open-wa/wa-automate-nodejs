@@ -6,7 +6,6 @@ import {
     IPage,
 } from '@open-wa/driver-interface';
 import { LightpandaPage } from './LightpandaPage';
-import { installTransferablePorts } from './transferablePorts';
 import { compressionPrelude } from './compressionStreams';
 
 export class LightpandaBrowser implements IBrowser {
@@ -24,17 +23,27 @@ export class LightpandaBrowser implements IBrowser {
         const browser = this.requireBrowser();
         const page = await browser.newPage();
         if (this.experimentalWhatsApp) {
-            // Prefer real browser-owned keys whenever the executable can clone
-            // them. The opaque worker bridge cannot persist across navigation.
-            const nativeKeyCloning = await page.evaluate(async () => {
+            // Compact sessions require browser-owned persistent keys. A page-local
+            // key reference cannot survive document replacement.
+            const nativeSessionSupport = await page.evaluate(async () => {
                 try {
                     const key = await crypto.subtle.importKey('raw', crypto.getRandomValues(new Uint8Array(32)), 'HKDF', false, ['deriveBits']);
                     const clone = structuredClone(key);
-                    return clone instanceof CryptoKey && clone.extractable === false && clone.algorithm.name === 'HKDF';
+                    const channel = new MessageChannel();
+                    const transferred = structuredClone({ port: channel.port1 }, { transfer: [channel.port1] });
+                    const supported = clone instanceof CryptoKey && clone.extractable === false
+                        && clone.algorithm.name === 'HKDF' && transferred.port instanceof MessagePort
+                        && typeof navigator.locks?.request === 'function';
+                    transferred.port.close();
+                    channel.port2.close();
+                    return supported;
                 } catch { return false; }
             });
+            if (!nativeSessionSupport) {
+                await page.close();
+                throw new Error('Lightpanda WhatsApp requires native CryptoKey cloning, MessagePort transfer and Web Locks. Select the OpenWA native executable through lightpanda.executablePath.');
+            }
             await page.evaluateOnNewDocument(await compressionPrelude());
-            await page.evaluateOnNewDocument(installTransferablePorts, false, nativeKeyCloning);
         }
 
         if (options?.clearFirstPage) {
@@ -70,7 +79,7 @@ export class LightpandaBrowser implements IBrowser {
     }
 
     isConnected(): boolean {
-        return this.browser?.isConnected?.() ?? false;
+        return this.browser?.connected === true;
     }
 
     async versionString(): Promise<string> {
