@@ -9,7 +9,7 @@ Choose **Refresh patches** on the dashboard's Health page to download the public
 
 **Warning:** Refreshing reloads WhatsApp. You may miss messages during the refresh. This also applies when entering a license key triggers a refresh.
 
-Refresh rebuilds the page even when the downloaded patch tag hasn't changed. A page reload temporarily interrupts WhatsApp operations and ends document-owned call media; attach fresh media after the session is ready. OpenWA finishes admitted operations and saves the session checkpoint before reloading. New operations during replacement receive `SESSION_REFRESHING` with HTTP 503 where applicable; sends and other mutations aren't replayed automatically.
+Refresh rebuilds the page even when the downloaded patch tag hasn't changed. A page reload temporarily interrupts WhatsApp operations and ends document-owned call media; attach fresh media after the session is ready. Refresh does not pause application calls, native message storage, or receipts, and does not wait for pending operations before reloading. Operations interrupted by the page reload aren't replayed automatically.
 
 ## Apply a license during a session
 
@@ -38,7 +38,7 @@ const { operationId } = await client.requestRefresh();
 const status = await client.getRefreshStatus();
 ```
 
-Inspect `phase`, `running`, `runtimeUsable`, `restored`, and `error`. `phase: 'ready'` means the replacement completed. A license rejection reports `phase: 'failed'` with `SESSION_REFRESH_LICENSE_REJECTED` and `runtimeUsable: true`; the session stays available. `phase: 'failed', restored: true` means a runtime installation failed but the previous public patches were restored. `runtimeUsable: false` means application operations remain blocked.
+Inspect `phase`, `running`, `runtimeUsable`, `restored`, and `error`. `phase: 'ready'` means the replacement completed. A license rejection reports `phase: 'failed'` with `SESSION_REFRESH_LICENSE_REJECTED` and `runtimeUsable: true`; the session stays available. `phase: 'failed', restored: true` means a runtime installation failed but the previous public patches were restored. `runtimeUsable: false` means the document runtime is unavailable.
 
 If `phase` is `needs_auth`, pair the session using its existing QR journey. The accepted operation retains ownership while waiting and resumes installation after pairing. Read status again to follow that continuation; `refresh()` can return the actionable pairing state before the background operation finishes.
 
@@ -57,10 +57,10 @@ Repeated requests with the same intent return the current operation ID. A confli
 
 ## When refresh fails
 
-Patch download, draining, and checkpoint failures don't intentionally navigate the page. If runtime installation fails after the page has been replaced, OpenWA attempts one restoration using the previously installed public patches and the previous effective key, requesting fresh license code. Failed restoration leaves the session blocked and reports its status while retaining the browser and session data. A license rejection alone doesn't trigger restoration.
+A patch download failure leaves the page running. If runtime installation fails after the page has been replaced, OpenWA attempts one restoration using the previously installed public patches and the previous effective key, requesting fresh license code. Failed restoration reports the runtime as unavailable while retaining the browser and session data. A license rejection alone doesn't trigger restoration.
 
 ## License endpoint and browser source
 
 Licensed refresh uses the existing `/license-check` request and executable response. The response's own account and expiry guards decide whether licensed functionality can be installed. No preparation flag or additional license-service deployment is required.
 
-The generated pre-init asset includes the private portable-session reload handoff. Generate it from the private source; don't modify the generated asset or immutable `wapi.js` by hand.
+The generated pre-init asset comes from the private portable-session source. Refresh uses its normal persistence behavior without a separate preparation or pause step. Generate it from the private source; don't modify the generated asset or immutable `wapi.js` by hand.
