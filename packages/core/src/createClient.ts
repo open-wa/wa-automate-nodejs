@@ -1,3 +1,6 @@
+import { SessionRefreshController } from './livePatch/SessionRefreshController';
+import { installDocumentRuntime } from './livePatch/installDocument';
+import type { SessionRefreshOptions, SessionRefreshResult, SessionRefreshSnapshot } from '@open-wa/schema';
 import { HyperEmitter } from '@open-wa/hyperemitter';
 import { createLogger, Logger } from '@open-wa/logger';
 import type { IDriver, LightpandaOptions, BrowserProvisionOptions } from '@open-wa/driver-interface';
@@ -140,6 +143,9 @@ export interface OpenWAClient {
   readonly observability: RuntimeObservabilityShape;
 
   registerFinalizationHook(hook: () => void | Promise<void>): () => void;
+  requestRefresh(options?: SessionRefreshOptions): { operationId: string };
+  refresh(options?: SessionRefreshOptions): Promise<SessionRefreshResult>;
+  getRefreshStatus(): Promise<SessionRefreshSnapshot>;
   start(): Promise<void>;
   stop(reason?: string): Promise<void>;
   getState(): STATE;
@@ -170,7 +176,7 @@ function createPluginClientProxy(transport: Transport, logger: Logger): PluginCl
     }
     // Delegate to the transport's evaluateScript which runs WAPI calls
     const argsStr = JSON.stringify(args ?? []);
-    const result = await page.evaluateScript<T>(
+    const result = await transport.evaluateScript<T>(
       `window.WAPI.${method}(...${argsStr})`
     );
     return result as T;
@@ -375,6 +381,9 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
 
   const getReadinessSnapshot = () => session.getReadinessSnapshot(transport.getOperationalReadinessSnapshot());
 
+  const refreshController = new SessionRefreshController({ transport, session, events, sessionId });
+  events.on('session.logout', () => refreshController.stop());
+
   const client: OpenWAClient = {
     sessionId,
     events,
@@ -389,6 +398,9 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       userDataDir: resolvedUserDataDir,
     },
     registerFinalizationHook,
+    requestRefresh: options => refreshController.request(options),
+    refresh: options => refreshController.refresh(options),
+    getRefreshStatus: async () => refreshController.getStatus(),
 
     async start() {
       try {
@@ -900,197 +912,29 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         // Continue without debug info — preload methods will fall back gracefully
       }
 
-      const livePatchPreloadPromise = Promise.resolve(earlyLivePatchPreload);
       const licensePreloadPromise = sessionDebugInfo?.hostNumber && earlyLicensePreload.artifact
-        ? transport.preloadLicenseArtifact({
-            sessionId,
-            licenseKey: earlyLicensePreload.artifact.key,
-            sessionInfo: sessionDebugInfo,
-          })
+        ? transport.preloadLicenseArtifact({ sessionId, licenseKey: earlyLicensePreload.artifact.key, sessionInfo: sessionDebugInfo })
         : Promise.resolve(earlyLicensePreload);
-
-      const livePatchPreload = await livePatchPreloadPromise.catch((error) =>
-        emitFatalBootstrapError('bootstrap.live_patch.preload', error)
-      );
-      logger.info('live_patch_artifacts_preloaded', {
-        outcome: livePatchPreload.outcome,
-        source: livePatchPreload.source,
-        tag: livePatchPreload.tag,
-        artifactCount: livePatchPreload.artifacts.length,
-      });
-
-      const livePatchApply = await transport.applyLivePatchArtifacts(livePatchPreload).catch((error) =>
-        emitFatalBootstrapError('bootstrap.live_patch.apply', error)
-      );
-
-      if (livePatchApply.blockingFailure) {
-        const blockingPatch = livePatchApply.results.find((result) => result.required && result.outcome !== 'applied');
-        await emitFatalBootstrapError(
-          'bootstrap.live_patch.lifecycle',
-          new Error(blockingPatch?.detail ?? 'Required live patch lifecycle did not complete successfully')
-        );
-      }
-
-      /**
-       * Phase 1 (post-live-patch): Register Node-side persistent bindings.
-       * This MUST happen after live patches are applied because the replacement
-       * observer (OpenWA_RuntimeReplacementDetected) would trigger recovery
-       * that overwrites the live-patched WAPI.
-       *
-       * NOTE: This only registers Node-side bindings (exposeFunction etc.).
-       * The actual bridge wiring (ensureRuntimeBridge → onStateChanged, etc.)
-       * is deferred to Phase 2 (activateRuntimeEventBridge) which runs AFTER
-       * init patch, matching the v4 order: patches → license → init → loaded.
-       */
-      try {
-        await transport.registerRuntimeEventBridgeBindings();
-      } catch (error) {
-        return emitFatalBootstrapError('bootstrap.runtime_bridge_registration', error);
-      }
-
-      // ── Post-patch capability validation ──────────────
-      // Check runtime/store/session capability ONLY — do NOT wire the bridge yet.
-      // In v4, event listeners (onStateChanged etc.) are wired in client.loaded()
-      // which runs AFTER init patch. The full bridge wiring happens at Phase 2
-      // (activateRuntimeEventBridge) below, after init patch has been applied.
-      // Using validateRuntimeCapabilityOnly prevents ensureRuntimeBridge() from
-      // prematurely calling onStateChanged before Store.State is ready.
-      const postPatchCapability = await transport.validateRuntimeCapabilityOnly('post_patch');
-
-      session.recordValidation({
-        stage: 'post_patch',
-        attempt: 1,
-        usable: postPatchCapability.usable,
-        repairable: postPatchCapability.repairable,
-        repaired: false,
-        checkedAt: Date.now(),
-        failureReason: postPatchCapability.failureReason,
-        capability: {
-          hasRuntime: postPatchCapability.hasRuntime,
-          hasStoreMsg: postPatchCapability.hasStoreMsg,
-          sessionLoaded: postPatchCapability.sessionLoaded,
-        },
-      });
-
-      if (!postPatchCapability.usable) {
-        return emitFatalBootstrapError(
-          'bootstrap.patch.integrity',
-          new Error(`Post-patch capability validation failed: ${postPatchCapability.failureReason ?? 'unknown_failure'}`)
-        );
-      }
-
-      logger.info('post_patch_runtime_validated', {
-        ...postPatchCapability,
-        validationPhase: 'post_patch_pre_license',
-      });
-
-      events.emit('launch.patch.integrity.after', {
-        correlationId: 'bootstrap-post-patch-integrity',
-        ts: Date.now(),
-        step: 'patch_integrity',
-        details: {
-          phase: 'post_patch',
-          valid: postPatchCapability.usable,
-          usable: postPatchCapability.usable,
-          failureReason: postPatchCapability.failureReason,
-        },
-      });
-
-      let licensePreload = await licensePreloadPromise.catch((error) =>
-        emitFatalBootstrapError('bootstrap.license.preload', error)
-      );
-      if (licensePreload.status === 'metadata_only' && !sessionDebugInfo?.hostNumber && licensePreload.artifact) {
-        try {
-          const patchedSessionInfo = await transport.getSessionDebugInfo();
-          if (patchedSessionInfo.hostNumber) {
-            logger.info('license_host_recovered_after_patch', {
-              hostNumber: '***' + patchedSessionInfo.hostNumber.slice(-4),
-            });
-            licensePreload = await transport.preloadLicenseArtifact({
-              sessionId,
-              licenseKey: licensePreload.artifact.key,
-              sessionInfo: patchedSessionInfo,
+      const { livePatchApply, licenseCheck, licenseApply, initPatchApply } = await installDocumentRuntime(
+        transport, earlyLivePatchPreload, async () => {
+          let prepared = await licensePreloadPromise;
+          if (prepared.status === 'metadata_only' && prepared.artifact) {
+            const account = await transport.getSessionDebugInfo();
+            if (account.hostNumber) prepared = await transport.preloadLicenseArtifact({
+              sessionId, licenseKey: prepared.artifact.key, sessionInfo: account,
             });
           }
-        } catch (error) {
-          logger.warn('license_host_recovery_after_patch_failed', {
-            error: error instanceof Error ? error.message : String(error),
-          });
-        }
-      }
-      const licenseCheck = await transport.checkLicenseArtifact(licensePreload).catch((error) =>
-        emitFatalBootstrapError('bootstrap.license.check', error)
-      );
-
-      if (licenseCheck.status === 'missing') {
-        session.updateReadiness(
-          'licenseLifecycle',
-          'non_blocking',
-          licenseCheck.detail ?? 'License metadata lifecycle classified as explicitly non-blocking'
-        );
-        logger.info('license_lifecycle_complete', {
-          status: licenseCheck.status,
-          detail: licenseCheck.detail,
-          readinessImpact: 'allow_ready',
-        });
-      } else if (licenseCheck.status === 'invalid' || licenseCheck.status === 'expired' || licenseCheck.blockingFailure) {
-        await emitFatalBootstrapError(
-          'bootstrap.license.lifecycle',
-          new Error(licenseCheck.detail ?? `License lifecycle blocked readiness with status: ${licenseCheck.status}`)
-        );
-      } else {
-        const licenseApply = await transport.applyLicenseArtifact(licenseCheck).catch((error) =>
-          emitFatalBootstrapError('bootstrap.license.apply', error)
-        );
-
-        if (licenseApply.blockingFailure || !licenseApply.applied) {
-          await emitFatalBootstrapError(
-            'bootstrap.license.apply',
-            new Error(licenseApply.detail ?? 'License lifecycle did not complete successfully')
-          );
-        }
-
-        const readinessState = licenseApply.status === 'valid' ? 'satisfied' : 'non_blocking';
-        const readinessDetail = licenseApply.status === 'valid'
-          ? licenseApply.detail ?? 'License lifecycle completed with a server-confirmed unlock'
-          : licenseApply.detail ?? 'License lifecycle completed with metadata-only fallback; capability was not server-confirmed';
-
-        session.updateReadiness(
-          'licenseLifecycle',
-          readinessState,
-          readinessDetail
-        );
-
-        logger.info('license_lifecycle_complete', {
-          status: licenseApply.status,
-          applied: licenseApply.applied,
-          keyType: licenseApply.keyType,
-          readinessImpact: readinessState === 'satisfied' ? 'satisfy_requirement' : 'allow_ready_without_server_unlock',
-        });
-      }
-
-      const initPatchApply = await transport.applyDeferredInitPatchArtifact().catch((error) =>
-        emitFatalBootstrapError('bootstrap.patch.init', error)
-      );
-
-      if (initPatchApply.blockingFailure) {
-        const blockingInitPatch = initPatchApply.results.find((result) => result.required && result.outcome !== 'applied');
-        await emitFatalBootstrapError(
-          'bootstrap.patch.lifecycle',
-          new Error(blockingInitPatch?.detail ?? 'Deferred init patch did not complete successfully')
-        );
-      }
-
-      // ── Phase 2: Activate runtime event bridge (post-init-patch) ──────────────
-      // Wire listeners to WAPI methods (onStateChanged, onAnyMessage, etc.).
-      // This is the FIRST bridge wiring point — post_patch validation above only
-      // checks capability, not bridge integrity. This matches the v4 order where
-      // event listeners are wired in client.loaded() AFTER init patch.
-      try {
-        await transport.activateRuntimeEventBridge();
-      } catch (error) {
-        return emitFatalBootstrapError('bootstrap.runtime_bridge_activation', error);
-      }
+          return prepared;
+        }, false, async () => {
+          const capability = await transport.validateRuntimeCapabilityOnly('post_patch');
+          session.recordValidation({ stage: 'post_patch', attempt: 1, usable: capability.usable,
+            repairable: capability.repairable, repaired: false, checkedAt: Date.now(), failureReason: capability.failureReason,
+            capability: { hasRuntime: capability.hasRuntime, hasStoreMsg: capability.hasStoreMsg, sessionLoaded: capability.sessionLoaded } });
+          events.emit('launch.patch.integrity.after', { correlationId: 'bootstrap-post-patch-integrity', ts: Date.now(),
+            step: 'patch_integrity', details: { phase: 'post_patch', valid: capability.usable, usable: capability.usable, failureReason: capability.failureReason } });
+        },
+      ).catch(error => emitFatalBootstrapError('bootstrap.runtime.installation', error));
+      session.updateReadiness('licenseLifecycle', licenseCheck.status === 'valid' ? 'satisfied' : 'non_blocking', licenseApply?.detail ?? licenseCheck.detail);
 
       const combinedPatchResults = [...livePatchApply.results, ...initPatchApply.results];
       const combinedPatchApplied = [...livePatchApply.applied, ...initPatchApply.applied];
@@ -1194,6 +1038,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     },
 
     async stop(reason?: string) {
+      refreshController.stop();
       events.emit('core.stopping', { reason });
 
       await session.setState('STOPPED', reason);
@@ -1239,7 +1084,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     async evaluateScript<T = unknown>(script: string): Promise<T | null> {
       const page = transport.getPage();
       if (!page || page.isClosed()) return null;
-      return page.evaluateScript<T>(script);
+      return transport.evaluateScript<T>(script);
     },
 
     async executeInChatSandbox<T = unknown>(chatId: string, source: string, input?: unknown): Promise<T> {

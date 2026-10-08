@@ -3,6 +3,7 @@ import { EventSource as EventSourcePolyfill } from 'eventsource';
 import type { SimpleListener, Chat, ChatId, Message } from "@open-wa/wa-automate-types-only";
 import type { BaseClient as _Client } from "@open-wa/wa-automate-types-only";
 import { RemoteCalls } from './calling';
+import type { SessionRefreshOptions, SessionRefreshResult, SessionRefreshSnapshot } from '@open-wa/schema';
 import { normalizeCallMedia } from '@open-wa/schema/calling-media';
 import type { Call, CallSnapshot, CallCapabilities, CallActionResult, CallMediaOptions, AudioInput, AudioOutput, VideoInput } from '@open-wa/schema';
 import { TunnelSocketClient } from './TunnelSocketClient';
@@ -23,6 +24,7 @@ type SseEventEnvelope = {
 type SocketLikeListener = (...args: any[]) => void;
 
 const DEFAULT_STREAM_EVENTS = [
+    'session.refresh.progress',
     'call.incoming',
     'call.state',
     'message.received',
@@ -303,6 +305,31 @@ export class SocketClient {
     public async reconnect(): Promise<void> {
         this.closeStream('manual reconnect', false);
         await this.openStream();
+    }
+
+    public async requestRefresh(options: SessionRefreshOptions = {}): Promise<{ operationId: string }> {
+        return this.refreshControl('POST', options);
+    }
+    public async getRefreshStatus(): Promise<SessionRefreshSnapshot> { return this.refreshControl('GET'); }
+    public async refresh(options: SessionRefreshOptions = {}): Promise<SessionRefreshResult> {
+        const { operationId } = await this.requestRefresh(options);
+        while (!this.isClosed) {
+            const snapshot = await this.getRefreshStatus();
+            if (snapshot.operationId !== operationId) throw new Error('The refresh operation was superseded. Read the current session status.');
+            if (!snapshot.running || snapshot.phase === 'needs_auth') return snapshot;
+            await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+        throw new Error('The client disconnected. The accepted refresh continues on the server.');
+    }
+    private async refreshControl<T>(method: 'GET' | 'POST', options?: SessionRefreshOptions): Promise<T> {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (this.apiKey) headers['X-API-Key'] = this.apiKey;
+        const response = await fetch(`${this.getBaseUrl()}/api/session/refresh`, {
+            method, headers, ...(method === 'POST' ? { body: JSON.stringify(options ?? {}) } : {}),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result?.error || `Session control returned HTTP ${response.status}`);
+        return result as T;
     }
 
     public async createMessageCollector(c: Message | ChatId | Chat, filter: CollectorFilter<[Message]>, options: CollectorOptions): Promise<MessageCollector> {

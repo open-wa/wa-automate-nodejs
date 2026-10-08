@@ -34,6 +34,8 @@ export class CallingService {
     sessionId: string; logger: Logger; config?: CallingOptions; mediaHost?: CallMediaHost;
     page: () => IPage | null; generation: () => string;
     emit: (type: 'incoming' | 'state', snapshot: CallSnapshot) => void;
+    isRefreshing?: () => boolean;
+    runOperation?: <T>(operation: () => Promise<T>) => Promise<T>;
   }) {}
 
   /** Called only after normal server-confirmed licence patch application. */
@@ -59,6 +61,17 @@ export class CallingService {
   }
 
   get licenseExpiresAt(): number | undefined { return this.provider?.expiresAt; }
+
+  /** Internal installation attestation; application admission remains closed. */
+  async assertLicenseSelection(features: Readonly<Record<string, boolean>>): Promise<void> {
+    const expected = ['control', 'audio', 'video'] as const;
+    for (const capability of expected) {
+      if (features[`patch_calls_${capability}`] && (!this.licensed || !this.provider?.[capability]
+        || this.provider.expiresAt <= Date.now() || this.generation !== this.options.generation())) {
+        throw new Error('Selected licensed calling functionality could not be restored.');
+      }
+    }
+  }
 
   private isProviderInfo(info: CallingProviderInfo | null): info is CallingProviderInfo {
     return !!info && info.protocolVersion === 1 && typeof info.artifactRevision === 'string' && !!info.artifactRevision
@@ -110,6 +123,10 @@ export class CallingService {
   logListenerAvailability(): void { const reason = this.availability('calls.control'); if (reason && !this.warnedListeners.has(reason.code)) { this.warnedListeners.add(reason.code); this.options.logger.warn(reason.message); } }
 
   async admitRemote(request: RemoteMediaRequest): Promise<{ ok: true; ticket: string; expiresAt: number; media: CallMediaOptions } | CallActionResult> {
+    return this.options.runOperation ? this.options.runOperation(() => this.admitRemoteInternal(request)) : this.admitRemoteInternal(request);
+  }
+
+  private async admitRemoteInternal(request: RemoteMediaRequest): Promise<{ ok: true; ticket: string; expiresAt: number; media: CallMediaOptions } | CallActionResult> {
     const reason = this.availability('calls.audio');
     if (request.mode === 'start' && !request.to?.trim()) return { ok: false, status: 'failed', reason: { code: 'CALL_RECIPIENT_REQUIRED', message: 'Choose a recipient before starting a call.', status: 422 } };
     if (request.mode !== 'start' && !request.call) return { ok: false, status: 'failed', reason: { code: 'CALL_IDENTITY_REQUIRED', message: 'Use a current Call object for this action.', status: 422 } };
@@ -246,6 +263,7 @@ export class CallingService {
   async close(): Promise<void> { await this.invalidate('The calling session closed.'); this.licensed = false; await this.stateQueue?.close(); this.stateQueue = undefined; }
 
   private availability(feature: 'calls.control' | 'calls.audio' | 'calls.video'): CallingFailure | undefined {
+    if (this.options.isRefreshing?.()) return new CallingFailure({ code: 'SESSION_REFRESHING', message: 'The session is refreshing. Retry after it is ready.', status: 503 });
     if (!this.licensed) return new CallingFailure({ code: 'CALLING_LICENSE_REQUIRED', message: LICENSE_MESSAGE, status: 403 });
     if (this.provider && this.provider.expiresAt <= Date.now()) return new CallingFailure({ code: 'CALLING_LICENSE_EXPIRED', message: 'Calling access has expired. Refresh the calling-enabled license.', status: 403 });
     if (!this.provider || this.generation !== this.options.generation()) return new CallingFailure({ code: 'CALLING_SESSION_NOT_READY', message: 'Calling is still connecting to the WhatsApp session. Try again when the session is ready.', status: 503 });
@@ -503,7 +521,7 @@ export class CallingService {
   }
 
   private action(work: () => Promise<CallActionResult>, callId?: string): Promise<CallActionResult> {
-    return runToPromise(Effect.tryPromise({ try: work, catch: error => error }).pipe(Effect.catch((error) => {
+    return runToPromise(Effect.tryPromise({ try: () => this.options.runOperation ? this.options.runOperation(work) : work(), catch: error => error }).pipe(Effect.catch((error) => {
       if (error instanceof Error && 'code' in error && String(error.code).startsWith('MEDIA_')) {
         this.options.logger.warn(error.message, { code: String(error.code) });
         return Effect.succeed({ ok: false as const, status: 'failed' as const, reason: { code: String(error.code), message: error.message, status: 422 }, ...(callId ? { callId } : {}) });
