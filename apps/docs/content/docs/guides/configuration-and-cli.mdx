@@ -213,7 +213,7 @@ These are the major flags most users need when starting the Easy API from the co
 | `--license-key "key"`, `-l "key"` | `licenseKey` | Supplies a license key for licensed features where applicable. |
 | `linkCode` in library config | `linkCode` | Embedded `createClient` in `5.1.0` supports link-code login. The published Easy API CLI does not forward this setting and has no `--link-code` flag. |
 | `--tunnel` | transitional | Legacy tunnel flag. v5 currently warns that tunnel setup parity is not restored. |
-| `--mcp` | unsupported by the current v5 CLI | The parser does not accept this flag. Configure `mcp: { enabled: true }` in `wa.config.*`, keep `apiKey` enabled, and use `--config ./wa.config.mjs` when selecting that file explicitly. |
+| `--mcp` | unsupported by the current v5 CLI | The CLI does not parse this flag. Configure `mcp: { enabled: true }` in `wa.config.*`, keep `apiKey` enabled, and use `--config ./wa.config.mjs` when selecting that file explicitly. |
 | `--host "0.0.0.0"`, `-h "0.0.0.0"` | `host` | Local bind host for the Easy API server. |
 | `--sandbox-chats` | `sandboxChats: true` | Enables isolated execution for explicit per-chat code/tool calls. |
 | `--sandbox-isolation process` | `sandboxChats.isolation` | Selects `worker`, `process`, or `container`; use container for hostile code. |

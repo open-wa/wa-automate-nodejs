@@ -31,8 +31,8 @@ Open `http://127.0.0.1:1880`, choose **Manage palette**, and confirm the `@open-
 Start an Easy API session separately. This loopback example requires Node-RED and Easy API to run on the same machine. Replace the API-key placeholder with a local secret before running it; for remote access, follow the [network and security guidance](/docs/operations/security-and-deployment) and use an API address reachable from the Node-RED host.
 
 ```bash
-export OPENWA_API_KEY="replace-with-your-api-key"
-npx @open-wa/wa-automate@5.1.0 --session-id sales --host 127.0.0.1 --port 8080 --api-key "$OPENWA_API_KEY"
+export WA_API_KEY="replace-with-your-api-key"
+npx @open-wa/wa-automate@5.1.0 --session-id sales --host 127.0.0.1 --port 8080 --api-key "$WA_API_KEY"
 ```
 
 In Node-RED, add the **owa-server** configuration node and fill these fields:
@@ -147,7 +147,7 @@ For the canonical readiness and authentication checks, see [Readiness and authen
 | Symptom | Command or observation | Expected result | Next action |
 | --- | --- | --- | --- |
 | `owa-server` stays disconnected | `curl -sS http://127.0.0.1:8080/health` | HTTP `200` means the API is reachable; check `connected` and `session.ready` for the WhatsApp session state. `/health` is public and does not check the API key. | On connection refusal, start Easy API or correct URL and port. If the session is not ready, complete authentication before debugging Node-RED. Check a configured key with the metadata request below. |
-| Metadata request is `401` | `curl -i -H "X-API-Key: $OPENWA_API_KEY" http://127.0.0.1:8080/meta/basic/commands` | The response lists command metadata. | Put the same key in **owa-server → Key**; an empty or different key is rejected. |
+| Metadata request is `401` | `curl -i -H "X-API-Key: $WA_API_KEY" http://127.0.0.1:8080/meta/basic/commands` | The response lists command metadata. | Put the same key in **owa-server → Key**; an empty or different key is rejected. |
 | `Command` shows “Waiting for socket connection” | Check the `owa-server` status and the metadata request above. | The server node connects and the command list loads. | Correct the node URL or key, then redeploy. If Easy API is reachable but the session is not ready, finish WhatsApp authentication first. |
 | A matching `ping` gets no reply | Check the `Listen` node status and `/meta/basic/listeners` response. | The node should show `listening`, and `onMessage` should be listed. | Confirm the message body is `ping`, the session is ready, and the **Command** node uses `sendText`. Other messages are intentionally ignored by this flow. |
 | `sendText` times out | Inspect the `Command` status | It reports a timeout after the configured seconds. | Check the chat ID (`@c.us` or `@g.us`), session readiness, and Easy API logs; increase timeout only for a known slow operation. |

@@ -20,7 +20,7 @@ Start Easy API separately, then install the package into Node-RED's user directo
 npx @open-wa/wa-automate@5.1.0 \
   --session-id sales \
   --port 8080 \
-  --api-key "$OPENWA_API_KEY"
+  --api-key "$WA_API_KEY"
 
 cd ~/.node-red
 npm install @open-wa/node-red@5.1.0
@@ -79,11 +79,11 @@ Use the same URL and key outside Node-RED to separate API reachability, authenti
 
 ```bash
 curl -sS -D - \
-  -H "X-API-Key: $OPENWA_API_KEY" \
+  -H "X-API-Key: $WA_API_KEY" \
   http://127.0.0.1:8080/health
 
 curl -sS -D - \
-  -H "X-API-Key: $OPENWA_API_KEY" \
+  -H "X-API-Key: $WA_API_KEY" \
   http://127.0.0.1:8080/meta/basic/commands
 ```
 
