@@ -115,6 +115,7 @@ function useCallingController() {
       setHistory(lines => [value, ...lines].slice(0, 12));
       if (value.terminal) { setMuted(false); setNotice(value.endReason?.message ?? value.media?.reason ?? 'WhatsApp ended the call without reporting a cause.'); toast.dismiss(`call:${value.id}`); }
       else if (value.media?.state === 'ended') { setMuted(false); setNotice(value.media.reason ?? 'Call media ended. Choose a fresh audio source to reconnect it.'); }
+      else if (value.media?.reason) setNotice(value.media.reason);
     };
     const unavailable = (reason: unknown) => { if (mounted) setNotice(reason instanceof Error ? reason.message : 'The calling API is unavailable.'); };
     // Subscribe before reading the snapshot, so a call cannot fall between them.
