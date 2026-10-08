@@ -10,6 +10,7 @@
     "---Messaging & data---",
     "messages",
     "interactive-messages",
+    "calls",
     "media",
     "groups",
     "group-filtering",

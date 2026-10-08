@@ -14,6 +14,7 @@ icon: "BookOpen"
 
 | Method | Namespace | Description | License |
 | --- | --- | --- | --- |
+| [`acceptCall`](/docs/reference/client/client#acceptcall) | `calls` | Prepare media and accept this incoming call. | `restricted` |
 | [`addLabel`](/docs/reference/client/client#addlabel) | `labels` | Add label to chat | - |
 | [`addParticipant`](/docs/reference/client/client#addparticipant) | `groups` | Add participant to group | - |
 | [`approveGroupJoinRequest`](/docs/reference/client/client#approvegroupjoinrequest) | `groups` | Approve group join request | - |
@@ -21,6 +22,7 @@ icon: "BookOpen"
 | [`blockContact`](/docs/reference/client/client#blockcontact) | `contacts` | Block a contact | - |
 | [`checkNumberStatus`](/docs/reference/client/client#checknumberstatus) | `contacts` | Check if number is on WhatsApp | `insiders` |
 | [`checkReadReceipts`](/docs/reference/client/client#checkreadreceipts) | `contacts` | Check read receipts setting | - |
+| [`clearCallAudio`](/docs/reference/client/client#clearcallaudio) | `calls` | Discard queued outgoing audio. | `restricted` |
 | [`clearChat`](/docs/reference/client/client#clearchat) | `chats` | Clear chat history | - |
 | [`createGroup`](/docs/reference/client/client#creategroup) | `groups` | Create new group | `restricted` |
 | [`decryptMedia`](/docs/reference/client/client#decryptmedia) | `media` | Decrypts media from a message | - |
@@ -30,7 +32,9 @@ icon: "BookOpen"
 | [`deleteStatus`](/docs/reference/client/client#deletestatus) | `status` | Delete status | `insiders` |
 | [`demoteParticipant`](/docs/reference/client/client#demoteparticipant) | `groups` | Demote participant from admin | - |
 | [`downloadMedia`](/docs/reference/client/client#downloadmedia) | `media` | Downloads and decrypts media from a message to a file | - |
+| [`endCall`](/docs/reference/client/client#endcall) | `calls` | Request hangup for this call. | `restricted` |
 | [`forwardMessages`](/docs/reference/client/client#forwardmessages) | `messages` | Forwards messages to a chat | - |
+| [`getActiveCall`](/docs/reference/client/client#getactivecall) | `calls` | Get the current call snapshot. SDK clients hydrate its bound methods. | `restricted` |
 | [`getAllChatIds`](/docs/reference/client/client#getallchatids) | `chatIds` | Get all chat IDs | - |
 | [`getAllChats`](/docs/reference/client/client#getallchats) | `chats` | Returns serialized Chat objects from the current session, optionally limited to chats with unread messages. | - |
 | [`getAllCommunities`](/docs/reference/client/client#getallcommunities) | `communities` | Get all communities | - |
@@ -42,6 +46,7 @@ icon: "BookOpen"
 | [`getBlockedIds`](/docs/reference/client/client#getblockedids) | `contacts` | Get blocked contact IDs | - |
 | [`getBusinessProducts`](/docs/reference/client/client#getbusinessproducts) | `business` | Get business products | - |
 | [`getBusinessProfile`](/docs/reference/client/client#getbusinessprofile) | `business` | Get business profile | - |
+| [`getCallCapabilities`](/docs/reference/client/client#getcallcapabilities) | `calls` | Optional calling availability for UI and diagnostics. Actions perform admission automatically. | - |
 | [`getChat`](/docs/reference/client/client#getchat) | `chats` | Get specific chat by ID | - |
 | [`getChatsByLabel`](/docs/reference/client/client#getchatsbylabel) | `labels` | Get chats by label | - |
 | [`getChatWithNonContacts`](/docs/reference/client/client#getchatwithnoncontacts) | `chats` | Get chats with non-contacts | - |
@@ -88,13 +93,16 @@ icon: "BookOpen"
 | [`loadEarlierMessages`](/docs/reference/client/client#loadearliermessages) | `messages` | Loads earlier messages from a chat | - |
 | [`markAsRead`](/docs/reference/client/client#markasread) | `chats` | Mark chat as read | - |
 | [`markAsUnread`](/docs/reference/client/client#markasunread) | `chats` | Mark chat as unread | - |
+| [`muteCall`](/docs/reference/client/client#mutecall) | `calls` | Mute or unmute the microphone without ending reception. | `restricted` |
 | [`muteChat`](/docs/reference/client/client#mutechat) | `chats` | Mute a chat | - |
+| [`observeCallAudio`](/docs/reference/client/client#observecallaudio) | `calls` | Attach an isolated receive-only audio sink. Its failure does not interrupt the call owner. | `restricted` |
 | [`pinChat`](/docs/reference/client/client#pinchat) | `chats` | Pin a chat | - |
 | [`postImageStatus`](/docs/reference/client/client#postimagestatus) | `status` | Post image status | `insiders` |
 | [`postTextStatus`](/docs/reference/client/client#posttextstatus) | `status` | Post text status | `insiders` |
 | [`postVideoStatus`](/docs/reference/client/client#postvideostatus) | `status` | Post video status | `insiders` |
 | [`promoteParticipant`](/docs/reference/client/client#promoteparticipant) | `groups` | Promote participant to admin | - |
 | [`react`](/docs/reference/client/client#react) | `messages` | React to message with emoji | - |
+| [`rejectCall`](/docs/reference/client/client#rejectcall) | `calls` | Reject this call with native state confirmation. | `restricted` |
 | [`rejectGroupJoinRequest`](/docs/reference/client/client#rejectgroupjoinrequest) | `groups` | Reject group join request | - |
 | [`removeLabel`](/docs/reference/client/client#removelabel) | `labels` | Remove label from chat | - |
 | [`removeParticipant`](/docs/reference/client/client#removeparticipant) | `groups` | Remove participant from group | - |
@@ -124,6 +132,7 @@ icon: "BookOpen"
 | [`sendVCard`](/docs/reference/client/client#sendvcard) | `messages` | Sends a contact card (vCard) | - |
 | [`sendVideoAsGif`](/docs/reference/client/client#sendvideoasgif) | `messages` | Sends a video as an animated GIF | - |
 | [`sendYouTubeLink`](/docs/reference/client/client#sendyoutubelink) | `messages` | Sends a YouTube link with auto-generated preview | - |
+| [`setCallMedia`](/docs/reference/client/client#setcallmedia) | `calls` | Prepare a replacement before releasing the working media. | `restricted` |
 | [`setChatEphemeral`](/docs/reference/client/client#setchatephemeral) | `chats` | Set ephemeral messages for chat | - |
 | [`setGroupDescription`](/docs/reference/client/client#setgroupdescription) | `groups` | Set group description | - |
 | [`setGroupEditToAdminsOnly`](/docs/reference/client/client#setgroupedittoadminsonly) | `groups` | Restrict group editing to admins only | - |
@@ -134,6 +143,8 @@ icon: "BookOpen"
 | [`setMyStatus`](/docs/reference/client/client#setmystatus) | `session` | Set host status | - |
 | [`setProfilePicture`](/docs/reference/client/client#setprofilepicture) | `session` | Set profile picture | `insiders` |
 | [`starMessage`](/docs/reference/client/client#starmessage) | `messages` | Star a message | - |
+| [`startCall`](/docs/reference/client/client#startcall) | `calls` | Prepare media and place an outgoing audio or video call. | `restricted` |
+| [`stopCallAudioObserver`](/docs/reference/client/client#stopcallaudioobserver) | `calls` | Stop an audio observer and finalize its sink. | `restricted` |
 | [`unarchiveChat`](/docs/reference/client/client#unarchivechat) | `chats` | Unarchive a chat | - |
 | [`unblockContact`](/docs/reference/client/client#unblockcontact) | `contacts` | Unblock a contact | - |
 | [`unmuteChat`](/docs/reference/client/client#unmutechat) | `chats` | Unmute a chat | - |

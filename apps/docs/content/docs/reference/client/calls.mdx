@@ -1,0 +1,1022 @@
+---
+title: "Calls Client API"
+description: "Generated client method reference for the calls namespace."
+icon: "BookOpen"
+---
+
+# Calls Client API
+
+This page documents 11 schema-registry client methods in the `calls` namespace.
+
+<LicensedMethodSection tier="restricted">
+
+<span id="acceptcall---restricted" aria-hidden="true"></span>
+## `acceptCall`
+
+Prepare media and accept this incoming call.
+
+**Signature** `client.acceptCall(call: { generation: string; id: string; sessionId: string }, media?: { camera?: any; microphone?: any; onMediaFailure?: "end" \| "keep-open" \| null; speaker?: any } \| null): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.acceptCall({
+  call: {},
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/calls/acceptCall" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "call": {}
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {
+    "ok": true,
+    "status": "requested"
+  }
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="AcceptCallParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+
+Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `calls` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `call`, `media` |
+| Aliases | `calls.acceptCall` |
+| Deprecated aliases | - |
+| License | `restricted` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/calls/acceptCall` | `acceptCall` | Active |
+| Alias | `POST` | `/api/acceptCall` | `acceptCall` | Active |
+
+</details>
+
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="restricted">
+
+<span id="clearcallaudio---restricted" aria-hidden="true"></span>
+## `clearCallAudio`
+
+Discard queued outgoing audio.
+
+**Signature** `client.clearCallAudio(call: { generation: string; id: string; sessionId: string }): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.clearCallAudio({
+  call: {},
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/calls/clearCallAudio" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "call": {}
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {
+    "ok": true,
+    "status": "requested"
+  }
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="ClearCallAudioParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+
+Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `calls` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `call` |
+| Aliases | `calls.clearCallAudio` |
+| Deprecated aliases | - |
+| License | `restricted` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/calls/clearCallAudio` | `clearCallAudio` | Active |
+| Alias | `POST` | `/api/clearCallAudio` | `clearCallAudio` | Active |
+
+</details>
+
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="restricted">
+
+<span id="endcall---restricted" aria-hidden="true"></span>
+## `endCall`
+
+Request hangup for this call.
+
+**Signature** `client.endCall(call: { generation: string; id: string; sessionId: string }): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.endCall({
+  call: {},
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/calls/endCall" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "call": {}
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {
+    "ok": true,
+    "status": "requested"
+  }
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="EndCallParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+
+Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `calls` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `call` |
+| Aliases | `calls.endCall` |
+| Deprecated aliases | - |
+| License | `restricted` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/calls/endCall` | `endCall` | Active |
+| Alias | `POST` | `/api/endCall` | `endCall` | Active |
+
+</details>
+
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="restricted">
+
+<span id="getactivecall---restricted" aria-hidden="true"></span>
+## `getActiveCall`
+
+Get the current call snapshot. SDK clients hydrate its bound methods.
+
+**Signature** `client.getActiveCall(): Promise<{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: "incoming" \| "outgoing"; video: boolean; terminal: boolean; observedAt: number \| "NaN" \| "Infinity" \| "-Infinity"; media?: { state: "attached" \| "ended"; reason?: string \| null } \| null>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getActiveCall();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/calls/getActiveCall" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "example",
+    "sessionId": "example",
+    "generation": "example",
+    "peer": "example",
+    "state": "example",
+    "direction": "incoming",
+    "video": true,
+    "terminal": true,
+    "observedAt": 0
+  }
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+This method does not define input parameters.
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: "incoming" \| "outgoing"; video: boolean; terminal: boolean; observedAt: number \| "NaN" \| "Infinity" \| "-Infinity"; media?: { state: "attached" \| "ended"; reason?: string \| null } \| null>` |
+
+Resolves to `{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: "incoming" \| "outgoing"; video: boolean; terminal: boolean; observedAt: number \| "NaN" \| "Infinity" \| "-Infinity"; media?: { state: "attached" \| "ended"; reason?: string \| null } \| null`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `calls` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `calls.getActiveCall` |
+| Deprecated aliases | - |
+| License | `restricted` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/calls/getActiveCall` | `getActiveCall` | Active |
+| Alias | `POST` | `/api/getActiveCall` | `getActiveCall` | Active |
+
+</details>
+
+</LicensedMethodSection>
+
+
+## `getCallCapabilities`
+
+Optional calling availability for UI and diagnostics. Actions perform admission automatically.
+
+**Signature** `client.getCallCapabilities(): Promise<{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" } \| null }>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getCallCapabilities();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/calls/getCallCapabilities" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {
+    "control": true,
+    "audio": true,
+    "video": true
+  }
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+This method does not define input parameters.
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" } \| null }>` |
+
+Resolves to `{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" } \| null }`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `calls` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `calls.getCallCapabilities` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/calls/getCallCapabilities` | `getCallCapabilities` | Active |
+| Alias | `POST` | `/api/getCallCapabilities` | `getCallCapabilities` | Active |
+
+</details>
+
+<LicensedMethodSection tier="restricted">
+
+<span id="mutecall---restricted" aria-hidden="true"></span>
+## `muteCall`
+
+Mute or unmute the microphone without ending reception.
+
+**Signature** `client.muteCall(call: { generation: string; id: string; sessionId: string }, muted: boolean): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.muteCall({
+  call: {},
+  muted: true,
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/calls/muteCall" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "call": {},
+    "muted": true
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {
+    "ok": true,
+    "status": "requested"
+  }
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="MuteCallParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+
+Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `calls` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `call`, `muted` |
+| Aliases | `calls.muteCall` |
+| Deprecated aliases | - |
+| License | `restricted` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/calls/muteCall` | `muteCall` | Active |
+| Alias | `POST` | `/api/muteCall` | `muteCall` | Active |
+
+</details>
+
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="restricted">
+
+<span id="observecallaudio---restricted" aria-hidden="true"></span>
+## `observeCallAudio`
+
+Attach an isolated receive-only audio sink. Its failure does not interrupt the call owner.
+
+**Signature** `client.observeCallAudio(call: { generation: string; id: string; sessionId: string }, speaker?: unknown): Promise<{ ok: true; status: "requested"; observerId: string } \| { ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.observeCallAudio({
+  call: {},
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/calls/observeCallAudio" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "call": {}
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {
+    "ok": true,
+    "status": "requested",
+    "observerId": "example"
+  }
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="ObserveCallAudioParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<{ ok: true; status: "requested"; observerId: string } \| { ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+
+Resolves to `{ ok: true; status: "requested"; observerId: string } \| { ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `calls` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `call`, `speaker` |
+| Aliases | `calls.observeCallAudio` |
+| Deprecated aliases | - |
+| License | `restricted` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/calls/observeCallAudio` | `observeCallAudio` | Active |
+| Alias | `POST` | `/api/observeCallAudio` | `observeCallAudio` | Active |
+
+</details>
+
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="restricted">
+
+<span id="rejectcall---restricted" aria-hidden="true"></span>
+## `rejectCall`
+
+Reject this call with native state confirmation.
+
+**Signature** `client.rejectCall(call: { generation: string; id: string; sessionId: string }): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.rejectCall({
+  call: {},
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/calls/rejectCall" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "call": {}
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {
+    "ok": true,
+    "status": "requested"
+  }
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="RejectCallParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+
+Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `calls` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `call` |
+| Aliases | `calls.rejectCall` |
+| Deprecated aliases | - |
+| License | `restricted` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/calls/rejectCall` | `rejectCall` | Active |
+| Alias | `POST` | `/api/rejectCall` | `rejectCall` | Active |
+
+</details>
+
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="restricted">
+
+<span id="setcallmedia---restricted" aria-hidden="true"></span>
+## `setCallMedia`
+
+Prepare a replacement before releasing the working media.
+
+**Signature** `client.setCallMedia(call: { generation: string; id: string; sessionId: string }, media?: { camera?: any; microphone?: any; onMediaFailure?: "end" \| "keep-open" \| null; speaker?: any } \| null): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.setCallMedia({
+  call: {},
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/calls/setCallMedia" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "call": {}
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {
+    "ok": true,
+    "status": "requested"
+  }
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="SetCallMediaParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+
+Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `calls` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `call`, `media` |
+| Aliases | `calls.setCallMedia` |
+| Deprecated aliases | - |
+| License | `restricted` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/calls/setCallMedia` | `setCallMedia` | Active |
+| Alias | `POST` | `/api/setCallMedia` | `setCallMedia` | Active |
+
+</details>
+
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="restricted">
+
+<span id="startcall---restricted" aria-hidden="true"></span>
+## `startCall`
+
+Prepare media and place an outgoing audio or video call.
+
+**Signature** `client.startCall(to: string, microphone?: unknown \| null, speaker?: unknown \| null, camera?: unknown \| null): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.startCall({
+  to: "to",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/calls/startCall" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "to"
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {
+    "ok": true,
+    "status": "requested"
+  }
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="StartCallParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+
+Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `calls` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `microphone`, `speaker`, `camera` |
+| Aliases | `calls.startCall` |
+| Deprecated aliases | - |
+| License | `restricted` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/calls/startCall` | `startCall` | Active |
+| Alias | `POST` | `/api/startCall` | `startCall` | Active |
+
+</details>
+
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="restricted">
+
+<span id="stopcallaudioobserver---restricted" aria-hidden="true"></span>
+## `stopCallAudioObserver`
+
+Stop an audio observer and finalize its sink.
+
+**Signature** `client.stopCallAudioObserver(call: { generation: string; id: string; sessionId: string }, observerId: string): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.stopCallAudioObserver({
+  call: {},
+  observerId: "observerId",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/calls/stopCallAudioObserver" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "call": {},
+    "observerId": "observerId"
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {
+    "ok": true,
+    "status": "requested"
+  }
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="StopCallAudioObserverParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string>` |
+
+Resolves to `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "NaN" \| "Infinity" \| "-Infinity" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `calls` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `call`, `observerId` |
+| Aliases | `calls.stopCallAudioObserver` |
+| Deprecated aliases | - |
+| License | `restricted` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/calls/stopCallAudioObserver` | `stopCallAudioObserver` | Active |
+| Alias | `POST` | `/api/stopCallAudioObserver` | `stopCallAudioObserver` | Active |
+
+</details>
+
+</LicensedMethodSection>

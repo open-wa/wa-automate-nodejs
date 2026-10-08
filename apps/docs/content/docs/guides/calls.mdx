@@ -1,0 +1,163 @@
+---
+title: Calls
+description: Answer and start WhatsApp audio calls, play greetings, capture received audio, and use the Calls dashboard.
+---
+
+# Calls
+
+Calling is a licensed preview. The public API and dashboard are included in OpenWA; WhatsApp calling is enabled through your calling-enabled license. Use the latest package. This preview provides audio controls and media sources; camera calls and provider adapters are still in development.
+
+## Answer with a greeting and record the caller
+
+Install the main package, which includes its browser driver and audio decoder:
+
+```sh
+npm install @open-wa/wa-automate@latest
+```
+
+Create a client with your license key inline, then handle incoming calls:
+
+```ts
+import { create } from '@open-wa/wa-automate';
+
+const client = await create({ licenseKey: 'YOUR_CALLING_LICENSE' });
+
+await client.onIncomingCall(async call => {
+  await call.accept('greeting.pcm', 'received.pcm');
+});
+```
+
+The first argument supplies the microphone audio; the second receives the caller's audio. File paths resolve on the machine running this client. Encoded audio files are detected automatically. Raw `.pcm` defaults to signed 16-bit little-endian, 16 kHz, mono. Change the filenames to `.wav` to play a WAV greeting and save a WAV recording.
+
+OpenWA prepares the source and recording before answering. The greeting begins when the call becomes active, plays once, and then sends silence while the call stays open. Returning from your callback keeps the call media alive. When the peer hangs up, OpenWA stops the source, closes its resources and finishes the recording. Existing recordings are preserved by choosing a new filename.
+
+There is no capability-check step. Without an enabled license or supported browser, OpenWA logs the reason and calling actions return an unavailable result; your messaging session continues.
+
+## Use devices, URLs or streams
+
+Omit both arguments to use the browser running the WhatsApp session's microphone and speaker:
+
+```ts
+await client.onIncomingCall(call => call.accept());
+```
+
+Device access needs working browser permissions and devices. Use files or streams for a headless server without physical devices. `DEFAULT_MIC` and `DEFAULT_SPEAKER` are available when you want to spell out a default in a mixed-source call.
+
+```ts
+import { DEFAULT_SPEAKER } from '@open-wa/wa-automate';
+
+await client.onIncomingCall(async call => {
+  await call.accept('https://example.com/greeting.mp3', DEFAULT_SPEAKER);
+});
+```
+
+The Node runtime decodes supported HTTP audio and HLS URLs with the included decoder. HLS can introduce buffering latency, so a live audio stream is usually a better choice for a conversation.
+
+Application streams use the same positional API. `microphone` is a Web `ReadableStream<Uint8Array>` and `speaker` is a Web `WritableStream<Uint8Array>`:
+
+```ts
+await client.onIncomingCall(async call => {
+  await call.accept(microphone, speaker);
+});
+```
+
+Raw application input and received output use 16-bit little-endian PCM at 16 kHz mono. Encoded input is detected from its container header. OpenWA owns the stream readers and writers for the attachment and releases them when its call ends. Its Effect scopes and decoders are internal; applications don't need to set up Effect or attachment IDs.
+
+Pass `null` to disable a role:
+
+```ts
+await call.accept('greeting.wav', null); // Send a greeting without receiving audio.
+await call.accept(null, 'received.wav'); // Receive and record without sending audio.
+```
+
+For explicit raw formats, looping or authenticated URLs, use the options object:
+
+```ts
+await call.accept({
+  microphone: {
+    kind: 'file',
+    path: 'hold-music.pcm',
+    raw: { encoding: 'pcm16le', sampleRate: 48_000, channels: 2 },
+    loop: true,
+  },
+  speaker: { kind: 'file', path: 'received.wav' },
+});
+```
+
+A compatible `wss://` source or sink announces its format using the OpenWA audio protocol. Arbitrary provider sockets need a protocol adapter; a URL alone does not identify a proprietary wire format.
+
+## Start, reject or end a call
+
+```ts
+await client.startCall('RECIPIENT_NUMBER', 'greeting.wav', 'received.wav');
+
+await client.onIncomingCall(async call => {
+  await call.reject();
+});
+
+await client.onCallState(async call => {
+  console.log(call.direction, call.state);
+  if (call.terminal) console.log('Call ended; its media has closed.');
+});
+```
+
+Actions return `{ ok: true, status: 'requested' }` when the request was accepted. Watch `onCallState` for the observed call state. A requested or active state does not itself prove that a person heard your audio. OpenWA never automatically redials an uncertain request.
+
+Use the current `Call` object from a callback or `await client.getActiveCall()` for controls:
+
+```ts
+const call = await client.getActiveCall();
+if (call) {
+  await call.mute();
+  await call.unmute();
+  await call.clearAudio();
+  await call.setMedia({ microphone: 'next-prompt.wav', speaker: 'next-recording.wav' });
+  await call.end();
+}
+```
+
+`clearAudio()` clears outgoing audio; clearing a finite greeting stops that greeting. `setMedia()` prepares the new attachment before switching and then releases the old one. There is one media writer per call. Update sources from the client that owns the attachment.
+
+To add a separate receive-only recording, use an observer:
+
+```ts
+const observer = await call.observeAudio('audit.wav');
+if (observer.ok) await observer.stop();
+```
+
+Observers don't take over the microphone. They close automatically at call end; a slow or failed observer closes its own sink.
+
+## Connect from another process or a browser
+
+The remote helper opens files and streams on the caller's machine:
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://127.0.0.1:8080');
+await client.onIncomingCall(call => call.accept('greeting.wav', 'received.wav'));
+```
+
+The Node helper uses files, URLs and application streams. For physical devices, use the dashboard's browser. Browser clients use a `File`, `Blob`, HTTP audio URL or device as input, and their speaker or a `WritableStream` as output. Browser URLs must allow CORS access. The helper handles media admission and its connection automatically.
+
+An API on another machine uses its configured API authentication and an HTTPS/WSS deployment. Direct HTTP media descriptors resolve on the API host; they don't access the caller's filesystem. Reloading or disconnecting the helper releases its attachment. Reconnect explicitly and attach fresh sources using a current `Call` object.
+
+## Try the shipped Calls dashboard
+
+Start the Easy API with your license and dashboard enabled:
+
+```sh
+npx @open-wa/wa-automate@latest --license-key YOUR_CALLING_LICENSE --dashboard
+```
+
+Open `/dashboard/calls` on the API's address. Choose **Bundled OpenWA greeting**, select **Record received audio**, enter your controlled recipient and choose **Start audio call**. The speech starts after the peer answers. End the call from either side; the page shows the terminal state and offers **Download received audio**.
+
+For an incoming call, choose **Answer** or **Reject**. Choose **My microphone** for a conversation, **An audio file** for a local file, or **An HTTP audio URL** for a supported URL. The browser owns these local sources and asks for device permission when needed.
+
+## When media stops
+
+Expected license, stale-call and source failures return `{ ok: false, status, reason }` and log an actionable message. Authentication and unexpected programming failures remain ordinary API errors.
+
+A media failure ends the call by default. Advanced applications can set `onMediaFailure: 'keep-open'` and attach a replacement explicitly. Browser recovery and expired calling access close devices, sockets and recordings; `onCallState` can report `call.media.state === 'ended'` with a reason while the native call's state remains separate. Old Call objects cannot control a new browser generation.
+
+See the [generated calls reference](/docs/reference/client/calls) for the wire methods and exact parameter schemas.
