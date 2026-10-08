@@ -1,0 +1,9 @@
+{
+  "slug": "blueprint",
+  "name": "Exploded View",
+  "direction": "Technical drawing",
+  "tagline": "open-wa drawn as an engineered object: a WebGL exploded isometric of the runtime that separates, swaps its browser driver and annotates itself as you scroll, followed by a bill of materials, section views of the code, dimensioned numbers and a title-block footer.",
+  "logo": "A drafted isometric cube 'o' with redline hidden edges and an extruded isometric 'w'; on hover or focus a faint construction ghost appears and every stroke redraws in order, line by line.",
+  "brandFont": true,
+  "stack": ["Astro 7", "three.js 0.186 (EdgesGeometry + LineSegments2, hidden-line pass)", "GSAP 3.15 ScrollTrigger + DrawSVG", "Barlow Condensed", "Analog Mono Plus"]
+}

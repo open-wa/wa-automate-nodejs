@@ -1,0 +1,24 @@
+---
+// The drafted "ow" mark: an isometric cube (the o) with its hidden back edges
+// dashed in redline, and an extruded isometric w. Every stroke uses
+// pathLength=1 so CSS can redraw it line by line on hover and focus.
+interface Props { size?: number; class?: string }
+const { size = 40, class: cls = '' } = Astro.props;
+const h = (size * 32) / 50;
+---
+<svg class={`mark ${cls}`} viewBox="0 0 50 32" width={size} height={h} aria-hidden="true" focusable="false">
+  <g class="mk-con">
+    <path d="M12 6 20.66 11 20.66 21 12 26 3.34 21 3.34 11Z M12 16 3.34 11 M12 16 20.66 11 M12 16 12 26 M24 9 28.6 23 33 13 37.4 23 42 9" />
+  </g>
+  <g class="mk-hid">
+    <path d="M12 16 12 6 M12 16 3.34 21 M12 16 20.66 21" />
+  </g>
+  <g class="mk-ink">
+    <path style="--i:0" pathLength="1" d="M12 6 20.66 11 20.66 21 12 26 3.34 21 3.34 11Z" />
+    <path style="--i:1" pathLength="1" d="M3.34 11 12 16 20.66 11" />
+    <path style="--i:2" pathLength="1" d="M12 16 12 26" />
+    <path class="mk-back" style="--i:3" pathLength="1" d="M26.6 7.7 31.2 21.7 35.6 11.7 40 21.7 44.6 7.7" />
+    <path class="mk-tie" style="--i:4" pathLength="1" d="M24 9 26.6 7.7 M28.6 23 31.2 21.7 M33 13 35.6 11.7 M37.4 23 40 21.7 M42 9 44.6 7.7" />
+    <path style="--i:5" pathLength="1" d="M24 9 28.6 23 33 13 37.4 23 42 9" />
+  </g>
+</svg>

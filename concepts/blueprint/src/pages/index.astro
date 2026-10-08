@@ -1,0 +1,347 @@
+---
+import '@fontsource/barlow-condensed/500.css';
+import '@fontsource/barlow-condensed/600.css';
+import '@fontsource/barlow/400.css';
+import '@fontsource/barlow/500.css';
+import '../styles/site.css';
+import Mark from '../components/Mark.astro';
+import { isoSVG } from '../scene/iso-svg';
+import { highlight } from '../scene/highlight';
+import { CALLOUTS, DRIVERS } from '../scene/parts';
+
+const base = import.meta.env.BASE_URL;
+const L = {
+  quick: 'https://openwa.dev/docs/getting-started/quickstart',
+  docs: 'https://openwa.dev/docs',
+  ref: 'https://openwa.dev/docs/reference/client/client',
+  gh: 'https://github.com/open-wa/wa-automate-nodejs',
+  discord: 'https://discord.gg/dpan7EYE3t',
+  lic: 'https://openwa.dev/docs/licensing/licensed-features',
+};
+const npm = (p: string) => `https://www.npmjs.com/package/${p}`;
+
+const fontFace = `@font-face{font-family:"Analog Mono Plus";src:url("${base}fonts/AnalogMonoPlus.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}`;
+
+const heroAlt = 'Exploded drawing of the open-wa runtime: linked phone, WhatsApp Web session with swappable browser driver, core runtime with schemas, and five surfaces on top.';
+const heroSVGPhone = isoSVG({ prefix: 'hp', balloons: true, scale: 30, title: heroAlt });
+const heroSVG = isoSVG({ prefix: 'hx', labels: true, scale: 30, title: 'Exploded drawing of the open-wa runtime: linked phone, WhatsApp Web session with swappable browser driver, core runtime with schemas, and five surfaces on top.' });
+
+const installCmd = 'npx @open-wa/wa-automate@latest --port 8080';
+
+const sections = [
+  {
+    cut: 'A', title: 'Easy API (CLI)', item: 4, part: ['easy-api', 'easy-api-port'],
+    body: 'Start a local HTTP API from the command line. Live docs at /api-docs/, OpenAPI at /meta/swagger.json, Postman at /meta/postman.json.',
+    files: [
+      { name: 'terminal', lang: 'sh' as const, code: `npx @open-wa/wa-automate@latest --port 8080\nnpx @open-wa/wa-automate@latest --port 8080 --api-key "your-secure-key"\nnpx @open-wa/wa-automate@latest --session-id sales --port 8081\ndocker run -p 8080:8080 --init openwa/wa-automate` },
+      { name: 'send a message', lang: 'sh' as const, code: `curl -X POST http://localhost:8080/api/messages/sendText \\\n  -H "Content-Type: application/json" \\\n  -d '{"to": "447123456789@c.us", "content": "Your order is ready to collect!"}'` },
+    ],
+  },
+  {
+    cut: 'B', title: 'SocketClient', item: 5, part: ['socket'],
+    body: 'Connect another Node.js app to a running Easy API. HTTP RPC carries the commands; Server-Sent Events carry the events.',
+    files: [
+      { name: 'bot.ts', lang: 'ts' as const, code: `import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'your-secure-key');\nclient.onMessage(async (message) => {\n  if (message.body === 'Hi') await client.sendText(message.from, 'Hello!');\n});` },
+    ],
+  },
+  {
+    cut: 'C', title: 'Embedded runtime', item: 3, part: [], cutLayer: 2,
+    body: 'Run createClient inside your own Node.js app and pick the browser driver: Puppeteer, Playwright or Lightpanda.',
+    files: [
+      { name: 'app.ts', lang: 'ts' as const, code: `import { createClient } from '@open-wa/wa-automate';\nimport { PuppeteerDriver } from '@open-wa/driver-puppeteer';\n\nconst client = await createClient({ sessionId: 'sales', driver: new PuppeteerDriver(), headless: true });` },
+    ],
+  },
+  {
+    cut: 'D', title: 'MCP', item: 7, part: ['mcp'],
+    body: 'Turn on the built-in Model Context Protocol server at /mcp. Every Easy API method becomes a tool for Claude, Cursor or Windsurf.',
+    files: [
+      { name: 'wa.config.mjs', lang: 'ts' as const, code: `// wa.config.mjs: MCP\nexport default { apiKey: process.env.WA_API_KEY, port: 8080, mcp: { enabled: true, path: '/mcp' } };` },
+    ],
+  },
+].map((s) => ({
+  ...s,
+  svg: isoSVG({ prefix: `k${s.cut}`, scale: 9, highlight: s.part, cutLayer: s.cutLayer, title: `Key diagram: section ${s.cut}–${s.cut} cuts through item ${s.item}, ${s.title}` }),
+  files: s.files.map((f) => ({ ...f, html: highlight(f.code, f.lang) })),
+}));
+
+const bom = [
+  { item: 1, part: null, partLabel: 'Customer-supplied', desc: 'Linked phone: your WhatsApp account', qty: '1', note: 'QR code or link code, once per named session' },
+  { item: 2, part: '@open-wa/driver-puppeteer', desc: 'Puppeteer driver implementation', qty: '1 of 3', note: 'Drivers are interchangeable' },
+  { item: 2, part: '@open-wa/driver-playwright', desc: 'Playwright driver implementation', qty: '1 of 3', note: '' },
+  { item: 2, part: '@open-wa/driver-lightpanda', desc: 'Lightpanda browser driver', qty: '1 of 3', note: '' },
+  { item: 3, part: '@open-wa/core', desc: 'Core orchestration backbone', qty: '1', note: '' },
+  { item: 3, part: '@open-wa/schema', desc: 'Zod-based schema definitions', qty: '1', note: '' },
+  { item: 4, part: '@open-wa/wa-automate', desc: 'WhatsApp automation CLI and API server', qty: '1', note: 'Easy API and createClient' },
+  { item: 5, part: '@open-wa/socket-client', desc: 'Connect to a running Easy API', qty: 'A/R', note: 'HTTP RPC + SSE' },
+  { item: 6, part: '@open-wa/plugin-sdk', desc: 'Types, helpers and createPlugin()', qty: 'A/R', note: 'Write your own plugins' },
+  { item: 7, part: '@open-wa/mcp', desc: 'MCP server integration', qty: '1', note: 'Served at /mcp' },
+  { item: 8, part: null, partLabel: 'Integration', desc: 'Cloudflare session proxy', qty: 'A/R', note: 'No public ports opened' },
+];
+const integrations = ['Webhook', 'Chatwoot', 'S3', 'Cloudflare session proxy', 'Node-RED'];
+const years = [2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="preload" href={`${base}fonts/AnalogMonoPlus.woff2`} as="font" type="font/woff2" crossorigin />
+    <title>open-wa: WhatsApp automation, drawn to spec</title>
+    <meta name="description" content="open-wa turns a WhatsApp account into an API, bot runtime, webhook bridge and AI tool surface, on your own infrastructure." />
+    <meta name="theme-color" content="#ebe7de" />
+    <style set:html={fontFace}></style>
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        d.classList.add('js');
+        var rm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var gl = false;
+        try { var c = document.createElement('canvas'); gl = !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) {}
+        if (!rm && gl) d.classList.add('gl-pending'); else d.classList.add('is-static');
+        if (rm) d.classList.add('rm');
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="bar">
+      <a class="logo" href="#top" aria-label="open-wa, back to top">
+        <Mark size={46} />
+        <span class="word">open<span>-</span>wa</span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#parts">Parts</a>
+        <a href="#sections">Sections</a>
+        <a href="#dims">Dimensions</a>
+        <a href="#notes">Notes</a>
+        <a href={L.gh}>GitHub</a>
+      </nav>
+      <a class="btn btn-ink bar-cta" href={L.quick}><span class="long">Send your first message</span><span class="short">Quickstart</span></a>
+    </header>
+
+    <main id="main">
+      <span id="top"></span>
+      <section id="drawing" class="hero" aria-labelledby="hero-title">
+        <div class="stage">
+          <figure class="static-fig">
+            <div class="sf-desk"><Fragment set:html={heroSVG} /></div>
+            <div class="sf-phone"><Fragment set:html={heroSVGPhone} /></div>
+          </figure>
+          <svg class="overlay" aria-hidden="true"></svg>
+          <div class="tags" aria-hidden="true">
+            {DRIVERS.map((d) => <span class="drv-tag" data-id={d.id}>{d.label}</span>)}
+          </div>
+          <ol class="callouts" aria-label="Parts of the runtime">
+            {CALLOUTS.map((c) => (
+              <li class="callout" data-id={c.id} data-side={c.side}>
+                <span class="balloon" aria-hidden="true">{c.n}</span>
+                <div>
+                  <h3>{c.title}</h3>
+                  <p>{c.note}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <div class="title-copy">
+          <p class="eyebrow"><span class="red">DWG OW-001</span> · open-wa v5 · Node.js toolkit</p>
+          <h1 id="hero-title"><span>Turn a WhatsApp</span> <span>account into an API.</span></h1>
+          <p class="lede">An API, bot runtime, webhook bridge and AI tool surface. WhatsApp automation on your own infrastructure.</p>
+          <div class="ctas">
+            <a class="btn btn-red" href={L.quick}>Send your first message <span aria-hidden="true">→</span></a>
+            <a class="btn btn-line" href={L.docs}>Read the docs</a>
+          </div>
+          <div class="install">
+            <code>{installCmd}</code>
+            <button class="copy" type="button" data-copy={installCmd}>Copy</button>
+          </div>
+        </div>
+
+        <div class="sheet-meta" aria-hidden="true">
+          <span>DWG OW-001</span><span>RUNTIME, EXPLODED</span><span>SCALE NTS</span><span>DETAIL <b data-counter>00</b>/08</span>
+        </div>
+        <div class="detail" aria-hidden="true"></div>
+        <p class="scroll-hint" aria-hidden="true"><span>Scroll to explode</span> <i></i></p>
+      </section>
+
+      <section id="parts" class="sheet" aria-labelledby="parts-title">
+        <header class="sheet-head">
+          <p class="sheet-no">Sheet 02</p>
+          <h2 id="parts-title">Bill of materials</h2>
+          <p class="sheet-sub">The real npm packages, keyed to the balloons on the drawing. Install what your build needs.</p>
+        </header>
+        <div class="bom" role="table" aria-label="Bill of materials">
+          <div class="bom-row bom-h" role="row">
+            <span role="columnheader">Item</span><span role="columnheader">Part no.</span><span role="columnheader">Description</span><span role="columnheader">Qty</span><span role="columnheader">Note</span>
+          </div>
+          {bom.map((r) => (
+            <div class="bom-row" role="row" data-rule>
+              <span role="cell" class="b-item"><span class="balloon">{r.item}</span></span>
+              <span role="cell" class="b-part">{r.part ? <a href={npm(r.part)}>{r.part}</a> : <em>{r.partLabel}</em>}</span>
+              <span role="cell" class="b-desc">{r.desc}</span>
+              <span role="cell" class="b-qty">{r.qty}</span>
+              <span role="cell" class="b-note">{r.note}</span>
+            </div>
+          ))}
+        </div>
+        <div class="std">
+          <p class="std-k"><b>5×</b> Standard parts: integrations</p>
+          <ul>{integrations.map((i) => <li>{i}</li>)}</ul>
+        </div>
+      </section>
+
+      <section id="sections" class="sheet" aria-labelledby="sections-title">
+        <header class="sheet-head">
+          <p class="sheet-no">Sheet 03</p>
+          <h2 id="sections-title">Section views: four ways in</h2>
+          <p class="sheet-sub">Cut the drawing through any surface and you find the code that drives it.</p>
+        </header>
+        <div class="cuts">
+          {sections.map((s) => (
+            <article class="cutview" aria-labelledby={`cut-${s.cut}`}>
+              <div class="cut-key">
+                <div class="cut-label" aria-hidden="true">
+                  <svg viewBox="0 0 120 40" class="cut-arrows"><path data-draw d="M8 30 V10 H24" /><path data-draw d="M112 30 V10 H96" /><path class="ah" d="M24 6 L32 10 L24 14Z" /><path class="ah" d="M96 6 L88 10 L96 14Z" /><line class="cp" x1="36" y1="10" x2="84" y2="10" /></svg>
+                  <span>{s.cut}</span><span>{s.cut}</span>
+                </div>
+                <Fragment set:html={s.svg} />
+                <p class="cut-cap">Section {s.cut}–{s.cut} · through item {s.item}</p>
+              </div>
+              <div class="cut-body">
+                <h3 id={`cut-${s.cut}`}><span class="red">{s.cut}–{s.cut}</span> {s.title}</h3>
+                <p>{s.body}</p>
+                {s.files.map((f) => (
+                  <div class="code">
+                    <div class="code-tab"><span>{f.name}</span><button class="copy" type="button" data-copy={f.code}>Copy</button></div>
+                    <pre tabindex="0"><code set:html={f.html} /></pre>
+                  </div>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="dims" class="sheet" aria-labelledby="dims-title">
+        <header class="sheet-head">
+          <p class="sheet-no">Sheet 04</p>
+          <h2 id="dims-title">Dimensions and tolerances</h2>
+          <p class="sheet-sub">The numbers, measured as of 8 Oct 2026. Lengths are drawn to scale.</p>
+        </header>
+
+        <div class="dims">
+          <div class="dim-block">
+            <p class="dim-k">Community, to scale</p>
+            <div class="dim" style="--w:1" data-dim>
+              <span class="dim-line"></span><i class="ah ah-l"></i><i class="ah ah-r"></i>
+              <span class="dim-val"><b>3,666</b> GitHub stars</span>
+            </div>
+            <div class="dim dim-sm" style="--w:0.1972" data-dim>
+              <span class="dim-line"></span><i class="ah ah-l"></i><i class="ah ah-r"></i>
+              <span class="dim-val"><b>723</b> forks</span>
+            </div>
+            <p class="dim-note">Scale 1 : 1 star. Both lines share it.</p>
+          </div>
+
+          <div class="dim-block">
+            <p class="dim-k">Service life</p>
+            <div class="ruler" data-dim>
+              {years.map((y) => <span class="tick"><i></i><em>{y}</em></span>)}
+            </div>
+            <div class="dim dim-years" style="--w:0.899;margin-left:7.3%" data-dim>
+              <span class="dim-line"></span><i class="ah ah-l"></i><i class="ah ah-r"></i>
+              <span class="dim-val"><b>7 yrs</b> open source · Aug 2019 → Oct 2026</span>
+            </div>
+          </div>
+
+          <div class="dim-grid">
+            <div class="fcf" role="group" aria-label="Requires Node.js 22.21.1 or newer">
+              <span class="fcf-sym" aria-hidden="true">⌀</span>
+              <span class="fcf-k">Node.js</span>
+              <span class="fcf-v">22.21.1<sup>+∞</sup><sub>−0</sub></span>
+            </div>
+            <div class="fcf" role="group" aria-label="Current stable release line v5.0.0">
+              <span class="fcf-sym" aria-hidden="true">△</span>
+              <span class="fcf-k">Rev</span>
+              <span class="fcf-v">5.0.0 <small>stable line</small></span>
+            </div>
+            <div class="qty">
+              <p><b>3×</b> browser driver</p>
+              <p class="qty-l">Puppeteer · Playwright · Lightpanda</p>
+            </div>
+            <div class="qty">
+              <p><b>5×</b> integration</p>
+              <p class="qty-l">Webhook · Chatwoot · S3 · Cloudflare session proxy · Node-RED</p>
+            </div>
+            <div class="qty">
+              <p><b>1×</b> MCP server</p>
+              <p class="qty-l">Built in, at <code>/mcp</code></p>
+            </div>
+            <div class="qty">
+              <p><b>[monthly npm downloads]</b></p>
+              <p class="qty-l">Placeholder, to be measured</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="notes" class="sheet" aria-labelledby="notes-title">
+        <header class="sheet-head">
+          <p class="sheet-no">Sheet 05</p>
+          <h2 id="notes-title">General notes</h2>
+        </header>
+        <div class="notes-wrap">
+          <ol class="notes">
+            <li><span>Log in by QR code or link code, once per named session.</span></li>
+            <li><span>Runs on your own machine or server. Requires Node.js 22.21.1 or newer.</span></li>
+            <li><span>Some methods need a Restricted or Insiders license. See <a href={L.lic}>licensed features</a>.</span></li>
+            <li><span>Automation is not risk-free. Read the docs before you ship.</span></li>
+            <li><span>open-wa is unofficial and not affiliated with WhatsApp or Meta.</span></li>
+          </ol>
+          <div class="release">
+            <p class="stamp" aria-hidden="true">Released for build</p>
+            <p class="release-k">Connect WhatsApp to your application.</p>
+            <a class="btn btn-red btn-xl" href={L.quick}>Send your first message <span aria-hidden="true">→</span></a>
+            <ul class="links">
+              <li><a href={L.docs}>Docs</a></li>
+              <li><a href={L.ref}>Client API reference</a></li>
+              <li><a href={L.gh}>GitHub</a></li>
+              <li><a href={L.discord}>Discord</a></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="titleblock" aria-label="Title block">
+      <div class="tb">
+        <div class="tb-cell tb-logo">
+          <a class="logo" href="#top" aria-label="open-wa, back to top"><Mark size={64} /><span class="word">open<span>-</span>wa</span></a>
+        </div>
+        <div class="tb-cell tb-title"><span class="k">Title</span><span class="v">WhatsApp automation on your own infrastructure</span></div>
+        <div class="tb-cell"><span class="k">Dwg no.</span><span class="v">OW-001</span></div>
+        <div class="tb-cell"><span class="k">Rev</span><span class="v">5.0.0</span></div>
+        <div class="tb-cell"><span class="k">Part</span><span class="v mono">@open-wa/wa-automate</span></div>
+        <div class="tb-cell"><span class="k">Date</span><span class="v">08 Oct 2026</span></div>
+        <div class="tb-cell"><span class="k">Scale</span><span class="v">NTS</span></div>
+        <div class="tb-cell"><span class="k">Sheet</span><span class="v">1 of 1</span></div>
+        <div class="tb-cell"><span class="k">Drawn</span><span class="v">open-wa contributors</span></div>
+        <div class="tb-cell"><span class="k">Approved</span><span class="v">[your name]</span></div>
+        <div class="tb-cell tb-proj" aria-label="Third-angle projection">
+          <svg viewBox="0 0 64 28" aria-hidden="true"><path d="M4 8 L22 4 V24 L4 20Z" /><line x1="1" y1="14" x2="25" y2="14" class="cl" /><circle cx="44" cy="14" r="10" /><circle cx="44" cy="14" r="4" /><line x1="31" y1="14" x2="57" y2="14" class="cl" /></svg>
+          <span class="k">3rd angle</span>
+        </div>
+        <div class="tb-cell tb-disc"><span class="k">Notice</span><span class="v">open-wa is unofficial and not affiliated with WhatsApp or Meta.</span></div>
+        <nav class="tb-cell tb-links" aria-label="Footer">
+          <a href={L.docs}>Docs</a><a href={L.ref}>API reference</a><a href={L.gh}>GitHub</a><a href={L.discord}>Discord</a><a href={L.lic}>Licensing</a>
+        </nav>
+      </div>
+    </footer>
+
+    <script>
+      import '../scripts/page';
+    </script>
+  </body>
+</html>
