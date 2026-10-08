@@ -6,8 +6,9 @@ Remotion 4.0.534 at 1080 × 1350, 30 fps. The MP4 includes original, procedurall
 synthesized ambient sound design. The GIF is silent and loops.
 
 The opening explains OpenWA: it turns WhatsApp into an API for apps, bots and
-integrations. The closing card uses the repository's `open-wa` wordmark and
-canonical `https://openwa.dev` URL. It shows the exact command below, followed
+integrations. The repository's `open-wa` wordmark and canonical
+`https://openwa.dev` URL stay visible at the top throughout the film and poster.
+The closing card repeats the URL and shows the exact command below, followed
 by QR pairing through WhatsApp's Linked devices and the local `/dashboard/`.
 The complete card settles by 22 seconds and stays visible through 32 seconds.
 The poster uses this same onboarding card.
@@ -54,8 +55,8 @@ once. This is browser RSS, not private memory or a guaranteed server-capacity
 improvement. First result means the first checked DOM extraction from process
 launch; it is not WhatsApp login time.
 
-The artwork retains a persistent readable benchmark footer, marks the driver
-as an experimental preview, and ends with “Authenticated WhatsApp performance
+The artwork retains a persistent readable benchmark footer, identifies the
+upcoming experimental support in the intro, and ends with “Authenticated WhatsApp performance
 not measured.” Reload recovery is explicitly still in progress. These measurements describe the successful controlled DOM
 workload. The WhatsApp QR experiment needed a separately prepared binary and
 experimental worker / crypto bridges; it does not establish these gains for
