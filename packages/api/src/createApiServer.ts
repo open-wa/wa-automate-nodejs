@@ -243,6 +243,7 @@ export class ApiServer {
     const server = this.server;
     this.server = undefined;
     await this.screencastManager.destroy();
+    this.eventBroadcaster.close();
     if (server?.listening) {
       await new Promise<void>((resolve, reject) => {
         server.close((error) => (error ? reject(error) : resolve()));
