@@ -1,0 +1,9 @@
+{
+  "slug": "editorial",
+  "name": "The Feature",
+  "direction": "Editorial",
+  "tagline": "A long-read magazine feature in seven chapters on seven years of open-source WhatsApp automation, for developers deciding how to wire WhatsApp into their own stack.",
+  "logo": "An 'ow' Didone monogram plus a Bodoni wordmark that re-sets itself letter by letter from roman into ultramarine italic on hover or focus, while the w slides in to form a ligature with the o.",
+  "brandFont": false,
+  "stack": ["Astro 7", "GSAP 3.15 (SplitText, ScrollTrigger)", "Bodoni Moda", "Newsreader", "Fragment Mono"]
+}
