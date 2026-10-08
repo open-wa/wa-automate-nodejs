@@ -552,6 +552,7 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
 
     const openwaClient = await createClient({
         sessionId: config.sessionId,
+        eventMode: config.eventMode,
         driver,
         deleteSessionDataOnLogout: config.deleteSessionDataOnLogout,
         killClientOnLogout: config.killClientOnLogout,

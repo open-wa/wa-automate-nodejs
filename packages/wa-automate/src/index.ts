@@ -7,9 +7,11 @@ export { createConsoleOutputSink, getCliOutputSink, resetCliOutputSink, setCliOu
 export type { CliOutputEntry, CliOutputLevel, CliOutputSink, CliQrPayload, CliStatusUpdate } from './cli/output-sink';
 export { ConfigSchema } from '@open-wa/config';
 export type { Config } from '@open-wa/config';
+export { SimpleListener, MessageAck } from '@open-wa/schema';
 export { createApiServer, createApiMiddleware } from '@open-wa/api';
 export * from '@open-wa/client';
 export { createClient } from '@open-wa/core';
+export { ev, onGlobalEvent } from '@open-wa/core';
 export type { CreateClientOptions, OpenWAClient, PortableSessionStatus } from '@open-wa/core';
 export { create } from './runtime-client';
 export type { CreateOptions } from './runtime-client';

@@ -176,6 +176,8 @@ export interface OpenWAEventMap {
   'message.deleted': { ctx: EventContext; messageId: string; chatId: string; by?: string };
 
   'ack.changed': { ctx: EventContext; ack: Ack };
+  /** Encrypted compact session JSON, emitted after durable storage accepts it. */
+  'session.data': { ctx: EventContext; data: string };
 
   'group.addedToGroup': { ctx: EventContext; groupId: string; by?: string };
   'group.removedFromGroup': { ctx: EventContext; groupId: string; by?: string };
@@ -354,6 +356,7 @@ export const OpenWAEventMetaMap: Record<keyof OpenWAEventMap, OpenWAEventMeta> =
   'interactive.response': { internal: false, sensitive: true },
   'message.deleted': { internal: false, sensitive: false },
   'ack.changed': { internal: false, sensitive: false },
+  'session.data': { internal: true, sensitive: true },
   'group.addedToGroup': { internal: false, sensitive: false },
   'group.removedFromGroup': { internal: false, sensitive: false },
   'group.participants.changed.global': { internal: false, sensitive: false },

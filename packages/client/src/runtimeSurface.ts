@@ -79,6 +79,7 @@ export const clientRuntimeMethodSurface = {
     reason: 'shipped wapi.js does not define window.WAPI.getGroupInfo',
   },
   getGroupMembers: { support: 'runtime', runtimeMethod: 'getGroupParticipantIDs' },
+  getGroupMembersId: { support: 'runtime', runtimeMethod: 'getGroupParticipantIDs' },
   getGroupInviteLink: { support: 'runtime', runtimeMethod: 'getGroupInviteLink' },
   revokeGroupInviteLink: { support: 'runtime', runtimeMethod: 'revokeGroupInviteLink' },
   joinGroupViaLink: { support: 'runtime', runtimeMethod: 'joinGroupViaLink' },

@@ -3,6 +3,7 @@ import type {
   ChatId,
   GroupId,
   ContactId,
+  Contact,
   GroupMetadata,
   Chat,
   DataURL,
@@ -20,6 +21,7 @@ declare const WAPI: {
   setGroupIcon: (groupId: string, imgData: string) => Promise<boolean>;
   getGroupInfo: (groupId: string) => Promise<GroupMetadata>;
   getGroupParticipantIDs: (groupId: string) => Promise<string[]>;
+  getContact: (contactId: string) => Contact | null | Promise<Contact | null>;
   getGroupInviteLink: (groupId: string) => Promise<string>;
   revokeGroupInviteLink: (groupId: string) => Promise<string | boolean>;
   joinGroupViaLink: (link: string, returnChatObj?: boolean) => Promise<string | boolean | number | Chat>;
@@ -36,7 +38,8 @@ export interface GroupMethods {
   setGroupDescription(groupId: GroupId, description: string): Promise<boolean>;
   setGroupIcon(groupId: GroupId, image: DataURL): Promise<boolean>;
   getGroupInfo(groupId: GroupId): Promise<GroupMetadata | null>;
-  getGroupMembers(groupId: GroupId): Promise<ContactId[]>;
+  getGroupMembers(groupId: GroupId): Promise<Contact[]>;
+  getGroupMembersId(groupId: GroupId): Promise<ContactId[]>;
   getGroupInviteLink(groupId: GroupId): Promise<string>;
   revokeGroupInviteLink(groupId: GroupId): Promise<string | boolean>;
   joinGroupViaLink(inviteLink: string): Promise<GroupId | boolean | number>;
@@ -108,7 +111,21 @@ export function groupMethods(client: Client): GroupMethods {
       return unsupportedGetGroupInfo(groupId);
     },
     
-    async getGroupMembers(groupId: GroupId): Promise<ContactId[]> {
+    async getGroupMembers(groupId: GroupId): Promise<Contact[]> {
+      // Resolve in the browser so a group needs one transport round trip,
+      // rather than a separate evaluate call for every participant.
+      return evaluate(async ({ groupId }) => {
+        const ids = await WAPI.getGroupParticipantIDs(groupId);
+        if (!Array.isArray(ids)) throw new Error(`Could not load members of group ${groupId}`);
+        return Promise.all(ids.map(async (id) => {
+          const contact = await WAPI.getContact(id);
+          if (!contact) throw new Error(`Could not load contact ${id} in group ${groupId}`);
+          return contact;
+        }));
+      }, { groupId });
+    },
+
+    async getGroupMembersId(groupId: GroupId): Promise<ContactId[]> {
       return evaluate(
         ({ groupId }) => WAPI.getGroupParticipantIDs(groupId),
         { groupId }

@@ -480,7 +480,26 @@ export class Transport {
     this.licenseConfig = options.licenseConfig ?? {};
     this.injectionController = new InjectionController(this.logger);
     this.portable = new PortableSessionController({
-      acquire: sessionId => acquireSessionPersistence({ ...options, sessionId }),
+      acquire: async sessionId => {
+        const lease = await acquireSessionPersistence({ ...options, sessionId });
+        return {
+          read: () => lease.read(),
+          remove: () => lease.remove(),
+          release: () => lease.release(),
+          write: async (data: string) => {
+            await lease.write(data);
+            // A notification must not turn an accepted durable commit into a
+            // failed commit or expose plaintext session encryption keys.
+            try {
+              this.events.emit('session.data', {
+                ctx: { correlationId: 'portable-session-saved', ts: Date.now() }, data,
+              });
+            } catch (error) {
+              this.logger.error('session_data_listener_error', { error });
+            }
+          },
+        };
+      },
     }, options.sessionId ?? 'session', options);
   }
 

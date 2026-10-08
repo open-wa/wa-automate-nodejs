@@ -335,9 +335,9 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   /**
    * Listen for message acknowledgements (sent, delivered, read).
    */
-  onAck(callback: (ack: { messageId: MessageId; ack: number }) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
+  onAck(callback: (message: Message) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
     return this._listenerManager.on('ack', async (payload) => {
-      await callback({ messageId: payload.id, ack: payload.ack });
+      await callback(payload);
     }, options);
   }
   
@@ -512,6 +512,7 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   declare setGroupIcon: GroupMethods['setGroupIcon'];
   declare getGroupInfo: GroupMethods['getGroupInfo'];
   declare getGroupMembers: GroupMethods['getGroupMembers'];
+  declare getGroupMembersId: GroupMethods['getGroupMembersId'];
   declare getGroupInviteLink: GroupMethods['getGroupInviteLink'];
   declare revokeGroupInviteLink: GroupMethods['revokeGroupInviteLink'];
   declare joinGroupViaLink: GroupMethods['joinGroupViaLink'];

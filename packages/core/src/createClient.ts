@@ -3,6 +3,7 @@ import { createLogger, Logger } from '@open-wa/logger';
 import type { IDriver, LightpandaOptions, BrowserProvisionOptions } from '@open-wa/driver-interface';
 import { requireCapability, type CapabilitySubject } from '@open-wa/driver-interface';
 import { OpenWAEventMap, STATE } from './events/eventMap';
+import { attachGlobalEvents } from './events/globalEvents';
 import { PluginHost, loadPlugins } from './plugins/index';
 import type { Plugin, PluginClient } from '@open-wa/plugin-sdk';
 import {
@@ -37,6 +38,8 @@ import type { SessionEncryptionOptions } from './transport/sessionEncryption';
 
 export interface CreateClientOptions extends SessionPersistenceConfig, SessionEncryptionOptions {
   driver: IDriver;
+  /** Forward supported SimpleListener events to the shared ev helper. Default: true. */
+  eventMode?: boolean;
   deleteSessionDataOnLogout?: boolean;
   killClientOnLogout?: boolean;
 
@@ -276,6 +279,12 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
   const resourceScope = await SessionScope.make({
     observability,
     metricAttributes: { session: sessionId },
+  });
+  const detachGlobalEvents = attachGlobalEvents(events, sessionId, options.eventMode ?? true,
+    error => logger.error('global_event_error', { error }));
+  // Registered first, so Effect closes the bridge after the owned resources.
+  await resourceScope.addFinalizer('global-events.detach', () => {
+    try { events.emit('core.stopped', {}); } finally { detachGlobalEvents(); }
   });
   await resourceScope.addFinalizer('transport.close', () => transport.close());
   await resourceScope.addFinalizer('plugins.dispose', () => pluginHost.dispose());
@@ -1188,8 +1197,6 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         ? reason as SessionFinalizerReason
         : 'normal-stop';
       await resourceScope.close(finalizerReason);
-
-      events.emit('core.stopped', {});
 
       logger.info('client_stopped', { sessionId, reason });
     },
