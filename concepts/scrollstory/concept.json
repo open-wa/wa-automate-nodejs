@@ -1,0 +1,9 @@
+{
+  "slug": "scrollstory",
+  "name": "One Message",
+  "direction": "Scroll story",
+  "tagline": "A short film you drive with the scroll wheel: one WhatsApp message travels from a line of code, through open-wa on your own machine, to a phone in the dark, and the reply comes home as an event.",
+  "logo": "A speech-bubble ring around a single ember (the message); on hover or focus the ember ignites and the ring pings outward twice like an incoming notification.",
+  "brandFont": false,
+  "stack": ["Astro 7", "GSAP 3.15 (ScrollTrigger, SplitText)", "Lenis 1.3", "Canvas 2D dust motes", "Bodoni Moda", "Instrument Sans", "IBM Plex Mono"]
+}

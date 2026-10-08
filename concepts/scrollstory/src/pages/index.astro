@@ -1,0 +1,417 @@
+---
+import '@fontsource-variable/bodoni-moda/opsz.css';
+import '@fontsource-variable/bodoni-moda/opsz-italic.css';
+import '@fontsource-variable/instrument-sans/wght.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '../styles/story.css';
+
+const base = import.meta.env.BASE_URL;
+
+const LINKS = {
+  quickstart: 'https://openwa.dev/docs/getting-started/quickstart',
+  docs: 'https://openwa.dev/docs',
+  reference: 'https://openwa.dev/docs/reference/client/client',
+  github: 'https://github.com/open-wa/wa-automate-nodejs',
+  discord: 'https://discord.gg/dpan7EYE3t',
+  licensed: 'https://openwa.dev/docs/licensing/licensed-features',
+};
+
+// Code tokens: [text, class]. Typed lines are split into per-character spans.
+type Tok = [string, string?];
+const codeStatic: Tok[][] = [
+  [['import', 'kw'], [' { SocketClient }', ''], ['\n ', 'ph-break'], [' ', ''], ['from', 'kw'], [' ', ''], ["'@open-wa/socket-client'", 'str'], [';', 'pn']],
+  [['const', 'kw'], [' client = ', ''], ['await', 'kw'], [' SocketClient.', ''], ['connect', 'fn'], ['(', 'pn']],
+  [['  ', ''], ["'http://localhost:8080'", 'str'], [', ', 'pn'], ["'your-secure-key'", 'str']],
+  [[');', 'pn']],
+];
+const codeTyped: Tok[][] = [
+  [['await', 'kw'], [' client.', ''], ['sendText', 'fn'], ['(', 'pn']],
+  [['  ', ''], ["'447123456789@c.us'", 'str'], [',', 'pn']],
+  [['  ', ''], ["'Your order is ready to collect!'", 'str msg'], ['', 'anchor']],
+  [[');', 'pn']],
+];
+const chars = (s: string) => [...s];
+
+// A decorative, non-decoding QR-like grid (finder patterns + seeded noise).
+const N = 25;
+let seed = 20190801;
+const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+const finder = (x: number, y: number, ox: number, oy: number) => {
+  const dx = x - ox, dy = y - oy;
+  if (dx < 0 || dy < 0 || dx > 6 || dy > 6) return null;
+  const edge = dx === 0 || dy === 0 || dx === 6 || dy === 6;
+  const core = dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4;
+  return edge || core;
+};
+const modules: { x: number; y: number; f: boolean }[] = [];
+for (let y = 0; y < N; y++) {
+  for (let x = 0; x < N; x++) {
+    const f = finder(x, y, 0, 0) ?? finder(x, y, N - 7, 0) ?? finder(x, y, 0, N - 7);
+    const inFinderZone = (x < 8 && y < 8) || (x > N - 9 && y < 8) || (x < 8 && y > N - 9);
+    if (f === true) modules.push({ x, y, f: true });
+    else if (f === null && !inFinderZone && rnd() > 0.52) modules.push({ x, y, f: false });
+  }
+}
+
+const scenes = [
+  { id: 'open', no: '00', label: 'Title' },
+  { id: 'scene-1', no: '01', label: 'Your server' },
+  { id: 'scene-2', no: '02', label: 'Your machine' },
+  { id: 'scene-3', no: '03', label: 'The session' },
+  { id: 'scene-4', no: '04', label: 'The phone' },
+  { id: 'scene-5', no: '05', label: 'The reply' },
+  { id: 'finale', no: '06', label: 'Your turn' },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#05070b" />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <title>One Message · open-wa</title>
+    <meta name="description" content="A short film about one WhatsApp message: from a line of code, through open-wa on your own machine, to a phone in the dark, and back as an event." />
+    <script is:inline>
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#finale">Skip the film</a>
+
+    <div class="grade" aria-hidden="true">
+      <canvas class="motes"></canvas>
+      <div class="vignette"></div>
+      <div class="grain"></div>
+    </div>
+
+    <header class="bar">
+      <a class="logo" href="#top" aria-label="open-wa, back to the title">
+        <span class="logo__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="30" height="30">
+            <circle class="logo__ping" cx="16" cy="16" r="11" />
+            <circle class="logo__ping logo__ping--2" cx="16" cy="16" r="11" />
+            <circle class="logo__halo" cx="16" cy="16" r="8" />
+            <path class="logo__ring" d="M12.24 26.34A11 11 0 1 0 8.22 23.78L5.6 28.2Z" />
+            <circle class="logo__dot" cx="16" cy="16" r="3.8" />
+          </svg>
+        </span>
+        <span class="logo__word">open<span class="logo__dash">-</span>wa</span>
+      </a>
+      <nav class="bar__nav" aria-label="Site">
+        <a href={LINKS.docs}>Docs</a>
+        <a href={LINKS.github}>GitHub</a>
+        <a class="btn btn--ember btn--sm" href={LINKS.quickstart}>Send your first message</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <!-- TITLE CARD -->
+      <section class="scene scene--open" id="open" data-scene="0" aria-labelledby="title">
+        <div class="frame">
+          <div class="stage">
+            <div class="bars" aria-hidden="true"><span class="bars__top"></span><span class="bars__bot"></span></div>
+            <div class="open__key" aria-hidden="true"></div>
+            <div class="open__copy">
+              <p class="open__presents">open-wa presents</p>
+              <h1 class="open__title" id="title"><span class="open__word">One</span> <span class="nw"><span class="open__word">Message</span><span class="stop stop--title" aria-hidden="true"></span></span></h1>
+              <p class="open__sub">A short film about WhatsApp automation on your own infrastructure. Directed by your scroll wheel.</p>
+            </div>
+            <p class="open__cue" aria-hidden="true"><span>Scroll to roll film</span><i></i></p>
+          </div>
+        </div>
+      </section>
+
+      <div class="line" data-tint="warm">
+        <p class="line__text">Every message starts as one line of code<span class="stop" aria-hidden="true"></span></p>
+      </div>
+
+      <!-- SCENE 1 -->
+      <section class="scene scene--server" id="scene-1" data-scene="1" aria-labelledby="s1-title">
+        <div class="frame">
+          <div class="stage">
+            <div class="key key--monitor" aria-hidden="true"></div>
+            <header class="slug">
+              <span class="slug__no">Scene 01</span>
+              <h2 class="slug__title" id="s1-title" tabindex="-1">Int. Your server. Night.</h2>
+            </header>
+            <div class="set set--server">
+              <figure class="editor">
+                <div class="editor__bar">
+                  <span class="editor__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                  <div class="tabs" role="tablist" aria-label="Choose how to send">
+                    <button class="tab" role="tab" id="tab-ts" aria-selected="true" aria-controls="panel-ts">notify.ts</button>
+                    <button class="tab" role="tab" id="tab-curl" aria-selected="false" aria-controls="panel-curl" tabindex="-1">curl</button>
+                  </div>
+                </div>
+                <div class="editor__panels">
+                  <div class="editor__panel" id="panel-ts" role="tabpanel" aria-labelledby="tab-ts">
+<pre class="code"><code>{codeStatic.map((line) => (
+  <span class="ln ln--static">{line.map(([t, c]) => <span class={c}>{t}</span>)}{'\n'}</span>
+))}{'\n'}{codeTyped.map((line) => (
+  <span class="ln ln--typed">{line.map(([t, c]) => c === 'anchor' ? <span class="anchor" data-a="msg-end"></span> : (
+    <span class={c}>{chars(t).map((ch) => <span class="ch">{ch}</span>)}</span>
+  ))}{'\n'}</span>
+))}<span class="cur" aria-hidden="true"></span></code></pre>
+                  </div>
+                  <div class="editor__panel" id="panel-curl" role="tabpanel" aria-labelledby="tab-curl" hidden>
+<pre class="code code--curl" tabindex="0"><code><span class="fn">curl</span> -X POST http://localhost:8080/api/messages/sendText \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d <span class="str">'&#123;"to": "447123456789@c.us", "content": "Your order is ready to collect!"&#125;'</span></code></pre>
+                  </div>
+                </div>
+                <figcaption class="note">SocketClient talks to a running Easy API: HTTP RPC for commands, Server-Sent Events for events.</figcaption>
+              </figure>
+            </div>
+            <p class="subtitle">Your code asks for one thing. Send this.</p>
+            <svg class="wires" aria-hidden="true"><path class="wire wire--warm" data-wire="s1" pathLength="1" /></svg>
+            <span class="ember" data-ember="s1" aria-hidden="true"></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="line" data-tint="warm">
+        <p class="line__text">Then it crosses into a machine you own<span class="stop" aria-hidden="true"></span></p>
+        <p class="line__aside">WhatsApp automation on your own infrastructure.</p>
+      </div>
+
+      <!-- SCENE 2 -->
+      <section class="scene scene--machine" id="scene-2" data-scene="2" aria-labelledby="s2-title">
+        <div class="frame">
+          <div class="stage">
+            <header class="slug">
+              <span class="slug__no">Scene 02</span>
+              <h2 class="slug__title" id="s2-title" tabindex="-1">Int. Your machine. Port 8080.</h2>
+            </header>
+            <div class="set set--machine">
+              <div class="doorway" aria-hidden="true">
+                <span class="doorway__sign">localhost:8080</span>
+                <div class="door"><span class="door__light"></span><span class="anchor anchor--center" data-a="door"></span></div>
+                <span class="spill"></span>
+              </div>
+              <div class="routes">
+                <p class="routes__cmd"><span class="pr">$</span> npx @open-wa/wa-automate@latest --port 8080</p>
+                <p class="routes__head">Easy API, listening on your machine</p>
+                <ul class="routes__list">
+                  <li class="route route--hit"><span class="route__m">POST</span><code>/api/messages/sendText</code><span class="route__d">your request<span class="dt-only">, arriving</span></span></li>
+                  <li class="route"><span class="route__m"></span><code>/api-docs/</code><span class="route__d">live docs</span></li>
+                  <li class="route"><span class="route__m"></span><code>/meta/swagger.json</code><span class="route__d">OpenAPI</span></li>
+                  <li class="route"><span class="route__m"></span><code>/meta/postman.json</code><span class="route__d">Postman</span></li>
+                  <li class="route"><span class="route__m"></span><code>/mcp</code><span class="route__d">MCP server</span></li>
+                </ul>
+              </div>
+            </div>
+            <p class="subtitle">The Easy API listens on your own machine, on the port you chose.</p>
+            <svg class="wires" aria-hidden="true"><path class="wire wire--warm" data-wire="s2" pathLength="1" /></svg>
+            <span class="ember" data-ember="s2" aria-hidden="true"></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="line" data-tint="warm">
+        <p class="line__text">One WhatsApp account, linked once, becomes an API<span class="stop" aria-hidden="true"></span></p>
+        <p class="line__aside">Login is by QR code or link code, once per named session.</p>
+      </div>
+
+      <!-- SCENE 3 -->
+      <section class="scene scene--link" id="scene-3" data-scene="3" aria-labelledby="s3-title">
+        <div class="frame">
+          <div class="stage">
+            <header class="slug">
+              <span class="slug__no">Scene 03</span>
+              <h2 class="slug__title" id="s3-title" tabindex="-1">The linked session. Named “sales”.</h2>
+            </header>
+            <div class="set set--link">
+              <div class="qrcard">
+                <div class="qr" aria-hidden="true">
+                  <svg viewBox={`-1 -1 ${N + 2} ${N + 2}`}>
+                    {modules.map((m) => <rect class={m.f ? 'qm qm--f' : 'qm'} x={m.x} y={m.y} width="1" height="1" />)}
+                  </svg>
+                  <span class="qr__scan"></span>
+                  <span class="anchor anchor--center" data-a="qr"></span>
+                </div>
+                <p class="qrcard__id"><code>--session-id sales</code></p>
+                <p class="qrcard__state"><span class="st st--wait">waiting for scan</span><span class="st st--ok">linked</span></p>
+              </div>
+              <div class="horizon">
+                <span class="horizon__label"><span class="anchor anchor--center" data-a="vanish"></span>WhatsApp</span>
+              </div>
+            </div>
+            <p class="drivers">Driven by Puppeteer, Playwright or Lightpanda.</p>
+            <p class="subtitle">The linked session hands your message to WhatsApp.</p>
+            <svg class="wires" aria-hidden="true"><g class="road"></g><path class="wire wire--warm" data-wire="s3" pathLength="1" /></svg>
+            <span class="ember" data-ember="s3" aria-hidden="true"></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="line" data-tint="warm">
+        <p class="line__text">Across town, in the dark, a phone lights up<span class="stop" aria-hidden="true"></span></p>
+      </div>
+
+      <!-- SCENE 4 -->
+      <section class="scene scene--phone" id="scene-4" data-scene="4" aria-labelledby="s4-title">
+        <div class="frame">
+          <div class="stage">
+            <div class="room" aria-hidden="true"><span class="room__ambient"></span><span class="room__pool"></span></div>
+            <header class="slug">
+              <span class="slug__no">Scene 04</span>
+              <h2 class="slug__title" id="s4-title" tabindex="-1">Int. A kitchen. 21:47.</h2>
+            </header>
+            <div class="set set--phone">
+              <div class="handset">
+                <div class="handset__tilt">
+                  <div class="handset__body">
+                    <div class="screen">
+                      <div class="lock">
+                        <p class="lock__date">Thursday 8 October</p>
+                        <p class="lock__time">21:47</p>
+                      </div>
+                      <div class="notif" role="img" aria-label="Notification from [Your business]: Your order is ready to collect!">
+                        <p class="notif__app"><span class="notif__icon"></span>WhatsApp <span class="notif__when">now</span></p>
+                        <p class="notif__from">[Your business]</p>
+                        <p class="notif__body">Your order is ready to collect!</p>
+                      </div>
+                      <span class="screen__off"></span>
+                    </div>
+                  </div>
+                </div>
+                <span class="anchor anchor--center anchor--screen" data-a="screen"></span>
+              </div>
+            </div>
+            <p class="subtitle">One message, to the one person waiting for it.</p>
+            <svg class="wires" aria-hidden="true"><path class="wire wire--warm" data-wire="s4" pathLength="1" /></svg>
+            <span class="ember" data-ember="s4" aria-hidden="true"></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="line" data-tint="cool">
+        <p class="line__text">Then someone answers<span class="stop stop--cool" aria-hidden="true"></span></p>
+        <p class="line__aside">Connect WhatsApp to your application.</p>
+      </div>
+
+      <!-- SCENE 5 -->
+      <section class="scene scene--reply" id="scene-5" data-scene="5" aria-labelledby="s5-title">
+        <div class="frame">
+          <div class="stage">
+            <div class="key key--tide" aria-hidden="true"></div>
+            <header class="slug">
+              <span class="slug__no">Scene 05</span>
+              <h2 class="slug__title" id="s5-title" tabindex="-1">The reply comes home.</h2>
+            </header>
+            <div class="set set--reply">
+              <div class="chat" data-a="chat">
+                <p class="chat__who">[Your business]</p>
+                <p class="bub bub--in">Your order is ready to collect!</p>
+                <p class="bub bub--out">{chars('On my way, thank you!').map((c) => <span class="ch">{c}</span>)}</p>
+              </div>
+              <div class="node" data-a="node">
+                <p class="node__label">event</p>
+<pre class="code code--node"><code><span>client.</span><span class="fn">onMessage</span><span class="pn">(</span><span class="kw">async</span> (message) <span class="kw">=&gt;</span> <span class="pn">&#123;</span>
+  <span class="kw">if</span> (message.body === <span class="str">'Hi'</span>)
+    <span class="kw">await</span> client.<span class="fn">sendText</span>(message.from, <span class="str">'Hello!'</span>);
+<span class="pn">&#125;);</span></code></pre>
+              </div>
+              <ul class="dests">
+                <li class="dest" data-a="d1"><span class="dest__name">Webhook</span><span class="dest__d">The event, delivered to your own endpoint.</span></li>
+                <li class="dest" data-a="d2"><span class="dest__name">Chatwoot</span><span class="dest__d">The conversation lands in your support inbox.</span></li>
+                <li class="dest" data-a="d3"><span class="dest__name">AI agent over MCP</span><span class="dest__d">Claude, Cursor or Windsurf get every Easy API method as a tool.</span></li>
+              </ul>
+            </div>
+            <p class="subtitle">Their reply comes home as an event, wherever you need it.</p>
+            <svg class="wires" aria-hidden="true">
+              <path class="wire wire--cool" data-wire="s5" pathLength="1" />
+              <path class="wire wire--cool wire--thin" data-wire="s5a" pathLength="1" />
+              <path class="wire wire--cool wire--thin" data-wire="s5b" pathLength="1" />
+              <path class="wire wire--cool wire--thin" data-wire="s5c" pathLength="1" />
+            </svg>
+            <span class="ember ember--cool" data-ember="s5" aria-hidden="true"></span>
+            <span class="ember ember--cool ember--sm" data-ember="s5a" aria-hidden="true"></span>
+            <span class="ember ember--cool ember--sm" data-ember="s5b" aria-hidden="true"></span>
+            <span class="ember ember--cool ember--sm" data-ember="s5c" aria-hidden="true"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- FINALE -->
+      <section class="finale" id="finale" data-scene="6" aria-labelledby="finale-title">
+        <p class="finale__kicker">Your turn</p>
+        <h2 class="finale__line" id="finale-title" tabindex="-1">Turn a WhatsApp account into an API, bot runtime, webhook bridge, and AI tool surface.</h2>
+        <div class="take">
+          <p class="take__label">One command. Scan once. Send.</p>
+          <div class="cmd">
+            <code class="cmd__text" id="cmd-npx">npx @open-wa/wa-automate@latest --port 8080</code>
+            <button class="cmd__copy" type="button" data-copy="cmd-npx">Copy</button>
+          </div>
+          <div class="cmd cmd--alt">
+            <code class="cmd__text" id="cmd-docker">docker run -p 8080:8080 --init openwa/wa-automate</code>
+            <button class="cmd__copy" type="button" data-copy="cmd-docker">Copy</button>
+          </div>
+          <p class="take__fine">Requires Node.js 22.21.1 or newer. Live docs at <code>/api-docs/</code> once it is running.</p>
+          <p class="sr-only" aria-live="polite" id="copy-status"></p>
+        </div>
+        <div class="ctas">
+          <a class="btn btn--ember btn--lg" href={LINKS.quickstart}>Send your first message</a>
+          <a class="btn btn--ghost" href={LINKS.docs}>Read the docs</a>
+          <a class="btn btn--ghost" href={LINKS.github}>GitHub <span class="btn__meta">3.6k stars</span></a>
+          <a class="btn btn--ghost" href={LINKS.discord}>Discord</a>
+        </div>
+      </section>
+
+      <!-- CREDITS -->
+      <section class="credits" aria-labelledby="credits-title">
+        <h2 class="credits__title" id="credits-title">open-wa</h2>
+        <p class="credits__tag">The most reliable WhatsApp automation library.</p>
+        <dl class="roll">
+          <div class="roll__group"><dt>Starring</dt>
+            <dd><b>Easy API</b> as a local HTTP API with live docs at <code>/api-docs/</code></dd>
+            <dd><b>SocketClient</b> as the bridge from another Node.js app</dd>
+            <dd><b>Embedded runtime</b> as <code>createClient</code> inside your app</dd>
+            <dd><b>Webhooks and plugins</b> as <code>plugins</code> in <code>wa.config.*</code></dd>
+            <dd><b>MCP</b> as a tool surface for Claude, Cursor or Windsurf</dd>
+            <dd><b>Cloudflare proxy</b> as remote access without public ports</dd>
+          </div>
+          <div class="roll__group"><dt>Browser drivers</dt><dd>Puppeteer</dd><dd>Playwright</dd><dd>Lightpanda</dd></div>
+          <div class="roll__group"><dt>Integrations</dt><dd>Webhook</dd><dd>Chatwoot</dd><dd>S3</dd><dd>Cloudflare session proxy</dd><dd>Node-RED</dd></div>
+          <div class="roll__group"><dt>Current release</dt><dd>v5.0.0 stable line</dd></div>
+          <div class="roll__group"><dt>Runs on</dt><dd>Node.js 22.21.1 or newer</dd></div>
+          <div class="roll__group"><dt>Open source since</dt><dd>August 2019</dd></div>
+          <div class="roll__group"><dt>On GitHub</dt><dd>3,666 stars</dd><dd>723 forks</dd></div>
+          <div class="roll__group"><dt>Downloads</dt><dd>[monthly npm downloads]</dd></div>
+          <div class="roll__group"><dt>Licensing</dt><dd>Some methods need a Restricted or Insiders license. <a href={LINKS.licensed}>Licensed features</a></dd></div>
+          <div class="roll__group"><dt>Further reading</dt><dd><a href={LINKS.reference}>Client API reference</a></dd><dd><a href={LINKS.docs}>Documentation</a></dd></div>
+        </dl>
+        <p class="credits__cast">Example number and business are fictional. Placeholders appear in [square brackets].</p>
+        <p class="fade">Fade out.</p>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <p class="foot__legal">open-wa is unofficial and not affiliated with WhatsApp or Meta.</p>
+      <nav class="foot__nav" aria-label="Footer">
+        <a href={LINKS.quickstart}>Quickstart</a>
+        <a href={LINKS.docs}>Docs</a>
+        <a href={LINKS.github}>GitHub</a>
+        <a href={LINKS.discord}>Discord</a>
+      </nav>
+    </footer>
+
+    <nav class="reel" aria-label="Scenes">
+      <p class="reel__now" aria-hidden="true"><span class="reel__no">SC 00</span> <span class="reel__label">Title</span></p>
+      <ol class="reel__ticks">
+        {scenes.map((s) => (
+          <li><button type="button" class="tick" data-go={s.id} aria-label={`Go to ${s.no === '00' ? 'the title' : s.no === '06' ? 'the finale' : `scene ${Number(s.no)}`}: ${s.label}`}><span></span></button></li>
+        ))}
+      </ol>
+      <p class="reel__tc" aria-hidden="true">00:00:00:00</p>
+      <span class="reel__bar" aria-hidden="true"><span class="reel__fill"></span></span>
+    </nav>
+
+    <script>
+      import '../scripts/story.js';
+    </script>
+  </body>
+</html>
