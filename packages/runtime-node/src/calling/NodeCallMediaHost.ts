@@ -13,7 +13,7 @@ export class CallMediaError extends Error {
   readonly code = 'MEDIA_SOURCE_FAILED'; readonly status = 422;
 }
 
-type Source = { stream: Stream.Stream<Uint8Array, unknown>; format: RawAudioFormat; finite?: boolean; clear?: () => void };
+type Source = { stream: Stream.Stream<Uint8Array, unknown>; format: RawAudioFormat; finite?: boolean; realtime?: boolean; clear?: () => void };
 type Output = ((bytes: Uint8Array) => Promise<void>) & { clear?: () => void };
 const isReadable = (value: unknown): value is ReadableStream<Uint8Array> => !!value && typeof (value as ReadableStream<Uint8Array>).getReader === 'function';
 const isWritable = (value: unknown): value is WritableStream<Uint8Array> => !!value && typeof (value as WritableStream<Uint8Array>).getWriter === 'function';
@@ -59,6 +59,9 @@ export function makeNodeCallMediaHost(options: { log?: (message: string) => void
           let remainder = new Uint8Array(0);
           let audio = new Float32Array(0);
           let deadline = Date.now();
+          // Admitted live PCM is already clocked by the sender. Batch 80 ms per
+          // browser hop instead of adding a second timer and 50 RPCs per second.
+          const frameSize = source.realtime ? 3840 : 960;
           const pump = Stream.runForEach(source.stream, chunk => Effect.gen(function* () {
             if (sourceCleared) yield* Effect.interrupt;
             const combined = new Uint8Array(remainder.length + chunk.length); combined.set(remainder); combined.set(chunk, remainder.length);
@@ -67,23 +70,27 @@ export function makeNodeCallMediaHost(options: { log?: (message: string) => void
             const decoded = resampler.process(decodePcm(combined.subarray(0, length), source!.format), source!.format.sampleRate);
             const samples = new Float32Array(audio.length + decoded.length); samples.set(audio); samples.set(decoded, audio.length);
             let offset = 0;
-            while (samples.length - offset >= 960) {
+            while (samples.length - offset >= frameSize) {
               if (sourceCleared) yield* Effect.interrupt;
               const epoch = clearSequence;
-              yield* Effect.sleep(Math.max(0, deadline - Date.now()));
-              deadline = Math.max(deadline + 20, Date.now() - 100);
-              const frame = samples.slice(offset, offset + 960); offset += 960;
+              if (!source!.realtime) {
+                yield* Effect.sleep(Math.max(0, deadline - Date.now()));
+                deadline = Math.max(deadline + 20, Date.now() - 100);
+              }
+              const frame = samples.slice(offset, offset + frameSize); offset += frameSize;
               if (epoch !== clearSequence) { audio = new Float32Array(0); offset = samples.length; frame.fill(0); }
               if (muted) frame.fill(0);
-              yield* Effect.tryPromise({ try: () => write({ samples: Array.from(frame), sampleRate: HOST_AUDIO_RATE, sequence: sequence++ }), catch: error => error });
+              // The browser source renders silence when its queue is empty.
+              // Finished greetings and muted inputs need no continuing RPCs.
+              if (!source!.realtime || frame.some(sample => sample !== 0)) yield* Effect.tryPromise({ try: () => write({ samples: Array.from(frame), sampleRate: HOST_AUDIO_RATE, sequence: sequence++ }), catch: error => error });
             }
             audio = samples.slice(offset);
           })).pipe(Effect.andThen(Effect.gen(function* () {
             if (remainder.length) yield* Effect.fail(new CallMediaError('Raw audio ended with an incomplete sample.'));
             if (audio.length && !sourceCleared) {
-              yield* Effect.sleep(Math.max(0, deadline - Date.now()));
-              const tail = new Float32Array(960); if (!muted) tail.set(audio);
-              yield* Effect.tryPromise({ try: () => write({ samples: Array.from(tail), sampleRate: HOST_AUDIO_RATE, sequence: sequence++ }), catch: error => error });
+              if (!source!.realtime) yield* Effect.sleep(Math.max(0, deadline - Date.now()));
+              const tail = new Float32Array(frameSize); if (!muted) tail.set(audio);
+              if (!source!.realtime || tail.some(sample => sample !== 0)) yield* Effect.tryPromise({ try: () => write({ samples: Array.from(tail), sampleRate: HOST_AUDIO_RATE, sequence: sequence++ }), catch: error => error });
             }
           })), Effect.catch(error => Effect.sync(() => (onFailure ?? options.onFailure)?.(error instanceof Error ? error : new Error(String(error))))));
           await scope.fork(pump);
@@ -107,7 +114,7 @@ async function prepareReadable(input: ReadableStream<Uint8Array>, scope: Session
   await scope.addFinalizer('microphone-stream', async () => { try { await within(reader.cancel(), 3000, 'The microphone stream did not close.'); } finally { reader.releaseLock(); } });
   if (format) {
     async function* chunks() { while (true) { const next = await reader.read(); if (next.done) break; yield next.value; } }
-    return { stream: streamFrom(chunks()), format };
+    return { stream: streamFrom(chunks()), format, realtime: true };
   }
   let timer: ReturnType<typeof setTimeout> | undefined;
   const first = await Promise.race([reader.read(), new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new CallMediaError('Microphone stream did not become ready within 15 seconds.')), 15_000); })]).finally(() => clearTimeout(timer));

@@ -118,7 +118,9 @@ export class CallingService {
     const owner = [this.attachment?.options.microphone, this.attachment?.options.speaker].find(value => value && typeof value === 'object' && 'remoteId' in value);
     const ownedRemote = owner && typeof owner === 'object' && 'remoteId' in owner ? owner.remoteId : undefined;
     if (this.remotes.size >= 12 || (request.mode === 'observe' && (request.microphone || !request.speaker)) || (!['replace', 'observe'].includes(request.mode) && (this.attachment || this.pending || this.writing)) || (request.mode === 'replace' && (this.writing || this.pending || (this.attachment && (!ownedRemote || ownedRemote !== request.replacesId))))) return { ok: false, status: 'unavailable', reason: { code: 'MEDIA_OWNED', message: 'This call already has a media owner, or the observer request is invalid.', status: 409 } };
-    const reservation = await RemoteMediaReservation.make(request, this.generation);
+    const reservation = await RemoteMediaReservation.make(request, this.generation, stats => {
+      this.options.logger.warn('Call audio input trimmed stale samples; the call remains open.', { callId: this.active?.id, ...stats });
+    });
     this.remotes.set(reservation.id, reservation);
     await reservation.scope.addFinalizer('reservation', () => { this.remotes.delete(reservation.id); });
     return { ok: true, ticket: reservation.id, expiresAt: reservation.expiresAt, media: reservation.media };
