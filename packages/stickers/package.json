@@ -1,0 +1,50 @@
+{
+  "name": "@open-wa/stickers",
+  "version": "5.3.0",
+  "description": "Local sticker rendering with automatic browser or standalone WASM execution",
+  "type": "module",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-wa/wa-automate-nodejs.git"
+  },
+  "engines": {
+    "node": ">=22.21.1"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.d.mts",
+      "default": "./src/index.mjs"
+    },
+    "./browser": {
+      "types": "./src/browser.d.mts",
+      "default": "./src/browser.mjs"
+    },
+    "./library": {
+      "types": "./src/library.d.mts",
+      "default": "./src/library.mjs"
+    },
+    "./webp": {
+      "types": "./src/webp.d.mts",
+      "default": "./src/webp.mjs"
+    },
+    "./resources": {
+      "types": "./src/resources.d.mts",
+      "default": "./src/resources.mjs"
+    }
+  },
+  "bin": {
+    "openwa-sticker": "./src/cli.mjs"
+  },
+  "files": [
+    "src",
+    "wasm",
+    "README.md",
+    "LICENSE.md",
+    "NOTICE.md",
+    "licenses"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

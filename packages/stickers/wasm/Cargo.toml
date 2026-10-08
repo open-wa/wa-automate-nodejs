@@ -1,0 +1,18 @@
+[package]
+name = "openwa-sticker-kernels"
+version = "0.1.0"
+edition = "2021"
+license-file = "../LICENSE.md"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+fast_image_resize = { version = "=6.1.0" }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

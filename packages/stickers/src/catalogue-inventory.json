@@ -1,0 +1,862 @@
+[
+  {
+    "name": "abstract",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "advertize",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "attorney",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "background removal",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "ball",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "bayer",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "bevel",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "blocks",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "blur",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "boil",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "bomb",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "bonk",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "bricks",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "bubble",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "buffering",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "burn",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "canny",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "cartoon",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "cinema",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "circle",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "clock",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "cloth",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "combine",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "comic",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "console",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "contour",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "cow",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "crack",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "cracks",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "cube",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "dilate",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "discotic",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "dither",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "dizzy",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "dots",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "earth",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "earthquake",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "edge",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "emboss",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "emojify",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "endless",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "equation",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "eugh",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "explicit",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "fall",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "fan",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "fire",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "fisheye",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "flag",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "flash",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "flush",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "freeze",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "fry",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "gallery",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "gameboy_camera",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "glitch",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "globe",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "gold",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "golf",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "half",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "halfinvert",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "heart_diffraction",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "hearts",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "history",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "img_to_emoji",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "img_to_iso",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "infinity",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "invert",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "ipcam",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "isometric",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "isometric_gif",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "jail",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "kaleidoscope",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "kanye",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "knit",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "lamp",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "land",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "laundry",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "layer",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "leak",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "lego",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "letters",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "lever_gif",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "line",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "lines",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "liquefy",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "liquid",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "logoff",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "love",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "low",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "lsd",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "magik",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "magnify",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "matrix",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "mcmap",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "melt",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "minecraft",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "mirror",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "mosaic",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "motion",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "neon",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "newspaper",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "nohorni",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "opaque",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "optic",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "pachinko_game",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "paint",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "painting",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "palette",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "paparazzi",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "patpat",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "pattern",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "pet",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "phone",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "pixel",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "pixelate",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "pizza",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "plank",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "plates",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "player",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "polaroid",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "poly",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "print",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "prosecutor",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "pyramid",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "quarter",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "radiate",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "rain",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "rainbow",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "random",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "recede",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "reflect",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "reflection",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "resize",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "reveal",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "ripped",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "ripple",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "roll",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "roomy",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "rotate",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "scramble",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "scrap",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "scrapbook",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "scream",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "screen",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "scroll",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "scrolling_text",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "sensitive",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "shake",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "shear",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "shift",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "shine",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "shock",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "shoot",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "shred",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "sketch",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "skyline",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "slice",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "slow",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "smooth",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "snap",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "soap",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "solar",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "sort",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "sparkle",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "spikes",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "spin",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "spiral",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "spotify",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "spread",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "square",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "squish",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "stack",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "stamp",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "stars",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "stereo",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "stretch",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "stripes",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "subtract",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "swap",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "swirl",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "swirly",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "three_d",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "tile",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "tiles",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "time_scan",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "time_scan_side",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "tint",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "trace",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "triangle",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "trip",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "tunnel",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "tv",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "typerace",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "types",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "types_gif",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "uncanny",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "undilate",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "unfreeze",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "unsharpen",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "vaporwave",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "vibrate",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "wall",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "warp",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "wave",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "wheel",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "why",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "wiggle",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "woke",
+    "sourceCatalogue": true
+  },
+  {
+    "name": "wordle",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "wordle_keyboard",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "wordle_statistic",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "youtube",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "zonk",
+    "sourceCatalogue": false
+  },
+  {
+    "name": "zoom",
+    "sourceCatalogue": true
+  }
+]
