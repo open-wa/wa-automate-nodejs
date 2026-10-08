@@ -20,9 +20,9 @@ function serialized(value: unknown): string {
   if (typeof value === 'string') return value;
   return value && typeof value === 'object' && '_serialized' in value ? String(value._serialized) : '';
 }
-function recipients(values: unknown[]): CallRecipient[] {
+function recipients(contacts: unknown[], chats: unknown[]): CallRecipient[] {
   const byId = new Map<string, CallRecipient>();
-  for (const value of values) {
+  for (const value of [...contacts, ...chats]) {
     if (!value || typeof value !== 'object') continue;
     const item = value as Record<string, unknown>;
     const id = serialized(item.id) || serialized(item._serialized);
@@ -33,7 +33,22 @@ function recipients(values: unknown[]): CallRecipient[] {
     const previous = byId.get(id);
     byId.set(id, { id, name: name || previous?.name || id, aliases: [...new Set([...(previous?.aliases ?? []), ...aliases])] });
   }
-  return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name));
+  // Match the Chat page's latest-message order, then append contacts without chats.
+  const orderedChats = chats.flatMap(value => {
+    if (!value || typeof value !== 'object') return [];
+    const chat = value as Record<string, unknown>;
+    const message = chat.lastMessage as { timestamp?: number } | undefined;
+    return [{ id: serialized(chat.id) || serialized(chat._serialized), timestamp: message?.timestamp || 0 }];
+  }).sort((a, b) => b.timestamp - a.timestamp);
+  const ordered = new Map<string, CallRecipient>();
+  for (const chat of orderedChats) {
+    const recipient = byId.get(chat.id);
+    if (recipient) ordered.set(recipient.id, recipient);
+  }
+  for (const recipient of [...byId.values()].sort((a, b) => a.name.localeCompare(b.name))) {
+    if (!ordered.has(recipient.id)) ordered.set(recipient.id, recipient);
+  }
+  return [...ordered.values()];
 }
 function wav(chunks: Uint8Array[], size: number) {
   const header = new ArrayBuffer(44), view = new DataView(header);
@@ -79,8 +94,8 @@ function useCallingController() {
     setContactsLoading(true); setContactsError(null);
     void Promise.allSettled([ask<unknown[]>('getAllContacts'), ask<unknown[]>('getAllChats')]).then(results => {
       if (!mounted) return;
-      const values = results.flatMap(result => result.status === 'fulfilled' && Array.isArray(result.value) ? result.value : []);
-      setContacts(recipients(values));
+      const [contacts, chats] = results.map(result => result.status === 'fulfilled' && Array.isArray(result.value) ? result.value : []);
+      setContacts(recipients(contacts, chats));
       if (results.some(result => result.status === 'rejected')) setContactsError('Some contacts could not be loaded. You can still enter a number or contact ID.');
       setContactsLoading(false);
     });
