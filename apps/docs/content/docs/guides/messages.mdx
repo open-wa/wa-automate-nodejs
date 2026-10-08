@@ -296,13 +296,38 @@ unsupported or rejected sends explicitly.
 await client.forwardMessages('1234567890@c.us', [messageId], true);
 ```
 
-## Read receipts and typing state
+## Acknowledgements
+
+Subscribe before sending to observe delivery changes:
 
 ```ts
-client.onAck((ack) => {
-  console.log(ack);
+const subscription = client.onAck((message) => {
+  console.log(message.id, message.ack, message.body);
+  if (message.sender) console.log('Sender:', message.sender.id);
 });
+```
 
+The next release after 5.4.0 restores the full available message snapshot.
+It preserves fields supplied by WhatsApp, including the body, sender, chat,
+and extra metadata, without fetching a later version of the message.
+Some details may be absent while WhatsApp is loading it. In early v5 releases
+through 5.4.0, this callback instead receives `{ messageId, ack }`.
+
+| `message.ack` | Meaning |
+| --- | --- |
+| `-1` | Error |
+| `0` | Pending |
+| `1` | Accepted by the server |
+| `2` | Delivered to the recipient's device |
+| `3` | Read |
+| `4` | Played |
+
+Call `subscription.off()` to remove the handler. A returned send ID confirms
+submission; it does not mean that delivery or reading has occurred.
+
+## Typing state
+
+```ts
 await client.simulateTyping(chatId, true);
 await client.simulateTyping(chatId, false);
 ```
