@@ -1,0 +1,9 @@
+{
+  "slug": "transit",
+  "name": "Network Map",
+  "direction": "Metaphor",
+  "tagline": "open-wa drawn as a transit network: five patterned lines (Easy API, SocketClient, Embedded, Agent, Integrations) meeting at the Easy API interchange, with station cards, a journey planner and service information for developers choosing how to connect WhatsApp to their app.",
+  "logo": "An interchange mark: a solid blue line and a double-track amber line meet at a white interchange ring on an ink tile; on hover or focus a train dot runs through the interchange, the ring swells and the wordmark's hyphen extends like a line joining.",
+  "brandFont": false,
+  "stack": ["Astro 7", "GSAP 3.15 (DrawSVG, MotionPath)", "Overpass", "Overpass Mono", "Hand-authored SVG"]
+}

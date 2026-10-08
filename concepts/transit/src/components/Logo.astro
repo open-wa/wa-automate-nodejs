@@ -1,0 +1,25 @@
+---
+interface Props { uid: string; href?: string; size?: number }
+const { uid, href, size = 34 } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+<a class="logo" href={href ?? base} aria-label="open-wa network map, home">
+  <svg class="mark" width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+    <defs>
+      <clipPath id={`lc-${uid}`}><rect width="48" height="48" rx="12" /></clipPath>
+    </defs>
+    <rect class="mark-tile" width="48" height="48" rx="12" />
+    <g clip-path={`url(#lc-${uid})`}>
+      <path class="mark-l1" d="M-4 28 H21" />
+      <path class="mark-l2" d="M21 28 L50 -1" />
+      <path class="mark-l2-core" d="M21 28 L50 -1" />
+      <circle class="mark-stop" cx="9" cy="28" r="2.4" />
+    </g>
+    <circle class="mark-ring" cx="21" cy="28" r="8" />
+    <g clip-path={`url(#lc-${uid})`}>
+      <path class="mark-track" id={`lt-${uid}`} d="M-6 28 H21 L52 -3" />
+      <circle class="mark-train" r="4.4" cx="0" cy="0" />
+    </g>
+  </svg>
+  <span class="wordmark">open<span class="wm-dash" aria-hidden="true"></span><span class="sr">-</span>wa</span>
+</a>

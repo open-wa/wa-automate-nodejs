@@ -1,0 +1,6 @@
+---
+interface Props { n: number; size?: 'sm' | 'md' | 'lg'; label?: boolean }
+const { n, size = 'md', label = false } = Astro.props;
+const names = ['', 'Easy API', 'SocketClient', 'Embedded', 'Agent', 'Integrations'];
+---
+<span class={`badge b${n} bs-${size}`} aria-hidden={label ? undefined : 'true'} aria-label={label ? `Line ${n}, ${names[n]}` : undefined} role={label ? 'img' : undefined}><span>{n}</span></span>

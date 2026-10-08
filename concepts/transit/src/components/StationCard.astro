@@ -1,0 +1,24 @@
+---
+import Badge from './Badge.astro';
+import type { Station } from '../data/network';
+interface Props { s: Station; prefix: string }
+const { s, prefix } = Astro.props;
+const kindLabel = s.kind === 'interchange' ? 'Interchange' : s.kind === 'terminus' ? 'Terminus' : 'Station';
+---
+<div class="card-stripe" aria-hidden="true">{s.lines.map((n) => <span class={`cs cs${n}`}></span>)}</div>
+<div class="card-body">
+  <p class="card-kicker"><span>{kindLabel}</span><span class="card-lines">{s.lines.map((n) => <Badge n={n} size="sm" label />)}</span></p>
+  <h3 class="card-name">{s.name}</h3>
+  {s.tag && s.kind !== 'interchange' && <p class="card-tag">{s.tag}</p>}
+  <p class="card-what" id={`${prefix}-what-${s.id}`}>{s.what}</p>
+  {s.code && (
+    <div class="code">
+      <pre><code>{s.code}</code></pre>
+      <button type="button" class="copy" data-copy>Copy</button>
+    </div>
+  )}
+  {s.chips && <ul class="chips">{s.chips.map((c) => <li><code>{c}</code></li>)}</ul>}
+  {s.note && <p class="card-note">{s.note}</p>}
+  <a class="card-link" href={s.doc.href}>{s.doc.label}<span aria-hidden="true">&nbsp;↗</span></a>
+  <slot />
+</div>

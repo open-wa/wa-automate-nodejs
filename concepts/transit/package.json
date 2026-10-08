@@ -1,0 +1,16 @@
+{
+  "name": "openwa-concept-transit",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@fontsource-variable/overpass": "5.3.0",
+    "@fontsource-variable/overpass-mono": "5.3.0",
+    "astro": "7.3.5",
+    "gsap": "3.15.0"
+  }
+}

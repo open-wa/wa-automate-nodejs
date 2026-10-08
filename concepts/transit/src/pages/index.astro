@@ -1,0 +1,317 @@
+---
+import '@fontsource-variable/overpass/wght.css';
+import '@fontsource-variable/overpass-mono/wght.css';
+import '../styles/site.css';
+import Badge from '../components/Badge.astro';
+import Logo from '../components/Logo.astro';
+import StationCard from '../components/StationCard.astro';
+import {
+  W, H, LINES, STATIONS, TRACKS, JOURNEYS, PHONE_ORDER, trackPath, trackStops, legStations,
+  QUICKSTART, DOCS, REFERENCE, LICENSED, GITHUB, DISCORD,
+} from '../data/network';
+
+const base = import.meta.env.BASE_URL;
+const byId = Object.fromEntries(STATIONS.map((s) => [s.id, s]));
+const tracks = TRACKS.map((t) => ({ ...t, d: trackPath(t.pts), ...trackStops(t) }));
+const netData = JSON.stringify({
+  tracks: tracks.map((t) => ({ id: t.id, line: t.line, len: t.len, stops: t.stops, after: t.after })),
+  stations: STATIONS.map((s) => ({ id: s.id, x: s.x, y: s.y, lines: s.lines })),
+  W, H,
+});
+const pct = (v: number, of: number) => `${Math.round((v / of) * 10000) / 100}%`;
+const lineName = (n: number) => LINES.find((l) => l.n === n)!.name;
+const listLines = (ls: number[]) => ls.length === 1 ? `line ${ls[0]}` : `lines ${ls.slice(0, -1).join(', ')} and ${ls[ls.length - 1]}`;
+// Station order in the DOM follows the lines, so Tab rides line 1, then 4, 5, 2 and 3.
+const domOrder = ['start', 'link', 'hub', 'apidocs', 'send', 'mcp', 'ai', 'webhook', 'chatwoot', 's3', 'cloudflare', 'nodered', 'connect', 'rpc', 'app', 'create', 'driver', 'puppeteer', 'playwright', 'lightpanda'];
+const ordered = domOrder.map((id) => byId[id]);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#F2EEE4" />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <title>open-wa · Network map</title>
+    <meta name="description" content="open-wa turns a WhatsApp account into an API, bot runtime, webhook bridge and AI tool surface on your own infrastructure. Pick a line." />
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        d.classList.add('js');
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches && matchMedia('(min-width: 900px)').matches) {
+          d.classList.add('anim');
+          setTimeout(function () { if (!window.__netDrawn) d.classList.remove('anim'); }, 4000);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#planner">Skip the map</a>
+    <header class="top">
+      <Logo uid="head" />
+      <nav class="top-nav" aria-label="Site">
+        <a href="#map"><span aria-hidden="true">↓</span> Map</a>
+        <a href="#planner"><span aria-hidden="true">↓</span> Journey planner</a>
+        <a href="#service"><span aria-hidden="true">↓</span> Service info</a>
+        <a href={DOCS}><span aria-hidden="true">↗</span> Docs</a>
+        <a href={GITHUB}><span aria-hidden="true">↗</span> GitHub</a>
+      </nav>
+      <a class="btn btn-primary top-cta" href={QUICKSTART}><span class="long">Send your first message</span><span class="short">Quickstart</span> <span aria-hidden="true">→</span></a>
+    </header>
+
+    <main>
+      <section class="hero" id="map" aria-labelledby="hero-title">
+        <div class="stage" id="stage">
+          <div class="hero-copy">
+            <div class="hero-strip" aria-hidden="true">{LINES.map((l) => <span class={`l${l.n}`}></span>)}</div>
+            <p class="kicker"><span class="kicker-dot" aria-hidden="true"></span>open-wa network / v5.0.0</p>
+            <h1 id="hero-title">Connect WhatsApp to your application.</h1>
+            <p class="lede">Turn a WhatsApp account into an API, bot runtime, webhook bridge and AI tool surface, on your own infrastructure. Five lines. Pick yours.</p>
+            <div class="ctas">
+              <a class="btn btn-primary" href={QUICKSTART}>Send your first message <span aria-hidden="true">→</span></a>
+              <a class="btn btn-ghost" href={DOCS}>Read the docs</a>
+            </div>
+          </div>
+
+          <div class="mapbox">
+          <p class="map-title" aria-hidden="true"><b>Network map</b><span>Diagram not to scale</span></p>
+
+          <svg class="map-svg" viewBox={`0 0 ${W} ${H}`} aria-hidden="true" focusable="false">
+            <defs>
+              <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1.05" /></pattern>
+              {tracks.map((t) => (
+                <mask id={`m-${t.id}`} maskUnits="userSpaceOnUse" x="-20" y="-20" width={W + 40} height={H + 40}>
+                  <path id={`draw-${t.id}`} class="draw" d={t.d} />
+                </mask>
+              ))}
+            </defs>
+            <rect class="grid" x="0" y="0" width={W} height={H} fill="url(#grid)" />
+            {tracks.map((t) => (
+              <g class={`trk l${t.line}`} data-line={t.line} mask={`url(#m-${t.id})`}>
+                <path id={`base-${t.id}`} class="base" d={t.d} />
+                <path class="pat" d={t.d} />
+                <rect id={`train-${t.id}`} class="train" x="0" y="0" width="22" height="9" rx="4.5" />
+              </g>
+            ))}
+            {STATIONS.map((s) => (
+              <g class={`mk k-${s.kind}`} id={`mk-${s.id}`} data-lines={s.lines.join(' ')} transform={`translate(${s.x} ${s.y})`}>
+                {s.kind === 'interchange' ? (
+                  <>
+                    <circle class="pulse" r={s.id === 'hub' ? 19 : 15} />
+                    <circle class="ring" r={s.id === 'hub' ? 19 : 15} />
+                  </>
+                ) : (
+                  <circle class="dot" r={s.kind === 'terminus' ? 9 : 7} />
+                )}
+              </g>
+            ))}
+          </svg>
+
+          <div class="stations" role="group" aria-label="Stations. Use arrow keys to move between stations.">
+            {ordered.map((s) => (
+              <>
+                <button
+                  type="button"
+                  class={`stn k-${s.kind} p-${s.place}`}
+                  id={`st-${s.id}`}
+                  data-st={s.id}
+                  data-lines={s.lines.join(' ')}
+                  style={`left:${pct(s.x, W)};top:${pct(s.y, H)}`}
+                  aria-expanded="false"
+                  aria-controls={`card-${s.id}`}
+                  aria-describedby={`d-what-${s.id}`}
+                >
+                  <span class="stn-hit" aria-hidden="true"></span>
+                  <span class="stn-lbl">{s.name}<span class="sr">, {s.kind === 'interchange' ? 'interchange, ' : ''}{listLines(s.lines)}</span></span>
+                </button>
+                <div class={`card ${s.lines.length > 1 ? 'multi' : ''}`} id={`card-${s.id}`} data-card={s.id} hidden>
+                  <StationCard s={s} prefix="d" />
+                </div>
+              </>
+            ))}
+            <p class="here" aria-hidden="true" style={`left:${pct(80, W)};top:${pct(352, H)}`}>You are here</p>
+          </div>
+
+          <nav class="key" aria-label="Lines">
+            <p class="key-title">Choose a line</p>
+            <ul>
+              {LINES.map((l) => (
+                <li>
+                  <button type="button" class={`line-btn l${l.n}`} data-line={l.n} aria-pressed="false">
+                    <Badge n={l.n} />
+                    <span class="lb-text"><span class="lb-name" set:html={l.name.replace(/(Socket)(Client)/, "$1&shy;$2").replace(/(Integra)(tions)/, "$1&shy;$2")}></span><span class="lb-route">{l.route}</span></span>
+                    <span class={`sw sw${l.n}`} aria-hidden="true"></span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <button type="button" class="line-all" data-line="all">Show all lines</button>
+          </nav>
+          </div>
+
+          <div class="pmap" id="pmap">
+            {LINES.map((l) => (
+              <section class={`pline l${l.n}`} data-line={l.n} id={`pl-${l.n}`} aria-labelledby={`plh-${l.n}`} hidden={l.n !== 1 ? true : undefined}>
+                <header class="pl-head">
+                  <Badge n={l.n} size="lg" />
+                  <div>
+                    <h2 id={`plh-${l.n}`}>{l.name} Line</h2>
+                    <p>{l.blurb}</p>
+                  </div>
+                </header>
+                <ol class="pl-list" style={`--n:${PHONE_ORDER[l.n].length}`}>
+                  {PHONE_ORDER[l.n].map((o, i) => {
+                    const s = byId[o.id];
+                    const others = s.lines.filter((n) => n !== l.n);
+                    return (
+                      <li class={`pr k-${s.kind} ${o.branch ? 'is-branch' : ''}`} style={`--i:${i}`}>
+                        <button type="button" class="pr-btn" aria-expanded="false" aria-controls={`pc-${l.n}-${s.id}`}>
+                          <span class="pr-dot" aria-hidden="true"></span>
+                          <span class="pr-text">
+                            <span class="pr-name">{s.name}</span>
+                            {(s.tag || o.branch) && <span class="pr-tag">{o.branch ? 'branch terminus' : s.tag}</span>}
+                          </span>
+                          {others.length > 0 && <span class="pr-chg"><span class="sr">Change for </span>{others.map((n) => <Badge n={n} size="sm" label />)}</span>}
+                          <span class="pr-chev" aria-hidden="true"></span>
+                        </button>
+                        <div class="pr-card card" id={`pc-${l.n}-${s.id}`} hidden>
+                          <StationCard s={s} prefix={`p${l.n}`}>
+                            {others.length > 0 && (
+                              <div class="chg-row">
+                                {others.map((n) => (
+                                  <button type="button" class="chg" data-goto-line={n}>Change for <Badge n={n} size="sm" /> {lineName(n)}</button>
+                                ))}
+                              </div>
+                            )}
+                          </StationCard>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </section>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="planner" id="planner" aria-labelledby="planner-h">
+        <div class="wrap">
+          <h2 class="sign" id="planner-h"><span class="sign-ico" aria-hidden="true">→</span>Journey planner</h2>
+          <div class="pl-grid">
+            <div class="pl-from">
+              <p class="pl-q" id="want-q">I want to…</p>
+              <div class="jr-opts" role="group" aria-labelledby="want-q">
+                {JOURNEYS.map((j, i) => (
+                  <button type="button" class="jr-opt" data-j={j.id} aria-pressed={i === 0 ? 'true' : 'false'} aria-controls="jr-out">
+                    <span>{j.want[0].toUpperCase() + j.want.slice(1)}</span>
+                    <span class="jr-opt-lines" aria-hidden="true">{j.legs.map((g) => <Badge n={g.line} size="sm" />)}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div class="pl-out" id="jr-out" aria-live="polite">
+              {JOURNEYS.map((j, i) => {
+                const lines = j.legs.map((g) => g.line);
+                const stops = j.legs.reduce((a, g) => a + legStations(g.line, g.from, g.to).length - 1, 0);
+                const dest = byId[j.legs[j.legs.length - 1].to];
+                return (
+                  <article class="jr" id={`jr-${j.id}`} data-lines={lines.join(' ')} hidden={i !== 0 ? true : undefined}>
+                    <header class="jr-head">
+                      <p class="jr-want">I want to {j.want}</p>
+                      <p class="jr-sum">
+                        <span class="jr-take">Take</span>
+                        {lines.map((n, k) => (<>{k > 0 && <span class="jr-arrow" aria-hidden="true">→</span>}<Badge n={n} label /></>))}
+                        <span class="jr-meta">{j.legs.length === 1 ? 'Direct' : `${j.legs.length - 1} change`}, {stops} stops, arrive at {dest.name}</span>
+                      </p>
+                    </header>
+                    <ol class="legs">
+                      {j.legs.map((g, k) => {
+                        const st = legStations(g.line, g.from, g.to);
+                        const via = st.slice(1, -1).map((id) => byId[id].name);
+                        return (
+                          <>
+                            {k > 0 && <li class="leg-change"><span class="chg-ring" aria-hidden="true"></span>Change at <b>{byId[g.from].name}</b></li>}
+                            <li class={`leg l${g.line}`}>
+                              <span class="leg-bar" aria-hidden="true"></span>
+                              <p class="leg-stop">Board at <b>{byId[g.from].name}</b></p>
+                              <p class="leg-line"><Badge n={g.line} size="sm" /> {lineName(g.line)} Line</p>
+                              {via.length > 0 && <p class="leg-via">{via.length} stop{via.length > 1 ? 's' : ''}: {via.join(', ')}</p>}
+                              <p class="leg-stop">Alight at <b>{byId[g.to].name}</b></p>
+                            </li>
+                          </>
+                        );
+                      })}
+                    </ol>
+                    <p class="jr-tip">{j.tip}</p>
+                    <button type="button" class="btn btn-ghost jr-show" data-show={lines.join(' ')}>Show this route on the map <span aria-hidden="true">↑</span></button>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="service" id="service" aria-labelledby="service-h">
+        <div class="wrap">
+          <h2 class="sign" id="service-h"><span class="sign-ico sign-i" aria-hidden="true">i</span>Service information</h2>
+          <dl class="timetable">
+            <div class="tt-row"><dt>GitHub stars</dt><dd><span class="tt-big">3.6k</span><span class="tt-small">3,666 stars and 723 forks</span></dd></div>
+            <div class="tt-row"><dt>In service since</dt><dd><span class="tt-big">2019</span><span class="tt-small">Open source since August 2019, seven years running</span></dd></div>
+            <div class="tt-row"><dt>Current line</dt><dd><span class="tt-big">v5.0.0</span><span class="tt-small">The current stable release line</span></dd></div>
+            <div class="tt-row"><dt>Requires</dt><dd><span class="tt-big">22.21.1+</span><span class="tt-small">Node.js 22.21.1 or newer</span></dd></div>
+            <div class="tt-row"><dt>Browser drivers</dt><dd><span class="tt-big">3</span><span class="tt-small">Puppeteer, Playwright, Lightpanda</span></dd></div>
+            <div class="tt-row"><dt>Integrations</dt><dd><span class="tt-big">5</span><span class="tt-small">Webhook, Chatwoot, S3, Cloudflare session proxy, Node-RED</span></dd></div>
+            <div class="tt-row"><dt>AI tools</dt><dd><span class="tt-big">/mcp</span><span class="tt-small">A built-in Model Context Protocol server</span></dd></div>
+            <div class="tt-row"><dt>Monthly downloads</dt><dd><span class="tt-big tt-ph">[monthly npm downloads]</span><span class="tt-small">Placeholder</span></dd></div>
+          </dl>
+          <aside class="notice" aria-labelledby="notice-h">
+            <div class="notice-head"><span class="notice-tri" aria-hidden="true"><span>!</span></span><h2 id="notice-h">Service notice</h2></div>
+            <p class="notice-main">open-wa is unofficial and not affiliated with WhatsApp or Meta.</p>
+            <ul class="notice-list">
+              <li>Some methods need a Restricted or Insiders license. <a href={LICENSED}>Licensed features <span aria-hidden="true">↗</span></a></li>
+              <li>Automating a WhatsApp account is never risk-free. Read the docs before you depart.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
+      <section class="terminus" aria-labelledby="terminus-h">
+        <div class="wrap">
+          <p class="kicker kicker-inv"><span class="kicker-dot" aria-hidden="true"></span>All lines start here</p>
+          <div class="term-lines" aria-hidden="true">{LINES.map((l) => <span class={`l${l.n}`}></span>)}<i></i></div>
+          <h2 id="terminus-h">Your first message is one command away.</h2>
+          <div class="code code-big">
+            <pre><code>npx @open-wa/wa-automate@latest --port 8080</code></pre>
+            <button type="button" class="copy" data-copy>Copy</button>
+          </div>
+          <div class="ctas">
+            <a class="btn btn-primary btn-inv" href={QUICKSTART}>Send your first message <span aria-hidden="true">→</span></a>
+            <a class="btn btn-ghost btn-ghost-inv" href={REFERENCE}>Client API reference</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div class="wrap foot-grid">
+        <Logo uid="foot" size={30} />
+        <nav class="foot-nav" aria-label="Footer">
+          <a href={DOCS}>Docs</a>
+          <a href={REFERENCE}>Client API reference</a>
+          <a href={GITHUB}>GitHub</a>
+          <a href={DISCORD}>Discord</a>
+          <a href={LICENSED}>Licensed features</a>
+        </nav>
+        <p class="foot-note">open-wa is unofficial and not affiliated with WhatsApp or Meta. Diagram not to scale.</p>
+      </div>
+    </footer>
+
+    <script is:inline type="application/json" id="net-data" set:html={netData}></script>
+    <script>
+      import '../scripts/network.ts';
+    </script>
+  </body>
+</html>
