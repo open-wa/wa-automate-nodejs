@@ -16,7 +16,8 @@ The driver uses `puppeteer-core`, so package installation does not download a
 browser. Launch downloads Lightpanda 1.0.0 only when needed, verifies its release
 SHA-256 digest, and reuses it from `~/.cache/open-wa/lightpanda`. A custom
 `lightpanda.executablePath` or `LIGHTPANDA_EXECUTABLE_PATH` takes precedence.
-An installed binary on `PATH` or in `~/.local/bin` is also detected.
+Basic mode also detects an installed binary on `PATH` or in `~/.local/bin`;
+experimental WhatsApp mode uses the pinned release for its prepared cached copy.
 Set `browser.download: 'never'` to require an existing binary, or
 `browser.cacheDirectory` to choose another cache.
 
