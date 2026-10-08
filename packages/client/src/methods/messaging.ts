@@ -14,6 +14,8 @@ import type {
 import { createUnsupportedMethodStub } from '../runtimeSurface';
 import { SendTextResultSchema, AlbumSendResultSchema, sendAlbum as sendAlbumSchema } from '@open-wa/schema';
 import { SendTextError } from '../SendTextError';
+import type { StickerInput, StickerJob } from '@open-wa/stickers';
+import { sendClientSticker } from '../stickers';
 
 declare const WAPI: {
   sendMessage: (to: string, content: string) => Promise<unknown>;
@@ -21,7 +23,6 @@ declare const WAPI: {
   sendFile: (base64: string, to: string, filename: string, caption: string) => Promise<string>;
   sendLocation: (to: string, lat: number, lng: number, loc: string, address?: string, url?: string) => Promise<string | false>;
   sendContact: (to: string, contact: string | string[]) => void;
-  sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => Promise<string | boolean>;
   reply: (to: string, content: string, quotedMsg: string | Message) => Promise<string | boolean>;
   forwardMessages: (to: string, messages: string | (string | Message)[], skipMyMessages: boolean) => Promise<MessageIdReturn[] | boolean>;
   smartDeleteMessages: (chatId: string, messageId: string[] | string, onlyLocal: boolean) => Promise<any>;
@@ -45,7 +46,8 @@ export interface MessagingMethods {
   sendFile(to: ChatId, file: DataURL | Base64, filename: string, caption?: string): Promise<MessageId>;
   sendLocation(to: ChatId, lat: number, lng: number, locationText: string, address?: string): Promise<MessageId | false>;
   sendContact(to: ChatId, contact: ContactId | ContactId[]): Promise<void>;
-  sendSticker(to: ChatId, stickerData: DataURL | Base64, metadata?: { author?: string; pack?: string }): Promise<MessageId | boolean>;
+  /** Render locally with automatic whole-job routing, then submit through the donor finalizer. */
+  sendSticker(to: ChatId, input: StickerInput, job?: StickerJob): Promise<MessageId>;
   reply(to: ChatId, content: string, quotedMsgId: MessageId): Promise<MessageId | boolean>;
   forwardMessages(to: ChatId, messages: MessageId | MessageId[], skipMyMessages?: boolean): Promise<MessageIdReturn[] | boolean>;
   deleteMessage(chatId: ChatId, messageId: MessageId | MessageId[], onlyLocal?: boolean): Promise<boolean>;
@@ -173,14 +175,10 @@ export function messagingMethods(client: Client): MessagingMethods {
     
     async sendSticker(
       to: ChatId,
-      stickerData: DataURL | Base64,
-      metadata?: { author?: string; pack?: string }
-    ): Promise<MessageId | boolean> {
-      return evaluate(
-        ({ to, stickerData, metadata }) => 
-          WAPI.sendImageAsSticker(stickerData, to, metadata),
-        { to, stickerData, metadata }
-      ) as Promise<MessageId | boolean>;
+      input: StickerInput,
+      job?: StickerJob
+    ): Promise<MessageId> {
+      return sendClientSticker(client, to, input, job);
     },
     
     async reply(to: ChatId, content: string, quotedMsgId: MessageId): Promise<MessageId | boolean> {

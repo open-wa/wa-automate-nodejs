@@ -43,7 +43,7 @@ export const clientRuntimeMethodSurface = {
   },
   sendLocation: { support: 'runtime', runtimeMethod: 'sendLocation' },
   sendContact: { support: 'runtime', runtimeMethod: 'sendContact' },
-  sendSticker: { support: 'runtime', runtimeMethod: 'sendImageAsSticker' },
+  sendSticker: { support: 'runtime', runtimeMethod: 'sendStickerJob' },
   reply: { support: 'runtime', runtimeMethod: 'reply' },
   forwardMessages: { support: 'runtime', runtimeMethod: 'forwardMessages' },
   deleteMessage: { support: 'runtime', runtimeMethod: 'smartDeleteMessages' },
