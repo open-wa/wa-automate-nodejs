@@ -15,6 +15,7 @@ import { createHonoMcpAdapter } from '@open-wa/mcp';
 import { registerMetaRoutes } from './routes/meta';
 import { registerDebugRoutes } from './routes/debug';
 import { registerCallingRoutes } from './routes/calls';
+import { registerSessionRefreshRoutes } from './routes/session-refresh';
 import { registerAgentDiscoveryRoutes } from './routes/agent-discovery';
 import { type EventBridge } from './events/EventBridge';
 import { HealthStore } from './health/HealthStore';
@@ -321,6 +322,7 @@ export class ApiServer {
   }
 
   private registerRoutes() {
+    registerSessionRefreshRoutes(this.app, this.config, () => this.client);
     const methodDefinitions = getHttpMethodDefinitions();
     registerAgentDiscoveryRoutes(this.app, {
       config: this.config,

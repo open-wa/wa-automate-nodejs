@@ -38,6 +38,7 @@ function bridgeRuntimeEvents(
 
     const unsubscribers: Array<() => void> = [];
     const bridgedEvents = new Set(eventRegistry.getAll().map((def) => def.meta.eventName));
+    bridgedEvents.add('session.refresh.progress');
 
     bridgedEvents.forEach((eventName) => {
         const handler = (payload: any) => publishRuntimeEvent(eventName, payload);

@@ -40,6 +40,7 @@ export type PersistenceArtifact = unknown;
 export type STATE = 'STARTING' | 'AUTHENTICATING' | 'READY' | 'DISCONNECTED' | 'STOPPED';
 
 export interface OpenWAEventMap {
+  'session.refresh.progress': { ctx: EventContext; refresh: import('@open-wa/schema').SessionRefreshSnapshot };
   'launch.create.start': StepEvent<{ configSummary?: Record<string, unknown> }>;
   'launch.create.retry': StepEvent<{ reason: string; nextAttempt: number }>;
   'launch.create.ready': StepEvent<{ state: STATE }>;
@@ -350,6 +351,7 @@ export const OpenWAEventMetaMap: Record<keyof OpenWAEventMap, OpenWAEventMeta> =
   'session.reinject.qr.waiting': { internal: true, sensitive: false },
   'session.stale.detected': { internal: true, sensitive: false },
   'session.logout': { internal: false, sensitive: false },
+  'session.refresh.progress': { internal: false, sensitive: false },
 
   'message.received': { internal: false, sensitive: false },
   'message.any': { internal: false, sensitive: false },

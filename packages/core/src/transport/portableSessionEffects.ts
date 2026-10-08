@@ -1,5 +1,5 @@
 import { Cause, Data, Effect } from 'effect';
-import { runToPromise } from '../effect/errors';
+import { OpenWAError, runToPromise } from '../effect/errors';
 
 type PortableSessionFailureCode =
   | 'PORTABLE_SESSION_FAILED'
@@ -46,7 +46,12 @@ export function portableIO<A>(
   code: PortableSessionFailureCode,
   operation: () => PromiseLike<A>,
 ): Effect.Effect<A, PortableSessionFailure> {
-  return Effect.tryPromise({ try: operation, catch: () => portableFailure(code) });
+  return Effect.tryPromise({ try: operation, catch: error => {
+    // Keep known, sanitized storage failures instead of replacing their cause
+    // with a generic provisioning error at each Promise boundary.
+    const failure = error instanceof OpenWAError ? error.cause : error;
+    return portableFailure(failure instanceof PortableSessionFailure ? failure.message : code);
+  } });
 }
 
 /** Normalize finalizer defects too, so no Effect cause or private exception crosses the SDK boundary. */

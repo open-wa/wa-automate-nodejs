@@ -49,3 +49,4 @@ export * from './calling-media';
 
 export * from './calling-wire';
 export * from './license';
+export * from './session-refresh';

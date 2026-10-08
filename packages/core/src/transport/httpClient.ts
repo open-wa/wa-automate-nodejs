@@ -46,7 +46,7 @@ const DEFAULT_RETRIES = 1;
 export async function fetchPatches(
   primaryUrl: string,
   params: PatchFetchParams,
-  options?: HttpClientOptions & { fallbackUrl?: string },
+  options?: HttpClientOptions & { fallbackUrl?: string; fresh?: boolean },
 ): Promise<PatchFetchResult> {
   const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const retries = options?.retries ?? DEFAULT_RETRIES;
@@ -55,6 +55,7 @@ export async function fetchPatches(
   const queryParams = new URLSearchParams();
   if (params.waVersion) queryParams.set('wv', params.waVersion);
   if (params.waAutomateVersion) queryParams.set('wav', params.waAutomateVersion);
+  if (options?.fresh) queryParams.set('v', String(Date.now()));
 
   const primaryFullUrl = queryParams.toString()
     ? `${primaryUrl}?${queryParams.toString()}`

@@ -5,6 +5,7 @@ export interface TunnelClientOptions {
   proxyToken: string;
   sessionId: string;
   localSessionPort: number;
+  localApiKey?: string;
   log?: (level: 'info' | 'warn' | 'error', message: string) => void;
 }
 
@@ -123,19 +124,23 @@ export class TunnelClient {
   }
 
   private async handleRpcAsHttp(msg: any) {
+    const refreshControl = msg.method === 'requestRefresh' || msg.method === 'getRefreshStatus';
     // If the proxy sends an RPC request, map it to the REST API equivalent.
     // E.g. rpc 'sendText' -> HTTP POST /api/sendText
-    const localUrl = `http://localhost:${this.options.localSessionPort}/api/${msg.method}`;
+    const localUrl = `http://localhost:${this.options.localSessionPort}${refreshControl ? '/api/session/refresh' : `/api/${msg.method}`}`;
     try {
+      const method = msg.method === 'getRefreshStatus' ? 'GET' : 'POST';
       const res = await fetch(localUrl, {
-        method: 'POST',
+        method,
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            ...(refreshControl && this.options.localApiKey ? { 'X-API-Key': this.options.localApiKey } : {}),
         },
-        body: JSON.stringify({ args: msg.args })
+        ...(method === 'POST' ? { body: JSON.stringify(refreshControl ? msg.args ?? {} : { args: msg.args }) } : {}),
       });
       
       const resData = await res.json();
+      if (refreshControl && !res.ok) throw new Error(resData.error || 'Session controls are unavailable.');
       
       const responseMsg = {
         type: 'rpc_response',

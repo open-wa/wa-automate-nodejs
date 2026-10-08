@@ -3,6 +3,7 @@ import type { LicenseFeatures } from '@open-wa/socket-client';
 import { getClient } from '@/lib/api-client';
 import { useDemo } from '@/lib/demo/use-demo';
 import { useSocket } from './use-socket';
+import { useSessionRefresh } from './use-session-refresh';
 
 export type LicenseTier = 'insiders' | 'restricted';
 export type LicenseState = 'loading' | 'licensed' | 'unlicensed' | 'unknown' | 'unavailable';
@@ -26,6 +27,7 @@ function readTier(value: string | null): LicenseTier | null {
 export function useLicense(): LicenseSnapshot {
   const { isDemo } = useDemo();
   const { connected } = useSocket();
+  const refreshOperation = useSessionRefresh();
   const [snapshot, setSnapshot] = useState<LicenseSnapshot>(isDemo ? demo : initial);
   useEffect(() => {
     if (isDemo) { setSnapshot(demo); return; }
@@ -50,6 +52,9 @@ export function useLicense(): LicenseSnapshot {
     };
     void refresh();
     return () => { mounted = false; clearTimeout(timer); };
-  }, [isDemo, connected]);
+  }, [isDemo, connected, refreshOperation.snapshot?.finishedAt]);
+  if (refreshOperation.snapshot?.running && refreshOperation.snapshot.phase !== 'preparing') {
+    return { ...initial, detail: 'Session functionality is being restored.', source: 'runtime' };
+  }
   return snapshot;
 }

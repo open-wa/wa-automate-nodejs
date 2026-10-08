@@ -20,6 +20,7 @@ import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
 import type { OpenWAEventMap, STATE } from '../events/eventMap';
 import { fetchPatches, validateLicense } from './httpClient';
+import { installDocumentRuntime } from '../livePatch/installDocument';
 import { InjectionController, type GenerationSnapshot } from './InjectionController';
 import { getProgObserverScript, injectInitPatch } from './initPatchScripts';
 import { getRuntimeListenerSurfaceEntry, runtimeListenerSurface } from './runtimeListenerSurface';
@@ -286,6 +287,7 @@ export interface LicensePreloadOptions {
   licenseKey?: LicenseKeyResolver;
   source?: Exclude<LicenseSource, 'none'>;
   sessionInfo?: SessionDebugInfo;
+  strict?: boolean;
 }
 
 export interface LicenseArtifact {
@@ -450,6 +452,7 @@ export class Transport {
   private pageListeners: DisposableHandle[] = [];
   private readonly injectionController: InjectionController;
   private runtimeRecoveryQueue: Promise<void> = Promise.resolve();
+  private runtimeRecoveryEnabled = false;
   private latestRuntimeRecoveryRequestId = 0;
   private pendingRuntimeRecoveryCount = 0;
   private consecutiveRecoveryAttempts = 0;
@@ -463,6 +466,11 @@ export class Transport {
   private licenseRenewalTimer?: ReturnType<typeof setTimeout>;
   private licenseRenewing = false;
   private licenseRenewalAttempts = 0;
+  private plannedRuntimeMutation = 0;
+  private runtimeRecoveryFailed = false;
+  private activeLivePatchPreload: LivePatchPreloadResult | null = null;
+  private refreshHandler?: () => Promise<unknown>;
+  private effectiveLicenseKey?: string;
 
   constructor(options: TransportOptions) {
     this.options = options;
@@ -654,7 +662,7 @@ export class Transport {
     return true;
   }
 
-  async injectWapi(): Promise<boolean> {
+  async injectWapi(options?: { reuseCachedPatches?: boolean }): Promise<boolean> {
     if (!this.page) {
       throw new Error('Transport not initialized');
     }
@@ -676,7 +684,7 @@ export class Transport {
 
     try {
       await this.runPreApiHelperPhase();
-      success = await this.performRuntimeInjection();
+      success = await this.performRuntimeInjection(() => true, options?.reuseCachedPatches !== false);
 
       if (success) {
         // Pairing has no authenticated message store yet. Startup activates
@@ -981,7 +989,7 @@ export class Transport {
     return recovery.reinjected || recovery.capability.hasRuntime;
   }
 
-  async preloadLivePatchArtifacts(options?: { sessionInfo?: SessionDebugInfo }): Promise<LivePatchPreloadResult> {
+  async preloadLivePatchArtifacts(options?: { sessionInfo?: SessionDebugInfo; fresh?: boolean }): Promise<LivePatchPreloadResult> {
     const correlationId = 'transport-patch-preload';
     const startTime = Date.now();
 
@@ -1000,8 +1008,14 @@ export class Transport {
       let remoteFetchResult: LivePatchFetchResult | null = null;
 
       try {
-        remoteFetchResult = await this.fetchLivePatchesWithCache(options?.sessionInfo);
+        remoteFetchResult = options?.fresh
+          ? { ...(await this.fetchFreshLivePatches(options.sessionInfo, true)), source: 'remote' }
+          : await this.fetchLivePatchesWithCache(options?.sessionInfo);
+        if (options?.fresh && (!remoteFetchResult.data.length || remoteFetchResult.data.some(script => !script.trim()))) {
+          throw new Error('The public patch bundle is empty.');
+        }
       } catch (fetchError) {
+        if (options?.fresh) throw new Error('Fresh public patches could not be downloaded.');
         const fetchMsg = fetchError instanceof Error ? fetchError.message : String(fetchError);
         this.logger.warn('remote_patch_fetch_failed', { error: fetchMsg });
         // Remote fetch failure is non-blocking — we fall through to builtin-only
@@ -1014,7 +1028,7 @@ export class Transport {
             patchId: `remote-patch-${i}`,
             description: `Remote live patch #${i} (tag: ${remoteFetchResult.tag})`,
             script: remoteFetchResult.data[i],
-            required: false,
+            required: options?.fresh === true,
             source: remoteFetchResult.source,
           });
         }
@@ -1101,8 +1115,11 @@ export class Transport {
     // Only cache scripts that were successfully applied and are real evaluatable
     // scripts (not builtin attestation or deferred init-patch markers).
     if (result.outcome !== 'failed') {
+      this.activeLivePatchPreload = { ...preloaded,
+        artifacts: preloaded.artifacts.filter(artifact => result.applied.includes(artifact.patchId))
+          .map(artifact => ({ ...artifact, required: artifact.source !== 'builtin' || artifact.required })) };
       this.cachedLivePatchScripts = preloaded.artifacts
-        .filter((a) => a.source === 'remote' && a.script !== 'DEFERRED_INIT_PATCH')
+        .filter((a) => a.source !== 'builtin' && a.script !== 'DEFERRED_INIT_PATCH' && result.applied.includes(a.patchId))
         .map((a) => a.script);
 
       if (this.cachedLivePatchScripts.length > 0) {
@@ -1273,6 +1290,7 @@ export class Transport {
         details: {
           patchId: artifact.patchId,
           applied: result.outcome === 'applied',
+          description: artifact.description,
           outcome: result.outcome,
           required: artifact.required,
           detail: result.detail,
@@ -1366,7 +1384,7 @@ export class Transport {
       if (!this.licenseConfig.offlineLicenseMode && options.sessionInfo?.hostNumber) {
 
         try {
-          const serverPayload = await validateLicense(this.licenseConfig.url ?? DEFAULT_LICENSE_CHECK_URL, {
+          const body = {
             key: resolvedKey,
             number: options.sessionInfo.hostNumber,
             WA_VERSION: options.sessionInfo.WA_VERSION,
@@ -1375,7 +1393,8 @@ export class Transport {
             PAGE_UA: options.sessionInfo.PAGE_UA,
             OS: options.sessionInfo.OS,
             NUM_HASH: options.sessionInfo.NUM_HASH,
-          });
+          };
+          const serverPayload = await validateLicense(this.licenseConfig.url ?? DEFAULT_LICENSE_CHECK_URL, body);
 
 
           if (serverPayload === false) {
@@ -1408,8 +1427,9 @@ export class Transport {
 
           payload = serverPayload;
           payloadSource = 'server';
-          this.logger.info('license_server_validation_success', { maskedKey: this.maskLicenseKey(resolvedKey) });
+          this.logger.info('license_server_response_downloaded', { maskedKey: this.maskLicenseKey(resolvedKey) });
         } catch (serverError) {
+          if (options.strict) throw new Error('The license response could not be downloaded.');
           const serverMsg = serverError instanceof Error ? serverError.message : String(serverError);
           this.logger.warn('license_server_validation_failed', { error: serverMsg });
           // Fall back to local metadata injection
@@ -1417,6 +1437,7 @@ export class Transport {
           payloadSource = 'local_metadata';
         }
       } else {
+        if (options.strict) throw new Error('License authorization requires a connected account and the license server.');
         // Offline mode or no host number yet — use local metadata
         payload = this.buildLicensePayload(resolvedKey, keyType);
         payloadSource = 'local_metadata';
@@ -1438,7 +1459,7 @@ export class Transport {
         artifact,
         blockingFailure: false,
         detail: payloadSource === 'server'
-          ? 'License capability was confirmed by the validation server.'
+          ? 'License response downloaded; its code must run to confirm access.'
           : 'License metadata fallback was prepared without server confirmation.',
       };
 
@@ -1554,7 +1575,7 @@ export class Transport {
         artifact: preloaded.artifact,
         blockingFailure: false,
         detail: preloaded.artifact.payloadSource === 'server'
-          ? 'License capability remained server-confirmed at check time.'
+          ? 'License response is available for evaluation.'
           : 'License metadata fallback is available, but capability is not server-confirmed.',
       };
     }
@@ -1590,17 +1611,25 @@ export class Transport {
   private scheduleLicenseRenewal(): void {
     clearTimeout(this.licenseRenewalTimer);
     const expiry = this.licenseFeatures.expiresAt ?? this.calling.licenseExpiresAt;
-    if (!expiry || this.retainedLicenseArtifact?.payloadSource !== 'server') return;
+    if (!this.page || this.page.isClosed() || !expiry || this.retainedLicenseArtifact?.payloadSource !== 'server') return;
     this.licenseRenewalTimer = setTimeout(() => { void this.refreshLicenseFeatures(); }, Math.max(1000, expiry - Date.now() - 30_000));
     this.licenseRenewalTimer.unref?.();
   }
 
   private async refreshLicenseFeatures(): Promise<void> {
+    if (this.plannedRuntimeMutation || this.runtimeRecoveryFailed) return;
+    await this.renewLicenseFeatures();
+  }
+
+  private async renewLicenseFeatures(): Promise<void> {
+    if (this.plannedRuntimeMutation) return;
     if (this.licenseRenewing || !this.retainedLicenseArtifact || !this.page || this.page.isClosed()) return;
     this.licenseRenewing = true;
     try {
       const existing = this.retainedLicenseArtifact;
+      const documentId = this.getDocumentGeneration().documentId;
       const refreshed = await this.preloadLicenseArtifact({ sessionId: this.options.sessionId ?? 'session', licenseKey: existing.key, sessionInfo: await this.getSessionDebugInfo() });
+      if (this.plannedRuntimeMutation || this.retainedLicenseArtifact !== existing || this.getDocumentGeneration().documentId !== documentId) return;
       const artifact = refreshed.artifact;
       if (refreshed.status === 'invalid' || refreshed.status === 'expired') {
         this.licenseFeatures = { ...this.licenseFeatures, status: refreshed.status, expiresAt: null };
@@ -1611,9 +1640,13 @@ export class Transport {
       }
       if (!artifact || artifact.payloadSource !== 'server') { this.logger.warn('Licence refresh is unavailable. Current feature access remains bounded by its expiry.'); return; }
       const checked = await this.checkLicenseArtifact(refreshed);
+      if (this.plannedRuntimeMutation || this.retainedLicenseArtifact !== existing || this.getDocumentGeneration().documentId !== documentId) return;
       const applied = await this.applyLicenseArtifact(checked);
       if (applied.applied && applied.status === 'valid') this.licenseRenewalAttempts = 0;
-      else await this.calling.revoke();
+      else {
+        await this.calling.revoke();
+        void this.refreshHandler?.().catch(() => undefined);
+      }
     } catch { this.logger.warn('Licence renewal is unavailable. Existing feature access remains bounded by its expiry.'); }
     finally {
       this.licenseRenewing = false;
@@ -1666,6 +1699,7 @@ export class Transport {
       const detectedKeyType = await this.page.evaluateScript<string | false>('window.KEYTYPE || false');
       if (checked.status === 'valid' && applied && !launchError) {
         this.retainedLicenseArtifact = checked.artifact;
+        if (!this.plannedRuntimeMutation) this.effectiveLicenseKey = checked.artifact.key;
         this.licenseFeatures = { status: 'valid', keyType: detectedKeyType || checked.artifact.keyType || null, features: {}, expiresAt: null };
         try {
           const raw = await this.page.evaluateScript<unknown>('({features:window.__OWA_LICENSE_FEATURES,expiries:window.__OWA_LICENSE_FEATURE_EXPIRIES})');
@@ -1733,6 +1767,7 @@ export class Transport {
   }
 
   getLicenseFeatures(): LicenseFeatures {
+    if (this.plannedRuntimeMutation || this.runtimeRecoveryFailed) return { status: 'metadata_only', keyType: null, expiresAt: null, features: {} };
     const snapshot = this.licenseFeatures;
     const status = snapshot.status === 'valid' && snapshot.expiresAt !== null && snapshot.expiresAt <= Date.now() ? 'expired' : snapshot.status;
     const features = { patch_calls_control: false, patch_calls_audio: false, patch_calls_video: false, ...snapshot.features };
@@ -2279,8 +2314,46 @@ export class Transport {
     if (!this.page) {
       throw new Error('Transport not initialized');
     }
-    return this.page.evaluate(fn, arg);
+    const page = this.page;
+    return page.evaluate(fn, arg);
   }
+
+  async evaluateScript<T = unknown>(script: string): Promise<T | null> {
+    const page = this.page;
+    if (!page || page.isClosed()) return null;
+    return page.evaluateScript<T>(script);
+  }
+
+  getActiveLivePatchPreload(): LivePatchPreloadResult | null { return this.activeLivePatchPreload; }
+  getEffectiveLicenseKey(): string | undefined { return this.effectiveLicenseKey; }
+  getDocumentGeneration(): GenerationSnapshot { return { ...this.injectionController.getHealthSnapshot().generation }; }
+  commitEffectiveLicenseKey(key: string | undefined): void { this.effectiveLicenseKey = key; }
+  setRuntimeRefreshHandler(handler: () => Promise<unknown>): void { this.refreshHandler = handler; }
+
+  async runPlannedRuntimeMutation<T>(operation: () => Promise<T>): Promise<T> {
+    this.plannedRuntimeMutation++;
+    ++this.latestRuntimeRecoveryRequestId;
+    clearTimeout(this.licenseRenewalTimer);
+    try {
+      await this.runtimeRecoveryQueue;
+      await this.injectionController.waitForIdle();
+      return await operation();
+    } finally { this.plannedRuntimeMutation--; this.scheduleLicenseRenewal(); }
+  }
+
+  async reloadPage(): Promise<void> {
+    if (!this.page || this.page.isClosed()) throw new Error('SESSION_REFRESH_PAGE_UNAVAILABLE');
+    this.runtimeRecoveryFailed = true;
+    await this.calling.invalidate('The session is refreshing. Attach fresh call media after it is ready.');
+    this.retainedLicenseArtifact = undefined;
+    this.licenseFeatures = { status: 'missing', keyType: null, expiresAt: null, features: {} };
+    await this.page.reload();
+    await this.injectionController.waitForIdle();
+  }
+
+  completeRuntimeReplacement(): void { this.runtimeRecoveryFailed = false; }
+
+  enableRuntimeRecovery(): void { this.runtimeRecoveryEnabled = true; }
 
   getPage(): IPage | null {
     return this.page;
@@ -2301,7 +2374,7 @@ export class Transport {
       generation: driverActiveGeneration ? { ...health.generation } : null,
       phase: health.phase,
       driverActiveGeneration,
-      runtimeOperational: health.runtimePresent && health.hasStoreMsg && health.sessionLoaded,
+      runtimeOperational: !this.runtimeRecoveryFailed && health.runtimePresent && health.hasStoreMsg && health.sessionLoaded,
       runtimeBridgeReady: health.bridgeReady && missingRuntimeMethods.length === 0,
       reinjectionSettled: this.pendingRuntimeRecoveryCount === 0,
       missingRuntimeMethods,
@@ -2442,6 +2515,7 @@ export class Transport {
     });
 
     this.injectionController.registerNavigationObserver('runtime.navigation_recovery', (_frame, generation) => {
+      if (!this.runtimeRecoveryEnabled || this.plannedRuntimeMutation) return;
       void this.calling.invalidate().catch(error => this.logger.warn('Calling media could not close after navigation', { message: String(error) }));
       this.logger.info(`FRAME NAV DETECTED ${this.frameNavCounter}, ${_frame.url()}, Reinjecting APIs...`);
       this.queueRuntimeRecovery('main_frame_navigation', generation);
@@ -2688,6 +2762,9 @@ export class Transport {
     trigger: 'main_frame_navigation' | 'runtime_replaced',
     generation?: GenerationSnapshot,
   ): void {
+    // Bootstrap owns the initial document until it has finished installing every
+    // artifact. Navigation and WAPI replacement callbacks must not race it.
+    if (!this.runtimeRecoveryEnabled || this.plannedRuntimeMutation) return;
     const requestId = ++this.latestRuntimeRecoveryRequestId;
     this.pendingRuntimeRecoveryCount += 1;
 
@@ -2698,15 +2775,30 @@ export class Transport {
     });
 
     this.runtimeRecoveryQueue = this.runtimeRecoveryQueue.then(
-      () => this.runRuntimeRecovery({ requestId, trigger, generation }),
-      () => this.runRuntimeRecovery({ requestId, trigger, generation }),
+      () => this.recoverDocument({ requestId, trigger, generation }),
+      () => this.recoverDocument({ requestId, trigger, generation }),
     ).catch((error) => {
+      this.runtimeRecoveryFailed = true;
       this.logger.warn('runtime_recovery_failed', {
         trigger,
         requestId: String(requestId),
         error: error instanceof Error ? error.message : String(error),
       });
     });
+  }
+
+  private async recoverDocument(request: Parameters<Transport['runRuntimeRecovery']>[0]): Promise<void> {
+    // Own callbacks during recovery itself without waiting on our own queue.
+    this.plannedRuntimeMutation++;
+    clearTimeout(this.licenseRenewalTimer);
+    try {
+      await this.runRuntimeRecovery(request);
+    }
+    catch (error) { this.runtimeRecoveryFailed = true; throw error; }
+    finally {
+      this.plannedRuntimeMutation--;
+      this.scheduleLicenseRenewal();
+    }
   }
 
   private isLatestRuntimeRecoveryRequest(requestId: number): boolean {
@@ -2732,7 +2824,7 @@ export class Transport {
           max: MAX_CONSECUTIVE_RECOVERY_ATTEMPTS,
           requestId: String(request.requestId),
         });
-        return;
+        throw new Error('Runtime recovery exceeded its bounded attempt limit.');
       }
 
       const settledGeneration = await this.injectionController.waitForIdle();
@@ -2809,7 +2901,7 @@ export class Transport {
       const { reinjected } = await this.recoverRuntimeForCurrentDocument({
         trigger: request.trigger,
         shouldContinue: () => this.isLatestRuntimeRecoveryRequest(request.requestId),
-        forceReinject: request.trigger === 'runtime_replaced',
+        forceReinject: true,
       });
 
       this.logger.info('runtime_recovery_completed', {
@@ -2868,72 +2960,23 @@ export class Transport {
       }
     }
 
-    // ── Step 1: Reinject wapi.js + launch.js + cached live patches ──
-    // performRuntimeInjection already re-applies cached live patch scripts.
-    const reinjected = await this.performRuntimeInjection(shouldContinue);
-    if (!shouldContinue()) {
-      capability = await this.probeRuntimeCapability();
-      return { capability, reinjected };
-    }
-
-    // ── Step 2: Re-apply init patch + wire bridge ──
-    // ONLY for actual context-flush recovery (frame nav / runtime_replaced) where
-    // the full patch stack was previously applied and needs restoration.
-    //
-    // For post_authentication and validation_failure, the bootstrap sequence in
-    // createClient.ts manages the correct layering order:
-    //   wapi → live patches (CDN) → license → init patch → bridge wiring
-    // Applying init_patch here would be premature (before live patches exist)
-    // and causes "Identifier already declared" when bootstrap tries again later.
-    const isContextFlushRecovery = options.trigger === 'main_frame_navigation'
-      || options.trigger === 'runtime_replaced';
-
-    if (reinjected && isContextFlushRecovery) {
+    const contextRecovery = options.trigger === 'main_frame_navigation' || options.trigger === 'runtime_replaced';
+    const reinjected = await this.performRuntimeInjection(shouldContinue, !contextRecovery);
+    if (!shouldContinue()) return { capability: await this.probeRuntimeCapability(), reinjected };
+    if (contextRecovery && !reinjected) throw new Error('The base runtime could not be restored.');
+    if (reinjected && contextRecovery) {
+      const documentId = this.getDocumentGeneration().documentId;
+      const patches = this.activeLivePatchPreload;
+      if (!patches) throw new Error('No complete public installation is available for document recovery.');
       await this.calling.invalidate();
-      if (this.retainedLicenseArtifact?.payloadSource === 'server') {
-        try {
-          const refreshed = await this.preloadLicenseArtifact({ sessionId: this.options.sessionId ?? 'session', licenseKey: this.retainedLicenseArtifact.key, sessionInfo: await this.getSessionDebugInfo() });
-          const checked = await this.checkLicenseArtifact(refreshed);
-          if (checked.status === 'valid') await this.applyLicenseArtifact(checked);
-        } catch (error) {
-          this.logger.warn('Calling could not recover its licensed provider', { message: String(error) });
-        }
-      }
-      try {
-        this.logger.info('recovery_reapplying_init_patch', {
-          trigger: options.trigger,
-        });
-        await injectInitPatch(this.page!);
-        this.logger.debug('recovery_init_patch_reapplied', {
-          trigger: options.trigger,
-        });
-      } catch (initPatchError) {
-        const msg = initPatchError instanceof Error ? initPatchError.message : String(initPatchError);
-        this.logger.warn('recovery_init_patch_reapply_failed', {
-          trigger: options.trigger,
-          error: msg,
-        });
-      }
-
-      // ── Step 3: Wire the bridge (AFTER all patches are applied) ──
-      // This matches the v4 order: patches → init → client.loaded() (bridge)
-      try {
-        const bridgeReady = await this.injectionController.ensureRuntimeBridge();
-        // A replacement document gets a new portable owner at bootstrap. Resume
-        // its checkpointing and delivery only after the runtime is loaded again.
-        await this.portable.activate();
-        await this.calling.bind();
-        this.logger.info('recovery_bridge_wired', {
-          trigger: options.trigger,
-          bridgeReady,
-        });
-      } catch (bridgeError) {
-        const msg = bridgeError instanceof Error ? bridgeError.message : String(bridgeError);
-        this.logger.warn('recovery_bridge_wiring_failed', {
-          trigger: options.trigger,
-          error: msg,
-        });
-      }
+      await installDocumentRuntime(this, { ...patches, artifacts: patches.artifacts.map(artifact => ({ ...artifact, required: artifact.source !== 'builtin' || artifact.required })) }, async () => {
+        if (this.getDocumentGeneration().documentId !== documentId || !shouldContinue()) throw new Error('Document recovery was superseded.');
+        const license = await this.preloadLicenseArtifact({ sessionId: this.options.sessionId ?? 'session',
+          licenseKey: this.effectiveLicenseKey, sessionInfo: await this.getSessionDebugInfo(), strict: true });
+        return license;
+      });
+      if (this.getDocumentGeneration().documentId !== documentId || !shouldContinue()) throw new Error('Document recovery was superseded.');
+      this.completeRuntimeReplacement();
     }
 
     capability = await this.probeRuntimeCapability();
@@ -2944,7 +2987,7 @@ export class Transport {
     };
   }
 
-  private async performRuntimeInjection(shouldContinue: () => boolean = () => true): Promise<boolean> {
+  private async performRuntimeInjection(shouldContinue: () => boolean = () => true, reuseCachedPatches = true): Promise<boolean> {
     if (!this.page) {
       throw new Error('Transport not initialized');
     }
@@ -3009,7 +3052,7 @@ export class Transport {
     // Without this, the freshly injected WAPI overwrites the live-patched version,
     // causing onStateChanged (and similar methods) to fail and triggering an
     // infinite recovery loop.
-    if (success && this.cachedLivePatchScripts.length > 0) {
+    if (success && reuseCachedPatches && this.cachedLivePatchScripts.length > 0) {
       this.logger.info('recovery_reapplying_live_patches', {
         count: this.cachedLivePatchScripts.length,
       });
@@ -3093,7 +3136,7 @@ export class Transport {
 
   private maskLicenseKey(key: string): string {
     if (key.length <= 4) {
-      return key;
+      return '****';
     }
 
     return `${'*'.repeat(Math.max(0, key.length - 4))}${key.slice(-4)}`;
@@ -3175,7 +3218,7 @@ export class Transport {
     }
   }
 
-  private async fetchFreshLivePatches(sessionInfo?: SessionDebugInfo): Promise<{ data: string[]; tag: string }> {
+  private async fetchFreshLivePatches(sessionInfo?: SessionDebugInfo, fresh = false): Promise<{ data: string[]; tag: string }> {
     const useGithubPrimary = this.patchConfig.ghPatch === true;
     const primaryUrl = useGithubPrimary ? GH_LIVE_PATCHES_FALLBACK_URL : DEFAULT_LIVE_PATCHES_URL;
     const fallbackUrl = useGithubPrimary
@@ -3191,7 +3234,7 @@ export class Transport {
         waVersion: sessionInfo?.WA_VERSION,
         waAutomateVersion: sessionInfo?.WA_AUTOMATE_VERSION,
       },
-      { fallbackUrl },
+      { fallbackUrl, fresh },
     );
     const fetchDurationMs = Date.now() - fetchStart;
 
