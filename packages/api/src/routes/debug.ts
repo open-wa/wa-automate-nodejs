@@ -5,6 +5,7 @@
  * These are consumed by the dashboard-neo debug and integrations pages.
  */
 import type { Config } from '@open-wa/schema';
+import type { BrowserConsoleStore } from '../diagnostics/BrowserConsoleStore';
 
 export function registerDebugRoutes(
   app: any,
@@ -17,9 +18,20 @@ export function registerDebugRoutes(
       captureLimit: number;
       records: unknown[];
     };
+    getBrowserConsole: () => ReturnType<BrowserConsoleStore['getSnapshot']>;
+    getEventStreamCount: () => number;
     setIntegration?: (id: string, data: { enabled: boolean; config: Record<string, string> }) => void;
   }
 ) {
+  // Browser diagnostics use the same configured key as the rest of Easy API.
+  app.use('/meta/debug/browser-console/*', async (c: any, next: () => Promise<void>) => {
+    if (options.config.apiKey && c.req.header('X-API-Key') !== options.config.apiKey) {
+      return c.json({ error: 'Unauthorized', details: 'Invalid or missing API key' }, 401);
+    }
+    await next();
+  });
+  app.get('/meta/debug/browser-console/history', (c: any) => c.json(options.getBrowserConsole()));
+
   // Error records can contain runtime details, so require the configured Easy API key.
   app.get('/meta/debug/diagnostics', (c: any) => {
     const apiKey = options.config.apiKey;
@@ -72,6 +84,7 @@ export function registerDebugRoutes(
       arch: process.arch,
       pid: process.pid,
       uptime: process.uptime(),
+      eventStreams: options.getEventStreamCount(),
       cwd: process.cwd(),
     });
   });

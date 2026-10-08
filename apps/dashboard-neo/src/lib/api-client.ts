@@ -23,24 +23,30 @@ const API_KEY_STORAGE_KEY = "wa-dashboard-api-key"
 // We lazy-connect so SSR doesn't try to open a socket.
 let _client: (SocketClient & import("@open-wa/socket-client").Client) | null = null
 let _connecting: Promise<SocketClient & import("@open-wa/socket-client").Client> | null = null
+let _generation = 0
 
 /**
  * Get or create the singleton SocketClient instance.
  * Safe to call multiple times — will return the same connection.
  */
 export async function getClient(url?: string) {
-  if (_client?.socket?.connected) return _client
+  // EventSource reconnects this client itself; replacing it leaves the old stream alive.
+  if (_client) return _client
 
   if (!_connecting) {
     const target = url || getApiUrl()
-    _connecting = SocketClient.connect(target, getApiKey(target)).then((c) => {
+    const generation = _generation
+    const connection = SocketClient.connect(target, getApiKey(target)).then((c) => {
+      if (generation !== _generation) {
+        c.close()
+        throw new Error("API connection was reset")
+      }
       _client = c
-      _connecting = null
       return c
-    }).catch((err) => {
-      _connecting = null
-      throw err
+    }).finally(() => {
+      if (_connecting === connection) _connecting = null
     })
+    _connecting = connection
   }
 
   return _connecting
@@ -83,12 +89,15 @@ export function getClientSync() {
  * Reset the cached client. Call this before reconnecting with new settings.
  */
 export function resetClient() {
+  _generation++
   if (_client?.socket) {
     try { _client.socket.disconnect() } catch { /* ignore */ }
   }
   _client = null
   _connecting = null
 }
+
+if (import.meta.hot) import.meta.hot.dispose(resetClient)
 
 /**
  * Derive the API URL from the configured sources.

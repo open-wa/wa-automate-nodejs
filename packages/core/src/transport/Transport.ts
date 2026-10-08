@@ -2479,6 +2479,14 @@ export class Transport {
       location: message.location?.(),
     };
 
+    this.events.emit('browser.console', {
+      timestamp: Date.now(),
+      level: meta.type,
+      text: meta.text,
+      source: 'console',
+      location: meta.location,
+    });
+
     if (this.logConsole) {
       console.log(message.text());
     }
@@ -2487,6 +2495,13 @@ export class Transport {
   }
 
   private handlePageError(error: Error): void {
+    this.events.emit('browser.console', {
+      timestamp: Date.now(),
+      level: 'error',
+      text: error.message,
+      stack: error.stack,
+      source: 'pageerror',
+    });
     if (this.logConsoleErrors) {
       console.error(error);
     }

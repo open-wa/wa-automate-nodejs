@@ -97,7 +97,6 @@ let _lastFetch = 0
 let _socketListenerAttached = false
 
 const STALE_THRESHOLD = 30_000
-const READY_STATES = new Set(["READY", "CONNECTED"])
 
 // ── Real-time event listener (singleton) ──
 // Wires socket events to the module cache so state is instantly available
@@ -149,8 +148,7 @@ function setCachedHealth(updater: (current: HealthData) => HealthData) {
 export function isRuntimeReadySession(
   session: Record<string, unknown> | null | undefined
 ) {
-  const state = typeof session?.state === "string" ? session.state : undefined
-  return session?.ready === true || (state ? READY_STATES.has(state) : false)
+  return session?.ready === true
 }
 
 export function canInvokeRuntime(health: HealthData | null | undefined) {
@@ -327,6 +325,7 @@ export function useHealth() {
       const data = (await res.json()) as HealthData
       _cachedHealth = data
       _lastFetch = Date.now()
+      notifyListeners()
       if (mountedRef.current) {
         setHealth(data)
         setError(null)

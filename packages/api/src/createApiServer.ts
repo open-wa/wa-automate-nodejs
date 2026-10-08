@@ -18,6 +18,7 @@ import { registerAgentDiscoveryRoutes } from './routes/agent-discovery';
 import { type EventBridge } from './events/EventBridge';
 import { HealthStore } from './health/HealthStore';
 import { DiagnosticStore } from './diagnostics/DiagnosticStore';
+import { BrowserConsoleStore } from './diagnostics/BrowserConsoleStore';
 import { API_VERSION } from './version';
 import { EventBroadcaster } from './events/EventBroadcaster';
 import { ElasticEmitter } from './monitoring/elastic';
@@ -57,6 +58,7 @@ export class ApiServer {
   private pluginHost?: PluginHost;
   private healthStore: HealthStore = new HealthStore();
   private diagnosticStore: DiagnosticStore = new DiagnosticStore();
+  private browserConsoleStore = new BrowserConsoleStore();
   private eventBroadcaster: EventBroadcaster;
   private eventBridge?: EventBridge;
   private eventBridgeListener?: (event: string, payload: any) => void;
@@ -84,6 +86,9 @@ export class ApiServer {
     this.app = new Hono();
     this.screencastManager = new ScreencastManager();
     this.eventBroadcaster = new EventBroadcaster(this.config.sessionId);
+    this.browserConsoleStore.setPublisher((snapshot) => {
+      this.eventBroadcaster.broadcast('browser.console', snapshot);
+    });
 
     if (this.config.elasticUrl) {
       this.elasticEmitter = new ElasticEmitter({
@@ -117,6 +122,15 @@ export class ApiServer {
 
     this.eventBridge = bridge;
     this.eventBridgeListener = (event: string, payload: any) => {
+      if (event === 'browser.console') {
+        const record = this.browserConsoleStore.capture(payload);
+        if (record?.level === 'error') {
+          this.diagnosticStore.capture('debug:log', {
+            level: 'error', message: record.text, stack: record.stack, component: 'browser',
+          });
+        }
+        return;
+      }
       this.healthStore.processEvent(event, payload);
       this.diagnosticStore.capture(event, payload);
       this.eventBroadcaster.broadcast(event, payload);
@@ -125,6 +139,7 @@ export class ApiServer {
     // Also wire events into the HealthStore so /health returns accumulated data
     bridge.onAny(this.eventBridgeListener);
     this.diagnosticStore.attach();
+    this.browserConsoleStore.attach();
   }
 
   public setReadinessProvider(
@@ -238,6 +253,7 @@ export class ApiServer {
   }
 
   public async stop() {
+    this.browserConsoleStore.close();
     const server = this.server;
     this.server = undefined;
     if (server?.listening) {
@@ -445,6 +461,8 @@ export class ApiServer {
       config: this.config,
       getConfig: () => this.config,
       getDiagnostics: () => this.diagnosticStore.getSnapshot(),
+      getBrowserConsole: () => this.browserConsoleStore.getSnapshot(),
+      getEventStreamCount: () => this.eventBroadcaster.getSubscriberCount(),
       setIntegration: (id, data) => {
         if (!this.config.integrations) {
           this.config.integrations = {};

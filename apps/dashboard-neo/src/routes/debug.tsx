@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button"
 import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect } from "react"
-import { BarChart, Settings, FileText } from "lucide-react"
+import { BarChart, Settings, FileText, Terminal } from "lucide-react"
+import { BrowserConsole } from "@/components/browser-console"
 import { useSocket } from "@/lib/hooks/use-socket"
 import { getClient, getApiUrl } from "@/lib/api-client"
 
@@ -55,7 +56,7 @@ function DebugPage() {
     config: null,
     logs: _cachedLogs,
   })
-  const [tab, setTab] = useState<"memory" | "config" | "logs">("memory")
+  const [tab, setTab] = useState<"browser" | "memory" | "config" | "logs">("browser")
 
   // Fetch debug info
   useEffect(() => {
@@ -109,6 +110,7 @@ function DebugPage() {
   }, [connected])
 
   const tabs = [
+    { id: "browser" as const, label: "Browser console", icon: <Terminal size={16} /> },
     { id: "memory" as const, label: "Memory", icon: <BarChart size={16} /> },
     { id: "config" as const, label: "Config", icon: <Settings size={16} /> },
     { id: "logs" as const, label: "Logs", icon: <FileText size={16} /> },
@@ -117,8 +119,8 @@ function DebugPage() {
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* Tabs */}
-      <div className="flex items-center gap-1 border-b px-4 py-2">
-        <h1 className="me-4 text-lg font-semibold">Debug</h1>
+      <div className="flex flex-wrap items-center gap-1 border-b px-4 py-2">
+        <h1 className="me-4 text-lg font-semibold">Diagnostics</h1>
         {tabs.map((t) => (
           <Button
             variant="ghost"
@@ -135,8 +137,8 @@ function DebugPage() {
         ))}
       </div>
 
-      <div className="flex-1 overflow-auto p-4">
-        {!connected ? (
+      <div className={`min-h-0 flex-1 p-4 ${tab === "browser" ? "overflow-hidden" : "overflow-auto"}`}>
+        {tab === "browser" ? <BrowserConsole /> : !connected ? (
           <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
             Connect to see debug information
           </div>

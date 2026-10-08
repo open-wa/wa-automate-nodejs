@@ -245,8 +245,13 @@ export class SocketClient {
         }
 
         const client = new this(url, apiKey, ev, false);
-        await client.waitForConnection();
-        return client as SocketClient & Client;
+        try {
+            await client.waitForConnection();
+            return client as SocketClient & Client;
+        } catch (error) {
+            client.close();
+            throw error;
+        }
     }
 
     private async _connected() {

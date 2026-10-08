@@ -40,6 +40,14 @@ export type PersistenceArtifact = unknown;
 export type STATE = 'STARTING' | 'AUTHENTICATING' | 'READY' | 'DISCONNECTED' | 'STOPPED';
 
 export interface OpenWAEventMap {
+  'browser.console': {
+    timestamp: number;
+    level: string;
+    text: string;
+    source: 'console' | 'pageerror';
+    stack?: string;
+    location?: { url?: string; lineNumber?: number; columnNumber?: number };
+  };
   'launch.create.start': StepEvent<{ configSummary?: Record<string, unknown> }>;
   'launch.create.retry': StepEvent<{ reason: string; nextAttempt: number }>;
   'launch.create.ready': StepEvent<{ state: STATE }>;
@@ -284,6 +292,7 @@ export interface OpenWAEventMap {
 }
 
 export const OpenWAEventMetaMap: Record<keyof OpenWAEventMap, OpenWAEventMeta> = {
+  'browser.console': { internal: true, sensitive: true },
   'launch.create.start': { internal: true, sensitive: false },
   'launch.create.retry': { internal: true, sensitive: false },
   'launch.create.ready': { internal: true, sensitive: false },
