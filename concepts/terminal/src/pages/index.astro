@@ -1,0 +1,1261 @@
+---
+const base = import.meta.env.BASE_URL;
+
+// The wordmark: "open-wa" in three rows of box-drawing characters.
+// Each glyph is exactly three columns, so the logo can be erased and
+// retyped one glyph at a time like a cursor walking a terminal line.
+const GLYPHS: [string, string[]][] = [
+  ['o', ['┌─┐', '│ │', '└─┘']],
+  ['p', ['┌─┐', '├─┘', '┴  ']],
+  ['e', ['┌─┐', '├┤ ', '└─┘']],
+  ['n', ['┌┐┌', '│││', '┘└┘']],
+  ['-', ['   ', '───', '   ']],
+  ['w', ['┬ ┬', '│││', '└┴┘']],
+  ['a', ['┌─┐', '├─┤', '┴ ┴']],
+];
+
+const LINKS = {
+  quickstart: 'https://openwa.dev/docs/getting-started/quickstart',
+  docs: 'https://openwa.dev/docs',
+  reference: 'https://openwa.dev/docs/reference/client/client',
+  github: 'https://github.com/open-wa/wa-automate-nodejs',
+  discord: 'https://discord.gg/dpan7EYE3t',
+  license: 'https://openwa.dev/docs/licensing/licensed-features',
+};
+
+const SURFACES = [
+  {
+    name: 'Easy API (CLI)',
+    flag: 'npx @open-wa/wa-automate',
+    body: 'A local HTTP API with live docs at /api-docs/, OpenAPI at /meta/swagger.json and Postman at /meta/postman.json.',
+    run: 'start',
+  },
+  {
+    name: 'SocketClient',
+    flag: '@open-wa/socket-client',
+    body: 'Connect another Node.js app to a running Easy API. HTTP RPC for commands, Server-Sent Events for events.',
+    run: 'socket',
+  },
+  {
+    name: 'Embedded runtime',
+    flag: 'createClient()',
+    body: 'createClient inside your own Node.js app, with a pluggable browser driver: Puppeteer, Playwright or Lightpanda.',
+    run: 'embed',
+  },
+  {
+    name: 'Webhooks and plugins',
+    flag: 'wa.config.*',
+    body: 'plugins and pluginConfig in wa.config.*, and @open-wa/plugin-sdk to write your own.',
+    run: 'integrations',
+  },
+  {
+    name: 'MCP',
+    flag: '/mcp',
+    body: 'Every Easy API method becomes a tool for Claude, Cursor or Windsurf, through the built-in Model Context Protocol server.',
+    run: 'mcp',
+  },
+  {
+    name: 'Cloudflare proxy',
+    flag: 'session proxy',
+    body: 'Remote access to a local session without opening public ports.',
+    run: 'integrations',
+  },
+];
+
+const CHIPS = ['help', 'start', 'send', 'socket', 'embed', 'mcp', 'docker', 'integrations', 'stats', 'wally', 'clear'];
+
+const heading = (t: string) => ({ t, n: t.length });
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="open-wa turns a WhatsApp account into an API you run on your own machine or server. This page is a shell: type help." />
+    <meta name="theme-color" content="#1d1522" />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="preload" href={`${base}fonts/AnalogMonoPlus.woff2`} as="font" type="font/woff2" crossorigin />
+    <title>open-wa shell</title>
+    <style is:inline set:html={`@font-face{font-family:'Analog Mono Plus';src:url(${base}fonts/AnalogMonoPlus.woff2) format('woff2');font-display:swap;}`}></style>
+  </head>
+  <body>
+    <a class="skiplink" href="#man">Skip to the manual</a>
+
+    <header class="top">
+      <a class="logo" href="#top" aria-label="open-wa, back to top" data-logo>
+        <span class="logo-mark" aria-hidden="true">▸</span>
+        <span class="wm" aria-hidden="true">{GLYPHS.map(([k, rows]) => <span class="g" data-g={k}>{rows.join('\n')}</span>)}<span class="wm-cur"></span></span>
+      </a>
+      <nav class="topnav" aria-label="Primary">
+        <a href={LINKS.docs}>docs</a>
+        <a href={LINKS.github}>github</a>
+        <a href={LINKS.discord}>discord</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="pitch">
+          <p class="kicker"><span>open-wa(1)</span><span>v5.0.0</span><span>unofficial</span></p>
+          <h1 id="hero-title">Turn a WhatsApp account into an API<span class="h1-cur" aria-hidden="true"></span></h1>
+          <p class="lede">An API, bot runtime, webhook bridge and AI tool surface, running on your own machine or server. One command starts it. This page is a shell: type into it.</p>
+          <div class="ctas">
+            <a class="btn btn-primary" href={LINKS.quickstart}>Send your first message <span aria-hidden="true">→</span></a>
+            <a class="btn" href={LINKS.github}>GitHub · 3.6k stars</a>
+          </div>
+          <dl class="keys" aria-label="Keyboard shortcuts for the shell">
+            <div><dt><kbd>Tab</kbd></dt><dd>complete a command</dd></div>
+            <div><dt><kbd>↑</kbd><kbd>↓</kbd></dt><dd>history</dd></div>
+            <div><dt><kbd>Esc</kbd></dt><dd>skip the boot</dd></div>
+            <div><dt><kbd>Ctrl</kbd><kbd>L</kbd></dt><dd>clear</dd></div>
+          </dl>
+        </div>
+
+        <div class="stage">
+          <div class="win" id="win">
+            <div class="win-bar">
+              <span class="win-mark" aria-hidden="true">▸_</span>
+              <span class="win-title">~/my-bot <span class="dim">· open-wa · illustrative</span></span>
+              <button type="button" class="win-btn" id="skip">skip boot <kbd>esc</kbd></button>
+            </div>
+            <div class="scroller" id="scroller">
+              <div id="log" class="log" role="log" aria-live="polite" aria-label="Shell output" aria-relevant="additions"></div>
+              <form class="prompt" id="promptForm" autocomplete="off">
+                <label for="cmd" class="sr-only">Type a shell command, for example help</label>
+                <span class="ps1" aria-hidden="true"><span class="ps-user">you@localhost </span><span class="ps-path">~/my-bot</span> <span class="ps-arrow">▸</span></span>
+                <input id="cmd" name="cmd" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" aria-describedby="cmd-hint" />
+                <span id="cmd-hint" class="sr-only">Press Enter to run. Tab completes a partly typed command. Up and down arrows recall history.</span>
+              </form>
+            </div>
+            <div class="win-status" aria-hidden="true">
+              <span class="st-state" id="stState"><i></i><b>booting</b></span>
+              <span class="st-sess">default · :8080</span>
+              <span class="st-note">simulated output</span>
+              <span class="st-keys">⇥ complete · ↑↓ history</span>
+            </div>
+          </div>
+          <div class="chips" role="group" aria-label="Run a command">
+            {CHIPS.map((c) => <button type="button" class="chip" data-run={c}>{c}</button>)}
+          </div>
+        </div>
+      </section>
+
+      <section id="man" class="man" aria-labelledby="man-title">
+        <div class="man-head" aria-hidden="true"><span>OPEN-WA(1)</span><span class="man-mid">open-wa manual</span><span>OPEN-WA(1)</span></div>
+        <h2 id="man-title" class="sr-only">The open-wa manual, for people who would rather read than type</h2>
+        <p class="man-intro">Rather read than type? Here is the manual page.</p>
+
+        <article class="sec">
+          <h3 class="type" style={`--n:${heading('NAME').n}`}><span>NAME</span></h3>
+          <div class="sec-body">
+            <p class="big"><strong>open-wa</strong> — turn a WhatsApp account into an API, bot runtime, webhook bridge, and AI tool surface.</p>
+          </div>
+        </article>
+
+        <article class="sec">
+          <h3 class="type" style={`--n:${heading('SYNOPSIS').n}`}><span>SYNOPSIS</span></h3>
+          <div class="sec-body synopsis">
+            <p><code><b>npx</b> @open-wa/wa-automate@latest <u>--port</u> 8080 [<u>--api-key</u> "your-secure-key"] [<u>--session-id</u> sales]</code></p>
+            <p><code><b>docker run</b> <u>-p</u> 8080:8080 <u>--init</u> openwa/wa-automate</code></p>
+          </div>
+        </article>
+
+        <article class="sec">
+          <h3 class="type" style={`--n:${heading('DESCRIPTION').n}`}><span>DESCRIPTION</span></h3>
+          <div class="sec-body">
+            <p><strong>open-wa</strong> (<code>@open-wa/wa-automate</code>) is a Node.js toolkit that turns a WhatsApp account into an API you run on your own machine or server. Connect WhatsApp to your application.</p>
+            <p>It is built for developers and small teams who send order, booking and delivery updates, run support inboxes, build bots and community tools, bridge WhatsApp into CRMs and helpdesks, or give an AI agent a WhatsApp number.</p>
+          </div>
+        </article>
+
+        <article class="sec">
+          <h3 class="type" style={`--n:${heading('SURFACES').n}`}><span>SURFACES</span></h3>
+          <dl class="sec-body surfaces">
+            {SURFACES.map((s) => (
+              <div class="surface">
+                <dt><span class="s-name">{s.name}</span><span class="s-flag">{s.flag}</span></dt>
+                <dd>
+                  <p>{s.body}</p>
+                  <button type="button" class="runlink" data-run={s.run} data-scroll>▸ run <b>{s.run}</b> in the shell</button>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </article>
+
+        <article class="sec">
+          <h3 class="type" style={`--n:${heading('GETTING STARTED').n}`}><span>GETTING STARTED</span></h3>
+          <ol class="sec-body steps">
+            <li><span class="n">1</span><div><p>Install Node.js 22.21.1 or newer.</p></div></li>
+            <li><span class="n">2</span><div><p>Start the Easy API.</p><pre class="snip"><code>npx @open-wa/wa-automate@latest --port 8080</code></pre></div></li>
+            <li><span class="n">3</span><div><p>Link the account by QR code or link code. You do this once per named session.</p></div></li>
+            <li><span class="n">4</span><div><p>Send a message.</p><pre class="snip"><code>{`curl -X POST http://localhost:8080/api/messages/sendText \\
+  -H "Content-Type: application/json" \\
+  -d '{"to": "447123456789@c.us", "content": "Your order is ready to collect!"}'`}</code></pre></div></li>
+          </ol>
+          <div class="sec-body"><a class="btn btn-primary btn-ink" href={LINKS.quickstart}>Send your first message <span aria-hidden="true">→</span></a></div>
+        </article>
+
+        <article class="sec">
+          <h3 class="type" style={`--n:${heading('NUMBERS').n}`}><span>NUMBERS</span></h3>
+          <div class="sec-body">
+            <ul class="nums">
+              <li><b>3,666</b><span>GitHub stars</span></li>
+              <li><b>723</b><span>forks</span></li>
+              <li><b>2019</b><span>open source since August</span></li>
+              <li><b>v5.0.0</b><span>current stable line</span></li>
+              <li><b>3</b><span>browser drivers</span></li>
+              <li><b>5</b><span>integrations</span></li>
+            </ul>
+            <p class="note">As of 8 October 2026. Downloads: [monthly npm downloads].</p>
+          </div>
+        </article>
+
+        <article class="sec">
+          <h3 class="type" style={`--n:${heading('LICENSING').n}`}><span>LICENSING</span></h3>
+          <div class="sec-body">
+            <p>open-wa has been open source since August 2019. Some methods need a Restricted or Insiders license. <a href={LINKS.license}>Licensed features</a></p>
+          </div>
+        </article>
+
+        <article class="sec">
+          <h3 class="type" style={`--n:${heading('SEE ALSO').n}`}><span>SEE ALSO</span></h3>
+          <ul class="sec-body seealso">
+            <li><a href={LINKS.quickstart}><span>quickstart(7)</span><span class="u">openwa.dev/docs/getting-started/quickstart</span></a></li>
+            <li><a href={LINKS.docs}><span>docs(7)</span><span class="u">openwa.dev/docs</span></a></li>
+            <li><a href={LINKS.reference}><span>client(3)</span><span class="u">openwa.dev/docs/reference/client/client</span></a></li>
+            <li><a href={LINKS.github}><span>github(1)</span><span class="u">github.com/open-wa/wa-automate-nodejs</span></a></li>
+            <li><a href={LINKS.discord}><span>discord(1)</span><span class="u">discord.gg/dpan7EYE3t</span></a></li>
+          </ul>
+        </article>
+
+        <article class="sec">
+          <h3 class="type" style={`--n:${heading('CAVEATS').n}`}><span>CAVEATS</span></h3>
+          <div class="sec-body">
+            <p><strong>open-wa is unofficial and not affiliated with WhatsApp or Meta.</strong> Automating an account is never risk-free; read the docs before you send at scale.</p>
+          </div>
+        </article>
+
+        <footer class="man-foot"><span>open-wa 5.0.0</span><span>8 October 2026</span><span>OPEN-WA(1)</span></footer>
+      </section>
+    </main>
+
+    <style is:global>
+      :root {
+        --paper: #f3ebdc;
+        --paper-2: #ebe1cd;
+        --ink: #241b27;
+        --ink-2: #5a4b58;
+        --rule: #cbbb9f;
+        --rust: #9a3f12;
+        --violet: #5b3fa8;
+        --dot: rgb(36 27 39 / 0.11);
+
+        --t-bg: #1d1522;
+        --t-bar: #271d2d;
+        --t-line: #3a2d40;
+        --t-fg: #f1e4cc;
+        --t-dim: #a3929f;
+        --t-marigold: #ffb547;
+        --t-lilac: #c3a6ff;
+        --t-coral: #ff8a6b;
+        --t-sky: #8fd0ff;
+
+        --mono: 'Analog Mono Plus', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+        --gutter: clamp(16px, 4vw, 56px);
+        --type-step: 34ms;
+        color-scheme: light;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --paper: #151017;
+          --paper-2: #1c161f;
+          --ink: #efe3cd;
+          --ink-2: #b6a6b2;
+          --rule: #3b303f;
+          --rust: #ffb547;
+          --violet: #c3a6ff;
+          --dot: rgb(239 227 205 / 0.07);
+          color-scheme: dark;
+        }
+      }
+
+      *, *::before, *::after { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+      body {
+        margin: 0;
+        background-color: var(--paper);
+        background-image: radial-gradient(var(--dot) 1px, transparent 1.2px);
+        background-size: 18px 18px;
+        color: var(--ink);
+        font-family: var(--mono);
+        font-size: 16px;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+      a { color: inherit; }
+      ::selection { background: var(--t-lilac); color: #1d1522; }
+      :focus-visible { outline: 2px solid var(--t-marigold); outline-offset: 3px; border-radius: 2px; }
+      .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+      .skiplink { position: absolute; left: 12px; top: -60px; z-index: 10; background: var(--ink); color: var(--paper); padding: 8px 12px; }
+      .skiplink:focus { top: 12px; }
+      kbd { font-family: var(--mono); font-size: 0.8em; border: 1px solid currentColor; border-bottom-width: 2px; border-radius: 4px; padding: 0 0.35em; margin-right: 0.2em; }
+
+      /* ── header & logo ───────────────────────────── */
+      .top {
+        display: flex; align-items: center; justify-content: space-between; gap: 16px;
+        padding: 18px var(--gutter);
+        max-width: 1480px; margin: 0 auto;
+      }
+      .logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); padding: 4px; }
+      .logo-mark {
+        display: grid; place-items: center; width: 34px; height: 34px; border-radius: 6px;
+        background: #1d1522; color: var(--t-fg); font-size: 17px; line-height: 1;
+        box-shadow: inset 0 -4px 0 0 var(--t-marigold);
+      }
+      .wm { display: inline-flex; align-items: stretch; font-size: 12px; line-height: 1; letter-spacing: -0.1em; }
+      .g { white-space: pre; display: inline-block; }
+      .g.off { display: none; }
+      .wm-cur { display: inline-block; width: 0.5em; margin-left: 0.15ch; background: var(--rust); animation: blink 1.06s steps(1) infinite; }
+      .logo:hover .wm-cur, .logo:focus-visible .wm-cur { background: var(--t-marigold); }
+      .logo.typing .wm-cur { animation: none; opacity: 1; }
+      @keyframes blink { 50% { opacity: 0; } }
+
+      .topnav { display: flex; gap: 6px; }
+      .topnav a { text-decoration: none; padding: 6px 10px; border-radius: 4px; font-size: 15px; }
+      .topnav a::before { content: '['; color: var(--ink-2); }
+      .topnav a::after { content: ']'; color: var(--ink-2); }
+      .topnav a:hover { background: var(--ink); color: var(--paper); }
+      .topnav a:hover::before, .topnav a:hover::after { color: inherit; }
+
+      /* ── hero ───────────────────────────── */
+      .hero {
+        max-width: 1480px; margin: 0 auto;
+        padding: clamp(12px, 3vw, 40px) var(--gutter) clamp(48px, 7vw, 96px);
+        display: grid; grid-template-columns: minmax(300px, 0.78fr) minmax(0, 1.6fr); gap: clamp(28px, 4vw, 64px);
+        align-items: start;
+      }
+      .pitch { padding-top: clamp(8px, 3vw, 44px); }
+      .kicker { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 22px; font-size: 13px; color: var(--ink-2); }
+      .kicker span { border: 1px solid var(--rule); padding: 2px 8px; border-radius: 99px; }
+      h1 {
+        font-weight: 400; font-size: clamp(34px, 3.6vw, 56px); line-height: 1.06; letter-spacing: -0.035em;
+        margin: 0 0 22px; text-wrap: balance;
+      }
+      .h1-cur { display: inline-block; width: 0.5em; height: 0.85em; margin-left: 0.08em; vertical-align: -0.06em; background: var(--rust); animation: blink 1.06s steps(1) infinite; }
+      .lede { font-size: 17px; line-height: 1.6; color: var(--ink-2); margin: 0 0 28px; max-width: 34ch; }
+      .ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
+      .btn {
+        display: inline-flex; align-items: center; gap: 8px; min-height: 46px; padding: 10px 16px;
+        border: 1.5px solid var(--ink); border-radius: 6px; text-decoration: none; font-size: 15px;
+        background: transparent; color: var(--ink);
+        transition: transform 120ms steps(2), box-shadow 120ms steps(2);
+      }
+      .btn:hover { transform: translate(-2px, -2px); box-shadow: 3px 3px 0 var(--ink); }
+      .btn-primary { background: var(--t-marigold); color: #1d1522; border-color: #1d1522; }
+      .btn-primary:hover { box-shadow: 3px 3px 0 #1d1522; }
+      .keys { display: grid; grid-template-columns: repeat(2, auto); gap: 8px 18px; margin: 0; font-size: 13px; color: var(--ink-2); justify-content: start; }
+      .keys div { display: flex; gap: 8px; align-items: baseline; }
+      .keys dt { white-space: nowrap; }
+      .keys dd { margin: 0; }
+
+      /* ── window ───────────────────────────── */
+      .stage { min-width: 0; }
+      .win {
+        background: var(--t-bg); color: var(--t-fg);
+        border: 1.5px solid #120c15; border-radius: 10px;
+        box-shadow: 10px 10px 0 0 var(--ink);
+        display: flex; flex-direction: column;
+        height: clamp(520px, 72vh, 660px);
+        overflow: hidden;
+        transform-origin: 50% 50%;
+        animation: poweron 520ms cubic-bezier(.2, .8, .2, 1) both;
+      }
+      @media (prefers-color-scheme: dark) { .win { box-shadow: 10px 10px 0 0 #000, 0 0 0 1px var(--t-line); } }
+      @keyframes poweron {
+        0% { transform: scaleY(0.012) scaleX(0.6); filter: brightness(3); }
+        45% { transform: scaleY(0.012) scaleX(1); filter: brightness(2); }
+        100% { transform: none; filter: none; }
+      }
+      .win-bar {
+        display: flex; align-items: center; gap: 12px; padding: 0 10px 0 14px; height: 40px; flex: none;
+        background: var(--t-bar); border-bottom: 1px solid var(--t-line); font-size: 13px;
+      }
+      .win-mark { color: var(--t-marigold); letter-spacing: -0.1em; }
+      .win-title { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .dim { color: var(--t-dim); }
+      .win-btn {
+        font: inherit; font-size: 12px; color: var(--t-fg); background: transparent; border: 1px solid var(--t-line);
+        border-radius: 5px; padding: 4px 8px; cursor: pointer; white-space: nowrap; min-height: 28px;
+      }
+      .win-btn:hover { border-color: var(--t-marigold); color: var(--t-marigold); }
+      .win-btn kbd { font-size: 10px; margin: 0 0 0 4px; opacity: 0.7; }
+
+      .scroller {
+        flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px 18px 10px;
+        font-size: 15px; line-height: 1.55; cursor: text;
+        scrollbar-width: thin; scrollbar-color: var(--t-line) transparent;
+        overscroll-behavior: contain;
+      }
+      .log { white-space: pre-wrap; overflow-wrap: anywhere; }
+      .ln { min-height: 1.55em; }
+      .ln.gap { height: 0.6em; min-height: 0; }
+      .art { white-space: pre; overflow-x: auto; overflow-wrap: normal; line-height: 1; letter-spacing: -0.1em; scrollbar-width: none; padding: 2px 0; }
+      .art.loose { letter-spacing: 0; line-height: 1.15; }
+      .art.box { letter-spacing: 0; line-height: 1; margin: 2px 0; }
+      .art.banner { margin-top: 6px; }
+      .c-m { color: var(--t-marigold); }
+      .c-l { color: var(--t-lilac); }
+      .c-c { color: var(--t-coral); }
+      .c-s { color: var(--t-sky); }
+      .c-d { color: var(--t-dim); }
+      .c-f { color: #dba67c; }
+      .c-b { color: var(--t-fg); }
+      .ok { color: var(--t-marigold); }
+      .pend { color: var(--t-lilac); }
+      .err { color: var(--t-coral); }
+      .echo .ps-path, .ps-path { color: var(--t-lilac); }
+      .ps-user { color: var(--t-dim); }
+      .ps-arrow { color: var(--t-marigold); }
+      .log a { color: var(--t-sky); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+      .log a:hover { color: var(--t-fg); background: rgb(143 208 255 / 0.16); }
+
+      .prompt { display: flex; align-items: baseline; gap: 0.6ch; padding-bottom: 6px; }
+      .ps1 { white-space: nowrap; flex: none; }
+      #cmd {
+        flex: 1; min-width: 0; font: inherit; color: var(--t-fg); background: transparent; border: 0; padding: 0;
+        caret-color: var(--t-marigold); outline: none;
+      }
+      .prompt:focus-within { box-shadow: inset 0 -1px 0 0 rgb(255 181 71 / 0.35); }
+      #cmd:read-only { caret-color: transparent; }
+
+      .cmd, .chip, .runlink {
+        font: inherit; cursor: pointer;
+      }
+      .log .cmd {
+        color: var(--t-marigold); background: rgb(255 181 71 / 0.08); border: 1px solid rgb(255 181 71 / 0.35);
+        border-radius: 4px; padding: 0 0.45ch; margin: 0 0.2ch; line-height: 1.35;
+      }
+      .log .cmd:hover { background: var(--t-marigold); color: #1d1522; }
+      .help-row { display: grid; grid-template-columns: 15ch 1fr; gap: 0 1ch; }
+      .help-row .cmd { justify-self: start; align-self: start; }
+      .log .cmd { white-space: nowrap; overflow-wrap: normal; }
+      .kv { display: grid; grid-template-columns: 14ch 1fr; gap: 0 1ch; }
+      .urls { display: grid; grid-template-columns: 10ch 1fr; gap: 0 1ch; padding-left: 2ch; }
+      @media (max-width: 720px) { .urls { grid-template-columns: 1fr; padding-left: 0; } .urls > .c-s { padding-left: 2ch; } }
+
+      pre.code {
+        position: relative; margin: 6px 0; padding: 12px 14px; white-space: pre-wrap; overflow-wrap: anywhere;
+        background: #160f1a; border: 1px solid var(--t-line); border-left: 3px solid var(--t-lilac); border-radius: 6px;
+        font: inherit; font-size: 0.92em; line-height: 1.55;
+      }
+      pre.code .copy {
+        position: absolute; top: 6px; right: 6px; font: inherit; font-size: 12px; color: var(--t-dim);
+        background: var(--t-bar); border: 1px solid var(--t-line); border-radius: 4px; padding: 2px 8px; cursor: pointer;
+      }
+      pre.code .copy:hover { color: var(--t-marigold); border-color: var(--t-marigold); }
+      .tk-k { color: var(--t-lilac); }
+      .tk-s { color: var(--t-coral); }
+      .tk-c { color: var(--t-dim); font-style: italic; }
+      .tk-f { color: var(--t-sky); }
+      .tk-x { color: var(--t-marigold); }
+
+      .spin { display: inline-block; width: 1ch; color: var(--t-lilac); }
+      .linkbox { color: var(--t-lilac); }
+      .linkbox .lc { color: var(--t-marigold); }
+      .linkbox.done { opacity: 0.45; transition: opacity 400ms; }
+
+      /* phone preview */
+      .phone {
+        width: min(280px, 100%); margin: 8px 0 6px; border: 1px solid var(--t-line); border-radius: 18px;
+        background: #f1e4cc; color: #1d1522; overflow: hidden; white-space: normal;
+        font-size: 13px; line-height: 1.4;
+      }
+      .ph-top { display: flex; justify-content: space-between; gap: 8px; padding: 8px 12px; background: #e3d3b6; font-size: 12px; }
+      .ph-top .sim { opacity: 0.7; }
+      .ph-body { padding: 14px 10px 12px; display: flex; flex-direction: column; align-items: flex-end; min-height: 92px; justify-content: flex-end;
+        background-image: radial-gradient(rgb(29 21 34 / 0.08) 1px, transparent 1.2px); background-size: 10px 10px; }
+      .bubble {
+        max-width: 88%; background: var(--t-lilac); color: #1d1522; padding: 7px 10px 5px; border-radius: 12px 12px 3px 12px;
+        overflow-wrap: anywhere; transform-origin: 100% 100%; animation: pop 420ms cubic-bezier(.2, .9, .3, 1.35) both;
+      }
+      .bubble .meta { display: flex; justify-content: flex-end; align-items: center; gap: 4px; font-size: 10.5px; opacity: 0.75; margin-top: 2px; }
+      .ticks { width: 16px; height: 10px; }
+      .ticks .t2 { opacity: 0; transition: opacity 200ms; }
+      .bubble.read .ticks .t2 { opacity: 1; }
+      @keyframes pop { from { transform: scale(0.6) translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+      .win-status {
+        flex: none; display: flex; gap: 0; align-items: stretch; height: 28px; font-size: 12px;
+        background: var(--t-bar); border-top: 1px solid var(--t-line); white-space: nowrap; overflow: hidden;
+      }
+      .win-status > span { display: flex; align-items: center; padding: 0 12px; border-right: 1px solid var(--t-line); }
+      .st-state { gap: 7px; background: #33263a; }
+      .st-state i { width: 8px; height: 8px; border-radius: 50%; background: var(--t-dim); }
+      .st-state[data-s="wait"] i { background: var(--t-marigold); animation: blink 0.8s steps(1) infinite; }
+      .st-state[data-s="ready"] { background: var(--t-lilac); color: #1d1522; }
+      .st-state[data-s="ready"] i { background: #1d1522; }
+      .st-state b { font-weight: 400; }
+      .st-note { color: var(--t-dim); }
+      .st-keys { margin-left: auto; border-right: 0 !important; color: var(--t-dim); }
+
+      .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+      .chip {
+        min-height: 40px; padding: 6px 13px; border-radius: 99px; font-size: 14px;
+        border: 1.5px solid var(--ink); background: var(--paper); color: var(--ink);
+        transition: transform 120ms steps(2), box-shadow 120ms steps(2);
+      }
+      .chip::before { content: '▸ '; color: var(--rust); }
+      .chip:hover { transform: translate(-2px, -2px); box-shadow: 2px 2px 0 var(--ink); }
+      .chip:active { transform: none; box-shadow: none; }
+
+      /* ── manual ───────────────────────────── */
+      .man {
+        max-width: 1100px; margin: 0 auto; padding: clamp(40px, 6vw, 80px) var(--gutter) 40px;
+        border-top: 1.5px dashed var(--rule);
+      }
+      .man-head, .man-foot { display: flex; justify-content: space-between; gap: 16px; font-size: 14px; color: var(--ink-2); }
+      .man-head { margin-bottom: 28px; }
+      .man-intro { font-size: clamp(22px, 2.4vw, 30px); letter-spacing: -0.02em; line-height: 1.25; margin: 0 0 clamp(36px, 5vw, 64px); max-width: 26ch; }
+      .sec { display: grid; grid-template-columns: 17ch minmax(0, 1fr); gap: 8px 4ch; padding: 28px 0; border-top: 1px solid var(--rule); }
+      .sec h3 { margin: 0; font-weight: 400; font-size: 15px; letter-spacing: 0.06em; color: var(--rust); line-height: 1.6; }
+      .sec-body { grid-column: 2; margin: 0; padding: 0; min-width: 0; }
+      .sec-body p { margin: 0 0 14px; max-width: 68ch; }
+      .sec-body p:last-child { margin-bottom: 0; }
+      .big { font-size: clamp(19px, 2vw, 24px); line-height: 1.4; letter-spacing: -0.01em; }
+      strong { font-weight: 400; background: linear-gradient(transparent 62%, rgb(255 181 71 / 0.55) 62%); }
+      code { font-family: var(--mono); }
+      .synopsis code { font-size: 15px; }
+      .synopsis b { font-weight: 400; color: var(--violet); }
+      .synopsis u { text-decoration-color: var(--rust); text-underline-offset: 3px; }
+      .sec-body a { color: var(--violet); text-underline-offset: 3px; }
+
+      .type span { display: inline-block; }
+      .js .type span { clip-path: inset(0 100% 0 0); }
+      .js .type.in span { animation: typeon calc(var(--n) * var(--type-step)) steps(var(--n)) forwards; }
+      .js .type::after { content: ''; display: inline-block; width: 0.6ch; height: 1.05em; vertical-align: -0.18em; margin-left: 0.2ch; background: var(--rust); opacity: 0; }
+      .js .type.in::after { animation: blink 1.06s steps(1) 3 calc(var(--n) * var(--type-step)), none; }
+      @keyframes typeon { to { clip-path: inset(0 0 0 0); } }
+
+      .surfaces { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border: 1.5px solid var(--ink); border-radius: 8px; overflow: hidden; }
+      .surface { padding: 20px 22px 18px; border-bottom: 1px solid var(--rule); display: flex; flex-direction: column; background: var(--paper); }
+      .surface:nth-child(odd) { border-right: 1px solid var(--rule); }
+      .surface:nth-last-child(-n + 2) { border-bottom: 0; }
+      .surface dt { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; align-items: baseline; margin-bottom: 8px; }
+      .s-name { font-size: 18px; letter-spacing: -0.01em; }
+      .s-flag { font-size: 12.5px; color: var(--ink-2); }
+      .surface dd { margin: 0; flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; color: var(--ink-2); font-size: 15px; }
+      .runlink { align-self: flex-start; font-size: 13.5px; color: var(--ink); background: transparent; border: 0; padding: 6px 0; border-bottom: 1px dashed var(--ink-2); }
+      .runlink b { font-weight: 400; color: var(--rust); }
+      .runlink:hover { color: var(--rust); border-bottom-style: solid; }
+
+      .steps { list-style: none; display: grid; gap: 18px; margin-bottom: 26px; }
+      .steps li { display: grid; grid-template-columns: 2.4ch minmax(0, 1fr); gap: 1.5ch; }
+      .steps .n { color: var(--rust); }
+      .steps p { margin: 0 0 8px; }
+      .snip {
+        margin: 0; padding: 12px 14px; background: #1d1522; color: var(--t-fg); border-radius: 6px; font-size: 14px; line-height: 1.55;
+        white-space: pre-wrap; overflow-wrap: anywhere; box-shadow: 4px 4px 0 var(--rule);
+      }
+      .btn-ink { border-color: var(--ink); }
+
+      .nums { list-style: none; padding: 0; margin: 0 0 14px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+      .nums li { background: var(--paper); padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 2px; }
+      .nums b { font-weight: 400; font-size: clamp(30px, 3.6vw, 46px); letter-spacing: -0.04em; line-height: 1.1; }
+      .nums span { font-size: 13.5px; color: var(--ink-2); }
+      .note { font-size: 13.5px; color: var(--ink-2); }
+
+      .seealso { list-style: none; display: grid; gap: 0; border-top: 1px solid var(--rule); }
+      .seealso a { display: flex; justify-content: space-between; gap: 16px; padding: 12px 4px; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); }
+      .seealso a .u { color: var(--ink-2); font-size: 14px; text-align: right; overflow-wrap: anywhere; }
+      .seealso a:hover { background: var(--ink); color: var(--paper); }
+      .seealso a:hover .u { color: inherit; }
+
+      .man-foot { border-top: 1.5px dashed var(--rule); padding-top: 18px; margin-top: 30px; }
+
+      /* ── tablet & phone ───────────────────────────── */
+      @media (max-width: 1080px) {
+        .hero { grid-template-columns: minmax(0, 1fr); }
+        .pitch { padding-top: 0; }
+        .lede { max-width: 52ch; }
+      }
+      @media (max-width: 720px) {
+        body { font-size: 15px; }
+        .top { padding-top: 14px; padding-bottom: 10px; }
+        .wm { font-size: 8.5px; }
+        .logo-mark { width: 28px; height: 28px; font-size: 14px; }
+        .topnav { gap: 0; }
+        .topnav a { padding: 6px 6px; font-size: 13.5px; }
+        .topnav a::before, .topnav a::after { content: none; }
+        .pitch { display: contents; }
+        .kicker { order: 1; margin: 0 0 -12px; }
+        h1 { order: 2; font-size: clamp(30px, 8.6vw, 36px); margin: 0; }
+        .lede { order: 3; font-size: 15px; margin: -8px 0 0; }
+        .stage { order: 4; }
+        .ctas { order: 5; margin: 0; }
+        .ctas .btn { flex: 1 1 auto; justify-content: center; }
+        .keys { display: none; }
+        .hero { gap: 26px; padding-bottom: 48px; }
+        .stage { margin: 0 calc(-1 * var(--gutter)); }
+        .win { border-radius: 0; border-left: 0; border-right: 0; box-shadow: none; height: min(66svh, 560px); min-height: 440px; }
+        .scroller { font-size: 13.5px; padding: 12px 14px 8px; }
+        #cmd { font-size: 16px; }
+        .ps-user { display: none; }
+        .win-status > .st-note, .win-status > .st-keys { display: none; }
+        .help-row { grid-template-columns: 15ch 1fr; }
+        .help-row .d { color: var(--t-dim); }
+        .kv { grid-template-columns: 11ch 1fr; }
+        /* On phones the chips become an accessory bar docked under the shell. */
+        .chips {
+          flex-wrap: nowrap; overflow-x: auto; margin: 0; padding: 10px var(--gutter) 12px; gap: 8px;
+          background: var(--t-bar); border-bottom: 1px solid #120c15; scrollbar-width: none;
+          scroll-snap-type: x proximity; scroll-padding-inline: var(--gutter); overscroll-behavior-x: contain;
+        }
+        .chips::-webkit-scrollbar { display: none; }
+        .chip { flex: none; min-height: 44px; font-size: 14px; padding: 6px 14px; background: #33263a; color: var(--t-fg); border-color: var(--t-line); scroll-snap-align: start; }
+        .chip::before { color: var(--t-marigold); }
+        .chip:hover { transform: none; box-shadow: none; border-color: var(--t-marigold); }
+        .chips .chip:last-child { margin-right: 40px; }
+        .win { border-bottom: 0; }
+        .sec { grid-template-columns: minmax(0, 1fr); padding: 22px 0; }
+        .sec-body { grid-column: 1; }
+        .surfaces { grid-template-columns: minmax(0, 1fr); }
+        .surface:nth-child(odd) { border-right: 0; }
+        .surface:nth-last-child(2) { border-bottom: 1px solid var(--rule); }
+        .nums { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .seealso a { flex-direction: column; gap: 2px; }
+        .seealso a .u { text-align: left; }
+        .man-head .man-mid { display: none; }
+        .man-foot { flex-wrap: wrap; font-size: 12.5px; }
+        .synopsis code { font-size: 13.5px; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .win, .bubble { animation: none; }
+        .wm-cur, .h1-cur, .st-state[data-s="wait"] i { animation: none; }
+        .js .type span { clip-path: none; }
+        .js .type.in span, .js .type.in::after { animation: none; }
+        .btn, .chip { transition: none; }
+      }
+    </style>
+
+    <script>
+      const LINKS = {
+        quickstart: 'https://openwa.dev/docs/getting-started/quickstart',
+        docs: 'https://openwa.dev/docs',
+        reference: 'https://openwa.dev/docs/reference/client/client',
+        github: 'https://github.com/open-wa/wa-automate-nodejs',
+        discord: 'https://discord.gg/dpan7EYE3t',
+        license: 'https://openwa.dev/docs/licensing/licensed-features',
+      };
+      const GLYPHS = [
+        ['┌─┐', '│ │', '└─┘'], ['┌─┐', '├─┘', '┴  '], ['┌─┐', '├┤ ', '└─┘'], ['┌┐┌', '│││', '┘└┘'],
+        ['   ', '───', '   '], ['┬ ┬', '│││', '└┴┘'], ['┌─┐', '├─┤', '┴ ┴'],
+      ];
+
+      document.documentElement.classList.add('js');
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+      const fine = matchMedia('(pointer: fine)');
+
+      const $ = (s) => document.querySelector(s);
+      const log = $('#log');
+      const scroller = $('#scroller');
+      const input = $('#cmd');
+      const form = $('#promptForm');
+      const skipBtn = $('#skip');
+      const stState = $('#stState');
+
+      /* ── helpers ───────────────────────────── */
+      const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+      const span = (cls, s) => `<span class="${cls}">${esc(s)}</span>`;
+      const btn = (c, label) => `<button type="button" class="cmd" data-run="${esc(c)}">${esc(label || c)}</button>`;
+      const link = (href, label) => `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(label || href.replace(/^https:\/\//, ''))}</a>`;
+      const OK = span('ok', '[ ok ]');
+
+      let skipping = false;
+      const waiters = new Set();
+      const sleep = (ms) => {
+        if (skipping || reduce.matches) return Promise.resolve();
+        return new Promise((res) => {
+          const t = setTimeout(() => { waiters.delete(w); res(); }, ms);
+          const w = () => { clearTimeout(t); res(); };
+          waiters.add(w);
+        });
+      };
+      const wakeAll = () => { waiters.forEach((w) => w()); waiters.clear(); };
+
+      const scrollEnd = () => { scroller.scrollTop = scroller.scrollHeight; };
+
+      function line(content, cls = '') {
+        const d = document.createElement('div');
+        d.className = 'ln ' + cls;
+        if (content instanceof Node) d.append(content); else d.innerHTML = content;
+        log.append(d);
+        scrollEnd();
+        return d;
+      }
+      const gap = () => line('', 'gap');
+
+      // Lines print with a short stagger, like output streaming in.
+      async function print(lines, step = 26) {
+        for (const l of lines) {
+          if (l === '') gap();
+          else if (Array.isArray(l)) line(l[0], l[1]);
+          else line(l);
+          await sleep(step);
+        }
+      }
+
+      function code(src, lang) {
+        const pre = document.createElement('pre');
+        pre.className = 'code';
+        const c = document.createElement('code');
+        c.innerHTML = highlight(src, lang);
+        pre.append(c);
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'copy'; b.textContent = 'copy';
+        b.setAttribute('aria-label', 'Copy this snippet');
+        b.addEventListener('click', async () => {
+          try { await navigator.clipboard.writeText(src); b.textContent = 'copied'; }
+          catch { b.textContent = 'select + copy'; }
+          setTimeout(() => (b.textContent = 'copy'), 1600);
+        });
+        pre.append(b);
+        return pre;
+      }
+
+      function highlight(src, lang) {
+        const re = lang === 'sh'
+          ? /(#.*$)|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")|(^|\s)(--?[a-zA-Z][\w-]*)|^(\s*)(npx|curl|docker)\b/gm
+          : /(\/\/.*$)|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`[^`]*`)|\b(import|from|const|await|async|if|export|default|new|true|process)\b|\b([a-zA-Z_]\w*)(?=\()/gm;
+        let out = '', last = 0, m;
+        while ((m = re.exec(src))) {
+          out += esc(src.slice(last, m.index));
+          if (m[1]) out += span('tk-c', m[1]);
+          else if (m[2]) out += span('tk-s', m[2]);
+          else if (lang === 'sh' && m[4]) out += esc(m[3]) + span('tk-x', m[4]);
+          else if (lang === 'sh' && m[6]) out += esc(m[5]) + span('tk-k', m[6]);
+          else if (m[3] && lang !== 'sh') out += span('tk-k', m[3]);
+          else if (m[4]) out += span('tk-f', m[4]);
+          else out += esc(m[0]);
+          last = re.lastIndex;
+        }
+        return out + esc(src.slice(last));
+      }
+
+      const banner = () => [0, 1, 2].map((r) => GLYPHS.map((g) => g[r]).join('')).join('\n');
+
+      const linkBox = () => {
+        const W = 30;
+        const pad = (t) => t + ' '.repeat(W - 2 - t.length);
+        const checker = (o) => Array.from({ length: W }, (_, i) => ((i + o) % 2 ? '▞' : '▚')).join('');
+        const rows = [
+          '╭' + '─'.repeat(W + 2) + '╮',
+          '│ ' + checker(0) + ' │',
+          '│ ▞' + pad('') + '▚ │',
+          '│ ▚' + pad('  link code  @@@@@@@@@@@') + '▞ │',
+          '│ ▞' + pad('') + '▚ │',
+          '│ ▚' + pad('  or scan the QR printed') + '▞ │',
+          '│ ▞' + pad('  in your real terminal') + '▚ │',
+          '│ ' + checker(1) + ' │',
+          '╰' + '─'.repeat(W + 2) + '╯',
+        ];
+        const html = rows.map((r) => esc(r).replace('@@@@@@@@@@@', span('lc', '[XXXX-XXXX]'))).join('\n');
+        const d = line(`<div class="art box linkbox" role="img" aria-label="Placeholder for a link code or QR code. Not a real, scannable code.">${html}</div>`);
+        return d.firstElementChild;
+      };
+
+      function setState(s, label) {
+        stState.dataset.s = s;
+        stState.querySelector('b').textContent = label;
+      }
+
+      /* ── typing into the prompt ───────────────────────────── */
+      async function typeInto(text, speed = 38) {
+        input.value = '';
+        if (reduce.matches || skipping) { input.value = text; return; }
+        for (const ch of text) {
+          input.value += ch;
+          await sleep(speed + Math.random() * speed * 0.8 - speed * 0.3);
+        }
+      }
+
+      function echo(cmd) {
+        line(`<span class="ps-user">you@localhost </span><span class="ps-path">~/my-bot</span> <span class="ps-arrow">▸</span> ${esc(cmd)}`, 'echo');
+      }
+
+      /* ── boot ───────────────────────────── */
+      let booted = false;
+      let bootRun = 0;
+      async function boot() {
+        const run = ++bootRun;
+        skipping = false;
+        booted = false;
+        log.textContent = '';
+        input.readOnly = true;
+        skipBtn.innerHTML = 'skip boot <kbd>esc</kbd>';
+        setState('boot', 'booting');
+        const alive = () => run === bootRun;
+
+        await sleep(650);
+        await typeInto('npx @open-wa/wa-automate@latest --port 8080');
+        await sleep(420);
+        if (!alive()) return;
+        echo(input.value); input.value = '';
+        await sleep(240);
+        line(`<div class="art banner c-m" role="img" aria-label="open-wa">${esc(banner())}</div>`);
+        await print([
+          span('c-d', '  v5.0.0 · easy api'),
+          span('c-d', '  ── illustrative output: this page runs no session ──'),
+          '',
+        ], 60);
+        await sleep(200);
+        line(`${OK} node.js 22.21.1 or newer`);
+        await sleep(260);
+        line(`${OK} browser driver started`);
+        await sleep(300);
+        const wait = line(`${span('pend', '[ .. ]')} session "default" waiting for link <span class="spin" aria-hidden="true">▖</span>`);
+        setState('wait', 'waiting for link');
+        const sp = wait.querySelector('.spin');
+        const frames = '▖▘▝▗';
+        let f = 0;
+        const iv = setInterval(() => { sp.textContent = frames[++f % 4]; }, 110);
+        await sleep(900);
+        if (!alive()) { clearInterval(iv); return; }
+        gap();
+        const box = linkBox();
+        await print([
+          span('c-d', '  placeholder: not a scannable code'),
+          span('c-d', '  open WhatsApp on your phone and link a device'),
+        ], 80);
+        await sleep(1900);
+        clearInterval(iv);
+        if (!alive()) return;
+        sp.textContent = '';
+        box.classList.add('done');
+        gap();
+        line(`${OK} linked · session ${span('c-l', '"default"')} ready`);
+        setState('ready', 'session ready');
+        await sleep(240);
+        await print([
+          '',
+          [`${span('c-d', 'api docs')}${span('c-s', 'http://localhost:8080/api-docs/')}`, 'urls'],
+          [`${span('c-d', 'openapi')}${span('c-s', 'http://localhost:8080/meta/swagger.json')}`, 'urls'],
+          [`${span('c-d', 'postman')}${span('c-s', 'http://localhost:8080/meta/postman.json')}`, 'urls'],
+          '',
+          `Your turn. Type ${btn('help')} or try ${btn('send')} ${btn('socket')} ${btn('mcp')}`,
+        ], 70);
+        if (!alive()) return;
+        finishBoot();
+      }
+
+      function finishBoot() {
+        booted = true;
+        skipping = false;
+        input.readOnly = false;
+        input.value = '';
+        skipBtn.innerHTML = 'replay boot';
+        // Only take focus on desktop, when nothing else has it: never pop a phone keyboard.
+        if (fine.matches && (document.activeElement === document.body || document.activeElement === skipBtn)) {
+          const r = scroller.getBoundingClientRect();
+          if (r.top < innerHeight && r.bottom > 0) input.focus({ preventScroll: true });
+        }
+      }
+
+      function skip() {
+        if (booted) return;
+        skipping = true;
+        wakeAll();
+      }
+
+      skipBtn.addEventListener('click', () => {
+        if (booted) boot(); else skip();
+      });
+
+      /* ── commands ───────────────────────────── */
+      const COMMANDS = {
+        help: { d: 'list commands', fn: help },
+        start: { d: 'start the Easy API in one command', fn: start },
+        link: { d: 'how linking an account works', fn: linkCmd },
+        send: { d: 'send <number> <text>: send a message', fn: send },
+        socket: { d: 'drive a running API from another Node.js app', fn: socket },
+        embed: { d: 'run open-wa inside your own app', fn: embed },
+        mcp: { d: 'give an AI agent a WhatsApp number', fn: mcp },
+        docker: { d: 'run it in a container', fn: docker },
+        integrations: { d: 'webhooks, plugins and the five integrations', fn: integrations },
+        stats: { d: 'real numbers, as of 8 Oct 2026', fn: stats },
+        docs: { d: 'open the documentation', fn: () => openLink('docs') },
+        github: { d: 'the source on GitHub', fn: () => openLink('github') },
+        discord: { d: 'join the community', fn: () => openLink('discord') },
+        license: { d: 'licensed features', fn: license },
+        about: { d: 'what open-wa is', fn: about },
+        clear: { d: 'clear the screen', fn: () => { log.textContent = ''; } },
+      };
+      const HIDDEN = {
+        wally: wally, coffee: wally, ls: ls, whoami: () => line('you. wally is watching, kindly.'),
+        sudo: () => line(span('c-d', 'no sudo needed. open-wa runs on your own infrastructure; you already own the box.')),
+        exit: () => line(`there is no exit, only ${btn('clear')}`),
+        hi: () => line(`${span('c-l', 'Hello!')}  ${span('c-d', '← that is the SocketClient example bot. see')} ${btn('socket')}`),
+        history: () => print(hist.map((h, i) => `${span('c-d', String(i + 1).padStart(4))}  ${esc(h)}`), 8),
+        npx: () => { line(span('c-d', 'already running. try')); return start(); },
+        echo: (args) => line(esc(args.join(' '))),
+        open: (args) => (LINKS[args[0]] ? openLink(args[0]) : line(`usage: open ${['docs', 'github', 'discord'].map((x) => btn('open ' + x, x)).join(' ')}`)),
+        man: () => { line(span('c-d', 'opening the manual below…')); document.getElementById('man').scrollIntoView({ behavior: reduce.matches ? 'auto' : 'smooth' }); },
+        cd: () => line(span('c-d', 'every directory leads back to ~/my-bot. try ls')),
+        rm: () => line(span('err', 'rm: refusing. wally needs those files.')),
+        vim: () => line(span('c-d', 'you are now trapped in vim. just kidding: Esc, :q')),
+        hello: () => HIDDEN.hi(),
+      };
+      const NAMES = [...Object.keys(COMMANDS), 'wally'];
+      const COMPLETE = [...NAMES, 'ls', 'history', 'open'];
+
+      function help() {
+        const rows = Object.entries(COMMANDS).map(([k, v]) => `<div class="help-row">${btn(k)}<span class="d">${esc(v.d)}</span></div>`);
+        return print([
+          span('c-d', 'commands (tap or type one):'),
+          ...rows,
+          '',
+          span('c-d', 'tab completes · ↑↓ history · ctrl+l clears · there may be a walrus'),
+        ], 14);
+      }
+
+      async function start() {
+        await print([
+          span('c-l', '# Easy API: a local HTTP API with live docs'),
+          span('c-d', 'needs Node.js 22.21.1 or newer'),
+        ]);
+        line(code('npx @open-wa/wa-automate@latest --port 8080', 'sh'));
+        await print([span('c-d', 'with an API key, or a second named session:')]);
+        line(code('npx @open-wa/wa-automate@latest --port 8080 --api-key "your-secure-key"\nnpx @open-wa/wa-automate@latest --session-id sales --port 8081', 'sh'));
+        await print([
+          `then link the account (${btn('link')}) and open ${span('c-s', 'http://localhost:8080/api-docs/')}`,
+          `next: ${btn('send')} ${btn('docker')} · guide: ${link(LINKS.quickstart)}`,
+        ]);
+      }
+
+      async function linkCmd() {
+        await print([
+          'Login is by QR code or link code, once per named session.',
+          span('c-d', 'the real code appears in your terminal when you run start:'),
+        ]);
+        linkBox().classList.add('done');
+        await print([
+          span('c-d', 'named sessions keep separate accounts apart:'),
+        ]);
+        line(code('npx @open-wa/wa-automate@latest --session-id sales --port 8081', 'sh'));
+      }
+
+      const EX_NUM = '447123456789';
+      const EX_TXT = 'Your order is ready to collect!';
+      async function send(args) {
+        // Accept "+44 7123 456789" as well as "447123456789": take leading number-ish tokens.
+        let i = 0;
+        while (i < args.length && /^[+\d()-]+$/.test(args[i])) i++;
+        const num = args.slice(0, i).join('');
+        const rest = args.slice(i);
+        if (!args.length) {
+          await print([
+            `usage: send ${span('c-l', '<number>')} ${span('c-l', '<text>')}`,
+            `try:   ${btn(`send ${EX_NUM} ${EX_TXT}`)}`,
+          ]);
+          return;
+        }
+        const digits = num.replace(/[\s+()-]/g, '');
+        if (!/^\d{7,15}$/.test(digits)) {
+          line(`${span('err', '[fail]')} "${esc(num || args[0])}" is not a phone number. use digits with country code, e.g. ${EX_NUM}`);
+          return;
+        }
+        const text = rest.join(' ') || EX_TXT;
+        const body = JSON.stringify({ to: `${digits}@c.us`, content: text }).replace(/","/, '", "').replace(/":"/g, '": "');
+        const curl = `curl -X POST http://localhost:8080/api/messages/sendText \\\n  -H "Content-Type: application/json" \\\n  -d '${body.replace(/'/g, `'\\''`)}'`;
+        await print([span('c-d', 'the real request, against your local Easy API:')]);
+        line(code(curl, 'sh'));
+        await sleep(160);
+        const w = line(`${span('pend', '[ .. ]')} POST /api/messages/sendText`);
+        await sleep(520);
+        w.innerHTML = `${OK} sent ${span('c-d', '(simulated: nothing left this page)')}`;
+        const fig = document.createElement('div');
+        fig.className = 'phone';
+        fig.setAttribute('role', 'group');
+        fig.setAttribute('aria-label', `Simulated phone showing the message to +${digits}`);
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+        fig.innerHTML = `<div class="ph-top"><span>+${esc(digits)}</span><span class="sim">preview</span></div>
+          <div class="ph-body"><div class="bubble">${esc(text)}<span class="meta">${hh}<svg class="ticks" viewBox="0 0 16 10" aria-hidden="true"><path d="M1 5.5l3 3L10 2" fill="none" stroke="currentColor" stroke-width="1.5"/><path class="t2" d="M6 8.5L12.5 2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span></div></div>`;
+        line(fig);
+        setTimeout(() => fig.querySelector('.bubble')?.classList.add('read'), reduce.matches ? 0 : 900);
+        await print([`next: ${btn('socket')} to reply to incoming messages · ${btn('mcp')} to let an agent send`]);
+      }
+
+      async function socket() {
+        await print([
+          span('c-l', '# SocketClient: drive a running Easy API from another Node.js app'),
+          span('c-d', 'HTTP RPC for commands, Server-Sent Events for events'),
+        ]);
+        line(code(`import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'your-secure-key');
+client.onMessage(async (message) => {
+  if (message.body === 'Hi') await client.sendText(message.from, 'Hello!');
+});`, 'ts'));
+        await print([`reference: ${link(LINKS.reference)}`]);
+      }
+
+      async function embed() {
+        await print([
+          span('c-l', '# Embedded runtime: createClient inside your own app'),
+          span('c-d', '3 pluggable browser drivers: Puppeteer, Playwright, Lightpanda'),
+        ]);
+        line(code(`import { createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+const client = await createClient({ sessionId: 'sales', driver: new PuppeteerDriver(), headless: true });`, 'ts'));
+        await print([`reference: ${link(LINKS.reference)}`]);
+      }
+
+      async function mcp() {
+        await print([
+          span('c-l', '# MCP: a built-in Model Context Protocol server at /mcp'),
+          'Every Easy API method becomes a tool for Claude, Cursor or Windsurf.',
+        ]);
+        line(code(`// wa.config.mjs: MCP
+export default { apiKey: process.env.WA_API_KEY, port: 8080, mcp: { enabled: true, path: '/mcp' } };`, 'ts'));
+        await print([`point your agent at ${span('c-s', 'http://localhost:8080/mcp')} · ${link(LINKS.docs)}`]);
+      }
+
+      async function docker() {
+        await print([span('c-l', '# Docker')]);
+        line(code('docker run -p 8080:8080 --init openwa/wa-automate', 'sh'));
+        await print([span('c-d', 'same Easy API, same docs at /api-docs/')]);
+      }
+
+      async function integrations() {
+        const items = ['Webhook', 'Chatwoot', 'S3', 'Cloudflare session proxy', 'Node-RED'];
+        await print([
+          span('c-l', '# 5 integrations'),
+          ...items.map((x, i) => `  ${span('c-m', String(i + 1))}  ${esc(x)}`),
+          '',
+          `configure with ${span('c-l', 'plugins')} and ${span('c-l', 'pluginConfig')} in ${span('c-s', 'wa.config.*')}`,
+          `write your own with ${span('c-l', '@open-wa/plugin-sdk')}`,
+          span('c-d', 'the Cloudflare proxy gives remote access to a local session without opening public ports'),
+          `more: ${link(LINKS.docs)}`,
+        ], 40);
+      }
+
+      async function stats() {
+        const kv = (k, v) => `<div class="kv">${span('c-d', k)}<span>${v}</span></div>`;
+        await print([
+          span('c-l', '# open-wa, in numbers (as of 8 Oct 2026)'),
+          kv('stars', span('c-m', '3,666')),
+          kv('forks', span('c-m', '723')),
+          kv('open source', 'since August 2019 · seven years'),
+          kv('stable', 'v5.0.0'),
+          kv('node', '22.21.1 or newer'),
+          kv('drivers', '3 · Puppeteer, Playwright, Lightpanda'),
+          kv('integrations', '5 · Webhook, Chatwoot, S3, Cloudflare session proxy, Node-RED'),
+          kv('downloads', span('c-d', '[monthly npm downloads]')),
+        ], 45);
+      }
+
+      function openLink(k) {
+        line(`${span('c-d', '→')} ${link(LINKS[k])}  ${span('c-d', '(opens in a new tab)')}`);
+      }
+
+      async function license() {
+        await print([
+          'open-wa is open source. Some methods need a Restricted or Insiders license.',
+          `which ones: ${link(LINKS.license)}`,
+        ]);
+      }
+
+      async function about() {
+        await print([
+          `${span('c-m', 'open-wa')} ${span('c-d', '(@open-wa/wa-automate)')}`,
+          'A Node.js toolkit that turns a WhatsApp account into an API you run on your own machine or server.',
+          'API, bot runtime, webhook bridge, and AI tool surface. Open source since August 2019.',
+          '',
+          span('c-c', 'open-wa is unofficial and not affiliated with WhatsApp or Meta.'),
+        ], 30);
+      }
+
+      async function ls() {
+        await print([
+          `${span('c-s', 'easy-api/')}  ${span('c-s', 'socket-client/')}  ${span('c-s', 'embedded/')}  ${span('c-s', 'plugins/')}  ${span('c-s', 'mcp/')}  ${span('c-s', 'cloudflare-proxy/')}  wa.config.mjs  README.md`,
+          span('c-d', 'each one is a command: try start, socket, embed, integrations, mcp'),
+        ]);
+      }
+
+      async function wally() {
+        const art = [
+          "        .-\"\"\"\"\"\"\"\"-.",
+          "      .'            '.",
+          "     /   .--.  .--.   \\",
+          "    |   ( o  )( o  )   |",
+          "    |    '--'  '--'    |         ( (",
+          "     \\   .-'\"\"\"\"'-.   /           ) )",
+          "      '.(::::::::::).'         .-------.",
+          "        '-\\  |  |  /-'         |  ^ ^  |]",
+          "           \\ |  | /            |   w   |",
+          "            '|  |'             '-------'",
+        ];
+        const html = art.map((r, i) => {
+          const head = esc(r.slice(0, 30));
+          const mug = esc(r.slice(30));
+          return `<span class="c-f">${head}</span><span class="c-l">${mug}</span>`;
+        }).join('\n');
+        line(`<div class="art loose" role="img" aria-label="ASCII art of Wally the walrus in round spectacles, next to a steaming purple mug">${html}</div>`);
+        await print([span('c-d', '  wally the walrus. round spectacles, purple mug, reading the docs.')]);
+      }
+
+      /* ── run loop ───────────────────────────── */
+      const hist = [];
+      let hIdx = 0;
+      let draft = '';
+      let busy = Promise.resolve();
+
+      function lev(a, b) {
+        const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+        for (let j = 1; j <= b.length; j++) d[0][j] = j;
+        for (let i = 1; i <= a.length; i++)
+          for (let j = 1; j <= b.length; j++)
+            d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+        return d[a.length][b.length];
+      }
+
+      async function exec(raw) {
+        const cmdline = raw.trim();
+        echo(cmdline);
+        if (!cmdline) return;
+        if (hist[hist.length - 1] !== cmdline) hist.push(cmdline);
+        hIdx = hist.length;
+        const [name0, ...args] = cmdline.split(/\s+/);
+        const name = name0.toLowerCase();
+        const c = COMMANDS[name];
+        const h = HIDDEN[name];
+        try {
+          if (c) await c.fn(args);
+          else if (h) await h(args);
+          else {
+            const near = NAMES.map((n) => [n, lev(name, n)]).sort((a, b) => a[1] - b[1])[0];
+            line(`${span('err', 'open-wa: command not found:')} ${esc(name0)}${near && near[1] <= 2 ? ` · did you mean ${btn(near[0])}?` : ''} · try ${btn('help')}`);
+          }
+        } catch (e) {
+          line(span('err', 'something went wrong printing that. try again.'));
+        }
+        scrollEnd();
+      }
+
+      function run(cmd, { typed = false } = {}) {
+        busy = busy.then(async () => {
+          if (!booted) { skip(); await waitBoot(); }
+          if (typed && !reduce.matches) {
+            input.readOnly = true;
+            await typeInto(cmd, 22);
+            await sleep(120);
+            input.readOnly = false;
+          }
+          input.value = '';
+          await exec(cmd);
+        });
+        return busy;
+      }
+      const waitBoot = () => new Promise((res) => { const t = () => (booted ? res() : setTimeout(t, 30)); t(); });
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!booted) { skip(); return; }
+        const v = input.value;
+        input.value = '';
+        run(v);
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') { if (!booted) { e.preventDefault(); skip(); } else input.value = ''; return; }
+        if (!booted) return;
+        if (e.key === 'ArrowUp') {
+          if (!hist.length) return;
+          e.preventDefault();
+          if (hIdx === hist.length) draft = input.value;
+          hIdx = Math.max(0, hIdx - 1);
+          input.value = hist[hIdx];
+          requestAnimationFrame(() => input.setSelectionRange(input.value.length, input.value.length));
+        } else if (e.key === 'ArrowDown') {
+          if (hIdx >= hist.length) return;
+          e.preventDefault();
+          hIdx = Math.min(hist.length, hIdx + 1);
+          input.value = hIdx === hist.length ? draft : hist[hIdx];
+        } else if (e.key === 'Tab' && !e.shiftKey) {
+          // Only take Tab when there is something to complete, so keyboard users are never trapped.
+          const v = input.value;
+          if (!v.trim() || /\s/.test(v.trimStart())) return;
+          const pool = COMPLETE;
+          const matches = [...new Set(pool.filter((n) => n.startsWith(v.toLowerCase())))];
+          if (!matches.length) return;
+          e.preventDefault();
+          if (matches.length === 1) { input.value = matches[0] + ' '; return; }
+          let p = matches[0];
+          for (const m of matches) while (!m.startsWith(p)) p = p.slice(0, -1);
+          if (p.length > v.length) input.value = p;
+          else { echo(v); line(matches.map((m) => btn(m)).join(' ')); }
+        } else if (e.key.toLowerCase() === 'l' && e.ctrlKey) {
+          e.preventDefault(); log.textContent = '';
+        } else if (e.key.toLowerCase() === 'c' && e.ctrlKey && !input.value.substring(input.selectionStart, input.selectionEnd)) {
+          e.preventDefault(); echo(input.value + '^C'); input.value = '';
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !booted) skip();
+      });
+
+      // Click anywhere on the screen to focus the prompt (unless selecting text or clicking a control).
+      scroller.addEventListener('click', (e) => {
+        if (e.target.closest('a, button, input')) return;
+        if (String(getSelection())) return;
+        if (!fine.matches) return;
+        input.focus({ preventScroll: true });
+      });
+
+      // Command buttons: in the log, in the chip row and in the manual.
+      document.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-run]');
+        if (!b) return;
+        const cmd = b.dataset.run;
+        if (b.hasAttribute('data-scroll')) {
+          document.getElementById('win').scrollIntoView({ behavior: reduce.matches ? 'auto' : 'smooth', block: 'center' });
+        }
+        run(cmd === 'send' && b.classList.contains('chip') ? `send ${EX_NUM} ${EX_TXT}` : cmd, { typed: true });
+      });
+
+      /* ── logo: erase and retype the wordmark ───────────────────────────── */
+      const logo = document.querySelector('[data-logo]');
+      const gl = [...logo.querySelectorAll('.g')];
+      let logoBusy = false;
+      async function retype() {
+        if (logoBusy || reduce.matches) return;
+        logoBusy = true;
+        logo.classList.add('typing');
+        const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+        for (let i = gl.length - 1; i >= 0; i--) { gl[i].classList.add('off'); await wait(38); }
+        await wait(220);
+        for (const g of gl) { g.classList.remove('off'); await wait(72 + Math.random() * 40); }
+        logoBusy = false;
+        logo.classList.remove('typing');
+      }
+      logo.addEventListener('mouseenter', retype);
+      logo.addEventListener('focus', retype);
+
+      /* ── manual headings type on as they enter ───────────────────────────── */
+      const heads = document.querySelectorAll('.type');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => {
+          for (const en of entries) if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+        }, { rootMargin: '0px 0px -12% 0px' });
+        heads.forEach((h) => io.observe(h));
+      } else heads.forEach((h) => h.classList.add('in'));
+
+      boot();
+    </script>
+  </body>
+</html>

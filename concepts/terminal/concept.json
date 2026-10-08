@@ -1,0 +1,9 @@
+{
+  "slug": "terminal",
+  "name": "Shell",
+  "direction": "Terminal",
+  "tagline": "The page is a shell you can type into: it boots open-wa's Easy API, then hands you the prompt, with a man page below for people who would rather read.",
+  "logo": "A box-drawing wordmark set in the brand mono with a block cursor; on hover or focus the cursor erases the name glyph by glyph and retypes it. The favicon is the prompt glyph and cursor.",
+  "brandFont": true,
+  "stack": ["Astro 7", "hand-built DOM terminal", "vanilla JS", "CSS steps() motion"]
+}
