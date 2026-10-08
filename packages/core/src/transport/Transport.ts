@@ -790,6 +790,11 @@ export class Transport {
   async activateRuntimeEventBridge(): Promise<void> {
     const bridgeReady = await this.injectionController.ensureRuntimeBridge();
     await this.portable.activate();
+    // Licence application precedes bridge activation during bootstrap. Calling
+    // can bind only after the bridge has assigned this document's runtime ID.
+    await this.calling.bind().catch(error => {
+      this.logger.warn('Calling could not connect to the WhatsApp session', { message: String(error) });
+    });
     const capability = await this.probeRuntimeCapability();
     this.logger.info('runtime_event_bridge_ready', {
       bridgeReady,

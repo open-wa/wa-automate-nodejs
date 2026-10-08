@@ -248,7 +248,8 @@ export class CallingService {
   private availability(feature: 'calls.control' | 'calls.audio' | 'calls.video'): CallingFailure | undefined {
     if (!this.licensed) return new CallingFailure({ code: 'CALLING_LICENSE_REQUIRED', message: LICENSE_MESSAGE, status: 403 });
     if (this.provider && this.provider.expiresAt <= Date.now()) return new CallingFailure({ code: 'CALLING_LICENSE_EXPIRED', message: 'Calling access has expired. Refresh the calling-enabled license.', status: 403 });
-    if (!this.provider || this.generation !== this.options.generation() || !this.provider[feature.split('.')[1] as 'control' | 'audio' | 'video']) return new CallingFailure({ code: 'CALLING_UNAVAILABLE', message: 'Calling is unavailable in the current browser or account. Use the supported Chrome calling profile.', status: 503 });
+    if (!this.provider || this.generation !== this.options.generation()) return new CallingFailure({ code: 'CALLING_SESSION_NOT_READY', message: 'Calling is still connecting to the WhatsApp session. Try again when the session is ready.', status: 503 });
+    if (!this.provider[feature.split('.')[1] as 'control' | 'audio' | 'video']) return new CallingFailure({ code: 'CALLING_UNAVAILABLE', message: `${feature === 'calls.video' ? 'Video calling' : feature === 'calls.audio' ? 'Audio calling' : 'Calling'} is unavailable in this WhatsApp session.`, status: 503 });
   }
 
   private require(feature: 'calls.control' | 'calls.audio' | 'calls.video', call?: CallIdentity): void {
