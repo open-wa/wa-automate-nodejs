@@ -18,8 +18,9 @@ function CallsPage() {
     <section className="space-y-4 rounded-2xl border bg-card p-5">
       <div className="flex items-center gap-3"><Phone className="size-5 text-primary" /><span className="font-medium">{active ? `${active.direction} call · ${active.state}` : 'Start a call'}</span></div>
       {active && <p className="text-sm">{redact(active.peer)}</p>}
+      {active?.video && <p className="text-sm text-muted-foreground">Video was offered. This dashboard currently answers with audio only; live video is not available here yet.</p>}
       {active ? <div className="flex flex-wrap gap-2">
-        {active.direction === 'incoming' && active.state === 'ringing' ? <><Button disabled={busy || !connected} onClick={() => void calling.answer()}>Answer</Button><Button variant="outline" disabled={busy || !connected} onClick={() => void calling.reject()}>Reject</Button></> : <Button variant="outline" disabled={busy || !connected} onClick={() => void calling.toggleMute()}>{muted ? <MicOff className="size-4" /> : <Mic className="size-4" />}{muted ? 'Unmute' : 'Mute'}</Button>}
+        {active.direction === 'incoming' && active.state === 'ringing' ? <><Button disabled={busy || !connected} onClick={() => void calling.answer()}>{active.video ? 'Answer with audio' : 'Answer'}</Button><Button variant="outline" disabled={busy || !connected} onClick={() => void calling.reject()}>Reject</Button></> : <Button variant="outline" disabled={busy || !connected} onClick={() => void calling.toggleMute()}>{muted ? <MicOff className="size-4" /> : <Mic className="size-4" />}{muted ? 'Unmute' : 'Mute'}</Button>}
         <Button variant="destructive" disabled={busy || !connected} onClick={() => void calling.end()}><PhoneOff className="size-4" />End call</Button>
         <Button variant="outline" disabled={busy || !connected} onClick={() => void calling.clearAudio()}>Clear queued audio</Button>
         <Button variant="outline" disabled={busy || !connected} onClick={() => void calling.applyMedia()}>Use selected source</Button>
@@ -36,6 +37,9 @@ function CallsPage() {
       <p className="text-sm text-muted-foreground">These settings also apply when you call from Chat or answer in the call control. Your browser asks for microphone permission when needed. A file plays once; the call stays open when it finishes.</p>
       {recording && <a className="inline-flex items-center gap-2 text-sm underline" href={recording} download="received-call.wav"><Download className="size-4" />Download received audio</a>}
     </section>
-    <section><h2 className="font-medium">Recent call states</h2>{history.length ? <ul className="mt-2 space-y-1 text-sm text-muted-foreground">{history.map((value, index) => <li key={index}>{new Date(value.observedAt).toLocaleTimeString()} · {value.direction} · {value.state}</li>)}</ul> : <p className="mt-2 text-sm text-muted-foreground">Call updates appear here once the session reports them.</p>}</section>
+    <section><h2 className="font-medium">Recent call states</h2>{history.length ? <ul className="mt-2 space-y-2 text-sm text-muted-foreground">{history.map((value, index) => <li key={index}>
+      <span>{new Date(value.observedAt).toLocaleTimeString()} · {value.direction} · {value.video ? 'video offered' : 'audio'} · {value.state}</span>
+      {(value.endReason || value.media?.reason) && <p className="mt-1 text-foreground">{value.endReason?.message ?? value.media?.reason}{value.endReason && <span className="ms-2 text-xs text-muted-foreground">{value.endReason.code}</span>}</p>}
+    </li>)}</ul> : <p className="mt-2 text-sm text-muted-foreground">Call updates and drop reasons appear here once the session reports them. If WhatsApp gives no cause, the dashboard will say so.</p>}</section>
   </div>;
 }

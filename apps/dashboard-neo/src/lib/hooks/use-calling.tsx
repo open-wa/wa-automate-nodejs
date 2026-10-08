@@ -113,7 +113,7 @@ function useCallingController() {
       if (previous?.id !== value.id) { setMuted(false); setConnectedAt(null); }
       if (value.state === 'active') setConnectedAt(at => at ?? value.observedAt);
       setHistory(lines => [value, ...lines].slice(0, 12));
-      if (value.terminal) { setMuted(false); setNotice(`Call ${value.state}. Media has been closed.`); toast.dismiss(`call:${value.id}`); }
+      if (value.terminal) { setMuted(false); setNotice(value.endReason?.message ?? value.media?.reason ?? 'WhatsApp ended the call without reporting a cause.'); toast.dismiss(`call:${value.id}`); }
       else if (value.media?.state === 'ended') { setMuted(false); setNotice(value.media.reason ?? 'Call media ended. Choose a fresh audio source to reconnect it.'); }
     };
     const unavailable = (reason: unknown) => { if (mounted) setNotice(reason instanceof Error ? reason.message : 'The calling API is unavailable.'); };
@@ -124,8 +124,8 @@ function useCallingController() {
           receive(value);
           if (event !== 'onIncomingCall' || !mounted || value.terminal || seenIncoming.current.has(value.id)) return;
           seenIncoming.current.add(value.id); setExpanded(true);
-          setNotice('Incoming call. Choose Answer or Reject.');
-          toast('Incoming call', { id: `call:${value.id}`, description: privacy.current ? 'A contact is calling.' : value.peer,
+          setNotice(value.video ? 'Incoming video call. This dashboard can answer with audio; live video is not available here yet.' : 'Incoming audio call. Choose Answer or Reject.');
+          toast(value.video ? 'Incoming video call' : 'Incoming audio call', { id: `call:${value.id}`, description: privacy.current ? 'A contact is calling.' : value.peer,
             duration: Infinity, action: { label: 'Show call', onClick: () => setExpanded(true) } });
         };
         const id = await (event === 'onIncomingCall' ? client.onIncomingCall(callback) : client.onCallState(callback));
