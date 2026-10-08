@@ -1,16 +1,15 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useSearch } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { ChevronDown, Mic, MicOff, Minus, Phone, PhoneIncoming, PhoneOff, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCalling } from '@/lib/hooks/use-calling';
 import { usePrivacy } from '@/lib/hooks/use-privacy';
-import { useSidebar } from '@/components/ui/sidebar';
 
 export function CallIsland() {
   const calling = useCalling();
   const { call, active, pendingPeer, busy, muted, connectedAt, expanded, setExpanded, connected } = calling;
   const { redact, redactName } = usePrivacy();
-  const sidebar = useSidebar();
+  const search = useSearch({ from: '__root__' });
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const [now, setNow] = useState(Date.now);
@@ -29,7 +28,6 @@ export function CallIsland() {
   const incoming = active?.direction === 'incoming' && active.state === 'ringing';
   const status = pendingPeer ? 'Preparing call' : !connected && active ? 'Reconnecting to session' : incoming ? `Incoming ${call?.video ? 'video' : 'audio'} call` : call?.state === 'active' ? `Connected · ${duration}` : call?.terminal ? `Call ${call.state}` : call?.state === 'ringing' ? 'Ringing' : call?.state === 'connecting' ? 'Connecting' : call?.state ?? 'Calling';
   return <aside aria-label="Call controls" className={`ow-call-island ${open ? 'is-expanded' : ''}`}
-    style={{ left: sidebar.open && !sidebar.isMobile ? 'calc(50% + var(--sidebar-width) / 2)' : '50%', maxWidth: sidebar.open && !sidebar.isMobile ? 'calc(100vw - var(--sidebar-width) - 1.5rem)' : 'calc(100vw - 1.5rem)' }}
     onPointerEnter={event => { if (event.pointerType === 'mouse') setHovered(true); }} onPointerLeave={() => setHovered(false)}
     onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}
     onKeyDown={event => { if (event.key === 'Escape') { event.currentTarget.querySelector<HTMLButtonElement>('[data-call-toggle]')?.focus(); setExpanded(false); setHovered(false); setFocused(false); } }}>
@@ -45,7 +43,7 @@ export function CallIsland() {
       <p className="text-xs text-muted-foreground">{pendingPeer ? 'Preparing your selected audio source.' : incoming ? call?.video ? 'Video was offered. This dashboard currently answers with audio only.' : 'Answer with your selected audio source, or reject this call.' : call?.terminal ? call.endReason?.message ?? call.media?.reason ?? 'WhatsApp ended the call without reporting a cause.' : active?.media?.reason ?? (active?.media?.state === 'ended' ? 'Audio is disconnected. Choose a fresh source in Calls.' : 'Your call stays connected as you move around the dashboard.')}</p>
       <div className="flex flex-wrap gap-2">
         {incoming ? <><Button disabled={busy || !connected} onClick={() => void calling.answer()}><Phone className="size-4" />{call?.video ? 'Answer with audio' : 'Answer'}</Button><Button variant="destructive" disabled={busy || !connected} onClick={() => void calling.reject()}>Reject</Button></> : active && <><Button variant="outline" disabled={busy || !connected} onClick={() => void calling.toggleMute()}>{muted ? <MicOff className="size-4" /> : <Mic className="size-4" />}{muted ? 'Unmute' : 'Mute'}</Button><Button variant="destructive" disabled={busy || !connected} onClick={() => void calling.end()}><PhoneOff className="size-4" />End call</Button></>}
-        <Link to="/calls" className="inline-flex h-9 items-center rounded-md px-3 text-sm font-medium text-primary hover:bg-primary/10">{calling.recording && call?.terminal ? 'Download recording' : 'Audio settings'}</Link>
+        <Link to="/calls" search={search} className="inline-flex h-9 items-center rounded-md px-3 text-sm font-medium text-primary hover:bg-primary/10">{calling.recording && call?.terminal ? 'Download recording' : 'Audio settings'}</Link>
       </div>
       {busy && <p role="status" className="text-xs text-muted-foreground">Sending call request…</p>}
     </section>}

@@ -27,6 +27,7 @@ export function parseCliLocalFlags(argv: string[]): ParsedCliLocalFlags {
 
     if (arg === '--non-interactive') {
       outputMode = 'plain';
+      forwardedArgs.push(arg);
       continue;
     }
 

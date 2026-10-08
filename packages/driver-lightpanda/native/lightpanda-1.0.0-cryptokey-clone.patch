@@ -1,0 +1,126 @@
+diff --git a/src/browser/webapi/CryptoKey.zig b/src/browser/webapi/CryptoKey.zig
+index 73b30c0..64aa229 100644
+--- a/src/browser/webapi/CryptoKey.zig
++++ b/src/browser/webapi/CryptoKey.zig
+@@ -131,6 +131,108 @@ pub fn acquireRef(self: *CryptoKey) void {
+     self._rc.acquire();
+ }
+ 
++// Structured cloning is browser-internal storage, not SubtleCrypto.exportKey.
++// Preserve non-extractability and usages while storing the actual key, so an
++// IndexedDB record remains usable after its creating document is destroyed.
++pub fn structuredSerialize(self: *const CryptoKey, writer: *js.StructuredWriter) !void {
++    writer.writeUint32(1);
++    writer.writeUint32(@intFromEnum(self._type));
++    writer.writeUint32(@intFromEnum(self._kind));
++    writer.writeUint32(@intFromBool(self._extractable));
++    writer.writeUint32(self._usages);
++    writer.writeBytes(self._algorithm.name);
++    writer.writeBytes(self._algorithm.hash orelse "");
++    writer.writeBytes(self._algorithm.named_curve orelse "");
++    writer.writeBytes(self._key);
++    switch (self._vary) {
++        .none => writer.writeUint32(0),
++        .digest => writer.writeUint32(1),
++        .pkey => |pkey| {
++            if (self._type == .x25519) {
++                // BoringSSL's legacy private-key DER encoder excludes X25519.
++                // Its native raw key bytes are already included above.
++                writer.writeUint32(3);
++                return;
++            }
++            writer.writeUint32(2);
++            const encode: *const fn (*const crypto.EVP_PKEY, ?*[*c]u8) callconv(.c) c_int = if (self._kind == .private) crypto.i2d_PrivateKey else crypto.i2d_PUBKEY;
++            const size = encode(pkey, null);
++            if (size <= 0) return error.DataClone;
++            const bytes = try writer.local.call_arena.alloc(u8, @intCast(size));
++            var out: [*c]u8 = bytes.ptr;
++            if (encode(pkey, &out) != size) return error.DataClone;
++            writer.writeBytes(bytes);
++        },
++    }
++}
++
++pub fn structuredDeserialize(reader: *js.StructuredReader, page: *Page) !*CryptoKey {
++    if (try reader.readUint32() != 1) return error.DataClone;
++    const key_type = try reader.readUint32();
++    const kind = try reader.readUint32();
++    const extractable = try reader.readUint32();
++    const usages = try reader.readUint32();
++    if (key_type > @intFromEnum(Type.ec) or kind > @intFromEnum(Kind.private) or extractable > 1 or usages > 255) return error.DataClone;
++    const name = try reader.readBytes();
++    const hash = try reader.readBytes();
++    const curve = try reader.readBytes();
++    const key = try reader.readBytes();
++    const variant = try reader.readUint32();
++    if (variant > 3) return error.DataClone;
++    const native_type: Type = @enumFromInt(key_type);
++    switch (native_type) {
++        .hmac => if (variant != 1 or kind != @intFromEnum(Kind.secret)) return error.DataClone,
++        .aes, .derive => if (variant != 0 or kind != @intFromEnum(Kind.secret)) return error.DataClone,
++        .rsa, .ec => if (variant != 2 or kind == @intFromEnum(Kind.secret)) return error.DataClone,
++        .x25519 => if (variant != 3 or kind == @intFromEnum(Kind.secret) or key.len != 32) return error.DataClone,
++    }
++
++    const arena = try page.getArena(key.len + name.len + hash.len + curve.len + 256, "CryptoKey.clone");
++    errdefer arena.release();
++    const self = try arena.create(CryptoKey);
++    self.* = .{
++        ._arena = arena,
++        ._type = native_type,
++        ._kind = @enumFromInt(kind),
++        ._extractable = extractable == 1,
++        ._usages = @intCast(usages),
++        ._key = try arena.dupe(u8, key),
++        ._algorithm = .{
++            .name = try arena.dupe(u8, name),
++            .hash = if (hash.len == 0) null else try arena.dupe(u8, hash),
++            .named_curve = if (curve.len == 0) null else try arena.dupe(u8, curve),
++        },
++    };
++    switch (variant) {
++        0 => {},
++        1 => {
++            if (self._type != .hmac or hash.len == 0) return error.DataClone;
++            self._vary = .{ .digest = crypto.findDigest(hash) catch return error.DataClone };
++        },
++        2 => {
++            if (self._kind == .secret) return error.DataClone;
++            const encoded = try reader.readBytes();
++            var input: [*c]const u8 = encoded.ptr;
++            const decode: *const fn (?*?*crypto.EVP_PKEY, *[*c]const u8, c_long) callconv(.c) ?*crypto.EVP_PKEY = if (self._kind == .private) crypto.d2i_AutoPrivateKey else crypto.d2i_PUBKEY;
++            const pkey = decode(null, &input, @intCast(encoded.len)) orelse return error.DataClone;
++            if (@intFromPtr(input) != @intFromPtr(encoded.ptr) + encoded.len) {
++                crypto.EVP_PKEY_free(pkey);
++                return error.DataClone;
++            }
++            self._vary = .{ .pkey = pkey };
++        },
++        3 => {
++            const pkey = if (self._kind == .private)
++                crypto.EVP_PKEY_new_raw_private_key(crypto.EVP_PKEY_X25519, null, key.ptr, key.len)
++            else
++                crypto.EVP_PKEY_new_raw_public_key(crypto.EVP_PKEY_X25519, null, key.ptr, key.len);
++            self._vary = .{ .pkey = pkey orelse return error.DataClone };
++        },
++        else => unreachable,
++    }
++    return self;
++}
++
+ pub fn canEncrypt(self: *const CryptoKey) bool {
+     return self._usages & Usages.encrypt != 0;
+ }
+diff --git a/src/sys/libcrypto.zig b/src/sys/libcrypto.zig
+index 33d4428..ddb7552 100644
+--- a/src/sys/libcrypto.zig
++++ b/src/sys/libcrypto.zig
+@@ -136,6 +136,8 @@ pub extern fn EC_KEY_set_public_key(key: *EC_KEY, point: *const EC_POINT) c_int;
+ // DER decoders (advance `inp` past the parsed structure).
+ pub extern fn d2i_PUBKEY(out: ?*?*EVP_PKEY, inp: *[*c]const u8, len: c_long) ?*EVP_PKEY;
+ pub extern fn d2i_AutoPrivateKey(out: ?*?*EVP_PKEY, inp: *[*c]const u8, len: c_long) ?*EVP_PKEY;
++pub extern fn i2d_PUBKEY(pkey: *const EVP_PKEY, out: ?*[*c]u8) c_int;
++pub extern fn i2d_PrivateKey(pkey: *const EVP_PKEY, out: ?*[*c]u8) c_int;
+ 
+ const NID_X25519 = @as(c_int, 948);
+ pub const EVP_PKEY_X25519 = NID_X25519;

@@ -3,8 +3,8 @@ import {
   HttpApi,
   HttpApiEndpoint,
   HttpApiGroup,
-} from 'effect/unstable/httpapi';
-import { Rpc } from 'effect/unstable/rpc';
+} from 'effect/http-api';
+import { Rpc } from 'effect/rpc';
 
 export const RuntimeHealthSchema = Schema.Struct({
   sessionId: Schema.String,

@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button"
 import { createFileRoute } from "@tanstack/react-router"
 import { useState, useEffect } from "react"
 import { BarChart, Settings, FileText } from "lucide-react"
@@ -7,7 +8,12 @@ import { getClient, getApiUrl } from "@/lib/api-client"
 export const Route = createFileRoute("/debug")({ component: DebugPage })
 
 type DebugInfo = {
-  memory: { heapUsed: string; heapTotal: string; rss: string; external: string } | null
+  memory: {
+    heapUsed: string
+    heapTotal: string
+    rss: string
+    external: string
+  } | null
   config: Record<string, unknown> | null
   logs: string[]
 }
@@ -24,15 +30,17 @@ function ensureDebugLogListener() {
   if (_debugListenerAttached) return
   _debugListenerAttached = true
 
-  getClient().then((client) => {
-    client.ev.on("debug:log", (data: unknown) => {
-      const msg = typeof data === "string" ? data : JSON.stringify(data)
-      const entry = `[${new Date().toLocaleTimeString()}] ${msg}`
-      _cachedLogs = [..._cachedLogs, entry].slice(-MAX_DEBUG_LOGS)
+  getClient()
+    .then((client) => {
+      client.ev.on("debug:log", (data: unknown) => {
+        const msg = typeof data === "string" ? data : JSON.stringify(data)
+        const entry = `[${new Date().toLocaleTimeString()}] ${msg}`
+        _cachedLogs = [..._cachedLogs, entry].slice(-MAX_DEBUG_LOGS)
+      })
     })
-  }).catch(() => {
-    _debugListenerAttached = false
-  })
+    .catch(() => {
+      _debugListenerAttached = false
+    })
 }
 
 function formatBytes(bytes: number): string {
@@ -42,7 +50,11 @@ function formatBytes(bytes: number): string {
 
 function DebugPage() {
   const { connected } = useSocket()
-  const [debug, setDebug] = useState<DebugInfo>({ memory: null, config: null, logs: _cachedLogs })
+  const [debug, setDebug] = useState<DebugInfo>({
+    memory: null,
+    config: null,
+    logs: _cachedLogs,
+  })
   const [tab, setTab] = useState<"memory" | "config" | "logs">("memory")
 
   // Fetch debug info
@@ -103,20 +115,23 @@ function DebugPage() {
   ]
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] flex-col">
+    <div className="flex h-full min-h-0 flex-col">
       {/* Tabs */}
       <div className="flex items-center gap-1 border-b px-4 py-2">
         <h1 className="me-4 text-lg font-semibold">Debug</h1>
         {tabs.map((t) => (
-          <button
+          <Button
+            variant="ghost"
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-              tab === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+              tab === t.id
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-muted"
             }`}
           >
             {t.icon} {t.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -129,32 +144,50 @@ function DebugPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             {debug.memory ? (
               Object.entries(debug.memory).map(([key, val]) => (
-                <div key={key} className="rounded-xl border bg-card p-4">
-                  <div className="text-sm font-medium text-muted-foreground capitalize">{key.replace(/([A-Z])/g, " $1")}</div>
-                  <div className="mt-1 text-2xl font-bold tabular-nums">{val}</div>
+                <div
+                  key={key}
+                  className="rounded-2xl border border-border-button-default bg-card p-4"
+                >
+                  <div className="text-sm font-medium text-muted-foreground capitalize">
+                    {key.replace(/([A-Z])/g, " $1")}
+                  </div>
+                  <div className="mt-1 text-2xl font-bold tabular-nums">
+                    {val}
+                  </div>
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground col-span-2">Debug endpoints not available. Add <code>/meta/debug/memory</code> to the API server.</p>
+              <p className="col-span-2 text-sm text-muted-foreground">
+                Debug endpoints not available. Add{" "}
+                <code>/meta/debug/memory</code> to the API server.
+              </p>
             )}
           </div>
         ) : tab === "config" ? (
           <div>
             {debug.config ? (
-              <pre className="rounded-lg border bg-muted p-4 font-mono text-xs overflow-auto max-h-[70vh]">
+              <pre className="max-h-[70vh] overflow-auto rounded-lg border bg-muted p-4 font-mono text-xs">
                 {JSON.stringify(debug.config, null, 2)}
               </pre>
             ) : (
-              <p className="text-sm text-muted-foreground">Config endpoint not available. Add <code>/meta/debug/config</code> to the API server.</p>
+              <p className="text-sm text-muted-foreground">
+                Config endpoint not available. Add{" "}
+                <code>/meta/debug/config</code> to the API server.
+              </p>
             )}
           </div>
         ) : (
           <div className="flex flex-col gap-0 font-mono text-xs">
             {debug.logs.length === 0 ? (
-              <p className="text-muted-foreground">Listening for debug logs via <code>debug:log</code> event...</p>
+              <p className="text-muted-foreground">
+                Listening for debug logs via <code>debug:log</code> event...
+              </p>
             ) : (
               debug.logs.map((log, i) => (
-                <div key={i} className="border-b border-muted/30 px-2 py-1 hover:bg-muted/30">
+                <div
+                  key={i}
+                  className="border-b border-muted/30 px-2 py-1 hover:bg-muted/30"
+                >
                   {log}
                 </div>
               ))

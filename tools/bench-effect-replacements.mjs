@@ -3,6 +3,7 @@ import { Effect, Fiber, PubSub, Schema } from 'effect';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
+import { createRequire } from 'node:module';
 import { z } from 'zod';
 import { HyperEmitter } from '../packages/hyperemitter/dist/index.cjs';
 
@@ -127,8 +128,8 @@ const bundles = {
   declaration: {
     effectHttpRpcBytes: await bundleBytes(`
       import { Schema } from 'effect';
-      import { HttpApi, HttpApiEndpoint, HttpApiGroup } from 'effect/unstable/httpapi';
-      import { Rpc } from 'effect/unstable/rpc';
+      import { HttpApi, HttpApiEndpoint, HttpApiGroup } from 'effect/http-api';
+      import { Rpc } from 'effect/rpc';
       const Health = Schema.Struct({ ready: Schema.Boolean });
       export const Api = HttpApi.make('openwa').add(HttpApiGroup.make('runtime').add(HttpApiEndpoint.get('health', '/health', { success: Health })));
       export const Ask = Rpc.make('openwa.ask', { payload: { method: Schema.String, args: Schema.Array(Schema.Unknown) }, success: Schema.Unknown });
@@ -143,7 +144,7 @@ const bundles = {
 const report = {
   benchmark: 'effect-v4-replacement-spikes',
   recordedAt: new Date().toISOString(),
-  effect: '4.0.0-beta.100',
+  effect: createRequire(import.meta.url)('effect/package.json').version,
   runtime: `${process.version}-${process.platform}-${process.arch}`,
   performance: {
     schemaDecode: { effect: effectSchemaResult, zod: zodSchemaResult },

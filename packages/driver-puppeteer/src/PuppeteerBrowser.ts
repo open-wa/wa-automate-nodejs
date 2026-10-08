@@ -1,5 +1,5 @@
 import { IBrowser, IPage, DriverCapabilities } from '@open-wa/driver-interface';
-import type { Browser } from 'puppeteer';
+import type { Browser } from 'puppeteer-core';
 import { PuppeteerPage } from './PuppeteerPage';
 
 export class PuppeteerBrowser implements IBrowser {

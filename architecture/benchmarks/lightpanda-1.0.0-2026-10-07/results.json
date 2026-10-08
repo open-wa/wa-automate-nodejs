@@ -1,0 +1,1311 @@
+{
+  "recordedAt": "2026-10-07T19:32:50.313Z",
+  "host": {
+    "cpu": "Apple M1 Pro",
+    "cpuCount": 8,
+    "memoryMiB": 16384,
+    "os": "25.6.0",
+    "arch": "arm64",
+    "node": "v26.10.0",
+    "macOS": "26.6.2"
+  },
+  "versions": {
+    "lightpanda": "1.0.0",
+    "chrome": "Google Chrome 154.0.8037.58",
+    "puppeteer": "25.3.0"
+  },
+  "methodology": {
+    "scope": "Unauthenticated browser capabilities and controlled JavaScript workload; no account login or message sending",
+    "rss": "Sum of RSS of benchmark-owned browser process trees only, sampled every ~50ms; excludes Node controller and ps. Shared pages may be counted more than once.",
+    "cpu": "Sum of maximum observed cumulative CPU time per browser PID; sampled estimate, can miss short-lived processes. Excludes Node controller and ps.",
+    "workload": "1000 messages fetched from local HTTP server, inserted into DOM, extracted and checked; 20 warm navigations per fresh process; one browser process per session; 5 alternating-order repeats at 1 and 3 sessions.",
+    "lightpandaFlags": "serve --host 127.0.0.1 --port <free> --log-level error; capability and WhatsApp variants also enable worker,iframe,stylesheet resources; no experimental features",
+    "chromeFlags": "headless, --disable-gpu --disable-extensions --disable-background-networking --no-first-run; fresh temporary user-data directory per process; 1280x720 viewport",
+    "limitations": "M1 Pro macOS only; local workload is not authenticated WhatsApp workload or full WPT; no persistent restart/session restore acceptance."
+  },
+  "compatibility": [
+    {
+      "engine": "chrome",
+      "resources": false,
+      "checks": [
+        {
+          "name": "CDP version/newPage/navigation/DOM/fetch",
+          "passed": true,
+          "value": {
+            "version": "Chrome/154.0.8037.58",
+            "count": 1000,
+            "sum": 1498500,
+            "last": "Message 999"
+          },
+          "durationMs": 52.61629100000005
+        },
+        {
+          "name": "evaluateOnNewDocument before page script",
+          "passed": true,
+          "value": true,
+          "durationMs": 31.802250000000186
+        },
+        {
+          "name": "exposeFunction node bridge",
+          "passed": true,
+          "value": true,
+          "durationMs": 2.1420000000000528
+        },
+        {
+          "name": "CDP user agent override used by OpenWA",
+          "passed": true,
+          "value": true,
+          "durationMs": 1.5798749999999018
+        },
+        {
+          "name": "localStorage survives navigation",
+          "passed": true,
+          "value": true,
+          "durationMs": 29.14458300000001
+        },
+        {
+          "name": "IndexedDB write/read",
+          "passed": true,
+          "value": true,
+          "durationMs": 24.070416999999907
+        },
+        {
+          "name": "IndexedDB survives navigation",
+          "passed": true,
+          "value": true,
+          "durationMs": 36.51112499999999
+        },
+        {
+          "name": "WebCrypto SHA256 and AES-GCM",
+          "passed": true,
+          "value": true,
+          "durationMs": 2.149791999999934
+        },
+        {
+          "name": "WebSocket echo",
+          "passed": true,
+          "value": true,
+          "durationMs": 6.90604200000007
+        },
+        {
+          "name": "dedicated Worker message roundtrip",
+          "passed": true,
+          "value": true,
+          "durationMs": 8.602082999999993
+        },
+        {
+          "name": "ES module dynamic import",
+          "passed": true,
+          "value": true,
+          "durationMs": 5.813832999999931
+        },
+        {
+          "name": "ES module dynamic import absolute URL",
+          "passed": true,
+          "value": true,
+          "durationMs": 2.1172080000001188
+        },
+        {
+          "name": "MutationObserver DOM mutation",
+          "passed": true,
+          "value": true,
+          "durationMs": 1.636166000000003
+        },
+        {
+          "name": "Shadow DOM selection",
+          "passed": true,
+          "value": true,
+          "durationMs": 1.010291000000052
+        },
+        {
+          "name": "cookie CDP export/import",
+          "passed": true,
+          "value": true,
+          "durationMs": 6.31291699999997
+        },
+        {
+          "name": "CORS blocked without permission",
+          "passed": true,
+          "value": true,
+          "durationMs": 3.9553750000000036
+        },
+        {
+          "name": "CORS allowed with permission",
+          "passed": true,
+          "value": true,
+          "durationMs": 1.6749999999999545
+        },
+        {
+          "name": "request interception abort",
+          "passed": true,
+          "value": true,
+          "durationMs": 6.898625000000038
+        },
+        {
+          "name": "Puppeteer input typing and click",
+          "passed": true,
+          "value": true,
+          "durationMs": 49.83262500000001
+        },
+        {
+          "name": "contenteditable keyboard entry",
+          "passed": true,
+          "value": true,
+          "durationMs": 33.09974999999986
+        },
+        {
+          "name": "Canvas 2D pixel roundtrip",
+          "passed": true,
+          "value": true,
+          "durationMs": 1.0475409999999101
+        },
+        {
+          "name": "CDP screenshot returns PNG bytes",
+          "passed": true,
+          "value": 68512,
+          "durationMs": 56.371624999999995
+        },
+        {
+          "name": "service worker activation",
+          "passed": true,
+          "value": true,
+          "durationMs": 15.184833000000026
+        },
+        {
+          "name": "iframe load and DOM",
+          "passed": true,
+          "value": true,
+          "durationMs": 11.361999999999853
+        },
+        {
+          "name": "separate browser context storage isolation",
+          "passed": true,
+          "value": true,
+          "durationMs": 253.44499999999994
+        }
+      ]
+    },
+    {
+      "engine": "lightpanda",
+      "resources": false,
+      "checks": [
+        {
+          "name": "CDP version/newPage/navigation/DOM/fetch",
+          "passed": true,
+          "value": {
+            "version": "Chrome/124.0.6367.29",
+            "count": 1000,
+            "sum": 1498500,
+            "last": "Message 999"
+          },
+          "durationMs": 36.93899999999849
+        },
+        {
+          "name": "evaluateOnNewDocument before page script",
+          "passed": true,
+          "value": true,
+          "durationMs": 14.679166999998415
+        },
+        {
+          "name": "exposeFunction node bridge",
+          "passed": true,
+          "value": true,
+          "durationMs": 1.8927499999990687
+        },
+        {
+          "name": "CDP user agent override used by OpenWA",
+          "passed": false,
+          "value": false,
+          "durationMs": 0.6814999999987776
+        },
+        {
+          "name": "localStorage survives navigation",
+          "passed": true,
+          "value": true,
+          "durationMs": 8.699000000000524
+        },
+        {
+          "name": "IndexedDB write/read",
+          "passed": true,
+          "value": true,
+          "durationMs": 8.509624999998778
+        },
+        {
+          "name": "IndexedDB survives navigation",
+          "passed": true,
+          "value": true,
+          "durationMs": 8.358084000003146
+        },
+        {
+          "name": "WebCrypto SHA256 and AES-GCM",
+          "passed": true,
+          "value": true,
+          "durationMs": 2.989625000001979
+        },
+        {
+          "name": "WebSocket echo",
+          "passed": true,
+          "value": true,
+          "durationMs": 2.67883399999846
+        },
+        {
+          "name": "dedicated Worker message roundtrip",
+          "passed": false,
+          "error": "browser feature timeout after 2000ms",
+          "durationMs": 2005.1329579999983
+        },
+        {
+          "name": "ES module dynamic import",
+          "passed": false,
+          "error": "Failed to resolve module specifier",
+          "durationMs": 0.8770829999994021
+        },
+        {
+          "name": "ES module dynamic import absolute URL",
+          "passed": true,
+          "value": true,
+          "durationMs": 1.199125000002823
+        },
+        {
+          "name": "MutationObserver DOM mutation",
+          "passed": true,
+          "value": true,
+          "durationMs": 1.1924160000016855
+        },
+        {
+          "name": "Shadow DOM selection",
+          "passed": true,
+          "value": true,
+          "durationMs": 0.6179580000025453
+        },
+        {
+          "name": "cookie CDP export/import",
+          "passed": true,
+          "value": true,
+          "durationMs": 0.7020830000001297
+        },
+        {
+          "name": "CORS blocked without permission",
+          "passed": true,
+          "value": true,
+          "durationMs": 2.103083999998489
+        },
+        {
+          "name": "CORS allowed with permission",
+          "passed": true,
+          "value": true,
+          "durationMs": 0.7441249999974389
+        },
+        {
+          "name": "request interception abort",
+          "passed": true,
+          "value": true,
+          "durationMs": 1.0276249999988067
+        },
+        {
+          "name": "Puppeteer input typing and click",
+          "passed": true,
+          "value": true,
+          "durationMs": 6.97883400000137
+        },
+        {
+          "name": "contenteditable keyboard entry",
+          "passed": false,
+          "value": false,
+          "durationMs": 2.53270799999882
+        },
+        {
+          "name": "Canvas 2D pixel roundtrip",
+          "passed": false,
+          "value": false,
+          "durationMs": 1.330707999997685
+        },
+        {
+          "name": "CDP screenshot returns PNG bytes",
+          "passed": true,
+          "value": 26842,
+          "durationMs": 17.61424999999872
+        },
+        {
+          "name": "service worker activation",
+          "passed": false,
+          "value": false,
+          "durationMs": 0.46070899999904213
+        },
+        {
+          "name": "iframe load and DOM",
+          "passed": false,
+          "error": "browser feature timeout after 2000ms",
+          "durationMs": 2006.5821660000001
+        },
+        {
+          "name": "separate browser context storage isolation",
+          "passed": false,
+          "error": "Protocol error (Target.createBrowserContext): Cannot have more than one browser context at a time",
+          "durationMs": 2.3545000000012806
+        }
+      ],
+      "stderr": "$time=1791401677158 $scope=note $level=note $msg=\"server running\" address=127.0.0.1:61116 max_connections=16208 max_browser_connections=16\n"
+    },
+    {
+      "engine": "lightpanda",
+      "resources": true,
+      "checks": [
+        {
+          "name": "CDP version/newPage/navigation/DOM/fetch",
+          "passed": true,
+          "value": {
+            "version": "Chrome/124.0.6367.29",
+            "count": 1000,
+            "sum": 1498500,
+            "last": "Message 999"
+          },
+          "durationMs": 9.158625000000029
+        },
+        {
+          "name": "evaluateOnNewDocument before page script",
+          "passed": true,
+          "value": true,
+          "durationMs": 8.355624999996508
+        },
+        {
+          "name": "exposeFunction node bridge",
+          "passed": true,
+          "value": true,
+          "durationMs": 0.9197500000009313
+        },
+        {
+          "name": "CDP user agent override used by OpenWA",
+          "passed": false,
+          "value": false,
+          "durationMs": 0.3046250000006694
+        },
+        {
+          "name": "localStorage survives navigation",
+          "passed": true,
+          "value": true,
+          "durationMs": 8.734000000000378
+        },
+        {
+          "name": "IndexedDB write/read",
+          "passed": true,
+          "value": true,
+          "durationMs": 1.007459000000381
+        },
+        {
+          "name": "IndexedDB survives navigation",
+          "passed": true,
+          "value": true,
+          "durationMs": 8.629249999998137
+        },
+        {
+          "name": "WebCrypto SHA256 and AES-GCM",
+          "passed": true,
+          "value": true,
+          "durationMs": 0.3202499999970314
+        },
+        {
+          "name": "WebSocket echo",
+          "passed": true,
+          "value": true,
+          "durationMs": 0.9270419999993464
+        },
+        {
+          "name": "dedicated Worker message roundtrip",
+          "passed": true,
+          "value": true,
+          "durationMs": 1.3841670000001614
+        },
+        {
+          "name": "ES module dynamic import",
+          "passed": false,
+          "error": "Failed to resolve module specifier",
+          "durationMs": 0.5590840000004391
+        },
+        {
+          "name": "ES module dynamic import absolute URL",
+          "passed": true,
+          "value": true,
+          "durationMs": 0.6790830000027199
+        },
+        {
+          "name": "MutationObserver DOM mutation",
+          "passed": true,
+          "value": true,
+          "durationMs": 0.3364160000019183
+        },
+        {
+          "name": "Shadow DOM selection",
+          "passed": true,
+          "value": true,
+          "durationMs": 0.29275000000052387
+        },
+        {
+          "name": "cookie CDP export/import",
+          "passed": true,
+          "value": true,
+          "durationMs": 1.0732500000012806
+        },
+        {
+          "name": "CORS blocked without permission",
+          "passed": true,
+          "value": true,
+          "durationMs": 1.3797919999997248
+        },
+        {
+          "name": "CORS allowed with permission",
+          "passed": true,
+          "value": true,
+          "durationMs": 0.8730409999989206
+        },
+        {
+          "name": "request interception abort",
+          "passed": true,
+          "value": true,
+          "durationMs": 2.4672500000015134
+        },
+        {
+          "name": "Puppeteer input typing and click",
+          "passed": true,
+          "value": true,
+          "durationMs": 15.138959000003524
+        },
+        {
+          "name": "contenteditable keyboard entry",
+          "passed": false,
+          "value": false,
+          "durationMs": 8.647958999998082
+        },
+        {
+          "name": "Canvas 2D pixel roundtrip",
+          "passed": false,
+          "value": false,
+          "durationMs": 0.8292089999995369
+        },
+        {
+          "name": "CDP screenshot returns PNG bytes",
+          "passed": true,
+          "value": 26842,
+          "durationMs": 17.98399999999674
+        },
+        {
+          "name": "service worker activation",
+          "passed": false,
+          "value": false,
+          "durationMs": 0.895250000001397
+        },
+        {
+          "name": "iframe load and DOM",
+          "passed": true,
+          "value": true,
+          "durationMs": 4.078417000000627
+        },
+        {
+          "name": "separate browser context storage isolation",
+          "passed": false,
+          "error": "Protocol error (Target.createBrowserContext): Cannot have more than one browser context at a time",
+          "durationMs": 0.49054099999921164
+        }
+      ],
+      "stderr": "$time=1791401681900 $scope=note $level=note $msg=\"server running\" address=127.0.0.1:61145 max_connections=16208 max_browser_connections=16\n"
+    }
+  ],
+  "benchmarks": [
+    {
+      "engine": "chrome",
+      "concurrency": 1,
+      "repeat": 0,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 1252.166374999997,
+      "warmWorkloadMs": 787.4246249999997,
+      "coldBrowserCpuSeconds": 1.6800000000000004,
+      "warmBrowserCpuSeconds": 1.3099999999999994,
+      "idleBrowserCpuSecondsOver1s": 0.3600000000000003,
+      "peakTreeRssMiB": 993.546875,
+      "lastTreeRssMiB": 962.859375,
+      "sampledBrowserCpuSeconds": 3.35,
+      "samples": 17,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "lightpanda",
+      "concurrency": 1,
+      "repeat": 0,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 88.98720899999898,
+      "warmWorkloadMs": 207.99158299999908,
+      "coldBrowserCpuSeconds": 0.07,
+      "warmBrowserCpuSeconds": 0.25,
+      "idleBrowserCpuSecondsOver1s": 0.08000000000000002,
+      "peakTreeRssMiB": 43.65625,
+      "lastTreeRssMiB": 38.203125,
+      "sampledBrowserCpuSeconds": 0.4,
+      "samples": 11,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "lightpanda",
+      "concurrency": 1,
+      "repeat": 1,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 93.6427500000027,
+      "warmWorkloadMs": 174.98604200000045,
+      "coldBrowserCpuSeconds": 0.07,
+      "warmBrowserCpuSeconds": 0.29,
+      "idleBrowserCpuSecondsOver1s": 0.010000000000000009,
+      "peakTreeRssMiB": 44.0625,
+      "lastTreeRssMiB": 34.71875,
+      "sampledBrowserCpuSeconds": 0.37,
+      "samples": 13,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "chrome",
+      "concurrency": 1,
+      "repeat": 1,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 1042.1086250000008,
+      "warmWorkloadMs": 429.33333299999504,
+      "coldBrowserCpuSeconds": 1.5400000000000005,
+      "warmBrowserCpuSeconds": 1.1599999999999997,
+      "idleBrowserCpuSecondsOver1s": 0.1899999999999995,
+      "peakTreeRssMiB": 1014.03125,
+      "lastTreeRssMiB": 959.484375,
+      "sampledBrowserCpuSeconds": 2.9299999999999997,
+      "samples": 18,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "chrome",
+      "concurrency": 1,
+      "repeat": 2,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 7147.871207999997,
+      "warmWorkloadMs": 3171.2642919999926,
+      "coldBrowserCpuSeconds": 4.220000000000001,
+      "warmBrowserCpuSeconds": 2.5199999999999987,
+      "idleBrowserCpuSecondsOver1s": 0.5699999999999994,
+      "peakTreeRssMiB": 877.671875,
+      "lastTreeRssMiB": 828.671875,
+      "sampledBrowserCpuSeconds": 7.539999999999998,
+      "samples": 22,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "lightpanda",
+      "concurrency": 1,
+      "repeat": 2,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 384.4340830000001,
+      "warmWorkloadMs": 183.36416699999245,
+      "coldBrowserCpuSeconds": 0.22,
+      "warmBrowserCpuSeconds": 0.33000000000000007,
+      "idleBrowserCpuSecondsOver1s": 0,
+      "peakTreeRssMiB": 43.640625,
+      "lastTreeRssMiB": 34.890625,
+      "sampledBrowserCpuSeconds": 0.55,
+      "samples": 13,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "lightpanda",
+      "concurrency": 1,
+      "repeat": 3,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 124.83654200000456,
+      "warmWorkloadMs": 178.62758400000166,
+      "coldBrowserCpuSeconds": 0.08,
+      "warmBrowserCpuSeconds": 0.31,
+      "idleBrowserCpuSecondsOver1s": 0.07,
+      "peakTreeRssMiB": 44.828125,
+      "lastTreeRssMiB": 39.859375,
+      "sampledBrowserCpuSeconds": 0.5,
+      "samples": 14,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "chrome",
+      "concurrency": 1,
+      "repeat": 3,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 3353.456291999988,
+      "warmWorkloadMs": 514.085791999998,
+      "coldBrowserCpuSeconds": 1.7400000000000004,
+      "warmBrowserCpuSeconds": 1.0799999999999994,
+      "idleBrowserCpuSecondsOver1s": 0.25000000000000044,
+      "peakTreeRssMiB": 985.09375,
+      "lastTreeRssMiB": 846.015625,
+      "sampledBrowserCpuSeconds": 3.0700000000000003,
+      "samples": 28,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "chrome",
+      "concurrency": 1,
+      "repeat": 4,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 1085.8348750000005,
+      "warmWorkloadMs": 918.9792920000036,
+      "coldBrowserCpuSeconds": 1.6500000000000004,
+      "warmBrowserCpuSeconds": 1.2699999999999987,
+      "idleBrowserCpuSecondsOver1s": 0.43999999999999995,
+      "peakTreeRssMiB": 944.75,
+      "lastTreeRssMiB": 846.421875,
+      "sampledBrowserCpuSeconds": 3.359999999999999,
+      "samples": 18,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "lightpanda",
+      "concurrency": 1,
+      "repeat": 4,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 171.95308300000033,
+      "warmWorkloadMs": 200.17520899997908,
+      "coldBrowserCpuSeconds": 0.14,
+      "warmBrowserCpuSeconds": 0.22999999999999993,
+      "idleBrowserCpuSecondsOver1s": 0,
+      "peakTreeRssMiB": 43.15625,
+      "lastTreeRssMiB": 35.5,
+      "sampledBrowserCpuSeconds": 0.36999999999999994,
+      "samples": 15,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "chrome",
+      "concurrency": 3,
+      "repeat": 0,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 2214.294125000015,
+      "warmWorkloadMs": 2272.5403750000114,
+      "coldBrowserCpuSeconds": 4.83,
+      "warmBrowserCpuSeconds": 3.980000000000002,
+      "idleBrowserCpuSecondsOver1s": 0.6899999999999977,
+      "peakTreeRssMiB": 2649.453125,
+      "lastTreeRssMiB": 2578.109375,
+      "sampledBrowserCpuSeconds": 9.53,
+      "samples": 20,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "lightpanda",
+      "concurrency": 3,
+      "repeat": 0,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 101.26079100000788,
+      "warmWorkloadMs": 243.8689580000064,
+      "coldBrowserCpuSeconds": 0.21000000000000002,
+      "warmBrowserCpuSeconds": 0.6300000000000001,
+      "idleBrowserCpuSecondsOver1s": 0,
+      "peakTreeRssMiB": 121,
+      "lastTreeRssMiB": 121,
+      "sampledBrowserCpuSeconds": 0.8400000000000001,
+      "samples": 15,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "lightpanda",
+      "concurrency": 3,
+      "repeat": 1,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 178.1429159999825,
+      "warmWorkloadMs": 209.76283300001523,
+      "coldBrowserCpuSeconds": 0.25,
+      "warmBrowserCpuSeconds": 0.6100000000000001,
+      "idleBrowserCpuSecondsOver1s": 0.1200000000000001,
+      "peakTreeRssMiB": 122.609375,
+      "lastTreeRssMiB": 108.640625,
+      "sampledBrowserCpuSeconds": 1.0800000000000003,
+      "samples": 15,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "chrome",
+      "concurrency": 3,
+      "repeat": 1,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 2058.250667000015,
+      "warmWorkloadMs": 1426.2982499999925,
+      "coldBrowserCpuSeconds": 4.7,
+      "warmBrowserCpuSeconds": 3.6400000000000015,
+      "idleBrowserCpuSecondsOver1s": 0.6699999999999999,
+      "peakTreeRssMiB": 2596.90625,
+      "lastTreeRssMiB": 2506.390625,
+      "sampledBrowserCpuSeconds": 9.010000000000002,
+      "samples": 18,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "chrome",
+      "concurrency": 3,
+      "repeat": 2,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 1774.7854170000064,
+      "warmWorkloadMs": 1340.9424999999756,
+      "coldBrowserCpuSeconds": 4.469999999999999,
+      "warmBrowserCpuSeconds": 3.58,
+      "idleBrowserCpuSecondsOver1s": 0.7100000000000044,
+      "peakTreeRssMiB": 2763.953125,
+      "lastTreeRssMiB": 2624.625,
+      "sampledBrowserCpuSeconds": 8.790000000000003,
+      "samples": 21,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "lightpanda",
+      "concurrency": 3,
+      "repeat": 2,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 200.49366700000246,
+      "warmWorkloadMs": 239.9320000000007,
+      "coldBrowserCpuSeconds": 0.31,
+      "warmBrowserCpuSeconds": 0.6500000000000001,
+      "idleBrowserCpuSecondsOver1s": 0.14,
+      "peakTreeRssMiB": 125.8125,
+      "lastTreeRssMiB": 125.8125,
+      "sampledBrowserCpuSeconds": 1.1700000000000002,
+      "samples": 16,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "lightpanda",
+      "concurrency": 3,
+      "repeat": 3,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 94.96866700000828,
+      "warmWorkloadMs": 207.18037499999627,
+      "coldBrowserCpuSeconds": 0.23000000000000004,
+      "warmBrowserCpuSeconds": 0.6800000000000002,
+      "idleBrowserCpuSecondsOver1s": 0.09000000000000008,
+      "peakTreeRssMiB": 123.71875,
+      "lastTreeRssMiB": 108.84375,
+      "sampledBrowserCpuSeconds": 1.0000000000000002,
+      "samples": 14,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "chrome",
+      "concurrency": 3,
+      "repeat": 3,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 1981.5155830000003,
+      "warmWorkloadMs": 1334.4641249999986,
+      "coldBrowserCpuSeconds": 4.699999999999999,
+      "warmBrowserCpuSeconds": 3.780000000000003,
+      "idleBrowserCpuSecondsOver1s": 0.6499999999999968,
+      "peakTreeRssMiB": 2666,
+      "lastTreeRssMiB": 2547.25,
+      "sampledBrowserCpuSeconds": 9.18,
+      "samples": 20,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "chrome",
+      "concurrency": 3,
+      "repeat": 4,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 2132.003874999995,
+      "warmWorkloadMs": 1310.1812500000233,
+      "coldBrowserCpuSeconds": 4.599999999999998,
+      "warmBrowserCpuSeconds": 3.7000000000000064,
+      "idleBrowserCpuSecondsOver1s": 0.6099999999999977,
+      "peakTreeRssMiB": 2678.84375,
+      "lastTreeRssMiB": 2678.84375,
+      "sampledBrowserCpuSeconds": 8.910000000000002,
+      "samples": 19,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    },
+    {
+      "engine": "lightpanda",
+      "concurrency": 3,
+      "repeat": 4,
+      "navigationsPerSession": 20,
+      "coldReadyMs": 242.44741599998088,
+      "warmWorkloadMs": 605.3672500000102,
+      "coldBrowserCpuSeconds": 0.34,
+      "warmBrowserCpuSeconds": 0.74,
+      "idleBrowserCpuSecondsOver1s": 0.07000000000000006,
+      "peakTreeRssMiB": 116.8125,
+      "lastTreeRssMiB": 116.8125,
+      "sampledBrowserCpuSeconds": 1.2300000000000002,
+      "samples": 15,
+      "outputs": [
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        },
+        {
+          "count": 1000,
+          "sum": 1498500,
+          "last": "Message 999"
+        }
+      ]
+    }
+  ],
+  "whatsapp": [
+    {
+      "engine": "chrome",
+      "resources": false,
+      "durationMs": 8593.988708999997,
+      "snapshot": {
+        "title": "WhatsApp",
+        "text": "Scan to log in\nLink with phone number instead.\n1\nScan the QR code with your phone's camera\n2\nTap the link to open WhatsApp \n3\nScan the QR code again to link to your account\nNeed help?\nStay logged in on this browser\nLog in with phone number\nDon't have a WhatsApp account?\nGet started\nYour personal messages are end-to-end encrypted\nTerms & Privacy Policy",
+        "qrDataRef": true,
+        "canvasCount": 1,
+        "require": "function",
+        "worker": "function",
+        "indexedDB": "object",
+        "serviceWorker": "object",
+        "readyState": "complete"
+      },
+      "errors": [],
+      "requestFailures": [],
+      "peakTreeRssMiB": 1100.71875,
+      "lastTreeRssMiB": 1040.03125,
+      "sampledBrowserCpuSeconds": 4.989999999999999,
+      "samples": 44
+    },
+    {
+      "engine": "lightpanda",
+      "resources": false,
+      "durationMs": 377.2103749999951,
+      "snapshot": {
+        "title": "",
+        "text": "Browser not supported\nWe recommend using WhatsApp with one of the following browsers:\nGoogle Chrome\nMozilla Firefox\nMicrosoft Edge\nWhatsApp also supports:\nOpera\nSafari (macOS 11+ only)",
+        "qrDataRef": false,
+        "canvasCount": 0,
+        "require": "undefined",
+        "worker": "function",
+        "indexedDB": "object",
+        "serviceWorker": "undefined",
+        "readyState": "interactive"
+      },
+      "errors": [],
+      "requestFailures": [],
+      "peakTreeRssMiB": 27.859375,
+      "lastTreeRssMiB": 27.859375,
+      "sampledBrowserCpuSeconds": 0.1,
+      "samples": 2,
+      "stderr": "$time=1791401868357 $scope=note $level=note $msg=\"server running\" address=127.0.0.1:62341 max_connections=16208 max_browser_connections=16\n"
+    },
+    {
+      "engine": "lightpanda",
+      "resources": true,
+      "durationMs": 2288.719792000018,
+      "snapshot": {
+        "title": "",
+        "text": "Browser not supported\nWe recommend using WhatsApp with one of the following browsers:\nGoogle Chrome\nMozilla Firefox\nMicrosoft Edge\nWhatsApp also supports:\nOpera\nSafari (macOS 11+ only)",
+        "qrDataRef": false,
+        "canvasCount": 0,
+        "require": "function",
+        "worker": "function",
+        "indexedDB": "object",
+        "serviceWorker": "undefined",
+        "readyState": "interactive"
+      },
+      "errors": [],
+      "requestFailures": [],
+      "peakTreeRssMiB": 41.40625,
+      "lastTreeRssMiB": 40.15625,
+      "sampledBrowserCpuSeconds": 0.1,
+      "samples": 15,
+      "stderr": "$time=1791401869407 $scope=note $level=note $msg=\"server running\" address=127.0.0.1:62359 max_connections=16208 max_browser_connections=16\n"
+    }
+  ],
+  "summaries": [
+    {
+      "engine": "chrome",
+      "concurrency": 1,
+      "completedSamples": 5,
+      "coldReadyMs": {
+        "median": 1252.166374999997,
+        "min": 1042.1086250000008,
+        "max": 7147.871207999997
+      },
+      "warmWorkloadMs": {
+        "median": 787.4246249999997,
+        "min": 429.33333299999504,
+        "max": 3171.2642919999926
+      },
+      "peakTreeRssMiB": {
+        "median": 985.09375,
+        "min": 877.671875,
+        "max": 1014.03125
+      },
+      "lastTreeRssMiB": {
+        "median": 846.421875,
+        "min": 828.671875,
+        "max": 962.859375
+      },
+      "sampledBrowserCpuSeconds": {
+        "median": 3.35,
+        "min": 2.9299999999999997,
+        "max": 7.539999999999998
+      },
+      "warmBrowserCpuSeconds": {
+        "median": 1.2699999999999987,
+        "min": 1.0799999999999994,
+        "max": 2.5199999999999987
+      },
+      "idleBrowserCpuSecondsOver1s": {
+        "median": 0.3600000000000003,
+        "min": 0.1899999999999995,
+        "max": 0.5699999999999994
+      }
+    },
+    {
+      "engine": "lightpanda",
+      "concurrency": 1,
+      "completedSamples": 5,
+      "coldReadyMs": {
+        "median": 124.83654200000456,
+        "min": 88.98720899999898,
+        "max": 384.4340830000001
+      },
+      "warmWorkloadMs": {
+        "median": 183.36416699999245,
+        "min": 174.98604200000045,
+        "max": 207.99158299999908
+      },
+      "peakTreeRssMiB": {
+        "median": 43.65625,
+        "min": 43.15625,
+        "max": 44.828125
+      },
+      "lastTreeRssMiB": {
+        "median": 35.5,
+        "min": 34.71875,
+        "max": 39.859375
+      },
+      "sampledBrowserCpuSeconds": {
+        "median": 0.4,
+        "min": 0.36999999999999994,
+        "max": 0.55
+      },
+      "warmBrowserCpuSeconds": {
+        "median": 0.29,
+        "min": 0.22999999999999993,
+        "max": 0.33000000000000007
+      },
+      "idleBrowserCpuSecondsOver1s": {
+        "median": 0.010000000000000009,
+        "min": 0,
+        "max": 0.08000000000000002
+      }
+    },
+    {
+      "engine": "chrome",
+      "concurrency": 3,
+      "completedSamples": 5,
+      "coldReadyMs": {
+        "median": 2058.250667000015,
+        "min": 1774.7854170000064,
+        "max": 2214.294125000015
+      },
+      "warmWorkloadMs": {
+        "median": 1340.9424999999756,
+        "min": 1310.1812500000233,
+        "max": 2272.5403750000114
+      },
+      "peakTreeRssMiB": {
+        "median": 2666,
+        "min": 2596.90625,
+        "max": 2763.953125
+      },
+      "lastTreeRssMiB": {
+        "median": 2578.109375,
+        "min": 2506.390625,
+        "max": 2678.84375
+      },
+      "sampledBrowserCpuSeconds": {
+        "median": 9.010000000000002,
+        "min": 8.790000000000003,
+        "max": 9.53
+      },
+      "warmBrowserCpuSeconds": {
+        "median": 3.7000000000000064,
+        "min": 3.58,
+        "max": 3.980000000000002
+      },
+      "idleBrowserCpuSecondsOver1s": {
+        "median": 0.6699999999999999,
+        "min": 0.6099999999999977,
+        "max": 0.7100000000000044
+      }
+    },
+    {
+      "engine": "lightpanda",
+      "concurrency": 3,
+      "completedSamples": 5,
+      "coldReadyMs": {
+        "median": 178.1429159999825,
+        "min": 94.96866700000828,
+        "max": 242.44741599998088
+      },
+      "warmWorkloadMs": {
+        "median": 239.9320000000007,
+        "min": 207.18037499999627,
+        "max": 605.3672500000102
+      },
+      "peakTreeRssMiB": {
+        "median": 122.609375,
+        "min": 116.8125,
+        "max": 125.8125
+      },
+      "lastTreeRssMiB": {
+        "median": 116.8125,
+        "min": 108.640625,
+        "max": 125.8125
+      },
+      "sampledBrowserCpuSeconds": {
+        "median": 1.0800000000000003,
+        "min": 0.8400000000000001,
+        "max": 1.2300000000000002
+      },
+      "warmBrowserCpuSeconds": {
+        "median": 0.6500000000000001,
+        "min": 0.6100000000000001,
+        "max": 0.74
+      },
+      "idleBrowserCpuSecondsOver1s": {
+        "median": 0.09000000000000008,
+        "min": 0,
+        "max": 0.14
+      }
+    }
+  ],
+  "completedAt": "2026-10-07T19:45:19.278Z",
+  "lightpandaRelease": {
+    "tag": "1.0.0",
+    "url": "https://github.com/lightpanda-io/browser/releases/tag/1.0.0",
+    "asset": "lightpanda-aarch64-macos",
+    "sha256": "955440053a84754dd64c62f970449a56a2b350cdf43ea5f2e809a73047b8173d",
+    "verifiedAgainstGitHubAssetDigest": true,
+    "note": "The installed ~/.local/bin/lightpanda is a nightly and was not used. Lightpanda CDP reports Chrome/124.0.6367.29; identify the engine by binary version and digest, not Browser.getVersion."
+  },
+  "repository": {
+    "commit": "bab232462e64a6b66e6dac64a31ccec18d3eed59",
+    "workingTreeWasDirty": true,
+    "sourceGuard": {
+      "file": "packages/core/src/createClient.ts",
+      "line": 228,
+      "present": true,
+      "acceptedDrivers": [
+        "puppeteer",
+        "playwright"
+      ],
+      "evidence": "Current working-tree source inspection; runtime import result recorded separately"
+    },
+    "probe": "repository-probe.json"
+  }
+}

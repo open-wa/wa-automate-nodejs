@@ -59,6 +59,8 @@ export const clientRuntimeMethodSurface = {
   },
   sendSeen: { support: 'runtime', runtimeMethod: 'sendSeen' },
   getMessageById: { support: 'runtime', runtimeMethod: 'getMessageById' },
+  getAlbumMessages: { support: 'runtime', runtimeMethod: 'getAlbumMessages' },
+  sendAlbum: { support: 'runtime', runtimeMethod: 'sendAlbum' },
   sendFileFromUrl: {
     support: 'unsupported',
     runtimeMethod: 'sendFile',
@@ -88,6 +90,7 @@ export const clientRuntimeMethodSurface = {
     reason: 'shipped wapi.js does not define window.WAPI.getGroupInfo',
   },
   getGroupMembers: { support: 'runtime', runtimeMethod: 'getGroupParticipantIDs' },
+  getGroupMembersId: { support: 'runtime', runtimeMethod: 'getGroupParticipantIDs' },
   getGroupInviteLink: { support: 'runtime', runtimeMethod: 'getGroupInviteLink' },
   revokeGroupInviteLink: { support: 'runtime', runtimeMethod: 'revokeGroupInviteLink' },
   joinGroupViaLink: { support: 'runtime', runtimeMethod: 'joinGroupViaLink' },

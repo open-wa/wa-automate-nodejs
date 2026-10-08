@@ -152,6 +152,10 @@ export class ApiServer {
    * Call this once the browser page is ready.
    */
   public async setPage(page: IScreencastPage): Promise<void> {
+    if (this.config.useLightpanda) {
+      await this.screencastManager.clearPage();
+      return;
+    }
     await this.screencastManager.setPage(page);
   }
 
@@ -162,7 +166,7 @@ export class ApiServer {
     await this.screencastManager.clearPage();
   }
 
-  public setQR(qr: string) {
+  public setQR(qr: string | null) {
     this.latestQR = qr;
   }
 
@@ -347,6 +351,10 @@ export class ApiServer {
           },
         },
         capabilities: {
+          livePortalAvailable: !this.config.useLightpanda,
+          livePortalUnavailableReason: this.config.useLightpanda
+            ? 'Lightpanda does not render a visual feed. Use Chrome or Chromium for Live Portal.'
+            : undefined,
           apiKeyConfigured: Boolean(this.config.apiKey),
           mcpEnabled: Boolean(this.config.mcp?.enabled),
           mcpAvailable: Boolean(this.config.apiKey && this.config.mcp?.enabled),

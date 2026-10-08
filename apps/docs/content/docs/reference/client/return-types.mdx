@@ -271,7 +271,7 @@ type MessageId = string
 <summary>Type declaration</summary>
 
 ```ts
-type Message = { id: MessageId; body: string; type: "chat" | "audio" | "ptt" | "image" | "video" | "document" | "sticker" | "location" | "vcard" | "multi_vcard" | "revoked" | "order" | "buttons_response" | "list_response" | "unknown"; t: number; notifyName?: string; from: ChatId; to: ChatId; self: "in" | "out"; ack: "ACK_PENDING" | "ACK_SERVER" | "ACK_DEVICE" | "ACK_READ" | "ACK_PLAYED" | -1 | "ACK_ERROR" | 0 | 1 | 2 | 3 | 4; invis?: boolean; isNewMsg?: boolean; star?: boolean; recvFresh?: boolean; broadcast?: boolean; isForwarded?: boolean; labels?: string[]; mentionedJidList?: ContactId[]; caption?: string; sender: Contact; timestamp: number; content: string; isGroupMsg: boolean; isMMS?: boolean; isMedia: boolean; isNotification: boolean; isPSA?: boolean; fromMe: boolean; chat: Chat; chatId: ChatId; author?: string; clientUrl?: string; deprecatedMms3Url?: string; isQuotedMsgAvailable: boolean; quotedMsg?: unknown; quotedMsgObj?: unknown; senderId?: string }
+type Message = { id: MessageId; body: string; type: "chat" | "audio" | "ptt" | "image" | "video" | "album" | "document" | "sticker" | "location" | "vcard" | "multi_vcard" | "revoked" | "order" | "buttons_response" | "list_response" | "unknown"; t: number; notifyName?: string; from: ChatId; to: ChatId; self: "in" | "out"; ack: "ACK_PENDING" | "ACK_SERVER" | "ACK_DEVICE" | "ACK_READ" | "ACK_PLAYED" | -1 | "ACK_ERROR" | 0 | 1 | 2 | 3 | 4; invis?: boolean; isNewMsg?: boolean; star?: boolean; recvFresh?: boolean; broadcast?: boolean; isForwarded?: boolean; labels?: string[]; mentionedJidList?: ContactId[]; caption?: string; expectedImageCount?: number | null; expectedVideoCount?: number | null; parentMsgKey?: MessageId | null; associationType?: string | null; isGif?: boolean; sender: Contact; timestamp: number; content: string; isGroupMsg: boolean; isMMS?: boolean; isMedia: boolean; isNotification: boolean; isPSA?: boolean; fromMe: boolean; chat: Chat; chatId: ChatId; author?: string; clientUrl?: string; deprecatedMms3Url?: string; isQuotedMsgAvailable: boolean; quotedMsg?: unknown; quotedMsgObj?: unknown; senderId?: string }
 ```
 
 </details>
@@ -282,7 +282,7 @@ Related types: [ChatId](/docs/reference/client/return-types#chatid), [Chat](/doc
 | --- | --- | --- |
 | `id` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | Yes |
 | `body` | `string` | Yes |
-| `type` | `"chat" \| "audio" \| "ptt" \| "image" \| "video" \| "document" \| "sticker" \| "location" \| "vcard" \| "multi_vcard" \| "revoked" \| "order" \| "buttons_response" \| "list_response" \| "unknown"` | Yes |
+| `type` | `"chat" \| "audio" \| "ptt" \| "image" \| "video" \| "album" \| "document" \| "sticker" \| "location" \| "vcard" \| "multi_vcard" \| "revoked" \| "order" \| "buttons_response" \| "list_response" \| "unknown"` | Yes |
 | `t` | `number` | Yes |
 | `notifyName` | `string` | No |
 | `from` | `ChatId` — [ChatId](/docs/reference/client/return-types#chatid) | Yes |
@@ -298,6 +298,11 @@ Related types: [ChatId](/docs/reference/client/return-types#chatid), [Chat](/doc
 | `labels` | `string[]` | No |
 | `mentionedJidList` | `ContactId[]` — [ContactId](/docs/reference/client/return-types#contactid) | No |
 | `caption` | `string` | No |
+| `expectedImageCount` | `number \| null` | No |
+| `expectedVideoCount` | `number \| null` | No |
+| `parentMsgKey` | `MessageId \| null` — [MessageId](/docs/reference/client/return-types#messageid) | No |
+| `associationType` | `string \| null` | No |
+| `isGif` | `boolean` | No |
 | `sender` | `Contact` — [Contact](/docs/reference/client/return-types#contact) | Yes |
 | `timestamp` | `number` | Yes |
 | `content` | `string` | Yes |
@@ -895,7 +900,7 @@ Message-shaped status entry, based on the legacy story API. Chat and sender may 
 <summary>Type declaration</summary>
 
 ```ts
-type Story = { id: MessageId; body: string; type: "chat" | "audio" | "ptt" | "image" | "video" | "document" | "sticker" | "location" | "vcard" | "multi_vcard" | "revoked" | "order" | "buttons_response" | "list_response" | "unknown"; t: number; notifyName?: string; from: ChatId; to: ChatId; self: "in" | "out"; ack: "ACK_PENDING" | "ACK_SERVER" | "ACK_DEVICE" | "ACK_READ" | "ACK_PLAYED" | -1 | "ACK_ERROR" | 0 | 1 | 2 | 3 | 4; invis?: boolean; isNewMsg?: boolean; star?: boolean; recvFresh?: boolean; broadcast?: boolean; isForwarded?: boolean; labels?: string[]; mentionedJidList?: ContactId[]; caption?: string; timestamp: number; content: string; isGroupMsg: boolean; isMMS?: boolean; isMedia: boolean; isNotification: boolean; isPSA?: boolean; fromMe: boolean; chatId: ChatId; author?: string; clientUrl?: string; deprecatedMms3Url?: string; isQuotedMsgAvailable: boolean; quotedMsg?: unknown; quotedMsgObj?: unknown; senderId?: string; chat?: Chat | null; sender?: Contact | null }
+type Story = { id: MessageId; body: string; type: "chat" | "audio" | "ptt" | "image" | "video" | "album" | "document" | "sticker" | "location" | "vcard" | "multi_vcard" | "revoked" | "order" | "buttons_response" | "list_response" | "unknown"; t: number; notifyName?: string; from: ChatId; to: ChatId; self: "in" | "out"; ack: "ACK_PENDING" | "ACK_SERVER" | "ACK_DEVICE" | "ACK_READ" | "ACK_PLAYED" | -1 | "ACK_ERROR" | 0 | 1 | 2 | 3 | 4; invis?: boolean; isNewMsg?: boolean; star?: boolean; recvFresh?: boolean; broadcast?: boolean; isForwarded?: boolean; labels?: string[]; mentionedJidList?: ContactId[]; caption?: string; expectedImageCount?: number | null; expectedVideoCount?: number | null; parentMsgKey?: MessageId | null; associationType?: string | null; isGif?: boolean; timestamp: number; content: string; isGroupMsg: boolean; isMMS?: boolean; isMedia: boolean; isNotification: boolean; isPSA?: boolean; fromMe: boolean; chatId: ChatId; author?: string; clientUrl?: string; deprecatedMms3Url?: string; isQuotedMsgAvailable: boolean; quotedMsg?: unknown; quotedMsgObj?: unknown; senderId?: string; chat?: Chat | null; sender?: Contact | null }
 ```
 
 </details>
@@ -906,7 +911,7 @@ Related types: [ChatId](/docs/reference/client/return-types#chatid), [Chat](/doc
 | --- | --- | --- |
 | `id` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | Yes |
 | `body` | `string` | Yes |
-| `type` | `"chat" \| "audio" \| "ptt" \| "image" \| "video" \| "document" \| "sticker" \| "location" \| "vcard" \| "multi_vcard" \| "revoked" \| "order" \| "buttons_response" \| "list_response" \| "unknown"` | Yes |
+| `type` | `"chat" \| "audio" \| "ptt" \| "image" \| "video" \| "album" \| "document" \| "sticker" \| "location" \| "vcard" \| "multi_vcard" \| "revoked" \| "order" \| "buttons_response" \| "list_response" \| "unknown"` | Yes |
 | `t` | `number` | Yes |
 | `notifyName` | `string` | No |
 | `from` | `ChatId` — [ChatId](/docs/reference/client/return-types#chatid) | Yes |
@@ -922,6 +927,11 @@ Related types: [ChatId](/docs/reference/client/return-types#chatid), [Chat](/doc
 | `labels` | `string[]` | No |
 | `mentionedJidList` | `ContactId[]` — [ContactId](/docs/reference/client/return-types#contactid) | No |
 | `caption` | `string` | No |
+| `expectedImageCount` | `number \| null` | No |
+| `expectedVideoCount` | `number \| null` | No |
+| `parentMsgKey` | `MessageId \| null` — [MessageId](/docs/reference/client/return-types#messageid) | No |
+| `associationType` | `string \| null` | No |
+| `isGif` | `boolean` | No |
 | `timestamp` | `number` | Yes |
 | `content` | `string` | Yes |
 | `isGroupMsg` | `boolean` | Yes |
@@ -1387,5 +1397,48 @@ type ReplyAction = { type: "reply"; id: string; label: string }
 | `type` | `"reply"` | Yes |
 | `id` | `string` | Yes |
 | `label` | `string` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## AlbumMedia
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type AlbumMedia = { file: string; filename: string; isGif?: boolean }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `file` | `string` | Yes |
+| `filename` | `string` | Yes |
+| `isGif` | `boolean` | No |
+
+Additional provider fields may be present; narrow them before use.
+## AlbumSendResult
+
+Submitted album parent and child message IDs, in input order. Submission does not confirm recipient delivery. Runtime failures include the album ID and submitted child IDs when available. A lost connection can leave the send outcome unknown; inspect the chat before retrying.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type AlbumSendResult = { albumId: MessageId; messageIds: MessageId[] }
+```
+
+</details>
+
+Related types: [MessageId](/docs/reference/client/return-types#messageid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `albumId` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | Yes |
+| `messageIds` | `MessageId[]` — [MessageId](/docs/reference/client/return-types#messageid) | Yes |
 
 Additional provider fields may be present; narrow them before use.

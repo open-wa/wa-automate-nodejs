@@ -3,6 +3,7 @@ import { createLogger, Logger } from '@open-wa/logger';
 import type { IDriver, LightpandaOptions, BrowserProvisionOptions } from '@open-wa/driver-interface';
 import { requireCapability, type CapabilitySubject } from '@open-wa/driver-interface';
 import { OpenWAEventMap, STATE } from './events/eventMap';
+import { attachGlobalEvents } from './events/globalEvents';
 import { PluginHost, loadPlugins } from './plugins/index';
 import type { Plugin, PluginClient } from '@open-wa/plugin-sdk';
 import {
@@ -41,6 +42,8 @@ export interface CreateClientOptions extends SessionPersistenceConfig, SessionEn
   driver: IDriver;
   calling?: CallingOptions;
   callMediaHost?: CallMediaHost;
+  /** Forward supported SimpleListener events to the shared ev helper. Default: true. */
+  eventMode?: boolean;
   deleteSessionDataOnLogout?: boolean;
   killClientOnLogout?: boolean;
 
@@ -226,8 +229,10 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     debug: options.debug ?? false,
   });
 
-  if (options.driver.name !== 'puppeteer' && options.driver.name !== 'playwright') {
-    throw new Error('Compact authentication requires Puppeteer or Playwright');
+  const experimentalLightpanda = options.driver.name === 'lightpanda'
+    && options.lightpanda?.experimentalWhatsApp === true;
+  if (options.driver.name !== 'puppeteer' && options.driver.name !== 'playwright' && !experimentalLightpanda) {
+    throw new Error('Compact authentication requires Puppeteer, Playwright, or explicitly enabled experimental Lightpanda');
   }
   // Authentication always restores into a disposable browser profile.
   const resolvedUserDataDir = undefined;
@@ -282,6 +287,12 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
   const resourceScope = await SessionScope.make({
     observability,
     metricAttributes: { session: sessionId },
+  });
+  const detachGlobalEvents = attachGlobalEvents(events, sessionId, options.eventMode ?? true,
+    error => logger.error('global_event_error', { error }));
+  // Registered first, so Effect closes the bridge after the owned resources.
+  await resourceScope.addFinalizer('global-events.detach', () => {
+    try { events.emit('core.stopped', {}); } finally { detachGlobalEvents(); }
   });
   await resourceScope.addFinalizer('transport.close', () => transport.close());
   await resourceScope.addFinalizer('plugins.dispose', () => pluginHost.dispose());
@@ -1171,8 +1182,13 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         sessionId,
       });
       } catch (error) {
-        try { await resourceScope.close('startup-failure'); }
-        catch { logger.warn('Startup cleanup failed; preserving the original startup error.'); }
+        try {
+          await resourceScope.close('startup-failure');
+        } catch (cleanupError) {
+          logger.error('startup_cleanup_failed', {
+            error: cleanupError,
+          });
+        }
         throw error;
       }
     },
@@ -1195,8 +1211,6 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         ? reason as SessionFinalizerReason
         : 'normal-stop';
       await resourceScope.close(finalizerReason);
-
-      events.emit('core.stopped', {});
 
       logger.info('client_stopped', { sessionId, reason });
     },

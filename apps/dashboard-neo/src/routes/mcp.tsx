@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button"
 import { createFileRoute } from "@tanstack/react-router"
 import { useHealth } from "@/lib/hooks/use-health"
 import {
@@ -63,7 +64,7 @@ export function McpPage() {
   )
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="dashboard-page space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -71,7 +72,9 @@ export function McpPage() {
             <Bot size={24} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Model Context Protocol</h1>
+            <h1 className="text-title-1-medium text-text-primary">
+              Model Context Protocol
+            </h1>
             <p className="text-sm text-muted-foreground">
               Expose your WhatsApp session as a tool-set for AI Agents
             </p>
@@ -84,14 +87,22 @@ export function McpPage() {
         <StatusCard
           title="Availability"
           status={mcpAvailable ? "Available" : "Unavailable"}
-          description={mcpAvailable ? "MCP support is enabled in this build" : "This build does not support MCP"}
+          description={
+            mcpAvailable
+              ? "MCP support is enabled in this build"
+              : "This build does not support MCP"
+          }
           icon={<Cpu size={18} />}
           variant={mcpAvailable ? "success" : "neutral"}
         />
         <StatusCard
           title="Server Status"
           status={mcpEnabled ? "Running" : "Disabled"}
-          description={mcpEnabled ? "Streamable HTTP endpoint is active" : "Enable MCP in your configuration"}
+          description={
+            mcpEnabled
+              ? "Streamable HTTP endpoint is active"
+              : "Enable MCP in your configuration"
+          }
           icon={<Terminal size={18} />}
           variant={mcpEnabled ? "success" : "error"}
         />
@@ -107,32 +118,47 @@ export function McpPage() {
       {mcpEnabled ? (
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Configuration Snippets */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6 lg:col-span-2">
             {/* Endpoint Info */}
-            <div className="rounded-xl border bg-card">
+            <div className="rounded-2xl border border-border-button-default bg-card">
               <div className="flex items-center justify-between border-b px-5 py-3">
                 <div className="flex items-center gap-2">
                   <ExternalLink size={16} className="text-primary" />
                   <h2 className="text-sm font-semibold">MCP Endpoint</h2>
                 </div>
-                <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold text-primary uppercase tracking-wider">
+                <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-primary uppercase">
                   Streamable HTTP
                 </span>
               </div>
-              <div className="p-5 space-y-3">
+              <div className="space-y-3 p-5">
                 <div className="flex items-center gap-2 rounded-lg bg-muted p-3 font-mono text-sm">
                   <span className="flex-1 truncate">{mcpUrl}</span>
-                  <button
+                  <Button
+                    variant="ghost"
                     onClick={() => copyToClipboard(mcpUrl, "url")}
-                    className="shrink-0 rounded-md p-1.5 hover:bg-background transition-colors"
+                    className="shrink-0 rounded-md p-1.5 transition-colors hover:bg-background"
                   >
-                    {copied === "url" ? <ClipboardCheck size={16} className="text-emerald-500" /> : <Copy size={16} />}
-                  </button>
+                    {copied === "url" ? (
+                      <ClipboardCheck size={16} className="text-emerald-500" />
+                    ) : (
+                      <Copy size={16} />
+                    )}
+                  </Button>
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Single endpoint for all MCP operations. Supports <code className="rounded bg-muted px-1 text-foreground">POST</code> (JSON-RPC messages),{" "}
-                  <code className="rounded bg-muted px-1 text-foreground">GET</code> (server-initiated streams), and{" "}
-                  <code className="rounded bg-muted px-1 text-foreground">DELETE</code> (session termination).
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  Single endpoint for all MCP operations. Supports{" "}
+                  <code className="rounded bg-muted px-1 text-foreground">
+                    POST
+                  </code>{" "}
+                  (JSON-RPC messages),{" "}
+                  <code className="rounded bg-muted px-1 text-foreground">
+                    GET
+                  </code>{" "}
+                  (server-initiated streams), and{" "}
+                  <code className="rounded bg-muted px-1 text-foreground">
+                    DELETE
+                  </code>{" "}
+                  (session termination).
                 </p>
               </div>
             </div>
@@ -147,8 +173,20 @@ export function McpPage() {
               copyToClipboard={copyToClipboard}
               instructions={[
                 "Open Claude Desktop → Settings → Developer",
-                <>Paste the snippet into your <code className="rounded bg-muted px-1 text-foreground">mcpServers</code> section</>,
-                <>Replace <code className="rounded bg-muted px-1 text-foreground">YOUR_API_KEY</code> with your actual Easy API key</>,
+                <>
+                  Paste the snippet into your{" "}
+                  <code className="rounded bg-muted px-1 text-foreground">
+                    mcpServers
+                  </code>{" "}
+                  section
+                </>,
+                <>
+                  Replace{" "}
+                  <code className="rounded bg-muted px-1 text-foreground">
+                    YOUR_API_KEY
+                  </code>{" "}
+                  with your actual Easy API key
+                </>,
                 "Restart Claude Desktop",
               ]}
             />
@@ -163,8 +201,14 @@ export function McpPage() {
               copyToClipboard={copyToClipboard}
               instructions={[
                 "Open Settings → MCP Servers → Add Server",
-                "Set type to \"SSE\" (Cursor term for Streamable HTTP)",
-                <>Paste the config and replace <code className="rounded bg-muted px-1 text-foreground">YOUR_API_KEY</code> with your actual Easy API key</>,
+                'Set type to "SSE" (Cursor term for Streamable HTTP)',
+                <>
+                  Paste the config and replace{" "}
+                  <code className="rounded bg-muted px-1 text-foreground">
+                    YOUR_API_KEY
+                  </code>{" "}
+                  with your actual Easy API key
+                </>,
               ]}
             />
           </div>
@@ -172,16 +216,17 @@ export function McpPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Auth Details */}
-            <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-6 space-y-4">
+            <div className="space-y-4 rounded-xl border border-amber-500/20 bg-amber-500/5 p-6">
               <h2 className="flex items-center gap-2 text-sm font-bold text-amber-600 dark:text-amber-400">
                 <KeyRound size={18} />
                 Authentication
               </h2>
               <p className="text-xs leading-relaxed text-muted-foreground">
-                MCP uses the same API key as your Easy API HTTP endpoints. Include it via:
+                MCP uses the same API key as your Easy API HTTP endpoints.
+                Include it via:
               </p>
               <div className="space-y-2">
-                <div className="rounded-lg bg-background p-3 font-mono text-[10px] space-y-1 border border-border">
+                <div className="space-y-1 rounded-lg border border-border bg-background p-3 font-mono text-[10px]">
                   <div className="text-muted-foreground"># Header</div>
                   <div>X-API-Key: YOUR_API_KEY</div>
                 </div>
@@ -189,22 +234,35 @@ export function McpPage() {
             </div>
 
             {/* Safety */}
-            <div className="rounded-xl border border-primary/20 bg-primary/5 p-6 space-y-4">
+            <div className="space-y-4 rounded-xl border border-primary/20 bg-primary/5 p-6">
               <h2 className="flex items-center gap-2 text-sm font-bold text-primary">
                 <ShieldCheck size={18} />
                 Safety Boundary
               </h2>
               <ul className="space-y-3">
                 <li className="flex gap-2">
-                  <CheckCircle2 size={14} className="mt-0.5 shrink-0 text-emerald-500" />
-                  <span className="text-xs text-muted-foreground">Only schema-registered methods are exposed</span>
+                  <CheckCircle2
+                    size={14}
+                    className="mt-0.5 shrink-0 text-emerald-500"
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    Only schema-registered methods are exposed
+                  </span>
                 </li>
                 <li className="flex gap-2">
-                  <CheckCircle2 size={14} className="mt-0.5 shrink-0 text-emerald-500" />
-                  <span className="text-xs text-muted-foreground">Execution blocked until session is fully ready</span>
+                  <CheckCircle2
+                    size={14}
+                    className="mt-0.5 shrink-0 text-emerald-500"
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    Execution blocked until session is fully ready
+                  </span>
                 </li>
                 <li className="flex gap-2">
-                  <CheckCircle2 size={14} className="mt-0.5 shrink-0 text-emerald-500" />
+                  <CheckCircle2
+                    size={14}
+                    className="mt-0.5 shrink-0 text-emerald-500"
+                  />
                   <span className="text-xs text-muted-foreground">
                     Same auth boundary as HTTP — no extra exposure
                   </span>
@@ -213,49 +271,63 @@ export function McpPage() {
             </div>
 
             {/* Docs */}
-            <div className="rounded-xl border bg-card p-6 space-y-4">
+            <div className="space-y-4 rounded-2xl border border-border-button-default bg-card p-6">
               <h2 className="text-sm font-bold">Resources</h2>
               <div className="space-y-2">
                 <a
                   href="https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex w-full items-center justify-between rounded-lg border px-3 py-2 text-xs font-medium hover:bg-muted transition-colors"
+                  className="group flex w-full items-center justify-between rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-muted"
                 >
                   <span className="flex items-center gap-2">
                     <BookOpen size={14} />
                     MCP Transport Spec
                   </span>
-                  <ArrowRight size={14} className="opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
+                  <ArrowRight
+                    size={14}
+                    className="-translate-x-2 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
+                  />
                 </a>
                 <div className="space-y-1">
                   <a
                     href={`${baseUrl}/meta/mcp-tools.json`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex w-full items-center justify-between rounded-lg border px-3 py-2 text-xs font-medium hover:bg-muted transition-colors"
+                    className="group flex w-full items-center justify-between rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:bg-muted"
                   >
                     <span className="flex items-center gap-2">
                       <Terminal size={14} />
                       Inspect Tool Definitions
                     </span>
-                    <ArrowRight size={14} className="opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
+                    <ArrowRight
+                      size={14}
+                      className="-translate-x-2 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
+                    />
                   </a>
-                  <p className="text-[10px] text-muted-foreground px-1">Note: This is a direct static dump of the Open-WA schema registry used to generate MCP tools, not the actual dynamic <code className="font-mono bg-muted px-0.5 rounded">tools/list</code> response from the MCP protocol.</p>
+                  <p className="px-1 text-[10px] text-muted-foreground">
+                    Note: This is a direct static dump of the Open-WA schema
+                    registry used to generate MCP tools, not the actual dynamic{" "}
+                    <code className="rounded bg-muted px-0.5 font-mono">
+                      tools/list
+                    </code>{" "}
+                    response from the MCP protocol.
+                  </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
       ) : (
-        <div className="flex h-96 flex-col items-center justify-center gap-4 rounded-xl border border-dashed bg-card/50 text-center px-6">
+        <div className="flex h-96 flex-col items-center justify-center gap-4 rounded-xl border border-dashed bg-card/50 px-6 text-center">
           <div className="flex size-16 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-500">
             <ShieldCheck size={40} />
           </div>
           <div className="max-w-md space-y-2">
             <h2 className="text-lg font-bold">MCP is currently Disabled</h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              To use Model Context Protocol, you must enable it in your server configuration and ensure an API Key is set.
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              To use Model Context Protocol, you must enable it in your server
+              configuration and ensure an API Key is set.
             </p>
           </div>
           <div className="mt-2 rounded-lg bg-muted p-4 text-left font-mono text-xs">
@@ -291,19 +363,24 @@ function ConfigSnippet({
   instructions: ReactNode[]
 }) {
   return (
-    <div className="rounded-xl border bg-card">
+    <div className="rounded-2xl border border-border-button-default bg-card">
       <div className="flex items-center justify-between border-b px-5 py-3">
         <div className="flex items-center gap-2">
           {icon}
           <h2 className="text-sm font-semibold">{title} Configuration</h2>
         </div>
-        <button
+        <Button
+          variant="ghost"
           onClick={() => copyToClipboard(snippet, copyId)}
           className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground hover:text-foreground"
         >
-          {copied === copyId ? <ClipboardCheck size={12} /> : <Copy size={12} />}
+          {copied === copyId ? (
+            <ClipboardCheck size={12} />
+          ) : (
+            <Copy size={12} />
+          )}
           Copy JSON
-        </button>
+        </Button>
       </div>
       <div className="p-5">
         <pre className="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-xs leading-relaxed">
@@ -311,7 +388,7 @@ function ConfigSnippet({
         </pre>
         <div className="mt-4 space-y-2">
           <h3 className="text-xs font-medium">Setup:</h3>
-          <ol className="list-decimal list-inside space-y-1 text-xs text-muted-foreground">
+          <ol className="list-inside list-decimal space-y-1 text-xs text-muted-foreground">
             {instructions.map((step, i) => (
               <li key={i}>{step}</li>
             ))}
@@ -336,19 +413,30 @@ function StatusCard({
   variant: "success" | "error" | "warning" | "neutral"
 }) {
   const colors = {
-    success: "border-emerald-500/20 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400",
+    success:
+      "border-emerald-500/20 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400",
     error: "border-red-500/20 bg-red-500/5 text-red-600 dark:text-red-400",
-    warning: "border-amber-500/20 bg-amber-500/5 text-amber-600 dark:text-amber-400",
+    warning:
+      "border-amber-500/20 bg-amber-500/5 text-amber-600 dark:text-amber-400",
     neutral: "border-border bg-card text-muted-foreground",
   }
 
-  const Dot = variant === "success" ? CheckCircle2 : variant === "error" ? XCircle : ShieldCheck
+  const Dot =
+    variant === "success"
+      ? CheckCircle2
+      : variant === "error"
+        ? XCircle
+        : ShieldCheck
 
   return (
-    <div className={`relative overflow-hidden rounded-xl border p-5 ${colors[variant]}`}>
+    <div
+      className={`relative overflow-hidden rounded-xl border p-5 ${colors[variant]}`}
+    >
       <div className="flex items-start justify-between">
         <div className="space-y-1">
-          <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">{title}</p>
+          <p className="text-[10px] font-bold tracking-wider uppercase opacity-60">
+            {title}
+          </p>
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-bold">{status}</h3>
             <Dot size={14} />
@@ -356,7 +444,7 @@ function StatusCard({
         </div>
         <div className="opacity-40">{icon}</div>
       </div>
-      <p className="mt-2 text-xs opacity-70 leading-relaxed">{description}</p>
+      <p className="mt-2 text-xs leading-relaxed opacity-70">{description}</p>
     </div>
   )
 }

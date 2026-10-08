@@ -6,9 +6,9 @@ errors. This file is the source of truth for how we use it. **Coding agents:
 read this before writing Effect code — do not use Effect v3 idioms, they differ
 from v4 and most training data predates v4.**
 
-Pinned version: `effect` is pinned to an exact beta (`4.0.0-beta.94`) in the
-workspace catalog. Upgrade deliberately (v4 is still in beta and APIs move
-between betas); never bump it as a side effect of another change.
+Pinned version: `effect` and the platform packages use the stable `4.0.2`
+release in the workspace catalog. Upgrade the family together and use the
+[v4 documentation](https://effect.website/docs/v4), rather than beta or v3 APIs.
 
 ## The one hard rule: Effect never leaks
 
@@ -20,6 +20,8 @@ failures at the boundary and rethrow a plain `OpenWAError`.
   public boundaries instead of `Effect.runPromise`. It guarantees the rejection
   is an `OpenWAError` with a stable `name` (the failure's tag), a readable
   `message`, an HTTP-ish `status`, optional `details`, and the original `cause`.
+- Drivers use the shared `toPublicError` from `@open-wa/driver-interface` at
+  their Promise boundaries, avoiding a circular dependency on core.
 - Never expose `Cause`, `Exit`, `FiberFailure`, or a fiber trace to a caller.
 - HTTP surfaces map `OpenWAError.status` to the response code.
 
@@ -30,7 +32,8 @@ Downstream users and their tools must be able to read our errors as ordinary
 
 - **Yes:** `@open-wa/core` internals (transport/session lifecycle, `httpClient`),
   `integrations/webhook` delivery, the execution kernel, and (later) the schema
-  layer and orchestrator core.
+  layer and orchestrator core. Browser provisioning and browser preference
+  persistence also use scoped resources and typed failures internally.
 - **No:** public method signatures, `@open-wa/plugin-sdk`, `@open-wa/client`,
   generated code, and anything a consumer imports and calls directly. Those stay
   Promise-based. (An additive `client.effect.*` surface may be offered later,

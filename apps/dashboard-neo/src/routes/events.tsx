@@ -1,115 +1,173 @@
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@/components/boardui/table"
 import { createFileRoute } from "@tanstack/react-router"
-import { useEvents } from "@/lib/hooks/use-events"
-import { useState } from "react"
-import { Pause, Play, Copy } from "lucide-react"
+import { useEvents, type EventLog } from "@/lib/hooks/use-events"
+import { usePrivacy } from "@/lib/hooks/use-privacy"
+import { useRef, useState } from "react"
+import {
+  Activity,
+  Pause,
+  Play,
+  Search,
+  Trash2,
+  ArrowUpRight,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Chip } from "@/components/boardui/chip"
+import { PageHeader } from "@/components/application/page-header"
+import { EventSheet } from "@/components/application/event-sheet"
 
 export const Route = createFileRoute("/events")({ component: EventsPage })
 
 function EventsPage() {
-  const { events, paused, setPaused, filter, setFilter, clear, count } = useEvents()
-  const [expandedId, setExpandedId] = useState<number | null>(null)
-
+  const { events, paused, setPaused, filter, setFilter, clear, count } =
+    useEvents()
+  const { privacyMode } = usePrivacy()
+  const [selected, setSelected] = useState<EventLog | null>(null)
+  const [open, setOpen] = useState(false)
+  const returnFocus = useRef<HTMLElement | null>(null)
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] flex-col">
-      {/* Toolbar */}
-      <div className="flex items-center gap-3 border-b px-4 py-3">
-        <h1 className="text-lg font-semibold">Live Events</h1>
-        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-          {count}
-        </span>
-
-        <div className="flex-1" />
-
-        <input
-          type="text"
-          placeholder="Filter events..."
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="h-8 w-48 rounded-md border bg-background px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-        />
-
-        <button
-          onClick={() => setPaused(!paused)}
-          className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-            paused
-              ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
-              : "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400"
-          }`}
-        >
-          {paused ? (
-            <span className="flex items-center gap-1.5"><Pause size={14} /> Paused</span>
-          ) : (
-            <span className="flex items-center gap-1.5"><Play size={14} /> Live</span>
-          )}
-        </button>
-
-        <button
-          onClick={clear}
-          className="rounded-md bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-destructive hover:text-destructive-foreground"
-        >
-          Clear
-        </button>
+    <div className="dashboard-page space-y-6">
+      <PageHeader
+        title="Live events"
+        description="Follow session activity and inspect captured payloads."
+        badge={
+          <Chip variant="caption" color={paused ? "orange" : "lime"}>
+            {paused ? "Feed paused" : "Live feed"}
+          </Chip>
+        }
+        actions={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => setPaused(!paused)}
+              aria-pressed={paused}
+            >
+              {paused ? <Play /> : <Pause />}
+              {paused ? "Resume feed" : "Pause feed"}
+            </Button>
+            <Button variant="ghost" onClick={clear} disabled={!count}>
+              <Trash2 />
+              Clear feed
+            </Button>
+          </>
+        }
+      />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="relative w-full sm:w-80">
+          <Search className="pointer-events-none absolute start-3 top-2.5 size-4 text-text-tertiary" />
+          <Input
+            type="search"
+            aria-label="Filter events by name"
+            placeholder="Filter by event name…"
+            value={filter}
+            onChange={(event) => setFilter(event.target.value)}
+            className="ps-9"
+          />
+        </div>
+        <p className="text-caption-1-regular text-text-secondary">
+          {events.length} shown · {count} captured
+        </p>
       </div>
-
-      {/* Event List */}
-      <div className="flex-1 overflow-auto">
-        {events.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-            {paused ? "Event capture paused" : "Waiting for events..."}
+      <div className="overflow-hidden rounded-2xl border border-border-button-default">
+        {!events.length ? (
+          <div className="flex min-h-64 flex-col items-center justify-center gap-3 p-6 text-center">
+            <Activity className="size-8 text-text-tertiary" />
+            <p className="text-body-medium">
+              {filter
+                ? "No matching events"
+                : paused
+                  ? "The feed is paused"
+                  : "Waiting for activity"}
+            </p>
+            <p className="max-w-sm text-body-regular text-text-secondary">
+              {filter
+                ? "Try a different event name or clear the filter."
+                : paused
+                  ? "Resume the feed to see newly captured events."
+                  : "Captured session events will appear here when the session is active."}
+            </p>
+            {filter && (
+              <Button variant="outline" onClick={() => setFilter("")}>
+                Clear filter
+              </Button>
+            )}
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="sticky top-0 border-b bg-muted/50 backdrop-blur-sm">
-              <tr>
-                <th className="px-4 py-2 text-start font-medium text-muted-foreground w-24">Time</th>
-                <th className="px-4 py-2 text-start font-medium text-muted-foreground w-56">Event</th>
-                <th className="px-4 py-2 text-start font-medium text-muted-foreground">Payload</th>
-                <th className="px-4 py-2 text-start font-medium text-muted-foreground w-16">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {events.map((event) => (
-                <tr
-                  key={event.id}
-                  className="border-b transition-colors hover:bg-muted/30 cursor-pointer"
-                  onClick={() => setExpandedId(expandedId === event.id ? null : event.id)}
-                >
-                  <td className="px-4 py-2 font-mono text-xs text-muted-foreground">{event.timestamp}</td>
-                  <td className="px-4 py-2">
-                    <span className="rounded-md bg-primary/10 px-2 py-0.5 font-mono text-xs font-medium text-primary">
-                      {event.name}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2 font-mono text-xs">
-                    {expandedId === event.id ? (
-                      <pre className="max-h-64 overflow-auto whitespace-pre-wrap rounded-md bg-muted p-3">
-                        {JSON.stringify(event.args, null, 2)}
-                      </pre>
-                    ) : (
-                      <span className="line-clamp-1 text-muted-foreground">
-                        {JSON.stringify(event.args).slice(0, 120)}
-                        {JSON.stringify(event.args).length > 120 && "..."}
+          <div className="overflow-x-auto">
+            <Table
+              aria-label="Captured session events"
+              selectionMode="none"
+              size="sm"
+            >
+              <TableHeader>
+                <TableColumn id="time" className="w-28">
+                  Time
+                </TableColumn>
+                <TableColumn id="name" isRowHeader>
+                  Event
+                </TableColumn>
+                <TableColumn id="payload" className="hidden md:table-cell">
+                  Payload preview
+                </TableColumn>
+                <TableColumn id="actions" textValue="Inspect">
+                  <span className="sr-only">Inspect</span>
+                </TableColumn>
+              </TableHeader>
+              <TableBody>
+                {events.map((event) => (
+                  <TableRow key={event.id} id={event.id} textValue={event.name}>
+                    <TableCell className="font-mono text-xs text-text-secondary">
+                      {event.timestamp}
+                    </TableCell>
+                    <TableCell>
+                      <code className="text-xs text-text-primary">
+                        {event.name}
+                      </code>
+                    </TableCell>
+                    <TableCell className="hidden max-w-md md:table-cell">
+                      <span className="line-clamp-1 font-mono text-xs text-text-tertiary">
+                        {privacyMode
+                          ? "Hidden by privacy mode"
+                          : JSON.stringify(event.args).slice(0, 160)}
                       </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        navigator.clipboard.writeText(JSON.stringify(event, null, 2))
-                      }}
-                      className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-                      title="Copy"
-                    >
-                      <Copy size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    </TableCell>
+                    <TableCell className="text-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        aria-label={`Inspect ${event.name} at ${event.timestamp}`}
+                        onClick={(click) => {
+                          returnFocus.current = click.currentTarget
+                          setSelected(event)
+                          setOpen(true)
+                        }}
+                      >
+                        Inspect
+                        <ArrowUpRight />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </div>
+      <EventSheet
+        event={selected}
+        open={open}
+        onOpenChange={setOpen}
+        onClosed={() => setSelected(null)}
+        finalFocus={returnFocus}
+      />
     </div>
   )
 }

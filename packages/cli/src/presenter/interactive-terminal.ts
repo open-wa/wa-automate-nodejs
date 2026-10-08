@@ -137,6 +137,17 @@ export class InteractiveTerminalPresenter {
     this.ink = undefined;
   }
 
+  async withPrompt<T>(prompt: () => Promise<T>): Promise<T> {
+    this.stop();
+    try {
+      return await prompt();
+    } finally {
+      this.started = false;
+      this.stopped = false;
+      await this.start();
+    }
+  }
+
   private async handleSnapshot(snapshot: ProjectionSnapshot): Promise<void> {
     if (this.stopped) {
       return;

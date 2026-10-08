@@ -10,7 +10,7 @@ open-wa emits **14** events. Subscribe with the client helper (`client.onMessage
 
 | Event | Legacy listener | Description | Payload | Status | License |
 | --- | --- | --- | --- | --- | --- |
-| <span id="ack"></span>`ack` | `onAck` | Fired when a message acknowledgment is received | `{ id: string; chatId: string; ack: "ACK_PENDING" \| "ACK_SERVER" \| "ACK_DEVICE" \| "ACK_READ" \| "ACK_PLAYED" \| -1 \| "ACK_ERROR" \| 0 \| 1 \| 2 \| 3 \| 4; timestamp?: number }` | stable | - |
+| <span id="ack"></span>`ack` | `onAck` | Fired when a message acknowledgment is received | `{ id: MessageId; ack: "ACK_PENDING" \| "ACK_SERVER" \| "ACK_DEVICE" \| "ACK_READ" \| "ACK_PLAYED" \| -1 \| "ACK_ERROR" \| 0 \| 1 \| 2 \| 3 \| 4 }` | stable | - |
 | <span id="addedtogroup"></span>`addedToGroup` | `onAddedToGroup` | Fired when you are added to a group | `{ groupId: string; groupName: string; addedBy?: string }` | stable | - |
 | <span id="anymessage"></span>`anyMessage` | `onAnyMessage` | Fired for any message including own messages | `Message` | stable | - |
 | <span id="callstate"></span>`callState` | `onCallState` | Observed native call state, including unknown states. | `{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: "incoming" \| "outgoing"; video: boolean; terminal: boolean; observedAt: number \| "NaN" \| "Infinity" \| "-Infinity"; media?: { state: "attached" \| "ended"; reason?: string \| null } \| null }` | experimental | `restricted` |

@@ -120,7 +120,7 @@ export interface DecryptMediaParams {
   /**
    * Message object containing media
    */
-  message: { ack: -1 | 0 | 1 | 2 | 3 | 4; author?: string; body: string; broadcast?: boolean; caption?: string; chat: { ack?: any; contact: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; formattedTitle?: string; groupMetadata?: { announce?: boolean; creation: number; desc?: string; descOwner?: string; descTime?: number; id: string; owner?: string; participants: { id: string; isAdmin: boolean; isSuperAdmin?: boolean }[]; restrict?: boolean; subject: string }; id: string; isGroup: boolean; isReadOnly?: boolean; lastReceivedKey?: any; msgs?: any[]; muteExpiration?: number; name?: string; notSpam?: boolean; pin?: number; presence?: object; t?: number; unreadCount?: number }; chatId: string; clientUrl?: string; content: string; deprecatedMms3Url?: string; from: string; fromMe: boolean; id: string; invis?: boolean; isForwarded?: boolean; isGroupMsg: boolean; isMedia: boolean; isMMS?: boolean; isNewMsg?: boolean; isNotification: boolean; isPSA?: boolean; isQuotedMsgAvailable: boolean; labels?: string[]; mentionedJidList?: string[]; notifyName?: string; quotedMsg?: any; quotedMsgObj?: any; recvFresh?: boolean; self: "in" | "out"; sender: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; senderId?: string; star?: boolean; t: number; timestamp: number; to: string; type: "chat" | "audio" | "ptt" | "image" | "video" | "document" | "sticker" | "location" | "vcard" | "multi_vcard" | "revoked" | "order" | "buttons_response" | "list_response" | "unknown" };
+  message: { ack: -1 | 0 | 1 | 2 | 3 | 4; associationType?: string; author?: string; body: string; broadcast?: boolean; caption?: string; chat: { ack?: any; contact: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; formattedTitle?: string; groupMetadata?: { announce?: boolean; creation: number; desc?: string; descOwner?: string; descTime?: number; id: string; owner?: string; participants: { id: string; isAdmin: boolean; isSuperAdmin?: boolean }[]; restrict?: boolean; subject: string }; id: string; isGroup: boolean; isReadOnly?: boolean; lastReceivedKey?: any; msgs?: any[]; muteExpiration?: number; name?: string; notSpam?: boolean; pin?: number; presence?: object; t?: number; unreadCount?: number }; chatId: string; clientUrl?: string; content: string; deprecatedMms3Url?: string; expectedImageCount?: number; expectedVideoCount?: number; from: string; fromMe: boolean; id: string; invis?: boolean; isForwarded?: boolean; isGif?: boolean; isGroupMsg: boolean; isMedia: boolean; isMMS?: boolean; isNewMsg?: boolean; isNotification: boolean; isPSA?: boolean; isQuotedMsgAvailable: boolean; labels?: string[]; mentionedJidList?: string[]; notifyName?: string; parentMsgKey?: string; quotedMsg?: any; quotedMsgObj?: any; recvFresh?: boolean; self: "in" | "out"; sender: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; senderId?: string; star?: boolean; t: number; timestamp: number; to: string; type: "chat" | "audio" | "ptt" | "image" | "video" | "album" | "document" | "sticker" | "location" | "vcard" | "multi_vcard" | "revoked" | "order" | "buttons_response" | "list_response" | "unknown" };
 }
 
 export interface DeleteChatParams {
@@ -178,7 +178,7 @@ export interface DownloadMediaParams {
   /**
    * Message object containing media
    */
-  message: { ack: -1 | 0 | 1 | 2 | 3 | 4; author?: string; body: string; broadcast?: boolean; caption?: string; chat: { ack?: any; contact: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; formattedTitle?: string; groupMetadata?: { announce?: boolean; creation: number; desc?: string; descOwner?: string; descTime?: number; id: string; owner?: string; participants: { id: string; isAdmin: boolean; isSuperAdmin?: boolean }[]; restrict?: boolean; subject: string }; id: string; isGroup: boolean; isReadOnly?: boolean; lastReceivedKey?: any; msgs?: any[]; muteExpiration?: number; name?: string; notSpam?: boolean; pin?: number; presence?: object; t?: number; unreadCount?: number }; chatId: string; clientUrl?: string; content: string; deprecatedMms3Url?: string; from: string; fromMe: boolean; id: string; invis?: boolean; isForwarded?: boolean; isGroupMsg: boolean; isMedia: boolean; isMMS?: boolean; isNewMsg?: boolean; isNotification: boolean; isPSA?: boolean; isQuotedMsgAvailable: boolean; labels?: string[]; mentionedJidList?: string[]; notifyName?: string; quotedMsg?: any; quotedMsgObj?: any; recvFresh?: boolean; self: "in" | "out"; sender: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; senderId?: string; star?: boolean; t: number; timestamp: number; to: string; type: "chat" | "audio" | "ptt" | "image" | "video" | "document" | "sticker" | "location" | "vcard" | "multi_vcard" | "revoked" | "order" | "buttons_response" | "list_response" | "unknown" };
+  message: { ack: -1 | 0 | 1 | 2 | 3 | 4; associationType?: string; author?: string; body: string; broadcast?: boolean; caption?: string; chat: { ack?: any; contact: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; formattedTitle?: string; groupMetadata?: { announce?: boolean; creation: number; desc?: string; descOwner?: string; descTime?: number; id: string; owner?: string; participants: { id: string; isAdmin: boolean; isSuperAdmin?: boolean }[]; restrict?: boolean; subject: string }; id: string; isGroup: boolean; isReadOnly?: boolean; lastReceivedKey?: any; msgs?: any[]; muteExpiration?: number; name?: string; notSpam?: boolean; pin?: number; presence?: object; t?: number; unreadCount?: number }; chatId: string; clientUrl?: string; content: string; deprecatedMms3Url?: string; expectedImageCount?: number; expectedVideoCount?: number; from: string; fromMe: boolean; id: string; invis?: boolean; isForwarded?: boolean; isGif?: boolean; isGroupMsg: boolean; isMedia: boolean; isMMS?: boolean; isNewMsg?: boolean; isNotification: boolean; isPSA?: boolean; isQuotedMsgAvailable: boolean; labels?: string[]; mentionedJidList?: string[]; notifyName?: string; parentMsgKey?: string; quotedMsg?: any; quotedMsgObj?: any; recvFresh?: boolean; self: "in" | "out"; sender: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; senderId?: string; star?: boolean; t: number; timestamp: number; to: string; type: "chat" | "audio" | "ptt" | "image" | "video" | "album" | "document" | "sticker" | "location" | "vcard" | "multi_vcard" | "revoked" | "order" | "buttons_response" | "list_response" | "unknown" };
   /**
    * File path to save the media
    */
@@ -207,6 +207,16 @@ export interface ForwardMessagesParams {
    * @example false
    */
   skipMyMessages?: boolean;
+}
+
+export interface GetAlbumMessagesParams {
+  /**
+   * Album container message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$
+   * @example "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+   * @remarks Key aliases: 'id', 'msgId'
+   * @remarks Deprecated key aliases: 'msgId'
+   */
+  messageId: string;
 }
 
 export interface GetAllChatsParams {
@@ -747,6 +757,31 @@ export interface SendAdvancedButtonsParams {
    * Filename if body is a file
    */
   filename: string;
+}
+
+export interface SendAlbumParams {
+  /**
+   * Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c|g)\.us$|^\d+@lid$
+   * @example "447123456789@c.us"
+   * @remarks Key aliases: 'chatId'
+   */
+  to: string;
+  /**
+   * Album items in send order
+   */
+  media: { file: string; filename: string; isGif?: boolean }[];
+  /**
+   * Media caption
+   * @example "Check out this image!"
+   */
+  caption?: string;
+  /**
+   * Message to quote on the first album item A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$
+   * @example "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+   * @remarks Key aliases: 'id', 'msgId'
+   * @remarks Deprecated key aliases: 'msgId'
+   */
+  quotedMsgId?: string;
 }
 
 export interface SendAudioParams {

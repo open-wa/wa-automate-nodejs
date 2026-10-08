@@ -12,7 +12,7 @@ import {
     type PageEventHandler,
     type WaitForFunctionOptions,
 } from '@open-wa/driver-interface';
-import type { ConsoleMessage, Frame, HTTPRequest, Page, CDPSession } from 'puppeteer';
+import type { ConsoleMessage, Frame, HTTPRequest, Page, CDPSession } from 'puppeteer-core';
 import { PuppeteerElementHandle } from './PuppeteerElementHandle';
 
 type ListenerWrapper = (...args: any[]) => void | Promise<void>;

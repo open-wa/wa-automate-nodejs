@@ -441,6 +441,7 @@ export class Transport {
   private safeMode: boolean;
   private lightpanda?: LightpandaOptions;
   private qrWatcherAbort: AbortController | null = null;
+  private qrPollTimer?: ReturnType<typeof setTimeout>;
   private qrAttempt = 0;
   private lastQrData: string | null = null;
   private lastRuntimeState: STATE | null = null;
@@ -505,7 +506,26 @@ export class Transport {
       },
     });
     this.portable = new PortableSessionController({
-      acquire: sessionId => acquireSessionPersistence({ ...options, sessionId }),
+      acquire: async sessionId => {
+        const lease = await acquireSessionPersistence({ ...options, sessionId });
+        return {
+          read: () => lease.read(),
+          remove: () => lease.remove(),
+          release: () => lease.release(),
+          write: async (data: string) => {
+            await lease.write(data);
+            // A notification must not turn an accepted durable commit into a
+            // failed commit or expose plaintext session encryption keys.
+            try {
+              this.events.emit('session.data', {
+                ctx: { correlationId: 'portable-session-saved', ts: Date.now() }, data,
+              });
+            } catch (error) {
+              this.logger.error('session_data_listener_error', { error });
+            }
+          },
+        };
+      },
     }, options.sessionId ?? 'session', options);
   }
 
@@ -620,6 +640,9 @@ export class Transport {
     });
     const portableFailure = await this.page.evaluateScript<string | null>('globalThis.OpenWA_PortableSession?.startupFailure() ?? null');
     if (portableFailure) {
+      this.logger.warn('portable_session_bootstrap_failed', {
+        code: /^[A-Z_]+$/.test(portableFailure) ? portableFailure : 'SESSION_STARTUP_FAILED',
+      });
       if (portableFailure === 'SESSION_ENCRYPTION_CONFIG_INVALID') {
         throw new Error('Session data encryption configuration is invalid. Supply a base64-encoded 32-byte key.');
       }
@@ -654,8 +677,13 @@ export class Transport {
     try {
       await this.runPreApiHelperPhase();
       success = await this.performRuntimeInjection();
-      // Bootstrap activates bridges after authentication, live patches and the
-      // deferred init patch. Pre-patch activation can wait on unloaded methods.
+
+      if (success) {
+        // Pairing has no authenticated message store yet. Startup activates
+        // these bindings after authentication, patches, and the init patch.
+        await this.registerRuntimeEventBridgeBindings();
+      }
+
       return success;
     } finally {
       this.events.emit('launch.wapi.inject.after', {
@@ -1723,6 +1751,7 @@ export class Transport {
       details: { smartQr: false }
     });
 
+    this.stopQrWatcher();
     this.qrWatcherAbort = new AbortController();
 
     try {
@@ -1746,25 +1775,77 @@ export class Transport {
 
     try {
       const qrData = await this.page.evaluateScript<string | null>(QR_CHECK_SCRIPT);
-      if (qrData && typeof qrData === 'string' && qrData !== this.lastQrData) {
-        this.lastQrData = qrData;
-        this.qrAttempt++;
-        this.events.emit('launch.auth.qr.generated', {
-          correlationId: 'qr-wait',
-          ts: Date.now(),
-          step: 'qr_generated',
-          details: {
-            qr: qrData,
-            attemptInThisCycle: this.qrAttempt
+      if (qrData && typeof qrData === 'string') {
+        const watcher = this.qrWatcherAbort;
+        if (!watcher || watcher.signal.aborted) return null;
+        await this.injectionController.registerPersistentBinding('OpenWA_QrChanged', (value: unknown) => {
+          if (!watcher?.signal.aborted && typeof value === 'string'
+            && value !== 'QR_CODE_SUCCESS' && value !== 'MULTI_DEVICE_DETECTED') {
+            this.emitQrData(value);
           }
         });
-        this.logger.info('qr_code_generated', { attempt: this.qrAttempt });
+        if (this.driver.name !== 'lightpanda') {
+          await this.page.evaluateScript(`(() => {
+            if (typeof window.smartQr !== 'function') throw new Error('QR refresh helper unavailable');
+            window.smartQr(window.OpenWA_QrChanged);
+          })()`).catch(error => this.logger.warn('qr_refresh_observer_failed', {
+            error: error instanceof Error ? error.message : String(error),
+          }));
+        }
+        this.emitQrData(qrData);
+        if (this.driver.name === 'lightpanda') this.pollQrChanges(watcher);
       }
       return qrData;
     } catch (error) {
       this.logger.debug('qr_check_error', { error });
       return null;
     }
+  }
+
+  private emitQrData(qrData: string): void {
+    if (!qrData || qrData === this.lastQrData) return;
+    this.lastQrData = qrData;
+    this.qrAttempt++;
+    this.events.emit('launch.auth.qr.generated', {
+      correlationId: 'qr-wait', ts: Date.now(), step: 'qr_generated',
+      details: { qr: qrData, attemptInThisCycle: this.qrAttempt },
+    });
+    this.logger.info('qr_code_generated', { attempt: this.qrAttempt });
+  }
+
+  private pollQrChanges(watcher: AbortController): void {
+    // Lightpanda's DOM observer can miss QR updates and expiry. Use WA's
+    // native state and current linking action to renew an expired QR cycle.
+    const poll = async () => {
+      if (watcher.signal.aborted || !this.page) return;
+      try {
+        const current = await this.page.evaluateScript<{ state: string; qr: string | null }>(`(() => {
+          const state = require('WAWebSocketModel').Socket.state;
+          return { state, qr: state === 'UNPAIRED' ? (${QR_CHECK_SCRIPT}) : null };
+        })()`);
+        if (watcher.signal.aborted) return;
+        if (current.state === 'UNPAIRED_IDLE') {
+          if (this.lastQrData) {
+            this.lastQrData = null;
+            this.events.emit('launch.auth.qr.expired', {
+              correlationId: 'qr-wait', ts: Date.now(), step: 'qr_expired',
+            });
+          }
+          await this.page.evaluateScript(`require('WAWebLinkDeviceAction').resetLinkDeviceState({
+            linkDeviceMethod: require('WAWebPairingType').PairingType.QR_CODE
+          })`);
+        } else if (typeof current.qr === 'string') {
+          this.emitQrData(current.qr);
+        }
+      } catch (error) {
+        if (!watcher.signal.aborted) this.logger.debug('qr_refresh_poll_failed', {
+          error: error instanceof Error ? error.message : String(error),
+        });
+      } finally {
+        if (!watcher.signal.aborted) this.qrPollTimer = setTimeout(() => { void poll(); }, 1000);
+      }
+    };
+    this.qrPollTimer = setTimeout(() => { void poll(); }, 1000);
   }
 
   async waitForSessionLoaded(timeoutMs: number = this.authTimeoutMs): Promise<boolean> {
@@ -1777,13 +1858,18 @@ export class Transport {
         timeoutMs,
         polling: 'mutation',
       });
+      this.stopQrWatcher();
       this.events.emit('launch.auth.qr.scanned', {
         correlationId: 'auth-wait',
         ts: Date.now(),
         step: 'qr_scanned',
       });
       return true;
-    } catch {
+    } catch (error) {
+      this.logger.warn('session_load_wait_failed', {
+        timeoutMs,
+        error: error instanceof Error ? error.message : String(error),
+      });
       return false;
     }
   }
@@ -2185,6 +2271,8 @@ export class Transport {
   stopQrWatcher(): void {
     this.qrWatcherAbort?.abort();
     this.qrWatcherAbort = null;
+    if (this.qrPollTimer) clearTimeout(this.qrPollTimer);
+    this.qrPollTimer = undefined;
   }
 
   async evaluate<Arg, Ret>(fn: (arg: Arg) => Ret | Promise<Ret>, arg: Arg): Promise<Ret> {
@@ -2235,6 +2323,7 @@ export class Transport {
     clearTimeout(this.licenseRenewalTimer);
     await this.calling.close();
     this.licenseFeatures = { status: 'missing', keyType: null, expiresAt: null, features: {} };
+    this.stopQrWatcher();
     try {
       await this.portable.flush();
     } finally {
@@ -2830,6 +2919,10 @@ export class Transport {
       // This matches the v4 order: patches → init → client.loaded() (bridge)
       try {
         const bridgeReady = await this.injectionController.ensureRuntimeBridge();
+        // A replacement document gets a new portable owner at bootstrap. Resume
+        // its checkpointing and delivery only after the runtime is loaded again.
+        await this.portable.activate();
+        await this.calling.bind();
         this.logger.info('recovery_bridge_wired', {
           trigger: options.trigger,
           bridgeReady,

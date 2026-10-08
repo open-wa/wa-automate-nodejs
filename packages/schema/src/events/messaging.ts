@@ -1,14 +1,14 @@
 import { InteractiveResponseSchema, FormResponseSchema } from '../interactive';
 import { z } from 'zod';
 import { defineListenerV2 } from './registry';
-import { MessageSchema, MessageAck } from '../common-types';
+import { MessageSchema } from '../common-types';
 
-const AckSchema = z.object({
-    id: z.string(),
-    chatId: z.string(),
-    ack: z.nativeEnum(MessageAck),
-    timestamp: z.number().optional(),
-});
+// Acknowledgements carry a message snapshot. Validate the delivery identity but
+// retain every message field, including fields absent from the static schema.
+// Requiring all received-message fields would discard updates for partially
+// loaded messages in WhatsApp's store.
+const AckSchema = MessageSchema.pick({ id: true, ack: true }).passthrough()
+    .describe('The full available message snapshot at acknowledgement time, including id, ack, body, sender and chat when supplied by WhatsApp.');
 
 export const messageEvent = defineListenerV2('message', {
     legacyName: 'onMessage',

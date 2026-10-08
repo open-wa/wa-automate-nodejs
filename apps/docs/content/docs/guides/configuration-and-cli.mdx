@@ -218,7 +218,31 @@ These are the major flags most users need when starting the Easy API from the co
 | `--sandbox-chats` | `sandboxChats: true` | Enables isolated execution for explicit per-chat code/tool calls. |
 | `--sandbox-isolation process` | `sandboxChats.isolation` | Selects `worker`, `process`, or `container`; use container for hostile code. |
 
-Other useful runtime flags include `--host`, `--headless`, `--headful`, `--use-chrome`, `--use-lightpanda`, `--qr-timeout`, `--dashboard-port`, `--no-dashboard`, `--no-ezqr`, `--ephemeral`, `--sandbox-chats`, `--sandbox-isolation`, `--log-console`, `--log-level`, and `--verbose`.
+Other useful runtime flags include `--host`, `--headless`, `--headful`, `--use-chrome`, `--use-chromium`, `--use-lightpanda` (also `--lightpanda`), `--qr-timeout`, `--dashboard-port`, `--no-dashboard`, `--no-ezqr`, `--ephemeral`, `--sandbox-chats`, `--sandbox-isolation`, `--log-console`, `--log-level`, and `--verbose`.
+
+The CLI package installs without downloading browsers. Startup prefers installed
+Google Chrome by default. If Chrome and a previously selected browser are missing,
+the terminal asks which browser to download:
+
+- **Chrome for Testing** provides the highest compatibility, including video and media.
+- **Chromium** is the middle ground; proprietary video/audio codecs may be unavailable.
+- **Lightpanda** is lightweight for basic automation, with low compatibility and experimental WhatsApp support. It does not render pages or support video or screenshots.
+
+`--use-chrome`, `--use-chromium`, and `--use-lightpanda` select a browser directly,
+reuse it if available, and download it on demand if missing. Downloads are cached
+per user, outside the temporary `npx` installation, and the terminal choice is
+remembered for later runs. A non-interactive first start with no available browser
+requires an explicit browser flag. `browser.download: 'never'` disables downloads.
+
+After the next minor release, start the experimental Lightpanda Easy API with:
+
+```bash
+npx @open-wa/wa-automate --lightpanda
+```
+
+Lightpanda mode downloads and caches the pinned 1.0.0 executable on first use, prepares a separate WhatsApp-capable copy, and enables the worker, service worker, and crypto bridges automatically. The original executable and existing installations are preserved. The normal terminal QR output and `/qr` endpoint remain available. Use `--qr-timeout 0` to keep waiting for a scan. A custom `lightpanda.executablePath` is still supported; that executable must honor the Chrome user agent override.
+
+This mode remains experimental. Custom native Debug runs reached authenticated library READY and loaded chats/contacts, but subsequent reload recovery failed with session takeover and initialization errors. The stock download has not been replaced. Reliable recovery, outbound delivery, long-session durability and full Chrome parity remain unconfirmed. Lightpanda has no graphical renderer, so screenshots, PDF rendering and Live Portal are unavailable. The controlled browser benchmark does not measure authenticated WhatsApp performance.
 
 The standalone `@open-wa/cli` entrypoint also accepts output-mode flags such as `--interactive`, `--non-interactive`, and `--output-mode plain`. Those affect terminal output before the runtime config is parsed.
 

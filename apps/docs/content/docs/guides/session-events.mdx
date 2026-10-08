@@ -1,77 +1,164 @@
 ---
 title: Session events
-description: Observe client readiness, authentication progress, and connection changes through the runtime event map.
+description: Share events between files, observe startup, and manage global subscriptions.
 ---
 
 # Session events
 
-Import `ev` when your application needs process-level lifecycle events. Use
-client listeners such as `client.onMessage` for WhatsApp messages after the
-session is ready.
+Use `ev` when several files need the same event helper, or when you need to
+observe authentication before `create()` returns. Every import shares the
+same emitter in the current process. Use `client.events` when you want the
+native events from one client.
+
+The shared helper and aliases on this page are restored in the next package
+release after 5.4.0. They are not available from the 5.4.0 package.
+
+## Observe startup events
+
+Register the listener before starting the session:
+
+```ts
+import { create, ev } from '@open-wa/wa-automate';
+
+ev.on('client.ready', (_event, sessionId) => {
+  console.log(`Session ${sessionId} is ready`);
+});
+
+const client = await create({ sessionId: 'support' });
+```
+
+`client.ready` follows authentication and runtime finalization. For Easy API,
+also wait for `/health` to report both `connected: true` and
+`session.ready: true` before sending. See [readiness](/docs/getting-started/quickstart#3-check-readiness).
+
+Native events keep their core payload as the first argument. The second
+argument identifies the session, and the third contains the event name:
+
+```ts
+ev.on('session.connection.disconnected', (event, sessionId) => {
+  console.warn(`Session ${sessionId} disconnected`, event.details?.reason);
+});
+```
+
+## Share application events between files
+
+In `jobs.ts`, register a listener:
 
 ```ts
 import { ev } from '@open-wa/wa-automate';
 
-ev.on('client.ready', ({ sessionId }) => {
-  console.log(`Session ${sessionId} is ready`);
-});
-
-ev.on('session.connection.disconnected', ({ details }) => {
-  console.warn('Session disconnected', details?.reason);
+ev.on('app.job.finished', ({ jobId }) => {
+  console.log('Finished:', jobId);
 });
 ```
 
-`client.ready` follows authentication and runtime finalization. For Easy API,
-also check `/health` and wait for both `connected: true` and
-`session.ready: true` before sending; HTTP liveness alone does not establish
-WhatsApp readiness. See the [readiness guide](/docs/getting-started/quickstart#3-check-readiness).
-
-## Authentication events
-
-The core event map reports QR generation as a `StepEvent`; the QR is in
-`event.details.qr`. This value is a credential for pairing. The CLI renders
-the QR in its local terminal, while Easy API exposes QR state through `/health`
-and `/qr`; keep those responses on a private network.
+In `index.ts`, load that module before emitting the event:
 
 ```ts
-ev.on('launch.auth.qr.generated', (event) => {
-  const qr = event.details?.qr;
-  if (!qr) return;
+import './jobs';
+import { ev } from '@open-wa/wa-automate';
 
-  // Render only inside a trusted local pairing UI. Do not log or forward it.
-  showInPrivatePairingUi(qr);
+ev.emit('app.job.finished', { jobId: 'daily-summary' });
+```
+
+Run `bun run index.ts`. It prints `Finished: daily-summary`.
+`emit()` invokes listeners immediately, in the same process. It does not store
+or replay events for modules that subscribe later. Use `await ev.emitAsync(...)`
+when your application needs to wait for its asynchronous listeners.
+
+## Use v4 wildcard subscriptions
+
+`*` matches one segment of an event name; `**` matches zero or more. Both
+trailing and leading patterns work, including `qr.**` and `**.support`.
+
+Supported message and state listener aliases use
+`<listener>.<sessionId>.<instanceId>` and carry the familiar envelope:
+
+```ts
+ev.on('onAck.**', ({ sessionId, data: message }) => {
+  console.log(sessionId, message.id, message.ack);
+});
+
+ev.on('onMessage.support.**', ({ data: message }) => {
+  console.log('Incoming message:', message.id);
 });
 ```
 
-`showInPrivatePairingUi` stands for your own trusted local UI. The runtime
-does not provide that helper.
+The envelope contains `{ ts, sessionId, id, event, data }`. Its `id` identifies
+the event; `data.id` identifies the message. Aliases are provided for
+`onMessage`, `onAnyMessage`, `onAck`, `onStateChanged`, `onLogout`,
+`onInteractiveResponse`, and `onFormResponse`. An alias does not add a missing
+WhatsApp capability; consult the [migration guide](/docs/getting-started/migrating-to-v5#known-gaps)
+for unsupported listeners.
 
-The embedded runtime emits `launch.auth.linkCode.generated` with the code in
-`event.details.linkCode`; this event is sensitive, and the plugin gateway
-blocks it. The published Easy API CLI does not forward `linkCode` or print the
-generated event, so use its QR flow. Do not relay link codes through plugins,
-logs, webhooks, or shared telemetry. `/api/events` streams runtime events
-behind the Easy API key and network boundary; do not expose that endpoint
-publicly. See [Easy API security](/docs/getting-started/easy-api#security).
+`eventMode` defaults to `true`. Set it to `false` in `create()` or
+`createClient()` to disable the automatic listener aliases. Native lifecycle
+events and your own application events remain available. A catch-all `**`
+subscription sees both native events and their aliases, so choose one naming
+scheme when processing a message once.
 
-## Event payloads
+## Authentication and session data
 
-Lifecycle events such as `launch.auth.qr.generated` use a common step shape
-with a correlation ID, timestamp, step name, and optional `details` or error.
-For exact payloads and available names, use the
-[generated event reference](/docs/reference/events).
+Lifecycle aliases use `<namespace>.<sessionId>` and call listeners with
+`(data, sessionId, namespace)`:
+
+| Pattern | First argument |
+| --- | --- |
+| `qr.**` | The pairing string for your QR renderer. |
+| `linkCode.**` | The generated link code. |
+| `sessionData.**` | The encrypted compact session object after durable storage accepts a save. |
+| `sessionDataBase64.**` | The same compact session JSON encoded as base64. |
+
+The session object contains current v5's encrypted `auth` and `data` values.
+It does not recreate v4 token fields. Custom encryption keys are not included
+in these events. Keep pairing and session data inside a private application;
+never forward them to shared logs, analytics, or public endpoints.
+
+For native event names, QR generation is `launch.auth.qr.generated`, with the
+value in `event.details.qr`. Link-code generation is
+`launch.auth.linkCode.generated`, with the value in `event.details.linkCode`.
+See [link-code login](/docs/getting-started/link-code) and the
+[event reference](/docs/reference/events) for those flows.
+
+## Remove a subscription
+
+Keep the callback reference so you can remove just your listener:
 
 ```ts
-type StepEvent<Details> = {
-  correlationId: string;
-  ts: number;
-  step: string;
-  details?: Details;
-  error?: { name: string; message: string; stack?: string };
-  durationMs?: number;
+const onFinished = ({ jobId }: { jobId: string }) => {
+  console.log('Finished:', jobId);
 };
+
+ev.on('app.job.finished', onFinished);
+ev.off('app.job.finished', onFinished);
 ```
 
-Some legacy event names in older examples, including `qr.**` and
-`sessionData.**`, are not the current core event names. Use the names and
-payloads in the generated reference for the package version you run.
+`once()` removes its subscription after the first matching event.
+Stopping a client detaches that session's forwarding connection. Other
+sessions and listeners registered by other files keep working.
+
+### Use an Effect scope
+
+If your application uses Effect, `onGlobalEvent()` owns a subscription for
+its current scope and removes it automatically when the scope closes:
+
+```ts
+import { Effect } from 'effect';
+import { ev, onGlobalEvent } from '@open-wa/wa-automate';
+
+await Effect.runPromise(Effect.scoped(Effect.gen(function* () {
+  yield* onGlobalEvent('app.job.finished', ({ jobId }) => {
+    console.log('Finished:', jobId);
+  });
+
+  ev.emit('app.job.finished', { jobId: 'daily-summary' });
+})));
+
+// The scoped listener has now been removed.
+```
+
+The helper uses the same synchronous emitter. It does not create a queue or
+fiber per message. Session forwarding is also owned by the runtime's Effect
+scope and is removed after shutdown or failed startup. See
+[Effect scopes](https://effect.website/docs/resource-management/scope/) for
+the resource-lifetime model.

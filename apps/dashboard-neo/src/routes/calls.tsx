@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { Phone, PhoneOff, Mic, MicOff, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PageHeader } from '@/components/application/page-header';
 import { CallRecipientPicker } from '@/components/call-recipient-picker';
 import { useCalling } from '@/lib/hooks/use-calling';
 import { usePrivacy } from '@/lib/hooks/use-privacy';
@@ -12,8 +13,8 @@ function CallsPage() {
   const calling = useCalling();
   const { active, recipient, source, file, url, record, recording, notice, busy, muted, history, connected, error } = calling;
   const { redact } = usePrivacy();
-  return <div className="mx-auto flex max-w-4xl flex-col gap-6 p-4 sm:p-6">
-    <div><h1 className="text-2xl font-semibold">Calls</h1><p className="mt-1 text-muted-foreground">Call a contact, choose your audio, and keep talking as you move around the dashboard.</p></div>
+  return <div className="dashboard-page flex flex-col gap-6">
+    <PageHeader title="Calls" description="Call a contact, choose your audio, and keep talking as you move around the dashboard." />
     <p role="status" className="rounded-2xl border bg-muted/30 p-4 text-sm">{error ?? notice}{!connected && ' Connect your session to use calling.'}</p>
     <section className="space-y-4 rounded-2xl border bg-card p-5">
       <div className="flex items-center gap-3"><Phone className="size-5 text-primary" /><span className="font-medium">{active ? `${active.direction} call · ${active.state}` : 'Start a call'}</span></div>

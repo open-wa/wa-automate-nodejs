@@ -1,12 +1,13 @@
 import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { OpenWAEventMap, STATE, Transport } from '@open-wa/core';
+import { hasGlobalMessageListeners } from '@open-wa/core';
 import {
   ScopedTaskQueue,
   queueMetricsObserver,
   type RuntimeObservabilityShape,
 } from '@open-wa/runtime-core';
 import { eventRegistry, type QueueOptions } from '@open-wa/schema';
-import type { Message, MessageId, InteractiveResponse, FormResponse } from '@open-wa/schema';
+import type { Message, InteractiveResponse, FormResponse } from '@open-wa/schema';
 import type { CallSnapshot } from '@open-wa/schema';
 
 export interface EventContext {
@@ -37,7 +38,7 @@ type EventPayloadMap = {
   message: Message;
   anyMessage: Message;
   messageDeleted: { messageId: string; chatId: string; by?: string };
-  ack: { id: MessageId; chatId: string; ack: number; timestamp?: number };
+  ack: Message;
   stateChanged: { state: STATE; previousState?: STATE };
   logout: { reason?: string; timestamp: number };
 };
@@ -85,19 +86,7 @@ const EVENT_BRIDGES: { [K in EventName]: RuntimeBridge<K> } = {
   },
   ack: {
     runtimeEvent: 'ack.changed',
-    transform: (payload) => {
-      const ackPayload = (payload as OpenWAEventMap['ack.changed'])?.ack as Record<string, unknown> | undefined;
-      if (!ackPayload) {
-        return null;
-      }
-
-      return {
-        id: String(ackPayload.id ?? ackPayload.messageId ?? '') as MessageId,
-        chatId: String(ackPayload.chatId ?? ''),
-        ack: Number(ackPayload.ack ?? 0),
-        timestamp: typeof ackPayload.timestamp === 'number' ? ackPayload.timestamp : undefined,
-      };
-    },
+    transform: (payload) => (payload as OpenWAEventMap['ack.changed'])?.ack as Message,
   },
   stateChanged: {
     runtimeEvent: 'session.state.changed',
@@ -145,7 +134,7 @@ export class ListenerManager {
     if (config.portableTransport) {
       this.unbindPortable = config.portableTransport.setPortableMessageHandler(async (message) => {
         const listeners = [...(this.listeners.get('message')?.values() ?? [])];
-        if (!listeners.length) return false;
+        if (!listeners.length) return hasGlobalMessageListeners(this.events);
         const definition = eventRegistry.get('message');
         if (!definition) throw new Error('PORTABLE_MESSAGE_SCHEMA_MISSING');
         // A validation failure must retain the message, never acknowledge a skipped callback.
@@ -153,7 +142,7 @@ export class ListenerManager {
         const ctx = { sessionId: this.sessionId, timestamp: Date.now() };
         for (const listener of listeners) await listener(payload, ctx);
         return true;
-      }, () => (this.listeners.get('message')?.size ?? 0) > 0);
+      }, () => (this.listeners.get('message')?.size ?? 0) > 0 || hasGlobalMessageListeners(this.events));
     }
   }
 

@@ -21,9 +21,10 @@
   "dependencies": {
     "@open-wa/driver-interface": "workspace:*",
     "@puppeteer/browsers": "^3.2.3",
+    "effect": "catalog:",
     "proper-lockfile": "^4.1.2",
     "proxy-agent": "^8.0.1",
-    "puppeteer": "catalog:",
+    "puppeteer-core": "catalog:",
     "puppeteer-extra": "catalog:"
   },
   "devDependencies": {

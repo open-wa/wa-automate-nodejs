@@ -1,0 +1,18 @@
+{
+  "name": "openwa-lightpanda-launch-film",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "studio": "remotion studio src/index.tsx",
+    "render": "remotion render src/index.tsx LightpandaLaunch exports/openwa-lightpanda-launch.mp4 --codec=h264 --crf=16 --pixel-format=yuv420p --concurrency=3",
+    "poster": "remotion still src/index.tsx LightpandaPoster exports/openwa-lightpanda-poster.png"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.534",
+    "@remotion/fonts": "4.0.534",
+    "@remotion/media": "4.0.534",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "remotion": "4.0.534"
+  }
+}

@@ -5,7 +5,14 @@ description: API reference for all events emitted by the Open-WA Client.
 
 # Event Reference
 
-Open-WA uses a centralized event system based on `HyperEmitter`. You can listen to these events to react to WhatsApp messages, connection state changes, and internal runtime lifecycle steps.
+Each open-wa client has its own `HyperEmitter` event stream. The shared `ev`
+helper forwards native events from those clients and supports v4 wildcard
+subscriptions through EventEmitter2. Effect owns each forwarding connection
+and removes it when the session closes.
+
+The shared helper is restored in the next package release after 5.4.0.
+See [session events](/docs/guides/session-events) for aliases, payloads,
+custom application events, and scoped subscriptions.
 
 ## Listener examples
 
@@ -89,7 +96,7 @@ The table below lists every event name in `OpenWAEventMap` with its namespace. E
 | `session.frame` | `session.frame.navigated` |
 | `session.reinject` | `session.reinject.detected`, `session.reinject.before`, `session.reinject.after`, `session.reinject.qr.waiting` |
 | `session.stale` | `session.stale.detected` |
-| `session` | `session.logout` |
+| `session` | `session.logout`, `session.data` |
 | `message` | `message.received`, `message.any`, `message.deleted` |
 | `ack` | `ack.changed` |
 | `group` | `group.addedToGroup`, `group.removedFromGroup`, `group.participants.changed.global`, `group.approval.request`, `group.changed` |

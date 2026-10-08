@@ -1,4 +1,4 @@
-import type { ChildProcess } from 'node:child_process';
+import { spawn, type ChildProcess } from 'node:child_process';
 import { findFreePort } from './port-utils';
 
 const DEFAULT_PORT_START = 9000;
@@ -8,18 +8,6 @@ const DEFAULT_PORT_ATTEMPTS = 10;
 const INITIAL_BACKOFF_MS = 50;
 const MAX_BACKOFF_MS = 1_000;
 
-type LightpandaServe = (options: Record<string, unknown>) => Promise<LightpandaChildProcess> | LightpandaChildProcess;
-
-type LightpandaSdkModule = {
-    serve: LightpandaServe;
-};
-
-type LightpandaSdkNamespaceModule = {
-    lightpanda?: {
-        serve?: LightpandaServe;
-    };
-};
-
 type LightpandaChildProcess = Pick<ChildProcess, 'kill' | 'stderr' | 'once' | 'pid'>;
 
 export interface ProcessManagerConfig {
@@ -28,48 +16,14 @@ export interface ProcessManagerConfig {
     host?: string;
     startupTimeoutMs?: number;
     disableTelemetry?: boolean;
+    experimentalWhatsApp?: boolean;
+    onStderr?: (message: string) => void;
 }
 
 export interface LightpandaProcessInfo {
     host: string;
     port: number;
     wsEndpoint: string;
-}
-
-function isModuleMissing(error: unknown): boolean {
-    const err = error as NodeJS.ErrnoException | undefined;
-    const message = err?.message?.toLowerCase() ?? '';
-    return err?.code === 'ERR_MODULE_NOT_FOUND'
-        || err?.code === 'MODULE_NOT_FOUND'
-        || message.includes('could not resolve "@lightpanda/browser"')
-        || message.includes('cannot find module') && message.includes('@lightpanda/browser');
-}
-
-async function loadLightpandaSdk(): Promise<LightpandaSdkModule> {
-    try {
-        const module = await import('@lightpanda/browser') as unknown as LightpandaSdkModule & LightpandaSdkNamespaceModule;
-        const serve = typeof module.serve === 'function'
-            ? module.serve.bind(module)
-            : typeof module.lightpanda?.serve === 'function'
-                ? module.lightpanda.serve.bind(module.lightpanda)
-                : undefined;
-
-        if (!serve) {
-            throw new Error(
-                '@lightpanda/browser is installed but does not expose a compatible serve() API.',
-            );
-        }
-
-        return { serve };
-    } catch (error) {
-        if (isModuleMissing(error)) {
-            throw new Error(
-                '@lightpanda/browser is not installed. Install it to use the Lightpanda driver.',
-            );
-        }
-
-        throw error;
-    }
 }
 
 function sleep(ms: number): Promise<void> {
@@ -157,7 +111,7 @@ export class LightpandaProcessManager {
             throw new Error(`Lightpanda v1 only supports local loopback host ${DEFAULT_HOST}; received ${host}`);
         }
 
-        const sdk = await loadLightpandaSdk();
+        const executablePath = config.executablePath ?? process.env.LIGHTPANDA_EXECUTABLE_PATH ?? 'lightpanda';
 
         for (let attempt = 0; attempt < this.maxPortAttempts; attempt += 1) {
             const candidateStart = portStart + attempt;
@@ -176,16 +130,36 @@ export class LightpandaProcessManager {
             const wsEndpoint = `ws://${host}:${port}`;
 
             try {
-                const child = await sdk.serve({
-                    host,
-                    port,
-                    executablePath: config.executablePath,
-                    disableTelemetry: config.disableTelemetry,
-                    args: ['--timeout', '0'],
+                const child = spawn(executablePath, [
+                    'serve', '--host', host, '--port', String(port),
+                    '--load-resources', 'worker',
+                    '--load-resources', 'iframe',
+                    '--load-resources', 'stylesheet',
+                    ...(config.experimentalWhatsApp ? [
+                        '--experimental-features', 'serviceworker',
+                        // v1 applies its HTTP transfer deadline to WebSockets too.
+                        // WhatsApp's pairing and messaging socket must stay open.
+                        '--http-timeout', '0',
+                    ] : []),
+                ], {
+                    stdio: ['ignore', 'ignore', 'pipe'],
+                    env: { ...process.env, ...(config.disableTelemetry ? { LIGHTPANDA_DISABLE_TELEMETRY: 'true' } : {}) },
                 });
-
                 this.attachChild(child);
-                await this.waitForReadiness(wsEndpoint, startupTimeoutMs);
+                let processError: Error | undefined;
+                let stderr = '';
+                child.once('error', error => { processError = error; });
+                child.stderr?.on('data', data => {
+                    const message = String(data);
+                    stderr = (stderr + message).slice(-4096);
+                    config.onStderr?.(message);
+                });
+                await this.waitForReadiness(wsEndpoint, startupTimeoutMs, () => {
+                    if (processError) throw new Error(`Unable to start Lightpanda executable ${executablePath}: ${processError.message}`);
+                    if (child.exitCode !== null || child.signalCode !== null) {
+                        throw new Error(`Lightpanda exited before readiness: ${stderr.trim()}`);
+                    }
+                });
 
                 this.processInfo = { host, port, wsEndpoint };
                 return this.processInfo;
@@ -251,11 +225,12 @@ export class LightpandaProcessManager {
         this.killIssued = false;
     }
 
-    private async waitForReadiness(endpoint: string, startupTimeoutMs: number): Promise<void> {
+    private async waitForReadiness(endpoint: string, startupTimeoutMs: number, checkProcess: () => void): Promise<void> {
         const deadline = Date.now() + startupTimeoutMs;
         let backoffMs = INITIAL_BACKOFF_MS;
 
         while (Date.now() < deadline) {
+            checkProcess();
             try {
                 await openWebSocket(endpoint);
                 return;
@@ -281,6 +256,5 @@ export const processManagerInternal = {
     createPortExhaustionError,
     createReadinessTimeoutError,
     isPortCollisionError,
-    loadLightpandaSdk,
     openWebSocket,
 };

@@ -54,6 +54,7 @@ export enum MessageTypes {
     VOICE = 'ptt',
     IMAGE = 'image',
     VIDEO = 'video',
+    ALBUM = 'album',
     DOCUMENT = 'document',
     STICKER = 'sticker',
     LOCATION = 'location',
@@ -180,6 +181,15 @@ const MessageSchemaBase = z.object({
     labels: z.array(z.string()).optional(),
     mentionedJidList: z.array(ContactIdSchema).optional(),
     caption: z.string().optional(),
+    expectedImageCount: z.number().int().nonnegative().nullable().optional()
+        .describe('Number of image messages declared by an album container; not a received-media count.'),
+    expectedVideoCount: z.number().int().nonnegative().nullable().optional()
+        .describe('Number of video messages declared by an album container, including GIF videos.'),
+    parentMsgKey: MessageIdSchema.nullable().optional()
+        .describe('Serialized parent message ID for associated media.'),
+    associationType: z.string().nullable().optional()
+        .describe('WhatsApp association type. Album media uses MEDIA_ALBUM.'),
+    isGif: z.boolean().optional(),
     sender: z.any(), // Circular reference handled later/lazy
     timestamp: z.number(),
     content: z.string(),

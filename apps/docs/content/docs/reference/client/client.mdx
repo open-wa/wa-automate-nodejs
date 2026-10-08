@@ -35,6 +35,7 @@ icon: "BookOpen"
 | [`endCall`](/docs/reference/client/client#endcall) | `calls` | Request hangup for this call. | `restricted` |
 | [`forwardMessages`](/docs/reference/client/client#forwardmessages) | `messages` | Forwards messages to a chat | - |
 | [`getActiveCall`](/docs/reference/client/client#getactivecall) | `calls` | Get the current call snapshot. SDK clients hydrate its bound methods. | `restricted` |
+| [`getAlbumMessages`](/docs/reference/client/client#getalbummessages) | `messages` | Returns currently loaded image and video messages associated with an album, including GIF videos. The album can arrive before its media, so the array may be incomplete. Returns false if the album is not loaded or the ID belongs to another message type. | - |
 | [`getAllChatIds`](/docs/reference/client/client#getallchatids) | `chatIds` | Get all chat IDs | - |
 | [`getAllChats`](/docs/reference/client/client#getallchats) | `chats` | Returns serialized Chat objects from the current session, optionally limited to chats with unread messages. | - |
 | [`getAllCommunities`](/docs/reference/client/client#getallcommunities) | `communities` | Get all communities | - |
@@ -108,6 +109,7 @@ icon: "BookOpen"
 | [`removeParticipant`](/docs/reference/client/client#removeparticipant) | `groups` | Remove participant from group | - |
 | [`revokeGroupInviteLink`](/docs/reference/client/client#revokegroupinvitelink) | `groups` | Revoke group invite link | - |
 | [`sendAdvancedButtons`](/docs/reference/client/client#sendadvancedbuttons) | `messages` | Sends an advanced button message with media (deprecated) | `insiders` |
+| [`sendAlbum`](/docs/reference/client/client#sendalbum) | `messages` | Sends images and videos together as a native WhatsApp album with one caption on its first item. GIFs use MP4 video data with isGif: true. Documents are rejected. Phone-number IDs are resolved to LIDs; the destination chat must already be loaded and allow sending. WhatsApp controls the minimum item count and upload limits. Runtime failures include the parent and submitted child IDs when available; inspect the chat before retrying. | - |
 | [`sendAudio`](/docs/reference/client/client#sendaudio) | `messages` | Sends an audio file to a chat | - |
 | [`sendBanner`](/docs/reference/client/client#sendbanner) | `messages` | Sends a banner image | - |
 | [`sendButtons`](/docs/reference/client/client#sendbuttons) | `messages` | Sends a button message (deprecated) | `insiders` |

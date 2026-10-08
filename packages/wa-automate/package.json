@@ -5,6 +5,23 @@
   "description": "WhatsApp automation CLI and API server",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "bun": "./src/index.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.cjs",
+      "types": "./dist/index.d.cts"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "require": "./dist/index.cjs",
+        "import": "./dist/index.cjs",
+        "types": "./dist/index.d.cts"
+      }
+    }
+  },
   "bin": {
     "wa-automate": "./dist/cli.cjs"
   },
@@ -25,6 +42,7 @@
     "@open-wa/client": "workspace:*",
     "@open-wa/config": "workspace:*",
     "@open-wa/core": "workspace:*",
+    "@open-wa/driver-interface": "workspace:*",
     "@open-wa/driver-lightpanda": "workspace:*",
     "@open-wa/driver-puppeteer": "workspace:*",
     "@open-wa/logger": "workspace:*",
@@ -34,6 +52,7 @@
     "@open-wa/session-sync": "workspace:*",
     "boxen": "^9.0.0",
     "chrome-launcher": "^1.2.1",
+    "effect": "catalog:",
     "hono": "catalog:",
     "qrcode-terminal": "^0.12.0"
   },

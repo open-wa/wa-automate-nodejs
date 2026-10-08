@@ -29,13 +29,14 @@ export class PuppeteerDriver implements IDriver {
     async init(ctx?: IDriverContext): Promise<void> {
         this.ctx = ctx;
         
-        const pExtra = await import('puppeteer-extra');
-        this.puppeteer = pExtra.default ?? pExtra;
+        const { default: puppeteer } = await import('puppeteer-core');
+        const { addExtra } = await import('puppeteer-extra');
+        this.puppeteer = addExtra(puppeteer);
         
         try {
             const { createRequire } = await import('node:module');
             const _require = createRequire(__filename);
-            const pkg = _require('puppeteer/package.json');
+            const pkg = _require('puppeteer-core/package.json');
             this.version = pkg.version;
         } catch {}
         

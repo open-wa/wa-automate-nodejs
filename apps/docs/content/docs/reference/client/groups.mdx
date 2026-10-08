@@ -804,7 +804,7 @@ Example response envelope:
 
 Resolves to `Contact[]`. A rejected Promise indicates input validation or dispatch failure.
 
-In-process Client resolves to `Promise<ContactId[]>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+In-process Client resolves to `Promise<Contact[]>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -842,6 +842,13 @@ Get group member IDs
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.getGroupMembersId("447123456789-1445627445@g.us");
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -887,7 +894,7 @@ Example response envelope:
 
 Resolves to `ContactId[]`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<ContactId[]>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 Opaque WhatsApp contact identifier. Preserve the exact value returned by the API.
 
 <details>

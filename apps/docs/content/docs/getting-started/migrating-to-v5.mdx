@@ -1,0 +1,571 @@
+---
+title: Migrate from v4 to v5
+description: Upgrade an existing open-wa application, with before-and-after examples for startup, configuration, listeners, messages, groups, and Easy API.
+---
+
+# Migrate from v4 to v5
+
+**v5 is the current stable release and the version to use for production.** This
+guide uses Bun and TypeScript to move an existing v4 application to v5.
+If you are starting a new application, use the
+[project initializer](/docs/getting-started/initializer) instead.
+
+v4 and earlier are legacy releases. open-wa runs against WhatsApp Web, which
+changes independently of your installed package. An older release can stop
+authenticating, sending messages, or receiving events even when you have changed
+nothing in your application. Pinning a package keeps your application on that
+package's code; it cannot pin WhatsApp Web or guarantee that the integration
+will keep working. This applies to older v5 releases too, so plan to keep
+open-wa updated.
+
+The migration involves more than changing a version number. Some familiar
+methods remain, some have different inputs or results, and some v4 features
+have no supported replacement yet. Start with the changes below, then check
+the [known gaps](#known-gaps) before moving a workflow that depends on them.
+
+> **Release status:** The restored `onAck`, global `ev`, and group-member APIs
+> described below are implemented for the next package release. They are not
+> included in 5.4.0. Follow these examples with a release that includes these
+> fixes; updating to 5.4.0 alone will not restore those contracts.
+
+## What needs to change?
+
+This table describes an application that imports `@open-wa/wa-automate` and
+owns its WhatsApp browser session. Remote consumers also need the
+[Easy API and SocketClient changes](#migrate-easy-api-and-socketclient).
+
+| Your v4 code | What to do in v5 |
+| --- | --- |
+| `import { create } from '@open-wa/wa-automate'` | Keep it! `create()` returns a ready messaging client. You do not need to replace it with `createClient()`. |
+| `client.onMessage(callback)` and `client.onAnyMessage(callback)` | Keep the callback pattern. Update any code that uses the registration result or removes listeners. |
+| `client.sendText(to, text)` | Keep the arguments. Handle a thrown error instead of checking for a `false` result. |
+| `client.kill()` | Replace it with `client.stop()` to close the browser. |
+| `ConfigObject` or `AdvancedConfig` | Use `CreateOptions` for the options passed to `create()`. Review the configuration table below. |
+| `ev.on(...)` from a package-level import | Keep it. Import the same shared helper in each file. |
+| `onAck((message) => ...)` | Keep the message callback, including `message.id`, `message.ack`, and the message details. |
+| `onStateChanged` checks for `CONNECTED` | Read the core lifecycle with `client.getState()` and check for `READY`. |
+| `getGroupMembers()` and `getGroupMembersId()` | Keep both: the first returns contacts, the second returns IDs. |
+| A saved `.data.json` file or base64 session string | Pair again and persist the current compact session in a separate directory. The old token file does not restore this format. |
+
+## 1. Update the dependency
+
+Stop the old bot and keep a backup of its configuration and session storage.
+Use a separate session-data directory for v5 and pair the account again.
+Running both bots against the same conversations with reply handlers enabled
+can produce duplicate replies.
+
+Once the release containing these fixes is available, run this in your existing
+application directory with [Bun installed](https://bun.sh/docs/installation):
+
+```bash
+bun add @open-wa/wa-automate@latest
+```
+
+You do not need to run the initializer over an existing application. If you
+already depend directly on other `@open-wa` packages, update those dependencies
+to compatible v5 releases too; do not combine a v4 remote client with a v5
+server. See the [package guide](/docs/concepts/packages) for what each package
+provides.
+
+Keep imports on public package exports. Replace any private import such as
+`@open-wa/wa-automate/dist/...` with its public equivalent.
+The [client reference](/docs/reference/client) lists the public types and methods.
+
+## 2. Keep create and update shutdown
+
+A typical v4 bot looks like this:
+
+```ts
+import { create } from '@open-wa/wa-automate';
+
+const client = await create({ sessionId: 'support', multiDevice: true });
+
+await client.onMessage(async (message) => {
+  if (message.body === '!ping') {
+    await client.sendText(message.from, 'Pong!');
+  }
+});
+
+process.once('SIGINT', () => void client.kill());
+```
+
+In v5, the same bot can use this complete `index.ts`:
+
+```ts
+import { create } from '@open-wa/wa-automate';
+
+const client = await create({
+  sessionId: 'support',
+  sessionDataPath: './v5-sessions',
+});
+
+client.onMessage(async (message) => {
+  if (message.fromMe || message.body !== '!ping') return;
+
+  try {
+    await client.sendText(message.from, 'Pong!');
+  } catch (error) {
+    console.error('Reply failed. Check the chat before retrying:', error);
+  }
+});
+
+let stopping = false;
+const shutdown = async () => {
+  if (stopping) return;
+  stopping = true;
+  await client.stop();
+};
+
+process.once('SIGINT', () => void shutdown());
+process.once('SIGTERM', () => void shutdown());
+
+console.log('Ready. Send !ping to this account from another chat.');
+```
+
+Run it with:
+
+```bash
+bun run index.ts
+```
+
+`./v5-sessions` stores the new compact session file, relative to where you
+run the application. The first run asks you to link the account. On iPhone, open
+WhatsApp **Settings → Linked Devices**. On Android, open the WhatsApp menu and
+select **Linked Devices**. Tap **Link a Device**, then scan the terminal QR code.
+After the `Ready` message, send `!ping` from another chat and look for `Pong!`.
+
+[`create()`](/docs/reference/create) chooses Puppeteer, provisions its matched
+browser if needed, handles terminal pairing, and resolves when the session is
+ready. You do not need an additional `client.start()` call. Browser provisioning
+does not install missing operating-system libraries.
+[`stop()`](/docs/reference/create#stop) closes the browser and leaves its saved
+login available for the next run. It does not log the account out of WhatsApp.
+
+### When createClient is useful
+
+Use [`createClient()`](/docs/reference/core) when you need to supply a driver, control
+startup explicitly, or load plugins through the core runtime.
+It returns an unstarted runtime, not the messaging `Client`. Register startup
+handlers first, wrap it in `new Client({ client: runtime, transport:
+runtime.getTransport() })`, then call `await client.start()`.
+
+That lower-level API is optional. Keep `create()` for a straightforward bot.
+You can subscribe to the shared `ev` before calling it to observe startup; see
+[global events](#keep-the-global-ev-import) below.
+
+## 3. Review configuration and saved sessions
+
+Use [`CreateOptions`](/docs/reference/create) with `create()`. The low-level
+[`CreateClientOptions`](/docs/reference/core#createclientoptions) type uses
+some different names and units.
+
+| Setting | With `create()` | With low-level `createClient()` |
+| --- | --- | --- |
+| `sessionId`, `headless`, `executablePath` | Keep these names. | Keep these names; also supply a `driver`. |
+| `qrTimeout`, `authTimeout`, `oorTimeout` | Values are in seconds. `create()` defaults `qrTimeout` to `0`, with no QR scan deadline. | Use `qrTimeoutMs`, `authTimeoutMs`, `oorTimeoutMs`, in milliseconds. |
+| `chromiumArgs` | Keep this name. | Use `browserArgs`. |
+| `linkCode`, `qrMax`, `licenseKey` | Keep these names. | Keep these names. |
+| `eventMode` | Defaults to `true`, forwarding supported listener events to `ev`. | Same behavior. |
+| `multiDevice` | Remove it. It no longer selects an authentication mode. | No such option. |
+| `sessionDataPath` | Directory or explicit `.data.json` file for compact session storage. | Same behavior. |
+| `sessionData` | An encrypted compact session exported by current v5, as an object, JSON, or base64 JSON. | Same behavior. |
+| `userDataDir`, `ephemeral` | Remove assumptions that these control saved login. The browser profile is disposable. | Same behavior. |
+| `skipSessionSave` | Disables the local session file and requires a durable remote store. | Same behavior. |
+| `sessionDataEncryptionKey`, `sessionDataEncryptionKeyFile` | Optional custom key or mounted key file; choose one. | Same behavior. |
+| `onError`, `pQueueDefault`, `messagePreprocessor` | Do not assume the shared schema wires their v4 behavior. Handle errors explicitly and configure listeners individually. | No direct equivalent options. |
+
+For example, one minute is `authTimeout: 60` with `create()` and
+`authTimeoutMs: 60_000` with `createClient()`. Copying the number `60` into the
+millisecond option would allow only 60 milliseconds.
+
+### Keep the compact session file
+
+Current v5 restores authentication into a disposable browser profile. Persist
+`<sessionId>.data.json` in the directory selected by `sessionDataPath`, along
+with your custom encryption key if you supplied one. Restart with the same
+session ID, storage path, and key. Without a custom key, the runtime uses its
+default encryption configuration.
+
+An old v4 browser profile or token file is not a current compact session.
+Start in the separate directory from the example above and pair again. The
+file contains credentials, so keep it in private persistent storage.
+[`stop()`](/docs/reference/create#stop) closes the browser without unlinking
+the account or deleting its saved login.
+
+### Pass configuration to an embedded application
+
+The CLI reads `wa.config.ts` and `WA_*` environment variables. Embedded
+`create()` does not load general configuration from those sources; pass the
+values your application needs. Session encryption keys have their own
+secret-loading path and can also come from `OPENWA_SESSION_DATA_ENCRYPTION_KEY`
+or `WA_SESSION_DATA_ENCRYPTION_KEY`, or their `_FILE` variants.
+
+```ts
+import { create, type CreateOptions } from '@open-wa/wa-automate';
+
+const options = {
+  sessionId: 'support',
+  sessionDataPath: './v5-sessions',
+  licenseKey: process.env.WA_LICENSE_KEY,
+} satisfies CreateOptions;
+
+const client = await create(options);
+```
+
+See the [session and login options](/docs/reference/create#session-and-login-options)
+and [configuration guide](/docs/guides/configuration-and-cli) for deployment
+settings. Keep secret values out of copied examples.
+
+## 4. Update listeners and event handlers
+
+[`onMessage` and `onAnyMessage`](/docs/guides/messages#receive-messages) still
+pass a message to your callback. Keep a `fromMe` guard in reply handlers so they
+cannot answer their own messages.
+
+Registration now returns a listener handle immediately. Remove that particular
+subscription with `handle.off()`, instead of relying on the old
+`Promise<Listener | boolean>` result or `removeListener(SimpleListener.Message)`:
+
+```ts
+const subscription = client.onMessage((message) => {
+  console.log('Received message:', message.id);
+});
+
+// When this part of your application no longer needs the subscription:
+subscription.off();
+```
+
+Adding `await` to registration is unnecessary. Pass
+[queue options](/docs/guides/messages#listener-queues) to the individual listener
+rather than expecting the v4 `pQueueDefault` option to configure it.
+
+### Keep the full acknowledgement message
+
+Your v4 acknowledgement handler can keep reading the message:
+
+```ts
+const subscription = client.onAck((message) => {
+  console.log(message.id, message.ack, message.body);
+  if (message.sender) console.log('Sender:', message.sender.id);
+});
+```
+
+The callback receives the available message snapshot when its acknowledgement
+changes. open-wa preserves the body, sender, chat, and extra WhatsApp fields
+that are present; it does not fetch the message later or reduce it to an ID
+and status. Some details can be absent while WhatsApp is loading a message.
+Use `subscription.off()` when you no longer need the handler.
+
+If you already adapted to early v5's `{ messageId, ack }` callback, use
+`message.id` instead of `messageId`. See [acknowledgements](/docs/guides/messages#acknowledgements)
+for the delivery states.
+
+### Connection states describe the core lifecycle
+
+The v5 core lifecycle uses `STARTING`, `AUTHENTICATING`, `READY`,
+`DISCONNECTED`, and `STOPPED`. Use `client.getState()` to read that lifecycle
+rather than treating a raw WhatsApp Web `CONNECTED` notification as proof of
+readiness. The runtime bridge can also forward browser state notifications.
+Do not carry over calls to `forceRefocus()` without a supported equivalent.
+
+```ts
+client.onStateChanged(() => {
+  const state = client.getState();
+  if (state === 'READY') console.log('WhatsApp is ready');
+  if (state === 'DISCONNECTED') console.warn('WhatsApp disconnected');
+});
+```
+
+Because `create()` resolves after startup, a listener added afterward observes
+future state changes. Use `runtime.events` before starting when you need the
+initial transition. [`onLogout`](/docs/guides/session-events) also changed:
+its callback receives `{ reason?, timestamp }`, rather than v4's optional
+boolean.
+
+### Keep the global ev import
+
+`ev` is shared across imports in the same process. Register listeners before
+`create()` when you need startup events. You can also use it for your own
+application events between files.
+
+Put the listener in `events.ts`:
+
+```ts
+import { ev } from '@open-wa/wa-automate';
+
+ev.on('client.ready', (_event, sessionId) => {
+  console.log(`Session ${sessionId} is ready`);
+});
+
+ev.on('onAck.**', ({ data: message, sessionId }) => {
+  console.log(sessionId, message.id, message.ack);
+});
+
+ev.on('app.job.finished', ({ jobId }) => {
+  console.log('Finished:', jobId);
+});
+```
+
+Import it before startup in `index.ts`:
+
+```ts
+import './events';
+import { create, ev } from '@open-wa/wa-automate';
+
+const client = await create({ sessionId: 'support', sessionDataPath: './v5-sessions' });
+ev.emit('app.job.finished', { jobId: 'daily-summary' });
+```
+
+`onAck.**` matches `onAck.<sessionId>.<instanceId>`. Supported listener aliases
+carry the v4 envelope `{ ts, sessionId, id, event, data }`. Lifecycle aliases
+such as `qr.**`, `linkCode.**`, and `sessionData.**` call the listener with
+`(data, sessionId, namespace)`. `*` matches one name segment and `**` matches
+zero or more, including patterns such as `**.support`.
+
+`sessionData` now contains the encrypted compact session object, not v4's
+obsolete token fields. QR values are pairing strings for your private UI.
+Do not send QR values, session data, or link codes to shared logs.
+
+`eventMode: false` disables automatic SimpleListener aliases, while lifecycle
+and custom events remain available. Keep `client.events` when you want one
+client's native event stream. Use `ev.off(name, callback)` to remove one global
+subscription; stopping a session removes its forwarding connection without
+removing another module's global listeners. See [session events](/docs/guides/session-events)
+for native event names and optional Effect-scoped subscriptions.
+
+## 5. Review the message and group data you read
+
+You do not need to rename every message field. The v5 message contract retains
+`id`, `body`, `type`, `from`, `to`, `chatId`, `fromMe`, `isGroupMsg`, `sender`,
+`chat`, `timestamp`, and `t`. The important changes are assumptions about
+optional fields and the object passed to each kind of listener.
+
+| What your handler needs | What to use in v5 |
+| --- | --- |
+| Text of a text message | `message.body` when `message.type === 'chat'`. The old convenience field `text` is not a guaranteed field in the v5 schema. |
+| A media caption | `message.caption ?? ''`; the caption is optional. |
+| The conversation to reply to | Reuse `message.chatId` or the incoming `message.from` unchanged. Do not reconstruct it from a phone number. |
+| The person speaking in a group | Check `message.author`, `message.senderId`, or `message.sender.id`; do not confuse them with the group's chat ID. |
+| Contact labels or display names | Treat `sender.name`, `sender.pushname`, and label arrays as optional. |
+| Group metadata | `message.chat.groupMetadata` can be absent or `null`; check it before reading `subject` or `participants`. |
+| Contact details on a chat | `chat.contact` can be `null`. |
+
+The [message guide](/docs/guides/messages#message-object-shape) and
+[Chat ID guide](/docs/guides/chatid-primer) cover these fields. Preserve IDs with
+an `@lid` suffix when WhatsApp provides them. Message, contact, chat, and group
+IDs have distinct TypeScript types; use values returned by the corresponding
+API, and validate externally supplied values against the relevant
+[identifier contract](/docs/guides/chatid-primer), rather than casting every
+string to `any`.
+
+### Keep the two group-member methods
+
+The two methods keep their v4 meanings:
+
+```ts
+const contacts = await client.getGroupMembers(groupId);
+for (const contact of contacts) {
+  console.log(contact.id, contact.name ?? contact.pushname ?? 'Unnamed contact');
+}
+
+const ids = await client.getGroupMembersId(groupId);
+```
+
+Here `groupId` is a group ID returned by a group lookup, creation, or join
+operation. `getGroupMembers()` returns `Contact[]`; `getGroupMembersId()` returns
+`ContactId[]`. There is no need to map IDs through `getContact()` yourself.
+Use the ID-only method for membership checks that do not need contact details.
+If WhatsApp cannot resolve a member's contact, the contact lookup rejects
+rather than silently omitting that member. See the [group reference](/docs/reference/client/groups).
+
+If you adapted to early v5's ID-returning `getGroupMembers()`, change that call
+to `getGroupMembersId()` to keep receiving IDs.
+
+The v5 embedded `addParticipant`, `promoteParticipant`, and `demoteParticipant`
+methods take one contact ID per call. Replace a v4 array argument with an
+explicit loop and handle each result. `removeParticipant` also takes one ID.
+The connected account still needs the relevant group permissions.
+
+## 6. Replace renamed methods and handle changed results
+
+These are embedded-client changes. The
+[method reference](/docs/reference/client/client) separates embedded,
+SocketClient, and Easy API examples because their contracts can differ.
+
+| v4 usage | v5 embedded equivalent or action |
+| --- | --- |
+| `getSessionId()` | Read `client.sessionId`. |
+| `kill(reason)` | Call [`stop(reason)`](/docs/reference/create#stop); it resolves without the old boolean result. |
+| `logout(preserveSessionData)` | No equivalent embedded logout method is exposed. `stop()` closes the browser while preserving login; use WhatsApp's Linked Devices screen when you intend to unlink the session. |
+| `getConnectionState()` | Use synchronous `getState()` for the v5 lifecycle state. The legacy-named method is unsupported. |
+| `getAllMessagesInChat(chatId, includeMe, includeNotifications)` | Use [`getAllMessages(chatId, includeMe, includeNotifications)`](/docs/reference/client/messages#getallmessages). |
+| `getAllChats(true)` | Call `getAllChats()` and filter the result, for example by `(chat.unreadCount ?? 0) > 0` for an unread-chat view. The old boolean argument is not accepted. |
+| `archiveChat(chatId, true)` / `archiveChat(chatId, false)` | Call [`archiveChat(chatId)` / `unarchiveChat(chatId)`](/docs/reference/client/chats#archivechat). |
+| `getProfilePicFromServer(contactId)` | Use [`getProfilePic(contactId)`](/docs/reference/client/contacts#getprofilepicture) on the embedded client. |
+| `sendLocation(to, '51.5', '-0.1', label)` | Pass numeric coordinates: [`sendLocation(to, 51.5, -0.1, label)`](/docs/reference/client/messages#sendlocation). |
+| `sendImage(to, localPathOrUrl, filename, caption)` | Supply image data as base64 or a data URL; the embedded method does not load a local path or fetch a URL for you. See [media](/docs/guides/media). |
+| `sendImageAsSticker(...)` | Review [`sendSticker(...)`](/docs/guides/media#stickers), which accepts prepared sticker data. It is not the old general image-conversion helper. |
+| Package-level `decryptMedia(message)` | Use [`client.decryptMedia(message)`](/docs/guides/media) for a data URL, or `client.downloadMedia(message, path)` to save the bytes. The return is not a `Buffer`. |
+| `sendText(...)` returns `false` on failure | Catch [`SendTextError`](/docs/guides/messages#send-messages). A successful call returns a validated message ID. |
+
+### A send failure may have an uncertain outcome
+
+Replace code such as `if (!await client.sendText(...)) retry()` with explicit
+error handling. A browser connection can fail after a message was submitted,
+so a blind retry can send it twice.
+
+```ts
+import { SendTextError } from '@open-wa/wa-automate';
+
+// Inside your existing message handler:
+try {
+  const messageId = await client.sendText(message.from, 'Request received!');
+  console.log('Submitted:', messageId);
+} catch (error) {
+  if (error instanceof SendTextError && error.outcome === 'unknown') {
+    console.error('The send could not be confirmed. Check the chat before retrying.');
+  } else {
+    console.error('Send failed:', error);
+  }
+}
+```
+
+A message ID confirms submission, not delivery or reading. Use
+acknowledgements when your workflow needs those later states. The error change
+above applies to `sendText`; do not assume that every other send method has
+the same return contract.
+
+## Migrate Easy API and SocketClient
+
+An embedded bot does not need to become an HTTP client to migrate. This section
+is for applications that already communicate with a separate open-wa process.
+
+### Start the v5 server
+
+Use an explicit session name and private bind address:
+
+```bash
+bunx --bun @open-wa/wa-automate@latest --session-id migration --host 127.0.0.1 --port 8080
+```
+
+For an existing deployment, review its `wa.config.ts`, session-data path, API key,
+and [CLI flags](/docs/guides/configuration-and-cli#full-cli-reference) before
+switching traffic. Finish the [pairing and readiness steps](/docs/getting-started/quickstart)
+first. `/health` must report `connected: true` and `session.ready: true` before
+messaging; an HTTP listener alone does not mean WhatsApp is ready.
+
+### Update HTTP requests and response handling
+
+Use the HTTP verb and route in the running server's
+[API explorer](http://localhost:8080/api-docs/). Do not assume every operation is
+a `POST` to a bare `/<method>` path. For example, sending text uses
+`POST /api/messages/sendText` with named fields, and the result is inside an
+envelope:
+
+```ts
+// send.ts: run with bun run send.ts after replacing the recipient.
+const recipient = 'REPLACE_WITH_AN_EXISTING_CHAT_ID';
+if (recipient.startsWith('REPLACE_')) throw new Error('Set recipient first');
+
+const response = await fetch('http://127.0.0.1:8080/api/messages/sendText', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ to: recipient, content: 'Hello from v5!' }),
+});
+const result = await response.json();
+if (!response.ok || !result.success) {
+  throw new Error(`Send failed: ${JSON.stringify(result)}`);
+}
+console.log('Submitted:', result.data);
+```
+
+Use a chat whose recipient expects the message. If the server has an API key,
+include it in the `X-API-Key` request header. The
+[sendText reference](/docs/reference/client/messages#sendtext) includes the
+remote request contract. Namespaced HTTP routes do not mean an embedded client
+must change `client.sendText(...)` to `client.messages.sendText(...)`.
+
+### Replace the old remote transport
+
+v5 [`SocketClient`](/docs/client-and-integrations/socket-client) uses HTTP for
+commands and Server-Sent Events for events. It is not a Socket.IO connection.
+Update any reverse proxy rules or custom Socket.IO code accordingly.
+
+```bash
+bun add @open-wa/socket-client@latest
+```
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect(
+  'http://127.0.0.1:8080',
+  process.env.WA_API_KEY,
+);
+
+client.socket.on('message.received', ({ message }) => {
+  console.log('Received message:', message.id);
+});
+
+process.once('SIGINT', () => client.close());
+process.once('SIGTERM', () => client.close());
+```
+
+The remote event payload wraps the message under `message`; the embedded
+`client.onMessage()` callback receives the message directly.
+
+Keep server and client releases aligned. Closing a remote consumer ends its
+connection; it does not stop the server's WhatsApp browser. For webhook
+integrations, review the v5 [envelope](/docs/client-and-integrations/webhook-payloads#envelope):
+the event-specific value is under `payload`, and an incoming message is under
+`payload.message`, instead of the v4 `data` field. A configured `--webhook`
+flag alone does not establish v5 delivery. The v5 CLI also does not load the
+shared plugin configuration; use the [core plugin-loading path](/docs/guides/configuration-and-cli#plugins-field-docs)
+when migrating a webhook integration.
+
+## Known gaps
+
+Stable v5 does not mean that every v4 feature has parity. These limitations
+describe the v5 embedded client and its shipped browser runtime. A method or
+event appearing in a generated schema is not proof that the running integration
+implements it.
+
+| Feature your application may use | v5 limitation |
+| --- | --- |
+| File sending | Embedded `sendFile` and `sendFileFromUrl` are explicit unsupported methods. Do not substitute them for a v4 document or audio workflow. |
+| Message editing and reactions | Embedded `editMessage` and `react` are unsupported. |
+| Group metadata and settings | Embedded `getGroupInfo`, `setGroupTitle`, and `setGroupDescription` are unsupported. `getGroupAdmins` is not an embedded `Client` method. |
+| Group membership changes | `onParticipantsChanged` and `onGlobalParticipantsChanged` have no current embedded listener or shipped event bridge. The declared `group.participants.changed.global` event is not a working replacement. |
+| Added-to-group notifications | `onAddedToGroup` is not an embedded convenience method. The optional `client.events` event `group.addedToGroup` supplies a `groupId`, not the full v4 chat object. |
+| Message deletion notifications | `onMessageDeleted` throws an unsupported-listener error; there is no shipped deletion bridge. |
+| Other v4 listeners | Do not assume call, battery, poll, reaction, label, or commerce listeners work because their names remain in an event schema. They are not among the embedded client's supported listeners. |
+| Chat settings and session diagnostics | Embedded `pinChat`, `unpinChat`, `muteChat`, `unmuteChat`, `getBlockedContacts`, `getCommonGroups`, `getFeatures`, and `getProcessStats` are unsupported. |
+| v4 media and interactive helpers | Helpers such as `sendPtt`, `sendAudio`, `sendAdvancedButtons`, and `sendListMessage` are not drop-in embedded methods. Review the [interactive API](/docs/guides/interactive-messages) and its license requirements for a supported interactive workflow. |
+| Config-driven plugins | Neither the ready `create()` wrapper nor the v5 CLI forwards shared `plugins` / `pluginConfig` into core startup. Use the [core plugin options](/docs/guides/configuration-and-cli#plugins-field-docs) when you need to load plugins. |
+| Old CLI integrations | `--webhook`, `--ready-webhook`, `--tunnel`, and the legacy Chatwoot, Twilio, and BotPress flags do not restore their v4 behavior just because the CLI accepts or warns about them. |
+
+If a required workflow hits one of these gaps, identify that dependency before
+switching it. A return to v4 is not a compatibility guarantee: the same WhatsApp
+Web changes can affect that old release. Report the specific missing operation,
+your installed version, and whether you use the embedded client or Easy API in
+the [issue tracker](https://github.com/open-wa/wa-automate-nodejs/issues).
+Exclude session files, QR codes, API keys, and private message content.
+
+## Before switching your application over
+
+Use your application's actual workflows to finish the migration:
+
+1. **Start and restart the session.** Pair v5, stop it, and restart with the
+   same session ID, compact session file, and encryption key if configured.
+   Confirm that WhatsApp restores the session.
+2. **Receive a message and send a reply.** Confirm the reply in the receiving
+   chat. Check the identifiers and optional fields your handler depends on.
+3. **Exercise the features you use.** Include group operations, media,
+   acknowledgements, remote requests, and integrations where applicable. A
+   successful text reply does not establish those features' availability.
+4. **Move traffic once the replacements work.** Stop the old reply handlers,
+   switch to the v5 deployment, and retain the old configuration and profile
+   backup for investigation. Keep the new compact session storage separate.
+
+Use [release status](/docs/releases/v5-alpha) and the API reference for the
+version you install to follow further changes.

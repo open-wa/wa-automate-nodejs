@@ -4,7 +4,9 @@ const report = JSON.parse(await readFile(
   new URL('../architecture/benchmarks/effect-replacements.json', import.meta.url),
   'utf8',
 ));
-if (report.effect !== '4.0.0-beta.100') {
+const workspace = await readFile(new URL('../pnpm-workspace.yaml', import.meta.url), 'utf8');
+const expectedVersion = workspace.match(/^  effect:\s*(\S+)$/m)?.[1];
+if (!expectedVersion || report.effect !== expectedVersion) {
   throw new Error(`Effect replacement evidence is stale: ${report.effect}`);
 }
 for (const path of [

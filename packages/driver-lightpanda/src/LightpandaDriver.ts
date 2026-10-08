@@ -11,11 +11,13 @@ import {
 import { LightpandaBrowser } from './LightpandaBrowser';
 import { LightpandaConnectError, LightpandaInvalidExecutableError, LightpandaPortExhaustionError, LightpandaRenderingError, LightpandaStartupError } from './errors';
 import { LightpandaProcessManager } from './process-manager';
+import { ensureLightpanda } from './ensureLightpanda';
+import { prepareWhatsAppExecutable } from './whatsAppExecutable';
 
 const LIGHTPANDA_CAPABILITIES: DriverCapabilities = {
     cdp: { supported: true },
     requestInterception: { supported: true },
-    serviceWorkerBypass: { supported: false, reason: 'Lightpanda does not support service workers' },
+    serviceWorkerBypass: { supported: false, reason: 'The Lightpanda driver does not expose service worker bypass' },
     stealth: { supported: false, reason: 'Lightpanda does not support stealth plugins' },
     pdf: { supported: false, reason: 'Lightpanda has no rendering engine' },
     tracing: { supported: false, reason: 'Lightpanda has no rendering engine' },
@@ -45,12 +47,21 @@ export class LightpandaDriver implements IDriver {
 
         let processInfo;
         try {
-            processInfo = await processManager.start({
+            const executablePath = await ensureLightpanda({
                 executablePath: lightpandaOptions?.executablePath ?? options?.executablePath,
+                browser: options?.browser,
+                preferPinnedRelease: lightpandaOptions?.experimentalWhatsApp === true,
+            }, this.ctx);
+            processInfo = await processManager.start({
+                executablePath: lightpandaOptions?.experimentalWhatsApp
+                    ? await prepareWhatsAppExecutable(executablePath, options?.browser, this.ctx)
+                    : executablePath,
                 portStart: lightpandaOptions?.portStart,
                 host: lightpandaOptions?.host,
                 startupTimeoutMs: lightpandaOptions?.startupTimeoutMs ?? options?.timeoutMs,
                 disableTelemetry: lightpandaOptions?.disableTelemetry,
+                experimentalWhatsApp: lightpandaOptions?.experimentalWhatsApp,
+                onStderr: message => this.ctx?.logger?.warn('Lightpanda browser stderr', { message: message.trim() }),
             });
         } catch (error) {
             throw this.normalizeStartupError(error);
@@ -63,7 +74,7 @@ export class LightpandaDriver implements IDriver {
             }, processManager, {
                 host: processInfo.host,
                 port: processInfo.port,
-            });
+            }, lightpandaOptions?.experimentalWhatsApp);
         } catch (error) {
             await processManager.stop();
             throw this.normalizeConnectError(error, processInfo.wsEndpoint);
@@ -104,7 +115,7 @@ export class LightpandaDriver implements IDriver {
     private async loadPuppeteer(): Promise<{ connect(options: { browserWSEndpoint?: string; timeout?: number; headers?: Record<string, string> }): Promise<any> }> {
         if (!this.puppeteer) {
             try {
-                const module = await import('puppeteer');
+                const module = await import('puppeteer-core');
                 this.puppeteer = module.default ?? module;
             } catch (error) {
                 throw this.normalizeConnectError(error);
@@ -118,6 +129,7 @@ export class LightpandaDriver implements IDriver {
         options: ConnectOptions,
         processManager?: { stop(): Promise<void> },
         processInfo?: { host: string; port: number },
+        experimentalWhatsApp = false,
     ): Promise<IBrowser> {
         const wsEndpoint = options.wsEndpoint ?? options.cdpEndpoint;
         if (!wsEndpoint) {
@@ -141,7 +153,7 @@ export class LightpandaDriver implements IDriver {
             this.ctx?.logger?.debug('Unable to read Lightpanda browser version', processInfo);
         }
 
-        return new LightpandaBrowser(this.capabilities, browser, processManager);
+        return new LightpandaBrowser(this.capabilities, browser, processManager, experimentalWhatsApp);
     }
 
     private normalizeStartupError(error: unknown): Error {

@@ -1,0 +1,25 @@
+{
+  "recordedAt": "2026-10-07T19:43:56.427Z",
+  "sourceRuntime": "Bun imports current TypeScript source; no build; no existing session profiles",
+  "driver": {
+    "connected": true,
+    "version": "Chrome/124.0.6367.29",
+    "bridge": 42,
+    "nativeUserAgent": "Lightpanda/1.0",
+    "userAgentAfterOverride": "Lightpanda/1.0"
+  },
+  "createClient": {
+    "status": "import_failed",
+    "error": "require() async module \"/Users/Mohammed/projects/tools/wa/node_modules/strip-ansi/index.js\" is unsupported. use \"await import()\" instead."
+  },
+  "sourceGuard": {
+    "file": "packages/core/src/createClient.ts",
+    "line": 228,
+    "present": true,
+    "acceptedDrivers": [
+      "puppeteer",
+      "playwright"
+    ],
+    "evidence": "Current working-tree source inspection; runtime import result recorded separately"
+  }
+}
