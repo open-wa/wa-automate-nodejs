@@ -1,0 +1,9 @@
+{
+  "slug": "SLUG",
+  "name": "Concept name",
+  "direction": "Metaphor | Dev tool | Terminal | Editorial | Technical drawing | Explorer | Scroll story",
+  "tagline": "One sentence on what this page does and for whom.",
+  "logo": "One sentence describing the logo idea and how it moves.",
+  "brandFont": false,
+  "stack": ["Astro 7"]
+}

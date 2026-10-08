@@ -1,0 +1,16 @@
+# Static-assets Worker that serves every concept plus the gallery.
+# Fill in account_id. The custom domain must live in a zone on that account;
+# zone id is only needed if you switch to a `routes` pattern instead.
+name = "openwa-concepts"
+compatibility_date = "2026-09-01"
+account_id = "REPLACE_WITH_CLOUDFLARE_ACCOUNT_ID"
+# zone_id (only for routes): REPLACE_WITH_ZONE_ID_FOR_openwa.dev
+
+[assets]
+directory = "./_site"
+html_handling = "auto-trailing-slash"
+not_found_handling = "404-page"
+
+[[routes]]
+pattern = "concepts.openwa.dev"
+custom_domain = true
