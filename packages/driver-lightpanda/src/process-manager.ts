@@ -16,6 +16,8 @@ export interface ProcessManagerConfig {
     host?: string;
     startupTimeoutMs?: number;
     disableTelemetry?: boolean;
+    experimentalWhatsApp?: boolean;
+    onStderr?: (message: string) => void;
 }
 
 export interface LightpandaProcessInfo {
@@ -133,6 +135,12 @@ export class LightpandaProcessManager {
                     '--load-resources', 'worker',
                     '--load-resources', 'iframe',
                     '--load-resources', 'stylesheet',
+                    ...(config.experimentalWhatsApp ? [
+                        '--experimental-features', 'serviceworker',
+                        // v1 applies its HTTP transfer deadline to WebSockets too.
+                        // WhatsApp's pairing and messaging socket must stay open.
+                        '--http-timeout', '0',
+                    ] : []),
                 ], {
                     stdio: ['ignore', 'ignore', 'pipe'],
                     env: { ...process.env, ...(config.disableTelemetry ? { LIGHTPANDA_DISABLE_TELEMETRY: 'true' } : {}) },
@@ -144,6 +152,7 @@ export class LightpandaProcessManager {
                 child.stderr?.on('data', data => {
                     const message = String(data);
                     stderr = (stderr + message).slice(-4096);
+                    config.onStderr?.(message);
                 });
                 await this.waitForReadiness(wsEndpoint, startupTimeoutMs, () => {
                     if (processError) throw new Error(`Unable to start Lightpanda executable ${executablePath}: ${processError.message}`);

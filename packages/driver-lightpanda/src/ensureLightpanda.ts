@@ -36,7 +36,7 @@ export async function findLightpanda(): Promise<string | undefined> {
 
 /** Download only on demand, verify the release checksum, and reuse a per-user binary. */
 async function provisionLightpanda(
-    options: { executablePath?: string; browser?: BrowserProvisionOptions } = {},
+    options: { executablePath?: string; browser?: BrowserProvisionOptions; preferPinnedRelease?: boolean } = {},
     ctx?: IDriverContext,
 ): Promise<string> {
     const configuredPath = options.executablePath ?? process.env.LIGHTPANDA_EXECUTABLE_PATH;
@@ -47,7 +47,7 @@ async function provisionLightpanda(
         }
         return executablePath;
     }
-    const localPath = await findLightpanda();
+    const localPath = options.preferPinnedRelease ? undefined : await findLightpanda();
     if (localPath) return localPath;
 
     const os = process.platform === 'darwin' ? 'macos' : process.platform === 'linux' ? 'linux' : undefined;
@@ -194,7 +194,7 @@ async function provisionLightpanda(
 }
 
 export function ensureLightpanda(
-    options: { executablePath?: string; browser?: BrowserProvisionOptions } = {},
+    options: { executablePath?: string; browser?: BrowserProvisionOptions; preferPinnedRelease?: boolean } = {},
     ctx?: IDriverContext,
 ): Promise<string> {
     return provisionLightpanda(options, ctx).catch(cause => { throw toPublicError(cause); });

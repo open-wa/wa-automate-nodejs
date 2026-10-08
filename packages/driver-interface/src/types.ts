@@ -15,6 +15,8 @@ export interface LightpandaOptions {
     host?: string;
     startupTimeoutMs?: number;
     disableTelemetry?: boolean;
+    /** Enable ephemeral worker/crypto bridges for WhatsApp QR exploration. */
+    experimentalWhatsApp?: boolean;
 }
 
 export interface BrowserProvisionOptions {

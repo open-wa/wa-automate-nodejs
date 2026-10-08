@@ -225,8 +225,10 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     debug: options.debug ?? false,
   });
 
-  if (options.driver.name !== 'puppeteer' && options.driver.name !== 'playwright') {
-    throw new Error('Compact authentication requires Puppeteer or Playwright');
+  const experimentalLightpanda = options.driver.name === 'lightpanda'
+    && options.lightpanda?.experimentalWhatsApp === true;
+  if (options.driver.name !== 'puppeteer' && options.driver.name !== 'playwright' && !experimentalLightpanda) {
+    throw new Error('Compact authentication requires Puppeteer, Playwright, or explicitly enabled experimental Lightpanda');
   }
   // Authentication always restores into a disposable browser profile.
   const resolvedUserDataDir = undefined;
@@ -1174,7 +1176,13 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         sessionId,
       });
       } catch (error) {
-        await resourceScope.close('startup-failure');
+        try {
+          await resourceScope.close('startup-failure');
+        } catch (cleanupError) {
+          logger.error('startup_cleanup_failed', {
+            error: cleanupError,
+          });
+        }
         throw error;
       }
     },

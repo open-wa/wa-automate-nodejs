@@ -132,6 +132,10 @@ export const LightpandaOptionsSchema = z.object({
     .boolean()
     .default(false)
     .describe('Disable Lightpanda telemetry for deterministic startup.'),
+  experimentalWhatsApp: z
+    .boolean()
+    .default(true)
+    .describe('Enable the experimental WhatsApp worker and crypto setup used by Lightpanda mode.'),
 });
 
 export const S3SyncSchema = z.object({

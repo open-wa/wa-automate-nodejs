@@ -480,7 +480,7 @@ function printStartupSummary(
     if (resolution.source === 'lightpanda_config' && resolution.executablePath) {
         sink.write({ level: 'info', message: `Browser executable: explicit Lightpanda override (${resolution.executablePath})` });
     } else if (resolution.source === 'lightpanda_managed') {
-        sink.write({ level: 'info', message: `Browser executable: managed Lightpanda (${resolution.executablePath})` });
+        sink.write({ level: 'info', message: `Browser executable: Lightpanda with experimental WhatsApp setup (${resolution.executablePath})` });
     } else if (resolution.source === 'config' && config.executablePath) {
         sink.write({ level: 'info', message: `Browser executable: explicit override (${config.executablePath})` });
     } else if (resolution.source === 'cache') {
@@ -579,7 +579,7 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         blockCrashLogs: config.blockCrashLogs,
         blockAssets: config.blockAssets,
         safeMode: config.safeMode,
-        lightpanda: config.useLightpanda ? config.lightpanda : undefined,
+        lightpanda: config.useLightpanda ? { experimentalWhatsApp: true, ...config.lightpanda } : undefined,
         licenseKey: config.licenseKey as any,
         sandboxPolicy,
         executionSandbox,
@@ -593,6 +593,8 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
     server.setReadinessProvider(() => ({ ...openwaClient.getReadiness(), state: openwaClient.getState() }));
     const detachLaunchNarration = attachLaunchNarration(openwaClient, sink, config.sessionId);
 
+    openwaClient.events.on('launch.auth.qr.expired', () => server.setQR(null));
+    openwaClient.events.on('launch.auth.qr.scanned', () => server.setQR(null));
     openwaClient.events.on('launch.auth.qr.generated', (event) => {
         const qr = event.details?.qr;
         if (!qr) {
@@ -687,7 +689,7 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
     } catch (startError) {
       const msg = startError instanceof Error ? startError.message : String(startError);
       sink.write({ level: 'error', message: `Bootstrap failed: ${msg}` });
-      sink.write({ level: 'warn', message: 'Session kept alive for debugging. Browser page is still open.' });
+      sink.write({ level: 'warn', message: 'The API server is still running for inspection; the client failed to start.' });
       sink.write({ level: 'warn', message: 'The server is running — use /health and /api-docs to inspect state.' });
       detachLaunchNarration();
       return { server, client, config, events: openwaClient.events, dispose };

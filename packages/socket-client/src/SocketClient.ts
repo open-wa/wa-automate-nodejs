@@ -27,6 +27,7 @@ const DEFAULT_STREAM_EVENTS = [
     'group.addedToGroup',
     'launch.auth.qr.generated',
     'launch.auth.qr.scanned',
+    'launch.auth.qr.expired',
     'patch.apply.after',
     'client.ready',
     'internal_launch_progress',

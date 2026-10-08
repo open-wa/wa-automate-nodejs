@@ -1,6 +1,6 @@
 import type { CreateClientOptions, OpenWAEventMap } from '@open-wa/core';
 import type { Client } from '@open-wa/client';
-import { resolveConfig, type PartialConfig, type Config, type TrackedConfig } from '@open-wa/config';
+import { ConfigSchema, resolveConfig, type PartialConfig, type Config, type TrackedConfig } from '@open-wa/config';
 import { accessSync, constants, existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { getCliOutputSink } from './cli/output-sink';
@@ -207,7 +207,8 @@ export async function selectRuntimeDriver(
         executableResolution = resolveLightpandaExecutablePath(config);
         executableResolution.executablePath ??= config.executablePath;
     }
-    if (!executableResolution.executablePath && (kind !== undefined || options.promptForMissingBrowser)) {
+    if (!executableResolution.executablePath && (kind !== undefined || options.promptForMissingBrowser)
+        && !(kind === 'lightpanda' && config.lightpanda?.experimentalWhatsApp !== false)) {
         const remembered = await readBrowserChoice();
         if (remembered && (kind === undefined || remembered.kind === kind)) {
             kind = remembered.kind;
@@ -248,10 +249,12 @@ export async function selectRuntimeDriver(
     };
     if (kind === 'lightpanda') {
         const { LightpandaDriver, ensureLightpanda } = await import('@open-wa/driver-lightpanda');
+        config.lightpanda = ConfigSchema.shape.lightpanda.parse({ ...config.lightpanda, experimentalWhatsApp: config.lightpanda?.experimentalWhatsApp ?? true });
         config.browser = browser;
         const executablePath = await ensureLightpanda({
             executablePath: executableResolution.executablePath,
             browser,
+            preferPinnedRelease: config.lightpanda?.experimentalWhatsApp ?? true,
         }, ctx);
         config.useLightpanda = true;
         config.useChrome = false;
@@ -320,7 +323,7 @@ export function toCreateClientOptions(
         blockCrashLogs: config.blockCrashLogs,
         blockAssets: config.blockAssets,
         safeMode: config.safeMode,
-        lightpanda: config.useLightpanda ? config.lightpanda : undefined,
+        lightpanda: config.useLightpanda ? { experimentalWhatsApp: true, ...config.lightpanda } : undefined,
         licenseKey: config.licenseKey as any,
         patchConfig: { ghPatch: config.ghPatch, cachedPatch: config.cachedPatch },
     };
