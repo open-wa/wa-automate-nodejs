@@ -43,7 +43,28 @@ The client starts the browser session in your process. See the [custom code guid
 | `INVALID_SEND_RESULT` | `unknown` | The runtime returned no usable message ID, including `false` or an unrecognized failure value. |
 | `SEND_FAILED` | `unknown` | Browser evaluation failed; the original error is available as `cause`. |
 
-For an `unknown` outcome, check the chat before deciding whether to send again. The client never retries automatically because the first attempt may already have sent the message. Other messaging methods retain their existing return contracts.
+For an `unknown` outcome, check the chat before deciding whether to send again. The client never retries automatically because the first attempt may already have sent the message.
+
+## Media and patch-backed messages
+
+Media methods accept a data URL, base64 string, URL, local path or `Buffer`. `sendFile` uses the detected media type, so a video appears as a video and an audio file appears as audio. It does not force every file into a document attachment.
+
+```typescript
+await client.sendFile(chatId, './clip.mp4', 'clip.mp4', 'Watch this');
+await client.sendAudio(chatId, './sound.mp3', 'sound.mp3');
+await client.sendPtt(chatId, './voice.ogg');
+await client.sendVideoAsGif(chatId, './loop.mp4', 'loop.mp4');
+await client.sendFileFromUrl(chatId, downloadUrl, 'clip.mp4', '', { Authorization: token });
+await client.sendPoll(chatId, 'Which day?', ['Friday', 'Saturday', 'Sunday'], 2);
+await client.react(messageId, '👍');
+await client.editMessage(messageId, 'Updated text');
+```
+
+`sendPtt` marks prepared audio as a voice note; it does not transcode the source. `sendVideoAsGif` accepts video and enables WhatsApp's looping GIF presentation. Media and poll sends return a serialized message ID or a boolean submission result. Neither confirms recipient delivery; an uncertain result should be checked in the chat before retrying.
+
+`sendVCard(chatId, vcard, contactName?, contactNumber?)` sends supplied vCard content. `sendMultipleContacts(chatId, contactIds)` sends one contact bundle, while `sendContact` sends each supplied contact separately and returns the individual results.
+
+`postTextStatus(text, backgroundColor?, font?)`, `postImageStatus(image, caption?)` and `postVideoStatus(video, caption?)` use the corresponding licensed story payloads. Text backgrounds accept RGB or RGBA hex colors, and fonts are numbered 0–5. Missing common or licensed methods produce an error when called; these methods require the current patch delivery.
 
 ## Documentation
 
