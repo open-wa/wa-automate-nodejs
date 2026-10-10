@@ -10,6 +10,8 @@ export type { SendTextErrorCode, SendTextOutcome } from './SendTextError';
 
 export type { MessagingMethods } from './methods/messaging';
 export type { MediaMethods } from './methods/media';
+export type { StatusMethods } from './methods/status';
+export type { MediaInput, MediaSendResult } from './mediaInput';
 export type { GroupMethods } from './methods/groups';
 export type { ChatMethods } from './methods/chats';
 export type { ContactMethods } from './methods/contacts';

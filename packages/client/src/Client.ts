@@ -37,6 +37,7 @@ import type { QueueOptions } from '@open-wa/schema';
 import { interactiveMethods, type InteractiveMethods } from './methods/interactive';
 import { messagingMethods, type MessagingMethods } from './methods/messaging';
 import { mediaMethods, type MediaMethods } from './methods/media';
+import { statusMethods, type StatusMethods } from './methods/status';
 import { groupMethods, type GroupMethods } from './methods/groups';
 import { chatMethods, type ChatMethods } from './methods/chats';
 import { contactMethods, type ContactMethods } from './methods/contacts';
@@ -91,7 +92,7 @@ export type EvaluateFn = <Arg, Ret>(
  * client.onMessage(msg => console.log(msg));
  * ```
  */
-export class Client implements InteractiveMethods, MessagingMethods, MediaMethods, GroupMethods, ChatMethods, ContactMethods, UtilitiesMethods {
+export class Client implements InteractiveMethods, MessagingMethods, MediaMethods, StatusMethods, GroupMethods, ChatMethods, ContactMethods, UtilitiesMethods {
   private readonly _client: OpenWAClient;
   private readonly _transport: Transport;
   private readonly _listenerManager: ListenerManager;
@@ -115,6 +116,7 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
     this._bindMethods(messagingMethods, this);
     this._bindMethods(interactiveMethods, this);
     this._bindMethods(mediaMethods, this);
+    this._bindMethods(statusMethods, this);
     this._bindMethods(groupMethods, this);
     this._bindMethods(chatMethods, this);
     this._bindMethods(contactMethods, this);
@@ -518,8 +520,14 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   declare sendAlbum: MessagingMethods['sendAlbum'];
   declare sendImage: MessagingMethods['sendImage'];
   declare sendFile: MessagingMethods['sendFile'];
+  declare sendAudio: MessagingMethods['sendAudio'];
+  declare sendPtt: MessagingMethods['sendPtt'];
+  declare sendVideoAsGif: MessagingMethods['sendVideoAsGif'];
+  declare sendPoll: MessagingMethods['sendPoll'];
   declare sendLocation: MessagingMethods['sendLocation'];
   declare sendContact: MessagingMethods['sendContact'];
+  declare sendMultipleContacts: MessagingMethods['sendMultipleContacts'];
+  declare sendVCard: MessagingMethods['sendVCard'];
   declare sendSticker: MessagingMethods['sendSticker'];
   declare reply: MessagingMethods['reply'];
   declare forwardMessages: MessagingMethods['forwardMessages'];
@@ -532,6 +540,9 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   declare sendFileFromUrl: MediaMethods['sendFileFromUrl'];
   declare decryptMedia: MediaMethods['decryptMedia'];
   declare downloadMedia: MediaMethods['downloadMedia'];
+  declare postTextStatus: StatusMethods['postTextStatus'];
+  declare postImageStatus: StatusMethods['postImageStatus'];
+  declare postVideoStatus: StatusMethods['postVideoStatus'];
   
   // Group methods
   declare createGroup: GroupMethods['createGroup'];

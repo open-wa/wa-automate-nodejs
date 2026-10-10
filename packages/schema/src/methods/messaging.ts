@@ -188,7 +188,7 @@ export const sendImage = defineMethodV2('sendImage', {
  */
 export const sendFile = defineMethodV2('sendFile', {
     meta: {
-        description: 'Sends a file or document to a chat',
+        description: 'Sends an image, video, audio file or document using its native media type',
         action: 'send',
         namespace: 'messages',
         license: 'none',
@@ -202,7 +202,7 @@ export const sendFile = defineMethodV2('sendFile', {
         caption: captionParam
     }),
     parameterOrder: ['to', 'file', 'filename', 'caption'],
-    output: MessageIdReturnSchema.or(z.string())
+    output: MessageIdReturnSchema.or(z.boolean())
 });
 
 /**
@@ -317,7 +317,7 @@ export const sendVCard = defineMethodV2('sendVCard', {
         contactNumber: z.string().optional().describe('Contact number with country code')
     }),
     parameterOrder: ['to', 'vcard', 'contactName', 'contactNumber'],
-    output: z.boolean()
+    output: MessageIdReturnSchema.or(z.boolean())
 });
 
 /**
@@ -337,7 +337,7 @@ export const sendContact = defineMethodV2('sendContact', {
         contactId: contactIdParam.or(z.array(contactIdParam))
     }),
     parameterOrder: ['to', 'contactId'],
-    output: MessageIdReturnSchema.or(z.boolean()).or(z.void())
+    output: MessageIdReturnSchema.or(z.boolean()).or(z.array(MessageIdReturnSchema.or(z.boolean())))
 });
 
 /**
@@ -358,7 +358,7 @@ export const sendMultipleContacts = defineMethodV2('sendMultipleContacts', {
     },
     input: z.object({
         to: toParam,
-        contactIds: z.array(contactIdParam)
+        contactIds: z.array(contactIdParam).min(1)
     }),
     parameterOrder: ['to', 'contactIds'],
     output: MessageIdReturnSchema.or(z.boolean())
@@ -453,7 +453,10 @@ export const sendPoll = defineMethodV2('sendPoll', {
         to: toParam,
         name: z.string().describe('Poll question'),
         options: z.array(z.string()).min(2).max(12).describe('Poll options (2-12)'),
-        selectableCount: z.number().optional().default(1).describe('Number of selectable options')
+        selectableCount: z.number().int().min(0).optional().default(1).describe('Selection limit; zero allows all options')
+    }).refine(input => input.selectableCount <= input.options.length, {
+        path: ['selectableCount'],
+        message: 'Selection limit cannot exceed the number of poll options',
     }),
     parameterOrder: ['to', 'name', 'options', 'selectableCount'],
     output: MessageIdReturnSchema.or(z.boolean())

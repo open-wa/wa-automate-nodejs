@@ -11,22 +11,18 @@ import type {
   AlbumMedia,
   AlbumSendResult,
 } from '@open-wa/schema';
-import { createUnsupportedMethodStub } from '../runtimeSurface';
-import { SendTextResultSchema, AlbumSendResultSchema, sendAlbum as sendAlbumSchema } from '@open-wa/schema';
+import { SendTextResultSchema, AlbumSendResultSchema, sendAlbum as sendAlbumSchema, sendPoll as sendPollSchema } from '@open-wa/schema';
 import { SendTextError } from '../SendTextError';
+import { invokePatch } from '../patchRuntime';
+import { sendMedia, mediaSendResult, type MediaInput, type MediaSendResult } from '../mediaInput';
 
 declare const WAPI: {
   sendMessage: (to: string, content: string) => Promise<unknown>;
-  sendImage: (base64: string, to: string, filename: string, caption: string, quotedMsgId?: string, waitForId?: boolean, ptt?: boolean, withoutPreview?: boolean, hideTags?: boolean, viewOnce?: boolean) => Promise<string | boolean>;
-  sendFile: (base64: string, to: string, filename: string, caption: string) => Promise<string>;
   sendLocation: (to: string, lat: number, lng: number, loc: string, address?: string, url?: string) => Promise<string | false>;
-  sendContact: (to: string, contact: string | string[]) => void;
   sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => Promise<string | boolean>;
   reply: (to: string, content: string, quotedMsg: string | Message) => Promise<string | boolean>;
   forwardMessages: (to: string, messages: string | (string | Message)[], skipMyMessages: boolean) => Promise<MessageIdReturn[] | boolean>;
   smartDeleteMessages: (chatId: string, messageId: string[] | string, onlyLocal: boolean) => Promise<any>;
-  editMessage: (messageId: string, text: string) => Promise<any>;
-  react: (messageId: string, emoji: string) => Promise<boolean>;
   sendSeen: (chatId: string) => Promise<boolean>;
   getMessageById: (messageId: string) => Message | false | null;
   getAlbumMessages: (messageId: string) => Promise<Message[] | false>;
@@ -41,10 +37,20 @@ export interface MessagingMethods {
   sendText(to: ChatId | string, content: string): Promise<MessageId>;
   /** Resolves phone-number IDs to LIDs and submits native album media in order. */
   sendAlbum(to: ChatId, media: AlbumMedia[], caption?: string, quotedMsgId?: MessageId): Promise<AlbumSendResult>;
-  sendImage(to: ChatId, file: DataURL | Base64, filename: string, caption?: string, quotedMsgId?: MessageId): Promise<MessageId | false>;
-  sendFile(to: ChatId, file: DataURL | Base64, filename: string, caption?: string): Promise<MessageId>;
+  sendImage(to: ChatId, file: MediaInput, filename: string, caption?: string, quotedMsgId?: MessageId): Promise<MediaSendResult>;
+  /** Sends media in its native presentation: image, video, audio or document. */
+  sendFile(to: ChatId, file: MediaInput, filename: string, caption?: string): Promise<MediaSendResult>;
+  sendAudio(to: ChatId, file: MediaInput, filename: string, quotedMsgId?: MessageId): Promise<MediaSendResult>;
+  /** Marks prepared audio as a voice note; it does not transcode the input. */
+  sendPtt(to: ChatId, file: MediaInput, quotedMsgId?: MessageId): Promise<MediaSendResult>;
+  /** Sends video with WhatsApp's looping GIF flag. */
+  sendVideoAsGif(to: ChatId, file: MediaInput, filename: string, caption?: string, quotedMsgId?: MessageId): Promise<MediaSendResult>;
+  /** Zero allows all options; otherwise the count is the selection limit. */
+  sendPoll(to: ChatId, name: string, options: string[], selectableCount?: number): Promise<MessageId | boolean>;
   sendLocation(to: ChatId, lat: number, lng: number, locationText: string, address?: string): Promise<MessageId | false>;
-  sendContact(to: ChatId, contact: ContactId | ContactId[]): Promise<void>;
+  sendContact(to: ChatId, contact: ContactId | ContactId[]): Promise<MessageId | boolean | (MessageId | boolean)[]>;
+  sendMultipleContacts(to: ChatId, contactIds: ContactId[]): Promise<MessageId | boolean>;
+  sendVCard(to: ChatId, vcard: string, contactName?: string, contactNumber?: string): Promise<MessageId | boolean>;
   sendSticker(to: ChatId, stickerData: DataURL | Base64, metadata?: { author?: string; pack?: string }): Promise<MessageId | boolean>;
   reply(to: ChatId, content: string, quotedMsgId: MessageId): Promise<MessageId | boolean>;
   forwardMessages(to: ChatId, messages: MessageId | MessageId[], skipMyMessages?: boolean): Promise<MessageIdReturn[] | boolean>;
@@ -59,9 +65,6 @@ export interface MessagingMethods {
 
 export function messagingMethods(client: Client): MessagingMethods {
   const evaluate = client.evaluate.bind(client);
-  const unsupportedSendFile = createUnsupportedMethodStub<MessagingMethods['sendFile']>('sendFile');
-  const unsupportedEditMessage = createUnsupportedMethodStub<MessagingMethods['editMessage']>('editMessage');
-  const unsupportedReact = createUnsupportedMethodStub<MessagingMethods['react']>('react');
   
   return {
     async sendAlbum(to: ChatId, media: AlbumMedia[], caption = '', quotedMsgId?: MessageId): Promise<AlbumSendResult> {
@@ -125,29 +128,38 @@ export function messagingMethods(client: Client): MessagingMethods {
     
     async sendImage(
       to: ChatId,
-      file: DataURL | Base64,
+      file: MediaInput,
       filename: string,
       caption = '',
       quotedMsgId?: MessageId
-    ): Promise<MessageId | false> {
-      return evaluate(
-        ({ to, file, filename, caption, quotedMsgId }) => 
-          WAPI.sendImage(file, to, filename, caption, quotedMsgId, true),
-        { to, file, filename, caption, quotedMsgId }
-      ) as Promise<MessageId | false>;
+    ): Promise<MediaSendResult> {
+      return sendMedia(client, to, file, filename, { caption, quotedMsgId });
     },
     
     async sendFile(
       to: ChatId,
-      file: DataURL | Base64,
+      file: MediaInput,
       filename: string,
       caption = ''
-    ): Promise<MessageId> {
-      void to;
-      void file;
-      void filename;
-      void caption;
-      return unsupportedSendFile(to, file, filename, caption);
+    ): Promise<MediaSendResult> {
+      return sendMedia(client, to, file, filename, { caption });
+    },
+
+    async sendAudio(to, file, filename, quotedMsgId) {
+      return sendMedia(client, to, file, filename, { quotedMsgId, audio: true });
+    },
+
+    async sendPtt(to, file, quotedMsgId) {
+      return sendMedia(client, to, file, undefined, { quotedMsgId, audio: true, ptt: true });
+    },
+
+    async sendVideoAsGif(to, file, filename, caption = '', quotedMsgId) {
+      return sendMedia(client, to, file, filename, { caption, quotedMsgId, isGif: true });
+    },
+
+    async sendPoll(to, name, options, selectableCount = 1) {
+      const params = sendPollSchema.openWAInput.parse({ to, name, options, selectableCount });
+      return mediaSendResult(await invokePatch(client, 'sendPoll', [params.to, params.name, params.options, undefined, params.selectableCount]));
     },
     
     async sendLocation(
@@ -164,11 +176,18 @@ export function messagingMethods(client: Client): MessagingMethods {
       ) as Promise<MessageId | false>;
     },
     
-    async sendContact(to: ChatId, contact: ContactId | ContactId[]): Promise<void> {
-      return evaluate(
-        ({ to, contact }) => WAPI.sendContact(to, contact),
-        { to, contact }
-      );
+    async sendContact(to, contact) {
+      return invokePatch<MessageId | boolean | (MessageId | boolean)[]>(client, 'sendContact', [to, contact]);
+    },
+
+    async sendMultipleContacts(to, contactIds) {
+      if (contactIds.length === 0) throw new Error('sendMultipleContacts requires at least one contact.');
+      return mediaSendResult(await invokePatch(client, 'sendContact', [to, contactIds, true]));
+    },
+
+    async sendVCard(to, vcard, contactName, contactNumber) {
+      const name = contactName || /^FN(?:;[^:]*)?:(.*)$/im.exec(vcard)?.[1]?.trim() || contactNumber || 'Contact';
+      return mediaSendResult(await invokePatch(client, 'sendVCard', [to, vcard, name, contactNumber]));
     },
     
     async sendSticker(
@@ -215,11 +234,11 @@ export function messagingMethods(client: Client): MessagingMethods {
     },
     
     async editMessage(messageId: MessageId, newContent: string): Promise<boolean> {
-      return unsupportedEditMessage(messageId, newContent);
+      return invokePatch<boolean>(client, 'editMessage', [messageId, newContent]);
     },
     
     async react(messageId: MessageId, emoji: string): Promise<boolean> {
-      return unsupportedReact(messageId, emoji);
+      return invokePatch<boolean>(client, 'react', [messageId, emoji]);
     },
     
     async sendSeen(chatId: ChatId): Promise<boolean> {
