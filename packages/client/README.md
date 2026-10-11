@@ -50,12 +50,14 @@ For an `unknown` outcome, check the chat before deciding whether to send again. 
 Media methods accept a data URL, base64 string, URL, local path or `Buffer`. `sendFile` uses the detected media type, so a video appears as a video and an audio file appears as audio. It does not force every file into a document attachment.
 
 ```typescript
-await client.sendFile(chatId, './clip.mp4', 'clip.mp4', 'Watch this');
+await client.sendFile(chatId, './clip.mp4', 'clip.mp4', { caption: 'Watch this' });
 await client.sendAudio(chatId, './sound.mp3', 'sound.mp3');
-await client.sendPtt(chatId, './voice.ogg');
+await client.sendPtt(chatId, './voice.ogg', { viewOnce: true });
+await client.sendFile(chatId, './note.mp4', 'note.mp4', { type: 'video', videoNote: true });
 await client.sendVideoAsGif(chatId, './loop.mp4', 'loop.mp4');
-await client.sendFileFromUrl(chatId, downloadUrl, 'clip.mp4', '', { Authorization: token });
-await client.sendPoll(chatId, 'Which day?', ['Friday', 'Saturday', 'Sunday'], 2);
+await client.sendFileFromUrl(chatId, downloadUrl, 'clip.mp4', {}, { Authorization: token });
+await client.sendPoll(chatId, 'Which day?', ['Friday', 'Saturday', 'Sunday'], { selectableCount: 2 });
+await client.pinMessage(messageId, 'SevenDays');
 await client.react(messageId, '👍');
 await client.editMessage(messageId, 'Updated text');
 ```
@@ -73,3 +75,5 @@ See the [custom code guide](https://openwa.dev/docs/getting-started/custom-code)
 ## License
 
 [H-DNH 1.1](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md) — Hippocratic + Do Not Harm
+
+Media settings use the shared `MediaSendOptions` contract. Set `type: 'video'` for `isGif` or `videoNote`, `type: 'audio'` for `ptt`, or `type: 'document'` to force a document attachment. Circular notes require prepared square MP4 video of at most 60 seconds. See the media guide for allowed combinations. Polls expose `voteOnPoll`, `getPollResults` and `onPollVote`; optional `endTime` uses Unix milliseconds and `hideVoterNames` requires native sending-account support.

@@ -224,17 +224,17 @@ Expected behavior: The bot receives and decrypts a voice note. The speech helper
 
 ### Sending Generated Media
 
-Pattern snippet: `sendImage` on the embedded client uses `sendImage(to, dataUrlOrBase64, filename, caption?)`. The filename is necessary before the optional caption.
+Pattern snippet: `sendImage` on the embedded client uses `sendImage(to, media, filename?, options?)`. Put captions and quote IDs in the options object.
 
 ```ts
 const imageDataUrl = 'data:image/png;base64,...';
 const imageFilename = 'ai-generated.png';
 const imageCaption = 'Generated image';
 
-await client.sendImage(message.from, imageDataUrl, imageFilename, imageCaption);
+await client.sendImage(message.from, imageDataUrl, imageFilename, { caption: imageCaption });
 ```
 
-Expected behavior: the image is sent to the incoming chat with `ai-generated.png` as the attachment filename and `Generated image` as the caption. `sendPtt` is a generated Easy API method; check that method's runtime support before adding voice-note output to an embedded client.
+Expected behavior: the image is sent to the incoming chat with `ai-generated.png` as the attachment filename and `Generated image` as the caption. Use `sendPtt` on the embedded Client for voice-note output, supplying prepared audio such as Ogg Opus.
 
 ## Group Chats vs Direct Messages
 

@@ -78,7 +78,7 @@ const messageId = await client.sendText('1234567890@c.us', 'Hello!');
 
 **Returns:** `Promise<string>`, The message ID.
 
-### `sendImage(to, url, filename, caption?)`
+### `sendImage(to, url, filename?, options?)`
 
 Send an image from a URL.
 
@@ -87,11 +87,11 @@ const messageId = await client.sendImage(
   '1234567890@c.us',
   'https://example.com/image.jpg',
   'image.jpg',
-  'Check this out!'
+  { caption: 'Check this out!' }
 );
 ```
 
-### `sendFile(to, base64, filename, caption?)`
+### `sendFile(to, base64, filename?, options?)`
 
 Send a file from base64 data.
 
@@ -100,7 +100,7 @@ const messageId = await client.sendFile(
   '1234567890@c.us',
   'data:application/pdf;base64,JVBERi0...',
   'document.pdf',
-  'Here is the document'
+  { type: 'document', caption: 'Here is the document' }
 );
 ```
 

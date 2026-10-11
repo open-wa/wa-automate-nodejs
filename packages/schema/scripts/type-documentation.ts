@@ -2,11 +2,15 @@ import { z } from 'zod';
 import * as common from '../src/common-types';
 import * as returns from '../src/return-types';
 import * as interactive from '../src/interactive';
+import * as mediaOptions from '../src/media-options';
+import * as polls from '../src/polls';
+import * as eventProjections from '../src/whatsapp-event-registry';
 import { SendTextResultSchema, AlbumMediaSchema, AlbumSendResultSchema } from '../src/methods/messaging';
 
 export const namedSchemas = Object.fromEntries(
-  [...Object.entries(common), ...Object.entries(returns), ...Object.entries(interactive),
-    ...Object.entries({ AlbumMediaSchema, AlbumSendResultSchema })]
+  [...Object.entries(common), ...Object.entries(returns), ...Object.entries(interactive), ...Object.entries(mediaOptions), ...Object.entries(polls),
+    ...Object.entries({ AlbumMediaSchema, AlbumSendResultSchema }),
+    ...Object.entries(eventProjections).map(([name, schema]) => [name.replace('RegistrySchema', 'Schema'), schema])]
     .filter(([name, value]) => name.endsWith('Schema') && value instanceof z.ZodType)
     .map(([name, value]) => [name.replace(/Schema$/, ''), value as z.ZodType]),
 );

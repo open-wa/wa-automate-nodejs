@@ -41,6 +41,7 @@ client.onMessage((message) => {
 | `id` | The message ID. Pass this to `reply`, `forwardMessages`, or lookup methods. |
 | `body` | Text content for text messages. For media messages, this can be empty. |
 | `type` | WhatsApp message type, such as `chat`, `image`, `video`, `album`, `document`, `ptt`, `location`, `buttons_response`, or `list_response`. |
+| `event` | Structured event details for an `event_creation` message. See [WhatsApp events and RSVPs](/docs/guides/whatsapp-events). |
 | `from` | The chat that sent the message. In direct chats this is the contact ID. In groups this is the group chat ID. |
 | `to` | The chat or account that received the message. |
 | `chatId` | The chat ID for the conversation. |
@@ -139,18 +140,18 @@ await client.sendImage(
   chatId,
   imageDataUrl,
   'receipt.png',
-  'Receipt attached'
+  { caption: 'Receipt attached' }
 );
 ```
 
-Put a real `receipt.png` in the process working directory before running this
-example. The embedded `sendImage` method accepts base64 data or a data URL; the
-snippet encodes the actual file instead of a placeholder payload. Use
-`sendText` for plain conversation updates. The current embedded surface marks
-`sendFile` unsupported and does not declare `sendAudio`, `sendPtt`, or
-`sendVideoAsGif`; those names belong to the generated Easy API schema, so check
-their method references and runtime support before using them. Captions belong
-to the attachment message, not a separate text message.
+Media methods accept a local path, URL, data URL, base64 string or `Buffer`.
+`sendFile` and `sendImage` both use the native attachment pipeline and detect
+image, video, audio or document presentation. Captions, quote IDs and typed
+presentation settings go in their options object. The embedded Client also
+provides `sendAudio`, `sendPtt` and `sendVideoAsGif`.
+
+See [Media](/docs/guides/media) for view-once images/videos/voice notes,
+circular video notes, document presentation and the allowed combinations.
 
 ## Albums
 
@@ -280,15 +281,15 @@ await client.sendPoll(
   chatId,
   'Which day works best?',
   ['Monday', 'Tuesday', 'Wednesday'],
-  1
+  { selectableCount: 1 }
 );
 ```
 
 Legacy button and list replies arrive as message events with types such as
 `buttons_response` or `list_response`. Interactive-message response events
-use the structured shapes described in the linked guide. Poll updates arrive
-through WhatsApp message events when supported by the session. Handle
-unsupported or rejected sends explicitly.
+use the structured shapes described in the linked guide. Use `onPollVote` for decrypted vote updates and `getPollResults` for synced
+totals. See [Polls and message pins](/docs/guides/polls-and-pins) for closing
+times, hidden voter names, voting and message pinning.
 
 ## Forward messages
 

@@ -6,7 +6,7 @@ icon: "BookOpen"
 
 # Contacts Client API
 
-This page documents 10 schema-registry client methods in the `contacts` namespace.
+This page documents 12 schema-registry client methods in the `contacts` namespace.
 
 
 ## `blockContact`
@@ -819,6 +819,190 @@ In-process Client resolves to `Promise<string \| null>`. The contract above is f
 | Deprecated alias | `GET` | `/api/contacts/getProfilePicFromServer` | `contacts.getProfilePicFromServer` | **Deprecated** |
 | Deprecated alias | `GET` | `/api/getProfilePicFromServer` | `getProfilePicFromServer` | **Deprecated** |
 | Alias | `GET` | `/api/getProfilePicture` | `getProfilePicture` | Active |
+
+</details>
+
+
+## `requestPhoneNumber`
+
+Ask a direct LID chat to voluntarily share their phone number. A submitted request does not confirm sharing.
+
+**Signature** `client.requestPhoneNumber(to: string): Promise<string>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.requestPhoneNumber("447123456789@c.us");
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.requestPhoneNumber({
+  to: "447123456789@c.us",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/contacts/requestPhoneNumber" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us"
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="RequestPhoneNumberParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<string>` |
+
+Message ID
+
+In-process Client resolves to `Promise<MessageId>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+Message ID
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `contacts` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to` |
+| Aliases | `contacts.requestPhoneNumber` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/contacts/requestPhoneNumber` | `requestPhoneNumber` | Active |
+| Alias | `POST` | `/api/requestPhoneNumber` | `requestPhoneNumber` | Active |
+
+</details>
+
+
+## `sharePhoneNumber`
+
+Share the signed-in account’s own phone number with a direct LID chat using WhatsApp’s native protocol. No arbitrary phone number is accepted.
+
+**Signature** `client.sharePhoneNumber(to: string): Promise<string>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.sharePhoneNumber("447123456789@c.us");
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.sharePhoneNumber({
+  to: "447123456789@c.us",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/contacts/sharePhoneNumber" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us"
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="SharePhoneNumberParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<string>` |
+
+Message ID
+
+In-process Client resolves to `Promise<MessageId>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+Message ID
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `contacts` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to` |
+| Aliases | `contacts.sharePhoneNumber` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/contacts/sharePhoneNumber` | `sharePhoneNumber` | Active |
+| Alias | `POST` | `/api/sharePhoneNumber` | `sharePhoneNumber` | Active |
 
 </details>
 

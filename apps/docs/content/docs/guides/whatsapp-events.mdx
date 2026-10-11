@@ -1,0 +1,135 @@
+---
+title: WhatsApp events and RSVPs
+description: Create events, update their details, read invitations and observe RSVPs.
+---
+
+# WhatsApp events and RSVPs
+
+Use a ready client to send native WhatsApp event cards and handle attendance responses. Events use the common live patch and don't require a licence. The SDK exposes seven methods and two listeners.
+
+## Create and update an event
+
+```ts
+const chatId = '447700900123@c.us';
+const startTime = Math.floor(Date.now() / 1000) + 3600;
+
+const eventId = await client.sendEvent(chatId, {
+  name: 'Community meetup',
+  startTime,
+  endTime: startTime + 3600,
+  description: 'Join us for a chat',
+  location: 'London',
+  extraGuestsAllowed: true,
+});
+
+await client.editEvent(eventId, {
+  description: 'Updated meetup details',
+  endTime: null,
+});
+
+const event = await client.getEvent(eventId);
+console.log(event?.name, event?.isCanceled);
+
+// If the meetup is canceled:
+await client.cancelEvent(eventId);
+```
+
+Only the creator can edit or cancel an event. Omitted update fields keep their existing values; `endTime: null` removes the end time, and an empty description or location clears that field. A canceled event remains in history. Existing call links retain their call type when edited.
+
+## Schedule a call
+
+```ts
+const callEventId = await client.sendEvent(chatId, {
+  name: 'Planning call',
+  startTime,
+  endTime: startTime + 1800,
+  callType: 'video', // or 'voice'
+  isScheduledCall: true,
+});
+console.log((await client.getEvent(callEventId))?.joinLink);
+```
+
+WhatsApp's current Web scheduled-call flow creates an event with a native call link and the scheduled-call flag. `callType` generates that link; `isScheduledCall` requires a call type. `requireApproval` can be passed to native link creation. If link creation fails, the API rejects before sending the event. A call link does not start a call. Receiving an event card or RSVP does not confirm that the receiving client exposes a Join control.
+
+`sendEvent` returns the submitted message ID. `editEvent`, `cancelEvent` and `respondToEvent` return `true` after WhatsApp's native send action completes. These results aren't recipient delivery receipts: use `onAck` for delivery and read status. The SDK doesn't retry mutations automatically. If a browser connection drops during a send, inspect the chat and current event before retrying.
+
+## Read invitations and attendance
+
+```ts
+const firstPage = await client.getEvents(chatId, { limit: 20 });
+const nextPage = firstPage.nextCursor
+  ? await client.getEvents(chatId, { limit: 20, before: firstPage.nextCursor })
+  : null;
+
+const invitation = firstPage.events.find(event => !event.fromMe && !event.isCanceled);
+if (invitation) {
+  // Make this choice in your application or ask the user first.
+  await client.respondToEvent(invitation.id, 'going');
+  const attendance = await client.getEventResponses(invitation.id);
+  console.log(attendance);
+}
+```
+
+Outgoing RSVP choices are `going`, `notGoing` and `maybe`. Reads can also return `unknown` when WhatsApp supplies an unfamiliar value. `getEventResponses` returns the latest explicit RSVP per participant, including decrypted responses hydrated from local history. The creator's implicit attendance isn't added as an invented response.
+
+History is the linked Web device's locally synced history, newest first. Page limits are 1–100, and cursors must belong to the same chat. `getEvent` returns `null` for an event absent from available history; event mutations reject when their target can't be found.
+
+## Listen for event changes and RSVPs
+
+```ts
+const eventListener = client.onEvent(event => {
+  console.log(event.id, event.name, event.isCanceled);
+});
+
+const attendanceListener = client.onEventResponse(response => {
+  console.log(response.eventId, response.senderId, response.response);
+});
+
+// When the application no longer needs these subscriptions:
+eventListener.off();
+attendanceListener.off();
+```
+
+`onEvent` reports native event additions and changes, including this account's sends. `onEventResponse` observes WhatsApp's decrypted RSVP collection. Loading history may emit callbacks, so keep response IDs and timestamps if processing attendance changes must be idempotent. Runtime reinjection disposes browser listeners before binding the new generation.
+
+Structured message snapshots also expose the event under `message.event`. The per-client event stream uses `event.changed` with `{ event, ctx }` and `event.response` with `{ response, ctx }`; the shared emitter uses the aliases `onEvent` and `onEventResponse` with its usual session namespace.
+
+## Times, schemas and persistence
+
+Event start/end times and event creation timestamps are **Unix seconds**. RSVP timestamps are **milliseconds**. Event creation needs a nonblank name and a future start time; an end time must be at or after the start time.
+
+Effect schemas are exported from `@open-wa/schema` and `@open-wa/client`: `EventInputSchema`, `EventUpdateSchema`, `WhatsAppEventSchema`, `EventResponseSchema`, `EventResponseTypeSchema`, `EventListOptionsSchema` and `EventPageSchema`. The method and listener registries derive their serving schemas from these contracts.
+
+```ts
+import {
+  serializeWhatsAppEvent,
+  deserializeWhatsAppEvent,
+  serializeEventResponse,
+  deserializeEventResponse,
+} from '@open-wa/client';
+
+const snapshot = await client.getEvent(eventId);
+if (!snapshot) throw new Error('Event not found in synced history');
+const savedEvent = serializeWhatsAppEvent(snapshot);
+const restoredEvent = deserializeWhatsAppEvent(savedEvent);
+
+const responses = await client.getEventResponses(eventId);
+const savedResponses = responses.map(serializeEventResponse);
+const restoredResponses = savedResponses.map(deserializeEventResponse);
+```
+
+These JSON serializers validate the event contracts and exclude message secrets, encryption keys and encrypted RSVP bytes.
+
+## API methods
+
+| Method | Result | Purpose |
+| --- | --- | --- |
+| `sendEvent(to, event)` | `MessageId` | Create a native event card. |
+| `getEvent(eventId)` | `WhatsAppEvent \| null` | Read one event. |
+| `getEvents(chatId, options?)` | `EventPage` | Page through synced event history. |
+| `getEventResponses(eventId)` | `EventResponse[]` | Read the latest explicit RSVP per participant. |
+| `editEvent(eventId, changes)` | `boolean` | Update an event created by this account. |
+| `cancelEvent(eventId)` | `boolean` | Cancel an event created by this account. |
+| `respondToEvent(eventId, response)` | `boolean` | Submit or change this account's RSVP. |
+
+The [generated method reference](/docs/reference/client/whatsapp-events) includes Easy API routes under `/api/events`, SocketClient examples, parameters and return models. The [listener reference](/docs/reference/client/events) lists `onEvent` and `onEventResponse`.
