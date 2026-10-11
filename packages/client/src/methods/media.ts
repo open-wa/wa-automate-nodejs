@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { decryptMedia as decryptMediaBuffer } from '@open-wa/decrypt';
 import type { Client } from '../Client';
-import type { ChatId, DataURL, Message, MessageId } from '@open-wa/schema';
+import type { ChatId, DataURL, Message, MessageId, MediaSendOptions } from '@open-wa/schema';
 
 type DownloadHeaders = Record<string, string>;
 
@@ -11,8 +11,8 @@ export interface MediaMethods {
   sendFileFromUrl(
     to: ChatId,
     url: string,
-    filename: string,
-    caption?: string,
+    filename?: string,
+    options?: MediaSendOptions,
     headers?: DownloadHeaders
   ): Promise<MessageId | boolean>;
 }
@@ -60,14 +60,14 @@ export function mediaMethods(client: Client): MediaMethods {
     async sendFileFromUrl(
       to: ChatId,
       url: string,
-      filename: string,
-      caption = '',
+      filename?: string,
+      options: MediaSendOptions = {},
       headers?: DownloadHeaders
     ): Promise<MessageId | boolean> {
       const response = await axios.get<ArrayBuffer>(url, { headers, responseType: 'arraybuffer' });
       const mime = response.headers['content-type'] || 'application/octet-stream';
       const dataUrl = `data:${mime};base64,${Buffer.from(response.data).toString('base64')}`;
-      return client.sendFile(to, dataUrl, filename, caption);
+      return client.sendFile(to, dataUrl, filename, options);
     },
   };
 }

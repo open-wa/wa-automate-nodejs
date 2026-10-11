@@ -1,5 +1,5 @@
-import { fileToDataUrlCodec } from '@open-wa/schema';
-import type { ChatId, MessageId } from '@open-wa/schema';
+import { fileToDataUrlCodec, MediaSendOptionsSchema } from '@open-wa/schema';
+import type { ChatId, MessageId, MediaSendOptions } from '@open-wa/schema';
 import type { Client } from './Client';
 
 /** A data URL, base64 string, URL, local path or Buffer. */
@@ -60,26 +60,43 @@ export function mediaSendResult(result: unknown): MediaSendResult {
 
 export async function sendMedia(
   client: Client, to: ChatId, input: MediaInput, filename?: string,
-  options: { caption?: string; quotedMsgId?: MessageId; audio?: boolean; ptt?: boolean; isGif?: boolean } = {},
+  options: MediaSendOptions = {},
 ): Promise<MediaSendResult> {
+  options = MediaSendOptionsSchema.parse(options);
   const resolved = await resolveMediaInput(input, filename);
   // MP4 and WebM signatures identify containers, which can also contain audio only.
-  if (options.audio) {
+  if (options.type === 'audio') {
     if (resolved.mime === 'video/mp4' || resolved.mime === 'video/webm') {
       resolved.mime = resolved.mime.replace('video/', 'audio/');
       resolved.dataUrl = resolved.dataUrl.replace(/^data:[^;,]*/, `data:${resolved.mime}`);
     }
     if (!resolved.mime.startsWith('audio/')) throw new Error('Audio sending requires audio media.');
   }
-  const result = await client.evaluate(async ({ to, resolved, options }) => {
+  const presentation = options.type && options.type !== 'auto' ? options.type
+    : resolved.mime.startsWith('image/') ? 'image'
+    : resolved.mime.startsWith('video/') ? 'video'
+    : resolved.mime.startsWith('audio/') ? 'audio' : 'document';
+  if ((presentation === 'image' || presentation === 'video') && !resolved.mime.startsWith(`${presentation}/`)) {
+    throw new Error(`The requested ${presentation} presentation requires ${presentation} media.`);
+  }
+  const ptt = options.type === 'audio' && options.ptt === true;
+  const isGif = options.type === 'video' && options.isGif === true;
+  const videoNote = options.type === 'video' && options.videoNote === true;
+  const once = 'viewOnce' in options && options.viewOnce === true;
+  if (once && !['image', 'video'].includes(presentation) && !ptt) throw new Error('View once requires an image, video or voice note.');
+  if ((isGif || videoNote) && resolved.mime !== 'video/mp4') throw new Error('GIFs and video notes require an MP4 video; this API does not transcode media.');
+  const caption = 'caption' in options ? options.caption ?? '' : '';
+  if (presentation === 'audio' && caption) throw new Error('Audio attachments do not support captions.');
+  const flags = { ptt, isGif, videoNote, viewOnce: once, asFile: presentation === 'document', caption, quotedMsgId: options.quotedMsgId };
+  const result = await client.evaluate(async ({ to, resolved, flags }) => {
     const api = (globalThis as unknown as { WAPI?: { sendImage?: (...args: unknown[]) => Promise<unknown> } }).WAPI;
     if (typeof api?.sendImage !== 'function') throw new Error('The current media patch is unavailable in this session.');
     const binary = atob(resolved.dataUrl.slice(resolved.dataUrl.indexOf(',') + 1));
     const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
     // A File preserves MIME information and avoids the patch's octet-stream-to-MP4 coercion.
     const file = new File([bytes], resolved.filename, { type: resolved.mime });
-    return await api.sendImage(file, to, resolved.filename, options.caption ?? '', options.quotedMsgId,
-      true, options.ptt ?? false, false, false, false, false, options.isGif ?? false, false);
-  }, { to, resolved, options });
+    return await api.sendImage(file, to, resolved.filename, flags.caption, flags.quotedMsgId,
+      true, flags.ptt, flags.asFile, false, false, false, flags.isGif, flags.viewOnce, flags.videoNote);
+  }, { to, resolved, flags });
   return mediaSendResult(result);
 }

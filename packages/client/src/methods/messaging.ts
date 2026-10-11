@@ -10,8 +10,9 @@ import type {
   Content,
   AlbumMedia,
   AlbumSendResult,
+  MediaSendOptions, AudioAttachmentOptions, VoiceNoteOptions, GifSendOptions, PollSendOptions, PollResults, PinDuration,
 } from '@open-wa/schema';
-import { SendTextResultSchema, AlbumSendResultSchema, sendAlbum as sendAlbumSchema, sendPoll as sendPollSchema } from '@open-wa/schema';
+import { SendTextResultSchema, AlbumSendResultSchema, sendAlbum as sendAlbumSchema, sendPoll as sendPollSchema, AudioAttachmentOptionsSchema, VoiceNoteOptionsSchema, GifSendOptionsSchema, PollResultsSchema, voteOnPoll as voteOnPollSchema, getPollResults as getPollResultsMethodSchema, pinMessage as pinMessageSchema, unpinMessage as unpinMessageSchema } from '@open-wa/schema';
 import { SendTextError } from '../SendTextError';
 import { invokePatch } from '../patchRuntime';
 import { sendMedia, mediaSendResult, type MediaInput, type MediaSendResult } from '../mediaInput';
@@ -37,16 +38,23 @@ export interface MessagingMethods {
   sendText(to: ChatId | string, content: string): Promise<MessageId>;
   /** Resolves phone-number IDs to LIDs and submits native album media in order. */
   sendAlbum(to: ChatId, media: AlbumMedia[], caption?: string, quotedMsgId?: MessageId): Promise<AlbumSendResult>;
-  sendImage(to: ChatId, file: MediaInput, filename: string, caption?: string, quotedMsgId?: MessageId): Promise<MediaSendResult>;
+  sendImage(to: ChatId, file: MediaInput, filename?: string, options?: MediaSendOptions): Promise<MediaSendResult>;
   /** Sends media in its native presentation: image, video, audio or document. */
-  sendFile(to: ChatId, file: MediaInput, filename: string, caption?: string): Promise<MediaSendResult>;
-  sendAudio(to: ChatId, file: MediaInput, filename: string, quotedMsgId?: MessageId): Promise<MediaSendResult>;
+  sendFile(to: ChatId, file: MediaInput, filename?: string, options?: MediaSendOptions): Promise<MediaSendResult>;
+  sendAudio(to: ChatId, file: MediaInput, filename?: string, options?: AudioAttachmentOptions): Promise<MediaSendResult>;
   /** Marks prepared audio as a voice note; it does not transcode the input. */
-  sendPtt(to: ChatId, file: MediaInput, quotedMsgId?: MessageId): Promise<MediaSendResult>;
+  sendPtt(to: ChatId, file: MediaInput, options?: VoiceNoteOptions): Promise<MediaSendResult>;
   /** Sends video with WhatsApp's looping GIF flag. */
-  sendVideoAsGif(to: ChatId, file: MediaInput, filename: string, caption?: string, quotedMsgId?: MessageId): Promise<MediaSendResult>;
+  sendVideoAsGif(to: ChatId, file: MediaInput, filename?: string, options?: GifSendOptions): Promise<MediaSendResult>;
   /** Zero allows all options; otherwise the count is the selection limit. */
-  sendPoll(to: ChatId, name: string, options: string[], selectableCount?: number): Promise<MessageId | boolean>;
+  sendPoll(to: ChatId, name: string, options: string[], config?: PollSendOptions): Promise<MessageId | boolean>;
+  /** Use option IDs from getPollResults; an empty array removes this account's vote. */
+  voteOnPoll(messageId: MessageId, optionIds: number[]): Promise<boolean>;
+  /** Hydrates the synced poll vote store; it is not a global attendance guarantee. */
+  getPollResults(messageId: MessageId): Promise<PollResults>;
+  /** Pin a message for everyone, subject to native chat permissions. */
+  pinMessage(messageId: MessageId, duration?: PinDuration): Promise<boolean>;
+  unpinMessage(messageId: MessageId): Promise<boolean>;
   sendLocation(to: ChatId, lat: number, lng: number, locationText: string, address?: string): Promise<MessageId | false>;
   sendContact(to: ChatId, contact: ContactId | ContactId[]): Promise<MessageId | boolean | (MessageId | boolean)[]>;
   sendMultipleContacts(to: ChatId, contactIds: ContactId[]): Promise<MessageId | boolean>;
@@ -126,42 +134,51 @@ export function messagingMethods(client: Client): MessagingMethods {
       return parsed.data;
     },
     
-    async sendImage(
-      to: ChatId,
-      file: MediaInput,
-      filename: string,
-      caption = '',
-      quotedMsgId?: MessageId
-    ): Promise<MediaSendResult> {
-      return sendMedia(client, to, file, filename, { caption, quotedMsgId });
-    },
-    
-    async sendFile(
-      to: ChatId,
-      file: MediaInput,
-      filename: string,
-      caption = ''
-    ): Promise<MediaSendResult> {
-      return sendMedia(client, to, file, filename, { caption });
+    async sendImage(to, file, filename, options = {}) {
+      return sendMedia(client, to, file, filename, options);
     },
 
-    async sendAudio(to, file, filename, quotedMsgId) {
-      return sendMedia(client, to, file, filename, { quotedMsgId, audio: true });
+    async sendFile(to, file, filename, options = {}) {
+      return sendMedia(client, to, file, filename, options);
     },
 
-    async sendPtt(to, file, quotedMsgId) {
-      return sendMedia(client, to, file, undefined, { quotedMsgId, audio: true, ptt: true });
+    async sendAudio(to, file, filename, options = {}) {
+      return sendMedia(client, to, file, filename, { type: 'audio', ...AudioAttachmentOptionsSchema.parse(options) });
     },
 
-    async sendVideoAsGif(to, file, filename, caption = '', quotedMsgId) {
-      return sendMedia(client, to, file, filename, { caption, quotedMsgId, isGif: true });
+    async sendPtt(to, file, options = {}) {
+      return sendMedia(client, to, file, undefined, { type: 'audio', ptt: true, ...VoiceNoteOptionsSchema.parse(options) });
     },
 
-    async sendPoll(to, name, options, selectableCount = 1) {
-      const params = sendPollSchema.openWAInput.parse({ to, name, options, selectableCount });
-      return mediaSendResult(await invokePatch(client, 'sendPoll', [params.to, params.name, params.options, undefined, params.selectableCount]));
+    async sendVideoAsGif(to, file, filename, options = {}) {
+      return sendMedia(client, to, file, filename, { type: 'video', isGif: true, ...GifSendOptionsSchema.parse(options) });
     },
-    
+
+    async sendPoll(to, name, options, config = {}) {
+      const params = sendPollSchema.openWAInput.parse({ to, name, options, config });
+      return mediaSendResult(await invokePatch(client, 'sendPoll', [params.to, params.name, params.options, params.config.quotedMsgId, params.config.selectableCount ?? 1, params.config]));
+    },
+
+    async voteOnPoll(messageId, optionIds) {
+      const params = voteOnPollSchema.openWAInput.parse({ messageId, optionIds });
+      return invokePatch<boolean>(client, 'voteOnPoll', [params.messageId, params.optionIds]);
+    },
+
+    async getPollResults(messageId) {
+      const params = getPollResultsMethodSchema.openWAInput.parse({ messageId });
+      return PollResultsSchema.parse(await invokePatch(client, 'getPollResults', [params.messageId]));
+    },
+
+    async pinMessage(messageId, duration = 'SevenDays') {
+      const params = pinMessageSchema.openWAInput.parse({ messageId, duration });
+      return invokePatch<boolean>(client, 'pinMessage', [params.messageId, true, params.duration]);
+    },
+
+    async unpinMessage(messageId) {
+      const params = unpinMessageSchema.openWAInput.parse({ messageId });
+      return invokePatch<boolean>(client, 'pinMessage', [params.messageId, false]);
+    },
+
     async sendLocation(
       to: ChatId,
       lat: number,

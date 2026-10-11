@@ -2,6 +2,8 @@ import { MessageIdReturnSchema, MessageIdSchema, MessageSchema } from '../common
 import { LLMMessageSchema, MessageInfoSchema } from '../return-types';
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
+import { MediaSendOptionsSchema, AudioAttachmentOptionsSchema, VoiceNoteOptionsSchema, GifSendOptionsSchema } from '../media-options';
+import { PollSendOptionsSchema, PollResultsSchema, PinDurationSchema } from '../polls';
 
 import {
     chatIdParam,
@@ -164,31 +166,7 @@ export const sendPaymentRequest = defineMethodV2('sendPaymentRequest', {
  */
 export const sendImage = defineMethodV2('sendImage', {
     meta: {
-        description: 'Sends an image to a chat',
-        action: 'send',
-        namespace: 'messages',
-        license: 'none',
-        functionality: 'both',
-        httpMethod: 'POST',
-    },
-    input: z.object({
-        to: toParam,
-        imgData: imageDataParam,
-        filename: filenameParam,
-        caption: captionParam,
-        id: messageIdParam.optional(),
-        waitForId: waitForIdParam
-    }),
-    parameterOrder: ['to', 'imgData', 'filename', 'caption', 'id', 'waitForId'],
-    output: MessageIdReturnSchema.or(z.boolean()).or(z.string())
-});
-
-/**
- * Sends a file/document
- */
-export const sendFile = defineMethodV2('sendFile', {
-    meta: {
-        description: 'Sends an image, video, audio file or document using its native media type',
+        description: 'Sends media through the native attachment pipeline, including images and videos. Options select presentation, view once, GIF playback or circular video notes; media is not transcoded. Returns submission status, not a delivery receipt.',
         action: 'send',
         namespace: 'messages',
         license: 'none',
@@ -198,10 +176,32 @@ export const sendFile = defineMethodV2('sendFile', {
     input: z.object({
         to: toParam,
         file: fileDataParam,
-        filename: filenameParam,
-        caption: captionParam
+        filename: filenameParam.optional(),
+        options: MediaSendOptionsSchema.optional().default({}),
     }),
-    parameterOrder: ['to', 'file', 'filename', 'caption'],
+    parameterOrder: ['to', 'file', 'filename', 'options'],
+    output: MessageIdReturnSchema.or(z.boolean())
+});
+
+/**
+ * Sends a file/document
+ */
+export const sendFile = defineMethodV2('sendFile', {
+    meta: {
+        description: 'Sends an image, video, audio file or document using MIME detection or an explicit typed presentation. Incompatible options are rejected before sending. Media is not transcoded.',
+        action: 'send',
+        namespace: 'messages',
+        license: 'none',
+        functionality: 'both',
+        httpMethod: 'POST',
+    },
+    input: z.object({
+        to: toParam,
+        file: fileDataParam,
+        filename: filenameParam.optional(),
+        options: MediaSendOptionsSchema.optional().default({}),
+    }),
+    parameterOrder: ['to', 'file', 'filename', 'options'],
     output: MessageIdReturnSchema.or(z.boolean())
 });
 
@@ -210,7 +210,7 @@ export const sendFile = defineMethodV2('sendFile', {
  */
 export const sendAudio = defineMethodV2('sendAudio', {
     meta: {
-        description: 'Sends an audio file to a chat',
+        description: 'Sends an audio attachment with an optional quoted message. Use sendPtt for voice notes and view-once audio.',
         action: 'send',
         namespace: 'messages',
         license: 'none',
@@ -220,10 +220,10 @@ export const sendAudio = defineMethodV2('sendAudio', {
     input: z.object({
         to: toParam,
         file: audioDataParam,
-        filename: filenameParam,
-        quotedMsgId: messageIdParam.optional()
+        filename: filenameParam.optional(),
+        options: AudioAttachmentOptionsSchema.optional().default({}),
     }),
-    parameterOrder: ['to', 'file', 'filename', 'quotedMsgId'],
+    parameterOrder: ['to', 'file', 'filename', 'options'],
     output: MessageIdReturnSchema.or(z.boolean())
 });
 
@@ -232,7 +232,7 @@ export const sendAudio = defineMethodV2('sendAudio', {
  */
 export const sendPtt = defineMethodV2('sendPtt', {
     meta: {
-        description: 'Sends a voice note (push-to-talk) to a chat',
+        description: 'Sends prepared audio as a voice note, optionally view once. It does not transcode the input; use suitable voice-note audio such as Ogg Opus.',
         action: 'send',
         namespace: 'messages',
         license: 'none',
@@ -245,9 +245,9 @@ export const sendPtt = defineMethodV2('sendPtt', {
     input: z.object({
         to: toParam,
         file: audioDataParam,
-        quotedMsgId: messageIdParam.optional()
+        options: VoiceNoteOptionsSchema.optional().default({}),
     }),
-    parameterOrder: ['to', 'file', 'quotedMsgId'],
+    parameterOrder: ['to', 'file', 'options'],
     output: MessageIdReturnSchema.or(z.boolean())
 });
 
@@ -256,7 +256,7 @@ export const sendPtt = defineMethodV2('sendPtt', {
  */
 export const sendVideoAsGif = defineMethodV2('sendVideoAsGif', {
     meta: {
-        description: 'Sends a video as an animated GIF',
+        description: 'Sends MP4 video with WhatsApp GIF playback. GIF is a video presentation flag; this method does not convert a GIF image or transcode video.',
         action: 'send',
         namespace: 'messages',
         license: 'none',
@@ -266,11 +266,10 @@ export const sendVideoAsGif = defineMethodV2('sendVideoAsGif', {
     input: z.object({
         to: toParam,
         file: videoDataParam,
-        filename: filenameParam,
-        caption: captionParam,
-        quotedMsgId: messageIdParam.optional()
+        filename: filenameParam.optional(),
+        options: GifSendOptionsSchema.optional().default({}),
     }),
-    parameterOrder: ['to', 'file', 'filename', 'caption', 'quotedMsgId'],
+    parameterOrder: ['to', 'file', 'filename', 'options'],
     output: MessageIdReturnSchema.or(z.boolean())
 });
 
@@ -442,24 +441,40 @@ export const sendListMessage = defineMethodV2('sendListMessage', {
  */
 export const sendPoll = defineMethodV2('sendPoll', {
     meta: {
-        description: 'Sends a poll message',
-        action: 'send',
-        namespace: 'messages',
-        license: 'none',
-        functionality: 'both',
-        httpMethod: 'POST',
+        description: 'Sends a text poll with a selection limit, quote, optional closing time in Unix milliseconds and hidden voter names. Closing time and hidden names require native WhatsApp support for the sending account/chat. These fields select the native V6 poll payload.',
+        action: 'send', namespace: 'messages', license: 'none', functionality: 'both', httpMethod: 'POST',
     },
     input: z.object({
         to: toParam,
-        name: z.string().describe('Poll question'),
-        options: z.array(z.string()).min(2).max(12).describe('Poll options (2-12)'),
-        selectableCount: z.number().int().min(0).optional().default(1).describe('Selection limit; zero allows all options')
-    }).refine(input => input.selectableCount <= input.options.length, {
-        path: ['selectableCount'],
-        message: 'Selection limit cannot exceed the number of poll options',
+        name: z.string().trim().min(1).max(500).describe('Poll question'),
+        options: z.array(z.string().trim().min(1).max(255)).min(2).max(20).describe('Poll choices; the account may have a lower native limit'),
+        config: PollSendOptionsSchema.optional().default({}),
+    }).refine(input => (input.config.selectableCount ?? 1) <= input.options.length, {
+        path: ['config', 'selectableCount'], message: 'Selection limit cannot exceed the number of poll options',
+    }).refine(input => new Set(input.options).size === input.options.length, {
+        path: ['options'], message: 'Poll choices must be unique',
     }),
-    parameterOrder: ['to', 'name', 'options', 'selectableCount'],
-    output: MessageIdReturnSchema.or(z.boolean())
+    parameterOrder: ['to', 'name', 'options', 'config'],
+    output: MessageIdReturnSchema.or(z.boolean()),
+});
+
+export const voteOnPoll = defineMethodV2('voteOnPoll', {
+    meta: { description: 'Votes using option IDs returned by getPollResults; an empty array removes the current vote. The poll must be open and allow this account to vote.', action: 'send', namespace: 'messages', license: 'none', functionality: 'both', httpMethod: 'POST' },
+    input: z.object({ messageId: messageIdParam, optionIds: z.array(z.number().int().nonnegative()).max(20) }).refine(input => new Set(input.optionIds).size === input.optionIds.length, { path: ['optionIds'], message: 'Duplicate poll choices are not allowed' }),
+    parameterOrder: ['messageId', 'optionIds'], output: z.boolean(),
+});
+export const getPollResults = defineMethodV2('getPollResults', {
+    meta: { description: 'Hydrates the local poll vote store and returns synced counts, choices and votes. Hidden-voter polls omit voter identities and the votes array. Unsynced votes may be absent.', action: 'get', namespace: 'messages', license: 'none', functionality: 'both', httpMethod: 'POST' },
+    input: z.object({ messageId: messageIdParam }), parameterOrder: ['messageId'], output: PollResultsSchema,
+});
+export const pinMessage = defineMethodV2('pinMessage', {
+    meta: { description: 'Pins a message in its chat for everyone, subject to native permissions. This differs from pinChat, which changes the current account chat list.', action: 'set', namespace: 'messages', license: 'none', functionality: 'both', httpMethod: 'POST' },
+    input: z.object({ messageId: messageIdParam, duration: PinDurationSchema.optional().default('SevenDays') }),
+    parameterOrder: ['messageId', 'duration'], output: z.boolean(),
+});
+export const unpinMessage = defineMethodV2('unpinMessage', {
+    meta: { description: 'Removes a message pin for everyone, subject to native chat permissions.', action: 'set', namespace: 'messages', license: 'none', functionality: 'both', httpMethod: 'POST' },
+    input: z.object({ messageId: messageIdParam }), parameterOrder: ['messageId'], output: z.boolean(),
 });
 
 /**
@@ -871,7 +886,7 @@ export const loadEarlierMessages = defineMethodV2('loadEarlierMessages', {
 
 export const sendFileFromUrl = defineMethodV2('sendFileFromUrl', {
     meta: {
-        description: 'Downloads a file from a URL and sends it to a chat',
+        description: 'Downloads media and sends it through sendFile with the same typed presentation options.',
         action: 'send',
         namespace: 'messages',
         license: 'none',
@@ -881,10 +896,10 @@ export const sendFileFromUrl = defineMethodV2('sendFileFromUrl', {
     input: z.object({
         to: toParam,
         url: z.string().url().describe('URL of the file to download'),
-        filename: z.string().describe('Filename for the sent file'),
-        caption: z.string().optional().describe('Caption for the file'),
+        filename: filenameParam.optional(),
+        options: MediaSendOptionsSchema.optional().default({}),
         headers: z.record(z.string(), z.string()).optional().describe('HTTP headers for the download request'),
     }),
-    parameterOrder: ['to', 'url', 'filename', 'caption', 'headers'],
+    parameterOrder: ['to', 'url', 'filename', 'options', 'headers'],
     output: z.string().or(z.boolean()).describe('Message ID or success status'),
 });

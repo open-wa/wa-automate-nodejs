@@ -48,5 +48,11 @@ export type {
 } from '@open-wa/schema';
 
 export type { InteractiveMethods } from './methods/interactive';
+export type { WhatsAppEventMethods } from './methods/whatsapp-events';
+export { EventInputSchema, EventUpdateSchema, WhatsAppEventSchema, EventResponseSchema, EventResponseTypeSchema, EventListOptionsSchema, EventPageSchema, serializeWhatsAppEvent, deserializeWhatsAppEvent, serializeEventResponse, deserializeEventResponse } from '@open-wa/schema';
+export type { EventInput, EventUpdate, WhatsAppEvent, EventResponse, EventResponseType, EventPage, EventListOptions } from '@open-wa/schema';
 export { defineInteractiveMessage, InteractiveContentSchema, InteractiveResponseSchema, FormResponseSchema } from '@open-wa/schema';
 export type { InteractiveContent, InteractiveAction, InteractiveHeader, FormQuestion, InteractiveResponse, FormResponse, JsonValue } from '@open-wa/schema';
+
+export { MediaSendOptionsSchema, PollSendOptionsSchema, PollVoteSchema, PollResultsSchema } from '@open-wa/schema';
+export type { MediaSendOptions, ImageSendOptions, VideoSendOptions, AudioSendOptions, AudioAttachmentOptions, VoiceNoteOptions, GifSendOptions, PollSendOptions, PollVote, PollResults, PinDuration } from '@open-wa/schema';

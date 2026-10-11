@@ -15,6 +15,13 @@ export interface ClientRuntimeListenerSurfaceEntry {
 }
 
 export const clientRuntimeMethodSurface = {
+  sendEvent: { support: 'runtime', runtimeMethod: 'sendEvent' },
+  getEvent: { support: 'runtime', runtimeMethod: 'getEvent' },
+  getEvents: { support: 'runtime', runtimeMethod: 'getEvents' },
+  getEventResponses: { support: 'runtime', runtimeMethod: 'getEventResponses' },
+  editEvent: { support: 'runtime', runtimeMethod: 'editEvent' },
+  cancelEvent: { support: 'runtime', runtimeMethod: 'cancelEvent' },
+  respondToEvent: { support: 'runtime', runtimeMethod: 'respondToEvent' },
   getCallCapabilities: { support: 'runtime', reason: 'calling admission service' },
   getActiveCall: { support: 'licensed', reason: 'calling-enabled licensed provider' },
   startCall: { support: 'licensed', reason: 'calling-enabled licensed provider' },
@@ -40,6 +47,10 @@ export const clientRuntimeMethodSurface = {
   sendAudio: { support: 'runtime', runtimeMethod: 'sendImage' },
   sendPtt: { support: 'runtime', runtimeMethod: 'sendImage' },
   sendVideoAsGif: { support: 'runtime', runtimeMethod: 'sendImage' },
+  voteOnPoll: { support: 'runtime', runtimeMethod: 'voteOnPoll' },
+  getPollResults: { support: 'runtime', runtimeMethod: 'getPollResults' },
+  pinMessage: { support: 'runtime', runtimeMethod: 'pinMessage' },
+  unpinMessage: { support: 'runtime', runtimeMethod: 'pinMessage' },
   sendPoll: { support: 'runtime', runtimeMethod: 'sendPoll', reason: 'provided by the common patch' },
   sendLocation: { support: 'runtime', runtimeMethod: 'sendLocation' },
   sendContact: { support: 'runtime', runtimeMethod: 'sendContact' },
@@ -119,6 +130,8 @@ export const clientRuntimeMethodSurface = {
   getAllMessages: { support: 'runtime', runtimeMethod: 'getAllMessagesInChat' },
   loadEarlierMessages: { support: 'runtime', runtimeMethod: 'loadEarlierMessages' },
   getContact: { support: 'runtime', runtimeMethod: 'getContact' },
+  requestPhoneNumber: { support: 'runtime', runtimeMethod: 'requestPhoneNumber' },
+  sharePhoneNumber: { support: 'runtime', runtimeMethod: 'sharePhoneNumber' },
   getAllContacts: { support: 'runtime', runtimeMethod: 'getAllContacts' },
   getContactById: { support: 'runtime', runtimeMethod: 'getContact' },
   checkNumberStatus: { support: 'runtime', runtimeMethod: 'checkNumberStatus' },
@@ -163,6 +176,9 @@ export const clientRuntimeMethodSurface = {
 } as const satisfies Record<string, ClientRuntimeMethodSurfaceEntry>;
 
 export const clientRuntimeListenerSurface = {
+  onPollVote: { support: 'runtime', runtimeSupportEvent: 'poll.vote' },
+  onEvent: { support: 'runtime', runtimeSupportEvent: 'event.changed' },
+  onEventResponse: { support: 'runtime', runtimeSupportEvent: 'event.response' },
   onIncomingCall: { support: 'licensed', runtimeSupportEvent: 'call.incoming' },
   onCallState: { support: 'licensed', runtimeSupportEvent: 'call.state' },
   onInteractiveResponse: { support: 'runtime', runtimeSupportEvent: 'interactive.response' },

@@ -83,6 +83,9 @@ export function attachGlobalEvents(
         break;
       case 'message.received': emitListener('onMessage', payload.message); break;
       case 'message.any': emitListener('onAnyMessage', payload.message); break;
+      case 'poll.vote': emitListener('onPollVote', payload.vote); break;
+      case 'event.changed': emitListener('onEvent', payload.event); break;
+      case 'event.response': emitListener('onEventResponse', payload.response); break;
       case 'ack.changed': emitListener('onAck', payload.ack); break;
       case 'session.state.changed': emitListener('onStateChanged', payload.details?.next); break;
       case 'session.logout': emitListener('onLogout', payload.details); break;
