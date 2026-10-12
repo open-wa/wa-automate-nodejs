@@ -1,6 +1,6 @@
 # Changelog
 
-## 5.4.0
+## 5.5.0
 <sub>2026-10-12</sub>
 
 - [#3520](https://github.com/open-wa/wa-automate-nodejs/pull/3520)  *(minor)*
