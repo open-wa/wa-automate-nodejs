@@ -1,0 +1,22 @@
+---
+import { Code } from "astro:components";
+import { theme } from "../lib/shiki-theme";
+interface Props { code: string; lang?: string; label?: string; class?: string }
+const { code, lang = "js", label, class: cls = "" } = Astro.props;
+---
+
+<figure class={`codeblock ${cls}`}>
+  <figcaption>
+    <span class="codeblock-label">{label ?? (lang === "bash" ? "Terminal" : lang === "json" ? "JSON" : "JavaScript")}</span>
+    <button class="copy-btn" type="button" data-copy={code} aria-label={`Copy ${label ?? "code"}`}><span>Copy</span></button>
+  </figcaption>
+  <Code code={code} lang={lang as any} theme={theme as any} wrap={false} />
+</figure>
+
+<style>
+  .codeblock { margin: 0; border-radius: var(--radius); background: #1C0820; color: var(--cream); overflow: hidden; min-width: 0; border: 1px solid #3B1640; }
+  figcaption { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 6px 6px 16px; border-bottom: 1px solid #3B1640; }
+  .codeblock-label { font: 500 13px/1.2 var(--font-mono); color: var(--muted-plum); }
+  .codeblock :global(pre) { margin: 0; padding: 16px 18px 18px; font: 14px/1.6 var(--font-mono); overflow-x: auto; background: transparent !important; tab-size: 2; }
+  .codeblock :global(pre code) { font-size: inherit; background: none; padding: 0; }
+</style>

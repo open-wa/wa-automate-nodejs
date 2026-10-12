@@ -1,0 +1,85 @@
+@import "./tokens.css";
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 80px; }
+body {
+  margin: 0; background: var(--color-bg); color: var(--color-ink);
+  font-family: var(--font-text); font-size: 17px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+img, video { max-width: 100%; height: auto; display: block; }
+[hidden] { display: none !important; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; margin: 0 0 0.5em; text-wrap: balance; }
+h1 { font-size: clamp(28px, 4.6vw, 58px); }
+h2 { font-size: clamp(24px, 3.2vw, 40px); }
+h3 { font-size: 19px; letter-spacing: -0.01em; line-height: 1.25; }
+p { margin: 0 0 1em; text-wrap: pretty; }
+a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+code, pre { font-family: var(--font-mono); font-variant-ligatures: none; }
+code { font-size: 0.88em; }
+:not(pre) > code { background: var(--cream-2); padding: 0.1em 0.35em; border-radius: 6px; }
+
+.skip {
+  position: absolute; left: 12px; top: -48px; z-index: 100;
+  padding: 8px 12px; background: var(--plum); color: var(--cream); text-decoration: none;
+}
+.skip:focus { top: 12px; }
+:focus-visible { outline: 3px solid var(--tangerine); outline-offset: 3px; border-radius: 4px; }
+
+.wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
+.eyebrow {
+  font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--tangerine-ink); margin: 0 0 14px; display: inline-flex; gap: 8px; align-items: center;
+}
+.eyebrow::before { content: ""; width: 18px; height: 2px; background: currentColor; border-radius: 2px; }
+.on-plum .eyebrow { color: var(--tangerine-soft); }
+.lede { font-size: 19px; color: var(--muted-cream); max-width: 62ch; }
+.on-plum { background: var(--plum); color: var(--cream); }
+.on-plum .lede { color: var(--muted-plum); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; padding: 0 22px; border-radius: var(--radius-pill);
+  font: 600 16px/1 var(--font-text); text-decoration: none; cursor: pointer;
+  border: 2px solid transparent; transition: transform var(--speed) var(--ease), background var(--speed) var(--ease);
+}
+.btn:active { transform: translateY(1px) scale(0.98); }
+.btn-primary { background: var(--tangerine); color: var(--plum); }
+.btn-primary:hover { background: #FF8C3A; }
+.btn-ghost { border-color: currentColor; color: inherit; background: transparent; }
+.btn-ghost:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
+.btn-plum { background: var(--plum); color: var(--cream); }
+.btn-plum:hover { background: var(--plum-2); }
+
+.section { padding: clamp(64px, 9vw, 120px) 0; }
+.tag {
+  display: inline-flex; align-items: center; gap: 6px; font: 600 13px/1 var(--font-mono);
+  padding: 6px 10px; border-radius: var(--radius-pill); background: var(--cream-2); color: var(--plum);
+  white-space: nowrap;
+}
+.tag-free { background: #E3EFD9; color: #234B2A; }
+.tag-insiders { background: #FFE2C7; color: #7A3208; }
+.tag-restricted { background: var(--plum); color: var(--cream); }
+.tag-preview { background: #F0D9EC; color: #5A1F55; }
+.tag-example { background: transparent; border: 1px dashed currentColor; }
+.fine { font-size: 15px; color: var(--muted-cream); }
+.on-plum .fine { color: var(--muted-plum); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+    transition: none !important; scroll-behavior: auto !important;
+  }
+}
+
+/* Copy buttons (command bars and code blocks share one behaviour). */
+.copy-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; min-width: 76px; padding: 0 16px; border-radius: 12px; border: 0; cursor: pointer;
+  font: 700 15px/1 var(--font-text); background: var(--tangerine); color: var(--plum);
+  transition: background var(--speed) var(--ease), transform var(--speed) var(--ease);
+}
+.copy-btn:hover { background: #FF8C3A; }
+.copy-btn:active { transform: scale(0.97); }
+.copy-btn.is-copied { background: var(--cream); color: var(--plum); }
+.copy-btn.is-copied span::before { content: "\2713\00a0"; }

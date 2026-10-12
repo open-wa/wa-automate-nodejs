@@ -1,0 +1,346 @@
+---
+/**
+ * Signature moment: jobs arrive on a customer's phone one after another. Every
+ * business message is a button; hover, focus or tap it and the exact call that
+ * sent it slides out beside the phone. Reduced motion or ?still: every message
+ * is shown and tapping still reveals the code.
+ */
+import { Image } from "astro:assets";
+import CodeBlock from "./CodeBlock.astro";
+import { calls, scenes } from "../data/stage";
+import salonPhoto from "../assets/generated/salon.webp";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const methodOf = (i: number) => calls[i].methods[calls[i].methods.length > 1 && calls[i].methods[0] === "onMessage" ? 1 : 0];
+let step = 0;
+---
+
+<div class="stage" data-stage>
+  <div class="phone-col">
+    <p class="stage-label"><span class="tag tag-example">Example</span> What your customers see</p>
+    <div class="phone">
+      <div class="phone-top" aria-hidden="true"><span class="cam"></span></div>
+      <div class="screen" data-screen tabindex="0" role="region" aria-label="Example chat feed: messages sent by business code">
+        <div class="status" aria-hidden="true"><span>9:41</span><span class="sig"><i></i><i></i><i></i></span></div>
+        {scenes.map((s) => (
+          <section class="scene" aria-label={`Example business: ${s.biz}`}>
+            <header class="thread" data-step={step++}>
+              <span class="avatar" aria-hidden="true">{s.initial}</span>
+              <span class="thread-name">{s.biz}</span>
+              <span class="thread-tag">Example</span>
+            </header>
+            {s.bubbles.map((b) => b.kind === "them" ? (
+              <p class="msg msg-them" data-step={step++}><span>{b.text}</span></p>
+            ) : (
+              <button type="button" class={`msg msg-biz t-${b.type}`} data-step={step++} data-call={b.call} aria-controls="call-panel" aria-pressed="false" aria-label={`Show the call that sent this ${b.type === "text" ? "message" : b.type}`}>
+                {b.type === "text" && <span class="txt">{b.text}</span>}
+                {b.type === "otp" && <span class="txt">Your Acme code is <b class="otp">482913</b>. It expires in 10 minutes.</span>}
+                {b.type === "poll" && (
+                  <span class="poll">
+                    <span class="poll-q">Friday: pick a time</span>
+                    {["10:00", "13:30", "16:00"].map((t) => (
+                      <span class={`poll-opt ${t === "13:30" ? "on" : ""}`}><i aria-hidden="true"></i>{t}<span class="poll-bar" aria-hidden="true"></span></span>
+                    ))}
+                  </span>
+                )}
+                {b.type === "event" && (
+                  <span class="event">
+                    <span class="cal" aria-hidden="true"><small>FRI</small>13:30</span>
+                    <span class="ev-body"><b>Haircut with Rosa, Friday 13:30</b><span class="rsvp"><span class="on">Going</span><span>Maybe</span><span>Not going</span></span></span>
+                  </span>
+                )}
+                {b.type === "pin" && (
+                  <span class="pin">
+                    <svg class="map" viewBox="0 0 220 96" aria-hidden="true">
+                      <rect width="220" height="96" fill="#F3E2CB" />
+                      <path d="M0 70 C60 60 90 80 140 66 S200 52 220 58 V96 H0Z" fill="#C9DCE0" />
+                      <path d="M-5 30 L230 44 M60 -5 L74 100 M150 -5 L140 70" stroke="#FFFBF5" stroke-width="7" fill="none" />
+                      <path d="M-5 30 L230 44 M60 -5 L74 100 M150 -5 L140 70" stroke="#E7CFAF" stroke-width="1" fill="none" />
+                      <g transform="translate(104 20)"><path d="M12 0C5 0 0 5 0 12c0 9 12 22 12 22s12-13 12-22C24 5 19 0 12 0z" fill="#FF7A1A" /><circle cx="12" cy="12" r="4.5" fill="#2A0E2E" /></g>
+                    </svg>
+                    <span class="pin-txt"><b>Harbour House</b><span>12 Quay Road</span></span>
+                  </span>
+                )}
+                {b.type === "pdf" && (
+                  <span class="pdf">
+                    <span class="doc" aria-hidden="true">PDF</span>
+                    <span class="pdf-txt"><b>booking-HH2291.pdf</b><span>Your booking confirmation</span></span>
+                  </span>
+                )}
+                {b.type === "sticker" && (
+                  <span class="sticker">
+                    <Image src={salonPhoto} alt="Example sticker made from the salon illustration photo, with comic and sparkle effects" width={300} class="sticker-img" />
+                    <svg class="spark" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2l4 14 14 4-14 4-4 14-4-14-14-4 14-4z" fill="#FFF4E6" stroke="#2A0E2E" stroke-width="2" /></svg>
+                  </span>
+                )}
+                {b.type === "call" && (
+                  <span class="callcard">
+                    <svg class="handset" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z" fill="currentColor" /></svg>
+                    <span class="call-txt"><b>Voice call answered</b><span>Greeting played, caller recorded</span><span class="mono">received.wav, 0:42</span></span>
+                  </span>
+                )}
+                <span class="via" aria-hidden="true"><span class="via-code">&lt;/&gt;</span> {methodOf(b.call)}</span>
+              </button>
+            ))}
+          </section>
+        ))}
+        <p class="feed-end" data-step={step++}>Every message above came from a business's code.</p>
+      </div>
+      <div class="phone-bar" aria-hidden="true"></div>
+    </div>
+    <div class="stage-controls">
+      <button type="button" class="ctl" data-toggle>Pause</button>
+      <button type="button" class="ctl" data-replay>Replay</button>
+      <span class="hint">Tap a message to see its code</span>
+    </div>
+  </div>
+
+  <aside class="call-panel" id="call-panel" aria-live="polite" data-panel>
+    <button type="button" class="panel-close" data-close aria-label="Close the code panel">Close</button>
+    {calls.map((c, i) => (
+      <div class="call" data-call-panel={i} hidden={i !== 1}>
+        <p class="call-head"><span class="call-kicker">The call that sent it</span>
+          <span class={`tag tag-${c.needKind === "depends" ? "example" : c.needKind}`}>{c.need}</span></p>
+        <CodeBlock code={c.code} lang={c.lang} label={c.label} />
+        <p class="call-methods">{c.methods.map((m) => <code>{m}</code>)}</p>
+        <p class="call-note">{c.note}</p>
+        <a class="call-link" href={`${base}recipes/${c.recipe}/`}>Full recipe <span aria-hidden="true">&rarr;</span></a>
+      </div>
+    ))}
+  </aside>
+</div>
+
+<script>
+  import { shouldAnimate } from "../lib/runtime";
+
+  for (const stage of document.querySelectorAll<HTMLElement>("[data-stage]")) {
+    const screen = stage.querySelector<HTMLElement>("[data-screen]")!;
+    const panel = stage.querySelector<HTMLElement>("[data-panel]")!;
+    const steps = [...stage.querySelectorAll<HTMLElement>("[data-step]")];
+    const bizzes = [...stage.querySelectorAll<HTMLButtonElement>("[data-call]")];
+    const toggle = stage.querySelector<HTMLButtonElement>("[data-toggle]")!;
+    const replay = stage.querySelector<HTMLButtonElement>("[data-replay]")!;
+    const animate = shouldAnimate();
+    const narrow = () => !window.matchMedia("(min-width: 760px)").matches;
+    let taken = false;
+    let timer = 0;
+    let i = 0;
+    let playing = false;
+    let current: HTMLButtonElement | null = null;
+
+    const place = (btn: HTMLElement) => {
+      if (narrow()) { panel.style.removeProperty("--y"); return; }
+      const s = stage.getBoundingClientRect();
+      const b = btn.getBoundingClientRect();
+      const h = panel.offsetHeight;
+      const centre = b.top - s.top + b.height / 2;
+      const y = Math.max(0, Math.min(s.height - h, centre - 60));
+      panel.style.setProperty("--y", `${y}px`);
+      panel.style.setProperty("--arrow", `${Math.max(24, Math.min(h - 24, centre - y))}px`);
+    };
+
+    const select = (btn: HTMLButtonElement, open = true) => {
+      const n = btn.dataset.call;
+      for (const p of panel.querySelectorAll<HTMLElement>("[data-call-panel]")) p.hidden = p.dataset.callPanel !== n;
+      for (const b of bizzes) b.setAttribute("aria-pressed", String(b === btn));
+      current = btn;
+      panel.classList.remove("is-waiting");
+      if (open) panel.classList.add("is-open");
+      panel.classList.remove("swap");
+      void panel.offsetWidth;
+      panel.classList.add("swap");
+      requestAnimationFrame(() => place(btn));
+    };
+
+    const showAll = () => { for (const s of steps) s.classList.remove("pending"); };
+    const reveal = () => {
+      if (!playing) return;
+      const el = steps[i];
+      if (!el) { stop(); return; }
+      el.classList.remove("pending");
+      el.classList.add("arrive");
+      screen.scrollTo({ top: screen.scrollHeight, behavior: "smooth" });
+      if (!taken && el.dataset.call !== undefined && !narrow()) select(el as HTMLButtonElement);
+      i++;
+      const delay = el.classList.contains("thread") ? 650 : el.classList.contains("msg-them") ? 1100 : 2300;
+      timer = window.setTimeout(reveal, delay);
+    };
+    const stop = () => { playing = false; window.clearTimeout(timer); toggle.textContent = i >= steps.length ? "Done" : "Play"; toggle.disabled = i >= steps.length; };
+    const play = () => { playing = true; toggle.textContent = "Pause"; toggle.disabled = false; reveal(); };
+    const restart = () => {
+      window.clearTimeout(timer);
+      i = 0; taken = false;
+      for (const s of steps) { s.classList.add("pending"); s.classList.remove("arrive"); }
+      if (!narrow()) panel.classList.add("is-waiting");
+      screen.scrollTop = 0;
+      play();
+    };
+
+    if (animate) {
+      panel.classList.add("is-waiting");
+      for (const s of steps) s.classList.add("pending");
+      const io = new IntersectionObserver(([e]) => { if (e?.isIntersecting) { io.disconnect(); play(); } }, { threshold: 0.25 });
+      io.observe(screen);
+    } else {
+      stage.classList.add("is-still");
+      toggle.hidden = true; replay.hidden = true;
+      if (!narrow()) select(bizzes[1]);
+    }
+
+    toggle.addEventListener("click", () => {
+      if (playing) stop();
+      else if (i >= steps.length) restart();
+      else play();
+    });
+    replay.addEventListener("click", restart);
+
+    for (const b of bizzes) {
+      const take = () => { taken = true; select(b); };
+      b.addEventListener("click", () => {
+        if (narrow() && current === b && panel.classList.contains("is-open")) { panel.classList.remove("is-open"); return; }
+        take();
+        if (narrow()) {
+          if (playing) { stop(); showAll(); i = steps.length; toggle.textContent = "Done"; }
+          panel.querySelector<HTMLElement>("[data-close]")?.focus({ preventScroll: true });
+          panel.scrollIntoView({ block: "nearest", behavior: animate ? "smooth" : "auto" });
+        }
+      });
+      b.addEventListener("mouseenter", () => { if (!narrow()) take(); });
+      b.addEventListener("focus", () => { if (!narrow()) take(); });
+    }
+    panel.querySelector("[data-close]")?.addEventListener("click", () => {
+      panel.classList.remove("is-open");
+      current?.focus({ preventScroll: true });
+    });
+    screen.addEventListener("scroll", () => { if (current && !narrow()) place(current); }, { passive: true });
+    window.addEventListener("resize", () => { if (current) place(current); });
+  }
+</script>
+
+<style>
+  .stage { position: relative; display: grid; grid-template-columns: 340px 380px; gap: 28px; align-items: start; }
+  .phone-col { display: grid; justify-items: center; gap: 12px; }
+  .stage-label { margin: 0; display: flex; align-items: center; gap: 8px; font: 500 14px/1.2 var(--font-mono); color: var(--cream); }
+  .stage-label .tag { color: var(--cream); }
+
+  .phone {
+    position: relative; width: 340px; height: 690px; padding: 12px; border-radius: 52px;
+    background: linear-gradient(160deg, #4A1E50, var(--plum-deep) 45%, #12040F);
+    box-shadow: 0 0 0 2px #5A2A61, 0 0 0 9px #1C0820, 0 50px 90px -30px rgba(10, 2, 10, 0.85), inset 0 1px 0 rgba(255, 244, 230, 0.15);
+  }
+  .phone-top { position: absolute; top: 22px; left: 50%; translate: -50% 0; width: 96px; height: 28px; border-radius: 20px; background: #0C030B; z-index: 3; }
+  .phone-bar { position: absolute; bottom: 20px; left: 50%; translate: -50% 0; width: 110px; height: 5px; border-radius: 4px; background: rgba(42, 14, 46, 0.35); z-index: 3; }
+  .screen {
+    height: 100%; border-radius: 41px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(255, 122, 26, 0.08), transparent 40%),
+      repeating-linear-gradient(135deg, transparent 0 14px, rgba(42, 14, 46, 0.025) 14px 15px),
+      var(--cream);
+    padding: 48px 12px 40px; color: var(--plum);
+  }
+  .screen::-webkit-scrollbar { display: none; }
+  .status { position: absolute; top: 26px; left: 44px; right: 44px; display: flex; justify-content: space-between; font: 600 13px/1 var(--font-text); color: var(--plum); z-index: 2; pointer-events: none; }
+  .sig { display: flex; gap: 2px; align-items: end; }
+  .sig i { width: 3px; background: var(--plum); border-radius: 1px; }
+  .sig i:nth-child(1) { height: 5px; } .sig i:nth-child(2) { height: 8px; } .sig i:nth-child(3) { height: 11px; }
+
+  .scene { display: grid; gap: 8px; margin-bottom: 18px; }
+  .thread { display: flex; align-items: center; gap: 8px; padding: 10px 2px 2px; border-top: 1px dashed var(--cream-3); }
+  .scene:first-of-type .thread { border-top: 0; }
+  .avatar { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--plum); color: var(--tangerine); font: 700 12px/1 var(--font-display); }
+  .thread-name { font: 700 14px/1.2 var(--font-text); }
+  .thread-tag { margin-left: auto; font: 500 11px/1 var(--font-mono); color: var(--muted-cream); border: 1px dashed currentColor; border-radius: 6px; padding: 3px 5px; }
+
+  .msg { max-width: 86%; margin: 0; font: 400 15px/1.4 var(--font-text); }
+  .msg-them { justify-self: end; background: var(--plum); color: var(--cream); padding: 9px 13px; border-radius: 18px 18px 6px 18px; }
+  .msg-biz {
+    justify-self: start; text-align: left; color: var(--plum); cursor: pointer; display: grid; gap: 6px;
+    background: var(--paper); border: 1px solid var(--cream-3); padding: 9px 11px 7px; border-radius: 18px 18px 18px 6px;
+    box-shadow: 0 1px 0 rgba(42, 14, 46, 0.06); transition: box-shadow var(--speed) var(--ease), transform var(--speed) var(--ease), border-color var(--speed);
+  }
+  .msg-biz:hover, .msg-biz[aria-pressed="true"] { border-color: var(--tangerine); box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.25); }
+  .msg-biz[aria-pressed="true"] { transform: translateX(3px); }
+  .via { font: 500 11.5px/1 var(--font-mono); color: var(--tangerine-ink); display: inline-flex; gap: 6px; align-items: center; }
+  .via-code { background: #FFE2C7; border-radius: 4px; padding: 2px 4px; }
+  .otp { font: 700 18px/1 var(--font-mono); letter-spacing: 0.12em; background: #FFE2C7; padding: 1px 6px; border-radius: 6px; }
+
+  .poll { display: grid; gap: 6px; min-width: 210px; }
+  .poll-q { font-weight: 700; }
+  .poll-opt { position: relative; display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: var(--cream); overflow: hidden; font-family: var(--font-mono); font-size: 14px; }
+  .poll-opt i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--plum-3); flex: none; position: relative; z-index: 1; }
+  .poll-opt.on i { background: var(--tangerine); border-color: var(--plum); }
+  .poll-bar { position: absolute; inset: 0 auto 0 0; width: 0; background: rgba(255, 122, 26, 0.22); }
+  .poll-opt.on .poll-bar { width: 100%; transition: width 900ms var(--ease) 500ms; }
+  .pending .poll-opt.on .poll-bar { width: 0; }
+
+  .event { display: flex; gap: 10px; align-items: center; min-width: 220px; }
+  .cal { display: grid; place-items: center; width: 52px; height: 56px; border-radius: 12px; background: var(--plum); color: var(--cream); font: 700 14px/1 var(--font-mono); flex: none; }
+  .cal small { font-size: 10px; color: var(--tangerine); letter-spacing: 0.1em; }
+  .ev-body { display: grid; gap: 6px; font-size: 14px; }
+  .rsvp { display: flex; gap: 4px; flex-wrap: wrap; }
+  .rsvp span { font-size: 12px; padding: 3px 7px; border-radius: 999px; border: 1px solid var(--cream-3); }
+  .rsvp .on { background: var(--plum); color: var(--cream); border-color: var(--plum); }
+
+  .pin { display: grid; gap: 6px; width: 220px; }
+  .map { width: 100%; height: auto; border-radius: 10px; display: block; }
+  .pin-txt, .pdf-txt, .call-txt { display: grid; font-size: 14px; line-height: 1.3; }
+  .pin-txt span, .pdf-txt span, .call-txt span { color: var(--muted-cream); }
+  .pdf { display: flex; gap: 10px; align-items: center; min-width: 220px; }
+  .doc { width: 40px; height: 50px; border-radius: 6px; background: var(--tangerine); color: var(--plum); display: grid; place-items: end center; padding-bottom: 6px; font: 700 11px/1 var(--font-mono); clip-path: polygon(0 0, 70% 0, 100% 22%, 100% 100%, 0 100%); }
+  .sticker { position: relative; display: block; width: 150px; }
+  .t-sticker { background: transparent; border-color: transparent; box-shadow: none; }
+  .sticker-img { width: 150px; height: 150px; object-fit: cover; border-radius: 50%; border: 6px solid #fff; box-shadow: 0 6px 16px rgba(42, 14, 46, 0.25); filter: contrast(1.25) saturate(1.35); rotate: -4deg; }
+  .spark { position: absolute; width: 34px; top: -6px; right: -4px; }
+  .callcard { display: flex; gap: 10px; align-items: center; min-width: 220px; }
+  .handset { width: 40px; height: 40px; padding: 9px; border-radius: 50%; background: var(--plum); color: var(--tangerine); flex: none; }
+  .mono { font-family: var(--font-mono); font-size: 12.5px; }
+  .feed-end { font: 500 12px/1.4 var(--font-mono); color: var(--muted-cream); text-align: center; margin: 4px 0 0; }
+
+  .pending { display: none !important; }
+  .arrive { animation: arrive 520ms var(--ease-spring) both; }
+  .msg-them.arrive { transform-origin: 100% 100%; }
+  .msg-biz.arrive { transform-origin: 0 100%; }
+  @keyframes arrive { from { opacity: 0; transform: translateY(14px) scale(0.92); } to { opacity: 1; transform: none; } }
+
+  .stage-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .ctl { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid rgba(255, 244, 230, 0.4); background: rgba(28, 8, 32, 0.6); color: var(--cream); font: 600 15px var(--font-text); cursor: pointer; }
+  .ctl:hover { border-color: var(--tangerine); }
+  .ctl:disabled { opacity: 0.6; cursor: default; }
+  .hint { font: 500 14px/1.2 var(--font-mono); color: var(--cream); }
+
+  .call-panel {
+    position: relative; transform: translateY(var(--y, 120px)); transition: transform 420ms var(--ease);
+    background: var(--plum); color: var(--cream); border-radius: 22px; padding: 16px; box-shadow: 0 0 0 1px var(--plum-3), 0 40px 80px -30px rgba(10, 2, 10, 0.8);
+  }
+  .call-panel::before {
+    content: ""; position: absolute; left: -9px; top: var(--arrow, 60px); width: 18px; height: 18px; translate: 0 -50%; rotate: 45deg;
+    background: var(--plum); box-shadow: -1px 1px 0 var(--plum-3); transition: top 420ms var(--ease);
+  }
+  .call-panel.swap .call:not([hidden]) { animation: slide 380ms var(--ease) both; }
+  @keyframes slide { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: none; } }
+  .panel-close { display: none; }
+  .call { display: grid; gap: 12px; }
+  .call-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin: 0; }
+  .call-kicker { font: 600 13px/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--tangerine-soft); }
+  .call .tag-example { color: var(--cream); }
+  .call-methods { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+  .call-methods code { background: var(--plum-2) !important; color: var(--cream); padding: 4px 8px !important; border-radius: 6px; }
+  .call-note { margin: 0; font-size: 15px; color: var(--muted-plum); line-height: 1.45; }
+  .call-link { color: var(--tangerine); font-weight: 700; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+  .call-link:hover { text-decoration: underline; }
+  .call :global(.codeblock pre) { max-height: 320px; font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+  @media (max-width: 1279px) and (min-width: 760px) {
+    .stage { grid-template-columns: 340px minmax(0, 1fr); }
+  }
+  .call-panel.is-waiting { opacity: 0; }
+  .call-panel { transition: transform 420ms var(--ease), opacity 300ms var(--ease); }
+  @media (max-width: 759px) {
+    .stage { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .phone { width: min(340px, 100%); height: 600px; }
+    .call-panel { transform: none; display: none; }
+    .call-panel.is-open { display: block; animation: slide-up 360ms var(--ease) both; }
+    .call-panel::before { left: 50%; top: -9px; translate: -50% 0; }
+    .panel-close { display: inline-flex; float: right; min-height: 44px; padding: 0 14px; border-radius: 12px; background: var(--plum-2); color: var(--cream); border: 0; font: 600 15px var(--font-text); align-items: center; cursor: pointer; }
+    @keyframes slide-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  }
+</style>

@@ -1,0 +1,84 @@
+---
+/**
+ * The mark: a speech bubble whose tail is a coiled phone cord. On hover or
+ * keyboard focus of the wrapping .mark-host the cord springs (stretches and
+ * settles like a real handset cord) while the bubble lifts and its dots ripple.
+ * Reduced motion: still.
+ */
+interface Props { size?: number; label?: string }
+const { size = 34, label = "open-wa" } = Astro.props;
+
+// Coiled cord: a prolate trochoid drawn along the local y axis, then rotated
+// into place under the bubble.
+const L = 12.5, n = 3.25, a = 1.9, b = 2.5, steps = 120;
+const pts: string[] = [];
+for (let i = 0; i <= steps; i++) {
+  const t = i / steps;
+  const th = 2 * Math.PI * n * t;
+  const y = t * L - a * Math.sin(th);
+  const x = b * Math.cos(th) - b;
+  pts.push(`${(x + 2.5).toFixed(2)} ${y.toFixed(2)}`);
+}
+const cord = `M${pts.join(" L")}`;
+---
+
+<svg class="mark" viewBox="0 0 40 40" width={size} height={size} role="img" aria-label={label}>
+  <g class="mark-bubble">
+    <rect x="5" y="3" width="31" height="22" rx="9" class="mark-fill" />
+    <circle class="mark-dot" cx="14" cy="14" r="2" />
+    <circle class="mark-dot" cx="20.5" cy="14" r="2" />
+    <circle class="mark-dot" cx="27" cy="14" r="2" />
+  </g>
+  <g transform="translate(9.5 22.5) rotate(16)">
+    <g class="mark-cord">
+      <path d={cord} />
+    </g>
+  </g>
+</svg>
+
+<style>
+  .mark { display: block; overflow: visible; flex: none; }
+  .mark-fill { fill: var(--tangerine); }
+  .mark-dot { fill: var(--plum); }
+  .mark-cord path {
+    fill: none; stroke: currentColor; stroke-width: 1.7;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  .mark-cord { transform-box: fill-box; transform-origin: 50% 0%; }
+  .mark-bubble { transform-box: fill-box; transform-origin: 30% 100%; }
+  :global(.mark-host:hover) .mark-cord,
+  :global(.mark-host:focus-visible) .mark-cord { animation: cord-spring 900ms linear; }
+  :global(.mark-host:hover) .mark-bubble,
+  :global(.mark-host:focus-visible) .mark-bubble { animation: bubble-lift 900ms linear; }
+  :global(.mark-host:hover) .mark-dot,
+  :global(.mark-host:focus-visible) .mark-dot { animation: dot-wave 600ms var(--ease) both; }
+  :global(.mark-host:hover) .mark-dot:nth-of-type(2),
+  :global(.mark-host:focus-visible) .mark-dot:nth-of-type(2) { animation-delay: 90ms; }
+  :global(.mark-host:hover) .mark-dot:nth-of-type(3),
+  :global(.mark-host:focus-visible) .mark-dot:nth-of-type(3) { animation-delay: 180ms; }
+  /* A damped spring sampled into keyframes: stretch, overshoot, settle. */
+  @keyframes cord-spring {
+    0% { transform: scaleY(1); }
+    14% { transform: scaleY(1.55) scaleX(0.9); }
+    30% { transform: scaleY(0.78) scaleX(1.06); }
+    46% { transform: scaleY(1.22) scaleX(0.96); }
+    62% { transform: scaleY(0.92); }
+    78% { transform: scaleY(1.05); }
+    100% { transform: scaleY(1); }
+  }
+  @keyframes bubble-lift {
+    0% { transform: translateY(0) rotate(0); }
+    14% { transform: translateY(-3px) rotate(-4deg); }
+    30% { transform: translateY(1px) rotate(1.5deg); }
+    46% { transform: translateY(-1px) rotate(-1deg); }
+    100% { transform: translateY(0) rotate(0); }
+  }
+  @keyframes dot-wave {
+    0%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-2.5px); }
+  }
+  .mark-dot { transform-box: fill-box; transform-origin: center; }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.mark-host) .mark-cord, :global(.mark-host) .mark-bubble, :global(.mark-host) .mark-dot { animation: none !important; }
+  }
+</style>

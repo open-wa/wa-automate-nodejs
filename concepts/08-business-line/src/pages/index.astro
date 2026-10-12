@@ -1,0 +1,253 @@
+---
+import { Image } from "astro:assets";
+import Page from "../layouts/Page.astro";
+import CopyCommand from "../components/CopyCommand.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import PhoneStage from "../components/PhoneStage.astro";
+import JobCard from "../components/JobCard.astro";
+import { commands, http, firstRun, jobs, tier, priceNote, stats, support, product, releases, integrations, k } from "../data/facts";
+import salon from "../assets/generated/salon.webp";
+import hotel from "../assets/generated/hotel.webp";
+import shop from "../assets/generated/shop.webp";
+import switchboard from "../assets/generated/switchboard.webp";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const ins = tier("insiders");
+const res = tier("restricted");
+const rel = releases[0];
+const photoJobs = ["salon-bookings", "hotel-notifications", "pbx-calls", "order-updates"];
+const byJob = [
+  { job: "Reply to customers who message you, send polls, event cards, photos, PDFs and voice notes", need: "No key", kind: "free", price: "Free" },
+  { job: "Buttons, lists and checking a number is on WhatsApp", need: "Insiders", kind: "insiders", price: `${ins.prices.month} a month` },
+  { job: "OTP codes and first messages to new numbers (hotel guests, sign-ups), creating groups", need: "Restricted", kind: "restricted", price: `${res.prices.month} a month` },
+  { job: "Answering and making WhatsApp calls, bridging audio to your PBX", need: "Calling-enabled key", kind: "preview", price: "Licensed preview" },
+];
+---
+
+<Page title="open-wa: bookings, codes and calls from your own WhatsApp number" description={product.oneLine}>
+  <section class="hero on-plum">
+    <div class="collage">
+      <Image src={salon} alt="Illustration: an empty salon chair in warm light (generated photograph)" width={900} loading="eager" class="ph ph-1" />
+      <Image src={hotel} alt="Illustration: a hotel key on a reception desk (generated photograph)" width={900} loading="eager" class="ph ph-2" />
+      <Image src={shop} alt="Illustration: a small shop counter (generated photograph)" width={900} class="ph ph-3" />
+      <Image src={switchboard} alt="Illustration: an old telephone switchboard (generated photograph)" width={900} class="ph ph-4" />
+    </div>
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">WhatsApp API on your own number</p>
+        <h1>Send bookings, codes and call replies from your own WhatsApp number.</h1>
+        <p class="hero-sub">Run one command and scan the QR code. Your number becomes an HTTP API you can call from Node.js, PHP, Python or a PBX script.</p>
+        <CopyCommand command={commands.easyApi} />
+        <div class="hero-cta">
+          <a class="btn btn-primary" href={`${base}quickstart/`}>Quick start</a>
+          <a class="btn btn-ghost" href={support.docs}>Read the docs</a>
+        </div>
+        <p class="hero-fine">Free and open source; some jobs need a <a href="#by-job">paid key</a>. Unofficial, and automation can get a number <a href="#risk">banned</a>.</p>
+      </div>
+      <PhoneStage />
+    </div>
+    <p class="photo-credit">Photographs: generated illustrations</p>
+  </section>
+
+  <section class="section how" aria-labelledby="how-h">
+    <div class="wrap">
+      <p class="eyebrow">How it works</p>
+      <h2 id="how-h">Three steps from a phone to an API.</h2>
+      <ol class="steps">
+        <li>
+          <span class="num">1</span>
+          <h3>Run the command</h3>
+          <p>{firstRun[0]}</p>
+          <CopyCommand command={commands.easyApi} tone="plum" />
+        </li>
+        <li>
+          <span class="num">2</span>
+          <h3>Scan with the business phone</h3>
+          <p>{firstRun[1]}</p>
+          <p class="fine">Then open <code>{commands.proofOfLife}</code> for the live API docs, with Swagger and Postman files.</p>
+        </li>
+        <li>
+          <span class="num">3</span>
+          <h3>Call it from any language</h3>
+          <p>{http.note.split(". ")[1]}.</p>
+          <CodeBlock code={http.sendTextCurl} lang="bash" label="curl" />
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section recipes" id="recipes" aria-labelledby="rec-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">Recipes</p>
+          <h2 id="rec-h">Pick the job you're building.</h2>
+        </div>
+        <p class="lede">Each recipe shows the conversation, the code that runs it, the methods it uses and whether it needs a key.</p>
+      </div>
+      <div class="job-grid">
+        {[...jobs.filter((j) => photoJobs.includes(j.id)), ...jobs.filter((j) => !photoJobs.includes(j.id))].map((j, i) => <JobCard job={j} span={i < 4 ? 6 : i < 7 ? 4 : 6} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section by-job on-plum" id="by-job" aria-labelledby="price-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">Free and paid, by job</p>
+          <h2 id="price-h">Most jobs need no key.</h2>
+        </div>
+        <p class="lede">Keys are per WhatsApp number and cover specific methods. You pay only when your job uses one.</p>
+      </div>
+      <ul class="need-list">
+        {byJob.map((r) => (
+          <li>
+            <span class="need-job">{r.job}</span>
+            <span class={`tag tag-${r.kind}`}>{r.need}</span>
+            <span class="need-price">{r.price}</span>
+          </li>
+        ))}
+      </ul>
+      <div class="need-foot">
+        <p class="fine">{priceNote} Billed through Gumroad; three-month, six-month and yearly keys cost less per month.</p>
+        <a class="btn btn-primary" href={`${base}pricing/`}>See prices and get a key</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section risk" id="risk" aria-labelledby="risk-h">
+    <div class="wrap risk-grid">
+      <div>
+        <p class="eyebrow">Before you build</p>
+        <h2 id="risk-h">Unofficial, and plain about the risk.</h2>
+        <p>open-wa drives WhatsApp Web in a browser it controls. It isn't the WhatsApp Business Platform, and nothing about it is approved by WhatsApp or Meta.</p>
+        <p><strong>{product.risk}</strong> Use a number you can afford to lose while you test, keep volumes human and message people who expect to hear from you.</p>
+        <p class="fine">{product.unofficial}</p>
+      </div>
+      <div class="signals">
+        <p class="sig-head">Maintained by {support.maintainer} since 2019. Figures checked {stats.checkedOn}.</p>
+        <dl>
+          <div><dt>GitHub stars</dt><dd>{k(stats.githubStars)}</dd></div>
+          <div><dt>npm downloads, last 12 months</dt><dd>{Math.floor(stats.npmDownloadsLast12Months / 1000)}k</dd></div>
+          <div><dt>Docker pulls</dt><dd>{k(stats.dockerPulls)}</dd></div>
+          <div><dt>Discord members</dt><dd>{stats.discordMembers.toLocaleString("en-GB")}</dd></div>
+          <div><dt>Published versions</dt><dd>{stats.publishedVersions}</dd></div>
+        </dl>
+        <a class="release" href={`${base}changelog/`}>
+          <span class="tag">v{rel.version}, {rel.date}</span>
+          <b>{rel.headline}</b>
+          <span>{rel.highlights[0]}</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section integ" aria-labelledby="int-h">
+    <div class="wrap">
+      <p class="eyebrow">Plugs into</p>
+      <h2 id="int-h">Send it where your team already works.</h2>
+      <ul class="int-list">
+        {integrations.map((x) => <li><a href={`${base}integrations/#${x.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}><b>{x.name}</b><span>{x.what}</span></a></li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="closing on-plum" aria-labelledby="close-h">
+    <Image src={switchboard} alt="" width={1200} class="closing-bg" />
+    <div class="wrap closing-in">
+      <h2 id="close-h">Put your business line to work.</h2>
+      <CopyCommand command={commands.easyApi} />
+      <div class="hero-cta">
+        <a class="btn btn-primary" href={`${base}quickstart/`}>Quick start</a>
+        <a class="btn btn-ghost" href={support.discord}>Join the Discord</a>
+        <a class="btn btn-ghost" href={support.github}>Star on GitHub</a>
+      </div>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .hero { position: relative; overflow: hidden; padding: 40px 0 28px; isolation: isolate; }
+  .collage { position: absolute; inset: 0; z-index: -1; display: grid; grid-template-columns: 1.1fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 6px; }
+  .collage :global(.ph) { width: 100%; height: 100%; object-fit: cover; }
+  .collage :global(.ph-1) { grid-row: span 2; }
+  .collage :global(.ph-4) { grid-column: 2 / 4; }
+  .collage::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg, rgba(42, 14, 46, 0.97) 0%, rgba(42, 14, 46, 0.9) 34%, rgba(42, 14, 46, 0.35) 60%, rgba(42, 14, 46, 0.45) 100%),
+      linear-gradient(0deg, rgba(42, 14, 46, 0.6), transparent 30%);
+  }
+  .hero-grid {
+    max-width: 1480px; margin: 0 auto; padding: 0 var(--gutter);
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 48px; align-items: start;
+  }
+  .hero-copy { padding-top: clamp(8px, 4vw, 64px); max-width: 600px; }
+  .hero h1 { font-size: clamp(28px, 3.1vw, 46px); }
+  .hero-sub { font-size: 19px; color: var(--muted-plum); max-width: 52ch; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+  .hero-fine { margin-top: 18px; font-size: 15px; color: var(--muted-plum); }
+  .hero-fine a { color: var(--cream); }
+  .photo-credit { position: absolute; right: 12px; bottom: 8px; margin: 0; font: 500 12px/1 var(--font-mono); color: rgba(255, 244, 230, 0.8); }
+  @media (max-width: 1279px) {
+    .hero-grid { grid-template-columns: minmax(0, 1fr); }
+    .hero-copy { max-width: 760px; }
+    .collage::after { background: linear-gradient(180deg, rgba(42, 14, 46, 0.96) 0%, rgba(42, 14, 46, 0.88) 40%, rgba(42, 14, 46, 0.6) 100%); }
+  }
+  @media (max-width: 759px) {
+    .hero { padding-top: 20px; }
+    .hero-sub { font-size: 17px; }
+    .collage { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 1fr); }
+    .collage :global(.ph-1) { grid-row: auto; }
+    .collage :global(.ph-4) { grid-column: auto; }
+  }
+
+  .steps { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 20px; }
+  .steps li { background: var(--paper); border: 1px solid var(--cream-3); border-radius: var(--radius-lg); padding: 24px; display: grid; gap: 4px; align-content: start; min-width: 0; }
+  .num { width: 40px; height: 40px; border-radius: 50%; background: var(--tangerine); color: var(--plum); display: grid; place-items: center; font: 700 17px/1 var(--font-display); margin-bottom: 12px; }
+  @media (max-width: 960px) { .steps { grid-template-columns: minmax(0, 1fr); } }
+
+  .recipes { background: var(--cream-2); }
+  .sec-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 12px 40px; margin-bottom: 32px; }
+  .sec-head h2 { margin: 0; }
+  .sec-head .lede { margin: 0; max-width: 46ch; }
+  .job-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; }
+
+  .need-list { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--plum-3); }
+  .need-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto 150px; gap: 16px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--plum-3); }
+  .need-job { font-size: 18px; }
+  .need-price { font: 600 16px/1.2 var(--font-mono); color: var(--tangerine); text-align: right; }
+  .by-job .tag-restricted { background: var(--cream); color: var(--plum); }
+  .need-foot { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; justify-content: space-between; margin-top: 24px; }
+  .need-foot .fine { margin: 0; max-width: 60ch; }
+  @media (max-width: 700px) {
+    .need-list li { grid-template-columns: minmax(0, 1fr) auto; }
+    .need-job { grid-column: 1 / -1; font-size: 17px; }
+    .need-price { text-align: left; }
+  }
+
+  .risk-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: start; }
+  .signals { background: var(--paper); border: 1px solid var(--cream-3); border-radius: var(--radius-lg); padding: 24px; }
+  .sig-head { font-size: 15px; color: var(--muted-cream); }
+  .signals dl { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--cream-3); border-radius: 14px; overflow: hidden; }
+  .signals dl div { background: var(--paper); padding: 14px; }
+  .signals dt { font-size: 14px; color: var(--muted-cream); }
+  .signals dd { margin: 0; font: 600 26px/1.2 var(--font-display); }
+  .release { margin-top: 16px; display: grid; gap: 6px; padding: 16px; border-radius: 14px; background: var(--cream-2); text-decoration: none; }
+  .release:hover { background: var(--cream-3); }
+  .release .tag { justify-self: start; background: var(--plum); color: var(--cream); }
+  @media (max-width: 860px) { .risk-grid { grid-template-columns: minmax(0, 1fr); } }
+
+  .integ { padding-top: 0; }
+  .int-list { list-style: none; margin: 28px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .int-list a { display: grid; gap: 4px; padding: 18px; border-radius: 18px; border: 1px solid var(--cream-3); background: var(--paper); text-decoration: none; height: 100%; }
+  .int-list a:hover { border-color: var(--tangerine); }
+  .int-list span { color: var(--muted-cream); font-size: 15px; }
+
+  .closing { position: relative; overflow: hidden; padding: clamp(80px, 12vw, 160px) 0; isolation: isolate; }
+  .closing :global(.closing-bg) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+  .closing::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(42, 14, 46, 0.97), rgba(42, 14, 46, 0.75)); }
+  .closing-in { display: grid; gap: 18px; justify-items: start; }
+  .closing-in > * { max-width: 820px; }
+  .closing h2 { font-size: clamp(30px, 5vw, 60px); }
+</style>

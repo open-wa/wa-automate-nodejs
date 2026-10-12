@@ -1,0 +1,55 @@
+/* Business line: plum, tangerine and cream. Every colour, font, radius and
+   easing lives here. */
+@font-face {
+  font-family: "Unbounded";
+  src: url("../fonts/unbounded-latin-wght-normal.woff2") format("woff2-variations");
+  font-weight: 200 900; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url("../fonts/hanken-grotesk-latin-wght-normal.woff2") format("woff2-variations");
+  font-weight: 100 900; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations");
+  font-weight: 100 800; font-style: normal; font-display: swap;
+}
+
+:root {
+  --plum: #2A0E2E;
+  --plum-deep: #1C0820;
+  --plum-2: #3B1640;
+  --plum-3: #5A2A61;
+  --tangerine: #FF7A1A;
+  --tangerine-soft: #FFB27A;
+  --tangerine-ink: #A8430A;   /* tangerine for text on cream (AA) */
+  --cream: #FFF4E6;
+  --cream-2: #F7E7D2;
+  --cream-3: #EBD5BA;
+  --paper: #FFFBF5;
+  --muted-cream: #6B4A63;     /* secondary text on cream */
+  --muted-plum: #DCC6D8;      /* secondary text on plum */
+  --bubble-in: #FFFBF5;
+  --bubble-out: #FFE2C7;
+  --ok: #2F6B3A;
+
+  --color-bg: var(--cream);
+  --color-ink: var(--plum);
+  --color-accent: var(--tangerine);
+  --color-muted: var(--muted-cream);
+  --color-surface: var(--cream-2);
+
+  --font-display: "Unbounded", "Hanken Grotesk", system-ui, sans-serif;
+  --font-text: "Hanken Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --radius: 14px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --speed: 220ms;
+  --wrap: 1200px;
+  --gutter: clamp(16px, 4vw, 40px);
+}

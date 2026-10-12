@@ -1,0 +1,135 @@
+---
+import Page from "../../layouts/Page.astro";
+import PageHead from "../../components/PageHead.astro";
+import LicenceForm from "../../components/LicenceForm.astro";
+import { licences, priceNote, product, commands, support, jobs, jobNeed, jobShort } from "../../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const periods: [keyof (typeof licences.tiers)[number]["prices"], string][] = [["month", "1 month"], ["threeMonths", "3 months"], ["sixMonths", "6 months"], ["year", "1 year"]];
+const byJob = [
+  { job: "Replying to customers who message you", tier: "No key", kind: "free", methods: "onMessage, sendText, sendImage, sendFile" },
+  { job: "Booking polls and event cards", tier: "No key", kind: "free", methods: "sendPoll, sendEvent, onEventResponse" },
+  { job: "Photos, PDFs, voice notes, video", tier: "No key", kind: "free", methods: "sendImage, sendFile, sendPtt, decryptMedia" },
+  { job: "Buttons, lists and interactive messages", tier: "Insiders", kind: "insiders", methods: "sendInteractive, sendButtons, sendListMessage" },
+  { job: "Checking a number is on WhatsApp", tier: "Insiders", kind: "insiders", methods: "checkNumberStatus, getNumberProfile" },
+  { job: "Posting and reading status", tier: "Insiders", kind: "insiders", methods: "Status and story methods" },
+  { job: "OTP codes to people who haven't messaged you", tier: "Restricted", kind: "restricted", methods: "sendText to a new number" },
+  { job: "Hotel and appointment messages to new guests", tier: "Restricted", kind: "restricted", methods: "sendText, sendLocation, sendFile to new numbers" },
+  { job: "Creating and joining groups", tier: "Restricted", kind: "restricted", methods: "createGroup, joinGroupViaLink, joinGroup" },
+  { job: "Answering and making WhatsApp calls", tier: "Calling-enabled key", kind: "preview", methods: "onIncomingCall, call.accept, startCall" },
+];
+const faq = [
+  { q: "Is open-wa free?", a: `${licences.summary}` },
+  { q: "Is a key per number or per account?", a: "Per WhatsApp number. If two numbers send OTP codes, you need two keys." },
+  { q: "Which tier do I need for OTP codes?", a: jobs.find((j) => j.id === "otp")!.licence },
+  { q: "What about WhatsApp calls?", a: `${jobs.find((j) => j.id === "pbx-calls")!.licence} Ask in Discord or email ${support.consultingEmail} for a calling-enabled key.` },
+  { q: "How do I apply the key?", a: `Pass it at launch with ${commands.licenceFlag}, or set licenseKey in your config. A running session can take a new key from the dashboard or client.refresh() without restarting.` },
+  { q: "Does a key reduce ban risk?", a: `No. ${product.risk}` },
+];
+---
+
+<Page title="Pricing: which jobs need a key | open-wa" description="open-wa is free for most jobs. OTP codes and first messages to new numbers need a Restricted key; buttons and lists need Insiders. Prices per WhatsApp number, in GBP.">
+  <PageHead eyebrow="Pricing" title="Pay only when your job needs a key." lede="Replying to customers, polls, event cards and media are free. OTP codes and messages to new numbers need Restricted; buttons and lists need Insiders. Keys are per WhatsApp number." />
+
+  <section class="section tiers-sec">
+    <div class="wrap">
+      <div class="tiers">
+        <article class="tier tier-free">
+          <h2>{licences.free.name}</h2>
+          <p class="price">£0</p>
+          <p>{licences.free.covers}</p>
+          <a class="btn btn-plum" href={`${base}quickstart/`}>Start free</a>
+        </article>
+        {licences.tiers.map((t) => (
+          <article class={`tier tier-${t.id}`}>
+            <h2>{t.name}</h2>
+            <p class="price">{t.prices.month}<small> a month</small></p>
+            <table class="periods">
+              <caption class="sr-only">{t.name} prices by billing period</caption>
+              <tbody>{periods.map(([key, label]) => <tr><th scope="row">{label}</th><td>{t.prices[key]}</td></tr>)}</tbody>
+            </table>
+            <p>{t.unlocks}</p>
+            <a class="btn btn-primary" href="#get-a-key" data-pick={t.id}>Get {t.name}</a>
+          </article>
+        ))}
+      </div>
+      <p class="fine center">{priceNote} Prices in GBP, per WhatsApp number, through Gumroad.</p>
+    </div>
+  </section>
+
+  <section class="section by-job-sec" aria-labelledby="bj-h">
+    <div class="wrap">
+      <h2 id="bj-h">Which key does my job need?</h2>
+      <div class="table-wrap">
+        <table class="bj">
+          <thead><tr><th scope="col">The job</th><th scope="col">Key</th><th scope="col">Methods</th></tr></thead>
+          <tbody>
+            {byJob.map((r) => <tr><th scope="row">{r.job}</th><td><span class={`tag tag-${r.kind}`}>{r.tier}</span></td><td><code>{r.methods}</code></td></tr>)}
+          </tbody>
+        </table>
+      </div>
+      <p class="fine">Every method's tier is listed in its metadata and in the live <code>/api-docs/</code>. Recipes: {jobs.map((j, i) => <><a href={`${base}recipes/${j.id}/`}>{jobShort[j.id]}</a> ({jobNeed[j.id].label}){i < jobs.length - 1 ? ", " : "."}</>)}</p>
+    </div>
+  </section>
+
+  <section class="section form-sec on-plum" id="get-a-key" aria-labelledby="key-h">
+    <div class="wrap form-grid">
+      <div>
+        <p class="eyebrow">Get a key</p>
+        <h2 id="key-h">Four answers, then checkout.</h2>
+        <p class="lede">We prefill a Gumroad checkout with your answers, so the key arrives tied to the right number.</p>
+        <h3>Before you buy</h3>
+        <ol class="before">{licences.beforeYouBuy.map((b) => <li>{b}</li>)}</ol>
+        <p class="risk-note"><strong>Ban risk:</strong> {product.risk} A licence key doesn't change that.</p>
+      </div>
+      <LicenceForm />
+    </div>
+  </section>
+
+  <section class="section faq-sec" aria-labelledby="faq-h">
+    <div class="wrap">
+      <h2 id="faq-h">Questions</h2>
+      <div class="faq">
+        {faq.map((f) => <details><summary>{f.q}</summary><p>{f.a}</p></details>)}
+      </div>
+    </div>
+  </section>
+</Page>
+
+<script>
+  for (const a of document.querySelectorAll<HTMLAnchorElement>("[data-pick]")) {
+    a.addEventListener("click", () => {
+      const r = document.querySelector<HTMLInputElement>(`input[name=tier][value="${a.dataset.pick}"]`);
+      if (r) r.checked = true;
+    });
+  }
+</script>
+
+<style>
+  .tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .tier { background: var(--paper); border: 1px solid var(--cream-3); border-radius: var(--radius-lg); padding: 28px; display: grid; gap: 12px; align-content: start; }
+  .tier-restricted { background: var(--plum); color: var(--cream); border-color: var(--plum); }
+  .tier h2 { font-size: 24px; margin: 0; }
+  .price { font: 600 40px/1 var(--font-display); margin: 0; letter-spacing: -0.03em; }
+  .price small { font: 500 16px var(--font-text); letter-spacing: 0; }
+  .periods { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 15px; }
+  .periods th { text-align: left; font-weight: 500; padding: 6px 0; border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent); }
+  .periods td { text-align: right; padding: 6px 0; border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent); }
+  .tier .btn { justify-self: start; }
+  .center { text-align: center; margin-top: 18px; }
+  @media (max-width: 900px) { .tiers { grid-template-columns: minmax(0, 1fr); } }
+  .by-job-sec { background: var(--cream-2); }
+  .table-wrap { overflow-x: auto; border-radius: 18px; border: 1px solid var(--cream-3); background: var(--paper); margin-bottom: 16px; }
+  .bj { width: 100%; border-collapse: collapse; min-width: 640px; }
+  .bj th, .bj td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--cream-3); vertical-align: top; }
+  .bj thead th { font: 600 13px/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted-cream); }
+  .bj tbody th { font-weight: 600; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 48px; align-items: start; }
+  .form-grid .lf { color: var(--plum); }
+  .before { padding-left: 20px; color: var(--muted-plum); }
+  .risk-note { background: var(--plum-2); padding: 14px 16px; border-radius: 14px; font-size: 16px; }
+  @media (max-width: 900px) { .form-grid { grid-template-columns: minmax(0, 1fr); } }
+  .faq { display: grid; gap: 10px; max-width: 820px; }
+  .faq details { background: var(--paper); border: 1px solid var(--cream-3); border-radius: 16px; padding: 0 18px; }
+  .faq summary { cursor: pointer; font-weight: 700; padding: 16px 0; min-height: 44px; }
+  .faq details p { margin: 0 0 16px; }
+</style>

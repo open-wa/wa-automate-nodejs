@@ -1,0 +1,83 @@
+---
+import Mark from "./Mark.astro";
+import { support, starsLabel, checked } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const path = Astro.url.pathname;
+const nav = [
+  { href: `${base}recipes/`, label: "Recipes" },
+  { href: `${base}features/`, label: "Features" },
+  { href: `${base}integrations/`, label: "Integrations" },
+  { href: `${base}pricing/`, label: "Pricing" },
+];
+---
+
+<header class="site-header on-plum">
+  <div class="wrap bar">
+    <a class="mark-host brand" href={base} aria-label="open-wa home"><Mark label="" size={36} /><span class="wordmark">open-wa</span></a>
+    <nav class="nav-desktop" aria-label="Main">
+      {nav.map((n) => <a href={n.href} aria-current={path.startsWith(n.href) ? "page" : undefined}>{n.label}</a>)}
+      <a href={support.docs}>Docs <span aria-hidden="true">&#8599;</span></a>
+    </nav>
+    <div class="bar-end">
+      <a class="pill gh" href={support.github} title={`GitHub stars, checked ${checked}`}>
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 .2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L8 12.6l-4.8 2.5.9-5.4L.2 5.9l5.4-.8z"/></svg>
+        <span>GitHub <b>{starsLabel}</b></span>
+      </a>
+      <a class="pill discord" href={support.discord}>Discord</a>
+      <a class="btn btn-primary qs" href={`${base}quickstart/`}>Quick start</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu-sheet">Menu</button>
+    </div>
+  </div>
+  <div class="sheet" id="menu-sheet" hidden>
+    <nav class="wrap sheet-nav" aria-label="Main (phone)">
+      {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+      <a href={`${base}quickstart/`}>Quick start</a>
+      <a href={support.docs}>Docs <span aria-hidden="true">&#8599;</span></a>
+      <a href={support.github}>GitHub, {starsLabel} stars <small>(checked {checked})</small></a>
+      <a href={support.discord}>Discord</a>
+      <a class="btn btn-primary" href={`${base}quickstart/`}>Get a session running</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>(".menu-btn");
+  const sheet = document.getElementById("menu-sheet");
+  if (btn && sheet) {
+    const set = (open: boolean) => {
+      btn.setAttribute("aria-expanded", String(open));
+      btn.textContent = open ? "Close" : "Menu";
+      sheet.hidden = !open;
+    };
+    btn.addEventListener("click", () => set(btn.getAttribute("aria-expanded") !== "true"));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && btn.getAttribute("aria-expanded") === "true") { set(false); btn.focus(); }
+    });
+  }
+</script>
+
+<style>
+  .site-header { position: sticky; top: 0; z-index: 50; border-bottom: 1px solid rgba(255, 244, 230, 0.08); background: rgba(42, 14, 46, 0.94); backdrop-filter: blur(10px); }
+  .bar { display: flex; align-items: center; gap: 20px; min-height: 68px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--cream); }
+  .wordmark { font: 700 19px/1 var(--font-display); letter-spacing: -0.03em; }
+  .nav-desktop { display: flex; gap: 4px; margin-left: 12px; }
+  .nav-desktop a, .pill { color: var(--cream); text-decoration: none; font-weight: 600; font-size: 16px; padding: 10px 12px; border-radius: 10px; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }
+  .nav-desktop a:hover, .pill:hover { background: rgba(255, 244, 230, 0.08); }
+  .nav-desktop a[aria-current="page"] { color: var(--tangerine); }
+  .bar-end { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+  .gh b { font-family: var(--font-mono); font-weight: 600; color: var(--tangerine-soft); }
+  .qs { min-height: 44px; margin-left: 6px; }
+  .menu-btn { display: none; min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid rgba(255, 244, 230, 0.35); background: transparent; color: var(--cream); font: 600 16px var(--font-text); cursor: pointer; }
+  .sheet { border-top: 1px solid rgba(255, 244, 230, 0.1); background: var(--plum); }
+  .sheet-nav { display: grid; padding-top: 8px; padding-bottom: 20px; }
+  .sheet-nav a:not(.btn) { color: var(--cream); text-decoration: none; font: 600 20px/1.2 var(--font-text); padding: 14px 0; border-bottom: 1px solid rgba(255, 244, 230, 0.1); }
+  .sheet-nav small { color: var(--muted-plum); font-size: 15px; font-weight: 400; }
+  .sheet-nav .btn { margin-top: 18px; }
+  @media (max-width: 1060px) { .discord { display: none; } }
+  @media (max-width: 940px) {
+    .nav-desktop, .gh { display: none; }
+    .menu-btn { display: inline-flex; align-items: center; }
+  }
+  @media (max-width: 420px) { .qs { display: none; } }
+</style>

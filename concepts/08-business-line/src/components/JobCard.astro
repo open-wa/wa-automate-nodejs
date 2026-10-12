@@ -1,0 +1,53 @@
+---
+import { Image } from "astro:assets";
+import type { Job } from "../data/facts";
+import { jobNeed, jobShort } from "../data/facts";
+import salon from "../assets/generated/salon.webp";
+import hotel from "../assets/generated/hotel.webp";
+import shop from "../assets/generated/shop.webp";
+import switchboard from "../assets/generated/switchboard.webp";
+interface Props { job: Job; span?: number }
+const { job, span = 4 } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const photos: Record<string, { src: ImageMetadata; alt: string }> = {
+  "salon-bookings": { src: salon, alt: "Illustration: salon chair (generated photograph)" },
+  "hotel-notifications": { src: hotel, alt: "Illustration: hotel key on a desk (generated photograph)" },
+  "order-updates": { src: shop, alt: "Illustration: shop counter (generated photograph)" },
+  "pbx-calls": { src: switchboard, alt: "Illustration: telephone switchboard (generated photograph)" },
+};
+const photo = photos[job.id];
+const need = jobNeed[job.id];
+const tagClass = need.need === "depends" ? "tag" : `tag tag-${need.need}`;
+const firstSentence = job.flow.split(/(?<=\.)\s/)[0];
+---
+
+<a class={`job-card ${photo ? "has-photo" : ""}`} style={`--span:${span}`} href={`${base}recipes/${job.id}/`}>
+  {photo && <Image src={photo.src} alt={photo.alt} width={700} class="job-photo" />}
+  <span class="job-body">
+    <span class={tagClass}>{need.label}</span>
+    <b class="job-name">{jobShort[job.id]}</b>
+    <span class="job-flow">{firstSentence}</span>
+    <span class="job-methods">{job.methods.slice(0, 4).map((m) => <code>{m}</code>)}</span>
+    <span class="job-go">Open the recipe <span aria-hidden="true">&rarr;</span></span>
+  </span>
+</a>
+
+<style>
+  .job-card {
+    grid-column: span var(--span); display: grid; text-decoration: none; color: var(--plum);
+    background: var(--paper); border: 1px solid var(--cream-3); border-radius: var(--radius-lg); overflow: hidden;
+    transition: transform var(--speed) var(--ease), box-shadow var(--speed) var(--ease); min-width: 0;
+  }
+  .job-card:hover { transform: translateY(-3px); box-shadow: 0 24px 48px -28px rgba(42, 14, 46, 0.5); border-color: var(--tangerine); }
+  .has-photo { grid-template-columns: 0.9fr 1.1fr; }
+  .job-card :global(.job-photo) { width: 100%; height: 100%; min-height: 220px; object-fit: cover; }
+  .job-body { display: grid; gap: 10px; padding: 22px; align-content: start; }
+  .job-body .tag { justify-self: start; white-space: normal; line-height: 1.2; }
+  .job-name { font: 600 21px/1.15 var(--font-display); letter-spacing: -0.02em; }
+  .job-flow { color: var(--muted-cream); font-size: 16px; }
+  .job-methods { display: flex; flex-wrap: wrap; gap: 6px; }
+  .job-methods code { font-size: 13px; }
+  .job-go { font-weight: 700; color: var(--tangerine-ink); margin-top: 4px; }
+  @media (max-width: 1000px) { .job-card { grid-column: span 6; } }
+  @media (max-width: 700px) { .job-card { grid-column: 1 / -1; } .has-photo { grid-template-columns: minmax(0, 1fr); } .job-card :global(.job-photo) { min-height: 0; aspect-ratio: 16 / 9; } }
+</style>
