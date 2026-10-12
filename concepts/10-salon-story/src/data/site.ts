@@ -30,7 +30,7 @@ export const jobs = facts.jobs;
 export type Job = (typeof facts.jobs)[number];
 export const jobById = (id: string) => facts.jobs.find((j) => j.id === id)!;
 
-export const starsShort = `${(stats.githubStars / 1000).toFixed(1)}k`;
+export const starsShort = `${Math.floor(stats.githubStars / 100) / 10}k`;
 export const checked = stats.checkedOn;
 
 /** Short job-framed licence labels used on cards and the pricing table. */

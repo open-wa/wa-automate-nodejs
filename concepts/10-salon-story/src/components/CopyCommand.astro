@@ -5,7 +5,7 @@ const { id = "cmd", size = "lg", tone = "light" } = Astro.props;
 const cmd = commands.easyApi;
 ---
 <div class:list={["cc", `cc-${size}`, `cc-${tone}`]}>
-  <code class="cc-text" id={id}><span class="cc-prompt" aria-hidden="true">$</span> {cmd}</code>
+  <code class="cc-text" id={id}><span class="cc-prompt" aria-hidden="true">$</span> <span class="cc-cmd">{cmd.split(" ").map((t, i) => <><span class="cc-tok" set:html={t.replace(/\//g, "/<wbr>")} />{i < cmd.split(" ").length - 1 ? " " : ""}</>)}</span></code>
   <button class="cc-btn" type="button" data-copy={cmd} data-label="Copy" aria-label={`Copy the command: ${cmd}`}>
     <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect x="6.5" y="6.5" width="10" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M13.5 6.5V5a1.5 1.5 0 0 0-1.5-1.5H5A1.5 1.5 0 0 0 3.5 5v7A1.5 1.5 0 0 0 5 13.5h1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
     <span class="copy-label">Copy</span>
@@ -15,7 +15,10 @@ const cmd = commands.easyApi;
   .cc { display: flex; align-items: stretch; border-radius: 14px; overflow: hidden; min-width: 0; }
   .cc-light { background: var(--espresso); color: var(--cream-on-dark); }
   .cc-dark { background: #1f1310; color: var(--cream-on-dark); box-shadow: inset 0 0 0 1px #4d3730; }
-  .cc-text { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 14px 16px; font: 500 15px/1.45 var(--font-mono); overflow-wrap: anywhere; }
+  .cc-text { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 14px 16px; font: 500 15px/1.45 var(--font-mono); white-space: pre-wrap; word-break: normal; overflow-wrap: normal; }
+  .cc-tok { white-space: nowrap; }
+  @media (max-width: 420px) { .cc-text, .cc-lg .cc-text { font-size: 14px; padding: 14px 12px 14px 14px; gap: 8px; } .cc-btn { min-width: 88px; padding: 0 12px; } }
+  .cc-cmd { min-width: 0; }
   .cc-lg .cc-text { font-size: 16px; padding: 16px 18px; }
   .cc-prompt { color: var(--brass-light); user-select: none; }
   .cc-btn { flex: none; display: inline-flex; align-items: center; gap: 7px; min-width: 96px; justify-content: center; padding: 0 16px; border: 0; background: var(--brass); color: var(--espresso); font: 700 15px/1 var(--font-text); cursor: pointer; transition: background var(--speed) var(--ease); }
