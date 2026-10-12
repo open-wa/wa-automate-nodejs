@@ -1,0 +1,19 @@
+---
+import { Code } from "astro:components";
+import { risoTheme } from "../lib/riso-theme";
+
+interface Props { code: string; lang?: string; label?: string; example?: boolean }
+const { code, lang = "js", label, example = false } = Astro.props;
+---
+
+<figure class="code">
+  <figcaption class="code-bar">
+    <span class="code-label">{label ?? lang}{example && <span class="tag-example">Example output</span>}</span>
+    {!example && (
+      <button class="copy-btn" type="button" data-copy={code} aria-label={`Copy ${label ?? "code"}`}>
+        <span class="copy-label">Copy</span>
+      </button>
+    )}
+  </figcaption>
+  <Code code={code} lang={lang as any} theme={risoTheme as any} wrap={false} />
+</figure>

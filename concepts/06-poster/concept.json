@@ -1,0 +1,12 @@
+{
+  "slug": "06-poster",
+  "name": "Poster",
+  "tagline": "WhatsApp, from your terminal: a riso-printed poster with the run command set inside the headline",
+  "archetype": "developer",
+  "audience": "Node.js developers who want WhatsApp in their app (indie, agency, in-house, AI-agent builders)",
+  "flow": "copy the command on the poster, run it, scan; licence buyers configure a key on /pricing/ and go to a prefilled Gumroad checkout",
+  "benchmark": "Deno (deno.com)",
+  "floor": ["/", "/quickstart/", "/features/", "/integrations/", "/ai-agents/", "/use-cases/", "/pricing/", "/compare/", "/migrate/", "/support/", "/community/", "/changelog/", "/legal/", "/404"],
+  "fonts": ["Big Shoulders Display (OFL)", "Literata (OFL)", "Victor Mono (OFL)"],
+  "libraries": ["astro", "shiki (via astro:components Code)"]
+}

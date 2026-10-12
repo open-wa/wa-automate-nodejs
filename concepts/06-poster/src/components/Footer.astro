@@ -1,0 +1,51 @@
+---
+import Mark from "./Mark.astro";
+import { support, product, legal, stats, releases } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const groups = [
+  { title: "Product", links: [
+    ["Features", `${base}features/`], ["Integrations", `${base}integrations/`], ["AI agents", `${base}ai-agents/`],
+    ["Use cases", `${base}use-cases/`], ["Pricing", `${base}pricing/`], ["Official API or open-wa?", `${base}compare/`],
+  ] },
+  { title: "Developers", links: [
+    ["Quick start", `${base}quickstart/`], ["Docs", support.docs], ["API explorer", support.apiExplorer],
+    ["Changelog", `${base}changelog/`], ["Migrate from v4", `${base}migrate/`], ["GitHub", support.github],
+    ["npm", support.npm], ["Docker Hub", support.dockerHub],
+  ] },
+  { title: "Community", links: [
+    ["Discord", support.discord], ["Contributing", `${base}community/#contribute`], ["Plugin SDK", `${base}integrations/#plugin-sdk`],
+    ["Support and consulting", `${base}support/`], ["Releases", support.releases],
+  ] },
+  { title: "Legal", links: [
+    ["Terms of Service", support.terms], ["Software licence", support.licenceText], ["Unofficial notice", `${base}legal/#unofficial`],
+    ["Ban-risk notice", `${base}legal/#risk`], ["Cryptography notice", `${base}legal/#crypto`],
+  ] },
+];
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="ft-top">
+      <a class="brand mark-host ft-brand" href={base} aria-label="open-wa home">
+        <Mark size={48} label="" />
+        <span class="brand-word" aria-hidden="true">open-wa</span>
+      </a>
+      <p class="ft-line">
+        WhatsApp automation for Node.js, maintained by {support.maintainer} since 2019.
+        Version {releases[0].version} released {releases[0].date}.
+      </p>
+    </div>
+    <div class="ft-grid">
+      {groups.map((g) => (
+        <nav aria-label={g.title}>
+          <h2>{g.title}</h2>
+          <ul>{g.links.map(([label, href]) => <li><a href={href}>{label}</a></li>)}</ul>
+        </nav>
+      ))}
+    </div>
+    <div class="ft-legal">
+      <p class="ft-disclaimer"><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> {product.risk}</p>
+      <p>{legal.copyright}. Software licence: {product.softwareLicence}. GitHub and Discord figures checked {stats.checkedOn}.</p>
+    </div>
+  </div>
+</footer>

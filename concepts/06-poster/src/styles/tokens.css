@@ -1,0 +1,32 @@
+/* Poster: riso print on newsprint. Two inks (pink, blue); overprint appears
+   only where they overlap. Text-safe ink shades exist because fluorescent pink
+   on newsprint fails contrast for body text. */
+:root {
+  --paper: #F2EEE3;          /* newsprint */
+  --paper-deep: #E8E2D2;     /* a second sheet, for panels */
+  --pink: #FF48B0;           /* riso fluorescent pink: shapes and big type only */
+  --blue: #0078BF;           /* riso medium blue: display type, plates */
+  --pink-text: #B8136C;      /* pink ink, dense enough for text (5.1:1 on paper) */
+  --blue-text: #005B91;      /* blue ink, dense enough for text (6.3:1 on paper) */
+  --ink: #1C1A2E;            /* body text: heavy overprint */
+  --ink-soft: #4A4658;       /* secondary text (7.8:1 on paper) */
+  --rule: #1C1A2E;
+
+  --color-bg: var(--paper);
+  --color-ink: var(--ink);
+  --color-accent: var(--blue);
+  --color-muted: var(--ink-soft);
+  --color-surface: var(--paper-deep);
+
+  --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --font-text: "Literata", Georgia, serif;
+  --font-mono: "Victor Mono", ui-monospace, monospace;
+
+  --radius: 4px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --speed: 220ms;
+  --wrap: 1240px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --header-h: 64px;
+}

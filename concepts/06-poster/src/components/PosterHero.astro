@@ -1,0 +1,224 @@
+---
+/**
+ * The poster: a giant condensed headline printed in two inks, with the run
+ * command set inside it as a copyable strip. Signature moment: pressing Copy
+ * reprints the poster (both plates slide out of register and settle back) and
+ * a "Copied" stamp lands. Letters press down like keys under a fine pointer.
+ * Reduced motion and ?still: a designed still poster, Copy shows "Copied" and
+ * the stamp instantly.
+ */
+import heroPink from "../assets/generated/hero-pink.webp";
+import heroBlue from "../assets/generated/hero-blue.webp";
+import { commands, support } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const letters = (s: string) => [...s].map((ch) => (ch === " " ? { ch: " ", space: true } : { ch, space: false }));
+const lines = [
+  { text: "WhatsApp,", show: "WHATSAPP," },
+  { text: "from your", show: "FROM YOUR" },
+  { text: "terminal.", show: "TERMINAL." },
+];
+---
+
+<section class="poster" data-poster aria-labelledby="poster-title">
+  <div class="poster-sheet wrap">
+    <div class="poster-type">
+      <h1 id="poster-title" class="headline">
+        {lines.map((line, i) => (
+          <span class={`hl hl-${i + 1}`}>
+            <span class="sr-only">{line.text} </span>
+            <span class="hl-ink" aria-hidden="true">
+              {letters(line.show).map((l, j) => l.space
+                ? <span class="k-space"> </span>
+                : <span class="k" data-l={l.ch} style={`--i:${i * 9 + j}`}>{l.ch}</span>)}
+            </span>
+          </span>
+        ))}
+      </h1>
+
+      <div class="strip" role="group" aria-label="Run command">
+        <span class="strip-prompt" aria-hidden="true">$</span>
+        <code class="strip-cmd" id="hero-cmd"><span class="nowrap">npx @open-wa/wa-automate@latest</span> <span class="nowrap">--port 8080</span></code>
+        <button class="strip-copy" type="button" data-copy={commands.easyApi} aria-label="Copy the run command">
+          <span class="copy-label">Copy</span>
+        </button>
+        <svg class="stamp" viewBox="0 0 220 92" aria-hidden="true" focusable="false">
+          <g transform="rotate(-9 110 46)">
+            <rect x="8" y="10" width="204" height="72" rx="10" fill="none" stroke="currentColor" stroke-width="6" />
+            <rect x="17" y="19" width="186" height="54" rx="6" fill="none" stroke="currentColor" stroke-width="2.5" />
+            <text x="110" y="63" text-anchor="middle" font-family="Big Shoulders Display, sans-serif" font-weight="900" font-size="46" letter-spacing="4" fill="currentColor">COPIED</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="poster-foot">
+        <p class="poster-sub">
+          open-wa turns your own WhatsApp number into a local HTTP API for your Node.js app, with interactive docs. Free for most methods, open source since 2019.
+        </p>
+        <div class="poster-ctas">
+          <a class="btn btn-ink" href={`${base}quickstart/`}>Quick start</a>
+          <a class="btn" href={support.docs}>Read the docs<span class="ext" aria-hidden="true">↗</span></a>
+        </div>
+        <p class="poster-risk">
+          Unofficial, and automation can get a number banned. <a href={`${base}legal/#risk`}>Read the risk note</a>.
+        </p>
+      </div>
+    </div>
+
+    <figure class="poster-art" aria-hidden="false">
+      <div class="plates">
+        <img class="plate plate-pink" src={heroPink.src} width={heroPink.width} height={heroPink.height} alt="" decoding="async" fetchpriority="high" />
+        <img class="plate plate-blue" src={heroBlue.src} width={heroBlue.width} height={heroBlue.height} alt="Illustration: one hand holds a phone, the other types on a keyboard, with speech bubbles flying between them, printed in pink and blue ink." decoding="async" fetchpriority="high" />
+      </div>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .poster { position: relative; border-bottom: 2.5px solid var(--ink); overflow: hidden; }
+  .poster-sheet {
+    display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.9fr); gap: 0 clamp(16px, 3vw, 48px);
+    align-items: center; padding-block: clamp(20px, 3.2vh, 40px) clamp(28px, 4vh, 48px);
+    min-height: calc(100svh - var(--header-h)); max-height: 980px;
+  }
+  .poster-type { display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; position: relative; z-index: 2; }
+
+  /* The headline is split around the command strip, so the h1 lends its lines to the grid. */
+  .headline { display: contents; }
+  .hl { display: block; font-family: var(--font-display); font-weight: 900; text-transform: uppercase; color: var(--blue);
+    font-size: clamp(76px, min(12.4vw, 17.5vh), 212px); line-height: 0.84; letter-spacing: -0.005em; }
+  .hl-1 { order: 1; }
+  .strip { order: 2; }
+  .hl-2 { order: 3; }
+  .hl-3 { order: 4; }
+  .poster-foot { order: 5; }
+  .hl-ink { display: block; white-space: nowrap; isolation: isolate; }
+  .k { position: relative; display: inline-block; --rx: 0.03em; --ry: 0.026em;
+    transition: transform 380ms var(--ease-spring); }
+  .k::after {
+    content: attr(data-l); position: absolute; inset: 0; color: var(--pink); mix-blend-mode: multiply;
+    transform: translate(var(--rx), var(--ry)); transition: transform 380ms var(--ease-spring); pointer-events: none;
+  }
+  .k-space { display: inline-block; width: 0.22em; }
+
+  /* Keys: a fine pointer presses each letter down and pulls its plates into register. */
+  @media (hover: hover) and (pointer: fine) {
+    .poster:not(.is-still) .k:hover { transform: translateY(0.06em) scaleY(0.96); transition-duration: 90ms; }
+    .poster:not(.is-still) .k:hover::after { transform: translate(0, 0); transition-duration: 90ms; }
+  }
+
+  .strip {
+    position: relative; display: flex; align-items: center; gap: 12px; margin: 0.9vh 0 1.2vh;
+    padding: 8px 8px 8px 18px; background: var(--ink); color: var(--paper); border-radius: var(--radius);
+    box-shadow: 6px 6px 0 var(--pink); transform: rotate(-0.8deg); max-width: 760px;
+  }
+  .strip-prompt { font-family: var(--font-mono); font-weight: 700; color: var(--pink); font-size: 1.15rem; }
+  .strip-cmd { flex: 1; min-width: 0; font-family: var(--font-mono); font-size: clamp(0.92rem, 1.4vw, 1.18rem); font-weight: 600; background: none; padding: 0; color: var(--paper); line-height: 1.4; overflow-wrap: normal; }
+  .nowrap { white-space: nowrap; }
+  .strip-copy {
+    flex: none; min-height: 52px; min-width: 96px; padding: 0 18px; border: 2.5px solid var(--paper); border-radius: 3px;
+    background: var(--pink); color: var(--ink); cursor: pointer;
+    font-family: var(--font-display); font-weight: 900; font-size: 1.35rem; letter-spacing: 0.06em; text-transform: uppercase;
+    transition: transform 120ms var(--ease);
+  }
+  .strip-copy:hover { background: var(--paper); }
+  .strip-copy:active { transform: translateY(2px); }
+  .strip-copy:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
+  .strip-copy.is-copied { background: var(--paper); }
+
+  .stamp { position: absolute; right: -14px; top: -58px; width: 170px; height: auto; color: var(--pink-text); opacity: 0; pointer-events: none; mix-blend-mode: multiply; transform-origin: 60% 60%; }
+  .poster.is-stamped .stamp { opacity: 0.92; animation: stamp-land 420ms var(--ease) both; }
+  .poster.is-still.is-stamped .stamp, .poster.is-quiet.is-stamped .stamp { animation: none; }
+  @keyframes stamp-land {
+    0% { opacity: 0; transform: scale(1.9) rotate(8deg); }
+    55% { opacity: 1; transform: scale(0.94) rotate(-2deg); }
+    100% { opacity: 0.92; transform: scale(1) rotate(0); }
+  }
+
+  .poster-foot { display: grid; gap: 14px; margin-top: 1.6vh; max-width: 640px; }
+  .poster-sub { font-size: clamp(1.02rem, 1.25vw, 1.2rem); line-height: 1.5; margin: 0; }
+  .poster-ctas { display: flex; flex-wrap: wrap; gap: 14px; }
+  .poster-risk { margin: 0; font-size: 0.95rem; color: var(--ink-soft); }
+
+  .poster-art { margin: 0; position: relative; z-index: 1; align-self: stretch; display: grid; align-items: center; }
+  .plates { position: relative; isolation: isolate; aspect-ratio: 680 / 850; max-height: calc(100svh - var(--header-h) - 64px); margin-inline: auto; width: 100%; }
+  .plate { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  .plate-blue { mix-blend-mode: multiply; }
+
+  /* Reprint: both plates slide out of register and settle back. */
+  .poster.is-reprinting .k::after { animation: misreg-pink 900ms var(--ease) both; }
+  .poster.is-reprinting .hl-ink { animation: misreg-blue 900ms var(--ease) both; }
+  .poster.is-reprinting .plate-pink { animation: plate-pink 900ms var(--ease) both; }
+  .poster.is-reprinting .plate-blue { animation: plate-blue 900ms var(--ease) both; }
+  .k:nth-child(odd)::after { animation-delay: 0ms; }
+  @keyframes misreg-pink {
+    0% { transform: translate(var(--rx), var(--ry)); }
+    30% { transform: translate(-0.16em, 0.1em); }
+    62% { transform: translate(0.06em, -0.03em); }
+    100% { transform: translate(var(--rx), var(--ry)); }
+  }
+  @keyframes misreg-blue {
+    0% { transform: translate(0, 0); }
+    30% { transform: translate(0.05em, -0.05em); }
+    62% { transform: translate(-0.015em, 0.012em); }
+    100% { transform: translate(0, 0); }
+  }
+  @keyframes plate-pink {
+    0% { transform: translate(0, 0) rotate(0); }
+    30% { transform: translate(-22px, 16px) rotate(-1.2deg); }
+    62% { transform: translate(6px, -4px) rotate(0.3deg); }
+    100% { transform: translate(0, 0) rotate(0); }
+  }
+  @keyframes plate-blue {
+    0% { transform: translate(0, 0); }
+    30% { transform: translate(14px, -12px) rotate(0.8deg); }
+    62% { transform: translate(-4px, 3px); }
+    100% { transform: translate(0, 0); }
+  }
+
+  @media (max-width: 860px) {
+    .poster-sheet { grid-template-columns: minmax(0, 1fr); min-height: 0; max-height: none; padding-block: 18px 32px; }
+    .hl { font-size: clamp(64px, 21.5vw, 150px); }
+    .strip { display: grid; grid-template-columns: minmax(0, 1fr) auto; padding: 10px 8px 8px 14px; gap: 2px 10px; transform: rotate(-0.6deg); margin: 10px 0 12px; }
+    .strip-prompt { display: none; }
+    .strip-cmd { grid-column: 1 / -1; grid-row: 1 / 3; font-size: 1rem; line-height: 1.5; align-self: start; }
+    .strip-cmd .nowrap { display: block; }
+    .strip-copy { grid-column: 2; grid-row: 2; align-self: end; min-height: 48px; }
+    .stamp { width: 132px; top: -40px; right: -6px; }
+    .poster-foot { margin-top: 10px; gap: 12px; }
+    .poster-art { margin-top: 28px; }
+    .plates { max-width: 520px; max-height: none; }
+  }
+  @media (max-width: 400px) {
+    .strip-cmd { font-size: 0.94rem; }
+    .poster-ctas .btn { flex: 1; padding-inline: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .k, .k::after { transition: none; }
+    .poster .stamp { animation: none !important; }
+  }
+</style>
+
+<script>
+  import { shouldAnimate } from "../lib/runtime";
+  const poster = document.querySelector<HTMLElement>("[data-poster]");
+  if (poster) {
+    const animate = shouldAnimate();
+    if (!animate) poster.classList.add(new URLSearchParams(location.search).has("still") ? "is-still" : "is-quiet");
+    let stampTimer = 0;
+    let printTimer = 0;
+    poster.addEventListener("openwa:copied", () => {
+      window.clearTimeout(stampTimer);
+      window.clearTimeout(printTimer);
+      poster.classList.remove("is-stamped", "is-reprinting");
+      if (animate) {
+        void poster.offsetWidth; // restart the keyframes on a second press
+        poster.classList.add("is-reprinting");
+        printTimer = window.setTimeout(() => poster.classList.remove("is-reprinting"), 950);
+        window.setTimeout(() => poster.classList.add("is-stamped"), 260);
+      } else {
+        poster.classList.add("is-stamped");
+      }
+      stampTimer = window.setTimeout(() => poster.classList.remove("is-stamped"), 2600);
+    });
+  }
+</script>

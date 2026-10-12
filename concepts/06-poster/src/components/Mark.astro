@@ -1,0 +1,44 @@
+---
+/**
+ * The mark: a rubber-stamp speech bubble with a terminal prompt inside, printed
+ * in two inks. On hover and keyboard focus of the wrapping link (.mark-host) the
+ * stamp presses down and the pink and blue plates slide out of register, then
+ * settle back. Still under reduced motion.
+ */
+interface Props { size?: number; label?: string }
+const { size = 36, label = "open-wa" } = Astro.props;
+---
+
+<svg class="mark" viewBox="0 0 40 40" width={size} height={size} role="img" aria-label={label}>
+  <g class="mark-plate mark-pink">
+    <path d="M7 6h26a3 3 0 0 1 3 3v17a3 3 0 0 1-3 3H17l-8 7v-7H7a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3z" fill="#FF48B0" />
+  </g>
+  <g class="mark-plate mark-blue" fill="none" stroke="#0078BF" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M7 6h26a3 3 0 0 1 3 3v17a3 3 0 0 1-3 3H17l-8 7v-7H7a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3z" stroke-width="2.6" />
+    <path d="M11 13l5 4.5-5 4.5" stroke-width="3" />
+    <path d="M19 22.5h10" stroke-width="3" />
+  </g>
+</svg>
+
+<style>
+  .mark { display: block; overflow: visible; isolation: isolate; flex: none; }
+  .mark-plate { transition: transform 520ms var(--ease-spring); transform-box: view-box; }
+  .mark-pink { transform: translate(1.6px, 1.4px); }
+  .mark-blue { mix-blend-mode: multiply; }
+  .mark { transition: transform 260ms var(--ease); transform-origin: 50% 60%; }
+  :global(.mark-host:hover) .mark,
+  :global(.mark-host:focus-visible) .mark { animation: stamp 520ms var(--ease) both; }
+  :global(.mark-host:hover) .mark-pink,
+  :global(.mark-host:focus-visible) .mark-pink { transform: translate(-2.4px, 3px); }
+  :global(.mark-host:hover) .mark-blue,
+  :global(.mark-host:focus-visible) .mark-blue { transform: translate(1.8px, -1.6px); }
+  @keyframes stamp {
+    0% { transform: rotate(0) scale(1); }
+    35% { transform: rotate(-7deg) scale(0.86); }
+    70% { transform: rotate(-4deg) scale(1.04); }
+    100% { transform: rotate(-5deg) scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mark, .mark-plate { animation: none !important; transition: none; }
+  }
+</style>
