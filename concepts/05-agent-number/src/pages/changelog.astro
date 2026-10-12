@@ -1,0 +1,34 @@
+---
+import Page from "../layouts/Page.astro";
+import { releases, support } from "../data/site";
+---
+
+<Page title="Changelog | open-wa" description="What shipped in open-wa 5.5 and 5.4: event cards, live refresh, local stickers and your own session encryption key.">
+  <section class="page-hero wrap">
+    <span class="label">Changelog</span>
+    <h1>What shipped lately</h1>
+    <p class="lede">Highlights from recent releases. Every version is on <a class="textlink" href={support.releases}>GitHub releases</a> and in the <a class="textlink" href={support.changelog}>docs changelog</a>.</p>
+  </section>
+  <section class="wrap cl">
+    {releases.map((r) => (
+      <article class="cl-rel" id={`v${r.version}`}>
+        <div class="cl-meta"><span class="cl-v">{r.version}</span><time>{r.date}</time></div>
+        <div>
+          <h2>{r.headline}</h2>
+          <ul>{r.highlights.map((h) => <li>{h}</li>)}</ul>
+        </div>
+      </article>
+    ))}
+  </section>
+  <div class="section"></div>
+</Page>
+
+<style>
+  .cl { border-top: 1px solid var(--line-strong); }
+  .cl-rel { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px; padding: 36px 0; border-bottom: 1px solid var(--line-strong); }
+  .cl-meta { display: grid; gap: 6px; align-content: start; font-family: var(--font-mono); color: var(--ink-soft); }
+  .cl-v { font: 400 40px/1 var(--font-display); color: var(--oxblood); }
+  .cl-rel h2 { font-size: clamp(28px, 3vw, 38px); }
+  .cl-rel ul { margin: 14px 0 0; padding-left: 1.2em; display: grid; gap: 8px; }
+  @media (max-width: 700px) { .cl-rel { grid-template-columns: 1fr; gap: 10px; } }
+</style>

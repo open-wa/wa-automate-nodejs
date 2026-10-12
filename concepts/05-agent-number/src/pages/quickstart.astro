@@ -1,0 +1,91 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { commands, snippets, firstRun, paths, product, support, migration, href } from "../data/site";
+const p = Object.fromEntries(paths.map((x) => [x.id, x]));
+---
+
+<Page title="Quick start | open-wa" description="Run one command, scan the QR code, and open your live API docs. Then pick Easy API, SocketClient, the embedded runtime or MCP.">
+  <section class="page-hero wrap">
+    <span class="label">Quick start</span>
+    <h1>A running session in three steps</h1>
+    <p class="lede">You need Node.js {product.node.replace(">=", "")} or newer and a phone with WhatsApp. Everything runs on your machine.</p>
+  </section>
+
+  <section class="wrap qs-steps" aria-label="First run">
+    <ol>
+      <li>
+        <span class="qs-n" aria-hidden="true">1</span>
+        <div><h2>Run the command</h2><p>{firstRun[0]}</p>
+          <CodeBlock code={commands.easyApi} lang="bash" title="Terminal" />
+          <p class="muted small-gap">Protect it with a key before you expose the port:</p>
+          <CodeBlock code={commands.easyApiWithKey} lang="bash" title="With an API key" />
+        </div>
+      </li>
+      <li>
+        <span class="qs-n" aria-hidden="true">2</span>
+        <div><h2>Scan the QR code, or use a link code</h2><p>{firstRun[1]}</p>
+          <p class="qs-risk"><strong>Ban risk.</strong> {product.risk} Test with a number you can afford to lose.</p>
+        </div>
+      </li>
+      <li>
+        <span class="qs-n" aria-hidden="true">3</span>
+        <div><h2>Open your live API docs</h2><p>{firstRun[2]}</p>
+          <CodeBlock code={commands.proofOfLife} lang="plaintext" title="Browser" />
+          <ul class="qs-files">
+            <li>Swagger: <code>{commands.swagger}</code></li>
+            <li>Postman: <code>{commands.postman}</code></li>
+          </ul>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="wrap section doc" aria-labelledby="paths-title">
+    <h2 id="paths-title">Then pick how your code talks to it</h2>
+
+    <h3 id="easy-api">{p["easy-api"].name}</h3>
+    <p>{p["easy-api"].what} Run several numbers side by side with a session ID:</p>
+    <CodeBlock code={commands.namedSession} lang="bash" title="Second session" />
+
+    <h3 id="socket-client">{p["socket-client"].name}</h3>
+    <p>{p["socket-client"].what}</p>
+    <CodeBlock code={commands.socketClientInstall} lang="bash" title="Install" />
+    <CodeBlock code={snippets.socketClient} lang="ts" title="bot.ts" />
+
+    <h3 id="embedded">{p.embedded.name}</h3>
+    <p>{p.embedded.what}</p>
+    <CodeBlock code={commands.embeddedInstall} lang="bash" title="Install" />
+    <CodeBlock code={snippets.embedded} lang="ts" title="index.ts" />
+
+    <h3 id="mcp">{p.mcp.name}</h3>
+    <p>{p.mcp.what} <a class="textlink" href={href("ai-agents/")}>Full agent set-up</a></p>
+    <CodeBlock code={snippets.mcpConfig} lang="js" title="wa.config.mjs" />
+    <CodeBlock code={snippets.mcpStart} lang="bash" title="Start it" />
+
+    <h3 id="docker">Docker</h3>
+    <p>The same Easy API in a container:</p>
+    <CodeBlock code={commands.docker} lang="bash" title="Terminal" />
+
+    <h3>Coming from v4?</h3>
+    <p>{migration.summary} <a class="textlink" href={href("migrate/")}>Migrate from v4</a></p>
+
+    <h3>Next</h3>
+    <p>The full guide lives in the docs: <a class="textlink" href={support.quickstartDocs}>Quick start docs</a>, <a class="textlink" href={support.apiExplorer}>API explorer</a>, or ask on <a class="textlink" href={support.discord}>Discord</a>.</p>
+  </section>
+</Page>
+
+<style>
+  .qs-steps ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--line-strong); }
+  .qs-steps li { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 20px; padding: 32px 0; border-bottom: 1px solid var(--line-strong); }
+  .qs-steps li > div { display: grid; gap: 12px; max-width: 760px; min-width: 0; }
+  .qs-steps h2 { font-size: clamp(26px, 3vw, 34px); }
+  .qs-n { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--oxblood); color: #fff3ea; font: 400 28px/1 var(--font-display); }
+  .qs-risk { padding: 14px 16px; border-radius: var(--radius); background: var(--oxblood-wash); color: var(--oxblood-deep); }
+  .qs-files { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+  .doc :global(.cb) { margin-top: 12px; }
+  @media (max-width: 600px) {
+    .qs-steps li { grid-template-columns: 1fr; gap: 12px; }
+    .qs-n { width: 44px; height: 44px; font-size: 22px; }
+  }
+</style>

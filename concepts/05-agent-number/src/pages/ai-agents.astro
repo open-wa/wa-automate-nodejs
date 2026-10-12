@@ -1,0 +1,132 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import AgentTranscript from "../components/AgentTranscript.astro";
+import { snippets, commands, product, support, licences, href } from "../data/site";
+
+const listReq = JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }, null, 2);
+const listRes = `{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "tools": [
+      {
+        "name": "messages.sendText",
+        "description": "Sends a text message and returns a validated serialized message ID. ...",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "to": { "type": "string", "description": "Recipient chat ID" },
+            "content": { "type": "string", "description": "Message content" }
+          },
+          "required": ["to", "content"]
+        }
+      }
+    ]
+  }
+}`;
+
+const toolRows = [
+  { tool: "chats.getAllChats", does: "List the account's chats", licence: "No key" },
+  { tool: "messages.sendText", does: "Send text to an existing chat", licence: "No key" },
+  { tool: "messages.sendText", does: "Send text to a number that isn't a contact", licence: "Restricted" },
+  { tool: "messages.sendFile", does: "Send a document or media file", licence: "No key" },
+  { tool: "contacts.checkNumberStatus", does: "Check whether a number is on WhatsApp", licence: "Insiders" },
+  { tool: "messages.sendButtons", does: "Send an interactive buttons message", licence: "Insiders" },
+  { tool: "groups.createGroup", does: "Create a group", licence: "Restricted" },
+];
+---
+
+<Page title="AI agents and MCP | open-wa" description="Give Claude, Cursor or Windsurf a WhatsApp number through open-wa's built-in MCP server. Config, start command, Claude Desktop set-up and which methods become tools.">
+  <section class="page-hero wrap ag-hero">
+    <div>
+      <span class="label">AI agents</span>
+      <h1>Your agent, on your WhatsApp number</h1>
+      <p class="lede">
+        The built-in MCP server turns each Easy API method into a tool. Claude, Cursor and Windsurf connect to one local URL and call the same methods your code does, with the same licence rules.
+      </p>
+      <p class="ag-jump">
+        <a class="btn btn-primary" href="#setup">Set it up <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn-ghost" href="#tools">Which tools you get</a>
+      </p>
+    </div>
+    <figure class="ag-frame">
+      <figcaption><span>Agent session</span><span class="ag-ex">Example</span></figcaption>
+      <div class="ag-tx"><AgentTranscript /></div>
+    </figure>
+  </section>
+
+  <section class="wrap section doc ag-doc" id="setup" aria-labelledby="setup-title">
+    <h2 id="setup-title">Set-up in three files' worth of text</h2>
+
+    <h3>1. Turn the MCP server on</h3>
+    <p>MCP requires an API key, so the config sets one from an environment variable. Save this where you run the command:</p>
+    <CodeBlock code={snippets.mcpConfig} lang="js" title="wa.config.mjs" />
+    <p><code>exposeToolsMeta</code> also serves <code>/meta/mcp-tools.json</code>, the tool list as JSON, for the dashboard and for debugging.</p>
+
+    <h3>2. Start it with your key</h3>
+    <CodeBlock code={snippets.mcpStart} lang="bash" title="Terminal" />
+    <p>Scan the QR code on first run, as in the <a class="textlink" href={href("quickstart/")}>quick start</a>. Your endpoint is <code>{commands.mcpEndpoint}</code>.</p>
+
+    <h3>3. Point your agent at it</h3>
+    <p>Claude Desktop:</p>
+    <CodeBlock code={snippets.claudeDesktop} lang="json" title="Claude Desktop config" />
+    <p>Cursor and Windsurf take the same URL and the same <code>X-API-Key</code> header in their MCP settings.</p>
+
+    <h2 id="tools">Which methods become tools</h2>
+    <p>Every Easy API method is a tool, named by namespace and method: <code>messages.sendText</code>, <code>chats.getAllChats</code>. Agents discover them with <code>tools/list</code>, which returns each tool's description and input schema:</p>
+    <div class="ag-pair">
+      <CodeBlock code={listReq} lang="json" title="Request" label="Example" />
+      <CodeBlock code={listRes} lang="json" title="Response (one tool shown)" label="Example" />
+    </div>
+    <p>A tool call returns the method's result as a text content block. If the WhatsApp session isn't ready yet, the call returns an error instead of running: "Session is not connected or ready. Tool execution is blocked until the session is fully ready."</p>
+
+    <h2 id="licence">Licence rules follow the method</h2>
+    <p>{licences.summary} A tool call needs the same key the HTTP call would.</p>
+    <div class="ag-table-wrap">
+      <table class="ag-table">
+        <thead><tr><th scope="col">Tool</th><th scope="col">What it does</th><th scope="col">Key</th></tr></thead>
+        <tbody>
+          {toolRows.map((r) => (
+            <tr><td><code>{r.tool}</code></td><td>{r.does}</td><td><span class:list={["ag-key", r.licence === "No key" ? "free" : "paid"]}>{r.licence}</span></td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p><a class="textlink" href={href("pricing/")}>Insiders and Restricted prices</a></p>
+
+    <h2>Before you let an agent send</h2>
+    <ul>
+      <li>Your agent writes from your real number. Start on a test number and read the transcript before you point it at customers.</li>
+      <li>{product.risk}</li>
+      <li>Keep the API key out of prompts and shared configs. Anyone with it can call every tool.</li>
+      <li>Run a separate session per agent with <code>--session-id</code> if you want each one isolated.</li>
+    </ul>
+
+    <h2>More</h2>
+    <p>Configuration reference in the <a class="textlink" href={support.docs}>docs</a>. Questions about agents and MCP go to <a class="textlink" href={support.discord}>Discord</a>.</p>
+  </section>
+</Page>
+
+<style>
+  .ag-hero { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 48px; align-items: start; }
+  .ag-jump { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+  .ag-frame { margin: 0; background: var(--paper); border: 1px solid var(--line-strong); border-radius: var(--radius-l); box-shadow: var(--shadow-window); overflow: hidden; }
+  .ag-frame figcaption { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--bone); font: 500 13px/1 var(--font-mono); }
+  .ag-ex { padding: 4px 8px; border-radius: 999px; background: var(--lichen-wash); color: var(--lichen); text-transform: uppercase; letter-spacing: 0.04em; font-size: 12px; }
+  .ag-tx { padding: 20px; }
+  .ag-doc :global(.cb) { margin-top: 12px; }
+  .ag-doc { max-width: 880px; }
+  .ag-pair { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 12px; align-items: start; }
+  .ag-table-wrap { position: relative; overflow-x: auto; margin-top: 16px; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--paper); }
+  .ag-table { width: 100%; border-collapse: collapse; font-size: 16px; }
+  .ag-table th, .ag-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .ag-table th { font: 500 13px/1.3 var(--font-mono); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-faint); }
+  .ag-table tr:last-child td { border-bottom: 0; }
+  .ag-key { white-space: nowrap; font-weight: 600; }
+  .ag-key.free { color: var(--lichen); }
+  .ag-key.paid { color: var(--oxblood); }
+  @media (max-width: 900px) {
+    .ag-hero, .ag-pair { grid-template-columns: 1fr; }
+  }
+</style>
