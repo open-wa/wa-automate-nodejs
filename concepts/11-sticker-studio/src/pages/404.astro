@@ -1,0 +1,20 @@
+---
+import Base from "../layouts/Base.astro";
+import { href } from "../data/site";
+---
+
+<Base title="Page not found | open-wa" description="That page peeled off. Try the home page, recipes or the quick start.">
+  <section class="page-hero nf">
+    <div class="wrap">
+      <p class="nf-sticker" aria-hidden="true">404</p>
+      <h1>This page peeled off.</h1>
+      <p class="lede">The link may be old. Try one of these instead.</p>
+      <p class="nf-links"><a class="btn btn-yellow" href={href("/")}>Home</a> <a class="btn" href={href("/recipes/")}>Recipes</a> <a class="btn" href={href("/quickstart/")}>Quick start</a></p>
+    </div>
+  </section>
+</Base>
+<style>
+  .nf { min-height: 60vh; }
+  .nf-sticker { display: inline-block; font: 400 5rem/1 var(--font-display); background: var(--paper); border: var(--line); border-radius: 28px; padding: 16px 28px; rotate: -7deg; box-shadow: var(--pop-lg); clip-path: polygon(0 0, 82% 0, 100% 30%, 100% 100%, 0 100%); }
+  .nf-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+</style>

@@ -1,0 +1,29 @@
+---
+import Base from "../../layouts/Base.astro";
+import CopyCommand from "../../components/CopyCommand.astro";
+import { migration, support, commands, href } from "../../data/site";
+---
+
+<Base title="Migrate from v4 to v5 | open-wa" description="Version 5 is the current line. Pin v4 while you migrate, then follow the migration guide.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="eyebrow">Migrate from v4</p>
+      <h1>Keep your v4 bot running while you move.</h1>
+      <p class="lede">{migration.summary}</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap prose">
+      <h2>1. Pin v4 now</h2>
+      <p>So the next install doesn't pull v5 under you:</p>
+      <CopyCommand command={migration.v4Pin} size="md" />
+      <h2>2. Read the migration guide</h2>
+      <p>It covers what changed between the lines, method by method. <a href={support.migrationDocs} rel="external">Migrating to v5</a>.</p>
+      <h2>3. Try v5 beside it</h2>
+      <p>Run v5 on another port and session ID so both can run at once.</p>
+      <CopyCommand command={commands.namedSession} size="md" />
+      <p>Stuck? Ask in <a href={support.discord} rel="external">Discord</a> or <a href={href("/support/")}>get paid help</a>.</p>
+    </div>
+  </section>
+</Base>
+<style>.prose .cmd { margin: 12px 0 8px; }</style>

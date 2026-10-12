@@ -1,0 +1,45 @@
+---
+import Base from "../../layouts/Base.astro";
+import MiniChat from "../../components/MiniChat.astro";
+import { miniChats } from "../../data/minichats";
+import { jobs, href, jobBadge } from "../../data/site";
+---
+
+<Base title="Recipes: bookings, OTP, calls, stickers and media on WhatsApp | open-wa" description="Nine jobs people build on their own WhatsApp number with open-wa, each with the conversation, the code, the methods and the licence it needs.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="eyebrow">Recipes</p>
+      <h1>Pick your job, copy the recipe.</h1>
+      <p class="lede">Each recipe shows the conversation on the phone, the code that sends it, the methods it uses and the licence it needs. Every business here is an example.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap">
+      <ul class="rgrid">
+        {jobs.map((j) => (
+          <li class="rcard">
+            <MiniChat who={miniChats[j.id].who} lines={miniChats[j.id].lines} />
+            <h2><a href={href(`/recipes/${j.id}/`)}>{j.name}</a></h2>
+            <p>{j.who}.</p>
+            <p class="rfoot"><span class={`badge badge-${jobBadge[j.id].tone}`}>{jobBadge[j.id].label}</span></p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .rgrid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .rcard { position: relative; display: flex; flex-direction: column; gap: 10px; background: var(--paper); border: var(--line); border-radius: 20px; padding: 16px; box-shadow: var(--pop); min-width: 0; transition: transform 200ms var(--ease-spring); }
+  .rcard:hover { transform: translate(-2px, -3px); }
+  .rcard h2 { font-size: 1.5rem; margin: 8px 0 0; }
+  .rcard h2 a { text-decoration: none; }
+  .rcard h2 a::after { content: ""; position: absolute; inset: 0; }
+  .rcard:has(a:focus-visible) { outline: 3px solid var(--ink); outline-offset: 4px; }
+  .rcard h2 a:focus-visible { outline: none; }
+  .rcard p { margin: 0; }
+  .rfoot { margin-top: auto !important; }
+  @media (max-width: 1000px) { .rgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 640px) { .rgrid { grid-template-columns: 1fr; } }
+</style>

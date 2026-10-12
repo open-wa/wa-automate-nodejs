@@ -6,7 +6,9 @@ export type Line =
   | { kind: "pin"; title: string; sub: string; time: string }
   | { kind: "doc"; title: string; sub: string; time: string }
   | { kind: "call"; title: string; sub: string; time: string }
-  | { kind: "tool"; title: string; sub: string };
+  | { kind: "tool"; title: string; sub: string }
+  | { kind: "sticker"; src: string; alt: string; time: string }
+  | { kind: "voice"; length: string; time: string };
 
 export const miniChats: Record<string, { who: string; lines: Line[]; call: string }> = {
   "salon-bookings": {
@@ -53,6 +55,22 @@ export const miniChats: Record<string, { who: string; lines: Line[]; call: strin
     lines: [
       { kind: "in", text: "My parcel says delivered but it isn't here", time: "14:02" },
       { kind: "out", text: "Sorry about that. Checking with the courier now. (Sent from Chatwoot)", time: "14:04" },
+    ],
+  },
+  stickers: {
+    who: "Rosa Salon",
+    call: "client.sendSticker(chatId, './team-photo.jpg', { effects: ['comic', 'sparkle'] })",
+    lines: [
+      { kind: "in", text: "Send us the team photo as a sticker!", time: "17:40" },
+      { kind: "sticker", src: "stickers/highfive-comic.webp", alt: "Example output: the high-five sample photo as a comic sticker", time: "17:41" },
+    ],
+  },
+  media: {
+    who: "Corner Cafe",
+    call: "client.sendFile(chatId, './invoice-1042.pdf', 'invoice-1042.pdf', { caption: 'Invoice 1042' })",
+    lines: [
+      { kind: "voice", length: "0:07", time: "12:01" },
+      { kind: "doc", title: "invoice-1042.pdf", sub: "Invoice 1042", time: "12:01" },
     ],
   },
   "ai-agent": {

@@ -1,0 +1,57 @@
+---
+import Base from "../../layouts/Base.astro";
+import CopyCommand from "../../components/CopyCommand.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { f, commands, http, snippets, product, support, href } from "../../data/site";
+---
+
+<Base title="Quick start: your WhatsApp number as an API in three steps | open-wa" description="Run one npx command, scan the QR code, then send a message with curl from any language. Node.js 22.21.1 or later.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="eyebrow">Quick start</p>
+      <h1>Run it, scan it, send something.</h1>
+      <p class="lede">You need Node.js {product.node.replace(">=", "")} or later and a phone with WhatsApp. About two minutes.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap prose qs">
+      <p class="note"><strong>Ban risk:</strong> {product.risk} Try it on a number you can afford to lose before you put a business number on it.</p>
+      <h2>1. Run the command</h2>
+      <p>{f.firstRun[0]}</p>
+      <CopyCommand />
+      <p>Want a key on the API (recommended outside your laptop)?</p>
+      <CopyCommand command={commands.easyApiWithKey} size="md" />
+      <p>Prefer Docker?</p>
+      <CopyCommand command={commands.docker} size="md" />
+      <h2>2. Scan the QR code</h2>
+      <p>{f.firstRun[1]}</p>
+      <h2>3. Open the API docs</h2>
+      <p>{f.firstRun[2]}</p>
+      <CopyCommand command={commands.proofOfLife} size="md" />
+      <h2>4. Send a message</h2>
+      <p>{http.chatId}</p>
+      <CodeBlock code={http.sendTextCurl} lang="bash" title="curl" />
+      <p>Response: <code>{"{ success: true, data }"}</code>. {http.note}</p>
+      <h2>5. Make a sticker</h2>
+      <p>Render a sticker file locally, no session needed. Try effects first in the <a href={href("/#studio")}>studio</a>.</p>
+      <CopyCommand command={commands.stickerCli} size="md" />
+
+      <h2 id="other-ways">Other ways to connect</h2>
+      <p>The Easy API covers most jobs. If you write Node.js and want more control:</p>
+      <h3>SocketClient: a bot that talks to a running Easy API</h3>
+      <CopyCommand command={commands.socketClientInstall} size="md" />
+      <CodeBlock code={snippets.socketClient} lang="js" title="bot.js" />
+      <h3>Embedded: run the browser inside your own app</h3>
+      <CopyCommand command={commands.embeddedInstall} size="md" />
+      <CodeBlock code={snippets.embedded} lang="js" title="app.js" />
+      <h3>MCP: let an AI agent use the number</h3>
+      <CodeBlock code={snippets.mcpConfig} lang="js" title="wa.config.mjs" />
+      <p>Next: <a href={href("/recipes/")}>recipes</a>, the <a href={support.quickstartDocs} rel="external">full quick start in the docs</a>, or <a href={support.discord} rel="external">ask in Discord</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .qs .cmd, .qs .codeblock { margin: 12px 0 20px; }
+  .qs h3 { margin-top: 1.4em; }
+</style>

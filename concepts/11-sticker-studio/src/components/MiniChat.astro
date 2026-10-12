@@ -2,6 +2,7 @@
 import type { Line } from "../data/minichats";
 interface Props { who: string; lines: Line[] }
 const { who, lines } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
 ---
 
 <div class="mini" aria-label={`Example conversation with ${who}`} role="img">
@@ -16,6 +17,8 @@ const { who, lines } = Astro.props;
       if (l.kind === "pin") return <div class="bub bub-out mini-card"><span class="mini-ico mini-pin" aria-hidden="true"></span><span><strong>{l.title}</strong><small>{l.sub}</small></span><time>{l.time}</time></div>;
       if (l.kind === "doc") return <div class="bub bub-out mini-card"><span class="mini-ico mini-doc" aria-hidden="true">PDF</span><span><strong>{l.title}</strong><small>{l.sub}</small></span><time>{l.time}</time></div>;
       if (l.kind === "call") return <div class="bub bub-in mini-card mini-callcard"><span class="mini-ico mini-call" aria-hidden="true"></span><span><strong>{l.title}</strong><small>{l.sub}</small></span><time>{l.time}</time></div>;
+      if (l.kind === "sticker") return <div class="mini-sticker"><img src={`${base}${l.src}`} alt={l.alt} width="512" height="512" loading="lazy" decoding="async" /><time>{l.time}</time></div>;
+      if (l.kind === "voice") return <div class="bub bub-out mini-voice"><span class="mini-play" aria-hidden="true"></span><span class="mini-wave" aria-hidden="true"></span><small>{l.length}</small><time>{l.time}</time></div>;
       return <div class="mini-tool"><strong>{l.title}</strong> <small>{l.sub}</small></div>;
     })}
   </div>
@@ -41,6 +44,13 @@ const { who, lines } = Astro.props;
   .mini-pin { background: radial-gradient(circle at 50% 42%, var(--ink) 0 4px, var(--yellow) 5px); border-radius: 50% 50% 50% 4px; transform: rotate(-45deg) scale(0.85); }
   .mini-doc { background: var(--paper); color: #b0174f; }
   .mini-call { background: radial-gradient(circle, var(--ink) 0 5px, #8ff0c9 6px); border-radius: 50%; }
+  .mini-sticker { align-self: flex-end; display: grid; justify-items: end; gap: 2px; }
+  .mini-sticker img { width: 120px; border: 5px solid var(--paper); border-radius: 18px; box-shadow: 2px 3px 0 rgba(17,17,17,.3); rotate: 3deg; }
+  .mini-sticker time { font-size: 0.75rem; color: var(--ink-soft); }
+  .mini-voice { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; min-width: 70%; }
+  .mini-voice time { grid-column: 1 / -1; }
+  .mini-play { width: 0; height: 0; border-left: 11px solid var(--ink); border-block: 7px solid transparent; }
+  .mini-wave { height: 18px; background: repeating-linear-gradient(90deg, var(--ink) 0 3px, transparent 3px 6px); mask: linear-gradient(90deg, #000 0 100%); clip-path: polygon(0 40%, 10% 10%, 20% 50%, 30% 0, 40% 60%, 50% 20%, 60% 40%, 70% 5%, 80% 55%, 90% 25%, 100% 45%, 100% 100%, 0 100%); }
   .mini-tool { align-self: center; font: 600 0.8rem/1.3 var(--font-mono); padding: 6px 10px; border: 2px dashed var(--ink); border-radius: 10px; background: var(--paper); }
   .mini-tool small { color: var(--ink-soft); }
 </style>

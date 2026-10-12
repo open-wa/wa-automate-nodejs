@@ -1,0 +1,23 @@
+---
+import Base from "../../layouts/Base.astro";
+import { support, stats, href } from "../../data/site";
+---
+
+<Base title="Community: Discord, GitHub and plugins | open-wa" description="Join about 1,000 developers in the open-wa Discord, contribute on GitHub or publish a plugin.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="eyebrow">Community</p>
+      <h1>Build it with other people building it.</h1>
+      <p class="lede">{stats.discordMembers.toLocaleString("en-GB")} Discord members and {stats.githubForks} forks on GitHub, checked {stats.checkedOn}.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap grid-3">
+      <div class="card"><h2>Discord</h2><p>Ask questions, share what you built and hear about releases first.</p><a class="btn btn-yellow" href={support.discord} rel="external">Join the Discord</a></div>
+      <div class="card"><h2>GitHub</h2><p>Report a bug, read the code or open a pull request.</p><a class="btn" href={support.issues} rel="external">Open issues</a></div>
+      <div class="card"><h2>Plugins</h2><p>Package an integration with the Plugin SDK and share it.</p><a class="btn" href={href("/integrations/#plugin-sdk")}>Plugin SDK</a></div>
+    </div>
+    <div class="wrap"><p class="support-line">Want to support the work? <a href={support.buyMeACoffee} rel="external">Buy the maintainer a coffee</a>.</p></div>
+  </section>
+</Base>
+<style>.card h2 { font-size: 1.8rem; } .card .btn { margin-top: 6px; } .support-line { margin-top: 32px; }</style>
