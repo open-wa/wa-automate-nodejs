@@ -48,8 +48,9 @@ const useCasePath = ["Webhooks, SocketClient", "Easy API", "SocketClient, embedd
       </div>
       <ol class="steps">
         <li class="step">
-          <div class="step-vis">
-            <Command cmd={commands.easyApi} />
+          <div class="step-vis step-term">
+            <pre class="mini-term"><span class="muted">$</span> <span class="tk-fn">npx</span> @open-wa/wa-automate@latest <span class="tk-flag">--port</span> 8080</pre>
+            <span class="muted small mono">Easy API on :8080</span>
           </div>
           <span class="step-n mono">01</span>
           <h3>Run the command</h3>
@@ -210,6 +211,8 @@ const useCasePath = ["Webhooks, SocketClient", "Easy API", "SocketClient, embedd
   .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
   .step { display: grid; gap: 10px; align-content: start; min-width: 0; }
   .step-vis { height: 196px; border-radius: var(--radius-l); background: var(--grey-1); border: 1px solid var(--grey-2); padding: 20px; display: grid; align-items: center; margin-bottom: 14px; min-width: 0; }
+  .step-term { align-content: center; gap: 12px; }
+  .mini-term { margin: 0; background: var(--white); border: 1px solid var(--grey-2); border-radius: 12px; padding: 14px 16px; font-size: 15px; line-height: 1.6; white-space: pre-wrap; box-shadow: var(--shadow); }
   .step-qr { grid-template-columns: auto 1fr; gap: 18px; }
   .step-qr :global(.qr) { color: var(--ink); border-radius: 8px; }
   .step-qr-txt { display: grid; gap: 8px; justify-items: start; }

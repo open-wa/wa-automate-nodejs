@@ -112,6 +112,12 @@ const foldEnd = handlerLine; // lines before the handler (import, connect) fold 
     font: 13px/1 var(--font-mono); padding: 4px 7px; border-radius: 6px; background: var(--blue); color: var(--white);
   }
   .lr-pre .ln.is-miss[data-badge]::after { background: var(--grey-4); }
+  .lr-pre .ln[data-tip]::after {
+    content: "↑ " attr(data-tip); position: absolute; right: 12px; top: calc(100% + 4px); z-index: 2;
+    font: 13px/1 var(--font-mono); padding: 6px 8px; border-radius: 6px; background: var(--ink); color: var(--white);
+    animation: lr-tip 1.6s var(--ease) infinite;
+  }
+  @keyframes lr-tip { 50% { transform: translateY(-3px); } }
   .lr-fold { display: none; }
   .lr-folded { display: block; }
   .lr-field { display: inline-grid; vertical-align: baseline; max-width: calc(100% - 2ch); grid-template-columns: minmax(0, auto); }
@@ -317,6 +323,43 @@ const foldEnd = handlerLine; // lines before the handler (import, connect) fold 
         });
       });
     };
+
+    // Edit hint on the reply line, until the visitor edits it
+    const dropTip = () => replyLn.removeAttribute("data-tip");
+    reply.addEventListener("input", dropTip, { once: true });
+    reply.addEventListener("focus", dropTip, { once: true });
+
+    // First view: replay the conversation, typing "Hi" into the phone. Reduced
+    // motion and ?still keep the settled conversation already in the HTML.
+    let touched = false;
+    root.addEventListener("pointerdown", () => (touched = true), { once: true });
+    root.addEventListener("keydown", () => (touched = true), { once: true });
+    if (animate) {
+      chat.querySelectorAll(".msg").forEach((m) => m.remove());
+      log.innerHTML = '<li class="muted">Waiting for a message</li>';
+      clearLines();
+      const io = new IntersectionObserver(([entry]) => {
+        if (!entry?.isIntersecting) return;
+        io.disconnect();
+        const word = trigger.value;
+        let i = 0;
+        const typeNext = () => {
+          if (touched) { msg.value = ""; return; }
+          if (i < word.length) { msg.value += word[i++]; timers.push(window.setTimeout(typeNext, 160)); return; }
+          timers.push(window.setTimeout(() => {
+            if (touched) { msg.value = ""; return; }
+            msg.value = "";
+            log.innerHTML = "";
+            run(word);
+            timers.push(window.setTimeout(() => { if (!reply.matches(":focus")) replyLn.dataset.tip = "edit this reply"; }, 1800));
+          }, 380));
+        };
+        timers.push(window.setTimeout(typeNext, 700));
+      }, { threshold: 0.45 });
+      io.observe(root);
+    } else {
+      replyLn.dataset.tip = "edit this reply";
+    }
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
