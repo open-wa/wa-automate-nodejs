@@ -99,8 +99,9 @@ const needsKey = lic.kind !== "free";
   .start { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
   .start h2 { margin-bottom: 12px; }
   .start-act { display: grid; gap: 16px; min-width: 0; }
+  .start-act .btn { white-space: normal; text-align: center; line-height: 1.25; padding-block: 10px; }
   @media (max-width: 900px) {
-    .recipe, .start { grid-template-columns: 1fr; }
+    .recipe, .start { grid-template-columns: minmax(0, 1fr); }
     .recipe-phone { position: static; }
   }
 </style>
