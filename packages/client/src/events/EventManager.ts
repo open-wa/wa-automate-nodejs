@@ -7,7 +7,7 @@ import {
   type RuntimeObservabilityShape,
 } from '@open-wa/runtime-core';
 import { eventRegistry, type QueueOptions } from '@open-wa/schema';
-import type { Message, InteractiveResponse, FormResponse } from '@open-wa/schema';
+import type { Message, InteractiveResponse, FormResponse, ParticipantChange } from '@open-wa/schema';
 
 export interface EventContext {
   sessionId: string;
@@ -38,6 +38,7 @@ type EventPayloadMap = {
   ack: Message;
   stateChanged: { state: STATE; previousState?: STATE };
   logout: { reason?: string; timestamp: number };
+  participantsChanged: ParticipantChange;
 };
 
 type EventName = keyof EventPayloadMap;
@@ -49,6 +50,10 @@ type RuntimeBridge<K extends EventName> = {
 };
 
 const EVENT_BRIDGES: { [K in EventName]: RuntimeBridge<K> } = {
+  participantsChanged: {
+    runtimeEvent: 'group.participants.changed.global',
+    transform: payload => (payload as OpenWAEventMap['group.participants.changed.global']).change,
+  },
   interactiveResponse: {
     runtimeEvent: 'interactive.response',
     transform: payload => (payload as OpenWAEventMap['interactive.response']).response as InteractiveResponse,

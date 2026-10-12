@@ -11,14 +11,21 @@ import type {
   AlbumMedia,
   AlbumSendResult,
 } from '@open-wa/schema';
-import { createUnsupportedMethodStub } from '../runtimeSurface';
-import { SendTextResultSchema, AlbumSendResultSchema, sendAlbum as sendAlbumSchema } from '@open-wa/schema';
+import {
+  implementMethod,
+  SendTextResultSchema,
+  AlbumSendResultSchema,
+  sendAlbum as sendAlbumSchema,
+  sendFile as sendFileSchema,
+  editMessage as editMessageSchema,
+  react as reactSchema,
+} from '@open-wa/schema';
 import { SendTextError } from '../SendTextError';
 
 declare const WAPI: {
   sendMessage: (to: string, content: string) => Promise<unknown>;
   sendImage: (base64: string, to: string, filename: string, caption: string, quotedMsgId?: string, waitForId?: boolean, ptt?: boolean, withoutPreview?: boolean, hideTags?: boolean, viewOnce?: boolean) => Promise<string | boolean>;
-  sendFile: (base64: string, to: string, filename: string, caption: string) => Promise<string>;
+  sendFile: (base64: string, to: string, filename?: string, caption?: string) => Promise<MessageIdReturn | string>;
   sendLocation: (to: string, lat: number, lng: number, loc: string, address?: string, url?: string) => Promise<string | false>;
   sendContact: (to: string, contact: string | string[]) => void;
   sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => Promise<string | boolean>;
@@ -42,15 +49,15 @@ export interface MessagingMethods {
   /** Resolves phone-number IDs to LIDs and submits native album media in order. */
   sendAlbum(to: ChatId, media: AlbumMedia[], caption?: string, quotedMsgId?: MessageId): Promise<AlbumSendResult>;
   sendImage(to: ChatId, file: DataURL | Base64, filename: string, caption?: string, quotedMsgId?: MessageId): Promise<MessageId | false>;
-  sendFile(to: ChatId, file: DataURL | Base64, filename: string, caption?: string): Promise<MessageId>;
+  sendFile: ReturnType<typeof implementMethod<typeof sendFileSchema>>;
   sendLocation(to: ChatId, lat: number, lng: number, locationText: string, address?: string): Promise<MessageId | false>;
   sendContact(to: ChatId, contact: ContactId | ContactId[]): Promise<void>;
   sendSticker(to: ChatId, stickerData: DataURL | Base64, metadata?: { author?: string; pack?: string }): Promise<MessageId | boolean>;
   reply(to: ChatId, content: string, quotedMsgId: MessageId): Promise<MessageId | boolean>;
   forwardMessages(to: ChatId, messages: MessageId | MessageId[], skipMyMessages?: boolean): Promise<MessageIdReturn[] | boolean>;
   deleteMessage(chatId: ChatId, messageId: MessageId | MessageId[], onlyLocal?: boolean): Promise<boolean>;
-  editMessage(messageId: MessageId, newContent: string): Promise<boolean>;
-  react(messageId: MessageId, emoji: string): Promise<boolean>;
+  editMessage: ReturnType<typeof implementMethod<typeof editMessageSchema>>;
+  react: ReturnType<typeof implementMethod<typeof reactSchema>>;
   sendSeen(chatId: ChatId): Promise<boolean>;
   getMessageById(messageId: MessageId): Promise<Message | false | null>;
   /** Returns currently loaded album children; the snapshot can be incomplete. */
@@ -59,9 +66,6 @@ export interface MessagingMethods {
 
 export function messagingMethods(client: Client): MessagingMethods {
   const evaluate = client.evaluate.bind(client);
-  const unsupportedSendFile = createUnsupportedMethodStub<MessagingMethods['sendFile']>('sendFile');
-  const unsupportedEditMessage = createUnsupportedMethodStub<MessagingMethods['editMessage']>('editMessage');
-  const unsupportedReact = createUnsupportedMethodStub<MessagingMethods['react']>('react');
   
   return {
     async sendAlbum(to: ChatId, media: AlbumMedia[], caption = '', quotedMsgId?: MessageId): Promise<AlbumSendResult> {
@@ -137,18 +141,11 @@ export function messagingMethods(client: Client): MessagingMethods {
       ) as Promise<MessageId | false>;
     },
     
-    async sendFile(
-      to: ChatId,
-      file: DataURL | Base64,
-      filename: string,
-      caption = ''
-    ): Promise<MessageId> {
-      void to;
-      void file;
-      void filename;
-      void caption;
-      return unsupportedSendFile(to, file, filename, caption);
-    },
+    sendFile: implementMethod(sendFileSchema, ({ to, file, filename, caption }) =>
+      evaluate(
+        ({ to, file, filename, caption }) => WAPI.sendFile(file, to, filename, caption),
+        { to, file, filename, caption: caption ?? '' }
+      )),
     
     async sendLocation(
       to: ChatId,
@@ -214,13 +211,17 @@ export function messagingMethods(client: Client): MessagingMethods {
       );
     },
     
-    async editMessage(messageId: MessageId, newContent: string): Promise<boolean> {
-      return unsupportedEditMessage(messageId, newContent);
-    },
-    
-    async react(messageId: MessageId, emoji: string): Promise<boolean> {
-      return unsupportedReact(messageId, emoji);
-    },
+    editMessage: implementMethod(editMessageSchema, ({ messageId, newContent }) =>
+      evaluate(
+        ({ messageId, newContent }) => WAPI.editMessage(messageId, newContent),
+        { messageId, newContent }
+      )),
+
+    react: implementMethod(reactSchema, ({ messageId, emoji }) =>
+      evaluate(
+        ({ messageId, emoji }) => WAPI.react(messageId, emoji),
+        { messageId, emoji }
+      )),
     
     async sendSeen(chatId: ChatId): Promise<boolean> {
       return evaluate(

@@ -811,6 +811,23 @@ export const unstarMessage = defineMethodV2('unstarMessage', {
     output: z.boolean(),
 });
 
+export const editMessage = defineMethodV2('editMessage', {
+    meta: {
+        description: 'Edits the text of a message through the installed private patch',
+        action: 'update',
+        namespace: 'messages',
+        license: 'none',
+        functionality: 'both',
+        httpMethod: 'PUT',
+    },
+    input: z.object({
+        messageId: messageIdParam,
+        newContent: z.string().describe('Replacement message text'),
+    }),
+    parameterOrder: ['messageId', 'newContent'],
+    output: z.boolean(),
+});
+
 export const react = defineMethodV2('react', {
     meta: {
         description: 'React to message with emoji',
@@ -883,5 +900,5 @@ export const sendFileFromUrl = defineMethodV2('sendFileFromUrl', {
         headers: z.record(z.string(), z.string()).optional().describe('HTTP headers for the download request'),
     }),
     parameterOrder: ['to', 'url', 'filename', 'caption', 'headers'],
-    output: z.string().or(z.boolean()).describe('Message ID or success status'),
+    output: MessageIdReturnSchema.or(z.string()).or(z.boolean()).describe('Message ID or success status'),
 });

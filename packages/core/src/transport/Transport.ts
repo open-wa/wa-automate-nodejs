@@ -25,6 +25,7 @@ import { getProgObserverScript, injectInitPatch } from './initPatchScripts';
 import { getRuntimeListenerSurfaceEntry, runtimeListenerSurface } from './runtimeListenerSurface';
 import { auditWapiHelperAssetRequirements, ScriptLoader } from './ScriptLoader';
 import { chromiumConfig, sanitizeBrowserArgs } from './browserConfig';
+import { ParticipantChangePatchSchema } from '@open-wa/schema';
 
 export interface PatchFetchConfig {
   /** Use GitHub raw patches as the primary source instead of the default CDN. */
@@ -696,6 +697,7 @@ export class Transport {
     const ackChangedSurface = getRuntimeListenerSurfaceEntry('ack.changed');
     const stateChangedSurface = getRuntimeListenerSurfaceEntry('session.state.changed');
     const addedToGroupSurface = getRuntimeListenerSurfaceEntry('group.addedToGroup');
+    const participantsChangedSurface = getRuntimeListenerSurfaceEntry('group.participants.changed.global');
 
     await this.injectionController.registerRuntimeWapiBridge(
       messageReceivedSurface.event,
@@ -765,6 +767,23 @@ export class Transport {
       { wapiMethod: addedToGroupSurface.wapiMethod, required: addedToGroupSurface.required },
     );
 
+    await this.injectionController.registerRuntimeWapiBridge(
+      participantsChangedSurface.event,
+      participantsChangedSurface.bindingName,
+      (rawChange: unknown) => {
+        const parsed = ParticipantChangePatchSchema.safeParse(rawChange);
+        if (!parsed.success) {
+          this.logger.warn('group_participants_event_invalid');
+          return;
+        }
+        this.events.emit('group.participants.changed.global', {
+          ctx: { correlationId: 'runtime-group-participants', ts: Date.now() },
+          change: parsed.data,
+        });
+      },
+      { wapiMethod: participantsChangedSurface.wapiMethod, required: participantsChangedSurface.required },
+    );
+
     this.logger.info('runtime_event_bridge_bindings_registered', {
       bindings: [
         interactiveSurface.bindingName,
@@ -773,6 +792,7 @@ export class Transport {
         ackChangedSurface.bindingName,
         stateChangedSurface.bindingName,
         addedToGroupSurface.bindingName,
+        participantsChangedSurface.bindingName,
       ],
       requiredMethods: this.injectionController.getRequiredRuntimeMethods(),
     });
