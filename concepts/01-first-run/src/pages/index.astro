@@ -54,12 +54,13 @@ const stepCmd = [commands.easyApi, "scan the QR code, or use a link code", comma
         <div class="hero-cta">
           <a class="btn btn-amber" href={href("quickstart/")}>Quick start <span class="arrow" aria-hidden="true">→</span></a>
           <a class="btn" href={support.docs}>Docs <span class="ext" aria-hidden="true">↗</span></a>
+          <p class="hero-aside">Weighing up Meta's official API? <a href={href("compare/")}>Compare the two</a>.</p>
         </div>
         <dl class="proof" aria-label={`Project signals, checked ${stats.checkedOn}`}>
           <div><dt>GitHub stars</dt><dd>{kfloor(stats.githubStars)}</dd></div>
           <div><dt>npm downloads, 12 months</dt><dd>{kfloor(stats.npmDownloadsLast12Months)}</dd></div>
           <div><dt>Docker pulls</dt><dd>{kfloor(stats.dockerPulls)}</dd></div>
-          <div><dt>Latest release</dt><dd>v{product.currentVersion}</dd></div>
+          <div><dt>Latest release, {latest.date}</dt><dd>v{product.currentVersion}</dd></div>
           <p class="proof-date">Checked {stats.checkedOn} on GitHub, npm and Docker Hub. Maintained since 2019.</p>
         </dl>
       </div>
@@ -255,6 +256,8 @@ const stepCmd = [commands.easyApi, "scan the QR code, or use a link code", comma
   .hero-copy h1 { font-size: clamp(33px, 3.4vw, 44px); }
   .hero-sub { font-size: 19px; color: var(--bone); max-width: 520px; }
   .hero-cta { display: flex; flex-wrap: wrap; gap: 10px; }
+  .hero-aside { flex-basis: 100%; color: var(--grey); font-size: 16px; }
+  .hero-aside a { color: var(--bone); }
   .proof { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
   .proof > div { background: var(--ink); padding: 12px 14px; display: grid; gap: 2px; }
   .proof dt { color: var(--grey); font-size: 16px; }

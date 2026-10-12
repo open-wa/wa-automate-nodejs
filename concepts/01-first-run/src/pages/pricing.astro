@@ -3,6 +3,7 @@ import Page from "../layouts/Page.astro";
 import LicenceForm from "../components/LicenceForm.astro";
 import { licences, product, commands, href, support } from "../data/site";
 const [insiders, restricted] = licences.tiers;
+const methodsOf = (t: string) => [...new Set(t.match(/\b[a-z]+[A-Z][A-Za-z]+\b/g) ?? [])];
 const periods: [keyof typeof insiders.prices, string][] = [["month", "1 month"], ["threeMonths", "3 months"], ["sixMonths", "6 months"], ["year", "12 months"]];
 const faq = [
   ["Do I need a key to start?", "No. Every method marked none works without one, including reading chats, sending to existing contacts, media, polls, events, webhooks and MCP for those methods."],
@@ -39,6 +40,7 @@ const faq = [
             </tbody>
           </table>
           <p>{t.unlocks}</p>
+          <ul class="pt-methods" aria-label={`${t.name} methods named here`}>{methodsOf(t.unlocks).map((m) => <li><code>{m}</code></li>)}</ul>
           <a class="btn btn-amber" href={`?tier=${t.id}#licence`}>Get a {t.name} key <span class="arrow" aria-hidden="true">→</span></a>
         </article>
       ))}
@@ -80,6 +82,8 @@ const faq = [
   .pt-price span { font-size: 16.5px; color: var(--grey); }
   .pt > p:not(.pt-price) { color: var(--grey); font-size: 16.5px; }
   .pt .btn { justify-self: start; }
+  .pt-methods { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .pt-methods li { padding: 2px 8px; border: 1px solid var(--line-2); border-radius: var(--radius); }
   .pt-periods { border-collapse: collapse; width: 100%; font-family: var(--font-mono); font-size: 16.5px; }
   .pt-periods th, .pt-periods td { padding: 6px 0; border-bottom: 1px solid var(--line); text-align: left; font-weight: 400; }
   .pt-periods th { color: var(--grey); }

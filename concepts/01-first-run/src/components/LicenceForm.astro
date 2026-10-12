@@ -31,7 +31,7 @@ const tiers = licences.tiers;
 
     <div class="lf-field">
       <label for="lf-phone">{fields.phone.label}</label>
-      <input id="lf-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+44 7700 900123" aria-describedby="lf-phone-help lf-phone-err" />
+      <input id="lf-phone" name="phone" type="tel" dir="ltr" autocomplete="tel" inputmode="tel" placeholder="+44 7700 900123" aria-describedby="lf-phone-help lf-phone-err" />
       <p class="lf-help" id="lf-phone-help">{fields.phone.help} The key works for this number only.</p>
       <p class="lf-err" id="lf-phone-err" aria-live="polite"></p>
     </div>
@@ -67,7 +67,7 @@ const tiers = licences.tiers;
 </div>
 
 <style>
-  .lf { border: 1px solid var(--line-2); border-radius: var(--radius-lg); background: var(--ink-2); padding: clamp(18px, 3vw, 28px); }
+  .lf { scroll-margin-top: 88px; border: 1px solid var(--line-2); border-radius: var(--radius-lg); background: var(--ink-2); padding: clamp(18px, 3vw, 28px); }
   .lf-form { display: grid; gap: 20px; }
   .lf-tiers { border: 0; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .lf-tiers legend { font-weight: 600; margin-bottom: 10px; padding: 0; }
@@ -174,7 +174,8 @@ const tiers = licences.tiers;
       done.querySelector<HTMLAnchorElement>("[data-out-href]")!.href = `https://openwa.dev/checkout?tier=${tier}`;
       form.hidden = true;
       done.hidden = false;
-      done.focus();
+      done.focus({ preventScroll: true });
+      box.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     });
     done.querySelector("[data-edit]")!.addEventListener("click", () => {
       done.hidden = true;
