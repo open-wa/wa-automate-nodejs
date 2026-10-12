@@ -9,6 +9,7 @@ import {
 import { eventRegistry, type QueueOptions } from '@open-wa/schema';
 import type { Message, InteractiveResponse, FormResponse, ParticipantChange } from '@open-wa/schema';
 import type { CallSnapshot } from '@open-wa/schema';
+import type { WhatsAppEvent, EventResponse } from '@open-wa/schema';
 
 export interface EventContext {
   sessionId: string;
@@ -31,6 +32,9 @@ export interface ListenerManagerConfig {
 }
 
 type EventPayloadMap = {
+  pollVote: import('@open-wa/schema').PollVote;
+  event: WhatsAppEvent;
+  eventResponse: EventResponse;
   incomingCall: CallSnapshot;
   callState: CallSnapshot;
   interactiveResponse: InteractiveResponse;
@@ -53,6 +57,9 @@ type RuntimeBridge<K extends EventName> = {
 };
 
 const EVENT_BRIDGES: { [K in EventName]: RuntimeBridge<K> } = {
+  pollVote: { runtimeEvent: 'poll.vote', transform: payload => (payload as OpenWAEventMap['poll.vote']).vote },
+  event: { runtimeEvent: 'event.changed', transform: payload => (payload as OpenWAEventMap['event.changed']).event },
+  eventResponse: { runtimeEvent: 'event.response', transform: payload => (payload as OpenWAEventMap['event.response']).response },
   incomingCall: { runtimeEvent: 'call.incoming', transform: payload => (payload as OpenWAEventMap['call.incoming']).call as CallSnapshot },
   callState: { runtimeEvent: 'call.state', transform: payload => (payload as OpenWAEventMap['call.state']).state as CallSnapshot },
   participantsChanged: {

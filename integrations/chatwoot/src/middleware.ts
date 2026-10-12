@@ -95,23 +95,29 @@ async function processWebhookMessage(
     const [firstAttachment, ...restAttachments] = attachments;
 
     if (firstAttachment) {
-      const id = await waClient.sendImage(
+      const id = await waClient.sendFile(
         to,
         firstAttachment.data_url,
         firstAttachment.data_url.substring(firstAttachment.data_url.lastIndexOf('/') + 1),
-        content ?? ''
+        { caption: content ?? '' }
       );
+      if (typeof id !== 'string') {
+        throw new Error('WhatsApp did not return an attachment message ID; inspect the chat before retrying.');
+      }
       messageIds.push(id);
       cwClient.markIgnored(id);
     }
 
     for (const attachment of restAttachments) {
-      const id = await waClient.sendImage(
+      const id = await waClient.sendFile(
         to,
         attachment.data_url,
         attachment.data_url.substring(attachment.data_url.lastIndexOf('/') + 1),
-        ''
+        {}
       );
+      if (typeof id !== 'string') {
+        throw new Error('WhatsApp did not return an attachment message ID; inspect the chat before retrying.');
+      }
       messageIds.push(id);
       cwClient.markIgnored(id);
     }

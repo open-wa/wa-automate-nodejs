@@ -27,7 +27,7 @@
       },
       {
         "name": "media",
-        "type": "{ camera?: any; microphone?: any; onMediaFailure?: \"end\" | \"keep-open\" | null; speaker?: any } | null",
+        "type": "{ camera?: any; microphone?: any; onMediaFailure?: \"end\" | \"keep-open\"; speaker?: any }",
         "required": false,
         "description": "",
         "aliases": [],
@@ -332,6 +332,55 @@
     }
   },
   {
+    "id": "whatsapp-events.cancelevent",
+    "anchor": "cancelevent",
+    "name": "cancelEvent",
+    "namespacedName": "events.cancelEvent",
+    "namespace": "events",
+    "description": "Cancel an event created by this account using WhatsApp’s encrypted event edit action.",
+    "license": null,
+    "aliases": [
+      "events.cancelEvent"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "eventId"
+    ],
+    "parameters": [
+      {
+        "name": "eventId",
+        "type": "string",
+        "required": true,
+        "description": "Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$",
+        "aliases": [
+          "id",
+          "msgId"
+        ],
+        "deprecatedAliases": [
+          "msgId"
+        ],
+        "example": "`\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"`",
+        "namedType": "MessageId"
+      }
+    ],
+    "returnType": "boolean",
+    "returnTypeLinks": {},
+    "sdkReturnType": "boolean",
+    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/events/cancelEvent",
+      "flatPath": "/api/cancelEvent"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.cancelEvent(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\");",
+      "nodeCall": "const result = await client.cancelEvent({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.cancelEvent({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/events/cancelEvent\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"eventId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": true\n}"
+    }
+  },
+  {
     "id": "contacts.checknumberstatus",
     "anchor": "checknumberstatus",
     "name": "checkNumberStatus",
@@ -594,7 +643,7 @@
     "parameters": [
       {
         "name": "message",
-        "type": "{ ack: -1 | 0 | 1 | 2 | 3 | 4; associationType?: string; author?: string; body: string; broadcast?: boolean; caption?: string; chat: { ack?: any; contact: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; formattedTitle?: string; groupMetadata?: { announce?: boolean; creation: number; desc?: string; descOwner?: string; descTime?: number; id: string; owner?: string; participants: { id: string; isAdmin: boolean; isSuperAdmin?: boolean }[]; restrict?: boolean; subject: string }; id: string; isGroup: boolean; isReadOnly?: boolean; lastReceivedKey?: any; msgs?: any[]; muteExpiration?: number; name?: string; notSpam?: boolean; pin?: number; presence?: object; t?: number; unreadCount?: number }; chatId: string; clientUrl?: string; content: string; deprecatedMms3Url?: string; expectedImageCount?: number; expectedVideoCount?: number; from: string; fromMe: boolean; id: string; invis?: boolean; isForwarded?: boolean; isGif?: boolean; isGroupMsg: boolean; isMedia: boolean; isMMS?: boolean; isNewMsg?: boolean; isNotification: boolean; isPSA?: boolean; isQuotedMsgAvailable: boolean; labels?: string[]; mentionedJidList?: string[]; notifyName?: string; parentMsgKey?: string; quotedMsg?: any; quotedMsgObj?: any; recvFresh?: boolean; self: \"in\" | \"out\"; sender: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; senderId?: string; star?: boolean; t: number; timestamp: number; to: string; type: \"chat\" | \"audio\" | \"ptt\" | \"image\" | \"video\" | \"album\" | \"document\" | \"sticker\" | \"location\" | \"vcard\" | \"multi_vcard\" | \"revoked\" | \"order\" | \"buttons_response\" | \"list_response\" | \"unknown\" }",
+        "type": "{ ack: -1 | 0 | 1 | 2 | 3 | 4; associationType?: string; author?: string; body: string; broadcast?: boolean; caption?: string; chat: { ack?: any; contact: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; formattedTitle?: string; groupMetadata?: { announce?: boolean; creation: number; desc?: string; descOwner?: string; descTime?: number; id: string; owner?: string; participants: { id: string; isAdmin: boolean; isSuperAdmin?: boolean }[]; restrict?: boolean; subject: string }; id: string; isGroup: boolean; isReadOnly?: boolean; lastReceivedKey?: any; msgs?: any[]; muteExpiration?: number; name?: string; notSpam?: boolean; pin?: number; presence?: object; t?: number; unreadCount?: number }; chatId: string; clientUrl?: string; content: string; deprecatedMms3Url?: string; event?: { chatId: string; creatorId: string; description?: string; endTime?: number; extraGuestsAllowed?: boolean; fromMe: boolean; id: string; isCanceled: boolean; isScheduledCall?: boolean; joinLink?: string; location?: { latitude?: number | \"Infinity\" | \"-Infinity\" | \"NaN\"; longitude?: number | \"Infinity\" | \"-Infinity\" | \"NaN\"; name?: string }; name: string; startTime: number; timestamp: number }; expectedImageCount?: number; expectedVideoCount?: number; from: string; fromMe: boolean; id: string; invis?: boolean; isForwarded?: boolean; isGif?: boolean; isGroupMsg: boolean; isMedia: boolean; isMMS?: boolean; isNewMsg?: boolean; isNotification: boolean; isPSA?: boolean; isQuotedMsgAvailable: boolean; labels?: string[]; mentionedJidList?: string[]; notifyName?: string; parentMsgKey?: string; quotedMsg?: any; quotedMsgObj?: any; recvFresh?: boolean; self: \"in\" | \"out\"; sender: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; senderId?: string; star?: boolean; t: number; timestamp: number; to: string; type: \"chat\" | \"audio\" | \"ptt\" | \"image\" | \"video\" | \"album\" | \"event_creation\" | \"event_response\" | \"document\" | \"sticker\" | \"location\" | \"vcard\" | \"multi_vcard\" | \"revoked\" | \"order\" | \"buttons_response\" | \"list_response\" | \"unknown\" }",
         "required": true,
         "description": "Message object containing media",
         "aliases": [],
@@ -895,7 +944,7 @@
     "parameters": [
       {
         "name": "message",
-        "type": "{ ack: -1 | 0 | 1 | 2 | 3 | 4; associationType?: string; author?: string; body: string; broadcast?: boolean; caption?: string; chat: { ack?: any; contact: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; formattedTitle?: string; groupMetadata?: { announce?: boolean; creation: number; desc?: string; descOwner?: string; descTime?: number; id: string; owner?: string; participants: { id: string; isAdmin: boolean; isSuperAdmin?: boolean }[]; restrict?: boolean; subject: string }; id: string; isGroup: boolean; isReadOnly?: boolean; lastReceivedKey?: any; msgs?: any[]; muteExpiration?: number; name?: string; notSpam?: boolean; pin?: number; presence?: object; t?: number; unreadCount?: number }; chatId: string; clientUrl?: string; content: string; deprecatedMms3Url?: string; expectedImageCount?: number; expectedVideoCount?: number; from: string; fromMe: boolean; id: string; invis?: boolean; isForwarded?: boolean; isGif?: boolean; isGroupMsg: boolean; isMedia: boolean; isMMS?: boolean; isNewMsg?: boolean; isNotification: boolean; isPSA?: boolean; isQuotedMsgAvailable: boolean; labels?: string[]; mentionedJidList?: string[]; notifyName?: string; parentMsgKey?: string; quotedMsg?: any; quotedMsgObj?: any; recvFresh?: boolean; self: \"in\" | \"out\"; sender: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; senderId?: string; star?: boolean; t: number; timestamp: number; to: string; type: \"chat\" | \"audio\" | \"ptt\" | \"image\" | \"video\" | \"album\" | \"document\" | \"sticker\" | \"location\" | \"vcard\" | \"multi_vcard\" | \"revoked\" | \"order\" | \"buttons_response\" | \"list_response\" | \"unknown\" }",
+        "type": "{ ack: -1 | 0 | 1 | 2 | 3 | 4; associationType?: string; author?: string; body: string; broadcast?: boolean; caption?: string; chat: { ack?: any; contact: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; formattedTitle?: string; groupMetadata?: { announce?: boolean; creation: number; desc?: string; descOwner?: string; descTime?: number; id: string; owner?: string; participants: { id: string; isAdmin: boolean; isSuperAdmin?: boolean }[]; restrict?: boolean; subject: string }; id: string; isGroup: boolean; isReadOnly?: boolean; lastReceivedKey?: any; msgs?: any[]; muteExpiration?: number; name?: string; notSpam?: boolean; pin?: number; presence?: object; t?: number; unreadCount?: number }; chatId: string; clientUrl?: string; content: string; deprecatedMms3Url?: string; event?: { chatId: string; creatorId: string; description?: string; endTime?: number; extraGuestsAllowed?: boolean; fromMe: boolean; id: string; isCanceled: boolean; isScheduledCall?: boolean; joinLink?: string; location?: { latitude?: number | \"Infinity\" | \"-Infinity\" | \"NaN\"; longitude?: number | \"Infinity\" | \"-Infinity\" | \"NaN\"; name?: string }; name: string; startTime: number; timestamp: number }; expectedImageCount?: number; expectedVideoCount?: number; from: string; fromMe: boolean; id: string; invis?: boolean; isForwarded?: boolean; isGif?: boolean; isGroupMsg: boolean; isMedia: boolean; isMMS?: boolean; isNewMsg?: boolean; isNotification: boolean; isPSA?: boolean; isQuotedMsgAvailable: boolean; labels?: string[]; mentionedJidList?: string[]; notifyName?: string; parentMsgKey?: string; quotedMsg?: any; quotedMsgObj?: any; recvFresh?: boolean; self: \"in\" | \"out\"; sender: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; senderId?: string; star?: boolean; t: number; timestamp: number; to: string; type: \"chat\" | \"audio\" | \"ptt\" | \"image\" | \"video\" | \"album\" | \"event_creation\" | \"event_response\" | \"document\" | \"sticker\" | \"location\" | \"vcard\" | \"multi_vcard\" | \"revoked\" | \"order\" | \"buttons_response\" | \"list_response\" | \"unknown\" }",
         "required": true,
         "description": "Message object containing media",
         "aliases": [],
@@ -928,6 +977,124 @@
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\n// Use the full media message received by your message handler.\nconst result = await client.downloadMedia({ message, path: \"./downloaded-media\" });",
       "http": "# Save the full incoming media message as the \"message\" field in request.json.\n# For downloadMedia, also set \"path\" to the destination filename.\ncurl -X POST \"http://localhost:8080/api/media/download\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-binary @request.json",
       "response": "{\n  \"success\": true,\n  \"data\": \"example\"\n}"
+    }
+  },
+  {
+    "id": "whatsapp-events.editevent",
+    "anchor": "editevent",
+    "name": "editEvent",
+    "namespacedName": "events.editEvent",
+    "namespace": "events",
+    "description": "Edit an event created by this account. Unspecified fields retain their current values; endTime: null removes the end time.",
+    "license": null,
+    "aliases": [
+      "events.editEvent"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "eventId",
+      "changes"
+    ],
+    "parameters": [
+      {
+        "name": "eventId",
+        "type": "string",
+        "required": true,
+        "description": "Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$",
+        "aliases": [
+          "id",
+          "msgId"
+        ],
+        "deprecatedAliases": [
+          "msgId"
+        ],
+        "example": "`\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"`",
+        "namedType": "MessageId"
+      },
+      {
+        "name": "changes",
+        "type": "{ description?: string; endTime?: number | null; location?: string; name?: string; startTime?: number }",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "`{\"description\":\"Updated meetup details\"}`"
+      }
+    ],
+    "returnType": "boolean",
+    "returnTypeLinks": {},
+    "sdkReturnType": "boolean",
+    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/events/editEvent",
+      "flatPath": "/api/editEvent"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.editEvent(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\", {\"description\":\"Updated meetup details\"});",
+      "nodeCall": "const result = await client.editEvent({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  changes: {\"description\":\"Updated meetup details\"},\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.editEvent({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  changes: {\"description\":\"Updated meetup details\"},\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/events/editEvent\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"eventId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n    \"changes\": {\n      \"description\": \"Updated meetup details\"\n    }\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": true\n}"
+    }
+  },
+  {
+    "id": "messages.editmessage",
+    "anchor": "editmessage",
+    "name": "editMessage",
+    "namespacedName": "messages.edit",
+    "namespace": "messages",
+    "description": "Edits the text of a message through the installed private patch",
+    "license": null,
+    "aliases": [
+      "messages.edit"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "messageId",
+      "newContent"
+    ],
+    "parameters": [
+      {
+        "name": "messageId",
+        "type": "string",
+        "required": true,
+        "description": "Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$",
+        "aliases": [
+          "id",
+          "msgId"
+        ],
+        "deprecatedAliases": [
+          "msgId"
+        ],
+        "example": "`\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"`",
+        "namedType": "MessageId"
+      },
+      {
+        "name": "newContent",
+        "type": "string",
+        "required": true,
+        "description": "Replacement message text",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "boolean",
+    "returnTypeLinks": {},
+    "sdkReturnType": null,
+    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "PUT",
+      "path": "/api/messages/edit",
+      "flatPath": "/api/editMessage"
+    },
+    "examples": {
+      "inProcessSdk": "",
+      "nodeCall": "const result = await client.editMessage({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  newContent: \"newContent\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.editMessage({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  newContent: \"newContent\",\n});",
+      "http": "curl -X PUT \"http://localhost:8080/api/messages/edit\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"messageId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n    \"newContent\": \"newContent\"\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": true\n}"
     }
   },
   {
@@ -1623,10 +1790,10 @@
     "deprecatedAliases": [],
     "parameterOrder": [],
     "parameters": [],
-    "returnType": "{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" } | null }",
+    "returnType": "{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" } }",
     "returnTypeLinks": {},
     "sdkReturnType": "CallCapabilities",
-    "returnNotes": "Resolves to `{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" } \\| null }`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "Resolves to `{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" } }`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
       "path": "/api/calls/getCallCapabilities",
@@ -2130,6 +2297,166 @@
     }
   },
   {
+    "id": "whatsapp-events.getevent",
+    "anchor": "getevent",
+    "name": "getEvent",
+    "namespacedName": "events.getEvent",
+    "namespace": "events",
+    "description": "Retrieve an event by message ID from WhatsApp local history. Returns null when absent.",
+    "license": null,
+    "aliases": [
+      "events.getEvent"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "eventId"
+    ],
+    "parameters": [
+      {
+        "name": "eventId",
+        "type": "string",
+        "required": true,
+        "description": "Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$",
+        "aliases": [
+          "id",
+          "msgId"
+        ],
+        "deprecatedAliases": [
+          "msgId"
+        ],
+        "example": "`\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"`",
+        "namedType": "MessageId"
+      }
+    ],
+    "returnType": "WhatsAppEvent | null",
+    "returnTypeLinks": {
+      "WhatsAppEvent": "/docs/reference/client/return-types#whatsappevent"
+    },
+    "sdkReturnType": "WhatsAppEvent | null",
+    "returnNotes": "Resolves to `WhatsAppEvent \\| null`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "GET",
+      "path": "/api/events/getEvent",
+      "flatPath": "/api/getEvent"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.getEvent(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\");",
+      "nodeCall": "const result = await client.getEvent({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getEvent({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
+      "http": "curl -G \"http://localhost:8080/api/events/getEvent\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"eventId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"",
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"example\",\n    \"chatId\": \"example\",\n    \"creatorId\": \"example\",\n    \"name\": \"example\",\n    \"startTime\": 0,\n    \"isCanceled\": true,\n    \"fromMe\": true,\n    \"timestamp\": 0\n  }\n}"
+    }
+  },
+  {
+    "id": "whatsapp-events.geteventresponses",
+    "anchor": "geteventresponses",
+    "name": "getEventResponses",
+    "namespacedName": "events.getEventResponses",
+    "namespace": "events",
+    "description": "Get the latest decrypted RSVP per participant, including responses persisted in WhatsApp local history.",
+    "license": null,
+    "aliases": [
+      "events.getEventResponses"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "eventId"
+    ],
+    "parameters": [
+      {
+        "name": "eventId",
+        "type": "string",
+        "required": true,
+        "description": "Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$",
+        "aliases": [
+          "id",
+          "msgId"
+        ],
+        "deprecatedAliases": [
+          "msgId"
+        ],
+        "example": "`\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"`",
+        "namedType": "MessageId"
+      }
+    ],
+    "returnType": "EventResponse[]",
+    "returnTypeLinks": {
+      "EventResponse": "/docs/reference/client/return-types#eventresponse"
+    },
+    "sdkReturnType": "EventResponse[]",
+    "returnNotes": "Resolves to `EventResponse[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "GET",
+      "path": "/api/events/getEventResponses",
+      "flatPath": "/api/getEventResponses"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.getEventResponses(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\");",
+      "nodeCall": "const result = await client.getEventResponses({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getEventResponses({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
+      "http": "curl -G \"http://localhost:8080/api/events/getEventResponses\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"eventId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"",
+      "response": "{\n  \"success\": true,\n  \"data\": []\n}"
+    }
+  },
+  {
+    "id": "whatsapp-events.getevents",
+    "anchor": "getevents",
+    "name": "getEvents",
+    "namespacedName": "events.get",
+    "namespace": "events",
+    "description": "Page through a chat’s locally synced event history, newest first. Pass nextCursor as options.before to retrieve the next page.",
+    "license": null,
+    "aliases": [
+      "events.get"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "chatId",
+      "options"
+    ],
+    "parameters": [
+      {
+        "name": "chatId",
+        "type": "string",
+        "required": true,
+        "description": "Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\\d+(-\\d+)?@(c|g)\\.us$|^\\d+@lid$",
+        "aliases": [
+          "chatId"
+        ],
+        "deprecatedAliases": [],
+        "example": "`\"447123456789@c.us\"`",
+        "namedType": "ChatId"
+      },
+      {
+        "name": "options",
+        "type": "{ before?: string; limit?: number }",
+        "required": false,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "EventPage",
+    "returnTypeLinks": {
+      "EventPage": "/docs/reference/client/return-types#eventpage"
+    },
+    "sdkReturnType": "EventPage",
+    "returnNotes": "Resolves to `EventPage`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "GET",
+      "path": "/api/events/get",
+      "flatPath": "/api/getEvents"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.getEvents(\"447123456789@c.us\");",
+      "nodeCall": "const result = await client.getEvents({\n  chatId: \"447123456789@c.us\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getEvents({\n  chatId: \"447123456789@c.us\",\n});",
+      "http": "curl -G \"http://localhost:8080/api/events/get\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"chatId=447123456789@c.us\"",
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"events\": [],\n    \"nextCursor\": \"example\"\n  }\n}"
+    }
+  },
+  {
     "id": "session.getfeatures",
     "anchor": "getfeatures",
     "name": "getFeatures",
@@ -2221,7 +2548,7 @@
     "name": "getGroupInfo",
     "namespacedName": "groups.getInfo",
     "namespace": "groups",
-    "description": "Get group metadata",
+    "description": "Get the group title and description through the installed private patch",
     "license": null,
     "aliases": [
       "groups.getInfo"
@@ -2247,23 +2574,21 @@
         "namedType": "GroupChatId"
       }
     ],
-    "returnType": "GroupMetadata | null",
-    "returnTypeLinks": {
-      "GroupMetadata": "/docs/reference/client/return-types#groupmetadata"
-    },
-    "sdkReturnType": "GroupMetadata | null",
-    "returnNotes": "Resolves to `GroupMetadata \\| null`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnType": "{ title: string; description?: string | null } | string | null",
+    "returnTypeLinks": {},
+    "sdkReturnType": null,
+    "returnNotes": "Resolves to `{ title: string; description?: string \\| null } \\| string \\| null`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
       "path": "/api/groups/getInfo",
       "flatPath": "/api/getGroupInfo"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.getGroupInfo(\"447123456789-1445627445@g.us\");",
+      "inProcessSdk": "",
       "nodeCall": "const result = await client.getGroupInfo({\n  groupId: \"447123456789-1445627445@g.us\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getGroupInfo({\n  groupId: \"447123456789-1445627445@g.us\",\n});",
       "http": "curl -G \"http://localhost:8080/api/groups/getInfo\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"groupId=447123456789-1445627445@g.us\"",
-      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"447123456789-1445627445@g.us\",\n    \"subject\": \"example\",\n    \"creation\": 0,\n    \"participants\": []\n  }\n}"
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"title\": \"example\"\n  }\n}"
     }
   },
   {
@@ -2928,6 +3253,57 @@
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getOrder({\n  id: \"id\",\n});",
       "http": "curl -G \"http://localhost:8080/api/business/getOrder\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"id=id\"",
       "response": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"example\",\n    \"createdAt\": 0,\n    \"currency\": \"example\",\n    \"products\": [],\n    \"sellerJid\": \"example\",\n    \"subtotal\": \"example\",\n    \"total\": \"example\"\n  }\n}"
+    }
+  },
+  {
+    "id": "messages.getpollresults",
+    "anchor": "getpollresults",
+    "name": "getPollResults",
+    "namespacedName": "messages.getPollResults",
+    "namespace": "messages",
+    "description": "Hydrates the local poll vote store and returns synced counts, choices and votes. Hidden-voter polls omit voter identities and the votes array. Unsynced votes may be absent.",
+    "license": null,
+    "aliases": [
+      "messages.getPollResults"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "messageId"
+    ],
+    "parameters": [
+      {
+        "name": "messageId",
+        "type": "string",
+        "required": true,
+        "description": "Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$",
+        "aliases": [
+          "id",
+          "msgId"
+        ],
+        "deprecatedAliases": [
+          "msgId"
+        ],
+        "example": "`\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"`",
+        "namedType": "MessageId"
+      }
+    ],
+    "returnType": "PollResults",
+    "returnTypeLinks": {
+      "PollResults": "/docs/reference/client/return-types#pollresults"
+    },
+    "sdkReturnType": "PollResults",
+    "returnNotes": "Resolves to `PollResults`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/messages/getPollResults",
+      "flatPath": "/api/getPollResults"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.getPollResults(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\");",
+      "nodeCall": "const result = await client.getPollResults({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getPollResults({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/messages/getPollResults\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"messageId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"pollId\": \"true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n    \"chatId\": \"447123456789@c.us\",\n    \"name\": \"example\",\n    \"selectableCount\": 0,\n    \"isClosed\": true,\n    \"hideVoterNames\": true,\n    \"options\": [],\n    \"voterCount\": 0,\n    \"scope\": \"synced\"\n  }\n}"
     }
   },
   {
@@ -3987,6 +4363,65 @@
     }
   },
   {
+    "id": "messages.pinmessage",
+    "anchor": "pinmessage",
+    "name": "pinMessage",
+    "namespacedName": "messages.pin",
+    "namespace": "messages",
+    "description": "Pins a message in its chat for everyone, subject to native permissions. This differs from pinChat, which changes the current account chat list.",
+    "license": null,
+    "aliases": [
+      "messages.pin"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "messageId",
+      "duration"
+    ],
+    "parameters": [
+      {
+        "name": "messageId",
+        "type": "string",
+        "required": true,
+        "description": "Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$",
+        "aliases": [
+          "id",
+          "msgId"
+        ],
+        "deprecatedAliases": [
+          "msgId"
+        ],
+        "example": "`\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"`",
+        "namedType": "MessageId"
+      },
+      {
+        "name": "duration",
+        "type": "\"OneDay\" | \"SevenDays\" | \"ThirtyDays\"",
+        "required": false,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "boolean",
+    "returnTypeLinks": {},
+    "sdkReturnType": "boolean",
+    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/messages/pin",
+      "flatPath": "/api/pinMessage"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.pinMessage(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\");",
+      "nodeCall": "const result = await client.pinMessage({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.pinMessage({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/messages/pin\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"messageId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": true\n}"
+    }
+  },
+  {
     "id": "status.postimagestatus",
     "anchor": "postimagestatus",
     "name": "postImageStatus",
@@ -4026,7 +4461,7 @@
     "returnTypeLinks": {
       "MessageId": "/docs/reference/client/return-types#messageid"
     },
-    "sdkReturnType": null,
+    "sdkReturnType": "MediaSendResult",
     "returnNotes": "Resolves to `MessageId \\| string \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
@@ -4034,7 +4469,7 @@
       "flatPath": "/api/postImageStatus"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.postImageStatus(\"image\");",
       "nodeCall": "const result = await client.postImageStatus({\n  image: \"image\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.postImageStatus({\n  image: \"image\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/status/postImage\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"image\": \"image\"\n  }'",
@@ -4091,7 +4526,7 @@
     "returnTypeLinks": {
       "MessageId": "/docs/reference/client/return-types#messageid"
     },
-    "sdkReturnType": null,
+    "sdkReturnType": "MediaSendResult",
     "returnNotes": "Resolves to `MessageId \\| string \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
@@ -4099,7 +4534,7 @@
       "flatPath": "/api/postTextStatus"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.postTextStatus(\"text\");",
       "nodeCall": "const result = await client.postTextStatus({\n  text: \"text\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.postTextStatus({\n  text: \"text\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/status/postText\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"text\": \"text\"\n  }'",
@@ -4146,7 +4581,7 @@
     "returnTypeLinks": {
       "MessageId": "/docs/reference/client/return-types#messageid"
     },
-    "sdkReturnType": null,
+    "sdkReturnType": "MediaSendResult",
     "returnNotes": "Resolves to `MessageId \\| string \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
@@ -4154,7 +4589,7 @@
       "flatPath": "/api/postVideoStatus"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.postVideoStatus(\"video\");",
       "nodeCall": "const result = await client.postVideoStatus({\n  video: \"video\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.postVideoStatus({\n  video: \"video\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/status/postVideo\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"video\": \"video\"\n  }'",
@@ -4268,7 +4703,7 @@
     ],
     "returnType": "boolean",
     "returnTypeLinks": {},
-    "sdkReturnType": "boolean",
+    "sdkReturnType": null,
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
@@ -4276,7 +4711,7 @@
       "flatPath": "/api/react"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.react(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\", \"emoji\");",
+      "inProcessSdk": "",
       "nodeCall": "const result = await client.react({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  emoji: \"emoji\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.react({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  emoji: \"emoji\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/react\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"messageId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n    \"emoji\": \"emoji\"\n  }'",
@@ -4504,6 +4939,114 @@
       "nodeCall": "const result = await client.removeParticipant({\n  groupId: \"447123456789-1445627445@g.us\",\n  contactId: \"447123456789@c.us\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.removeParticipant({\n  groupId: \"447123456789-1445627445@g.us\",\n  contactId: \"447123456789@c.us\",\n});",
       "http": "curl -X PUT \"http://localhost:8080/api/groups/removeParticipant\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"groupId\": \"447123456789-1445627445@g.us\",\n    \"contactId\": \"447123456789@c.us\"\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": true\n}"
+    }
+  },
+  {
+    "id": "contacts.requestphonenumber",
+    "anchor": "requestphonenumber",
+    "name": "requestPhoneNumber",
+    "namespacedName": "contacts.requestPhoneNumber",
+    "namespace": "contacts",
+    "description": "Ask a direct LID chat to voluntarily share their phone number. A submitted request does not confirm sharing.",
+    "license": null,
+    "aliases": [
+      "contacts.requestPhoneNumber"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "to"
+    ],
+    "parameters": [
+      {
+        "name": "to",
+        "type": "string",
+        "required": true,
+        "description": "Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\\d+(-\\d+)?@(c|g)\\.us$|^\\d+@lid$",
+        "aliases": [
+          "chatId"
+        ],
+        "deprecatedAliases": [],
+        "example": "`\"447123456789@c.us\"`",
+        "namedType": "ChatId"
+      }
+    ],
+    "returnType": "string",
+    "returnTypeLinks": {
+      "MessageId": "/docs/reference/client/return-types#messageid"
+    },
+    "sdkReturnType": "MessageId",
+    "returnCaveat": "Message ID",
+    "returnNotes": "Message ID",
+    "route": {
+      "method": "POST",
+      "path": "/api/contacts/requestPhoneNumber",
+      "flatPath": "/api/requestPhoneNumber"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.requestPhoneNumber(\"447123456789@c.us\");",
+      "nodeCall": "const result = await client.requestPhoneNumber({\n  to: \"447123456789@c.us\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.requestPhoneNumber({\n  to: \"447123456789@c.us\",\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/contacts/requestPhoneNumber\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\"\n  }'",
+      "response": "{\n  \"success\": true\n}"
+    }
+  },
+  {
+    "id": "whatsapp-events.respondtoevent",
+    "anchor": "respondtoevent",
+    "name": "respondToEvent",
+    "namespacedName": "events.respondToEvent",
+    "namespace": "events",
+    "description": "RSVP through WhatsApp’s native encrypted event-response action.",
+    "license": null,
+    "aliases": [
+      "events.respondToEvent"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "eventId",
+      "response"
+    ],
+    "parameters": [
+      {
+        "name": "eventId",
+        "type": "string",
+        "required": true,
+        "description": "Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$",
+        "aliases": [
+          "id",
+          "msgId"
+        ],
+        "deprecatedAliases": [
+          "msgId"
+        ],
+        "example": "`\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"`",
+        "namedType": "MessageId"
+      },
+      {
+        "name": "response",
+        "type": "\"going\" | \"notGoing\" | \"maybe\"",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "`\"going\"`"
+      }
+    ],
+    "returnType": "boolean",
+    "returnTypeLinks": {},
+    "sdkReturnType": "boolean",
+    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/events/respondToEvent",
+      "flatPath": "/api/respondToEvent"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.respondToEvent(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\", \"going\");",
+      "nodeCall": "const result = await client.respondToEvent({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  response: \"going\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.respondToEvent({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  response: \"going\",\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/events/respondToEvent\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"eventId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n    \"response\": \"going\"\n  }'",
       "response": "{\n  \"success\": true,\n  \"data\": true\n}"
     }
   },
@@ -4745,7 +5288,7 @@
     "name": "sendAudio",
     "namespacedName": "messages.sendAudio",
     "namespace": "messages",
-    "description": "Sends an audio file to a chat",
+    "description": "Sends an audio attachment with an optional quoted message. Use sendPtt for voice notes and view-once audio.",
     "license": null,
     "aliases": [
       "messages.sendAudio"
@@ -4755,7 +5298,7 @@
       "to",
       "file",
       "filename",
-      "quotedMsgId"
+      "options"
     ],
     "parameters": [
       {
@@ -4790,26 +5333,20 @@
         "example": "`\"document.pdf\"`"
       },
       {
-        "name": "quotedMsgId",
-        "type": "string",
+        "name": "options",
+        "type": "{ quotedMsgId?: string }",
         "required": false,
-        "description": "Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$",
-        "aliases": [
-          "id",
-          "msgId"
-        ],
-        "deprecatedAliases": [
-          "msgId"
-        ],
-        "example": "`\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"`",
-        "namedType": "MessageId"
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
       }
     ],
     "returnType": "MessageIdReturn | boolean",
     "returnTypeLinks": {
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
-    "sdkReturnType": null,
+    "sdkReturnType": "MediaSendResult",
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
@@ -4817,7 +5354,7 @@
       "flatPath": "/api/sendAudio"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.sendAudio(\"447123456789@c.us\", \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\");",
       "nodeCall": "const result = await client.sendAudio({\n  to: \"447123456789@c.us\",\n  file: \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendAudio({\n  to: \"447123456789@c.us\",\n  file: \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendAudio\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"file\": \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\"\n  }'",
@@ -5009,12 +5546,13 @@
         "example": "-"
       }
     ],
-    "returnType": "MessageIdReturn | boolean | void",
+    "returnType": "MessageIdReturn | boolean | (MessageIdReturn | boolean)[]",
     "returnTypeLinks": {
-      "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
+      "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn",
+      "MessageId": "/docs/reference/client/return-types#messageid"
     },
-    "sdkReturnType": "void",
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean \\| void`. A rejected Promise indicates input validation or dispatch failure.",
+    "sdkReturnType": "MessageId | boolean | (MessageId | boolean)[]",
+    "returnNotes": "Resolves to `MessageIdReturn \\| boolean \\| (MessageIdReturn \\| boolean)[]`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendContact",
@@ -5029,12 +5567,71 @@
     }
   },
   {
+    "id": "whatsapp-events.sendevent",
+    "anchor": "sendevent",
+    "name": "sendEvent",
+    "namespacedName": "events.sendEvent",
+    "namespace": "events",
+    "description": "Send a native WhatsApp event with Unix-second times. Returns its submitted message ID; delivery is observed through ACKs.",
+    "license": null,
+    "aliases": [
+      "events.sendEvent"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "to",
+      "event"
+    ],
+    "parameters": [
+      {
+        "name": "to",
+        "type": "string",
+        "required": true,
+        "description": "Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\\d+(-\\d+)?@(c|g)\\.us$|^\\d+@lid$",
+        "aliases": [
+          "chatId"
+        ],
+        "deprecatedAliases": [],
+        "example": "`\"447123456789@c.us\"`",
+        "namedType": "ChatId"
+      },
+      {
+        "name": "event",
+        "type": "{ callType?: \"voice\" | \"video\"; description?: string; endTime?: number; extraGuestsAllowed?: boolean; isScheduledCall?: boolean; location?: string; name: string; quotedMsgId?: string; requireApproval?: boolean; startTime: number }",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "`{\"name\":\"Community meetup\",\"startTime\":1893456000,\"description\":\"Meet the community\"}`"
+      }
+    ],
+    "returnType": "string",
+    "returnTypeLinks": {
+      "MessageId": "/docs/reference/client/return-types#messageid"
+    },
+    "sdkReturnType": "MessageId",
+    "returnCaveat": "Message ID",
+    "returnNotes": "Message ID",
+    "route": {
+      "method": "POST",
+      "path": "/api/events/sendEvent",
+      "flatPath": "/api/sendEvent"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.sendEvent(\"447123456789@c.us\", {\"name\":\"Community meetup\",\"startTime\":1893456000,\"description\":\"Meet the community\"});",
+      "nodeCall": "const result = await client.sendEvent({\n  to: \"447123456789@c.us\",\n  event: {\"name\":\"Community meetup\",\"startTime\":1893456000,\"description\":\"Meet the community\"},\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendEvent({\n  to: \"447123456789@c.us\",\n  event: {\"name\":\"Community meetup\",\"startTime\":1893456000,\"description\":\"Meet the community\"},\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/events/sendEvent\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"event\": {\n      \"name\": \"Community meetup\",\n      \"startTime\": 1893456000,\n      \"description\": \"Meet the community\"\n    }\n  }'",
+      "response": "{\n  \"success\": true\n}"
+    }
+  },
+  {
     "id": "messages.sendfile",
     "anchor": "sendfile",
     "name": "sendFile",
     "namespacedName": "messages.sendFile",
     "namespace": "messages",
-    "description": "Sends a file or document to a chat",
+    "description": "Sends an image, video, audio file or document using MIME detection or an explicit typed presentation. Incompatible options are rejected before sending. Media is not transcoded.",
     "license": null,
     "aliases": [
       "messages.sendFile"
@@ -5044,7 +5641,7 @@
       "to",
       "file",
       "filename",
-      "caption"
+      "options"
     ],
     "parameters": [
       {
@@ -5079,22 +5676,21 @@
         "example": "`\"document.pdf\"`"
       },
       {
-        "name": "caption",
-        "type": "string",
+        "name": "options",
+        "type": "{ caption?: string; quotedMsgId?: string; type?: \"auto\"; viewOnce?: boolean } | { caption?: string; quotedMsgId?: string; type: \"image\"; viewOnce?: boolean } | { caption?: string; isGif?: boolean; quotedMsgId?: string; type: \"video\"; videoNote?: boolean; viewOnce?: boolean } | { ptt?: boolean; quotedMsgId?: string; type: \"audio\"; viewOnce?: boolean } | { caption?: string; quotedMsgId?: string; type: \"document\" }",
         "required": false,
-        "description": "Media caption",
+        "description": "",
         "aliases": [],
         "deprecatedAliases": [],
-        "example": "`\"Check out this image!\"`"
+        "example": "-"
       }
     ],
-    "returnType": "MessageIdReturn | string",
+    "returnType": "MessageIdReturn | boolean",
     "returnTypeLinks": {
-      "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn",
-      "MessageId": "/docs/reference/client/return-types#messageid"
+      "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
-    "sdkReturnType": "MessageId",
-    "returnNotes": "Resolves to `MessageIdReturn \\| string`. A rejected Promise indicates input validation or dispatch failure.",
+    "sdkReturnType": "MediaSendResult",
+    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendFile",
@@ -5114,7 +5710,7 @@
     "name": "sendFileFromUrl",
     "namespacedName": "messages.sendFileFromUrl",
     "namespace": "messages",
-    "description": "Downloads a file from a URL and sends it to a chat",
+    "description": "Downloads media and sends it through sendFile with the same typed presentation options.",
     "license": null,
     "aliases": [
       "messages.sendFileFromUrl"
@@ -5124,7 +5720,7 @@
       "to",
       "url",
       "filename",
-      "caption",
+      "options",
       "headers"
     ],
     "parameters": [
@@ -5152,17 +5748,17 @@
       {
         "name": "filename",
         "type": "string",
-        "required": true,
-        "description": "Filename for the sent file",
+        "required": false,
+        "description": "Filename with extension",
         "aliases": [],
         "deprecatedAliases": [],
-        "example": "-"
+        "example": "`\"document.pdf\"`"
       },
       {
-        "name": "caption",
-        "type": "string",
+        "name": "options",
+        "type": "{ caption?: string; quotedMsgId?: string; type?: \"auto\"; viewOnce?: boolean } | { caption?: string; quotedMsgId?: string; type: \"image\"; viewOnce?: boolean } | { caption?: string; isGif?: boolean; quotedMsgId?: string; type: \"video\"; videoNote?: boolean; viewOnce?: boolean } | { ptt?: boolean; quotedMsgId?: string; type: \"audio\"; viewOnce?: boolean } | { caption?: string; quotedMsgId?: string; type: \"document\" }",
         "required": false,
-        "description": "Caption for the file",
+        "description": "",
         "aliases": [],
         "deprecatedAliases": [],
         "example": "-"
@@ -5177,8 +5773,10 @@
         "example": "-"
       }
     ],
-    "returnType": "string | boolean",
-    "returnTypeLinks": {},
+    "returnType": "MessageIdReturn | string | boolean",
+    "returnTypeLinks": {
+      "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
+    },
     "sdkReturnType": null,
     "returnCaveat": "Message ID or success status",
     "returnNotes": "Message ID or success status",
@@ -5189,10 +5787,10 @@
     },
     "examples": {
       "inProcessSdk": "",
-      "nodeCall": "const result = await client.sendFileFromUrl({\n  to: \"447123456789@c.us\",\n  url: \"url\",\n  filename: \"filename\",\n});",
-      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendFileFromUrl({\n  to: \"447123456789@c.us\",\n  url: \"url\",\n  filename: \"filename\",\n});",
-      "http": "curl -X POST \"http://localhost:8080/api/messages/sendFileFromUrl\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"url\": \"url\",\n    \"filename\": \"filename\"\n  }'",
-      "response": "{\n  \"success\": true,\n  \"data\": \"example\"\n}"
+      "nodeCall": "const result = await client.sendFileFromUrl({\n  to: \"447123456789@c.us\",\n  url: \"url\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendFileFromUrl({\n  to: \"447123456789@c.us\",\n  url: \"url\",\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/messages/sendFileFromUrl\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"url\": \"url\"\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": \"true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n}"
     }
   },
   {
@@ -5201,7 +5799,7 @@
     "name": "sendImage",
     "namespacedName": "messages.sendImage",
     "namespace": "messages",
-    "description": "Sends an image to a chat",
+    "description": "Sends media through the native attachment pipeline, including images and videos. Options select presentation, view once, GIF playback or circular video notes; media is not transcoded. Returns submission status, not a delivery receipt.",
     "license": null,
     "aliases": [
       "messages.sendImage"
@@ -5209,11 +5807,9 @@
     "deprecatedAliases": [],
     "parameterOrder": [
       "to",
-      "imgData",
+      "file",
       "filename",
-      "caption",
-      "id",
-      "waitForId"
+      "options"
     ],
     "parameters": [
       {
@@ -5229,13 +5825,13 @@
         "namedType": "ChatId"
       },
       {
-        "name": "imgData",
+        "name": "file",
         "type": "string",
         "required": true,
-        "description": "Image file (path, URL, DataURL, or Base64) Branded type: DataURL Pattern: ^data:.+;base64,.+$",
+        "description": "File (path, URL, DataURL, Base64, or Buffer) Branded type: DataURL Pattern: ^data:.+;base64,.+$",
         "aliases": [],
         "deprecatedAliases": [],
-        "example": "`\"data:image/png;base64,iVBORw0KGgo...\"`",
+        "example": "`\"data:application/pdf;base64,JVBERi0xLjQK...\"`",
         "namedType": "DataURL"
       },
       {
@@ -5248,56 +5844,31 @@
         "example": "`\"document.pdf\"`"
       },
       {
-        "name": "caption",
-        "type": "string",
+        "name": "options",
+        "type": "{ caption?: string; quotedMsgId?: string; type?: \"auto\"; viewOnce?: boolean } | { caption?: string; quotedMsgId?: string; type: \"image\"; viewOnce?: boolean } | { caption?: string; isGif?: boolean; quotedMsgId?: string; type: \"video\"; videoNote?: boolean; viewOnce?: boolean } | { ptt?: boolean; quotedMsgId?: string; type: \"audio\"; viewOnce?: boolean } | { caption?: string; quotedMsgId?: string; type: \"document\" }",
         "required": false,
-        "description": "Media caption",
+        "description": "",
         "aliases": [],
         "deprecatedAliases": [],
-        "example": "`\"Check out this image!\"`"
-      },
-      {
-        "name": "id",
-        "type": "string",
-        "required": false,
-        "description": "Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$",
-        "aliases": [
-          "id",
-          "msgId"
-        ],
-        "deprecatedAliases": [
-          "msgId"
-        ],
-        "example": "`\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"`",
-        "namedType": "MessageId"
-      },
-      {
-        "name": "waitForId",
-        "type": "boolean",
-        "required": false,
-        "description": "Wait for message ID",
-        "aliases": [],
-        "deprecatedAliases": [],
-        "example": "`true`"
+        "example": "-"
       }
     ],
-    "returnType": "MessageIdReturn | boolean | string",
+    "returnType": "MessageIdReturn | boolean",
     "returnTypeLinks": {
-      "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn",
-      "MessageId": "/docs/reference/client/return-types#messageid"
+      "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
-    "sdkReturnType": "MessageId | false",
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean \\| string`. A rejected Promise indicates input validation or dispatch failure.",
+    "sdkReturnType": "MediaSendResult",
+    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendImage",
       "flatPath": "/api/sendImage"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.sendImage(\"447123456789@c.us\", \"data:image/png;base64,iVBORw0KGgo...\");",
-      "nodeCall": "const result = await client.sendImage({\n  to: \"447123456789@c.us\",\n  imgData: \"data:image/png;base64,iVBORw0KGgo...\",\n});",
-      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendImage({\n  to: \"447123456789@c.us\",\n  imgData: \"data:image/png;base64,iVBORw0KGgo...\",\n});",
-      "http": "curl -X POST \"http://localhost:8080/api/messages/sendImage\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"imgData\": \"data:image/png;base64,iVBORw0KGgo...\"\n  }'",
+      "inProcessSdk": "const result = await client.sendImage(\"447123456789@c.us\", \"data:application/pdf;base64,JVBERi0xLjQK...\");",
+      "nodeCall": "const result = await client.sendImage({\n  to: \"447123456789@c.us\",\n  file: \"data:application/pdf;base64,JVBERi0xLjQK...\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendImage({\n  to: \"447123456789@c.us\",\n  file: \"data:application/pdf;base64,JVBERi0xLjQK...\",\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/messages/sendImage\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"file\": \"data:application/pdf;base64,JVBERi0xLjQK...\"\n  }'",
       "response": "{\n  \"success\": true,\n  \"data\": \"true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n}"
     }
   },
@@ -5835,9 +6406,10 @@
     ],
     "returnType": "MessageIdReturn | boolean",
     "returnTypeLinks": {
-      "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
+      "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn",
+      "MessageId": "/docs/reference/client/return-types#messageid"
     },
-    "sdkReturnType": null,
+    "sdkReturnType": "MessageId | boolean",
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
@@ -5845,7 +6417,7 @@
       "flatPath": "/api/sendMultipleContacts"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.sendMultipleContacts(\"447123456789@c.us\", [\"447123456789@c.us\"]);",
       "nodeCall": "const result = await client.sendMultipleContacts({\n  to: \"447123456789@c.us\",\n  contactIds: [\"447123456789@c.us\"],\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendMultipleContacts({\n  to: \"447123456789@c.us\",\n  contactIds: [\"447123456789@c.us\"],\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendContacts\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"contactIds\": [\n      \"447123456789@c.us\"\n    ]\n  }'",
@@ -5936,7 +6508,7 @@
     "name": "sendPoll",
     "namespacedName": "messages.sendPoll",
     "namespace": "messages",
-    "description": "Sends a poll message",
+    "description": "Sends a text poll with a selection limit, quote, optional closing time in Unix milliseconds and hidden voter names. Closing time and hidden names require native WhatsApp support for the sending account/chat. These fields select the native V6 poll payload.",
     "license": null,
     "aliases": [
       "messages.sendPoll"
@@ -5946,7 +6518,7 @@
       "to",
       "name",
       "options",
-      "selectableCount"
+      "config"
     ],
     "parameters": [
       {
@@ -5974,16 +6546,16 @@
         "name": "options",
         "type": "string[]",
         "required": true,
-        "description": "Poll options (2-12)",
+        "description": "Poll choices; the account may have a lower native limit",
         "aliases": [],
         "deprecatedAliases": [],
         "example": "-"
       },
       {
-        "name": "selectableCount",
-        "type": "number",
+        "name": "config",
+        "type": "{ endTime?: number; hideVoterNames?: boolean; quotedMsgId?: string; selectableCount?: number }",
         "required": false,
-        "description": "Number of selectable options",
+        "description": "",
         "aliases": [],
         "deprecatedAliases": [],
         "example": "-"
@@ -5991,9 +6563,10 @@
     ],
     "returnType": "MessageIdReturn | boolean",
     "returnTypeLinks": {
-      "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
+      "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn",
+      "MessageId": "/docs/reference/client/return-types#messageid"
     },
-    "sdkReturnType": null,
+    "sdkReturnType": "MessageId | boolean",
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
@@ -6001,7 +6574,7 @@
       "flatPath": "/api/sendPoll"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.sendPoll(\"447123456789@c.us\", \"name\", [\"Yes\", \"No\"]);",
       "nodeCall": "const result = await client.sendPoll({\n  to: \"447123456789@c.us\",\n  name: \"name\",\n  options: [\"Yes\", \"No\"],\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendPoll({\n  to: \"447123456789@c.us\",\n  name: \"name\",\n  options: [\"Yes\", \"No\"],\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendPoll\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"name\": \"name\",\n    \"options\": [\n      \"Yes\",\n      \"No\"\n    ]\n  }'",
@@ -6014,7 +6587,7 @@
     "name": "sendPtt",
     "namespacedName": "messages.sendPtt",
     "namespace": "messages",
-    "description": "Sends a voice note (push-to-talk) to a chat",
+    "description": "Sends prepared audio as a voice note, optionally view once. It does not transcode the input; use suitable voice-note audio such as Ogg Opus.",
     "license": null,
     "aliases": [
       "messages.sendPtt",
@@ -6025,7 +6598,7 @@
     "parameterOrder": [
       "to",
       "file",
-      "quotedMsgId"
+      "options"
     ],
     "parameters": [
       {
@@ -6051,26 +6624,20 @@
         "namedType": "DataURL"
       },
       {
-        "name": "quotedMsgId",
-        "type": "string",
+        "name": "options",
+        "type": "{ quotedMsgId?: string; viewOnce?: boolean }",
         "required": false,
-        "description": "Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$",
-        "aliases": [
-          "id",
-          "msgId"
-        ],
-        "deprecatedAliases": [
-          "msgId"
-        ],
-        "example": "`\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"`",
-        "namedType": "MessageId"
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
       }
     ],
     "returnType": "MessageIdReturn | boolean",
     "returnTypeLinks": {
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
-    "sdkReturnType": null,
+    "sdkReturnType": "MediaSendResult",
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
@@ -6078,7 +6645,7 @@
       "flatPath": "/api/sendPtt"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.sendPtt(\"447123456789@c.us\", \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\");",
       "nodeCall": "const result = await client.sendPtt({\n  to: \"447123456789@c.us\",\n  file: \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendPtt({\n  to: \"447123456789@c.us\",\n  file: \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendPtt\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"file\": \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\"\n  }'",
@@ -6287,6 +6854,75 @@
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendSeen({\n  chatId: \"447123456789@c.us\",\n});",
       "http": "curl -X PUT \"http://localhost:8080/api/messages/sendSeen\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"chatId\": \"447123456789@c.us\"\n  }'",
       "response": "{\n  \"success\": true,\n  \"data\": true\n}"
+    }
+  },
+  {
+    "id": "messages.sendsticker",
+    "anchor": "sendsticker",
+    "name": "sendSticker",
+    "namespacedName": "messages.sendSticker",
+    "namespace": "messages",
+    "description": "Render a sticker locally using automatic whole-job backend selection and ordered effects, then submit through the private donor finalizer. Author and pack labels are configurable; donor app links are owned by the installed patch. Returns a submitted message ID, not a delivery receipt. Unknown send outcomes must be reconciled before retrying.",
+    "license": null,
+    "aliases": [
+      "messages.sendSticker"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "to",
+      "input",
+      "job"
+    ],
+    "parameters": [
+      {
+        "name": "to",
+        "type": "string",
+        "required": true,
+        "description": "Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\\d+(-\\d+)?@(c|g)\\.us$|^\\d+@lid$",
+        "aliases": [
+          "chatId"
+        ],
+        "deprecatedAliases": [],
+        "example": "`\"447123456789@c.us\"`",
+        "namedType": "ChatId"
+      },
+      {
+        "name": "input",
+        "type": "string",
+        "required": true,
+        "description": "A media data URL or HTTP(S) URL. The local library additionally accepts bytes, Blob and local filenames. Pattern: ^(?:data:(?:image|video)\\/[^;,]+;base64,[A-Za-z0-9+/]+={0,2}|https?:\\/\\/\\S+)$",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      },
+      {
+        "name": "job",
+        "type": "{ author?: string; backend?: \"auto\" | \"browser\" | \"standalone\"; background?: string; circle?: boolean; effects?: (string | { name: string; options?: object })[]; fit?: \"contain\" | \"cover\"; fps?: number; loopCount?: number; pack?: string; quality?: number; quotedMsgId?: string; trim?: number[] }",
+        "required": false,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "MessageId",
+    "returnTypeLinks": {
+      "MessageId": "/docs/reference/client/return-types#messageid"
+    },
+    "sdkReturnType": "MessageId",
+    "returnCaveat": "Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.",
+    "returnNotes": "Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.",
+    "route": {
+      "method": "POST",
+      "path": "/api/messages/sendSticker",
+      "flatPath": "/api/sendSticker"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.sendSticker(\"447123456789@c.us\", \"input\");",
+      "nodeCall": "const result = await client.sendSticker({\n  to: \"447123456789@c.us\",\n  input: \"input\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendSticker({\n  to: \"447123456789@c.us\",\n  input: \"input\",\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/messages/sendSticker\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"input\": \"input\"\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": \"true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n}"
     }
   },
   {
@@ -6505,21 +7141,24 @@
         "example": "-"
       }
     ],
-    "returnType": "boolean",
-    "returnTypeLinks": {},
-    "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnType": "MessageIdReturn | boolean",
+    "returnTypeLinks": {
+      "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn",
+      "MessageId": "/docs/reference/client/return-types#messageid"
+    },
+    "sdkReturnType": "MessageId | boolean",
+    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendVCard",
       "flatPath": "/api/sendVCard"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.sendVCard(\"447123456789@c.us\", \"vcard\");",
       "nodeCall": "const result = await client.sendVCard({\n  to: \"447123456789@c.us\",\n  vcard: \"vcard\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendVCard({\n  to: \"447123456789@c.us\",\n  vcard: \"vcard\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendVCard\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"vcard\": \"vcard\"\n  }'",
-      "response": "{\n  \"success\": true,\n  \"data\": true\n}"
+      "response": "{\n  \"success\": true,\n  \"data\": \"true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n}"
     }
   },
   {
@@ -6528,7 +7167,7 @@
     "name": "sendVideoAsGif",
     "namespacedName": "messages.sendVideoAsGif",
     "namespace": "messages",
-    "description": "Sends a video as an animated GIF",
+    "description": "Sends MP4 video with WhatsApp GIF playback. GIF is a video presentation flag; this method does not convert a GIF image or transcode video.",
     "license": null,
     "aliases": [
       "messages.sendVideoAsGif"
@@ -6538,8 +7177,7 @@
       "to",
       "file",
       "filename",
-      "caption",
-      "quotedMsgId"
+      "options"
     ],
     "parameters": [
       {
@@ -6574,35 +7212,20 @@
         "example": "`\"document.pdf\"`"
       },
       {
-        "name": "caption",
-        "type": "string",
+        "name": "options",
+        "type": "{ caption?: string; quotedMsgId?: string }",
         "required": false,
-        "description": "Media caption",
+        "description": "",
         "aliases": [],
         "deprecatedAliases": [],
-        "example": "`\"Check out this image!\"`"
-      },
-      {
-        "name": "quotedMsgId",
-        "type": "string",
-        "required": false,
-        "description": "Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$",
-        "aliases": [
-          "id",
-          "msgId"
-        ],
-        "deprecatedAliases": [
-          "msgId"
-        ],
-        "example": "`\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"`",
-        "namedType": "MessageId"
+        "example": "-"
       }
     ],
     "returnType": "MessageIdReturn | boolean",
     "returnTypeLinks": {
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
-    "sdkReturnType": null,
+    "sdkReturnType": "MediaSendResult",
     "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
@@ -6610,7 +7233,7 @@
       "flatPath": "/api/sendVideoAsGif"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.sendVideoAsGif(\"447123456789@c.us\", \"data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...\");",
       "nodeCall": "const result = await client.sendVideoAsGif({\n  to: \"447123456789@c.us\",\n  file: \"data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendVideoAsGif({\n  to: \"447123456789@c.us\",\n  file: \"data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendVideoAsGif\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"file\": \"data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...\"\n  }'",
@@ -6759,7 +7382,7 @@
       },
       {
         "name": "media",
-        "type": "{ camera?: any; microphone?: any; onMediaFailure?: \"end\" | \"keep-open\" | null; speaker?: any } | null",
+        "type": "{ camera?: any; microphone?: any; onMediaFailure?: \"end\" | \"keep-open\"; speaker?: any }",
         "required": false,
         "description": "",
         "aliases": [],
@@ -6885,7 +7508,7 @@
     ],
     "returnType": "boolean",
     "returnTypeLinks": {},
-    "sdkReturnType": "boolean",
+    "sdkReturnType": null,
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
@@ -6893,7 +7516,7 @@
       "flatPath": "/api/setGroupDescription"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.setGroupDescription(\"447123456789-1445627445@g.us\", \"description\");",
+      "inProcessSdk": "",
       "nodeCall": "const result = await client.setGroupDescription({\n  groupId: \"447123456789-1445627445@g.us\",\n  description: \"description\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.setGroupDescription({\n  groupId: \"447123456789-1445627445@g.us\",\n  description: \"description\",\n});",
       "http": "curl -X PUT \"http://localhost:8080/api/groups/setDescription\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"groupId\": \"447123456789-1445627445@g.us\",\n    \"description\": \"description\"\n  }'",
@@ -7063,7 +7686,7 @@
     ],
     "returnType": "boolean",
     "returnTypeLinks": {},
-    "sdkReturnType": "boolean",
+    "sdkReturnType": null,
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
@@ -7071,7 +7694,7 @@
       "flatPath": "/api/setGroupTitle"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.setGroupTitle(\"447123456789-1445627445@g.us\", \"title\");",
+      "inProcessSdk": "",
       "nodeCall": "const result = await client.setGroupTitle({\n  groupId: \"447123456789-1445627445@g.us\",\n  title: \"title\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.setGroupTitle({\n  groupId: \"447123456789-1445627445@g.us\",\n  title: \"title\",\n});",
       "http": "curl -X PUT \"http://localhost:8080/api/groups/setTitle\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"groupId\": \"447123456789-1445627445@g.us\",\n    \"title\": \"title\"\n  }'",
@@ -7288,6 +7911,55 @@
     }
   },
   {
+    "id": "contacts.sharephonenumber",
+    "anchor": "sharephonenumber",
+    "name": "sharePhoneNumber",
+    "namespacedName": "contacts.sharePhoneNumber",
+    "namespace": "contacts",
+    "description": "Share the signed-in account’s own phone number with a direct LID chat using WhatsApp’s native protocol. No arbitrary phone number is accepted.",
+    "license": null,
+    "aliases": [
+      "contacts.sharePhoneNumber"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "to"
+    ],
+    "parameters": [
+      {
+        "name": "to",
+        "type": "string",
+        "required": true,
+        "description": "Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\\d+(-\\d+)?@(c|g)\\.us$|^\\d+@lid$",
+        "aliases": [
+          "chatId"
+        ],
+        "deprecatedAliases": [],
+        "example": "`\"447123456789@c.us\"`",
+        "namedType": "ChatId"
+      }
+    ],
+    "returnType": "string",
+    "returnTypeLinks": {
+      "MessageId": "/docs/reference/client/return-types#messageid"
+    },
+    "sdkReturnType": "MessageId",
+    "returnCaveat": "Message ID",
+    "returnNotes": "Message ID",
+    "route": {
+      "method": "POST",
+      "path": "/api/contacts/sharePhoneNumber",
+      "flatPath": "/api/sharePhoneNumber"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.sharePhoneNumber(\"447123456789@c.us\");",
+      "nodeCall": "const result = await client.sharePhoneNumber({\n  to: \"447123456789@c.us\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sharePhoneNumber({\n  to: \"447123456789@c.us\",\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/contacts/sharePhoneNumber\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\"\n  }'",
+      "response": "{\n  \"success\": true\n}"
+    }
+  },
+  {
     "id": "messages.starmessage",
     "anchor": "starmessage",
     "name": "starMessage",
@@ -7366,7 +8038,7 @@
       },
       {
         "name": "microphone",
-        "type": "unknown | null",
+        "type": "unknown",
         "required": false,
         "description": "",
         "aliases": [],
@@ -7375,7 +8047,7 @@
       },
       {
         "name": "speaker",
-        "type": "unknown | null",
+        "type": "unknown",
         "required": false,
         "description": "",
         "aliases": [],
@@ -7384,7 +8056,7 @@
       },
       {
         "name": "camera",
-        "type": "unknown | null",
+        "type": "unknown",
         "required": false,
         "description": "",
         "aliases": [],
@@ -7655,6 +8327,55 @@
     }
   },
   {
+    "id": "messages.unpinmessage",
+    "anchor": "unpinmessage",
+    "name": "unpinMessage",
+    "namespacedName": "messages.unpin",
+    "namespace": "messages",
+    "description": "Removes a message pin for everyone, subject to native chat permissions.",
+    "license": null,
+    "aliases": [
+      "messages.unpin"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "messageId"
+    ],
+    "parameters": [
+      {
+        "name": "messageId",
+        "type": "string",
+        "required": true,
+        "description": "Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$",
+        "aliases": [
+          "id",
+          "msgId"
+        ],
+        "deprecatedAliases": [
+          "msgId"
+        ],
+        "example": "`\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"`",
+        "namedType": "MessageId"
+      }
+    ],
+    "returnType": "boolean",
+    "returnTypeLinks": {},
+    "sdkReturnType": "boolean",
+    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/messages/unpin",
+      "flatPath": "/api/unpinMessage"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.unpinMessage(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\");",
+      "nodeCall": "const result = await client.unpinMessage({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.unpinMessage({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/messages/unpin\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"messageId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": true\n}"
+    }
+  },
+  {
     "id": "messages.unstarmessage",
     "anchor": "unstarmessage",
     "name": "unstarMessage",
@@ -7700,6 +8421,65 @@
       "nodeCall": "const result = await client.unstarMessage({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.unstarMessage({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "http": "curl -X PUT \"http://localhost:8080/api/messages/unstar\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"messageId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": true\n}"
+    }
+  },
+  {
+    "id": "messages.voteonpoll",
+    "anchor": "voteonpoll",
+    "name": "voteOnPoll",
+    "namespacedName": "messages.voteOnPoll",
+    "namespace": "messages",
+    "description": "Votes using option IDs returned by getPollResults; an empty array removes the current vote. The poll must be open and allow this account to vote.",
+    "license": null,
+    "aliases": [
+      "messages.voteOnPoll"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "messageId",
+      "optionIds"
+    ],
+    "parameters": [
+      {
+        "name": "messageId",
+        "type": "string",
+        "required": true,
+        "description": "Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$",
+        "aliases": [
+          "id",
+          "msgId"
+        ],
+        "deprecatedAliases": [
+          "msgId"
+        ],
+        "example": "`\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"`",
+        "namedType": "MessageId"
+      },
+      {
+        "name": "optionIds",
+        "type": "number[]",
+        "required": true,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "boolean",
+    "returnTypeLinks": {},
+    "sdkReturnType": "boolean",
+    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "POST",
+      "path": "/api/messages/voteOnPoll",
+      "flatPath": "/api/voteOnPoll"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.voteOnPoll(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\", []);",
+      "nodeCall": "const result = await client.voteOnPoll({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  optionIds: [],\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.voteOnPoll({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  optionIds: [],\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/messages/voteOnPoll\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"messageId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n    \"optionIds\": []\n  }'",
       "response": "{\n  \"success\": true,\n  \"data\": true\n}"
     }
   }

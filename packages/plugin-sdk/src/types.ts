@@ -6,6 +6,7 @@
  */
 import type { Hono } from 'hono';
 import type { z } from 'zod';
+import type { MediaSendOptions } from '@open-wa/schema';
 
 // ============================================================================
 // Plugin Input — What plugins receive from the host
@@ -68,13 +69,13 @@ export interface PluginInput<TConfig = unknown> {
  *
  * Common methods:
  * - sendText(to, content) → messageId
- * - sendImage(to, url, filename, caption?) → messageId
+ * - sendImage(to, url, filename?, options?) → messageId
  * - sendLocation(to, lat, lng, text?) → messageId
  * - sendLinkWithAutoPreview(to, url, text) → messageId
  * - decryptMedia(message) → base64 string
  * - getHostNumber() → phone number string
  * - getContact(contactId) → contact object
- * - sendFile(to, file, filename, caption?) → messageId
+ * - sendFile(to, file, filename?, options?) → messageId
  * - reply(to, content, quotedMsgId) → messageId
  * - forwardMessages(to, messages, skipMyMessages?) → boolean
  *
@@ -97,8 +98,8 @@ export interface PluginClient {
 
   // Convenience methods (all delegate to ask() under the hood)
   sendText(to: string, content: string): Promise<string>;
-  sendImage(to: string, url: string, filename: string, caption?: string): Promise<string>;
-  sendFile(to: string, base64: string, filename: string, caption?: string): Promise<string>;
+  sendImage(to: string, url: string, filename?: string, options?: MediaSendOptions): Promise<string | boolean>;
+  sendFile(to: string, base64: string, filename?: string, options?: MediaSendOptions): Promise<string | boolean>;
   sendLocation(to: string, lat: string, lng: string, text?: string): Promise<string>;
   sendLinkWithAutoPreview(to: string, url: string, text: string): Promise<string>;
   reply(to: string, content: string, quotedMsgId: string): Promise<string>;

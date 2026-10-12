@@ -271,18 +271,18 @@ type MessageId = string
 <summary>Type declaration</summary>
 
 ```ts
-type Message = { id: MessageId; body: string; type: "chat" | "audio" | "ptt" | "image" | "video" | "album" | "document" | "sticker" | "location" | "vcard" | "multi_vcard" | "revoked" | "order" | "buttons_response" | "list_response" | "unknown"; t: number; notifyName?: string; from: ChatId; to: ChatId; self: "in" | "out"; ack: "ACK_PENDING" | "ACK_SERVER" | "ACK_DEVICE" | "ACK_READ" | "ACK_PLAYED" | -1 | "ACK_ERROR" | 0 | 1 | 2 | 3 | 4; invis?: boolean; isNewMsg?: boolean; star?: boolean; recvFresh?: boolean; broadcast?: boolean; isForwarded?: boolean; labels?: string[]; mentionedJidList?: ContactId[]; caption?: string; expectedImageCount?: number | null; expectedVideoCount?: number | null; parentMsgKey?: MessageId | null; associationType?: string | null; isGif?: boolean; sender: Contact; timestamp: number; content: string; isGroupMsg: boolean; isMMS?: boolean; isMedia: boolean; isNotification: boolean; isPSA?: boolean; fromMe: boolean; chat: Chat; chatId: ChatId; author?: string; clientUrl?: string; deprecatedMms3Url?: string; isQuotedMsgAvailable: boolean; quotedMsg?: unknown; quotedMsgObj?: unknown; senderId?: string }
+type Message = { id: MessageId; body: string; type: "chat" | "audio" | "ptt" | "image" | "video" | "album" | "event_creation" | "event_response" | "document" | "sticker" | "location" | "vcard" | "multi_vcard" | "revoked" | "order" | "buttons_response" | "list_response" | "unknown"; t: number; notifyName?: string; from: ChatId; to: ChatId; self: "in" | "out"; ack: "ACK_PENDING" | "ACK_SERVER" | "ACK_DEVICE" | "ACK_READ" | "ACK_PLAYED" | -1 | "ACK_ERROR" | 0 | 1 | 2 | 3 | 4; invis?: boolean; isNewMsg?: boolean; star?: boolean; recvFresh?: boolean; broadcast?: boolean; isForwarded?: boolean; labels?: string[]; mentionedJidList?: ContactId[]; caption?: string; event?: WhatsAppEvent; expectedImageCount?: number | null; expectedVideoCount?: number | null; parentMsgKey?: MessageId | null; associationType?: string | null; isGif?: boolean; sender: Contact; timestamp: number; content: string; isGroupMsg: boolean; isMMS?: boolean; isMedia: boolean; isNotification: boolean; isPSA?: boolean; fromMe: boolean; chat: Chat; chatId: ChatId; author?: string; clientUrl?: string; deprecatedMms3Url?: string; isQuotedMsgAvailable: boolean; quotedMsg?: unknown; quotedMsgObj?: unknown; senderId?: string }
 ```
 
 </details>
 
-Related types: [ChatId](/docs/reference/client/return-types#chatid), [Chat](/docs/reference/client/return-types#chat), [ContactId](/docs/reference/client/return-types#contactid), [Contact](/docs/reference/client/return-types#contact), [MessageId](/docs/reference/client/return-types#messageid)
+Related types: [ChatId](/docs/reference/client/return-types#chatid), [Chat](/docs/reference/client/return-types#chat), [ContactId](/docs/reference/client/return-types#contactid), [Contact](/docs/reference/client/return-types#contact), [MessageId](/docs/reference/client/return-types#messageid), [WhatsAppEvent](/docs/reference/client/return-types#whatsappevent)
 
 | Field | Type | Required |
 | --- | --- | --- |
 | `id` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | Yes |
 | `body` | `string` | Yes |
-| `type` | `"chat" \| "audio" \| "ptt" \| "image" \| "video" \| "album" \| "document" \| "sticker" \| "location" \| "vcard" \| "multi_vcard" \| "revoked" \| "order" \| "buttons_response" \| "list_response" \| "unknown"` | Yes |
+| `type` | `"chat" \| "audio" \| "ptt" \| "image" \| "video" \| "album" \| "event_creation" \| "event_response" \| "document" \| "sticker" \| "location" \| "vcard" \| "multi_vcard" \| "revoked" \| "order" \| "buttons_response" \| "list_response" \| "unknown"` | Yes |
 | `t` | `number` | Yes |
 | `notifyName` | `string` | No |
 | `from` | `ChatId` — [ChatId](/docs/reference/client/return-types#chatid) | Yes |
@@ -298,6 +298,7 @@ Related types: [ChatId](/docs/reference/client/return-types#chatid), [Chat](/doc
 | `labels` | `string[]` | No |
 | `mentionedJidList` | `ContactId[]` — [ContactId](/docs/reference/client/return-types#contactid) | No |
 | `caption` | `string` | No |
+| `event` | `WhatsAppEvent` — [WhatsAppEvent](/docs/reference/client/return-types#whatsappevent) | No |
 | `expectedImageCount` | `number \| null` | No |
 | `expectedVideoCount` | `number \| null` | No |
 | `parentMsgKey` | `MessageId \| null` — [MessageId](/docs/reference/client/return-types#messageid) | No |
@@ -900,18 +901,18 @@ Message-shaped status entry, based on the legacy story API. Chat and sender may 
 <summary>Type declaration</summary>
 
 ```ts
-type Story = { id: MessageId; body: string; type: "chat" | "audio" | "ptt" | "image" | "video" | "album" | "document" | "sticker" | "location" | "vcard" | "multi_vcard" | "revoked" | "order" | "buttons_response" | "list_response" | "unknown"; t: number; notifyName?: string; from: ChatId; to: ChatId; self: "in" | "out"; ack: "ACK_PENDING" | "ACK_SERVER" | "ACK_DEVICE" | "ACK_READ" | "ACK_PLAYED" | -1 | "ACK_ERROR" | 0 | 1 | 2 | 3 | 4; invis?: boolean; isNewMsg?: boolean; star?: boolean; recvFresh?: boolean; broadcast?: boolean; isForwarded?: boolean; labels?: string[]; mentionedJidList?: ContactId[]; caption?: string; expectedImageCount?: number | null; expectedVideoCount?: number | null; parentMsgKey?: MessageId | null; associationType?: string | null; isGif?: boolean; timestamp: number; content: string; isGroupMsg: boolean; isMMS?: boolean; isMedia: boolean; isNotification: boolean; isPSA?: boolean; fromMe: boolean; chatId: ChatId; author?: string; clientUrl?: string; deprecatedMms3Url?: string; isQuotedMsgAvailable: boolean; quotedMsg?: unknown; quotedMsgObj?: unknown; senderId?: string; chat?: Chat | null; sender?: Contact | null }
+type Story = { id: MessageId; body: string; type: "chat" | "audio" | "ptt" | "image" | "video" | "album" | "event_creation" | "event_response" | "document" | "sticker" | "location" | "vcard" | "multi_vcard" | "revoked" | "order" | "buttons_response" | "list_response" | "unknown"; t: number; notifyName?: string; from: ChatId; to: ChatId; self: "in" | "out"; ack: "ACK_PENDING" | "ACK_SERVER" | "ACK_DEVICE" | "ACK_READ" | "ACK_PLAYED" | -1 | "ACK_ERROR" | 0 | 1 | 2 | 3 | 4; invis?: boolean; isNewMsg?: boolean; star?: boolean; recvFresh?: boolean; broadcast?: boolean; isForwarded?: boolean; labels?: string[]; mentionedJidList?: ContactId[]; caption?: string; event?: WhatsAppEvent; expectedImageCount?: number | null; expectedVideoCount?: number | null; parentMsgKey?: MessageId | null; associationType?: string | null; isGif?: boolean; timestamp: number; content: string; isGroupMsg: boolean; isMMS?: boolean; isMedia: boolean; isNotification: boolean; isPSA?: boolean; fromMe: boolean; chatId: ChatId; author?: string; clientUrl?: string; deprecatedMms3Url?: string; isQuotedMsgAvailable: boolean; quotedMsg?: unknown; quotedMsgObj?: unknown; senderId?: string; chat?: Chat | null; sender?: Contact | null }
 ```
 
 </details>
 
-Related types: [ChatId](/docs/reference/client/return-types#chatid), [Chat](/docs/reference/client/return-types#chat), [ContactId](/docs/reference/client/return-types#contactid), [Contact](/docs/reference/client/return-types#contact), [MessageId](/docs/reference/client/return-types#messageid)
+Related types: [ChatId](/docs/reference/client/return-types#chatid), [Chat](/docs/reference/client/return-types#chat), [ContactId](/docs/reference/client/return-types#contactid), [Contact](/docs/reference/client/return-types#contact), [MessageId](/docs/reference/client/return-types#messageid), [WhatsAppEvent](/docs/reference/client/return-types#whatsappevent)
 
 | Field | Type | Required |
 | --- | --- | --- |
 | `id` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | Yes |
 | `body` | `string` | Yes |
-| `type` | `"chat" \| "audio" \| "ptt" \| "image" \| "video" \| "album" \| "document" \| "sticker" \| "location" \| "vcard" \| "multi_vcard" \| "revoked" \| "order" \| "buttons_response" \| "list_response" \| "unknown"` | Yes |
+| `type` | `"chat" \| "audio" \| "ptt" \| "image" \| "video" \| "album" \| "event_creation" \| "event_response" \| "document" \| "sticker" \| "location" \| "vcard" \| "multi_vcard" \| "revoked" \| "order" \| "buttons_response" \| "list_response" \| "unknown"` | Yes |
 | `t` | `number` | Yes |
 | `notifyName` | `string` | No |
 | `from` | `ChatId` — [ChatId](/docs/reference/client/return-types#chatid) | Yes |
@@ -927,6 +928,7 @@ Related types: [ChatId](/docs/reference/client/return-types#chatid), [Chat](/doc
 | `labels` | `string[]` | No |
 | `mentionedJidList` | `ContactId[]` — [ContactId](/docs/reference/client/return-types#contactid) | No |
 | `caption` | `string` | No |
+| `event` | `WhatsAppEvent` — [WhatsAppEvent](/docs/reference/client/return-types#whatsappevent) | No |
 | `expectedImageCount` | `number \| null` | No |
 | `expectedVideoCount` | `number \| null` | No |
 | `parentMsgKey` | `MessageId \| null` — [MessageId](/docs/reference/client/return-types#messageid) | No |
@@ -1399,6 +1401,294 @@ type ReplyAction = { type: "reply"; id: string; label: string }
 | `label` | `string` | Yes |
 
 Additional provider fields may be present; narrow them before use.
+## AudioAttachmentOptions
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type AudioAttachmentOptions = { quotedMsgId?: MessageId }
+```
+
+</details>
+
+Related types: [MessageId](/docs/reference/client/return-types#messageid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `quotedMsgId` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | No |
+
+Additional provider fields may be present; narrow them before use.
+## AudioSendOptions
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type AudioSendOptions = { type: "audio"; quotedMsgId?: MessageId; viewOnce?: boolean; ptt?: boolean }
+```
+
+</details>
+
+Related types: [MessageId](/docs/reference/client/return-types#messageid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `type` | `"audio"` | Yes |
+| `quotedMsgId` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | No |
+| `viewOnce` | `boolean` | No |
+| `ptt` | `boolean` | No |
+
+Additional provider fields may be present; narrow them before use.
+## AutoMediaSendOptions
+
+Detect presentation from the file MIME type; view once requires an image or video
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type AutoMediaSendOptions = { type?: "auto"; caption?: string; quotedMsgId?: MessageId; viewOnce?: boolean }
+```
+
+</details>
+
+Related types: [MessageId](/docs/reference/client/return-types#messageid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `type` | `"auto"` | No |
+| `caption` | `string` | No |
+| `quotedMsgId` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | No |
+| `viewOnce` | `boolean` | No |
+
+Additional provider fields may be present; narrow them before use.
+## DocumentSendOptions
+
+Force document presentation, even for an image, video or audio file
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type DocumentSendOptions = { type: "document"; caption?: string; quotedMsgId?: MessageId }
+```
+
+</details>
+
+Related types: [MessageId](/docs/reference/client/return-types#messageid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `type` | `"document"` | Yes |
+| `caption` | `string` | No |
+| `quotedMsgId` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | No |
+
+Additional provider fields may be present; narrow them before use.
+## GifSendOptions
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type GifSendOptions = { caption?: string; quotedMsgId?: MessageId }
+```
+
+</details>
+
+Related types: [MessageId](/docs/reference/client/return-types#messageid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `caption` | `string` | No |
+| `quotedMsgId` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | No |
+
+Additional provider fields may be present; narrow them before use.
+## ImageSendOptions
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type ImageSendOptions = { type: "image"; caption?: string; quotedMsgId?: MessageId; viewOnce?: boolean }
+```
+
+</details>
+
+Related types: [MessageId](/docs/reference/client/return-types#messageid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `type` | `"image"` | Yes |
+| `caption` | `string` | No |
+| `quotedMsgId` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | No |
+| `viewOnce` | `boolean` | No |
+
+Additional provider fields may be present; narrow them before use.
+## MediaSendOptions
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type MediaSendOptions = AutoMediaSendOptions | ImageSendOptions | VideoSendOptions | AudioSendOptions | DocumentSendOptions
+```
+
+</details>
+
+Related types: [AudioSendOptions](/docs/reference/client/return-types#audiosendoptions), [AutoMediaSendOptions](/docs/reference/client/return-types#automediasendoptions), [DocumentSendOptions](/docs/reference/client/return-types#documentsendoptions), [ImageSendOptions](/docs/reference/client/return-types#imagesendoptions), [VideoSendOptions](/docs/reference/client/return-types#videosendoptions)
+
+## VideoSendOptions
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type VideoSendOptions = { type: "video"; caption?: string; quotedMsgId?: MessageId; viewOnce?: boolean; isGif?: boolean; videoNote?: boolean }
+```
+
+</details>
+
+Related types: [MessageId](/docs/reference/client/return-types#messageid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `type` | `"video"` | Yes |
+| `caption` | `string` | No |
+| `quotedMsgId` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | No |
+| `viewOnce` | `boolean` | No |
+| `isGif` | `boolean` | No |
+| `videoNote` | `boolean` | No |
+
+Additional provider fields may be present; narrow them before use.
+## VoiceNoteOptions
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type VoiceNoteOptions = { quotedMsgId?: MessageId; viewOnce?: boolean }
+```
+
+</details>
+
+Related types: [MessageId](/docs/reference/client/return-types#messageid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `quotedMsgId` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | No |
+| `viewOnce` | `boolean` | No |
+
+Additional provider fields may be present; narrow them before use.
+## PinDuration
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type PinDuration = "OneDay" | "SevenDays" | "ThirtyDays"
+```
+
+</details>
+
+
+
+## PollResults
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type PollResults = { pollId: MessageId; chatId: ChatId; name: string; selectableCount: number; endTime?: number; isClosed: boolean; hideVoterNames: boolean; options: { id: number; name: string; count: number }[]; voterCount: number; votes?: PollVote[]; scope: "synced" }
+```
+
+</details>
+
+Related types: [ChatId](/docs/reference/client/return-types#chatid), [MessageId](/docs/reference/client/return-types#messageid), [PollVote](/docs/reference/client/return-types#pollvote)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `pollId` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | Yes |
+| `chatId` | `ChatId` — [ChatId](/docs/reference/client/return-types#chatid) | Yes |
+| `name` | `string` | Yes |
+| `selectableCount` | `number` | Yes |
+| `endTime` | `number` | No |
+| `isClosed` | `boolean` | Yes |
+| `hideVoterNames` | `boolean` | Yes |
+| `options` | `{ id: number; name: string; count: number }[]` | Yes |
+| `voterCount` | `number` | Yes |
+| `votes` | `PollVote[]` — [PollVote](/docs/reference/client/return-types#pollvote) | No |
+| `scope` | `"synced"` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## PollSendOptions
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type PollSendOptions = { selectableCount?: number; quotedMsgId?: MessageId; endTime?: number; hideVoterNames?: boolean }
+```
+
+</details>
+
+Related types: [MessageId](/docs/reference/client/return-types#messageid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `selectableCount` | `number` | No |
+| `quotedMsgId` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | No |
+| `endTime` | `number` | No |
+| `hideVoterNames` | `boolean` | No |
+
+Additional provider fields may be present; narrow them before use.
+## PollVote
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type PollVote = { pollId: MessageId; chatId: ChatId; id?: MessageId; senderId?: ContactId; selectedOptionIds: number[]; timestamp: number; fromMe: boolean; hideVoterNames: boolean }
+```
+
+</details>
+
+Related types: [ChatId](/docs/reference/client/return-types#chatid), [ContactId](/docs/reference/client/return-types#contactid), [MessageId](/docs/reference/client/return-types#messageid)
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `pollId` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | Yes |
+| `chatId` | `ChatId` — [ChatId](/docs/reference/client/return-types#chatid) | Yes |
+| `id` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | No |
+| `senderId` | `ContactId` — [ContactId](/docs/reference/client/return-types#contactid) | No |
+| `selectedOptionIds` | `number[]` | Yes |
+| `timestamp` | `number` | Yes |
+| `fromMe` | `boolean` | Yes |
+| `hideVoterNames` | `boolean` | Yes |
+
+Additional provider fields may be present; narrow them before use.
 ## AlbumMedia
 
 
@@ -1440,5 +1730,159 @@ Related types: [MessageId](/docs/reference/client/return-types#messageid)
 | --- | --- | --- |
 | `albumId` | `MessageId` — [MessageId](/docs/reference/client/return-types#messageid) | Yes |
 | `messageIds` | `MessageId[]` — [MessageId](/docs/reference/client/return-types#messageid) | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## EventInput
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type EventInput = { name: string; startTime: number; endTime?: number; description?: string; location?: string; extraGuestsAllowed?: boolean; callType?: "voice" | "video"; isScheduledCall?: boolean; requireApproval?: boolean; quotedMsgId?: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `name` | `string` | Yes |
+| `startTime` | `number` | Yes |
+| `endTime` | `number` | No |
+| `description` | `string` | No |
+| `location` | `string` | No |
+| `extraGuestsAllowed` | `boolean` | No |
+| `callType` | `"voice" \| "video"` | No |
+| `isScheduledCall` | `boolean` | No |
+| `requireApproval` | `boolean` | No |
+| `quotedMsgId` | `string` | No |
+
+Additional provider fields may be present; narrow them before use.
+## EventListOptions
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type EventListOptions = { limit?: number; before?: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `limit` | `number` | No |
+| `before` | `string` | No |
+
+Additional provider fields may be present; narrow them before use.
+## EventPage
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type EventPage = { events: ({ id: string; chatId: string; creatorId: string; name: string; startTime: number; endTime?: number | null; description?: string | null; location?: { name?: string | null; latitude?: number | "Infinity" | "-Infinity" | "NaN" | null; longitude?: number | null } | null; joinLink?: string | null; isScheduledCall?: boolean | null; extraGuestsAllowed?: boolean | null; isCanceled: boolean; fromMe: boolean; timestamp: number })[]; nextCursor: string | null }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `events` | `({ id: string; chatId: string; creatorId: string; name: string; startTime: number; endTime?: number \| null; description?: string \| null; location?: { name?: string \| null; latitude?: number \| "Infinity" \| "-Infinity" \| "NaN" \| null; longitude?: number \| null } \| null; joinLink?: string \| null; isScheduledCall?: boolean \| null; extraGuestsAllowed?: boolean \| null; isCanceled: boolean; fromMe: boolean; timestamp: number })[]` | Yes |
+| `nextCursor` | `string \| null` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## EventResponse
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type EventResponse = { id: string; eventId: string; chatId: string; senderId: string; response: "going" | "notGoing" | "maybe" | "unknown"; timestamp: number; fromMe: boolean }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `string` | Yes |
+| `eventId` | `string` | Yes |
+| `chatId` | `string` | Yes |
+| `senderId` | `string` | Yes |
+| `response` | `"going" \| "notGoing" \| "maybe" \| "unknown"` | Yes |
+| `timestamp` | `number` | Yes |
+| `fromMe` | `boolean` | Yes |
+
+Additional provider fields may be present; narrow them before use.
+## EventUpdate
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type EventUpdate = { name?: string; startTime?: number; endTime?: number | null; description?: string; location?: string }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `name` | `string` | No |
+| `startTime` | `number` | No |
+| `endTime` | `number \| null` | No |
+| `description` | `string` | No |
+| `location` | `string` | No |
+
+Additional provider fields may be present; narrow them before use.
+## WhatsAppEvent
+
+
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type WhatsAppEvent = { id: string; chatId: string; creatorId: string; name: string; startTime: number; endTime?: number; description?: string; location?: { name?: string; latitude?: number | "Infinity" | "-Infinity" | "NaN"; longitude?: number | "Infinity" | "-Infinity" | "NaN" }; joinLink?: string; isScheduledCall?: boolean; extraGuestsAllowed?: boolean; isCanceled: boolean; fromMe: boolean; timestamp: number }
+```
+
+</details>
+
+
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `id` | `string` | Yes |
+| `chatId` | `string` | Yes |
+| `creatorId` | `string` | Yes |
+| `name` | `string` | Yes |
+| `startTime` | `number` | Yes |
+| `endTime` | `number` | No |
+| `description` | `string` | No |
+| `location` | `{ name?: string; latitude?: number \| "Infinity" \| "-Infinity" \| "NaN"; longitude?: number \| "Infinity" \| "-Infinity" \| "NaN" }` | No |
+| `joinLink` | `string` | No |
+| `isScheduledCall` | `boolean` | No |
+| `extraGuestsAllowed` | `boolean` | No |
+| `isCanceled` | `boolean` | Yes |
+| `fromMe` | `boolean` | Yes |
+| `timestamp` | `number` | Yes |
 
 Additional provider fields may be present; narrow them before use.

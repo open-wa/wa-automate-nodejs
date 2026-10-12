@@ -10,30 +10,21 @@ import type {
   Content,
   AlbumMedia,
   AlbumSendResult,
+  MediaSendOptions, AudioAttachmentOptions, VoiceNoteOptions, GifSendOptions, PollSendOptions, PollResults, PinDuration,
 } from '@open-wa/schema';
-import {
-  implementMethod,
-  SendTextResultSchema,
-  AlbumSendResultSchema,
-  sendAlbum as sendAlbumSchema,
-  sendFile as sendFileSchema,
-  editMessage as editMessageSchema,
-  react as reactSchema,
-} from '@open-wa/schema';
+import { implementMethod, editMessage as editMessageSchema, react as reactSchema, SendTextResultSchema, AlbumSendResultSchema, sendAlbum as sendAlbumSchema, sendPoll as sendPollSchema, AudioAttachmentOptionsSchema, VoiceNoteOptionsSchema, GifSendOptionsSchema, PollResultsSchema, voteOnPoll as voteOnPollSchema, getPollResults as getPollResultsMethodSchema, pinMessage as pinMessageSchema, unpinMessage as unpinMessageSchema } from '@open-wa/schema';
 import { SendTextError } from '../SendTextError';
+import type { StickerInput, StickerJob } from '@open-wa/stickers';
+import { sendClientSticker } from '../stickers';
+import { invokePatch } from '../patchRuntime';
+import { sendMedia, mediaSendResult, type MediaInput, type MediaSendResult } from '../mediaInput';
 
 declare const WAPI: {
   sendMessage: (to: string, content: string) => Promise<unknown>;
-  sendImage: (base64: string, to: string, filename: string, caption: string, quotedMsgId?: string, waitForId?: boolean, ptt?: boolean, withoutPreview?: boolean, hideTags?: boolean, viewOnce?: boolean) => Promise<string | boolean>;
-  sendFile: (base64: string, to: string, filename?: string, caption?: string) => Promise<MessageIdReturn | string>;
   sendLocation: (to: string, lat: number, lng: number, loc: string, address?: string, url?: string) => Promise<string | false>;
-  sendContact: (to: string, contact: string | string[]) => void;
-  sendImageAsSticker: (webpBase64: string, to: string, metadata?: any) => Promise<string | boolean>;
   reply: (to: string, content: string, quotedMsg: string | Message) => Promise<string | boolean>;
   forwardMessages: (to: string, messages: string | (string | Message)[], skipMyMessages: boolean) => Promise<MessageIdReturn[] | boolean>;
   smartDeleteMessages: (chatId: string, messageId: string[] | string, onlyLocal: boolean) => Promise<any>;
-  editMessage: (messageId: string, text: string) => Promise<any>;
-  react: (messageId: string, emoji: string) => Promise<boolean>;
   sendSeen: (chatId: string) => Promise<boolean>;
   getMessageById: (messageId: string) => Message | false | null;
   getAlbumMessages: (messageId: string) => Promise<Message[] | false>;
@@ -48,11 +39,29 @@ export interface MessagingMethods {
   sendText(to: ChatId | string, content: string): Promise<MessageId>;
   /** Resolves phone-number IDs to LIDs and submits native album media in order. */
   sendAlbum(to: ChatId, media: AlbumMedia[], caption?: string, quotedMsgId?: MessageId): Promise<AlbumSendResult>;
-  sendImage(to: ChatId, file: DataURL | Base64, filename: string, caption?: string, quotedMsgId?: MessageId): Promise<MessageId | false>;
-  sendFile: ReturnType<typeof implementMethod<typeof sendFileSchema>>;
+  sendImage(to: ChatId, file: MediaInput, filename?: string, options?: MediaSendOptions): Promise<MediaSendResult>;
+  /** Sends media in its native presentation: image, video, audio or document. */
+  sendFile(to: ChatId, file: MediaInput, filename?: string, options?: MediaSendOptions): Promise<MediaSendResult>;
+  sendAudio(to: ChatId, file: MediaInput, filename?: string, options?: AudioAttachmentOptions): Promise<MediaSendResult>;
+  /** Marks prepared audio as a voice note; it does not transcode the input. */
+  sendPtt(to: ChatId, file: MediaInput, options?: VoiceNoteOptions): Promise<MediaSendResult>;
+  /** Sends video with WhatsApp's looping GIF flag. */
+  sendVideoAsGif(to: ChatId, file: MediaInput, filename?: string, options?: GifSendOptions): Promise<MediaSendResult>;
+  /** Zero allows all options; otherwise the count is the selection limit. */
+  sendPoll(to: ChatId, name: string, options: string[], config?: PollSendOptions): Promise<MessageId | boolean>;
+  /** Use option IDs from getPollResults; an empty array removes this account's vote. */
+  voteOnPoll(messageId: MessageId, optionIds: number[]): Promise<boolean>;
+  /** Hydrates the synced poll vote store; it is not a global attendance guarantee. */
+  getPollResults(messageId: MessageId): Promise<PollResults>;
+  /** Pin a message for everyone, subject to native chat permissions. */
+  pinMessage(messageId: MessageId, duration?: PinDuration): Promise<boolean>;
+  unpinMessage(messageId: MessageId): Promise<boolean>;
   sendLocation(to: ChatId, lat: number, lng: number, locationText: string, address?: string): Promise<MessageId | false>;
-  sendContact(to: ChatId, contact: ContactId | ContactId[]): Promise<void>;
-  sendSticker(to: ChatId, stickerData: DataURL | Base64, metadata?: { author?: string; pack?: string }): Promise<MessageId | boolean>;
+  sendContact(to: ChatId, contact: ContactId | ContactId[]): Promise<MessageId | boolean | (MessageId | boolean)[]>;
+  sendMultipleContacts(to: ChatId, contactIds: ContactId[]): Promise<MessageId | boolean>;
+  sendVCard(to: ChatId, vcard: string, contactName?: string, contactNumber?: string): Promise<MessageId | boolean>;
+  /** Render locally with automatic whole-job routing, then submit through the donor finalizer. */
+  sendSticker(to: ChatId, input: StickerInput, job?: StickerJob): Promise<MessageId>;
   reply(to: ChatId, content: string, quotedMsgId: MessageId): Promise<MessageId | boolean>;
   forwardMessages(to: ChatId, messages: MessageId | MessageId[], skipMyMessages?: boolean): Promise<MessageIdReturn[] | boolean>;
   deleteMessage(chatId: ChatId, messageId: MessageId | MessageId[], onlyLocal?: boolean): Promise<boolean>;
@@ -127,26 +136,51 @@ export function messagingMethods(client: Client): MessagingMethods {
       return parsed.data;
     },
     
-    async sendImage(
-      to: ChatId,
-      file: DataURL | Base64,
-      filename: string,
-      caption = '',
-      quotedMsgId?: MessageId
-    ): Promise<MessageId | false> {
-      return evaluate(
-        ({ to, file, filename, caption, quotedMsgId }) => 
-          WAPI.sendImage(file, to, filename, caption, quotedMsgId, true),
-        { to, file, filename, caption, quotedMsgId }
-      ) as Promise<MessageId | false>;
+    async sendImage(to, file, filename, options = {}) {
+      return sendMedia(client, to, file, filename, options);
     },
-    
-    sendFile: implementMethod(sendFileSchema, ({ to, file, filename, caption }) =>
-      evaluate(
-        ({ to, file, filename, caption }) => WAPI.sendFile(file, to, filename, caption),
-        { to, file, filename, caption: caption ?? '' }
-      )),
-    
+
+    async sendFile(to, file, filename, options = {}) {
+      return sendMedia(client, to, file, filename, options);
+    },
+
+    async sendAudio(to, file, filename, options = {}) {
+      return sendMedia(client, to, file, filename, { type: 'audio', ...AudioAttachmentOptionsSchema.parse(options) });
+    },
+
+    async sendPtt(to, file, options = {}) {
+      return sendMedia(client, to, file, undefined, { type: 'audio', ptt: true, ...VoiceNoteOptionsSchema.parse(options) });
+    },
+
+    async sendVideoAsGif(to, file, filename, options = {}) {
+      return sendMedia(client, to, file, filename, { type: 'video', isGif: true, ...GifSendOptionsSchema.parse(options) });
+    },
+
+    async sendPoll(to, name, options, config = {}) {
+      const params = sendPollSchema.openWAInput.parse({ to, name, options, config });
+      return mediaSendResult(await invokePatch(client, 'sendPoll', [params.to, params.name, params.options, params.config.quotedMsgId, params.config.selectableCount ?? 1, params.config]));
+    },
+
+    async voteOnPoll(messageId, optionIds) {
+      const params = voteOnPollSchema.openWAInput.parse({ messageId, optionIds });
+      return invokePatch<boolean>(client, 'voteOnPoll', [params.messageId, params.optionIds]);
+    },
+
+    async getPollResults(messageId) {
+      const params = getPollResultsMethodSchema.openWAInput.parse({ messageId });
+      return PollResultsSchema.parse(await invokePatch(client, 'getPollResults', [params.messageId]));
+    },
+
+    async pinMessage(messageId, duration = 'SevenDays') {
+      const params = pinMessageSchema.openWAInput.parse({ messageId, duration });
+      return invokePatch<boolean>(client, 'pinMessage', [params.messageId, true, params.duration]);
+    },
+
+    async unpinMessage(messageId) {
+      const params = unpinMessageSchema.openWAInput.parse({ messageId });
+      return invokePatch<boolean>(client, 'pinMessage', [params.messageId, false]);
+    },
+
     async sendLocation(
       to: ChatId,
       lat: number,
@@ -161,23 +195,26 @@ export function messagingMethods(client: Client): MessagingMethods {
       ) as Promise<MessageId | false>;
     },
     
-    async sendContact(to: ChatId, contact: ContactId | ContactId[]): Promise<void> {
-      return evaluate(
-        ({ to, contact }) => WAPI.sendContact(to, contact),
-        { to, contact }
-      );
+    async sendContact(to, contact) {
+      return invokePatch<MessageId | boolean | (MessageId | boolean)[]>(client, 'sendContact', [to, contact]);
+    },
+
+    async sendMultipleContacts(to, contactIds) {
+      if (contactIds.length === 0) throw new Error('sendMultipleContacts requires at least one contact.');
+      return mediaSendResult(await invokePatch(client, 'sendContact', [to, contactIds, true]));
+    },
+
+    async sendVCard(to, vcard, contactName, contactNumber) {
+      const name = contactName || /^FN(?:;[^:]*)?:(.*)$/im.exec(vcard)?.[1]?.trim() || contactNumber || 'Contact';
+      return mediaSendResult(await invokePatch(client, 'sendVCard', [to, vcard, name, contactNumber]));
     },
     
     async sendSticker(
       to: ChatId,
-      stickerData: DataURL | Base64,
-      metadata?: { author?: string; pack?: string }
-    ): Promise<MessageId | boolean> {
-      return evaluate(
-        ({ to, stickerData, metadata }) => 
-          WAPI.sendImageAsSticker(stickerData, to, metadata),
-        { to, stickerData, metadata }
-      ) as Promise<MessageId | boolean>;
+      input: StickerInput,
+      job?: StickerJob
+    ): Promise<MessageId> {
+      return sendClientSticker(client, to, input, job);
     },
     
     async reply(to: ChatId, content: string, quotedMsgId: MessageId): Promise<MessageId | boolean> {
@@ -212,16 +249,10 @@ export function messagingMethods(client: Client): MessagingMethods {
     },
     
     editMessage: implementMethod(editMessageSchema, ({ messageId, newContent }) =>
-      evaluate(
-        ({ messageId, newContent }) => WAPI.editMessage(messageId, newContent),
-        { messageId, newContent }
-      )),
-
+      invokePatch<boolean>(client, 'editMessage', [messageId, newContent])),
+    
     react: implementMethod(reactSchema, ({ messageId, emoji }) =>
-      evaluate(
-        ({ messageId, emoji }) => WAPI.react(messageId, emoji),
-        { messageId, emoji }
-      )),
+      invokePatch<boolean>(client, 'react', [messageId, emoji])),
     
     async sendSeen(chatId: ChatId): Promise<boolean> {
       return evaluate(

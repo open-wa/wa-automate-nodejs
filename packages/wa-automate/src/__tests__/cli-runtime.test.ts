@@ -1,8 +1,7 @@
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import * as chromeLauncher from 'chrome-launcher';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ConfigSchema, type TrackedConfig } from '@open-wa/config';
 
 class FakeEmitter {
@@ -41,6 +40,7 @@ function createTempExecutable(rootDir: string, fileName: string): string {
   const executablePath = join(rootDir, fileName);
   mkdirSync(join(rootDir), { recursive: true });
   writeFileSync(executablePath, 'binary');
+  chmodSync(executablePath, 0o700);
   return executablePath;
 }
 
@@ -56,10 +56,19 @@ async function importCliRuntimeUtilityModule() {
 
 describe('cli runtime chrome resolution', () => {
   const tempDirs: string[] = [];
-  const getInstallationsSpy = vi.spyOn(chromeLauncher.Launcher, 'getInstallations');
+  const findSystemBrowserMock = vi.fn();
+
+  beforeEach(() => {
+    vi.doMock('../browser-choice', () => ({
+      findSystemBrowser: findSystemBrowserMock,
+      readBrowserChoice: vi.fn().mockResolvedValue(undefined),
+      writeBrowserChoice: vi.fn().mockResolvedValue(undefined),
+      chooseBrowser: vi.fn().mockResolvedValue('chrome'),
+    }));
+  });
 
   afterEach(() => {
-    getInstallationsSpy.mockReset();
+    findSystemBrowserMock.mockReset();
     vi.resetModules();
     vi.doUnmock('@open-wa/core');
     vi.doUnmock('@open-wa/client');
@@ -67,6 +76,7 @@ describe('cli runtime chrome resolution', () => {
     vi.doUnmock('@open-wa/driver-lightpanda');
     vi.doUnmock('@open-wa/driver-puppeteer');
     vi.doUnmock('@open-wa/config');
+    vi.doUnmock('../browser-choice');
     while (tempDirs.length) {
       const dir = tempDirs.pop();
       if (dir) {
@@ -85,7 +95,7 @@ describe('cli runtime chrome resolution', () => {
 
     expect(shouldPreferLocalChrome(config, { defaults: { useChrome: false } } as TrackedConfig['rawConfigs'])).toBe(true);
 
-    getInstallationsSpy.mockReturnValue([localChromePath]);
+    findSystemBrowserMock.mockResolvedValue(localChromePath);
 
     const result = await resolveExecutablePath(config, {
       preferLocalChrome: true,
@@ -111,7 +121,7 @@ describe('cli runtime chrome resolution', () => {
     ).toBe(false);
   });
 
-  it('reuses a valid cached Chrome path without probing chrome-launcher again', async () => {
+  it('reuses a valid cached Chrome path without probing the system browser again', async () => {
     const { resolveExecutablePath, writeChromePathCache } = await importCliRuntimeUtilityModule();
     const tempDir = mkdtempSync(join(tmpdir(), 'openwa-cli-runtime-'));
     tempDirs.push(tempDir);
@@ -130,7 +140,7 @@ describe('cli runtime chrome resolution', () => {
       executablePath: cachedChromePath,
       source: 'cache',
     });
-    expect(getInstallationsSpy).not.toHaveBeenCalled();
+    expect(findSystemBrowserMock).not.toHaveBeenCalled();
   });
 
   it('ignores stale cached paths and refreshes them from a newly detected local Chrome executable', async () => {
@@ -143,7 +153,7 @@ describe('cli runtime chrome resolution', () => {
 
     mkdirSync(join(tempDir, '.open-wa'), { recursive: true });
     writeFileSync(cacheFilePath, JSON.stringify({ executablePath: join(tempDir, 'missing-chrome') }), 'utf8');
-    getInstallationsSpy.mockReturnValue([join(tempDir, 'missing-chrome'), refreshedChromePath]);
+    findSystemBrowserMock.mockResolvedValue(refreshedChromePath);
 
     const result = await resolveExecutablePath(config, {
       preferLocalChrome: true,
@@ -157,7 +167,7 @@ describe('cli runtime chrome resolution', () => {
     expect(readChromePathCache(cacheFilePath)?.executablePath).toBe(refreshedChromePath);
   });
 
-  it('clears invalid cache entries and returns a truthful fallback warning when local Chrome cannot be resolved', async () => {
+  it('clears invalid cache entries and defers to driver selection when local Chrome cannot be resolved', async () => {
     const { clearChromePathCache, readChromePathCache, resolveExecutablePath } = await importCliRuntimeUtilityModule();
     const tempDir = mkdtempSync(join(tmpdir(), 'openwa-cli-runtime-'));
     tempDirs.push(tempDir);
@@ -166,7 +176,7 @@ describe('cli runtime chrome resolution', () => {
 
     mkdirSync(join(tempDir, '.open-wa'), { recursive: true });
     writeFileSync(cacheFilePath, JSON.stringify({ executablePath: join(tempDir, 'missing-chrome') }), 'utf8');
-    getInstallationsSpy.mockReturnValue([join(tempDir, 'also-missing-chrome')]);
+    findSystemBrowserMock.mockResolvedValue(undefined);
 
     const result = await resolveExecutablePath(config, {
       preferLocalChrome: true,
@@ -175,7 +185,6 @@ describe('cli runtime chrome resolution', () => {
 
     expect(result).toEqual({
       source: 'driver_default',
-      warning: 'Chrome resolution warning: no valid local Chrome installation was found. Falling back to Puppeteer/default driver browser resolution.',
     });
     expect(readChromePathCache(cacheFilePath)).toBeUndefined();
     clearChromePathCache(cacheFilePath);
@@ -184,16 +193,17 @@ describe('cli runtime chrome resolution', () => {
 
   it('keeps CLI override mapping source-local before resolveConfig owns precedence', async () => {
     const { parseCliArgs } = await importCliRuntimeUtilityModule();
-    const parsed = parseCliArgs(['--session-id', 'alpha', '--port', '9000', '--headful', '--use-chrome', '--use-lightpanda']);
+    const parsed = parseCliArgs(['--session-id', 'alpha', '--port', '9000', '--headful', '--use-chrome']);
 
     expect(parsed.cliOverrides).toMatchObject({
       sessionId: 'alpha',
       port: 9000,
       headless: false,
       useChrome: true,
-      useLightpanda: true,
+      useChromium: false,
+      useLightpanda: false,
     });
-    expect(parsed.forwardedArgs).toEqual(['--session-id', 'alpha', '--port', '9000', '--headful', '--use-chrome', '--use-lightpanda']);
+    expect(parsed.forwardedArgs).toEqual(['--session-id', 'alpha', '--port', '9000', '--headful', '--use-chrome']);
   });
 
   it('maps per-chat sandbox CLI flags into a concrete isolation policy', async () => {
@@ -268,7 +278,10 @@ describe('cli runtime chrome resolution', () => {
         setClient = vi.fn();
       },
     }));
-    vi.doMock('@open-wa/driver-puppeteer', () => ({ PuppeteerDriver: PuppeteerDriverMock }));
+    vi.doMock('@open-wa/driver-puppeteer', () => ({
+      PuppeteerDriver: PuppeteerDriverMock,
+      ensureBrowser: vi.fn(async ({ executablePath }: { executablePath?: string }) => executablePath ?? '/tmp/managed-chrome'),
+    }));
     vi.doMock('@open-wa/driver-lightpanda', () => ({ LightpandaDriver: LightpandaDriverMock }));
     vi.doMock('@open-wa/config', async () => {
       const actual = await vi.importActual<typeof import('@open-wa/config')>('@open-wa/config');
@@ -281,7 +294,7 @@ describe('cli runtime chrome resolution', () => {
     const outputSinkModule = await import('../cli/output-sink');
     outputSinkModule.setCliOutputSink(sink as any);
     const runtimeModule = await import('../cli-runtime');
-    getInstallationsSpy.mockReturnValue([]);
+    findSystemBrowserMock.mockResolvedValue(undefined);
 
     const result = await runtimeModule.start({
       procName: 'sink-session',
@@ -372,7 +385,10 @@ describe('cli runtime chrome resolution', () => {
       }
     }));
     vi.doMock('@open-wa/driver-puppeteer', () => ({ PuppeteerDriver: PuppeteerDriverMock }));
-    vi.doMock('@open-wa/driver-lightpanda', () => ({ LightpandaDriver: LightpandaDriverMock }));
+    vi.doMock('@open-wa/driver-lightpanda', () => ({
+      LightpandaDriver: LightpandaDriverMock,
+      ensureLightpanda: vi.fn(async ({ executablePath }: { executablePath?: string }) => executablePath ?? '/tmp/managed-lightpanda'),
+    }));
     vi.doMock('@open-wa/config', async () => {
       const actual = await vi.importActual<typeof import('@open-wa/config')>('@open-wa/config');
       return {
@@ -403,11 +419,11 @@ describe('cli runtime chrome resolution', () => {
         executablePath: '/tmp/lightpanda-bin',
       })
     );
-    expect(getInstallationsSpy).not.toHaveBeenCalled();
+    expect(findSystemBrowserMock).not.toHaveBeenCalled();
     expect(sink.write).toHaveBeenCalledWith(expect.objectContaining({ message: 'Browser engine: Lightpanda' }));
     expect(sink.write).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Browser executable: explicit Lightpanda override (/tmp/lightpanda-bin)',
+        message: 'Browser executable: Lightpanda with experimental WhatsApp setup (/tmp/lightpanda-bin)',
       })
     );
 

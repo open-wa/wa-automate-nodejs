@@ -41,6 +41,7 @@ export type PersistenceArtifact = unknown;
 export type STATE = 'STARTING' | 'AUTHENTICATING' | 'READY' | 'DISCONNECTED' | 'STOPPED';
 
 export interface OpenWAEventMap {
+  'session.refresh.progress': { ctx: EventContext; refresh: import('@open-wa/schema').SessionRefreshSnapshot };
   'launch.create.start': StepEvent<{ configSummary?: Record<string, unknown> }>;
   'launch.create.retry': StepEvent<{ reason: string; nextAttempt: number }>;
   'launch.create.ready': StepEvent<{ state: STATE }>;
@@ -174,6 +175,9 @@ export interface OpenWAEventMap {
   'message.received': { ctx: EventContext; message: Message };
   'message.any': { ctx: EventContext; message: Message };
   'interactive.response': { ctx: EventContext; response: unknown };
+  'poll.vote': { ctx: EventContext; vote: import('@open-wa/schema').PollVote };
+  'event.changed': { ctx: EventContext; event: import('@open-wa/schema').WhatsAppEvent };
+  'event.response': { ctx: EventContext; response: import('@open-wa/schema').EventResponse };
   'message.deleted': { ctx: EventContext; messageId: string; chatId: string; by?: string };
 
   'ack.changed': { ctx: EventContext; ack: Ack };
@@ -351,10 +355,14 @@ export const OpenWAEventMetaMap: Record<keyof OpenWAEventMap, OpenWAEventMeta> =
   'session.reinject.qr.waiting': { internal: true, sensitive: false },
   'session.stale.detected': { internal: true, sensitive: false },
   'session.logout': { internal: false, sensitive: false },
+  'session.refresh.progress': { internal: false, sensitive: false },
 
   'message.received': { internal: false, sensitive: false },
   'message.any': { internal: false, sensitive: false },
   'interactive.response': { internal: false, sensitive: true },
+  'poll.vote': { internal: false, sensitive: true },
+  'event.changed': { internal: false, sensitive: true },
+  'event.response': { internal: false, sensitive: true },
   'message.deleted': { internal: false, sensitive: false },
   'ack.changed': { internal: false, sensitive: false },
   'session.data': { internal: true, sensitive: true },

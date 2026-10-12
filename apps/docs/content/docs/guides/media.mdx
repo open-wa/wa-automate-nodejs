@@ -1,92 +1,121 @@
 ---
 title: Media
-description: Send files and media, then decrypt incoming content when your flow needs access to the raw bytes.
+description: Send attachments, view-once media and circular video notes with typed options.
 ---
 
 # Media
 
-## Send files and media
+`sendFile(to, input, filename?, options?)` and `sendImage` use the same native
+attachment pipeline. Both accept images, videos, audio and documents as a
+local path, URL, data URL, base64 string or `Buffer`. The filename is optional;
+it is inferred from a recognized path/URL or the resolved MIME type.
+Captions and quoted-message IDs belong in `options`.
 
 ```ts
-await client.sendImage(chatId, dataUrl, 'photo.jpg', 'caption');
-await client.sendPtt(chatId, dataUrl);
-await client.sendFile(chatId, dataUrl, 'file.pdf', 'check this pdf');
-await client.sendFileFromUrl(chatId, url);
-await client.sendImageAsSticker(chatId, dataUrl);
-await client.sendStickerfromUrl(chatId, url);
+await client.sendImage(chatId, './photo.jpg', 'photo.jpg', { caption: 'Hello' });
+await client.sendFile(chatId, './clip.mp4', 'clip.mp4', { caption: 'Watch this' });
+await client.sendFile(chatId, './report.pdf', 'report.pdf', { caption: 'Report' });
+await client.sendAudio(chatId, './sound.mp3');
+await client.sendPtt(chatId, './voice.ogg');
+await client.sendVideoAsGif(chatId, './loop.mp4');
 ```
 
-For media helpers that expect content payloads, prefer a proper data URL or a remote URL that your runtime can actually fetch.
+## Choose presentation
 
-## Data URL creation
+Import `MediaSendOptions` from `@open-wa/client` or `@open-wa/schema`.
+The discriminator selects the options that apply to that media type;
+unknown fields and invalid combinations are rejected.
 
-A data URL gives the runtime the file bytes and the MIME type in one string. Use this shape when sending media from disk, a buffer, or another service:
+| `type` | Options | Behavior |
+| --- | --- | --- |
+| Omitted or `auto` | `caption`, `quotedMsgId`, `viewOnce` | Detect MIME. View once requires an image or video; detected audio rejects captions. |
+| `image` | `caption`, `quotedMsgId`, `viewOnce` | Require image media. |
+| `video` | `caption`, `quotedMsgId`, `viewOnce`, `isGif`, `videoNote` | Require video. GIF and circular notes require MP4. |
+| `audio` | `quotedMsgId`, `ptt`, `viewOnce` | Require audio. View once requires `ptt: true`. |
+| `document` | `caption`, `quotedMsgId` | Force document presentation, including for an image/video/audio file. |
 
-```text
-data:<mime-type>;base64,<base64-data>
-```
+These methods prepare and upload the supplied media through WhatsApp Web;
+they do not transcode it or install a media-processing sidecar. WhatsApp's
+upload constraints and recipient support still apply. A returned message ID
+or boolean confirms submission, not delivery; observe `onAck` for later
+acknowledgements and inspect the chat before retrying an uncertain send.
+
+## View once
 
 ```ts
-import { readFile } from 'node:fs/promises';
-
-const buffer = await readFile('./photo.jpg');
-const dataUrl = `data:image/jpeg;base64,${buffer.toString('base64')}`;
-
-await client.sendImage(chatId, dataUrl, 'photo.jpg', 'caption');
+await client.sendFile(chatId, './photo.jpg', 'photo.jpg', {
+  type: 'image', viewOnce: true, quotedMsgId: messageId,
+});
+await client.sendFile(chatId, './clip.mp4', 'clip.mp4', {
+  type: 'video', viewOnce: true,
+});
+await client.sendPtt(chatId, './voice.ogg', { viewOnce: true });
 ```
 
-Set the MIME type to the real file type whenever you know it. `application/octet-stream` can work for generic documents, but image, audio, video, and sticker helpers often need a more specific value.
+For the generic method, the voice-note equivalent is
+`{ type: 'audio', ptt: true, viewOnce: true }`. Documents and ordinary audio
+attachments cannot be view once. Quoting preserves the view-once flag.
 
-## MIME rules
+## Circular video notes and GIFs
 
-WhatsApp decides how to render media from the helper you call, the filename, and the MIME type in the data URL or remote response. Common safe values are:
+```ts
+await client.sendFile(chatId, './square-note.mp4', 'note.mp4', {
+  type: 'video', videoNote: true,
+});
+await client.sendFile(chatId, './square-note.mp4', 'note.mp4', {
+  type: 'video', videoNote: true, viewOnce: true,
+});
+await client.sendFile(chatId, './loop.mp4', 'loop.mp4', {
+  type: 'video', isGif: true, caption: 'Looping clip',
+});
+```
 
-| Media | MIME types to prefer |
-| --- | --- |
-| Images | `image/jpeg`, `image/png`, `image/webp` |
-| GIFs | `image/gif` |
-| Video | `video/mp4`, `video/quicktime` |
-| Voice notes | `audio/ogg` with Opus audio |
-| Audio files | `audio/mpeg`, `audio/mp4`, `audio/ogg` |
-| Documents | `application/pdf`, `text/plain`, or the real document MIME type |
+Circular notes use WhatsApp's PTV message type. Supply an already prepared
+square MP4 with a positive duration of at most 60 seconds. This API does not
+crop or shorten it. Video notes have no caption and cannot also be GIFs.
+GIF-style messages carry MP4 video with a playback flag; GIFs cannot be
+view once. Audio voice notes should use suitable prepared audio such as
+Ogg Opus.
 
-If a send fails or has the incorrect type, examine the data URL prefix first. Common problems include a missing `;base64` value or an `image/jpg` value instead of `image/jpeg`. A WebP image can fail in a non-sticker helper. A remote URL can return an auth page with `text/html` instead of the file.
+## Send media as a document
+
+```ts
+await client.sendFile(chatId, './photo.jpg', 'original.jpg', {
+  type: 'document', caption: 'Original file', quotedMsgId: messageId,
+});
+```
+
+Document presentation retains the file MIME type and filename. Its caption
+is separate from the filename.
 
 ## Remote URL auth
 
-`sendFileFromUrl` is useful when the file already lives behind HTTP. The runtime must be able to fetch the URL directly, so private files need either a short-lived signed URL or headers that your server accepts.
+`sendFileFromUrl` accepts the same presentation options and a separate
+headers object for the download. The URL must return the media bytes.
 
 ```ts
 await client.sendFileFromUrl(
   chatId,
   'https://files.example.com/invoices/123.pdf',
   'invoice-123.pdf',
-  'Invoice 123',
-  {
-    Authorization: `Bearer ${process.env.FILE_API_TOKEN}`,
-  }
+  { type: 'document', caption: 'Invoice 123' },
+  { Authorization: `Bearer ${process.env.FILE_API_TOKEN}` },
 );
 ```
 
-Use signed URLs when possible. They do not put long-lived credentials in the browser or runtime layer. If you use headers, make sure that the endpoint returns the file bytes and a correct `Content-Type` header.
+## Data URLs and MIME
 
-## File size limits
+```ts
+import { readFile } from 'node:fs/promises';
+const buffer = await readFile('./photo.jpg');
+const dataUrl = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+await client.sendImage(chatId, dataUrl, 'photo.jpg', { viewOnce: true });
+```
 
-Media limits are enforced by WhatsApp and can change without notice. Treat these as practical limits to test against, not a permanent contract:
-
-| Media type | Practical limit |
-| --- | --- |
-| Images | Keep under 16 MB |
-| Video and GIF-style sends | Keep under 16 MB for the most reliable delivery |
-| Voice notes and audio | Keep under 16 MB unless you have tested larger files in your target runtime |
-| Stickers | Keep under 1 MB |
-| Documents | WhatsApp Web can accept larger files, but keep automation payloads under 100 MB unless you have tested your account, browser, and host memory |
-
-Base64 data URLs are larger than the original file by roughly one third. A 12 MB image becomes about 16 MB of string data before it reaches the runtime, so leave headroom for memory and transport overhead.
-
-## Video and GIF caveat
-
-Video-style delivery depends on the browser/runtime surface you launch with. If you rely on Chrome-specific behavior, configure the browser path explicitly and test against the environment you deploy.
+Use the actual media MIME type. For `application/octet-stream`, the client
+uses a recognized filename extension or file signature to identify the media.
+An unknown file defaults to a document. Base64 increases transfer size by
+about one third, and decoding/uploading also consumes browser and host memory.
 
 ## Decrypt incoming media
 

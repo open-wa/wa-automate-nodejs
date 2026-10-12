@@ -15,7 +15,7 @@ This page documents 11 schema-registry client methods in the `calls` namespace.
 
 Prepare media and accept this incoming call.
 
-**Signature** `client.acceptCall(call: { generation: string; id: string; sessionId: string }, media?: { camera?: any; microphone?: any; onMediaFailure?: "end" \| "keep-open" \| null; speaker?: any } \| null): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
+**Signature** `client.acceptCall(call: { generation: string; id: string; sessionId: string }, media?: { camera?: any; microphone?: any; onMediaFailure?: "end" \| "keep-open"; speaker?: any }): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
 
 ### Usage
 
@@ -412,7 +412,7 @@ In-process Client resolves to `Promise<Call \| null>`. The contract above is for
 
 Optional calling availability for UI and diagnostics. Actions perform admission automatically.
 
-**Signature** `client.getCallCapabilities(): Promise<{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" } \| null }>`
+**Signature** `client.getCallCapabilities(): Promise<{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" } }>`
 
 ### Usage
 
@@ -467,9 +467,9 @@ This method does not define input parameters.
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" } \| null }>` |
+| Return type | `Promise<{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" } }>` |
 
-Resolves to `{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" } \| null }`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" } }`. A rejected Promise indicates input validation or dispatch failure.
 
 In-process Client resolves to `Promise<CallCapabilities>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
@@ -806,7 +806,7 @@ In-process Client resolves to `Promise<CallActionResult>`. The contract above is
 
 Prepare a replacement before releasing the working media.
 
-**Signature** `client.setCallMedia(call: { generation: string; id: string; sessionId: string }, media?: { camera?: any; microphone?: any; onMediaFailure?: "end" \| "keep-open" \| null; speaker?: any } \| null): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
+**Signature** `client.setCallMedia(call: { generation: string; id: string; sessionId: string }, media?: { camera?: any; microphone?: any; onMediaFailure?: "end" \| "keep-open"; speaker?: any }): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
 
 ### Usage
 
@@ -905,7 +905,7 @@ In-process Client resolves to `Promise<CallActionResult>`. The contract above is
 
 Prepare media and place an outgoing audio or video call.
 
-**Signature** `client.startCall(to: string, microphone?: unknown \| null, speaker?: unknown \| null, camera?: unknown \| null): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
+**Signature** `client.startCall(to: string, microphone?: unknown, speaker?: unknown, camera?: unknown): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
 
 ### Usage
 

@@ -21,6 +21,7 @@ Alternative names (including namespaced forms) that resolve to a canonical metho
 | `blockContact` | `contactBlock` | Yes | Flat |
 | `blockContact` | `contacts.block` | No | Namespaced |
 | `blockContact` | `contacts.contactBlock` | Yes | Namespaced |
+| `cancelEvent` | `events.cancelEvent` | No | Namespaced |
 | `checkNumberStatus` | `contacts.checkNumberStatus` | No | Namespaced |
 | `checkReadReceipts` | `contacts.checkReadReceipts` | No | Namespaced |
 | `checkReadReceipts` | `contacts.getReadReceipts` | No | Namespaced |
@@ -37,6 +38,8 @@ Alternative names (including namespaced forms) that resolve to a canonical metho
 | `demoteParticipant` | `demoteGroupParticipant` | No | Flat |
 | `demoteParticipant` | `groups.demoteParticipant` | No | Namespaced |
 | `downloadMedia` | `media.download` | No | Namespaced |
+| `editEvent` | `events.editEvent` | No | Namespaced |
+| `editMessage` | `messages.edit` | No | Namespaced |
 | `endCall` | `calls.endCall` | No | Namespaced |
 | `forwardMessages` | `messages.forward` | No | Namespaced |
 | `getActiveCall` | `calls.getActiveCall` | No | Namespaced |
@@ -91,6 +94,9 @@ Alternative names (including namespaced forms) that resolve to a canonical metho
 | `getCommunityParticipants` | `communities.getParticipants` | No | Namespaced |
 | `getConnectionState` | `session.getConnectionState` | No | Namespaced |
 | `getContact` | `contacts.get` | No | Namespaced |
+| `getEvent` | `events.getEvent` | No | Namespaced |
+| `getEventResponses` | `events.getEventResponses` | No | Namespaced |
+| `getEvents` | `events.get` | No | Namespaced |
 | `getFeatures` | `session.getFeatures` | No | Namespaced |
 | `getGroupAdmins` | `groups.getAdmins` | No | Namespaced |
 | `getGroupInfo` | `groups.getInfo` | No | Namespaced |
@@ -117,6 +123,7 @@ Alternative names (including namespaced forms) that resolve to a canonical metho
 | `getMyLastMessage` | `messages.getMyLast` | No | Namespaced |
 | `getNumberProfile` | `contacts.getNumberProfile` | No | Namespaced |
 | `getOrder` | `business.getOrder` | No | Namespaced |
+| `getPollResults` | `messages.getPollResults` | No | Namespaced |
 | `getProcessStats` | `session.getProcessStats` | No | Namespaced |
 | `getProfilePicture` | `contacts.getProfilePicFromServer` | Yes | Namespaced |
 | `getProfilePicture` | `contacts.getProfilePicture` | No | Namespaced |
@@ -156,6 +163,7 @@ Alternative names (including namespaced forms) that resolve to a canonical metho
 | `muteChat` | `chats.mute` | No | Namespaced |
 | `observeCallAudio` | `calls.observeCallAudio` | No | Namespaced |
 | `pinChat` | `chats.pin` | No | Namespaced |
+| `pinMessage` | `messages.pin` | No | Namespaced |
 | `postImageStatus` | `status.postImage` | No | Namespaced |
 | `postTextStatus` | `status.postText` | No | Namespaced |
 | `postVideoStatus` | `status.postVideo` | No | Namespaced |
@@ -167,6 +175,8 @@ Alternative names (including namespaced forms) that resolve to a canonical metho
 | `removeLabel` | `labels.remove` | No | Namespaced |
 | `removeParticipant` | `groups.removeParticipant` | No | Namespaced |
 | `removeParticipant` | `removeGroupParticipant` | No | Flat |
+| `requestPhoneNumber` | `contacts.requestPhoneNumber` | No | Namespaced |
+| `respondToEvent` | `events.respondToEvent` | No | Namespaced |
 | `revokeGroupInviteLink` | `groups.revokeInviteLink` | No | Namespaced |
 | `sendAdvancedButtons` | `messages.sendAdvancedButtons` | No | Namespaced |
 | `sendAlbum` | `messages.sendAlbum` | No | Namespaced |
@@ -174,6 +184,7 @@ Alternative names (including namespaced forms) that resolve to a canonical metho
 | `sendBanner` | `messages.sendBanner` | No | Namespaced |
 | `sendButtons` | `messages.sendButtons` | No | Namespaced |
 | `sendContact` | `messages.sendContact` | No | Namespaced |
+| `sendEvent` | `events.sendEvent` | No | Namespaced |
 | `sendFile` | `messages.sendFile` | No | Namespaced |
 | `sendFileFromUrl` | `messages.sendFileFromUrl` | No | Namespaced |
 | `sendImage` | `messages.sendImage` | No | Namespaced |
@@ -198,6 +209,7 @@ Alternative names (including namespaced forms) that resolve to a canonical metho
 | `sendRawMessage` | `messages.sendRaw` | No | Namespaced |
 | `sendReplyWithMentions` | `messages.sendReplyWithMentions` | No | Namespaced |
 | `sendSeen` | `messages.sendSeen` | No | Namespaced |
+| `sendSticker` | `messages.sendSticker` | No | Namespaced |
 | `sendText` | `messages.sendText` | No | Namespaced |
 | `sendTextWithMentions` | `messages.sendTextWithMentions` | No | Namespaced |
 | `sendVCard` | `messages.sendVCard` | No | Namespaced |
@@ -225,6 +237,7 @@ Alternative names (including namespaced forms) that resolve to a canonical metho
 | `setProfilePicture` | `session.setProfilePic` | Yes | Namespaced |
 | `setProfilePicture` | `session.setProfilePicture` | No | Namespaced |
 | `setProfilePicture` | `setProfilePic` | Yes | Flat |
+| `sharePhoneNumber` | `contacts.sharePhoneNumber` | No | Namespaced |
 | `starMessage` | `messages.star` | No | Namespaced |
 | `startCall` | `calls.startCall` | No | Namespaced |
 | `stopCallAudioObserver` | `calls.stopCallAudioObserver` | No | Namespaced |
@@ -234,7 +247,9 @@ Alternative names (including namespaced forms) that resolve to a canonical metho
 | `unblockContact` | `contactUnblock` | Yes | Flat |
 | `unmuteChat` | `chats.unmute` | No | Namespaced |
 | `unpinChat` | `chats.unpin` | No | Namespaced |
+| `unpinMessage` | `messages.unpin` | No | Namespaced |
 | `unstarMessage` | `messages.unstar` | No | Namespaced |
+| `voteOnPoll` | `messages.voteOnPoll` | No | Namespaced |
 
 ## Parameter key aliases
 
@@ -251,10 +266,10 @@ Alternative object keys accepted for a canonical parameter.
 | `content` | `body` | `Content` | `"Hello, world!"` |
 | `content` | `message` | `Content` | `"Hello, world!"` |
 | `content` | `text` | `Content` | `"Hello, world!"` |
+| `eventId` | `id` | `MessageId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
+| `eventId` | `msgId` | `MessageId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
 | `groupId` | `chatId` | `GroupChatId` | `"447123456789-1445627445@g.us"` |
 | `groupId` | `groupChatId` | `GroupChatId` | `"447123456789-1445627445@g.us"` |
-| `id` | `id` | `MessageId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
-| `id` | `msgId` | `MessageId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
 | `messageId` | `id` | `MessageId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |
 | `messageId` | `messages` | `MessageId[]` | `["false_447123456789@c.us_ABC123","false_447123456789@c.us_DEF456"]` |
 | `messageId` | `msgId` | `MessageId` | `"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"` |

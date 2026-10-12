@@ -1,3 +1,4 @@
+import { disposeClientStickers } from './stickers';
 import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
 import type {
@@ -7,6 +8,9 @@ import type {
   SessionManager,
   PluginHost,
   STATE,
+  SessionRefreshOptions,
+  SessionRefreshResult,
+  SessionRefreshSnapshot,
 } from '@open-wa/core';
 import type {
   ChatId,
@@ -18,6 +22,8 @@ import type {
   Contact,
   InteractiveResponse,
   FormResponse,
+  WhatsAppEvent,
+  EventResponse,
   ParticipantChange,
 } from '@open-wa/schema';
 import { groupIdParam } from '@open-wa/schema';
@@ -40,10 +46,12 @@ import type { QueueOptions } from '@open-wa/schema';
 import { interactiveMethods, type InteractiveMethods } from './methods/interactive';
 import { messagingMethods, type MessagingMethods } from './methods/messaging';
 import { mediaMethods, type MediaMethods } from './methods/media';
+import { statusMethods, type StatusMethods } from './methods/status';
 import { groupMethods, type GroupMethods } from './methods/groups';
 import { chatMethods, type ChatMethods } from './methods/chats';
 import { contactMethods, type ContactMethods } from './methods/contacts';
 import { utilitiesMethods, type UtilitiesMethods } from './methods/utilities';
+import { whatsappEventMethods, type WhatsAppEventMethods } from './methods/whatsapp-events';
 
 /**
  * Configuration for creating a WhatsApp Client.
@@ -94,7 +102,7 @@ export type EvaluateFn = <Arg, Ret>(
  * client.onMessage(msg => console.log(msg));
  * ```
  */
-export class Client implements InteractiveMethods, MessagingMethods, MediaMethods, GroupMethods, ChatMethods, ContactMethods, UtilitiesMethods {
+export class Client implements InteractiveMethods, MessagingMethods, MediaMethods, StatusMethods, GroupMethods, ChatMethods, ContactMethods, UtilitiesMethods, WhatsAppEventMethods {
   private readonly _client: OpenWAClient;
   private readonly _transport: Transport;
   private readonly _listenerManager: ListenerManager;
@@ -118,10 +126,12 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
     this._bindMethods(messagingMethods, this);
     this._bindMethods(interactiveMethods, this);
     this._bindMethods(mediaMethods, this);
+    this._bindMethods(statusMethods, this);
     this._bindMethods(groupMethods, this);
     this._bindMethods(chatMethods, this);
     this._bindMethods(contactMethods, this);
     this._bindMethods(utilitiesMethods, this);
+    this._bindMethods(whatsappEventMethods, this);
 
     this._client.registerFinalizationHook(() => this.loaded());
   }
@@ -183,11 +193,18 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   async start(): Promise<void> {
     return this._client.start();
   }
+
+  /** Rebuild public and licensed patches. Warning: messages may be missed during the page reload. */
+  refresh(options?: SessionRefreshOptions): Promise<SessionRefreshResult> { return this._client.refresh(options); }
+  /** Start a background refresh. Warning: messages may be missed during the page reload. */
+  requestRefresh(options?: SessionRefreshOptions): { operationId: string } { return this._client.requestRefresh(options); }
+  getRefreshStatus(): Promise<SessionRefreshSnapshot> { return this._client.getRefreshStatus(); }
   
   /**
    * Stop the client gracefully.
    */
   async stop(reason?: string): Promise<void> {
+    await disposeClientStickers(this).catch(() => {});
     await this._listenerManager.dispose();
     return this._client.stop(reason);
   }
@@ -323,6 +340,19 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   /** Listen only for form submissions from the interactive response stream. */
   onFormResponse(callback: (response: FormResponse) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
     return this._listenerManager.on('formResponse', callback, options);
+  }
+
+  /** Decrypted votes from the synced store; history hydration can emit votes too. */
+  onPollVote(callback: (vote: import('@open-wa/schema').PollVote) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
+    return this._listenerManager.on('pollVote', callback, options);
+  }
+
+  onEvent(callback: (event: WhatsAppEvent) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
+    return this._listenerManager.on('event', callback, options);
+  }
+
+  onEventResponse(callback: (response: EventResponse) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
+    return this._listenerManager.on('eventResponse', callback, options);
   }
 
   /** Counts only; never exposes the encrypted session's contents or keys. */
@@ -543,8 +573,18 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   declare sendAlbum: MessagingMethods['sendAlbum'];
   declare sendImage: MessagingMethods['sendImage'];
   declare sendFile: MessagingMethods['sendFile'];
+  declare sendAudio: MessagingMethods['sendAudio'];
+  declare sendPtt: MessagingMethods['sendPtt'];
+  declare sendVideoAsGif: MessagingMethods['sendVideoAsGif'];
+  declare sendPoll: MessagingMethods['sendPoll'];
+  declare voteOnPoll: MessagingMethods['voteOnPoll'];
+  declare getPollResults: MessagingMethods['getPollResults'];
+  declare pinMessage: MessagingMethods['pinMessage'];
+  declare unpinMessage: MessagingMethods['unpinMessage'];
   declare sendLocation: MessagingMethods['sendLocation'];
   declare sendContact: MessagingMethods['sendContact'];
+  declare sendMultipleContacts: MessagingMethods['sendMultipleContacts'];
+  declare sendVCard: MessagingMethods['sendVCard'];
   declare sendSticker: MessagingMethods['sendSticker'];
   declare reply: MessagingMethods['reply'];
   declare forwardMessages: MessagingMethods['forwardMessages'];
@@ -553,10 +593,20 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   declare react: MessagingMethods['react'];
   declare sendSeen: MessagingMethods['sendSeen'];
   declare getMessageById: MessagingMethods['getMessageById'];
+  declare sendEvent: WhatsAppEventMethods['sendEvent'];
+  declare getEvent: WhatsAppEventMethods['getEvent'];
+  declare getEvents: WhatsAppEventMethods['getEvents'];
+  declare getEventResponses: WhatsAppEventMethods['getEventResponses'];
+  declare editEvent: WhatsAppEventMethods['editEvent'];
+  declare cancelEvent: WhatsAppEventMethods['cancelEvent'];
+  declare respondToEvent: WhatsAppEventMethods['respondToEvent'];
   declare getAlbumMessages: MessagingMethods['getAlbumMessages'];
   declare sendFileFromUrl: MediaMethods['sendFileFromUrl'];
   declare decryptMedia: MediaMethods['decryptMedia'];
   declare downloadMedia: MediaMethods['downloadMedia'];
+  declare postTextStatus: StatusMethods['postTextStatus'];
+  declare postImageStatus: StatusMethods['postImageStatus'];
+  declare postVideoStatus: StatusMethods['postVideoStatus'];
   
   // Group methods
   declare createGroup: GroupMethods['createGroup'];
@@ -593,6 +643,8 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   
   // Contact methods
   declare getContact: ContactMethods['getContact'];
+  declare requestPhoneNumber: ContactMethods['requestPhoneNumber'];
+  declare sharePhoneNumber: ContactMethods['sharePhoneNumber'];
   declare getAllContacts: ContactMethods['getAllContacts'];
   declare getContactById: ContactMethods['getContactById'];
   declare checkNumberStatus: ContactMethods['checkNumberStatus'];

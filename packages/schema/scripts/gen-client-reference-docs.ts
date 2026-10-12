@@ -28,6 +28,7 @@ type JsonSchema = {
   minimum?: number;
   maximum?: number;
   additionalProperties?: boolean | JsonSchema;
+  examples?: unknown[];
 };
 
 type ParameterRow = {
@@ -116,7 +117,7 @@ function getInputShape(def: MethodDefinition): Record<string, z.ZodTypeAny> {
   return def.meta.inputSchema.shape as Record<string, z.ZodTypeAny>;
 }
 
-function stringifyExample(value: ParameterMetadata['example'] | undefined): string {
+function stringifyExample(value: unknown): string {
   if (value === undefined) {
     return '-';
   }
@@ -340,7 +341,7 @@ function buildParameterRows(def: MethodDefinition): ParameterRow[] {
       description: descriptionParts.join(' '),
       aliases: sortStrings(metadata?.keyAliases ?? []),
       deprecatedAliases: sortStrings(metadata?.deprecatedKeyAliases ?? []),
-      example: stringifyExample(metadata?.example),
+      example: stringifyExample(metadata?.example ?? property.examples?.[0]),
       namedType: metadata?.brandedType,
     };
   });
@@ -800,6 +801,8 @@ function buildMethodSection(def: MethodDefinition, route: HttpMethodDefinition |
 }
 
 function slugForNamespace(namespace: string): string {
+  // Keep the registered listener reference at events.mdx.
+  if (namespace === 'events') return 'whatsapp-events';
   return namespace.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
 }
 

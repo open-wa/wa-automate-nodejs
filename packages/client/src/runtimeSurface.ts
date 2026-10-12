@@ -5,6 +5,8 @@ export type ClientRuntimeSupport = 'runtime' | 'licensed' | 'unsupported';
 export interface ClientRuntimeMethodSurfaceEntry {
   support: ClientRuntimeSupport;
   runtimeMethod?: string;
+  runtimeSource?: 'asset' | 'live-patch';
+  runtimePatch?: string;
   reason?: string;
 }
 
@@ -15,6 +17,13 @@ export interface ClientRuntimeListenerSurfaceEntry {
 }
 
 export const clientRuntimeMethodSurface = {
+  sendEvent: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'events', runtimeMethod: 'sendEvent' },
+  getEvent: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'events', runtimeMethod: 'getEvent' },
+  getEvents: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'events', runtimeMethod: 'getEvents' },
+  getEventResponses: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'events', runtimeMethod: 'getEventResponses' },
+  editEvent: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'events', runtimeMethod: 'editEvent' },
+  cancelEvent: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'events', runtimeMethod: 'cancelEvent' },
+  respondToEvent: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'events', runtimeMethod: 'respondToEvent' },
   getCallCapabilities: { support: 'runtime', reason: 'calling admission service' },
   getActiveCall: { support: 'licensed', reason: 'calling-enabled licensed provider' },
   startCall: { support: 'licensed', reason: 'calling-enabled licensed provider' },
@@ -35,37 +44,34 @@ export const clientRuntimeMethodSurface = {
     reason: 'provided by the server-confirmed Insiders license payload',
   },
   sendText: { support: 'runtime', runtimeMethod: 'sendMessage' },
-  sendImage: { support: 'runtime', runtimeMethod: 'sendImage' },
-  sendFile: {
-    support: 'runtime',
-    runtimeMethod: 'sendFile',
-    reason: 'provided by the installed private patch pipeline',
-  },
-  sendLocation: { support: 'runtime', runtimeMethod: 'sendLocation' },
-  sendContact: { support: 'runtime', runtimeMethod: 'sendContact' },
-  sendSticker: { support: 'runtime', runtimeMethod: 'sendImageAsSticker' },
+  sendImage: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'sendImage' },
+  sendFile: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'sendImage', reason: 'generic media pipeline in the common patch' },
+  sendAudio: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'sendImage' },
+  sendPtt: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'sendImage' },
+  sendVideoAsGif: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'sendImage' },
+  voteOnPoll: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'voteOnPoll' },
+  getPollResults: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'getPollResults' },
+  pinMessage: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'pinMessage' },
+  unpinMessage: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'pinMessage' },
+  sendPoll: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'sendPoll', reason: 'provided by the common patch' },
+  sendLocation: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'common', runtimeMethod: 'sendLocation' },
+  sendContact: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'common', runtimeMethod: 'sendContact' },
+  sendMultipleContacts: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'common', runtimeMethod: 'sendContact' },
+  sendVCard: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'common', runtimeMethod: 'sendVCard' },
+  sendSticker: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'private', runtimeMethod: 'sendSticker', reason: 'provided by the private donor finalizer' },
   reply: { support: 'runtime', runtimeMethod: 'reply' },
   forwardMessages: { support: 'runtime', runtimeMethod: 'forwardMessages' },
   deleteMessage: { support: 'runtime', runtimeMethod: 'smartDeleteMessages' },
-  editMessage: {
-    support: 'runtime',
-    runtimeMethod: 'editMessage',
-    reason: 'provided by the installed private patch pipeline',
-  },
-  react: {
-    support: 'runtime',
-    runtimeMethod: 'react',
-    reason: 'provided by the installed private patch pipeline',
-  },
+  editMessage: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'common', runtimeMethod: 'editMessage', reason: 'provided by the common patch' },
+  react: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'common', runtimeMethod: 'react', reason: 'provided by the common patch' },
   sendSeen: { support: 'runtime', runtimeMethod: 'sendSeen' },
   getMessageById: { support: 'runtime', runtimeMethod: 'getMessageById' },
-  getAlbumMessages: { support: 'runtime', runtimeMethod: 'getAlbumMessages' },
-  sendAlbum: { support: 'runtime', runtimeMethod: 'sendAlbum' },
-  sendFileFromUrl: {
-    support: 'runtime',
-    runtimeMethod: 'sendFile',
-    reason: 'downloads on the host and delegates to the private sendFile patch',
-  },
+  getAlbumMessages: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'common', runtimeMethod: 'getAlbumMessages' },
+  sendAlbum: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'common', runtimeMethod: 'sendAlbum' },
+  sendFileFromUrl: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'sendImage' },
+  postTextStatus: { support: 'licensed', runtimeMethod: 'postTextStatus', reason: 'licensed text story payload' },
+  postImageStatus: { support: 'licensed', runtimeMethod: 'postImageStatus', reason: 'licensed image story payload' },
+  postVideoStatus: { support: 'licensed', runtimeMethod: 'postVideoStatus', reason: 'licensed video story payload' },
   decryptMedia: { support: 'runtime', reason: 'uses local decrypt flow plus getMessageById' },
   downloadMedia: { support: 'runtime', reason: 'uses local decrypt flow plus filesystem write' },
   createGroup: { support: 'runtime', runtimeMethod: 'createGroup' },
@@ -126,6 +132,8 @@ export const clientRuntimeMethodSurface = {
   getAllMessages: { support: 'runtime', runtimeMethod: 'getAllMessagesInChat' },
   loadEarlierMessages: { support: 'runtime', runtimeMethod: 'loadEarlierMessages' },
   getContact: { support: 'runtime', runtimeMethod: 'getContact' },
+  requestPhoneNumber: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'requestPhoneNumber' },
+  sharePhoneNumber: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'sharePhoneNumber' },
   getAllContacts: { support: 'runtime', runtimeMethod: 'getAllContacts' },
   getContactById: { support: 'runtime', runtimeMethod: 'getContact' },
   checkNumberStatus: { support: 'runtime', runtimeMethod: 'checkNumberStatus' },
@@ -170,8 +178,11 @@ export const clientRuntimeMethodSurface = {
 } as const satisfies Record<string, ClientRuntimeMethodSurfaceEntry>;
 
 export const clientRuntimeListenerSurface = {
-  onIncomingCall: { support: 'licensed', runtimeSupportEvent: 'call.incoming' },
-  onCallState: { support: 'licensed', runtimeSupportEvent: 'call.state' },
+  onPollVote: { support: 'runtime', runtimeSupportEvent: 'poll.vote' },
+  onEvent: { support: 'runtime', runtimeSupportEvent: 'event.changed' },
+  onEventResponse: { support: 'runtime', runtimeSupportEvent: 'event.response' },
+  onIncomingCall: { support: 'licensed', runtimeSupportEvent: 'call.incoming', reason: 'provided by the licensed calling provider' },
+  onCallState: { support: 'licensed', runtimeSupportEvent: 'call.state', reason: 'provided by the licensed calling provider' },
   onInteractiveResponse: { support: 'runtime', runtimeSupportEvent: 'interactive.response' },
   onFormResponse: { support: 'runtime', runtimeSupportEvent: 'interactive.response' },
   onMessage: { support: 'runtime', runtimeSupportEvent: 'message.received' },

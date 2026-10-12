@@ -3,6 +3,12 @@
 
 
 
+
+## 5.4.0
+<sub>2026-09-30</sub>
+
+- *(minor)* Version bump from group with `@open-wa/client` v5.4.0, `@open-wa/config` v5.4.0, `@open-wa/core` v5.4.0, `@open-wa/wa-automate` v5.4.0
+
 ## 5.3.0
 
 - ♻️ Sync encrypted session files through the existing PicoS3 transport. Preserve filename, path, seed and S3 configuration support.

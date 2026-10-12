@@ -1,0 +1,18 @@
+---
+title: Voluntary phone-number sharing
+description: Request a number or share the signed-in account's own number in a direct chat.
+---
+
+# Voluntary phone-number sharing
+
+```ts
+const requestId = await client.requestPhoneNumber('447700900123@c.us');
+// Only when your application intends to disclose its own account number:
+const shareId = await client.sharePhoneNumber('447700900123@c.us');
+```
+
+`requestPhoneNumber` sends WhatsApp's native share-number request to a direct LID chat. The recipient decides whether to share. It does not look up a hidden number or force the recipient to disclose it.
+
+`sharePhoneNumber` sends the native protocol message for sharing the signed-in account's own number and updates WhatsApp's per-contact sharing metadata. It accepts a destination only, never an arbitrary number to disclose. Both methods return a submitted message ID; ACKs indicate delivery, and recipient sharing is a separate action.
+
+Receiver behavior depends on WhatsApp's account and client support. Receiving a request does not confirm that the recipient's share response succeeded. Inspect the chat before retrying an uncertain submission.

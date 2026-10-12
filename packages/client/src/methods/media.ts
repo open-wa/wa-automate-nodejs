@@ -50,15 +50,11 @@ export function mediaMethods(client: Client): MediaMethods {
       return path;
     },
 
-    sendFileFromUrl: implementMethod(sendFileFromUrlSchema, async ({ to, url, filename, caption, headers }) => {
-      const response = await axios.get<ArrayBuffer>(url, {
-        responseType: 'arraybuffer',
-        headers,
-      });
-      const mimeType = response.headers['content-type'] || 'application/octet-stream';
-      const base64 = Buffer.from(response.data).toString('base64');
-      const dataUrl = `data:${mimeType};base64,${base64}` as DataURL;
-      return client.sendFile(to, dataUrl, filename, caption ?? '');
+    sendFileFromUrl: implementMethod(sendFileFromUrlSchema, async ({ to, url, filename, options, headers }) => {
+      const response = await axios.get<ArrayBuffer>(url, { headers, responseType: 'arrayBuffer' });
+      const mime = response.headers.get('content-type') || 'application/octet-stream';
+      const dataUrl = `data:${mime};base64,${Buffer.from(response.data).toString('base64')}`;
+      return client.sendFile(to, dataUrl, filename, options);
     }),
   };
 }
