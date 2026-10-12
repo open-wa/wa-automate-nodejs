@@ -3,7 +3,7 @@ name: Build & Deploy Documentation
 # Builds the v5 docs app (apps/docs) and deploys it to Cloudflare Workers
 # (the `openwa-docs` worker, per apps/docs/wrangler.jsonc).
 #
-# Requires two repo secrets: CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID.
+# Uses CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID in the Docs environment.
 
 on:
   release:
@@ -15,6 +15,17 @@ on:
       - 'apps/docs/**'
       - 'packages/schema/**'
       - 'packages/config/**'
+      - 'packages/client/src/**'
+      - 'packages/ui-components/**'
+      - 'packages/*/README.md'
+      - 'packages/*/package.json'
+      - 'integrations/*/README.md'
+      - 'integrations/*/package.json'
+      - 'apps/*/README.md'
+      - 'apps/*/package.json'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
       - '.github/workflows/docs-run.yml'
 
 concurrency:
@@ -24,6 +35,11 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: Docs
+      url: https://openwa.dev/docs
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
