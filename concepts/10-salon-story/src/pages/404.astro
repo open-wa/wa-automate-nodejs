@@ -1,0 +1,25 @@
+---
+import Base from "../layouts/Base.astro";
+import CopyCommand from "../components/CopyCommand.astro";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+<Base title="Page not found | open-wa" description="This page doesn't exist. Start from the recipes, the quick start or the home page.">
+  <section class="wrap nf">
+    <p class="nf-num">404</p>
+    <h1>This chair is <em>empty</em>.</h1>
+    <p>The page you wanted isn't here. It may have moved when the site was rebuilt.</p>
+    <div class="nf-links">
+      <a class="btn btn-dark" href={base}>Home</a>
+      <a class="btn btn-line" href={`${base}recipes/`}>Recipes</a>
+      <a class="btn btn-line" href={`${base}quickstart/`}>Quick start</a>
+    </div>
+    <CopyCommand id="cmd-404" size="md" />
+  </section>
+</Base>
+<style>
+  .nf { padding-block: 96px 120px; display: grid; gap: 20px; justify-items: start; max-width: 760px; }
+  .nf-num { font: 500 15px/1 var(--font-mono); color: var(--brass-ink); }
+  .nf h1 { font-size: clamp(40px, 6vw, 72px); }
+  .nf-links { display: flex; gap: 10px; flex-wrap: wrap; }
+  .nf :global(.cc) { width: 100%; }
+</style>

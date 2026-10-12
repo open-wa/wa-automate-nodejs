@@ -14,7 +14,7 @@ h1 em, h2 em, h3 em { font-style: italic; font-weight: 400; color: var(--brass-i
 p { margin: 0; }
 a { color: inherit; }
 code, kbd, pre { font-family: var(--font-mono); }
-:not(pre) > code { font-size: 0.9em; background: var(--blush); padding: 0.1em 0.35em; border-radius: 6px; }
+:not(pre) > code:not([class]) { font-size: 0.9em; background: var(--blush); padding: 0.1em 0.35em; border-radius: 6px; }
 
 .skip {
   position: absolute; left: 12px; top: -60px; z-index: 100;

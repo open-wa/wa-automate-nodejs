@@ -1,0 +1,90 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import CopyCommand from "../../components/CopyCommand.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { commands, firstRun, http, product, snippets, support } from "../../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+<Base title="Quick start: your WhatsApp number as an API in three steps | open-wa" description="Run one npx command, scan the QR code with the phone, open the interactive API docs and send your first message with curl.">
+  <PageHead title="Quick start" lead={`Three steps from nothing to your first message. You need Node.js ${product.node.replace(">=", "")} or newer, or Docker, and a phone with WhatsApp.`} />
+  <div class="wrap qs">
+    <aside class="qs-risk" aria-label="Ban risk">
+      <p><strong>Use a spare number first.</strong> {product.risk} open-wa is unofficial and not affiliated with WhatsApp or Meta.</p>
+    </aside>
+    <ol class="qs-steps">
+      <li>
+        <h2><span>1</span> Run the command</h2>
+        <p>{firstRun[0]}</p>
+        <CopyCommand id="qs-cmd" />
+        <p>Protect the API with a key before anything else can reach it:</p>
+        <CodeBlock code={commands.easyApiWithKey} lang="bash" />
+        <p>Prefer Docker?</p>
+        <CodeBlock code={commands.docker} lang="bash" />
+      </li>
+      <li>
+        <h2><span>2</span> Scan the QR code with the phone</h2>
+        <p>{firstRun[1]} On the phone, open WhatsApp, then Linked devices, then Link a device.</p>
+        <p>Running bookings for more than one business? Give each number its own session and port:</p>
+        <CodeBlock code={commands.namedSession} lang="bash" />
+      </li>
+      <li>
+        <h2><span>3</span> Open the docs and send a message</h2>
+        <p>{firstRun[2]}</p>
+        <p class="qs-url"><code>{commands.proofOfLife}</code></p>
+        <CodeBlock code={http.sendTextCurl} lang="bash" title="Send a message" />
+        <p>{http.chatId} Check the session is up with:</p>
+        <CodeBlock code={http.health} lang="bash" />
+      </li>
+    </ol>
+
+    <section class="qs-next" aria-labelledby="next-h">
+      <h2 id="next-h">Now build a job</h2>
+      <p>Pick the recipe closest to what your client needs: <a href={`${base}recipes/salon-bookings/`}>salon bookings</a>, <a href={`${base}recipes/hotel-notifications/`}>hotel notifications</a>, <a href={`${base}recipes/otp/`}>OTP codes</a>, <a href={`${base}recipes/pbx-calls/`}>calls and your PBX</a> or <a href={`${base}recipes/`}>all nine</a>.</p>
+    </section>
+
+    <section class="qs-other" aria-labelledby="other-h">
+      <h2 id="other-h">Other ways to connect</h2>
+      <p>The Easy API is the quickest start. If you write Node.js, these are also available.</p>
+      <div class="qs-grid">
+        <div>
+          <h3>SocketClient</h3>
+          <p>Your Node.js app connects to a running Easy API instance. Commands go over HTTP; events arrive as Server-Sent Events.</p>
+          <CodeBlock code={commands.socketClientInstall} lang="bash" />
+          <CodeBlock code={snippets.socketClient} lang="js" />
+        </div>
+        <div>
+          <h3>Inside your own app</h3>
+          <p>createClient gives your app control of the browser and the session lifecycle.</p>
+          <CodeBlock code={commands.embeddedInstall} lang="bash" />
+          <CodeBlock code={snippets.embedded} lang="js" />
+        </div>
+        <div>
+          <h3>For an AI agent (MCP)</h3>
+          <p>The built-in MCP server exposes each method as a tool for Claude, Cursor or Windsurf.</p>
+          <CodeBlock code={snippets.mcpStart} lang="bash" />
+          <a href={`${base}recipes/ai-agent/`}>The AI agent recipe</a>
+        </div>
+      </div>
+      <p class="qs-docs"><a class="btn btn-dark" href={support.quickstartDocs} rel="noopener">The full quick start in the docs</a></p>
+    </section>
+  </div>
+</Base>
+<style>
+  .qs { padding-block: 48px 96px; display: grid; gap: 56px; }
+  .qs-risk { background: var(--blush); border-radius: 16px; padding: 16px 20px; max-width: 820px; }
+  .qs-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 48px; max-width: 820px; }
+  .qs-steps li { display: grid; gap: 14px; min-width: 0; }
+  .qs-steps h2, .qs-next h2, .qs-other h2 { font-size: clamp(26px, 3.4vw, 38px); display: flex; gap: 14px; align-items: baseline; }
+  .qs-steps h2 span { font: 500 16px/1 var(--font-mono); width: 34px; height: 34px; border-radius: 50%; background: var(--espresso); color: var(--blush); display: inline-grid; place-items: center; flex: none; transform: translateY(-4px); }
+  .qs-url code { font-size: 17px; }
+  .qs-next { max-width: 820px; display: grid; gap: 12px; }
+  .qs-next a, .qs-other a { color: var(--brass-ink); }
+  .qs-other { display: grid; gap: 16px; }
+  .qs-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .qs-grid > div { display: grid; gap: 12px; align-content: start; padding: 20px; border: 1px solid var(--line); border-radius: 20px; background: #fff; min-width: 0; }
+  .qs-grid h3 { font-size: 22px; }
+  .qs-docs { margin-top: 8px; }
+  .qs-docs a { color: var(--paper) !important; }
+  @media (max-width: 1000px) { .qs-grid { grid-template-columns: minmax(0, 1fr); } }
+</style>

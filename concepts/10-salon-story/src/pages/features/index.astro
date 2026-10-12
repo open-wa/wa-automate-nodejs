@@ -1,0 +1,65 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { capabilities, snippets } from "../../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const groups = [
+  { title: "Send", items: [
+    { name: "Messages", text: capabilities.messages, href: "recipes/order-updates/" },
+    { name: "Photos, voice notes, video and documents", text: capabilities.media, href: "recipes/media/" },
+    { name: "Stickers", text: `${capabilities.stickers} Sending with sendSticker relies on the current sticker patch.`, href: "recipes/stickers/" },
+    { name: "Polls", text: capabilities.polls, href: "recipes/salon-bookings/" },
+    { name: "Event cards", text: capabilities.events, href: "recipes/salon-bookings/" },
+  ]},
+  { title: "Receive and react", items: [
+    { name: "Incoming messages and events", text: "onMessage and the other listeners fire as things happen on the account, so a reply, a vote or an RSVP can start your code.", href: "recipes/support-inbox/" },
+    { name: "Groups", text: capabilities.groups, href: "pricing/" },
+    { name: "Calls", text: "Answer, reject and start WhatsApp calls and stream the audio to your own system. A licensed preview that needs a calling-enabled key; audio only.", href: "recipes/pbx-calls/" },
+  ]},
+  { title: "Run it", items: [
+    { name: "Several numbers side by side", text: capabilities.multiSession, href: "quickstart/" },
+    { name: "Session files you can move", text: capabilities.sessions, href: "changelog/" },
+    { name: "Live refresh", text: capabilities.refresh, href: "changelog/" },
+    { name: "Browser drivers", text: `${capabilities.drivers} Lightpanda is experimental.`, href: "quickstart/" },
+    { name: "Generated API docs", text: capabilities.docs, href: "quickstart/" },
+  ]},
+];
+---
+<Base title="Features: messages, media, polls, event cards, calls and more | open-wa" description="Everything open-wa can send, receive and do on your own WhatsApp number, with the recipe that uses each one.">
+  <PageHead title="Everything it can <em>send, receive and do</em>" lead="Each feature links to the recipe that uses it, so you can see it working before you read the method list." />
+  <div class="wrap ft">
+    {groups.map((g) => (
+      <section class="ft-group" aria-labelledby={`g-${g.title}`}>
+        <h2 id={`g-${g.title}`}>{g.title}</h2>
+        <ul>
+          {g.items.map((i) => (
+            <li>
+              <h3>{i.name}</h3>
+              <p>{i.text}</p>
+              <a href={`${base}${i.href}`}>See it in use<span class="sr-only">: {i.name}</span></a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+    <section class="ft-group" aria-labelledby="g-ev">
+      <h2 id="g-ev">New in 5.5: event cards</h2>
+      <div class="ft-ev">
+        <p>Send a native event card and hear back when people answer. Rosa's uses it for appointments; it works for a class, a viewing or a meetup.</p>
+        <CodeBlock code={snippets.event} lang="js" />
+      </div>
+    </section>
+  </div>
+</Base>
+<style>
+  .ft { padding-block: 48px 96px; display: grid; gap: 56px; }
+  .ft-group { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 32px; border-top: 1px solid var(--line); padding-top: 32px; }
+  .ft-group h2 { font-size: 32px; }
+  .ft-group ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 32px; }
+  .ft-group li { display: grid; gap: 8px; align-content: start; }
+  .ft-group h3 { font-size: 22px; }
+  .ft-group li a { color: var(--brass-ink); font-weight: 600; min-height: 44px; display: inline-flex; align-items: center; }
+  .ft-ev { display: grid; gap: 16px; min-width: 0; }
+  @media (max-width: 800px) { .ft-group, .ft-group ul { grid-template-columns: minmax(0, 1fr); } }
+</style>

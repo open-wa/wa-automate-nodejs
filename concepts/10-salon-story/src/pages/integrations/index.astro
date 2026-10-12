@@ -1,0 +1,44 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { integrations, snippets } from "../../data/site";
+const slug = (n: string) => n.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-$/, "");
+---
+<Base title="Integrations: webhooks, Chatwoot, Node-RED, S3, MCP and plugins | open-wa" description="Connect WhatsApp on your own number to webhooks, Chatwoot, Node-RED, S3 storage, a Cloudflare session proxy, AI agents through MCP, or your own plugin.">
+  <PageHead title="Plug it into <em>what the business already uses</em>" lead="Plugins load at start-up with plugins and pluginConfig. The Easy API is plain HTTP, so anything that can call a URL can use it too." />
+  <div class="wrap ig">
+    <ul class="ig-list">
+      {integrations.map((i) => (
+        <li id={slug(i.name)}>
+          <h2>{i.name}</h2>
+          <p>{i.what}</p>
+          <code>{i.package}</code>
+        </li>
+      ))}
+    </ul>
+    <section class="ig-code" aria-labelledby="load-h">
+      <h2 id="load-h">Load plugins</h2>
+      <CodeBlock code={snippets.plugins} lang="js" title="wa.config.mjs" />
+    </section>
+    <section class="ig-code" aria-labelledby="cf-h">
+      <h2 id="cf-h">Reach a session from anywhere, without opening ports</h2>
+      <CodeBlock code={snippets.cfProxyConsumer} lang="js" />
+    </section>
+    <section class="ig-code" aria-labelledby="mcp-h">
+      <h2 id="mcp-h">Give an AI agent the number</h2>
+      <CodeBlock code={snippets.mcpConfig} lang="js" />
+      <CodeBlock code={snippets.claudeDesktop} lang="json" title="Claude Desktop config" />
+    </section>
+  </div>
+</Base>
+<style>
+  .ig { padding-block: 48px 96px; display: grid; gap: 48px; }
+  .ig-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .ig-list li { padding: 24px; border: 1px solid var(--line); border-radius: 20px; background: #fff; display: grid; gap: 10px; align-content: start; scroll-margin-top: 90px; }
+  .ig-list li:target { border-color: var(--brass); box-shadow: 0 0 0 2px var(--brass); }
+  .ig-list h2 { font-size: 26px; }
+  .ig-list code { justify-self: start; }
+  .ig-code { display: grid; gap: 14px; max-width: 860px; min-width: 0; }
+  .ig-code h2 { font-size: clamp(24px, 3vw, 34px); }
+</style>

@@ -1,0 +1,52 @@
+---
+import "../styles/phone.css";
+import type { Line } from "../data/recipes";
+interface Props { lines: Line[]; name: string; sub: string; label: string }
+const { lines, name, sub, label } = Astro.props;
+---
+<div class="ph rp" role="img" aria-label={label}>
+  <div class="ph-top">
+    <span class="ph-av" aria-hidden="true">{name[0]}</span>
+    <span class="ph-who"><strong>{name}</strong><span>{sub}</span></span>
+  </div>
+  <div class="ph-view">
+    <div class="ph-thread">
+      {lines.map((l) => {
+        if (l.k === "day") return <p class="ph-day"><span>{l.t}</span></p>;
+        if (l.k === "me" || l.k === "them") return <div class:list={["ph-m", `ph-${l.k}`]}><p>{l.t}</p>{l.time && <span class="ph-t">{l.time}</span>}</div>;
+        if (l.k === "note") return <p class="rp-note">{l.t}</p>;
+        if (l.k === "file") return <div class="ph-m ph-them rp-file"><span class="rp-doc">PDF</span><span><b>{l.name}</b>{l.cap && <span class="ph-sub">{l.cap}</span>}</span></div>;
+        if (l.k === "loc") return <div class="ph-m ph-them rp-loc"><span class="rp-map" aria-hidden="true"><i></i></span><b>{l.name}</b><span class="ph-sub">{l.addr}</span></div>;
+        if (l.k === "call") return <div class="ph-m ph-them rp-call"><span class="rp-ring" aria-hidden="true"></span><span><b>{l.t}</b><span class="ph-sub">{l.sub}</span></span></div>;
+        if (l.k === "sticker") return <div class="rp-sticker"><span>{l.t}</span></div>;
+        if (l.k === "image") return <div class="ph-m ph-me rp-img"><span class="rp-pic" aria-hidden="true"></span><p>{l.cap}</p></div>;
+        if (l.k === "voice") return <div class="ph-m ph-them rp-voice"><span class="rp-play"></span><span class="rp-wave"></span><span class="ph-sub">{l.len}</span></div>;
+        if (l.k === "tool") return <p class="rp-tool"><span>tool call</span> {l.t}</p>;
+      })}
+    </div>
+  </div>
+</div>
+<style>
+  .rp { aspect-ratio: auto; min-height: 460px; --ph-w: 320px; }
+  .rp .ph-m { padding-bottom: 20px; }
+  .rp-note { align-self: center; font: 500 12.5px/1.3 var(--font-mono); color: var(--brass-ink); text-align: center; padding: 2px 10px; }
+  .rp-file, .rp-call { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; }
+  .rp-doc { font: 700 10px/1 var(--font-mono); background: var(--brass); color: var(--espresso); padding: 6px 5px; border-radius: 4px; }
+  .rp-loc { display: grid; gap: 2px; width: 84%; }
+  .rp-map { height: 84px; border-radius: 10px; margin-bottom: 6px; background:
+    linear-gradient(115deg, transparent 46%, #fff 46% 52%, transparent 52%),
+    linear-gradient(25deg, transparent 60%, #fff 60% 64%, transparent 64%), #ecd9c9; position: relative; }
+  .rp-map i { position: absolute; left: 50%; top: 40%; width: 16px; height: 16px; border-radius: 50% 50% 50% 0; transform: translate(-50%, -50%) rotate(-45deg); background: var(--error); }
+  .rp-ring { width: 34px; height: 34px; border-radius: 50%; background: var(--brass); box-shadow: 0 0 0 5px rgba(184, 138, 68, 0.3); }
+  .rp-sticker { align-self: flex-start; width: 110px; height: 110px; border-radius: 50%; display: grid; place-items: center; background: var(--blush); border: 5px solid #fff; outline: 2px solid var(--espresso); transform: rotate(-7deg); box-shadow: 5px 5px 0 var(--brass); margin: 6px 10px; }
+  .rp-sticker span { font: italic 600 26px/1 var(--font-display); }
+  .rp-img { padding: 6px 6px 22px !important; }
+  .rp-img p { padding: 6px 6px 0; }
+  .rp-pic { display: block; width: 180px; height: 120px; border-radius: 12px; background: radial-gradient(circle at 30% 35%, #f6d9d3 0 18%, transparent 19%), linear-gradient(160deg, #b88a44, #6b4a2e); }
+  .rp-voice { display: flex; gap: 10px; align-items: center; }
+  .rp-play { width: 0; height: 0; border-left: 11px solid var(--espresso); border-top: 7px solid transparent; border-bottom: 7px solid transparent; }
+  .rp-wave { width: 110px; height: 18px; background: repeating-linear-gradient(90deg, var(--brass) 0 2px, transparent 2px 5px); }
+  .rp-voice .ph-sub { margin: 0; }
+  .rp-tool { align-self: center; font: 500 13.5px/1 var(--font-mono); background: var(--espresso); color: var(--blush); padding: 9px 12px; border-radius: 10px; }
+  .rp-tool span { color: var(--brass-light); }
+</style>

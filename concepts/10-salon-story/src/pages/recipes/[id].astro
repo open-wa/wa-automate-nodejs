@@ -1,0 +1,141 @@
+---
+import Base from "../../layouts/Base.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import CopyCommand from "../../components/CopyCommand.astro";
+import RecipePhone from "../../components/RecipePhone.astro";
+import { jobs, jobPlace, licences, support, product, http } from "../../data/site";
+import { convo, extras, snippetFor, recipeTier, recipeBusiness } from "../../data/recipes";
+import type { Job } from "../../data/site";
+
+export function getStaticPaths() {
+  return jobs.map((j) => ({ params: { id: j.id }, props: { job: j } }));
+}
+const { job } = Astro.props as { job: Job };
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const tier = recipeTier[job.id];
+const restricted = licences.tiers.find((t) => t.id === "restricted")!;
+const insiders = licences.tiers.find((t) => t.id === "insiders")!;
+const biz = recipeBusiness[job.id];
+const idx = jobs.findIndex((j) => j.id === job.id);
+const next = jobs[(idx + 1) % jobs.length];
+const keyHead =
+  tier === "none"
+    ? "Free for this flow"
+    : tier === "restricted"
+      ? `Restricted, from ${restricted.prices.month} a month`
+      : tier === "insiders"
+        ? `Insiders, from ${insiders.prices.month} a month`
+        : tier === "calling"
+          ? "Calling-enabled key, licensed preview"
+          : "Check the methods you call";
+const desc = `${job.name} on your own WhatsApp number with open-wa: the conversation, the code, the methods and the licence it needs.`;
+const audio = (job as { audio?: string }).audio;
+---
+<Base title={`${job.name}: a WhatsApp recipe | open-wa`} description={desc}>
+  <article>
+    <header class="rh">
+      <div class="wrap rh-in">
+        <div>
+          <p class="rh-crumb"><a href={`${base}recipes/`}>Recipes</a> <span aria-hidden="true">/</span> For {jobPlace[job.id]}</p>
+          <h1>{job.name}</h1>
+          <p class="rh-who">{job.who}.</p>
+          <h2 class="rh-sub">What you'll build</h2>
+          <p class="rh-flow">{job.flow}</p>
+          <ul class="rh-methods" aria-label="Methods">
+            {job.methods.map((m) => <li><code>{m}</code></li>)}
+          </ul>
+        </div>
+        <figure class="rh-fig">
+          <RecipePhone lines={convo[job.id]} name={biz.name} sub={biz.sub} label={`Example conversation: ${job.name}`} />
+          <figcaption>Example output. {biz.name} is an example.</figcaption>
+        </figure>
+      </div>
+    </header>
+
+    <section class="wrap rb">
+      <div class="rb-main">
+        <h2>The code</h2>
+        <CodeBlock code={snippetFor(job.id)} lang="js" title={job.id === "ai-agent" ? "wa.config.mjs" : `${job.id}.js`} />
+        {(extras[job.id] ?? []).map((e) => (
+          <>
+            <h3>{e.title}</h3>
+            <CodeBlock code={e.code} lang={e.lang} />
+          </>
+        ))}
+        {audio && (
+          <div class="rb-callout">
+            <h3>Audio format</h3>
+            <p>{audio}</p>
+            <p>Calling is a licensed preview. Audio only; camera calls are in development.</p>
+          </div>
+        )}
+        {job.id === "stickers" && (
+          <div class="rb-callout">
+            <h3>Before you rely on it</h3>
+            <p>{job.licence} The CLI renders sticker files on your machine.</p>
+          </div>
+        )}
+        <p class="rb-http">{http.note} <a href={support.docs} rel="noopener">Read the docs</a></p>
+      </div>
+      <aside class="rb-side">
+        <div class:list={["key", `key-${tier}`]}>
+          <p class="key-label">Licence</p>
+          <p class="key-head">{keyHead}</p>
+          <p>{job.licence}</p>
+          {(tier === "restricted" || tier === "insiders") && (
+            <a class="btn btn-dark" href={`${base}pricing/?tier=${tier}#get-key`}>Get a {tier === "restricted" ? "Restricted" : "Insiders"} key</a>
+          )}
+          {tier === "calling" && <a class="btn btn-dark" href={`${base}support/`}>Ask about a calling key</a>}
+          {tier !== "none" && <p class="key-date">Prices in GBP, checked 12 Oct 2026. Checkout shows the current price.</p>}
+        </div>
+        <div class="start">
+          <p class="key-label">Start here</p>
+          <CopyCommand id={`cmd-${job.id}`} size="md" />
+          <a class="btn btn-line" href={`${base}quickstart/`}>Quick start</a>
+        </div>
+        <p class="risk">{product.risk}</p>
+      </aside>
+    </section>
+
+    <nav class="wrap rn" aria-label="Next recipe">
+      <a href={`${base}recipes/${next.id}/`}><span>Next recipe</span>{next.name}</a>
+    </nav>
+  </article>
+</Base>
+<style>
+  .rh { background: linear-gradient(var(--blush-soft), var(--paper)); border-bottom: 1px solid var(--line); padding: 48px 0 56px; }
+  .rh-in { display: grid; grid-template-columns: minmax(0, 1.2fr) auto; gap: 56px; align-items: start; }
+  .rh-crumb { font: 500 14px/1.4 var(--font-mono); color: var(--brass-ink); margin-bottom: 16px; }
+  .rh-crumb a { color: inherit; }
+  .rh h1 { font-size: clamp(38px, 5vw, 64px); letter-spacing: -0.02em; }
+  .rh-who { margin-top: 14px; font-size: 19px; color: #4a3530; max-width: 54ch; }
+  .rh-sub { font-size: 24px; margin: 32px 0 8px; }
+  .rh-flow { max-width: 58ch; }
+  .rh-methods { list-style: none; padding: 0; margin: 18px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .rh-fig { margin: 0; display: grid; gap: 12px; justify-items: center; }
+  .rh-fig figcaption { font: 400 13px/1.4 var(--font-mono); color: var(--muted); }
+  .rb { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 48px; padding-block: 56px 32px; }
+  .rb-main { display: grid; gap: 16px; align-content: start; min-width: 0; }
+  .rb-main h2 { font-size: 32px; }
+  .rb-main h3 { font-size: 22px; margin-top: 16px; }
+  .rb-callout { background: var(--blush); border-radius: 18px; padding: 20px; display: grid; gap: 8px; }
+  .rb-http { color: var(--muted); }
+  .rb-http a { color: var(--brass-ink); }
+  .rb-side { display: grid; gap: 16px; align-content: start; }
+  .key, .start { border: 1px solid var(--line); border-radius: 20px; padding: 22px; background: #fff; display: grid; gap: 10px; min-width: 0; }
+  .key-restricted, .key-calling { background: var(--espresso); color: var(--cream-on-dark); border-color: var(--espresso); }
+  .key-restricted .btn-dark, .key-calling .btn-dark { background: var(--brass); color: var(--espresso); }
+  .key-label { font: 600 12.5px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--brass-ink); }
+  .key-restricted .key-label, .key-calling .key-label { color: var(--brass-light); }
+  .key-head { font: 500 24px/1.2 var(--font-display); }
+  .key .btn { justify-self: start; }
+  .key-date { font-size: 14px; opacity: 0.85; }
+  .start .btn { justify-self: start; }
+  .risk { font-size: 15px; color: var(--muted); padding: 0 6px; }
+  .rn { padding-block: 24px 96px; }
+  .rn a { display: grid; gap: 4px; padding: 24px; border-radius: 20px; background: var(--blush); text-decoration: none; font: 500 28px/1.2 var(--font-display); }
+  .rn a span { font: 500 14px/1 var(--font-mono); color: var(--brass-ink); }
+  @media (max-width: 900px) {
+    .rh-in, .rb { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

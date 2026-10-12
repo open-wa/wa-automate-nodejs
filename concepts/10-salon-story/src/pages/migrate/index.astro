@@ -1,0 +1,26 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { migration, commands, support } from "../../data/site";
+---
+<Base title="Migrate from v4 to v5 | open-wa" description="Keep a running v4 bot working while you move it to open-wa v5: pin v4, then follow the migration guide.">
+  <PageHead title="Moving a v4 bot <em>to v5</em>" lead={migration.summary} />
+  <div class="wrap prose mg">
+    <h2>1. Pin v4 so nothing changes under you</h2>
+    <p>Unqualified installs now get v5. Pin the major version in the bot that's running today:</p>
+    <CodeBlock code={migration.v4Pin} lang="bash" />
+    <h2>2. Try v5 beside it</h2>
+    <p>Start v5 with its own session ID and port, so the running bot keeps its session:</p>
+    <CodeBlock code={commands.namedSession} lang="bash" />
+    <h2>3. Follow the guide, method by method</h2>
+    <p>The migration guide lists what moved and what changed name. Check each method your bot calls in the live API docs at <code>/api-docs/</code> on the v5 session.</p>
+    <p><a class="btn btn-dark" href={support.migrationDocs} rel="noopener">Open the migration guide</a></p>
+    <p>Stuck? Ask in <a href={support.discord} rel="noopener">Discord</a> or open an <a href={support.issues} rel="noopener">issue on GitHub</a>.</p>
+  </div>
+</Base>
+<style>
+  .mg { padding-block: 32px 96px; max-width: 860px; }
+  .mg :global(.cb) { margin-bottom: 1em; }
+  .mg .btn { color: var(--paper); text-decoration: none; }
+</style>

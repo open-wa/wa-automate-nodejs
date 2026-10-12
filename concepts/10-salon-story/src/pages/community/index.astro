@@ -1,0 +1,32 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { support, stats, snippets } from "../../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+<Base title="Community and contributing | open-wa" description="Join the open-wa Discord, contribute on GitHub, or package your own integration with the Plugin SDK.">
+  <PageHead title="Built in the open <em>since 2019</em>" lead={`Maintained by ${support.maintainer}, with ${stats.githubForks.toLocaleString("en-GB")} forks and ${stats.publishedVersions} published versions (checked ${stats.checkedOn}).`} />
+  <div class="wrap cm">
+    <ul class="cm-ways">
+      <li><h2>Discord</h2><p>About {stats.discordMembers.toLocaleString("en-GB")} members (checked {stats.checkedOn}). Ask questions and share what you've built.</p><a class="btn btn-dark" href={support.discord} rel="noopener">Join Discord</a></li>
+      <li><h2>Contribute on GitHub</h2><p>Fix a bug, improve the docs, or pick up an open issue. Pull requests are welcome.</p><a class="btn btn-line" href={support.github} rel="noopener">Open the repository</a></li>
+      <li><h2>Write a plugin</h2><p>Package your own integration with the Plugin SDK and load it beside the official ones.</p><a class="btn btn-line" href={`${base}integrations/#plugin-sdk`}>About the Plugin SDK</a></li>
+      <li><h2>Support the maintainer</h2><p>Licence keys and coffees support its maintenance.</p><a class="btn btn-line" href={support.buyMeACoffee} rel="noopener">Buy a coffee</a></li>
+    </ul>
+    <section class="cm-plug" aria-labelledby="plug-h">
+      <h2 id="plug-h">Loading a plugin</h2>
+      <CodeBlock code={snippets.plugins} lang="js" />
+    </section>
+  </div>
+</Base>
+<style>
+  .cm { padding-block: 48px 96px; display: grid; gap: 48px; }
+  .cm-ways { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .cm-ways li { padding: 28px; border: 1px solid var(--line); border-radius: 22px; background: #fff; display: grid; gap: 12px; align-content: start; }
+  .cm-ways h2 { font-size: 28px; }
+  .cm-ways .btn { justify-self: start; }
+  .cm-plug { display: grid; gap: 14px; max-width: 760px; min-width: 0; }
+  .cm-plug h2 { font-size: 30px; }
+  @media (max-width: 760px) { .cm-ways { grid-template-columns: minmax(0, 1fr); } }
+</style>
