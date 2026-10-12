@@ -3,7 +3,14 @@ title: Link-code login
 description: Authenticate an embedded Node.js session with a WhatsApp link code.
 ---
 
-Link-code login pairs a browser session with the WhatsApp account on your phone. In the supported npm release `5.1.0`, embedded applications can request the code through `createClient` and receive it from the runtime event emitter. The published Easy API CLI does not forward `linkCode` or print the generated event, so use its QR flow instead.
+Link-code login is an optional alternative to scanning a QR code. QR pairing
+remains the default login method. Both methods link a browser session with the
+WhatsApp account on your phone.
+
+This example uses npm release `5.1.0`. Embedded applications can request a code
+through `createClient` and receive it from the runtime event emitter. The
+`5.1.0` Easy API CLI does not forward `linkCode` or print the generated event.
+Use that version's QR flow instead.
 
 <Callout type="warning" title="Keep the code private">
 The `launch.auth.linkCode.generated` event is sensitive. The example prints it only in the local terminal that started the application. Do not forward it to HTTP routes, shared logs, chat, or issue reports. The plugin event gateway blocks sensitive events.
