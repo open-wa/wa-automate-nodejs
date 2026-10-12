@@ -13,11 +13,11 @@ Set an API key and start the server on a local address:
 
 ```bash title="Terminal"
 export OPENWA_API_URL='http://127.0.0.1:8080'
-export OPENWA_API_KEY='REPLACE_WITH_YOUR_API_KEY'
+export WA_API_KEY='REPLACE_WITH_YOUR_API_KEY'
 
 npx @open-wa/wa-automate@5.5.1 \
   --session-id sales --host 127.0.0.1 --port 8080 \
-  --api-key "$OPENWA_API_KEY"
+  --api-key "$WA_API_KEY"
 ```
 
 On the phone, open **WhatsApp → Linked devices → Link a device** and scan the QR code. Open `/dashboard/` on the printed server address to manage the session. Use `/api-docs/` for the API explorer.
@@ -38,7 +38,7 @@ The examples use the same URL and key variables as the startup command. Run them
 
 ```bash tab="cURL" tab-group="openwa-http-language" title="HTTP request"
 curl --fail-with-body "$OPENWA_API_URL/api/messages/sendText" \
-  -H "X-API-Key: $OPENWA_API_KEY" \
+  -H "X-API-Key: $WA_API_KEY" \
   -H 'Content-Type: application/json' \
   --data '{
     "to": "447700900123@c.us",
@@ -53,7 +53,7 @@ const response = await fetch(
   {
     method: 'POST',
     headers: {
-      'X-API-Key': process.env.OPENWA_API_KEY,
+      'X-API-Key': process.env.WA_API_KEY,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -74,7 +74,7 @@ import requests
 
 response = requests.post(
     os.environ["OPENWA_API_URL"].rstrip("/") + "/api/messages/sendText",
-    headers={"X-API-Key": os.environ["OPENWA_API_KEY"]},
+    headers={"X-API-Key": os.environ["WA_API_KEY"]},
     json={
         "to": "447700900123@c.us",
         "content": "Hello from Easy API",
@@ -95,7 +95,7 @@ Open the Server-Sent Events stream before sending messages:
 ```bash title="Incoming messages and acknowledgements"
 curl --no-buffer --fail-with-body \
   "$OPENWA_API_URL/api/events?topics=message.received,ack.changed" \
-  -H "X-API-Key: $OPENWA_API_KEY"
+  -H "X-API-Key: $WA_API_KEY"
 ```
 
 Each `data:` line contains a JSON envelope with `id`, `event`, `payload`, `ts`, and `sessionId`. Incoming messages are at `payload.message`; ACK snapshots are at `payload.ack`. Close the connection to stop listening. Reconnect after a disconnect; this stream does not replay missed events.
@@ -106,7 +106,7 @@ For a Node.js application, [SocketClient](/docs/client-and-integrations/socket-c
 export default {
   host: '127.0.0.1',
   port: 8080,
-  apiKey: process.env.OPENWA_API_KEY,
+  apiKey: process.env.WA_API_KEY,
   plugins: ['@open-wa/integration-webhook'],
   pluginConfig: {
     webhook: {
