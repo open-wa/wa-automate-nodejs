@@ -3,6 +3,14 @@
 
 
 
+
+## 5.4.0
+<sub>2026-09-30</sub>
+
+- [#3477](https://github.com/open-wa/wa-automate-nodejs/pull/3477)  *(minor)*
+  - 🔒️ Bring your own session encryption key through config, environment variables or a mounted Docker secret. Omit it to use the baked default.
+  - 🚚 Compact auth is the only path: `legacyDataDirAuth` is removed. Moving from a browser profile or changing keys requires a fresh QR scan.
+
 ## 5.3.0
 
 - 📨 Replay pending incoming messages through `onMessage`; acknowledge after handlers complete and the checkpoint is saved. Retries are at least once.
