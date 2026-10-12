@@ -190,7 +190,15 @@ const byJob = [
   .hero-fine { margin-top: 18px; font-size: 15px; color: var(--muted-plum); }
   .hero-fine a { color: var(--cream); }
   .photo-credit { position: absolute; right: 12px; bottom: 8px; margin: 0; font: 500 12px/1 var(--font-mono); color: rgba(255, 244, 230, 0.8); }
-  @media (max-width: 1279px) {
+  @media (max-width: 1279px) and (min-width: 960px) {
+    .hero { padding-top: 24px; }
+    .hero-grid { gap: 36px; }
+    .hero-copy { padding-top: 24px; }
+    .collage { grid-template-columns: 1fr 1fr; }
+    .collage :global(.ph-1) { grid-row: auto; }
+    .collage :global(.ph-4) { grid-column: auto; }
+  }
+  @media (max-width: 959px) {
     .hero-grid { grid-template-columns: minmax(0, 1fr); }
     .hero-copy { max-width: 760px; }
     .collage::after { background: linear-gradient(180deg, rgba(42, 14, 46, 0.96) 0%, rgba(42, 14, 46, 0.88) 40%, rgba(42, 14, 46, 0.6) 100%); }

@@ -74,7 +74,7 @@ let step = 0;
     const toggle = stage.querySelector<HTMLButtonElement>("[data-toggle]")!;
     const replay = stage.querySelector<HTMLButtonElement>("[data-replay]")!;
     const animate = shouldAnimate();
-    const narrow = () => !window.matchMedia("(min-width: 760px)").matches;
+    const narrow = () => !window.matchMedia("(min-width: 1280px)").matches;
     let taken = false;
     let timer = 0;
     let i = 0;
@@ -168,7 +168,7 @@ let step = 0;
         if (narrow()) {
           if (playing) { stop(); showAll(); i = steps.length; toggle.textContent = "Done"; }
           // Bring the tapped message near the top of the screen, then open the sheet under it.
-          screen.scrollTop += b.getBoundingClientRect().top - screen.getBoundingClientRect().top - 76;
+          screen.scrollTop += b.getBoundingClientRect().top - screen.getBoundingClientRect().top - 96;
           place(b);
           panel.querySelector<HTMLElement>("[data-close]")?.focus({ preventScroll: true });
           const r = phone.getBoundingClientRect();
@@ -209,7 +209,7 @@ let step = 0;
     padding: 48px 12px 40px; color: var(--plum);
   }
   .screen::-webkit-scrollbar { display: none; }
-  .status { position: absolute; top: 26px; left: 44px; right: 44px; display: flex; justify-content: space-between; font: 600 13px/1 var(--font-text); color: var(--plum); z-index: 2; pointer-events: none; }
+  .status { position: absolute; top: 12px; left: 12px; right: 12px; height: 46px; padding: 15px 34px 0; border-radius: 41px 41px 0 0; background: linear-gradient(var(--cream) 72%, rgba(255, 244, 230, 0)); display: flex; justify-content: space-between; font: 600 13px/1 var(--font-text); color: var(--plum); z-index: 2; pointer-events: none; }
   .sig { display: flex; gap: 2px; align-items: end; }
   .sig i { width: 3px; background: var(--plum); border-radius: 1px; }
   .sig i:nth-child(1) { height: 5px; } .sig i:nth-child(2) { height: 8px; } .sig i:nth-child(3) { height: 11px; }
@@ -258,7 +258,7 @@ let step = 0;
   .call-panel.swap .call:not([hidden]) { animation: slide 380ms var(--ease) both; }
   @keyframes slide { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: none; } }
   .panel-close { display: none; }
-  .call { display: grid; gap: 12px; }
+  .call { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
   .call-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin: 0; }
   .call-kicker { font: 600 13px/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--tangerine-soft); }
   .call .tag-example { color: var(--cream); }
@@ -269,17 +269,24 @@ let step = 0;
   .call-link:hover { text-decoration: underline; }
   .call :global(.codeblock pre) { max-height: 320px; font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
 
-  @media (max-width: 1279px) and (min-width: 760px) {
-    .stage { grid-template-columns: 340px minmax(0, 1fr); }
+  /* Laptops: the phone sits beside the copy and the code opens as a sheet over it. */
+  @media (max-width: 1279px) and (min-width: 960px) {
+    .stage { grid-template-columns: 310px; gap: 12px; }
+    .phone { width: 310px; height: min(600px, calc(100vh - 150px)); min-height: 520px; }
   }
   .call-panel.is-waiting { opacity: 0; }
   .call-panel { transition: transform 420ms var(--ease), opacity 300ms var(--ease); }
-  @media (max-width: 759px) {
+  @media (max-width: 959px) {
     .stage { grid-template-columns: minmax(0, 1fr); gap: 16px; }
     .phone { width: min(340px, 100%); height: 600px; }
+  }
+  @media (max-width: 1279px) {
     .call-panel { transform: none; display: none; position: absolute; z-index: 5; left: 6px; right: 6px; top: var(--ny, 200px); max-height: var(--nh, 360px); overflow-y: auto; overscroll-behavior: contain; padding: 14px; }
     .call-panel.is-open { display: block; animation: slide-up 360ms var(--ease) both; }
     .call-panel::before { display: none; }
+    .call-head { padding-right: 84px; min-height: 44px; }
+    .call-head .tag { white-space: normal; line-height: 1.25; }
+    .panel-close { position: absolute; top: 12px; right: 12px; z-index: 1; }
     .call :global(.codeblock pre) { max-height: none; }
     .panel-close { display: inline-flex; float: right; min-height: 44px; padding: 0 14px; border-radius: 12px; background: var(--plum-2); color: var(--cream); border: 0; font: 600 15px var(--font-text); align-items: center; cursor: pointer; }
     @keyframes slide-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
