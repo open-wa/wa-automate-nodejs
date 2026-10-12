@@ -1,0 +1,19 @@
+---
+interface Props { title: string; lead?: string; label?: string }
+const { title, lead, label } = Astro.props;
+---
+<header class="ph-head">
+  <div class="wrap">
+    {label && <p class="ph-head-label">{label}</p>}
+    <h1 set:html={title} />
+    {lead && <p class="ph-head-lead">{lead}</p>}
+    <slot />
+  </div>
+</header>
+<style>
+  .ph-head { padding: 64px 0 48px; background: linear-gradient(var(--blush-soft), var(--paper)); border-bottom: 1px solid var(--line); }
+  .ph-head h1 { font-size: clamp(38px, 5.4vw, 68px); max-width: 20ch; letter-spacing: -0.02em; }
+  .ph-head-label { font: 500 14px/1 var(--font-mono); color: var(--brass-ink); margin-bottom: 16px; }
+  .ph-head-lead { margin-top: 18px; font-size: 19px; color: #4a3530; max-width: 60ch; }
+  @media (max-width: 600px) { .ph-head { padding: 40px 0 32px; } .ph-head h1 { font-size: 38px; } }
+</style>

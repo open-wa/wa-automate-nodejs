@@ -1,0 +1,91 @@
+---
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import fraunces from "../fonts/fraunces-latin-opsz-normal.woff2?url";
+import frauncesItalic from "../fonts/fraunces-latin-wght-italic.woff2?url";
+import karla from "../fonts/karla-latin-wght-normal.woff2?url";
+import plex400 from "../fonts/ibm-plex-mono-latin-400-normal.woff2?url";
+import plex500 from "../fonts/ibm-plex-mono-latin-500-normal.woff2?url";
+
+interface Props {
+  title: string;
+  description: string;
+  themeColor?: string;
+}
+const { title, description, themeColor = "#fdf7f4" } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+const faces = `
+@font-face { font-family: "Fraunces"; src: url(${fraunces}) format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }
+@font-face { font-family: "Fraunces"; src: url(${frauncesItalic}) format("woff2"); font-weight: 100 900; font-style: italic; font-display: swap; }
+@font-face { font-family: "Karla"; src: url(${karla}) format("woff2"); font-weight: 200 800; font-style: normal; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url(${plex400}) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "IBM Plex Mono"; src: url(${plex500}) format("woff2"); font-weight: 500 600; font-style: normal; font-display: swap; }
+`;
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content={themeColor} />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="preload" href={fraunces} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={karla} as="font" type="font/woff2" crossorigin />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <style set:html={faces}></style>
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <slot name="after" />
+    <div class="sr-only" aria-live="polite" id="copy-status"></div>
+    <script>
+      // One copy handler for every [data-copy] button on the page.
+      const status = document.getElementById("copy-status");
+      document.addEventListener("click", async (event) => {
+        const btn = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-copy]");
+        if (!btn) return;
+        const sel = btn.dataset.copyTarget;
+        const text = btn.dataset.copy || (sel ? document.querySelector(sel)?.textContent ?? "" : "");
+        try {
+          await navigator.clipboard.writeText(text.trim());
+        } catch {
+          const area = document.createElement("textarea");
+          area.value = text.trim();
+          area.setAttribute("readonly", "");
+          area.style.position = "fixed";
+          area.style.opacity = "0";
+          document.body.append(area);
+          area.select();
+          try { document.execCommand("copy"); } catch { /* nothing else to try */ }
+          area.remove();
+        }
+        const label = btn.querySelector(".copy-label");
+        btn.dataset.copied = "true";
+        if (label) label.textContent = "Copied";
+        if (status) status.textContent = "Copied to clipboard";
+        window.setTimeout(() => {
+          delete btn.dataset.copied;
+          if (label) label.textContent = btn.dataset.label || "Copy";
+          if (status) status.textContent = "";
+        }, 1800);
+      });
+    </script>
+  </body>
+</html>

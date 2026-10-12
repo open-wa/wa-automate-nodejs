@@ -1,0 +1,58 @@
+---
+// A drawn phone showing the customer's chat with Rosa's (example salon).
+// Our own bubble shapes and colours; nothing copied from WhatsApp's UI.
+import type { Msg } from "../data/story";
+interface Props { msgs: Msg[]; live?: boolean; class?: string; label?: string }
+const { msgs, live = false, class: cls = "", label } = Astro.props;
+---
+<div class:list={["ph", cls, { "ph-live": live }]} role={live ? undefined : "img"} aria-label={live ? undefined : label} aria-hidden={live ? "true" : undefined}>
+  <div class="ph-top">
+    <span class="ph-av" aria-hidden="true">R</span>
+    <span class="ph-who"><strong>Rosa's</strong><span>Example salon</span></span>
+  </div>
+  <div class="ph-view">
+    <div class="ph-thread">
+      {msgs.map((m) => {
+        if (m.kind === "day") return <p class="ph-day ph-a" data-at={m.at}><span>{m.text}</span></p>;
+        if (m.kind === "me" || m.kind === "them")
+          return (
+            <div class:list={["ph-m", `ph-${m.kind}`, "ph-a"]} data-at={m.at}>
+              <p>{m.text}</p><span class="ph-t">{m.time}</span>
+            </div>
+          );
+        if (m.kind === "poll")
+          return (
+            <div class="ph-m ph-them ph-card ph-a" data-at={m.at}>
+              <p class="ph-poll-q">{m.q}</p>
+              <p class="ph-sub">Poll · select one</p>
+              <ul class="ph-opts">
+                {m.options.map((o) => (
+                  <li class:list={["ph-opt", { "ph-pick ph-b": o === m.pick }]} data-at={o === m.pick ? m.pickAt : undefined}>
+                    <span class="ph-radio" aria-hidden="true"></span>
+                    <span class="ph-o">{o}</span>
+                    <span class="ph-n">{o === m.pick ? "1" : "0"}</span>
+                    <span class="ph-bar" aria-hidden="true"></span>
+                  </li>
+                ))}
+              </ul>
+              <span class="ph-t">{m.time}</span>
+            </div>
+          );
+        if (m.kind === "event")
+          return (
+            <div class="ph-m ph-them ph-card ph-event ph-a" data-at={m.at}>
+              <div class="ph-ev-head">
+                <span class="ph-cal" aria-hidden="true"><b>FRI</b><i>13:30</i></span>
+                <span><strong>{m.name}</strong><span class="ph-sub">{m.when} · Rosa's</span></span>
+              </div>
+              <div class="ph-rsvp">
+                <span class="ph-go ph-b" data-at={m.rsvpAt}>Going</span><span>Maybe</span><span>Not going</span>
+              </div>
+              <span class="ph-t">{m.time}</span>
+            </div>
+          );
+      })}
+    </div>
+  </div>
+  <div class="ph-input" aria-hidden="true"><span>Message</span></div>
+</div>

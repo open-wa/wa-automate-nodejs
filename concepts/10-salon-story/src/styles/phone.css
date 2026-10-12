@@ -1,0 +1,68 @@
+/* The drawn phone. Imported by the story and recipe pages. */
+.ph {
+  --ph-w: 300px;
+  width: var(--ph-w); max-width: 100%; aspect-ratio: 300 / 600; position: relative;
+  background: #fff8f5; border-radius: 40px; padding: 12px; display: flex; flex-direction: column;
+  box-shadow: 0 0 0 10px var(--espresso), 0 30px 60px -20px rgba(43, 27, 23, 0.45);
+  overflow: hidden; font-family: var(--font-text);
+}
+.ph-top { display: flex; align-items: center; gap: 10px; padding: 10px 8px 12px; border-bottom: 1px solid var(--line); }
+.ph-av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--blush); color: var(--espresso); font: 600 16px/1 var(--font-display); border: 1.5px solid var(--brass); }
+.ph-who { display: grid; line-height: 1.2; }
+.ph-who strong { font: 600 15px/1.2 var(--font-text); }
+.ph-who span { font-size: 12.5px; color: var(--muted); }
+.ph-view { flex: 1; overflow: hidden; position: relative; background:
+  radial-gradient(circle at 20% 10%, rgba(246, 217, 211, 0.55), transparent 50%),
+  radial-gradient(circle at 90% 80%, rgba(184, 138, 68, 0.08), transparent 45%); }
+.ph-thread { display: flex; flex-direction: column; gap: 8px; padding: 12px 4px 16px; transition: transform 700ms var(--ease); }
+.ph-day { align-self: center; margin: 6px 0 2px; }
+.ph-day span { display: inline-block; font: 600 11.5px/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; padding: 6px 10px; border-radius: 99px; background: var(--blush); color: var(--espresso); }
+.ph-m { position: relative; max-width: 84%; padding: 9px 12px 20px; font-size: 14.5px; line-height: 1.4; border-radius: 18px; }
+.ph-m p { margin: 0; }
+.ph-them { align-self: flex-start; background: #fff; border: 1px solid var(--line); border-bottom-left-radius: 6px; }
+.ph-me { align-self: flex-end; background: var(--espresso); color: var(--cream-on-dark); border-bottom-right-radius: 6px; }
+.ph-t { position: absolute; right: 10px; bottom: 5px; font: 400 10.5px/1 var(--font-mono); color: var(--muted); }
+.ph-me .ph-t { color: var(--muted-on-dark); }
+.ph-card { width: 84%; }
+.ph-poll-q { font-weight: 700; font-size: 15px; }
+.ph-sub { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.ph-opts { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.ph-opt { position: relative; display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: 8px; padding: 6px 2px 10px; font-size: 14px; }
+.ph-radio { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--line-strong); position: relative; }
+.ph-radio::after { content: ""; position: absolute; inset: 2.5px; border-radius: 50%; background: var(--brass); transform: scale(0); transition: transform 360ms cubic-bezier(0.34, 1.5, 0.64, 1); }
+.ph-n { font: 500 12px/1 var(--font-mono); color: var(--muted); }
+.ph-bar { position: absolute; left: 28px; right: 2px; bottom: 2px; height: 4px; border-radius: 4px; background: var(--blush-soft); overflow: hidden; }
+.ph-bar::after { content: ""; position: absolute; inset: 0; background: var(--brass); transform-origin: left; transform: scaleX(0); transition: transform 600ms var(--ease) 120ms; }
+.ph-pick.ph-on .ph-radio { border-color: var(--brass); }
+.ph-pick.ph-on .ph-radio::after { transform: scale(1); }
+.ph-pick.ph-on .ph-bar::after { transform: scaleX(1); }
+.ph-ev-head { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; }
+.ph-ev-head strong { display: block; font-size: 14.5px; line-height: 1.25; }
+.ph-cal { width: 46px; border-radius: 10px; overflow: hidden; text-align: center; border: 1px solid var(--line-strong); background: #fff; }
+.ph-cal b { display: block; background: var(--brass); color: var(--espresso); font: 700 10.5px/1.8 var(--font-mono); letter-spacing: 0.06em; }
+.ph-cal i { display: block; font: 600 13px/2 var(--font-mono); font-style: normal; }
+.ph-rsvp { display: grid; grid-template-columns: repeat(3, auto); gap: 6px; margin-top: 10px; }
+.ph-rsvp span { text-align: center; font-size: 12.5px; font-weight: 600; padding: 7px 4px; border-radius: 99px; border: 1px solid var(--line-strong); transition: background 300ms var(--ease), color 300ms var(--ease), border-color 300ms; }
+.ph-go.ph-on { background: var(--espresso); color: var(--blush); border-color: var(--espresso); }
+.ph-input { margin: 8px 4px 2px; padding: 10px 14px; border-radius: 99px; background: #fff; border: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+
+/* Live (staged) phone: messages wait for their scene. */
+.ph-live .ph-a { opacity: 0; transform: translateY(14px) scale(0.98); transition: opacity 420ms var(--ease) 180ms, transform 520ms var(--ease) 180ms; }
+.ph-live .ph-me.ph-a { transform-origin: right bottom; }
+.ph-live .ph-them.ph-a { transform-origin: left bottom; }
+.ph-live .ph-a.ph-on { opacity: 1; transform: none; }
+/* Still phones: everything shown. */
+.ph:not(.ph-live) .ph-b { }
+.ph:not(.ph-live) .ph-pick .ph-radio { border-color: var(--brass); }
+.ph:not(.ph-live) .ph-pick .ph-radio::after { transform: scale(1); }
+.ph:not(.ph-live) .ph-pick .ph-bar::after { transform: scaleX(1); }
+.ph:not(.ph-live) .ph-go { background: var(--espresso); color: var(--blush); border-color: var(--espresso); }
+
+.staff {
+  display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start;
+  background: var(--espresso); color: var(--cream-on-dark); border-radius: 18px; padding: 12px 14px; max-width: 300px;
+  box-shadow: 0 18px 40px -16px rgba(43, 27, 23, 0.5);
+}
+.staff-ic { width: 30px; height: 30px; border-radius: 9px; background: var(--brass); display: grid; place-items: center; }
+.staff strong { display: block; font-size: 13px; color: var(--brass-light); font-family: var(--font-mono); font-weight: 500; letter-spacing: 0.02em; }
+.staff p { margin: 2px 0 0; font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; }

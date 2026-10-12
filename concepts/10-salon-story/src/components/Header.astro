@@ -1,0 +1,90 @@
+---
+import Mark from "./Mark.astro";
+import { nav, support, starsShort, checked } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const path = Astro.url.pathname;
+---
+<header class="hdr">
+  <div class="hdr-in wrap">
+    <a class="hdr-brand mark-host" href={base} aria-label="open-wa home">
+      <Mark size={34} />
+      <span class="hdr-word">open-wa</span>
+    </a>
+    <nav class="hdr-nav" aria-label="Main">
+      {nav.map((n) => (
+        <a href={`${base}${n.href}`} aria-current={path.startsWith(`${base}${n.href}`) ? "page" : undefined}>{n.label}</a>
+      ))}
+      <a href={support.docs} rel="noopener">Docs <span aria-hidden="true" class="ext">↗</span></a>
+    </nav>
+    <div class="hdr-side">
+      <a class="hdr-gh" href={support.github} rel="noopener" title={`GitHub stars, checked ${checked}`}>
+        <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.05-.49.05-.49.8.06 1.23.83 1.23.83.72 1.22 1.88.87 2.34.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 8 0z"/></svg>
+        <span><span class="sr-only">GitHub, </span>{starsShort}<span class="sr-only"> stars</span></span>
+      </a>
+      <a class="hdr-discord" href={support.discord} rel="noopener">Discord</a>
+      <a class="btn btn-dark hdr-cta" href={`${base}quickstart/`}>Quick start</a>
+      <button class="hdr-menu" type="button" aria-expanded="false" aria-controls="menu-sheet">
+        <span class="sr-only">Menu</span>
+        <span class="hdr-burger" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+  <div class="sheet" id="menu-sheet" hidden>
+    <nav aria-label="Menu" class="sheet-nav">
+      {nav.map((n) => <a href={`${base}${n.href}`}>{n.label}</a>)}
+      <a href={`${base}quickstart/`}>Quick start</a>
+      <a href={support.docs} rel="noopener">Docs ↗</a>
+      <a href={support.github} rel="noopener">GitHub · {starsShort} stars</a>
+      <a href={support.discord} rel="noopener">Discord</a>
+      <a href={`${base}support/`}>Support</a>
+    </nav>
+    <a class="btn btn-dark sheet-cta" href={`${base}quickstart/`}>Start with the quick start</a>
+  </div>
+</header>
+<script>
+  const btn = document.querySelector<HTMLButtonElement>(".hdr-menu");
+  const sheet = document.getElementById("menu-sheet");
+  const set = (open: boolean) => {
+    if (!btn || !sheet) return;
+    btn.setAttribute("aria-expanded", String(open));
+    sheet.hidden = !open;
+    document.documentElement.classList.toggle("menu-open", open);
+  };
+  btn?.addEventListener("click", () => set(btn.getAttribute("aria-expanded") !== "true"));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && btn?.getAttribute("aria-expanded") === "true") { set(false); btn.focus(); }
+  });
+  sheet?.addEventListener("click", (e) => { if ((e.target as HTMLElement).closest("a")) set(false); });
+</script>
+<style>
+  .hdr { position: sticky; top: 0; z-index: 40; background: var(--paper); border-bottom: 1px solid var(--line); }
+  .hdr-in { height: var(--header-h); display: flex; align-items: center; gap: 24px; }
+  .hdr-brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--espresso); min-height: 44px; }
+  .hdr-word { font: 600 21px/1 var(--font-display); letter-spacing: -0.01em; font-variation-settings: "opsz" 48; }
+  .hdr-nav { display: flex; gap: 4px; margin-left: 12px; }
+  .hdr-nav a, .hdr-discord { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; text-decoration: none; color: var(--espresso); font-weight: 500; }
+  .hdr-nav a:hover, .hdr-discord:hover { background: var(--blush-soft); }
+  .hdr-nav a[aria-current="page"] { text-decoration: underline; text-decoration-color: var(--brass); text-underline-offset: 6px; text-decoration-thickness: 2px; }
+  .ext { font-size: 0.85em; margin-left: 3px; color: var(--muted); }
+  .hdr-side { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+  .hdr-gh { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 12px; text-decoration: none; border: 1px solid var(--line); border-radius: var(--radius-pill); font: 500 15px/1 var(--font-mono); }
+  .hdr-gh:hover { border-color: var(--line-strong); }
+  .hdr-cta { min-height: 44px; }
+  .hdr-menu { display: none; width: 48px; height: 48px; border: 1px solid var(--line); background: transparent; border-radius: 12px; cursor: pointer; place-items: center; }
+  .hdr-burger, .hdr-burger::before, .hdr-burger::after { display: block; width: 18px; height: 2px; background: var(--espresso); border-radius: 2px; position: relative; transition: transform var(--speed) var(--ease); }
+  .hdr-burger::before, .hdr-burger::after { content: ""; position: absolute; left: 0; }
+  .hdr-burger::before { top: -6px; } .hdr-burger::after { top: 6px; }
+  .hdr-menu[aria-expanded="true"] .hdr-burger { background: transparent; }
+  .hdr-menu[aria-expanded="true"] .hdr-burger::before { transform: translateY(6px) rotate(45deg); }
+  .hdr-menu[aria-expanded="true"] .hdr-burger::after { transform: translateY(-6px) rotate(-45deg); }
+  .sheet { position: fixed; inset: var(--header-h) 0 0 0; background: var(--paper); padding: 16px var(--gutter) 32px; overflow-y: auto; z-index: 60; }
+  .sheet-nav { display: grid; }
+  .sheet-nav a { display: flex; align-items: center; min-height: 52px; font: 500 22px/1.2 var(--font-display); text-decoration: none; border-bottom: 1px solid var(--line); }
+  .sheet-cta { width: 100%; margin-top: 24px; }
+  @media (max-width: 1080px) { .hdr-discord { display: none; } .hdr-nav a { padding: 0 9px; } }
+  @media (max-width: 920px) {
+    .hdr-nav, .hdr-gh, .hdr-cta { display: none; }
+    .hdr-menu { display: grid; }
+  }
+  @media (min-width: 921px) { .sheet { display: none !important; } }
+</style>

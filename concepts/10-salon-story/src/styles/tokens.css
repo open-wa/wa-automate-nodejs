@@ -1,0 +1,41 @@
+/* Salon story: editorial warm. Blush, espresso and brass. Every colour, font,
+   radius and easing for this concept lives here. */
+:root {
+  --blush: #f6d9d3;
+  --blush-soft: #fbeeea;
+  --paper: #fdf7f4;
+  --espresso: #2b1b17;
+  --espresso-2: #3d2a24;
+  --brass: #b88a44;
+  --brass-ink: #855c1f;     /* brass dark enough for text on paper (AA) */
+  --brass-light: #d9ae6a;   /* brass for text on espresso */
+  --muted: #6b5450;
+  --line: #e6cfc8;
+  --line-strong: #cfaea5;
+  --cream-on-dark: #f6e7e1;
+  --muted-on-dark: #c7b0a8;
+  --ok: #2f6b4a;
+  --error: #a3302a;
+
+  --color-bg: var(--paper);
+  --color-ink: var(--espresso);
+  --color-accent: var(--brass);
+  --color-muted: var(--muted);
+  --color-surface: var(--blush-soft);
+
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-text: "Karla", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+
+  --radius: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-swing: cubic-bezier(0.65, 0, 0.2, 1);
+  --speed: 220ms;
+
+  --header-h: 64px;
+  --bar-h: 64px;
+  --wrap: 1180px;
+  --gutter: clamp(16px, 4vw, 40px);
+}

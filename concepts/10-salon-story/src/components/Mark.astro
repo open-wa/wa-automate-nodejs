@@ -1,0 +1,43 @@
+---
+// The mark: a speech bubble with a clock face. On hover or focus of the parent
+// link (.mark-host), the minute hand sweeps a full hour with a brass trail and
+// the hour hand ticks forward one hour, then eases back on leave.
+interface Props { size?: number; class?: string }
+const { size = 32, class: cls = "" } = Astro.props;
+---
+<svg class:list={["mark", cls]} width={size} height={size} viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+  <path class="mark-bubble" d="M16 3.5c6.35 0 11.5 4.93 11.5 11s-5.15 11-11.5 11c-1.5 0-2.93-.27-4.24-.77L5.5 27.5l1.83-5.1A10.7 10.7 0 0 1 4.5 14.5c0-6.07 5.15-11 11.5-11z" />
+  <circle class="mark-trail" cx="16" cy="14.5" r="6.2" pathLength="100" />
+  <g class="mark-ticks">
+    <circle cx="16" cy="7.2" r="0.9" /><circle cx="23.3" cy="14.5" r="0.9" /><circle cx="16" cy="21.8" r="0.9" /><circle cx="8.7" cy="14.5" r="0.9" />
+  </g>
+  <line class="mark-hour" x1="16" y1="14.5" x2="12.2" y2="12.4" />
+  <line class="mark-min" x1="16" y1="14.5" x2="16" y2="8.4" />
+  <circle class="mark-pin" cx="16" cy="14.5" r="1.5" />
+</svg>
+<style is:global>
+  .mark { display: block; overflow: visible; flex: none; }
+  .mark-bubble { fill: var(--blush); stroke: var(--espresso); stroke-width: 2; stroke-linejoin: round; }
+  .mark-hour, .mark-min { stroke: var(--espresso); stroke-width: 2.2; stroke-linecap: round; transform-box: view-box; transform-origin: 16px 14.5px; }
+  .mark-min { stroke: var(--brass-ink); }
+  .mark-pin { fill: var(--espresso); }
+  .mark-ticks circle { fill: var(--espresso); opacity: 0; transition: opacity 300ms var(--ease); }
+  .mark-trail {
+    fill: none; stroke: var(--brass); stroke-width: 2.4; stroke-linecap: round; opacity: 0;
+    stroke-dasharray: 100; stroke-dashoffset: 100; transform: rotate(-90deg); transform-box: view-box; transform-origin: 16px 14.5px;
+  }
+  .mark-hour { transition: transform 520ms cubic-bezier(0.34, 1.4, 0.64, 1); }
+  .mark-host:hover .mark-min, .mark-host:focus-visible .mark-min { animation: mark-sweep 900ms var(--ease-swing) both; }
+  .mark-host:hover .mark-trail, .mark-host:focus-visible .mark-trail { animation: mark-trail 900ms var(--ease-swing) both; }
+  .mark-host:hover .mark-hour, .mark-host:focus-visible .mark-hour { transform: rotate(30deg); transition-delay: 620ms; }
+  .mark-host:hover .mark-ticks circle, .mark-host:focus-visible .mark-ticks circle { opacity: 1; }
+  @keyframes mark-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes mark-trail {
+    0% { stroke-dashoffset: 100; opacity: 1; }
+    80% { stroke-dashoffset: 0; opacity: 1; }
+    100% { stroke-dashoffset: 0; opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mark-host:hover .mark-min, .mark-host:hover .mark-trail { animation: none; }
+  }
+</style>
