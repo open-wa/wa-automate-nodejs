@@ -29,7 +29,7 @@ const faqs = [
     <div class="wrap">
       <span class="eyebrow">Pricing</span>
       <h1>Free for most methods. A key per number for the rest.</h1>
-      <p class="lede">{licences.summary}</p>
+      <p class="lede">Most methods need no key. Insiders and Restricted keys cover the rest. You buy a key per WhatsApp number on Gumroad and pass it at launch with <code class="mono">--license-key</code>.</p>
     </div>
   </section>
 
@@ -99,6 +99,10 @@ const faqs = [
   .pr-period span { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; font-weight: 550; font-size: 16px; color: var(--grey-5); }
   .pr-period input:checked + span { background: var(--white); color: var(--ink); box-shadow: var(--shadow); }
   .pr-period input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
+  @media (max-width: 520px) {
+    .pr-periods { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; }
+    .pr-period span { justify-content: center; padding: 0 4px; width: 100%; }
+  }
   .pr-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
   .pr-col { background: var(--white); border: 1px solid var(--grey-2); border-radius: var(--radius-l); padding: 28px; display: grid; gap: 14px; align-content: start; min-width: 0; }
   .pr-col h2 { font-size: 24px; }
