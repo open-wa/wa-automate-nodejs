@@ -558,11 +558,11 @@ class FakeBrowser implements IBrowser {
 }
 
 class FakeDriver implements IDriver {
-  readonly name: 'fake-driver' | 'lightpanda';
+  readonly name: string;
   readonly capabilities: DriverCapabilities;
 
   constructor(private readonly browser: FakeBrowser, options: Pick<HarnessOptions, 'driverCapabilities' | 'driverName'> = {}) {
-    this.name = options.driverName ?? 'fake-driver';
+    this.name = options.driverName ?? 'puppeteer';
     this.capabilities = {
       cdp: { supported: true },
       requestInterception: { supported: true },
@@ -627,6 +627,7 @@ async function createHarness(options: HarnessOptions = {}): Promise<{
   const driver = new FakeDriver(new FakeBrowser(page), options);
   const client = await createClient({
     driver,
+    lightpanda: options.driverName === 'lightpanda' ? { experimentalWhatsApp: true } : undefined,
     sessionId: 'bootstrap-contract',
     headless: true,
     qrTimeoutMs: 10,
