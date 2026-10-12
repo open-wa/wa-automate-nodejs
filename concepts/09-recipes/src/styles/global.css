@@ -15,6 +15,7 @@ img, video { max-width: 100%; height: auto; }
 a { color: var(--sky-ink); text-underline-offset: 3px; }
 code { font-family: var(--font-mono); font-size: 0.92em; }
 p code, li code, td code, dd code { background: var(--paper-2); padding: 1px 5px; border-radius: 5px; overflow-wrap: anywhere; }
+pre code, li pre code { background: none !important; padding: 0 !important; border-radius: 0 !important; overflow-wrap: normal !important; }
 
 .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
 
@@ -48,7 +49,7 @@ p code, li code, td code, dd code { background: var(--paper-2); padding: 1px 5px
 .lede { font-size: 1.125rem; line-height: 1.55; color: var(--ink-2); max-width: 60ch; margin: 14px 0 0; }
 
 /* Secondary pages */
-.page-head { padding: 56px 0 28px; }
+.page-head { padding-top: 56px; padding-bottom: 28px; }
 .page-head .lede { margin-top: 16px; }
 .doc { padding-bottom: 80px; }
 :where(.doc) h2 { font: 400 clamp(1.75rem, 3.6vw, 2.4rem)/1.08 var(--font-display); margin: 56px 0 12px; }

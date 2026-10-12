@@ -194,7 +194,7 @@ const pres: Record<string, Omit<Job, "id" | "name" | "who" | "flow" | "methods" 
     chat: [
       { who: "in", kind: "photo", caption: "Can you make this a sticker?", tone: "lilac" },
       { who: "out", kind: "sticker" },
-      { who: "in", kind: "text", text: "Love it, thank you!", time: "16:40" },
+      { who: "in", kind: "text", text: "Love it, thank you", time: "16:40" },
     ],
   },
   media: {

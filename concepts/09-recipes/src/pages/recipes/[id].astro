@@ -1,0 +1,201 @@
+---
+import Page from "../../layouts/Page.astro";
+import Phone from "../../components/Phone.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { jobs, families, businesses, base, commands, http, support, tiers, product, type Job } from "../../data/site";
+
+export function getStaticPaths() {
+  return jobs.map((job) => ({ params: { id: job.id }, props: { job } }));
+}
+const { job } = Astro.props as { job: Job };
+const related = jobs.filter((j) => j.id !== job.id && j.business.some((b) => job.business.includes(b)));
+const more = [...related, ...jobs.filter((j) => j.id !== job.id && !related.includes(j))].slice(0, 3);
+const bizLabels = businesses.filter((b) => job.business.includes(b.id)).map((b) => b.label);
+---
+
+<Page title={`${job.name}: a WhatsApp recipe | open-wa`} description={`${job.summary} ${job.priceLine}`}>
+  <article style={`--sw: var(--${job.swatch}); --sw-ink: var(--${job.swatch}-ink); --tint: var(--${job.swatch}-tint);`}>
+    <header class="rd-hero">
+      <div class="wrap rd-hero-in">
+        <div class="rd-intro">
+          <nav class="crumbs" aria-label="Breadcrumb"><a href={`${base}recipes/`}>Recipes</a> <span aria-hidden="true">/</span> <span aria-current="page">{job.short}</span></nav>
+          <p class="rd-family"><i class="swatch-dot"></i>{families[job.swatch]} · {bizLabels.join(", ")}</p>
+          <h1 class="h-display">{job.name}</h1>
+          <p class="lede rd-lede">{job.summary}</p>
+          <div class="rd-start">
+            <p class="rd-start-k">Start this recipe</p>
+            <div class="rd-cmd">
+              <code>{commands.easyApi}</code>
+              <button class="copy" type="button" data-copy={commands.easyApi} aria-label="Copy the command"><span class="copy-label">Copy</span></button>
+            </div>
+            <p class="rd-start-help">Run it, scan the QR code with the business's phone, then add the code below. <a href={`${base}quickstart/`}>Quick start</a></p>
+          </div>
+        </div>
+        <div class="rd-stage">
+          <Phone job={job} size="large" />
+          <p class="sr">Example conversation: {job.flow}</p>
+          <button type="button" class="rd-replay" data-replay>Play the conversation</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="wrap rd-body">
+      <div class="rd-main">
+        <section>
+          <h2>What you'll build</h2>
+          <p>{job.flow}</p>
+          <p class="rd-who">For {job.who.charAt(0).toLowerCase() + job.who.slice(1)}.</p>
+        </section>
+        <section>
+          <h2>Steps</h2>
+          <ol class="rd-steps">{job.steps.map((s) => <li>{s}</li>)}</ol>
+        </section>
+        <section>
+          <h2>The code</h2>
+          <p>Node.js, with the <code>client</code> you set up in the <a href={`${base}quickstart/#node`}>quick start</a>.</p>
+          <CodeBlock code={job.snippet} lang="js" title={`${job.id}.js`} />
+          {job.extra?.map((x) => (
+            <div class="rd-extra">
+              <h3>{x.label}</h3>
+              <CodeBlock code={x.code} lang={x.lang} wrap={x.lang === "bash"} />
+            </div>
+          ))}
+          {job.audio && (
+            <div class="rd-extra">
+              <h3>Audio format</h3>
+              <p>{job.audio}</p>
+            </div>
+          )}
+        </section>
+        <section>
+          <h2>From PHP, Python or a PBX script</h2>
+          <p>{http.note} Here is the sendText route; every other method is listed with its request shape at <code>/api-docs/</code> on your running instance.</p>
+          <CodeBlock code={http.sendTextCurl} lang="bash" title="curl" />
+        </section>
+      </div>
+
+      <aside class="rd-side" aria-label="Recipe details">
+        <div class="rd-box">
+          <h2>Licence</h2>
+          <p class="rd-badge"><span class:list={["need", `need-${job.badgeTier}`]}>{job.badge}</span></p>
+          <p>{job.licence}</p>
+          {job.tier && (
+            <p class="rd-dim">{tiers[job.tier].name}: {tiers[job.tier].prices.month} a month or {tiers[job.tier].prices.year} a year, per WhatsApp number. Checked 12 Oct 2026; checkout shows the current price.</p>
+          )}
+          {job.tier && <a class="btn btn-ink" href={`${base}pricing/?tier=${job.tier}#licence`}>Get a {tiers[job.tier].name} key</a>}
+        </div>
+        <div class="rd-box">
+          <h2>Methods</h2>
+          <ul class="rd-methods">{job.methods.map((m) => <li><code>{m}</code></li>)}</ul>
+          <a href={support.docs}>Method reference in the docs <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="rd-box rd-risk">
+          <h2>Ban risk</h2>
+          <p>{product.risk} Unofficial. Not affiliated with WhatsApp or Meta.</p>
+        </div>
+      </aside>
+    </div>
+
+    <section class="wrap rd-more" aria-labelledby="more-h">
+      <h2 id="more-h">More recipes</h2>
+      <ul class="rd-more-list">
+        {more.map((m) => (
+          <li style={`--sw: var(--${m.swatch}); --tint: var(--${m.swatch}-tint)`}>
+            <a href={`${base}recipes/${m.id}/`}>
+              <span class="rd-more-fam"><i class="swatch-dot"></i>{families[m.swatch]}</span>
+              <strong>{m.name}</strong>
+              <span>{m.summary}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </article>
+</Page>
+
+<script>
+  // Replay the large phone's conversation (the same timing as the recipe wall).
+  const qs = new URLSearchParams(location.search);
+  if (qs.has("still")) document.documentElement.classList.add("still");
+  const still = qs.has("still") || matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const phone = document.querySelector<HTMLElement>(".rd-stage .ph");
+  const btn = document.querySelector<HTMLButtonElement>("[data-replay]");
+  if (phone && btn) {
+    const lines = [...phone.querySelectorAll<HTMLElement>(".ph-line:not(.ph-typing)")];
+    const typing = phone.querySelector<HTMLElement>(".ph-typing")!;
+    let timers: number[] = [];
+    const play = () => {
+      timers.forEach(clearTimeout); timers = [];
+      lines.forEach((l) => l.classList.remove("is-on", "is-new"));
+      let t = 300;
+      lines.forEach((l) => {
+        if (l.classList.contains("ph-out")) { timers.push(window.setTimeout(() => { l.before(typing); typing.hidden = false; }, t)); t += 700; }
+        timers.push(window.setTimeout(() => { typing.hidden = true; l.classList.add("is-on", "is-new"); }, t));
+        t += 950;
+      });
+    };
+    if (still) btn.hidden = true;
+    else {
+      btn.addEventListener("click", play);
+      const io = new IntersectionObserver(([e]) => { if (e?.isIntersecting) { play(); io.disconnect(); } }, { threshold: 0.5 });
+      io.observe(phone);
+    }
+  }
+</script>
+
+<style>
+  .rd-hero { background: var(--tint); border-bottom: 1px solid var(--line); }
+  .rd-hero-in { display: grid; gap: 32px; padding-top: 28px; padding-bottom: 40px; }
+  .crumbs { font-size: 0.9375rem; color: var(--ink-2); }
+  .crumbs a { color: var(--ink); }
+  .rd-family { display: flex; align-items: center; gap: 8px; margin: 20px 0 10px; font: 400 0.875rem/1.3 var(--font-mono); color: var(--ink-2); }
+  .rd-family .swatch-dot { background: var(--sw); }
+  .rd-lede { color: var(--ink); }
+  .rd-start { margin-top: 24px; background: var(--ink); color: var(--paper); border-radius: 18px; padding: 16px; max-width: 620px; }
+  .rd-start-k { margin: 0 0 8px; font: 600 0.8125rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--saffron); }
+  .rd-cmd { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+  .rd-cmd code { font-size: 0.9375rem; overflow-wrap: anywhere; color: var(--paper); }
+  .rd-cmd .copy { min-height: 44px; flex: none; }
+  .rd-start-help { margin: 10px 0 0; font-size: 0.9375rem; color: #D6D6CC; }
+  .rd-start-help a { color: var(--paper); }
+  .rd-stage { display: grid; justify-items: center; gap: 12px; align-content: start; }
+  .rd-replay { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 0; background: var(--card); box-shadow: inset 0 0 0 1.5px var(--ink); font: 600 0.9375rem/1 var(--font-text); cursor: pointer; color: var(--ink); }
+  @media (min-width: 960px) {
+    .rd-hero-in { grid-template-columns: minmax(0, 1fr) 380px; align-items: center; padding-top: 40px; padding-bottom: 56px; }
+  }
+  .rd-body { display: grid; gap: 40px; padding-top: 48px; }
+  .rd-main { min-width: 0; }
+  .rd-main h2, .rd-more h2 { font: 400 clamp(1.75rem, 3.4vw, 2.3rem)/1.1 var(--font-display); margin: 40px 0 12px; }
+  .rd-main section:first-child h2 { margin-top: 0; }
+  .rd-main h3 { font: 600 1.0625rem/1.3 var(--font-text); margin: 24px 0 10px; }
+  .rd-main p { max-width: 68ch; }
+  .rd-who { color: var(--ink-2); }
+  .rd-steps { list-style: none; padding: 0; margin: 0; counter-reset: s; display: grid; gap: 14px; }
+  .rd-steps li { counter-increment: s; display: grid; grid-template-columns: 36px 1fr; gap: 12px; max-width: 68ch; }
+  .rd-steps li::before { content: counter(s); width: 32px; height: 32px; border-radius: 50%; background: var(--sw); display: grid; place-items: center; font: 600 0.9375rem/1 var(--font-mono); }
+  .rd-extra { margin-top: 8px; }
+  .rd-side { display: grid; gap: 14px; align-content: start; }
+  .rd-box { background: var(--card); border-radius: 18px; padding: 20px; box-shadow: inset 0 0 0 1px var(--line); display: grid; gap: 10px; justify-items: start; }
+  .rd-box h2 { margin: 0; font: 600 0.8125rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); }
+  .rd-box p { margin: 0; font-size: 1rem; }
+  .rd-dim { color: var(--ink-2); }
+  .rd-methods { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .rd-methods code { background: var(--paper-2); padding: 4px 8px; border-radius: 6px; font-size: 0.875rem; }
+  .rd-risk { box-shadow: inset 4px 0 0 var(--tomato), inset 0 0 0 1px var(--line); }
+  .need { display: inline-block; white-space: nowrap; font: 600 0.875rem/1 var(--font-text); padding: 6px 9px; border-radius: 999px; background: var(--paper-2); color: var(--ink); }
+  .need-restricted { background: var(--ink); color: var(--paper); }
+  .need-calling { background: var(--sky-tint); color: var(--sky-ink); }
+  @media (min-width: 960px) {
+    .rd-body { grid-template-columns: minmax(0, 1fr) 320px; gap: 56px; }
+    .rd-side { position: sticky; top: 84px; }
+  }
+  .rd-more { padding-bottom: 96px; }
+  .rd-more-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+  .rd-more-list a { position: relative; display: grid; gap: 8px; padding: 20px; border-radius: 18px; background: var(--card); box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); text-decoration: none; height: 100%; align-content: start; }
+  .rd-more-list a::before { content: ""; position: absolute; top: 0; right: 0; width: 30px; height: 30px; border-top-right-radius: 18px; background: linear-gradient(225deg, var(--paper) 50%, var(--sw) 50%); }
+  .rd-more-list a:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .rd-more-list strong { font: 400 1.6rem/1.1 var(--font-display); font-weight: 400; }
+  .rd-more-list span:last-child { color: var(--ink-2); font-size: 1rem; }
+  .rd-more-fam { display: inline-flex; align-items: center; gap: 7px; font: 400 0.8125rem/1 var(--font-mono); color: var(--ink-2); }
+  .rd-more-fam .swatch-dot { background: var(--sw); }
+</style>

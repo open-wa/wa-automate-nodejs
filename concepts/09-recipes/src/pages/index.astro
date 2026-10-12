@@ -17,8 +17,8 @@ const k = (n: number) => `${Math.floor(n / 1000)}k`;
     <div class="hero">
       <h1 class="h-display">Recipes for your own <em>WhatsApp&nbsp;number</em></h1>
       <div class="hero-side">
-        <p class="promise">Run the command, scan the QR code, and call your number's HTTP API from any language. Then copy the recipe for your job.</p>
-        <p class="hero-meta"><a href="#risk">Unofficial, with a ban risk</a> · <a href={support.docs}>Docs</a></p>
+        <p class="promise">Run the command, scan the QR code, and call your number from any language. Then copy the recipe for your job.</p>
+        <p class="hero-meta"><a href="#risk">Unofficial, with a ban risk</a><span class="hm-docs"> · <a href={support.docs}>Docs</a></span></p>
       </div>
     </div>
     <h2 class="sr">Recipes</h2>
@@ -127,6 +127,8 @@ const k = (n: number) => `${Math.floor(n / 1000)}k`;
   .promise { margin: 0; font-size: 1.125rem; line-height: 1.5; color: var(--ink); max-width: 46ch; }
   .hero-meta { margin: 8px 0 0; font-size: 0.9375rem; color: var(--ink-2); }
   .hero-meta a { color: var(--ink-2); }
+  .hm-docs { display: none; }
+  @media (min-width: 720px) { .hm-docs { display: inline; } }
   @media (min-width: 900px) {
     .top { padding-top: 24px; }
     .hero { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: end; gap: 48px; margin: 44px 0 30px; }

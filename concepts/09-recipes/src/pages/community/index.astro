@@ -1,0 +1,21 @@
+---
+import Page from "../../layouts/Page.astro";
+import { support, stats, base } from "../../data/site";
+---
+
+<Page title="Community: Discord, GitHub and plugins | open-wa" description="Ask questions in Discord, report issues and contribute on GitHub, and share integrations as plugins.">
+  <div class="wrap page-head">
+    <h1 class="h-display">Community</h1>
+    <p class="lede">open-wa is open source, maintained by {support.maintainer} with contributors since 2019.</p>
+  </div>
+  <div class="wrap doc">
+    <div class="grid-cards">
+      <div class="tile"><h3><a href={support.discord}>Discord</a></h3><p>{stats.discordMembers.toLocaleString("en-GB")} members on {stats.checkedOn}. Ask questions and share what you've built.</p></div>
+      <div class="tile"><h3><a href={support.github}>GitHub</a></h3><p>{stats.githubStars.toLocaleString("en-GB")} stars and {stats.githubForks} forks on {stats.checkedOn}. Report bugs and send pull requests.</p></div>
+      <div class="tile"><h3><a href={`${base}integrations/#plugin-sdk`}>Plugin SDK</a></h3><p>Package your own integration with @open-wa/plugin-sdk and share it.</p></div>
+      <div class="tile"><h3><a href={support.buyMeACoffee}>Buy Mohammed a coffee</a></h3><p>Support the maintainer directly.</p></div>
+    </div>
+    <h2>Contributing</h2>
+    <p>Start with an <a href={support.issues}>open issue</a>, discuss larger changes in Discord first, and follow the repository's contribution notes.</p>
+  </div>
+</Page>

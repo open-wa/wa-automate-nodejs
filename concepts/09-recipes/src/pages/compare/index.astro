@@ -1,0 +1,44 @@
+---
+import Page from "../../layouts/Page.astro";
+import { product, base, tiers } from "../../data/site";
+const rows: [string, string, string][] = [
+  ["What you connect", "The business's own WhatsApp number, through WhatsApp Web in a browser open-wa controls", "A number registered on Meta's WhatsApp Business Platform"],
+  ["Setup", "One command and a QR code scan", "A Meta business account, verification and approved message templates"],
+  ["Cost", `Free; some methods need a key per number (Insiders ${tiers.insiders.prices.month} or Restricted ${tiers.restricted.prices.month} a month)`, "Per-message pricing set by Meta"],
+  ["Where it runs", "Your machine, server or container", "Meta's cloud"],
+  ["Status", "Unofficial, not affiliated with WhatsApp or Meta", "Official"],
+  ["Account risk", "Automation can get a number restricted or banned", "Governed by Meta's policies for the platform"],
+];
+---
+
+<Page title="open-wa or the official WhatsApp Cloud API? | open-wa" description="How running open-wa on your own number compares with Meta's WhatsApp Business Platform: setup, cost, where it runs and account risk.">
+  <div class="wrap page-head">
+    <h1 class="h-display">open-wa or the official API?</h1>
+    <p class="lede">Both send WhatsApp messages from code. They suit different jobs, and the honest answer depends on yours.</p>
+  </div>
+  <div class="wrap doc">
+    <div class="t-scroll">
+      <table class="t cmp">
+        <thead><tr><th scope="col"></th><th scope="col">open-wa</th><th scope="col">WhatsApp Business Platform (Cloud API)</th></tr></thead>
+        <tbody>{rows.map(([a, b, c]) => <tr><th scope="row">{a}</th><td>{b}</td><td>{c}</td></tr>)}</tbody>
+      </table>
+    </div>
+    <h2>When open-wa fits</h2>
+    <ul>
+      <li>A shop, salon or hotel wants its existing number to answer and notify customers, today, without template approval.</li>
+      <li>You want to self-host and call the number from PHP, Python, Node.js, n8n or a PBX script.</li>
+      <li>You accept the risk: {product.risk.toLowerCase()}</li>
+    </ul>
+    <h2>When the official API fits</h2>
+    <ul>
+      <li>You need Meta's approval and support, or you send at a volume where account risk isn't acceptable.</li>
+      <li>You are comfortable with templates and per-message pricing.</li>
+    </ul>
+    <p><a class="btn btn-ink" href={`${base}recipes/`}>Browse the recipes</a></p>
+  </div>
+</Page>
+
+<style>
+  .cmp th[scope="row"] { font: 600 1rem/1.35 var(--font-text); text-transform: none; letter-spacing: 0; color: var(--ink); min-width: 140px; }
+  .cmp td { min-width: 220px; }
+</style>

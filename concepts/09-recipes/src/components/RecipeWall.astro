@@ -91,8 +91,11 @@ const count = (b: string) => jobs.filter((j) => j.business.includes(b as never))
     const run = (loop: boolean) => {
       clear();
       lines.forEach((l) => l.classList.remove("is-on", "is-new"));
-      let t = 350;
+      // The first line is there at once, so a phone never sits empty.
+      lines[0]?.classList.add("is-on", "is-new");
+      let t = 900;
       lines.forEach((l, i) => {
+        if (i === 0) return;
         const out = l.classList.contains("ph-out");
         if (out) {
           timers.push(window.setTimeout(() => { l.before(typing); typing.hidden = false; }, t));
@@ -254,6 +257,7 @@ const count = (b: string) => jobs.filter((j) => j.business.includes(b as never))
   .rc-title:focus { outline: none; }
   .rc-title:focus-visible { outline: 2px solid var(--sky-ink); outline-offset: 4px; border-radius: 4px; }
   .rc-sum { grid-area: sum; margin: 0 0 16px; color: var(--ink-2); font-size: 1rem; line-height: 1.45; }
+  @media (max-width: 599px) { .rc:not(.is-open) .rc-sum { display: none; } .rc-title { margin-bottom: 14px; } }
   .rc-phone {
     grid-area: phone; background: var(--tint); border-radius: 16px; padding: 18px 16px; overflow: hidden;
     display: flex; align-items: flex-start; align-self: end;
@@ -278,7 +282,8 @@ const count = (b: string) => jobs.filter((j) => j.business.includes(b as never))
     grid-column: 1 / -1; cursor: default; padding: 24px; box-shadow: inset 0 0 0 1.5px var(--ink);
     grid-template-areas: "head" "title" "sum" "phone" "detail" "foot"; background: var(--card);
   }
-  .rc.is-open::before { width: 56px; height: 56px; }
+  .rc.is-open::before { width: 48px; height: 48px; }
+  .rc.is-open .rc-foot { grid-area: head; justify-self: end; align-self: start; margin: -6px 34px 0 0; }
   .rc.is-open .rc-title { font-size: clamp(2rem, 5vw, 3rem); }
   .rc.is-open .rc-phone :global(.ph) { --ph-h: 420px; max-width: 280px; }
   .rc.is-open .rc-methods { display: none; }
@@ -304,11 +309,10 @@ const count = (b: string) => jobs.filter((j) => j.business.includes(b as never))
         "head head phone"
         "title title phone"
         "sum sum phone"
-        "detail detail phone"
-        "foot foot phone";
+        "detail detail phone";
     }
     .rc-detail { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); column-gap: 32px; margin-top: 8px; }
-    .rc.is-open .rc-phone { align-self: start; padding: 22px 20px; }
+    .rc.is-open .rc-phone { align-self: start; padding: 22px 20px; margin-top: 44px; }
   }
 
 </style>

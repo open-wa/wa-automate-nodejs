@@ -1,0 +1,20 @@
+---
+import Page from "../../layouts/Page.astro";
+import RecipeWall from "../../components/RecipeWall.astro";
+import CommandBar from "../../components/CommandBar.astro";
+import { jobs } from "../../data/site";
+---
+
+<Page title="Recipes: WhatsApp jobs you can copy | open-wa" description={`${jobs.length} recipes for your own WhatsApp number: salon bookings, hotel notifications, OTP codes, PBX calls, stickers, media, order updates, a support inbox and an AI agent.`}>
+  <div class="wrap page-head">
+    <h1 class="h-display">Recipes</h1>
+    <p class="lede">Each recipe is one job on your own WhatsApp number: the conversation it makes, the steps, the code and the licence it needs. Every recipe starts with the same command.</p>
+    <div class="rp-cmd"><CommandBar /></div>
+  </div>
+  <div class="wrap rp-wall"><RecipeWall /></div>
+</Page>
+
+<style>
+  .rp-cmd { margin-top: 24px; max-width: 900px; }
+  .rp-wall { padding-bottom: 96px; }
+</style>

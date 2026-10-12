@@ -1,0 +1,31 @@
+---
+import Page from "../../layouts/Page.astro";
+import ConsultForm from "../../components/ConsultForm.astro";
+import { support, base } from "../../data/site";
+---
+
+<Page title="Support and consulting: get help or get it built | open-wa" description="Free help in Discord and GitHub issues, paid per-minute help, or consulting to build your WhatsApp job for you.">
+  <div class="wrap page-head">
+    <h1 class="h-display">Support and consulting</h1>
+    <p class="lede">Stuck on a recipe, or want someone to build the job for your business? Pick the route that fits.</p>
+  </div>
+  <div class="wrap doc">
+    <div class="grid-cards">
+      <div class="tile"><h3>Community help</h3><p>Ask in <a href={support.discord}>Discord</a> or open a <a href={support.issues}>GitHub issue</a>. Free.</p></div>
+      <div class="tile"><h3>Per-minute help</h3><p>Book time with the maintainer on <a href={support.perMinuteConsulting}>Otechie</a>.</p></div>
+      <div class="tile"><h3>Licence questions</h3><p>Which key your method needs is on <a href={`${base}pricing/`}>pricing</a>, listed by recipe.</p></div>
+    </div>
+    <div class="sp-form">
+      <div>
+        <h2>Tell us what you need</h2>
+        <p>For businesses that want a WhatsApp job built or reviewed: bookings, notifications, codes, calls or a support inbox. Consulting is with {support.maintainer}.</p>
+      </div>
+      <ConsultForm />
+    </div>
+  </div>
+</Page>
+
+<style>
+  .sp-form { display: grid; gap: 24px; margin-top: 24px; }
+  @media (min-width: 980px) { .sp-form { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); align-items: start; } }
+</style>
