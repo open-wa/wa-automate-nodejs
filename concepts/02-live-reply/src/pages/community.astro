@@ -1,0 +1,34 @@
+---
+import Site from "../layouts/Site.astro";
+import PageHead from "../components/PageHead.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { support, stats, fmt, short, snippets, releases } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+<Site title="Community: Discord, GitHub and plugins | open-wa" description="Join the open-wa Discord, contribute on GitHub, package an integration with the Plugin SDK, and follow releases.">
+  <PageHead eyebrow="Community" title="Built in the open since 2019." lede={`${fmt(stats.githubStars)} GitHub stars, ${fmt(stats.githubForks)} forks and ${fmt(stats.discordMembers)} Discord members, counted ${stats.checkedOn}.`} />
+  <section class="cm">
+    <div class="wrap grid-2">
+      <div class="card"><h3>Discord</h3><p>Ask questions, share what you built and hear about new releases.</p><a class="btn btn-ink cm-b" href={support.discord}>Join the Discord</a></div>
+      <div class="card"><h3>GitHub</h3><p>Star the repo, read the source, report issues and send pull requests. {stats.publishedVersions} versions published to npm so far.</p><a class="btn btn-line cm-b" href={support.github}>open-wa on GitHub <span class="mono">★ {short(stats.githubStars)}</span></a></div>
+      <div class="card"><h3>Contributing</h3><p>Start with an issue, keep pull requests small, and include the version and driver you tested with.</p><a class="link-arrow" href={support.issues}>Open issues</a></div>
+      <div class="card"><h3>Releases</h3><p>Latest: {releases[0].version}, {releases[0].headline.toLowerCase()} ({releases[0].date}).</p><a class="link-arrow" href={support.releases}>GitHub releases</a><a class="link-arrow" href={`${base}changelog/`}>Changelog</a></div>
+    </div>
+  </section>
+  <section class="section" id="plugins">
+    <div class="wrap grid-2">
+      <div class="prose">
+        <span class="eyebrow">Plugin SDK</span>
+        <h2 class="cm-h">Share your integration as a plugin.</h2>
+        <p class="muted">Package it with <code>@open-wa/plugin-sdk</code>, publish it to npm, and anyone can load it with plugins and pluginConfig. Local plugins load by path.</p>
+      </div>
+      <CodeBlock code={snippets.plugins} file="wa.config.mjs (excerpt)" />
+    </div>
+  </section>
+</Site>
+<style>
+  .cm { padding-bottom: 72px; }
+  .cm-b { justify-self: start; margin-top: 4px; }
+  .cm-h { font-size: clamp(30px, 4vw, 44px); }
+  .prose code { font-size: 15px; background: var(--grey-1); padding: 1px 5px; border-radius: 5px; }
+</style>

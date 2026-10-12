@@ -1,0 +1,45 @@
+---
+import Site from "../layouts/Site.astro";
+import PageHead from "../components/PageHead.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { integrations, snippets } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const slug = (n: string) => n.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-$/, "");
+const code: Record<string, { code: string; file: string }> = {
+  "Cloudflare Session Proxy": { code: snippets.cfProxyConsumer, file: "consumer.mjs" },
+  "Plugin SDK": { code: snippets.plugins, file: "wa.config.mjs (excerpt)" },
+  MCP: { code: snippets.mcpConfig, file: "wa.config.mjs" },
+};
+---
+<Site title="Integrations: webhooks, Chatwoot, Node-RED, S3, MCP | open-wa" description="Push WhatsApp events into your own service, bridge Chatwoot, automate in Node-RED, store media in S3, reach sessions through Cloudflare, give agents MCP tools, or write a plugin.">
+  <PageHead eyebrow="Integrations" title="WhatsApp in the tools you already run." lede="Integrations are plugins. Add the package to plugins in your config and set its options in pluginConfig." />
+  <section class="in">
+    <div class="wrap">
+      <CodeBlock code={snippets.plugins} file="wa.config.mjs (excerpt)" />
+      <div class="in-list">
+        {integrations.map((it) => (
+          <article class="in-row" id={slug(it.name)}>
+            <div class="in-copy">
+              <h2>{it.name}</h2>
+              <p>{it.what}</p>
+              <code class="in-pkg">{it.package}</code>
+              {it.name === "MCP" && <a class="link-arrow" href={`${base}ai-agents/`}>Set up MCP for AI agents</a>}
+            </div>
+            {code[it.name] && it.name !== "Plugin SDK" && <CodeBlock code={code[it.name].code} file={code[it.name].file} />}
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</Site>
+<style>
+  .in { padding-bottom: 96px; }
+  .in-list { margin-top: 48px; border-top: 1px solid var(--grey-2); }
+  .in-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 40px; padding: 36px 0; border-bottom: 1px solid var(--grey-2); align-items: start; }
+  .in-row:not(:has(.code)) { grid-template-columns: minmax(0, 760px); }
+  .in-copy { display: grid; gap: 12px; justify-items: start; }
+  .in-copy h2 { font-size: 28px; }
+  .in-copy p { color: var(--grey-5); }
+  .in-pkg { font-size: 15px; color: var(--blue-deep); background: var(--blue-wash); padding: 6px 9px; border-radius: 6px; }
+  @media (max-width: 860px) { .in-row { grid-template-columns: minmax(0, 1fr); gap: 20px; } }
+</style>

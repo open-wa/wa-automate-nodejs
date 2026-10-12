@@ -1,0 +1,41 @@
+---
+import Site from "../layouts/Site.astro";
+import PageHead from "../components/PageHead.astro";
+import SupportForm from "../components/SupportForm.astro";
+import { support, stats, fmt } from "../data/site";
+const routes = [
+  { h: "Discord", p: `Ask the community and the maintainer. ${fmt(stats.discordMembers)} members on ${stats.checkedOn}.`, href: support.discord, cta: "Join the Discord" },
+  { h: "GitHub issues", p: "Report a bug with your version, driver and the smallest code that shows it.", href: support.issues, cta: "Open an issue" },
+  { h: "Docs", p: "Guides, the API reference and the licensing pages.", href: support.docs, cta: "Read the docs" },
+  { h: "Email", p: "Paid support and licence questions.", href: `mailto:${support.consultingEmail}`, cta: support.consultingEmail },
+  { h: "Per-minute consulting", p: "Pay by the minute for a call with the maintainer.", href: support.perMinuteConsulting, cta: "Book a call" },
+  { h: "Buy the maintainer a coffee", p: "Say thanks and help keep the project going.", href: support.buyMeACoffee, cta: "Buy a coffee" },
+];
+---
+<Site title="Support and consulting | open-wa" description="Get help with open-wa on Discord, GitHub issues and the docs, or pay for support and consulting from the maintainer. Tell us what you want built.">
+  <PageHead eyebrow="Support" title="Help from the community, or from the maintainer." lede={`open-wa is maintained by ${support.maintainer}. Free help happens in Discord and on GitHub; paid support and consulting are by email or the booking link.`} />
+  <section class="sp">
+    <div class="wrap grid-3">
+      {routes.map((r) => (
+        <div class="card"><h3>{r.h}</h3><p>{r.p}</p><a class="link-arrow sp-a" href={r.href}>{r.cta}</a></div>
+      ))}
+    </div>
+  </section>
+  <section class="section" id="build">
+    <div class="wrap sp-form">
+      <div class="prose">
+        <span class="eyebrow">Want it built for you?</span>
+        <h2 class="sp-h">Tell us what you need.</h2>
+        <p class="muted">Not a developer, or short on time? Describe the job in a sentence or two and we'll come back with what it would take.</p>
+      </div>
+      <SupportForm />
+    </div>
+  </section>
+</Site>
+<style>
+  .sp { padding-bottom: 72px; }
+  .sp-a { overflow-wrap: anywhere; }
+  .sp-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 520px); gap: 56px; align-items: start; }
+  .sp-h { font-size: clamp(32px, 4.4vw, 52px); }
+  @media (max-width: 900px) { .sp-form { grid-template-columns: minmax(0, 1fr); gap: 28px; } }
+</style>

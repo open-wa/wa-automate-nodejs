@@ -1,0 +1,83 @@
+---
+/** "Tell us what you need": name, email and the brief, to submitLead("consulting", ...). */
+---
+<div class="lf sf" data-sf>
+  <form class="lf-form" novalidate data-sf-form>
+    <div class="lf-field">
+      <label class="lf-label" for="sf-name">Your name</label>
+      <input id="sf-name" name="name" autocomplete="name" aria-describedby="sf-err-name" />
+      <p class="lf-err" id="sf-err-name" data-err="name"></p>
+    </div>
+    <div class="lf-field">
+      <label class="lf-label" for="sf-email">Email</label>
+      <input id="sf-email" name="email" type="email" autocomplete="email" inputmode="email" aria-describedby="sf-err-email" />
+      <p class="lf-err" id="sf-err-email" data-err="email"></p>
+    </div>
+    <div class="lf-field">
+      <label class="lf-label" for="sf-brief">What do you want built?</label>
+      <textarea id="sf-brief" name="brief" rows="4" placeholder="e.g. Reply to customer questions on our shop's WhatsApp number" aria-describedby="sf-err-brief"></textarea>
+      <p class="lf-err" id="sf-err-brief" data-err="brief"></p>
+    </div>
+    <button class="btn btn-ink lf-submit" type="submit">Send</button>
+  </form>
+  <div class="sf-done" data-sf-done hidden tabindex="-1">
+    <span class="tag tag-blue">Received</span>
+    <h3>Thanks, <span data-sf-name></span>.</h3>
+    <p>We'll reply to <strong data-sf-email></strong> about what it would take. For something urgent, book time directly through the consulting link on this page.</p>
+    <p class="muted small">Demo: nothing was sent.</p>
+  </div>
+</div>
+<style>
+  .sf { background: var(--white); border: 1px solid var(--grey-2); border-radius: var(--radius-l); padding: 28px; }
+  .lf-form { display: grid; gap: 20px; }
+  .lf-label { display: block; font-weight: 600; margin-bottom: 8px; }
+  .lf-field { display: grid; }
+  .lf-field input, .lf-field textarea { width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid var(--grey-2); border-radius: 10px; background: var(--paper); font: 16px/1.4 var(--font-text); color: var(--ink); }
+  .lf-field input:focus-visible, .lf-field textarea:focus-visible { outline: 2px solid var(--blue); outline-offset: 0; background: var(--white); }
+  .lf-field [aria-invalid="true"] { border-color: #B42318; }
+  .lf-err { color: #B42318; font-size: 15px; margin-top: 6px; }
+  .lf-err:empty { display: none; }
+  .lf-submit { min-height: 52px; }
+  .sf-done { display: grid; gap: 12px; }
+  .sf-done:focus { outline: none; }
+  .sf-done h3 { font-size: 26px; }
+  @media (max-width: 480px) { .sf { padding: 20px; } }
+</style>
+<script>
+  import { submitLead } from "../lib/leads";
+  const root = document.querySelector<HTMLElement>("[data-sf]");
+  if (root) {
+    const form = root.querySelector<HTMLFormElement>("[data-sf-form]")!;
+    const rules: Record<string, (v: string) => string> = {
+      name: (v) => (v.trim() ? "" : "Tell us your name."),
+      email: (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? "" : "Enter an email address we can reply to."),
+      brief: (v) => (v.trim().length >= 3 ? "" : "A sentence about what you need is enough."),
+    };
+    const shown = new Set<string>();
+    const field = (n: string) => form.elements.namedItem(n) as HTMLInputElement;
+    const check = (n: string) => {
+      const msg = rules[n](field(n).value);
+      root.querySelector<HTMLElement>(`[data-err="${n}"]`)!.textContent = msg;
+      field(n).setAttribute("aria-invalid", msg ? "true" : "false");
+      return !msg;
+    };
+    form.addEventListener("input", (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.value.trim() || shown.has(t.name)) { shown.add(t.name); check(t.name); }
+    });
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const names = ["name", "email", "brief"];
+      names.forEach((n) => shown.add(n));
+      const bad = names.filter((n) => !check(n));
+      if (bad.length) { field(bad[0]).focus(); return; }
+      await submitLead("consulting", { name: field("name").value.trim(), email: field("email").value.trim(), brief: field("brief").value.trim() });
+      root.querySelector<HTMLElement>("[data-sf-name]")!.textContent = field("name").value.trim();
+      root.querySelector<HTMLElement>("[data-sf-email]")!.textContent = field("email").value.trim();
+      form.hidden = true;
+      const done = root.querySelector<HTMLElement>("[data-sf-done]")!;
+      done.hidden = false;
+      done.focus();
+    });
+  }
+</script>

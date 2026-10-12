@@ -1,0 +1,92 @@
+---
+import Site from "../layouts/Site.astro";
+import PageHead from "../components/PageHead.astro";
+import Command from "../components/Command.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import PathTabs from "../components/PathTabs.astro";
+import { commands, firstRun, product, support } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+<Site title="Quick start: your first WhatsApp session | open-wa" description="Run one npx command, scan the QR code and open the live API docs. Then pick Easy API, SocketClient, the embedded runtime or MCP.">
+  <PageHead eyebrow="Quick start" title="A running session in three steps." lede={`Needs Node.js ${product.node.replace(">=", "")} or newer and a phone with WhatsApp.`} />
+  <section class="qs">
+    <div class="wrap">
+      <ol class="qs-steps">
+        <li>
+          <span class="qs-n mono">01</span>
+          <div class="qs-body">
+            <h2>Run the command</h2>
+            <p class="muted">{firstRun[0]}</p>
+            <Command cmd={commands.easyApi} />
+            <p class="muted small">Protect it with an API key before you expose the port:</p>
+            <CodeBlock code={commands.easyApiWithKey} lang="bash" file="With an API key" />
+          </div>
+        </li>
+        <li>
+          <span class="qs-n mono">02</span>
+          <div class="qs-body">
+            <h2>Scan the QR code or use a link code</h2>
+            <p class="muted">{firstRun[1]}</p>
+            <p class="note"><strong>Ban risk.</strong> {product.risk} Test with a number you can afford to lose before you run your main one.</p>
+          </div>
+        </li>
+        <li>
+          <span class="qs-n mono">03</span>
+          <div class="qs-body">
+            <h2>Open the API docs</h2>
+            <p class="muted">{firstRun[2]}</p>
+            <ul class="qs-urls mono">
+              <li><a href={commands.proofOfLife}>{commands.proofOfLife}</a></li>
+              <li>{commands.swagger}</li>
+              <li>{commands.postman}</li>
+            </ul>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+  <section class="section" id="paths">
+    <div class="wrap">
+      <div class="section-head"><span class="eyebrow">Then pick a path</span><h2>Four ways to use the session.</h2></div>
+      <PathTabs id="qs-paths" />
+    </div>
+  </section>
+  <section class="section" id="docker">
+    <div class="wrap grid-2">
+      <div class="prose">
+        <span class="eyebrow">Docker</span>
+        <h2 class="h2">Prefer a container?</h2>
+        <p class="muted">The same Easy API runs from the Docker image on port 8080.</p>
+      </div>
+      <CodeBlock code={commands.docker} lang="bash" file="Docker" />
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap grid-2">
+      <div class="prose">
+        <span class="eyebrow">More than one number</span>
+        <h2 class="h2">Name each session.</h2>
+        <p class="muted">Run several sessions side by side with a session ID and its own port.</p>
+      </div>
+      <CodeBlock code={commands.namedSession} lang="bash" file="Named session" />
+    </div>
+    <div class="wrap qs-next">
+      <a class="btn btn-ink" href={support.quickstartDocs}>Full quick start in the docs</a>
+      <a class="link-arrow" href={`${base}migrate/`}>Coming from v4?</a>
+    </div>
+  </section>
+</Site>
+<style>
+  .qs { padding-bottom: 72px; }
+  .qs-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--grey-2); }
+  .qs-steps > li { display: grid; grid-template-columns: 80px minmax(0, 1fr); gap: 16px; padding: 40px 0; border-bottom: 1px solid var(--grey-2); }
+  .qs-n { color: var(--blue); font-size: 15px; padding-top: 8px; }
+  .qs-body { display: grid; gap: 16px; max-width: 760px; min-width: 0; }
+  .qs-body h2 { font-size: 30px; }
+  .qs-urls { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; font-size: 15px; }
+  .qs-urls li { background: var(--white); border: 1px solid var(--grey-2); border-radius: 10px; padding: 10px 14px; overflow-wrap: anywhere; }
+  .qs-urls a { color: var(--blue); }
+  .h2 { font-size: clamp(30px, 4vw, 44px); }
+  .qs-next { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; margin-top: 48px; }
+  @media (max-width: 640px) { .qs-steps > li { grid-template-columns: minmax(0, 1fr); gap: 8px; } }
+</style>

@@ -1,0 +1,24 @@
+---
+import Site from "../layouts/Site.astro";
+import PageHead from "../components/PageHead.astro";
+import { legal, product, support } from "../data/site";
+---
+<Site title="Legal notices | open-wa" description="open-wa is unofficial and not affiliated with WhatsApp or Meta. Ban-risk notice, Terms of Service, the Hippocratic + Do Not Harm 1.1 licence and the cryptography notice.">
+  <PageHead eyebrow="Legal" title="The fine print, in plain words." />
+  <section class="lg">
+    <div class="wrap lg-list">
+      <article id="unofficial"><h2>Unofficial</h2><p>{legal.affiliation}</p><p>{product.unofficial}</p></article>
+      <article id="risk"><h2>Ban risk</h2><p>{product.risk}</p></article>
+      <article id="terms"><h2>Terms of Service</h2><p>{product.terms}</p><a class="link-arrow" href={support.terms}>Read the Terms of Service</a></article>
+      <article id="licence"><h2>Software licence</h2><p>open-wa is released under the {product.softwareLicence} licence.</p><a class="link-arrow" href={support.licenceText}>Read the licence</a></article>
+      <article id="crypto"><h2>Cryptography notice</h2><p>{legal.crypto}</p></article>
+      <article id="copyright"><h2>Copyright</h2><p>{legal.copyright}.</p></article>
+    </div>
+  </section>
+</Site>
+<style>
+  .lg { padding-bottom: 96px; }
+  .lg-list article { display: grid; gap: 12px; padding: 32px 0; border-top: 1px solid var(--grey-2); max-width: 760px; justify-items: start; }
+  .lg-list h2 { font-size: 26px; }
+  .lg-list p { color: var(--grey-5); }
+</style>
