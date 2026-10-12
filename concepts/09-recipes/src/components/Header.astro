@@ -1,0 +1,93 @@
+---
+import Mark from "./Mark.astro";
+import { nav, base, support, starsShort, stats } from "../data/site";
+const path = Astro.url.pathname;
+---
+
+<header class="hd">
+  <div class="hd-in">
+    <a class="mark-host hd-brand" href={base} aria-label="open-wa home">
+      <Mark size={30} label="" />
+      <span class="hd-name">open-wa</span>
+    </a>
+    <nav class="hd-nav" aria-label="Main">
+      {nav.map((n) => <a href={n.href} aria-current={path.startsWith(n.href) ? "page" : undefined}>{n.label}</a>)}
+      <a href={support.docs}>Docs <span class="ext" aria-hidden="true">↗</span></a>
+    </nav>
+    <div class="hd-end">
+      <a class="hd-gh" href={support.github} aria-label={`GitHub, ${stats.githubStars} stars on ${stats.checkedOn}`} title={`Stars on ${stats.checkedOn}`}>
+        <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        <span>{starsShort}</span>
+      </a>
+      <a class="hd-discord" href={support.discord}>Discord</a>
+      <a class="btn btn-ink hd-cta" href={`${base}quickstart/`}>Quick start</a>
+      <button class="hd-menu" type="button" aria-expanded="false" aria-controls="menu-sheet">
+        <span class="sr">Menu</span>
+        <span class="hd-burger" aria-hidden="true"><i></i><i></i></span>
+      </button>
+    </div>
+  </div>
+  <div class="hd-sheet" id="menu-sheet" hidden>
+    <nav aria-label="Menu">
+      {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+      <a href={support.docs}>Docs <span aria-hidden="true">↗</span></a>
+      <a href={support.github}>GitHub · {starsShort} stars</a>
+      <a href={support.discord}>Discord</a>
+      <a class="btn btn-ink" href={`${base}quickstart/`}>Quick start</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>(".hd-menu");
+  const sheet = document.getElementById("menu-sheet");
+  if (btn && sheet) {
+    const set = (open: boolean) => {
+      btn.setAttribute("aria-expanded", String(open));
+      sheet.hidden = !open;
+      document.documentElement.classList.toggle("menu-open", open);
+    };
+    btn.addEventListener("click", () => set(btn.getAttribute("aria-expanded") !== "true"));
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !sheet.hidden) { set(false); btn.focus(); } });
+    window.matchMedia("(min-width: 960px)").addEventListener("change", (m) => { if (m.matches) set(false); });
+  }
+</script>
+
+<style>
+  .hd { position: sticky; top: 0; z-index: 50; background: var(--paper); border-bottom: 1px solid var(--line); }
+  .hd-in { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); height: 60px; display: flex; align-items: center; gap: 28px; }
+  .hd-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; min-height: 44px; }
+  .hd-name { font: 400 1.6rem/1 var(--font-display); letter-spacing: -0.01em; }
+  .hd-nav { display: none; gap: 4px; }
+  .hd-nav a, .hd-discord, .hd-gh {
+    color: var(--ink); text-decoration: none; font: 500 0.9375rem/1 var(--font-text);
+    padding: 0 12px; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; border-radius: 999px;
+  }
+  .hd-nav a:hover, .hd-discord:hover, .hd-gh:hover { background: var(--paper-2); }
+  .hd-nav a[aria-current="page"] { background: var(--card); box-shadow: inset 0 0 0 1px var(--line); }
+  .ext { font-size: 0.8em; color: var(--ink-2); }
+  .hd-end { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+  .hd-gh span { font-family: var(--font-mono); font-size: 0.875rem; }
+  .hd-discord, .hd-cta { display: none; }
+  .hd-menu {
+    width: 44px; height: 44px; border: 0; background: transparent; border-radius: 999px; cursor: pointer;
+    display: grid; place-items: center; color: var(--ink);
+  }
+  .hd-burger { display: grid; gap: 6px; width: 20px; }
+  .hd-burger i { display: block; height: 2px; background: currentColor; border-radius: 2px; transition: transform var(--speed) var(--ease); }
+  .hd-menu[aria-expanded="true"] .hd-burger i:first-child { transform: translateY(4px) rotate(45deg); }
+  .hd-menu[aria-expanded="true"] .hd-burger i:last-child { transform: translateY(-4px) rotate(-45deg); }
+  .hd-sheet { border-top: 1px solid var(--line); background: var(--paper); }
+  .hd-sheet nav { display: grid; padding: 8px var(--gutter) 20px; max-width: var(--wrap); margin: 0 auto; }
+  .hd-sheet a:not(.btn) {
+    color: var(--ink); text-decoration: none; font: 500 1.125rem/1 var(--font-text);
+    min-height: 52px; display: flex; align-items: center; border-bottom: 1px solid var(--line);
+  }
+  .hd-sheet .btn { margin-top: 16px; }
+  @media (min-width: 960px) {
+    .hd-nav { display: flex; }
+    .hd-discord, .hd-cta { display: inline-flex; }
+    .hd-cta { margin-left: 8px; }
+    .hd-menu { display: none; }
+  }
+</style>

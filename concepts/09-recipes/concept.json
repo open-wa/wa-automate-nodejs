@@ -1,0 +1,42 @@
+{
+  "slug": "09-recipes",
+  "name": "Recipes",
+  "tagline": "Pick your job, copy the recipe: a catalogue of WhatsApp jobs, each card a tiny phone playing it",
+  "archetype": "developer",
+  "audience": "Developers building a WhatsApp job for a business on its own number (BRIEF.md \u00a71 rank 1), in any language",
+  "flow": "Copy the Easy API command, then open the recipe for your job; licence buyers go to /pricing/",
+  "benchmark": "Vercel Templates (vercel.com/templates)",
+  "floor": [
+    "/",
+    "/recipes/",
+    "/recipes/salon-bookings/",
+    "/recipes/hotel-notifications/",
+    "/recipes/otp/",
+    "/recipes/pbx-calls/",
+    "/recipes/stickers/",
+    "/recipes/media/",
+    "/recipes/order-updates/",
+    "/recipes/support-inbox/",
+    "/recipes/ai-agent/",
+    "/quickstart/",
+    "/features/",
+    "/integrations/",
+    "/pricing/",
+    "/compare/",
+    "/migrate/",
+    "/support/",
+    "/community/",
+    "/changelog/",
+    "/legal/",
+    "/404"
+  ],
+  "fonts": [
+    "Instrument Serif (OFL)",
+    "Instrument Sans (OFL)",
+    "Commit Mono (OFL)"
+  ],
+  "libraries": [
+    "astro",
+    "shiki (via astro:components Code)"
+  ]
+}

@@ -1,0 +1,46 @@
+---
+/**
+ * A code panel with real syntax colour (Shiki at build time) and a Copy button.
+ */
+import { Code } from "astro:components";
+import { recipeInk } from "../lib/shiki-theme";
+
+interface Props { code: string; lang?: string; title?: string; example?: boolean; class?: string; wrap?: boolean }
+const { code, lang = "js", title, example = false, class: cls, wrap = false } = Astro.props;
+const label = title ?? ({ bash: "Terminal", js: "JavaScript", json: "JSON", php: "PHP", python: "Python" } as Record<string, string>)[lang] ?? lang;
+---
+
+<figure class:list={["cb", cls, { "cb-wrap": wrap }]}>
+  <figcaption class="cb-bar">
+    <span class="cb-title">{label}</span>
+    {example && <span class="cb-example">Example output</span>}
+    <button class="copy cb-copy" type="button" data-copy={code} aria-label={`Copy ${label}`}>
+      <span class="copy-label">Copy</span>
+    </button>
+  </figcaption>
+  <div class="cb-body" tabindex="0" aria-label={`${label} code`}>
+    <Code code={code} lang={lang as any} theme={recipeInk as any} />
+  </div>
+</figure>
+
+<style>
+  .cb {
+    margin: 0; min-width: 0; background: var(--code-bg); color: var(--code-ink);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .cb-bar {
+    display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 6px 0 16px;
+    background: var(--code-bar);
+  }
+  .cb-title { font: 400 0.8125rem/1 var(--font-mono); color: var(--code-dim); }
+  .cb-example { font: 600 0.75rem/1 var(--font-text); color: var(--ink); background: var(--saffron); padding: 4px 8px; border-radius: 999px; }
+  .cb-copy { margin-left: auto; }
+  .cb-body { overflow-x: auto; }
+  .cb-body:focus-visible { outline: 2px solid var(--saffron); outline-offset: -2px; }
+  .cb-body :global(pre) {
+    margin: 0; padding: 16px 18px 18px; background: transparent !important;
+    font: 400 var(--text-mono)/1.7 var(--font-mono); tab-size: 2;
+  }
+  .cb-wrap .cb-body :global(pre) { white-space: pre-wrap; word-break: break-word; }
+  .cb-body :global(code) { font: inherit; }
+</style>

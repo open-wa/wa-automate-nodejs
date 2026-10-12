@@ -1,0 +1,46 @@
+---
+/**
+ * The Easy API command with Copy and Quick start: across the top of the home
+ * page and again at the close. Works on first paint; the copy handler is global.
+ */
+import { commands, base } from "../data/site";
+interface Props { variant?: "top" | "close" }
+const { variant = "top" } = Astro.props;
+---
+
+<div class:list={["cmd", `cmd-${variant}`]}>
+  <div class="cmd-line">
+    <span class="cmd-prompt" aria-hidden="true">$</span>
+    <code class="cmd-text">{commands.easyApi}</code>
+  </div>
+  <div class="cmd-actions">
+    <button type="button" class="copy cmd-copy" data-copy={commands.easyApi} aria-label="Copy the command">
+      <span class="cmd-copy-ico" aria-hidden="true"></span><span class="copy-label">Copy</span>
+    </button>
+    <a class="btn cmd-start" href={`${base}quickstart/`}>Quick start</a>
+  </div>
+</div>
+
+<style>
+  .cmd {
+    display: grid; gap: 10px; align-items: center; background: var(--ink); color: var(--paper);
+    border-radius: 18px; padding: 12px 12px 12px 18px;
+  }
+  .cmd-line { display: flex; gap: 10px; align-items: baseline; min-width: 0; padding-top: 4px; }
+  .cmd-prompt { font: 400 1rem/1 var(--font-mono); color: var(--saffron); }
+  .cmd-text { font: 400 0.9375rem/1.5 var(--font-mono); color: var(--paper); overflow-wrap: anywhere; }
+  .cmd-actions { display: flex; gap: 8px; }
+  .cmd-copy { min-height: 44px; padding: 0 16px; font-size: 1rem; flex: 1; }
+  .cmd-copy-ico { width: 14px; height: 16px; position: relative; border: 1.8px solid currentColor; border-radius: 3px; }
+  .cmd-copy-ico::before { content: ""; position: absolute; left: -5px; top: -5px; width: 10px; height: 12px; border: 1.8px solid currentColor; border-radius: 3px; border-right-color: transparent; border-bottom-color: transparent; }
+  .cmd-copy.is-copied .cmd-copy-ico { border-color: transparent; }
+  .cmd-copy.is-copied .cmd-copy-ico::before { left: 2px; top: 0; width: 6px; height: 11px; border: solid currentColor; border-width: 0 2px 2px 0; border-radius: 0; transform: rotate(45deg); }
+  .cmd-start { background: var(--paper); color: var(--ink); flex: 1; }
+  .cmd-start:hover { background: #FFFFFF; }
+  @media (min-width: 720px) {
+    .cmd { grid-template-columns: minmax(0, 1fr) auto; padding: 10px 10px 10px 22px; }
+    .cmd-line { padding-top: 0; }
+    .cmd-text { font-size: 1.0625rem; }
+    .cmd-copy, .cmd-start { flex: none; }
+  }
+</style>

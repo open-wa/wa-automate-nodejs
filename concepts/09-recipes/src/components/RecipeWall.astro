@@ -1,0 +1,314 @@
+---
+/**
+ * The signature moment: a wall of recipe cards, one per job in the fact pack,
+ * filtered by business type. Each card's phone plays its conversation when
+ * hovered, focused or scrolled into view. "Open recipe" expands the card in
+ * place (View Transitions) into steps, code and the phone side by side, with
+ * the licence and price, and links to the full /recipes/<id>/ page.
+ * Reduced motion or ?still: phones stay settled and opening is instant.
+ */
+import Phone from "./Phone.astro";
+import CodeBlock from "./CodeBlock.astro";
+import { jobs, businesses, families, base, tiers } from "../data/site";
+interface Props { headingLevel?: 2 | 3; id?: string }
+const { id = "recipes" } = Astro.props;
+const count = (b: string) => jobs.filter((j) => j.business.includes(b as never)).length;
+---
+
+<div class="rw" id={id}>
+  <div class="rw-filters" role="toolbar" aria-label="Filter recipes by business">
+    <button type="button" class="rw-f" aria-pressed="true" data-filter="all">All recipes <span>{jobs.length}</span></button>
+    {businesses.map((b) => (
+      <button type="button" class="rw-f" aria-pressed="false" data-filter={b.id}>{b.label} <span>{count(b.id)}</span></button>
+    ))}
+  </div>
+  <p class="sr" aria-live="polite" data-rw-status></p>
+
+  <ul class="rw-grid" role="list">
+    {jobs.map((job) => (
+      <li class="rc" id={`r-${job.id}`} data-job={job.id} data-business={job.business.join(" ")}
+        style={`--sw: var(--${job.swatch}); --sw-ink: var(--${job.swatch}-ink); --tint: var(--${job.swatch}-tint); view-transition-name: rc-${job.id};`}>
+        <div class="rc-head">
+          <span class="rc-family"><i class="swatch-dot"></i>{families[job.swatch]}</span>
+          <span class:list={["rc-badge", `rc-badge-${job.badgeTier}`]}>{job.badge}</span>
+        </div>
+        <h3 class="rc-title" id={`rt-${job.id}`} tabindex="-1">{job.name}</h3>
+        <p class="rc-sum">{job.summary}</p>
+        <div class="rc-phone" style={`view-transition-name: rp-${job.id};`}>
+          <Phone job={job} />
+          <p class="sr">Example conversation: {job.flow}</p>
+        </div>
+        <div class="rc-foot">
+          <ul class="rc-methods" aria-label="Methods">
+            {job.methods.slice(0, 3).map((m) => <li><code>{m}</code></li>)}
+            {job.methods.length > 3 && <li class="rc-more">+{job.methods.length - 3}</li>}
+          </ul>
+          <button type="button" class="rc-open" aria-expanded="false" aria-controls={`rd-${job.id}`} data-open={job.id}>
+            <span class="rc-open-l">Open recipe</span><span class="rc-open-x" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="rc-detail" id={`rd-${job.id}`} hidden>
+          <div class="rc-steps">
+            <h4>Steps</h4>
+            <ol>{job.steps.map((s) => <li>{s}</li>)}</ol>
+            <div class="rc-lic">
+              <h4>Licence</h4>
+              <p>{job.priceLine}</p>
+              {job.tier && <p class="rc-lic-note">Key is per WhatsApp number. Prices checked 12 Oct 2026; checkout shows the current price.</p>}
+            </div>
+            <div class="rc-actions">
+              <a class="btn btn-ink" href={`${base}recipes/${job.id}/`}>Full recipe</a>
+              {job.tier
+                ? <a class="btn btn-line" href={`${base}pricing/?tier=${job.tier}#licence`}>Get a {tiers[job.tier].name} key</a>
+                : <a class="btn btn-line" href={`${base}quickstart/`}>Quick start</a>}
+            </div>
+          </div>
+          <div class="rc-code">
+            <CodeBlock code={job.snippet} lang="js" title={`${job.short}.js`} />
+          </div>
+        </div>
+      </li>
+    ))}
+  </ul>
+</div>
+
+<script>
+  const still = new URLSearchParams(location.search).has("still");
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const animate = !still && !reduced;
+  if (still) document.documentElement.classList.add("still");
+
+  /* ---------- phone player ---------- */
+  type Player = { play: (loop: boolean) => void; stop: () => void; playing: boolean };
+  const players = new Map<Element, Player>();
+  function makePlayer(phone: HTMLElement): Player {
+    const lines = [...phone.querySelectorAll<HTMLElement>(".ph-line:not(.ph-typing)")];
+    const typing = phone.querySelector<HTMLElement>(".ph-typing")!;
+    let timers: number[] = [];
+    const p: Player = { playing: false, play: () => {}, stop: () => {} };
+    const clear = () => { timers.forEach(clearTimeout); timers = []; typing.hidden = true; };
+    const settle = () => { clear(); lines.forEach((l) => { l.classList.add("is-on"); l.classList.remove("is-new"); }); };
+    const run = (loop: boolean) => {
+      clear();
+      lines.forEach((l) => l.classList.remove("is-on", "is-new"));
+      let t = 350;
+      lines.forEach((l, i) => {
+        const out = l.classList.contains("ph-out");
+        if (out) {
+          timers.push(window.setTimeout(() => { l.before(typing); typing.hidden = false; }, t));
+          t += 700;
+        }
+        timers.push(window.setTimeout(() => {
+          typing.hidden = true;
+          l.classList.add("is-on", "is-new");
+        }, t));
+        t += i === lines.length - 1 ? 0 : 900;
+      });
+      timers.push(window.setTimeout(() => {
+        if (loop && p.playing) run(true); else { p.playing = false; settle(); }
+      }, t + 2600));
+    };
+    p.play = (loop) => { if (p.playing) return; p.playing = true; run(loop); };
+    p.stop = () => { p.playing = false; settle(); };
+    return p;
+  }
+
+  const wall = document.querySelector<HTMLElement>(".rw");
+  if (wall) {
+    const cards = [...wall.querySelectorAll<HTMLElement>(".rc")];
+    cards.forEach((c) => players.set(c, makePlayer(c.querySelector<HTMLElement>(".ph")!)));
+    const hover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+    if (animate) {
+      cards.forEach((c) => {
+        const pl = players.get(c)!;
+        c.addEventListener("pointerenter", () => { if (hover && !c.classList.contains("is-open")) pl.play(true); });
+        c.addEventListener("pointerleave", () => { if (hover && !c.classList.contains("is-open")) pl.stop(); });
+        c.addEventListener("focusin", () => pl.play(true));
+        c.addEventListener("focusout", (e) => { if (!c.contains(e.relatedTarget as Node) && !c.classList.contains("is-open")) pl.stop(); });
+      });
+      // Scrolled into view: a card near the middle of the screen plays.
+      const seen = new WeakSet<Element>();
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((en) => {
+          const pl = players.get(en.target)!;
+          if (en.isIntersecting) {
+            if (hover) { if (!seen.has(en.target)) { seen.add(en.target); pl.play(false); } }
+            else pl.play(true);
+          } else if (!en.target.classList.contains("is-open")) pl.stop();
+        });
+      }, { rootMargin: hover ? "0px 0px -15% 0px" : "-30% 0px -30% 0px", threshold: hover ? 0.6 : 0 });
+      cards.forEach((c) => io.observe(c));
+    }
+
+    /* ---------- filters ---------- */
+    const status = wall.querySelector<HTMLElement>("[data-rw-status]")!;
+    const fbtns = [...wall.querySelectorAll<HTMLButtonElement>(".rw-f")];
+    const vt = (fn: () => void) => {
+      const d = document as Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void> } };
+      if (animate && d.startViewTransition) return d.startViewTransition(fn).finished.catch(() => {});
+      fn(); return Promise.resolve();
+    };
+    fbtns.forEach((b) => b.addEventListener("click", () => {
+      const f = b.dataset.filter!;
+      vt(() => {
+        fbtns.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        let n = 0;
+        cards.forEach((c) => {
+          const show = f === "all" || c.dataset.business!.split(" ").includes(f);
+          c.hidden = !show; if (show) n++;
+        });
+        status.textContent = `${n} recipes shown`;
+      });
+    }));
+
+    /* ---------- open in place ---------- */
+    const setOpen = (card: HTMLElement, open: boolean) => {
+      const btn = card.querySelector<HTMLButtonElement>(".rc-open")!;
+      card.classList.toggle("is-open", open);
+      card.querySelector<HTMLElement>(".rc-detail")!.hidden = !open;
+      btn.setAttribute("aria-expanded", String(open));
+      card.querySelector(".rc-open-l")!.textContent = open ? "Close" : "Open recipe";
+      const pl = players.get(card)!;
+      if (open && animate) { pl.stop(); pl.play(true); } else if (!open) pl.stop();
+    };
+    const open = (card: HTMLElement, focus = true) => {
+      vt(() => {
+        cards.forEach((c) => { if (c !== card && c.classList.contains("is-open")) setOpen(c, false); });
+        setOpen(card, true);
+      }).then(() => {
+        const top = card.getBoundingClientRect().top;
+        if (top < 60 || top > window.innerHeight * 0.4) card.scrollIntoView({ behavior: animate ? "smooth" : "auto", block: "start" });
+        if (focus) card.querySelector<HTMLElement>(".rc-title")!.focus({ preventScroll: true });
+        history.replaceState(null, "", `#${card.dataset.job}`);
+      });
+    };
+    const close = (card: HTMLElement) => {
+      vt(() => setOpen(card, false)).then(() => {
+        card.querySelector<HTMLElement>(".rc-open")!.focus({ preventScroll: true });
+        history.replaceState(null, "", location.pathname + location.search);
+      });
+    };
+    wall.addEventListener("click", (e) => {
+      const t = e.target as HTMLElement;
+      if (t.closest("a, .copy, .rc-code")) return;
+      const card = t.closest<HTMLElement>(".rc");
+      if (!card) return;
+      if (t.closest(".rc-open")) { card.classList.contains("is-open") ? close(card) : open(card); return; }
+      // Clicking anywhere on a closed card opens it, like a template preview.
+      if (!card.classList.contains("is-open") && !window.getSelection()?.toString()) open(card);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      const card = wall.querySelector<HTMLElement>(".rc.is-open");
+      if (card) close(card);
+    });
+    const fromHash = cards.find((c) => `#${c.dataset.job}` === location.hash);
+    if (fromHash) { setOpen(fromHash, true); requestAnimationFrame(() => fromHash.scrollIntoView({ block: "start" })); }
+  }
+</script>
+
+<style>
+  .rw-filters {
+    display: flex; gap: 8px; overflow-x: auto; padding: 4px var(--gutter) 10px; margin: 0 calc(var(--gutter) * -1);
+    scrollbar-width: none; scroll-snap-type: x proximity;
+  }
+  .rw-filters::-webkit-scrollbar { display: none; }
+  .rw-f {
+    flex: none; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 0; cursor: pointer; scroll-snap-align: start;
+    font: 500 0.9375rem/1 var(--font-text); background: var(--card); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line-2);
+    display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+  }
+  .rw-f span { font: 400 0.75rem/1 var(--font-mono); color: var(--ink-2); }
+  .rw-f:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .rw-f[aria-pressed="true"] { background: var(--ink); color: var(--paper); box-shadow: none; }
+  .rw-f[aria-pressed="true"] span { color: #BDBDB3; }
+
+  .rw-grid {
+    list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); grid-auto-flow: dense;
+  }
+  .rc {
+    position: relative; min-width: 0; background: var(--card); border-radius: 20px; padding: 18px 18px 14px;
+    box-shadow: inset 0 0 0 1px var(--line); display: grid; grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "head" "title" "sum" "phone" "foot"; align-content: start; cursor: pointer;
+    transition: box-shadow var(--speed) var(--ease), transform var(--speed) var(--ease);
+  }
+  /* the folded corner of a recipe card, in the job's swatch */
+  .rc::before {
+    content: ""; position: absolute; top: 0; right: 0; width: 34px; height: 34px; border-top-right-radius: 20px;
+    background: linear-gradient(225deg, var(--paper) 50%, #1C1C1C33 50%, #1C1C1C33 calc(50% + 1.5px), var(--sw) calc(50% + 1.5px));
+    transition: width 300ms var(--ease-out), height 300ms var(--ease-out);
+  }
+  .rc:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .rc:hover::before, .rc:focus-within::before { width: 44px; height: 44px; }
+  .rc-head { grid-area: head; display: flex; align-items: center; gap: 10px; padding-right: 36px; flex-wrap: wrap; }
+  .rc-family { display: inline-flex; align-items: center; gap: 7px; font: 400 0.8125rem/1.2 var(--font-mono); color: var(--ink-2); }
+  .rc-family .swatch-dot { background: var(--sw); }
+  .rc-badge { font: 600 0.8125rem/1 var(--font-text); padding: 6px 9px; border-radius: 999px; white-space: nowrap; }
+  .rc-badge-free { background: var(--paper-2); color: var(--ink); }
+  .rc-badge-restricted { background: var(--ink); color: var(--paper); }
+  .rc-badge-calling { background: var(--sky-tint); color: var(--sky-ink); box-shadow: inset 0 0 0 1px var(--sky); }
+  .rc-badge-conditional { background: var(--paper-2); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line-2); }
+  .rc-title { grid-area: title; font: 400 1.75rem/1.05 var(--font-display); letter-spacing: -0.01em; margin: 14px 0 6px; }
+  .rc-title:focus { outline: none; }
+  .rc-title:focus-visible { outline: 2px solid var(--sky-ink); outline-offset: 4px; border-radius: 4px; }
+  .rc-sum { grid-area: sum; margin: 0 0 16px; color: var(--ink-2); font-size: 1rem; line-height: 1.45; }
+  .rc-phone {
+    grid-area: phone; background: var(--tint); border-radius: 16px; padding: 18px 16px; overflow: hidden;
+    display: flex; align-items: flex-start; align-self: end;
+  }
+  .rc-phone :global(.ph) { --ph-h: 318px; }
+  .rc-foot { grid-area: foot; display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  .rc-methods { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; flex: 1; }
+  .rc-methods code { font-size: 0.75rem; background: var(--paper-2); padding: 3px 6px; border-radius: 6px; }
+  .rc-more { font: 400 0.75rem/1.6 var(--font-mono); color: var(--ink-2); }
+  .rc-open {
+    flex: none; margin-left: auto; min-height: 44px; padding: 0 14px 0 16px; border-radius: 999px; border: 0; cursor: pointer;
+    font: 600 0.9375rem/1 var(--font-text); background: var(--ink); color: var(--paper); display: inline-flex; align-items: center; gap: 8px;
+  }
+  .rc-open-x { width: 10px; height: 10px; position: relative; }
+  .rc-open-x::before, .rc-open-x::after { content: ""; position: absolute; left: 0; right: 0; top: 4px; height: 2px; background: currentColor; border-radius: 2px; transition: transform 260ms var(--ease-out); }
+  .rc-open-x::after { transform: rotate(90deg); }
+  .rc.is-open .rc-open-x::before { transform: rotate(45deg); }
+  .rc.is-open .rc-open-x::after { transform: rotate(135deg); }
+
+  /* open: the card spans the wall and becomes the recipe */
+  .rc.is-open {
+    grid-column: 1 / -1; cursor: default; padding: 24px; box-shadow: inset 0 0 0 1.5px var(--ink);
+    grid-template-areas: "head" "title" "sum" "phone" "detail" "foot"; background: var(--card);
+  }
+  .rc.is-open::before { width: 56px; height: 56px; }
+  .rc.is-open .rc-title { font-size: clamp(2rem, 5vw, 3rem); }
+  .rc.is-open .rc-phone :global(.ph) { --ph-h: 420px; max-width: 280px; }
+  .rc.is-open .rc-methods { display: none; }
+  .rc-detail { grid-area: detail; display: grid; gap: 20px; margin-top: 20px; min-width: 0; }
+  .rc-detail h4 { font: 600 0.8125rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); margin: 0 0 10px; }
+  .rc-steps ol { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 12px; }
+  .rc-steps li { counter-increment: s; display: grid; grid-template-columns: 30px 1fr; gap: 10px; font-size: 1rem; line-height: 1.5; }
+  .rc-steps li::before {
+    content: counter(s); width: 28px; height: 28px; border-radius: 50%; background: var(--sw); color: var(--ink);
+    display: grid; place-items: center; font: 600 0.875rem/1 var(--font-mono);
+  }
+  .rc-lic { margin-top: 22px; padding: 14px 16px; border-radius: 12px; background: var(--tint); }
+  .rc-lic p { margin: 0; font-size: 1rem; }
+  .rc-lic .rc-lic-note { margin-top: 6px; color: var(--ink-2); font-size: 0.9375rem; }
+  .rc-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .rc-code { min-width: 0; }
+
+  @media (min-width: 900px) {
+    .rc.is-open {
+      padding: 30px; column-gap: 32px;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) 300px;
+      grid-template-areas:
+        "head head phone"
+        "title title phone"
+        "sum sum phone"
+        "detail detail phone"
+        "foot foot phone";
+    }
+    .rc-detail { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); column-gap: 32px; margin-top: 8px; }
+    .rc.is-open .rc-phone { align-self: start; padding: 22px 20px; }
+  }
+
+</style>
