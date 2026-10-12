@@ -1,0 +1,81 @@
+---
+/**
+ * Proof it works: the first run as a sequence line (run, link, open docs, send,
+ * reply), with the real commands and a drawn "Example output" chat card.
+ */
+import Command from "./Command.astro";
+import { commands, firstRun } from "../data/site";
+const seq = ["Command runs", "QR or link code", "Session ready", "/api-docs open", "Message sent", "Reply received"];
+---
+<section class="section fr" aria-labelledby="fr-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="fr-title">From one command to a working session</h2>
+      <p class="lede">The Easy API path, start to finish. The other three ways start from the same session.</p>
+    </div>
+
+    <ol class="fr-steps">
+      <li>
+        <h3>Run it</h3>
+        <p>{firstRun[0]}</p>
+        <Command cmd={commands.easyApi} id="fr-cmd" tone="paper" />
+      </li>
+      <li>
+        <h3>Link your phone</h3>
+        <p>{firstRun[1]}</p>
+      </li>
+      <li>
+        <h3>Open the API docs</h3>
+        <p>Every running instance serves interactive docs, plus Swagger and Postman files.</p>
+        <code class="fr-url">{commands.proofOfLife}</code>
+      </li>
+    </ol>
+
+    <div class="fr-demo">
+      <div class="fr-seq" aria-label="The first run, in order">
+        <ol>{seq.map((s) => <li><span class="dot" aria-hidden="true"></span>{s}</li>)}</ol>
+      </div>
+      <figure class="fr-chat" aria-label="Example output: a message sent from the API and a reply received">
+        <figcaption class="label-demo">Example output</figcaption>
+        <div class="chat">
+          <p class="chat-meta mono">+44 7700 900123</p>
+          <p class="bub out">Your order #1042 has shipped. Reply HELP for options.</p>
+          <p class="bub in">Thanks! When will it arrive?</p>
+          <p class="chat-evt mono">onMessage → message.body: "Thanks! When will it arrive?"</p>
+        </div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<style>
+  .fr-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; counter-reset: fr; border-top: 1px solid var(--color-ink); }
+  .fr-steps li { counter-increment: fr; display: grid; align-content: start; gap: 12px; padding: 24px clamp(16px, 2.4vw, 32px) 28px 0; border-right: 1px solid var(--color-rule); }
+  .fr-steps li + li { padding-left: clamp(16px, 2.4vw, 32px); }
+  .fr-steps li:last-child { border-right: 0; }
+  .fr-steps li::before { content: counter(fr, decimal-leading-zero); font: 500 13px/1 var(--font-mono); color: var(--color-coral-ink); }
+  .fr-steps h3 { font-size: 26px; }
+  .fr-url { justify-self: start; font-size: 13px !important; }
+  .fr-demo { margin-top: clamp(32px, 4vw, 48px); display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; align-items: stretch; }
+  .fr-seq { border: 1px solid var(--color-rule); border-radius: 16px; background: var(--color-paper-3); padding: 28px; display: grid; align-items: center; }
+  .fr-seq ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); position: relative; }
+  .fr-seq ol::before { content: ""; position: absolute; left: 6px; right: 6px; top: 6px; height: 2px; background: repeating-linear-gradient(90deg, var(--color-coral) 0 8px, transparent 8px 14px); }
+  .fr-seq li { position: relative; display: grid; gap: 14px; font-size: 14.5px; line-height: 1.3; padding-right: 8px; }
+  .fr-seq .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--color-paper-3); border: 2px solid var(--color-ink); position: relative; z-index: 1; }
+  .fr-seq li:last-child .dot { background: var(--color-coral); }
+  .fr-chat { margin: 0; border: 1px solid var(--color-rule); border-radius: 16px; background: var(--color-paper-2); padding: 18px; display: grid; gap: 12px; }
+  .chat { display: grid; gap: 8px; }
+  .chat-meta { font-size: 12.5px; color: var(--color-muted); }
+  .bub { max-width: 85%; padding: 10px 14px; border-radius: 14px; font-size: 15.5px; line-height: 1.4; }
+  .bub.out { justify-self: end; background: var(--color-ink); color: var(--color-on-navy); border-bottom-right-radius: 4px; }
+  .bub.in { justify-self: start; background: var(--color-paper-3); border: 1px solid var(--color-rule); border-bottom-left-radius: 4px; }
+  .chat-evt { font-size: 12px; color: var(--color-brass-ink); overflow-wrap: anywhere; }
+  @media (max-width: 900px) {
+    .fr-steps { grid-template-columns: minmax(0, 1fr); }
+    .fr-steps li, .fr-steps li + li { padding: 20px 0; border-right: 0; border-bottom: 1px solid var(--color-rule); }
+    .fr-demo { grid-template-columns: minmax(0, 1fr); }
+    .fr-seq ol { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+    .fr-seq ol::before { left: 6px; right: auto; top: 6px; bottom: 6px; width: 2px; height: auto; background: repeating-linear-gradient(180deg, var(--color-coral) 0 8px, transparent 8px 14px); }
+    .fr-seq li { grid-template-columns: 14px 1fr; align-items: center; }
+  }
+</style>

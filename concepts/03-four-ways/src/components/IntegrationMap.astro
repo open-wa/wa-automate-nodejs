@@ -1,0 +1,70 @@
+---
+/**
+ * Integrations as a junction: one runtime node fans out to each plugin row.
+ * Hovering or focusing a row lights its line. Phone: the list alone.
+ */
+import { integrations, href } from "../data/site";
+const ROW = 72;
+const H = integrations.length * ROW;
+const hubY = H / 2;
+const anchor = (name: string) => (name === "Plugin SDK" ? "plugin-sdk" : name === "MCP" ? "mcp" : name.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+---
+<div class="im" style={`--rows:${integrations.length}; --row:${ROW}px`}>
+  <svg class="im-lines" viewBox={`0 0 140 ${H}`} aria-hidden="true" preserveAspectRatio="none">
+    {integrations.map((_, i) => {
+      const y = i * ROW + ROW / 2;
+      return <path data-i={i} d={`M24 ${hubY} C 80 ${hubY}, 70 ${y}, 140 ${y}`} vector-effect="non-scaling-stroke" />;
+    })}
+    <circle class="hub-ring" cx="24" cy={hubY} r="16" />
+    <circle class="hub" cx="24" cy={hubY} r="8" />
+  </svg>
+  <ul class="im-list">
+    {integrations.map((it, i) => (
+      <li data-i={i}>
+        <a href={`${href("integrations/")}#${anchor(it.name)}`}>
+          <span class="im-name">{it.name}</span>
+          <code class="im-pkg">{it.package}</code>
+          <span class="im-what">{it.what}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".im").forEach((im) => {
+    const paths = im.querySelectorAll<SVGPathElement>(".im-lines path");
+    im.querySelectorAll<HTMLElement>(".im-list li").forEach((li) => {
+      const on = (v: boolean) => paths[Number(li.dataset.i)]?.classList.toggle("on", v);
+      li.addEventListener("mouseenter", () => on(true));
+      li.addEventListener("mouseleave", () => on(false));
+      li.addEventListener("focusin", () => on(true));
+      li.addEventListener("focusout", () => on(false));
+    });
+  });
+</script>
+
+<style>
+  .im { display: grid; grid-template-columns: 140px minmax(0, 1fr); }
+  .im-lines { width: 140px; height: calc(var(--rows) * var(--row)); overflow: visible; }
+  .im-lines path { fill: none; stroke: var(--color-rule); stroke-width: 1.5; transition: stroke 200ms; }
+  .im-lines path.on { stroke: var(--color-coral); stroke-width: 2.5; }
+  .hub { fill: var(--color-coral); stroke: var(--color-ink); stroke-width: 2.5; }
+  .hub-ring { fill: var(--color-bg); stroke: var(--color-ink); stroke-width: 1.2; stroke-dasharray: 3 3; }
+  .im-list { list-style: none; margin: 0; padding: 0; }
+  .im-list li { height: var(--row); border-bottom: 1px solid var(--color-rule); }
+  .im-list li:first-child { border-top: 1px solid var(--color-rule); }
+  .im-list a { display: grid; grid-template-columns: 9.5em minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 16px; align-content: center; height: 100%; padding: 0 12px; text-decoration: none; border-radius: 6px; }
+  .im-list a:hover, .im-list a:focus-visible { background: var(--color-paper-3); }
+  .im-name { font-weight: 600; grid-row: 1 / span 2; align-self: center; }
+  .im-pkg { justify-self: start; font-size: 12px !important; }
+  .im-what { font-size: 14.5px; color: var(--color-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 700px) {
+    .im { grid-template-columns: minmax(0, 1fr); }
+    .im-lines { display: none; }
+    .im-list li { height: auto; }
+    .im-list a { grid-template-columns: minmax(0, 1fr); padding: 14px 0; row-gap: 4px; }
+    .im-name { grid-row: auto; }
+    .im-what { white-space: normal; }
+  }
+</style>

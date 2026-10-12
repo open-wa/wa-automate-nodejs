@@ -57,7 +57,7 @@ export const wide: Layout = {
     apiHttp: { d: "M464 253 C 512 253, 514 226, 562 226", label: { x: 513, y: 274, text: "REST", anchor: "middle" } },
     rpc: { d: "M464 244 C 530 244, 498 68, 562 68", label: { x: 508, y: 150, text: "HTTP RPC", anchor: "end" } },
     sse: { d: "M464 262 C 546 262, 510 88, 562 88", reverse: true, label: { x: 534, y: 182, text: "SSE events", anchor: "start" } },
-    embedded: { d: "M464 160 C 522 160, 504 76, 562 76", label: { x: 516, y: 136, text: "createClient()", anchor: "middle" } },
+    embedded: { d: "M464 160 C 522 160, 504 76, 562 76", label: { x: 562, y: 150, text: "createClient()", anchor: "start" } },
     mcpAgent: { d: "M464 335 C 512 335, 514 352, 562 352", label: { x: 513, y: 376, text: "tools", anchor: "middle" } },
   },
 };

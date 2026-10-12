@@ -188,7 +188,7 @@ const glyph: Record<PathId, string> = {
   .tab-name .short { display: none; }
   .tab-for { font-size: 14.5px; line-height: 1.35; color: var(--color-muted); grid-column: 2; }
 
-  .stage { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+  .stage { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
   .figure { position: sticky; top: 88px; border: 1px solid var(--color-rule); border-radius: 16px; background: var(--color-paper-3); padding: clamp(12px, 2vw, 24px); }
   .panel { display: grid; gap: 18px; min-width: 0; outline: none; }
   .panel:focus-visible { outline: 2px solid var(--color-coral-ink); outline-offset: 8px; border-radius: 8px; }
@@ -203,9 +203,9 @@ const glyph: Record<PathId, string> = {
   /* Diagram */
   :global(.diagram) { display: block; width: 100%; height: auto; overflow: visible; font-family: var(--font-text); }
   :global(.diagram-tall) { display: none; }
-  .ways :global(.n-title) { font: 600 15px var(--font-text); fill: var(--color-ink); }
-  .ways :global(.n-sub) { font: 400 12.5px var(--font-mono); fill: var(--color-muted); }
-  .ways :global(.r-title) { font: 500 12.5px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; fill: var(--color-muted); }
+  .ways :global(.n-title) { font: 600 17px var(--font-text); fill: var(--color-ink); }
+  .ways :global(.n-sub) { font: 400 14px var(--font-text); fill: var(--color-muted); }
+  .ways :global(.r-title) { font: 500 13px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; fill: var(--color-muted); }
   .ways :global(.runtime-box) { fill: var(--color-bg); stroke: var(--color-ink); stroke-width: 1.5; }
   .ways :global(.runtime-fill) { pointer-events: none; }
   .ways :global(.box-bg) { fill: var(--color-paper-3); stroke: var(--color-rule); stroke-width: 1.2; transition: stroke 300ms, fill 300ms; }
@@ -228,7 +228,7 @@ const glyph: Record<PathId, string> = {
   .ways :global(.e-idle) { stroke: var(--color-rule); stroke-width: 1.5; stroke-dasharray: 2 5; }
   .ways :global(.e-draw) { stroke: var(--color-coral); stroke-width: 2.5; stroke-dasharray: 1; stroke-dashoffset: 1; }
   .ways :global(.e-flow) { stroke: var(--color-ink); stroke-width: 4.5; stroke-dasharray: 0 16; opacity: 0; }
-  .ways :global(.e-label) { font: 500 12px var(--font-mono); fill: var(--color-coral-ink); opacity: 0; transition: opacity 300ms; paint-order: stroke; stroke: var(--color-paper-3); stroke-width: 5px; stroke-linejoin: round; }
+  .ways :global(.e-label) { font: 500 13px var(--font-mono); fill: var(--color-coral-ink); opacity: 0; transition: opacity 300ms; paint-order: stroke; stroke: var(--color-paper-3); stroke-width: 5px; stroke-linejoin: round; }
   .ways :global(.edge.on .e-draw) { animation: e-draw 520ms var(--d) var(--ease-draw) forwards; }
   .ways :global(.edge.on .e-flow) { animation: e-show 200ms calc(var(--d) + 480ms) forwards, e-flow 1100ms calc(var(--d) + 480ms) linear infinite; }
   .ways :global(.edge.on.rev .e-flow) { animation: e-show 200ms calc(var(--d) + 480ms) forwards, e-flow-rev 1100ms calc(var(--d) + 480ms) linear infinite; }
@@ -260,8 +260,9 @@ const glyph: Record<PathId, string> = {
   @media (max-width: 640px) {
     :global(.diagram-wide) { display: none; }
     :global(.diagram-tall) { display: block; }
-    .ways :global(.diagram-tall .n-title) { font-size: 14px; }
-    .ways :global(.diagram-tall .n-sub) { font-size: 11.5px; }
+    .ways :global(.diagram-tall .n-title) { font-size: 15px; }
+    .ways :global(.diagram-tall .n-sub) { font-size: 13px; }
+    .ways :global(.diagram-tall .e-label) { font-size: 12px; }
     .tabs { gap: 3px; padding: 4px; border-radius: 12px; }
   }
 </style>

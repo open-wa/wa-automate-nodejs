@@ -2,10 +2,189 @@
 import Base from "../layouts/Base.astro";
 import Hero from "../components/Hero.astro";
 import PathSelector from "../components/PathSelector.astro";
+import FirstRun from "../components/FirstRun.astro";
+import PriceTable from "../components/PriceTable.astro";
+import Command from "../components/Command.astro";
+import IntegrationMap from "../components/IntegrationMap.astro";
+import { capabilityList, useCaseList, wayTable } from "../data/editorial";
+import { product, stats, links, commands, latest, href, fmt } from "../data/site";
 ---
 <Base title="open-wa: your WhatsApp number as an API for Node.js" description="open-wa turns your own WhatsApp number into a local HTTP API, a bot client, an embedded runtime or an MCP server for Node.js. Free for most methods. Unofficial.">
   <div class="wrap">
     <Hero />
     <PathSelector />
   </div>
+
+  <FirstRun />
+
+  <section class="section" aria-labelledby="table-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="table-title">The four ways, side by side</h2>
+        <p class="lede">All four drive the same runtime and the same WhatsApp account, so you can start with the Easy API and switch later.</p>
+      </div>
+      <div class="ways-table" role="table" aria-label="Ways to use open-wa">
+        <div class="wt-row wt-head" role="row">
+          <span role="columnheader">Way</span><span role="columnheader">What runs where</span><span role="columnheader">Your code</span><span role="columnheader">Start with</span>
+        </div>
+        {wayTable.map((w) => (
+          <div class="wt-row" role="row">
+            <span role="cell" class="wt-name"><a href={href(`quickstart/#${w.id}`)}>{w.name}</a></span>
+            <span role="cell">{w.runs}</span>
+            <span role="cell" class="muted">{w.code}</span>
+            <span role="cell"><code>{w.start}</code></span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="cap-title">
+    <div class="wrap">
+      <div class="section-head split">
+        <h2 id="cap-title">What your code can do with the account</h2>
+        <a class="link more" href={href("features/")}>All features <span aria-hidden="true">→</span></a>
+      </div>
+      <dl class="caps">
+        {capabilityList.map((c) => (
+          <div class="cap">
+            <dt>{c.title}</dt>
+            <dd>{c.text}{c.methods && <span class="cap-methods">{c.methods.map((m) => <code>{m}</code>)}</span>}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="int-title">
+    <div class="wrap int-grid">
+      <div class="section-head">
+        <h2 id="int-title">Plugs into the tools you already run</h2>
+        <p class="lede">Integrations load as plugins next to the runtime. Write your own with the Plugin SDK.</p>
+        <a class="link more" href={href("integrations/")}>All integrations <span aria-hidden="true">→</span></a>
+      </div>
+      <IntegrationMap />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="uc-title">
+    <div class="wrap">
+      <div class="section-head split">
+        <h2 id="uc-title">What people build with it</h2>
+        <a class="link more" href={href("use-cases/")}>Use cases <span aria-hidden="true">→</span></a>
+      </div>
+      <ul class="ucs">
+        {useCaseList.map((u) => (
+          <li><p>{u.text}</p><span class="uc-tags">{u.paths.map((p) => <span class="tag">{p}</span>)}</span></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="price-title">
+    <div class="wrap">
+      <div class="section-head split">
+        <div class="stack">
+          <h2 id="price-title">Free for most methods</h2>
+          <p class="lede">Each method is marked none, insiders or restricted. You only pay when your workflow calls a marked method, per WhatsApp number.</p>
+        </div>
+        <a class="link more" href={href("pricing/")}>Pricing and licence form <span aria-hidden="true">→</span></a>
+      </div>
+      <PriceTable />
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="risk-title">
+    <div class="wrap band-grid">
+      <div class="stack">
+        <h2 id="risk-title">Unofficial, and plain about the risk</h2>
+        <p>{product.unofficial}</p>
+        <p>{product.risk} Use a number you can afford to lose while you test, and read the <a href={links.terms}>Terms of Service</a>.</p>
+        <p class="band-muted">Software licence: {product.softwareLicence}. Maintained by {links.maintainer} since 2019.</p>
+        <a class="link-light" href={href("compare/")}>Official API or open-wa? <span aria-hidden="true">→</span></a>
+      </div>
+      <dl class="signals">
+        <div><dt>Latest release</dt><dd><a href={href("changelog/")}>{latest.version}</a><span>{latest.date}</span></dd></div>
+        <div><dt>GitHub stars</dt><dd>{fmt(stats.githubStars)}<span>{fmt(stats.githubForks)} forks</span></dd></div>
+        <div><dt>npm downloads, 12 months</dt><dd>{fmt(stats.npmDownloadsLast12Months)}<span>{fmt(stats.npmDownloadsLast30Days)} in the last 30 days</span></dd></div>
+        <div><dt>Discord members</dt><dd>{fmt(stats.discordMembers)}<span>{fmt(stats.dockerPulls)} Docker pulls</span></dd></div>
+      </dl>
+      <p class="band-note">Figures from GitHub, npm, Docker Hub and Discord, checked {stats.checkedOn}.</p>
+    </div>
+  </section>
+
+  <section class="closing" aria-labelledby="close-title">
+    <div class="wrap closing-grid">
+      <h2 id="close-title">Run it, link your phone, send a message.</h2>
+      <div class="stack">
+        <Command cmd={commands.easyApi} id="close-cmd" />
+        <div class="row">
+          <a class="btn btn-primary" href={href("quickstart/")}>Quick start <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn btn-ghost" href={links.discord}>Join the Discord</a>
+          <a class="btn btn-ghost" href={links.github}>Star on GitHub</a>
+        </div>
+      </div>
+    </div>
+  </section>
 </Base>
+
+<style>
+  .split { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; max-width: none; }
+  .stack { display: grid; gap: 14px; }
+  .more { font-weight: 600; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .ways-table { border-top: 1px solid var(--color-ink); }
+  .wt-row { display: grid; grid-template-columns: 1fr 2fr 1.3fr 2fr; gap: 24px; padding: 20px 0; border-bottom: 1px solid var(--color-rule); align-items: start; font-size: 16px; }
+  .wt-head { font: 500 12.5px/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-muted); padding: 14px 0; }
+  .wt-name a { font: 500 24px/1.1 var(--font-display); text-decoration: none; font-variation-settings: "opsz" 24; }
+  .wt-name a:hover { color: var(--color-coral-ink); }
+  .wt-row code { font-size: 12.5px; white-space: normal; overflow-wrap: anywhere; }
+
+  .caps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; border-top: 1px solid var(--color-ink); }
+  .cap { padding: 22px 24px 26px 0; border-bottom: 1px solid var(--color-rule); display: grid; gap: 8px; align-content: start; }
+  .cap:not(:nth-child(3n + 1)) { padding-left: 24px; border-left: 1px solid var(--color-rule); }
+  .cap dt { font: 500 22px/1.15 var(--font-display); font-variation-settings: "opsz" 24; }
+  .cap dd { margin: 0; color: var(--color-muted); font-size: 16px; }
+  .cap-methods { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .cap-methods code { font-size: 12px; color: var(--color-ink); }
+
+  .int-grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(28px, 5vw, 72px); align-items: center; }
+  .int-grid .section-head { margin: 0; }
+
+  .ucs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 48px; border-top: 1px solid var(--color-ink); }
+  .ucs li { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; padding: 20px 0; border-bottom: 1px solid var(--color-rule); }
+  .ucs p { font: 400 21px/1.3 var(--font-display); font-variation-settings: "opsz" 24; }
+  .uc-tags { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; flex: none; max-width: 45%; }
+
+  .band { background: var(--color-ink); color: var(--color-on-navy); padding: clamp(64px, 9vw, 120px) 0; }
+  .band a { color: inherit; }
+  .band-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 96px); align-items: start; }
+  .band h2 { color: var(--color-on-navy); }
+  .band-muted, .band-note { color: var(--color-on-navy-muted); font-size: 15px; }
+  .band-note { grid-column: 1 / -1; }
+  .link-light { font-weight: 600; text-decoration: underline; text-decoration-color: var(--color-coral); text-underline-offset: 4px; min-height: 44px; display: inline-flex; align-items: center; justify-self: start; }
+  .signals { display: grid; grid-template-columns: 1fr 1fr; margin: 0; border-top: 1px solid rgba(244, 241, 234, 0.2); }
+  .signals div { padding: 20px 0; border-bottom: 1px solid rgba(244, 241, 234, 0.2); display: grid; gap: 6px; }
+  .signals div:nth-child(even) { padding-left: 24px; border-left: 1px solid rgba(244, 241, 234, 0.2); }
+  .signals dt { font: 500 12.5px/1.3 var(--font-mono); letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-brass); }
+  .signals dd { margin: 0; font: 450 40px/1 var(--font-display); font-variation-settings: "opsz" 60; display: grid; gap: 8px; }
+  .signals dd span { font: 400 14.5px/1.3 var(--font-text); color: var(--color-on-navy-muted); }
+  .band :global(:focus-visible) { outline-color: var(--color-coral); }
+
+  .closing { padding: clamp(64px, 9vw, 120px) 0; }
+  .closing-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 72px); align-items: center; }
+  .closing h2 { font-size: clamp(32px, 4.4vw, 56px); }
+
+  @media (max-width: 900px) {
+    .wt-head { display: none; }
+    .wt-row { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+    .caps { grid-template-columns: minmax(0, 1fr); }
+    .cap, .cap:not(:nth-child(3n + 1)) { padding: 20px 0; border-left: 0; }
+    .int-grid, .band-grid, .closing-grid { grid-template-columns: minmax(0, 1fr); }
+    .ucs { grid-template-columns: minmax(0, 1fr); }
+    .ucs li { flex-direction: column; gap: 10px; }
+    .uc-tags { justify-content: flex-start; max-width: none; }
+    .signals dd { font-size: 32px; }
+  }
+</style>
