@@ -1,6 +1,7 @@
 import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
 import type { z } from 'zod';
+import type { ParticipantChange } from '@open-wa/schema';
 
 export interface EventContext {
   correlationId: string;
@@ -24,7 +25,7 @@ export type Message = unknown;
 export type Ack = unknown;
 export type Chat = unknown;
 export type ChatState = unknown;
-export type GroupParticipantChange = unknown;
+export type GroupParticipantChange = ParticipantChange;
 export type BatteryStatus = unknown;
 export type IncomingCall = unknown;
 export type CallState = unknown;

@@ -3,6 +3,7 @@ import { EventEmitter2 } from 'eventemitter2';
 import { Effect } from 'effect';
 import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { OpenWAEventMap } from './eventMap';
+import { eventRegistry } from '@open-wa/schema';
 
 type GlobalListener = Parameters<EventEmitter2['on']>[1];
 type SessionBridge = { hasMessageListeners: () => boolean; detach: () => void };
@@ -86,6 +87,15 @@ export function attachGlobalEvents(
       case 'ack.changed': emitListener('onAck', payload.ack); break;
       case 'session.state.changed': emitListener('onStateChanged', payload.details?.next); break;
       case 'session.logout': emitListener('onLogout', payload.details); break;
+      case 'group.participants.changed.global': {
+        const definition = eventRegistry.get('participantsChanged');
+        if (definition) {
+          for (const name of [definition.meta.legacyName, ...(definition.meta.aliases ?? [])]) {
+            emitListener(name, payload.change);
+          }
+        }
+        break;
+      }
       case 'interactive.response':
         emitListener('onInteractiveResponse', payload.response);
         if (payload.response?.type === 'form') emitListener('onFormResponse', payload.response);
