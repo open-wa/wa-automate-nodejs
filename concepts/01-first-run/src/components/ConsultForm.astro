@@ -1,0 +1,75 @@
+---
+/** "Tell us what you need": a short consulting lead form for businesses. */
+---
+<div class="cf" data-consult>
+  <form novalidate>
+    <div class="cf-field">
+      <label for="cf-name">Your name</label>
+      <input id="cf-name" name="name" type="text" autocomplete="name" aria-describedby="cf-name-err" />
+      <p class="cf-err" id="cf-name-err" aria-live="polite"></p>
+    </div>
+    <div class="cf-field">
+      <label for="cf-email">Email</label>
+      <input id="cf-email" name="email" type="email" autocomplete="email" inputmode="email" aria-describedby="cf-email-err" />
+      <p class="cf-err" id="cf-email-err" aria-live="polite"></p>
+    </div>
+    <div class="cf-field">
+      <label for="cf-need">What do you want built?</label>
+      <textarea id="cf-need" name="need" rows="4" placeholder="e.g. Reply to customer questions on our shop's WhatsApp number" aria-describedby="cf-need-err"></textarea>
+      <p class="cf-err" id="cf-need-err" aria-live="polite"></p>
+    </div>
+    <button class="btn btn-amber" type="submit">Send <span class="arrow" aria-hidden="true">→</span></button>
+  </form>
+  <div class="cf-done" hidden tabindex="-1">
+    <p class="cf-tag">Request received</p>
+    <h3>Thanks, <span data-out="name"></span></h3>
+    <p>The maintainer replies to <span data-out="email"></span> about scope and cost. For something quick, per-minute consulting and Discord are faster.</p>
+    <p class="muted">Demo: your details stay in this browser tab. Reference <span data-out="id"></span>.</p>
+  </div>
+</div>
+<style>
+  .cf { border: 1px solid var(--line-2); border-radius: var(--radius-lg); background: var(--ink-2); padding: clamp(18px, 3vw, 28px); }
+  .cf form { display: grid; gap: 18px; }
+  .cf form .btn { justify-self: start; }
+  .cf-field { display: grid; gap: 6px; }
+  .cf-field label { font-weight: 600; }
+  .cf input, .cf textarea { font: inherit; font-size: 17px; color: var(--bone); background: var(--ink); border: 1px solid var(--line-2); border-radius: var(--radius); min-height: 48px; padding: 10px 14px; width: 100%; }
+  .cf textarea { resize: vertical; }
+  .cf input:focus, .cf textarea:focus { outline: none; border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber); }
+  .cf [aria-invalid="true"] { border-color: #ff7a59; }
+  .cf-err { color: #ff9b80; font-size: 16px; }
+  .cf-err:empty { display: none; }
+  .cf-done { display: grid; gap: 12px; }
+  .cf-done:focus { outline: none; }
+  .cf-tag { font-family: var(--font-mono); font-size: 16.5px; color: var(--lime); }
+</style>
+<script>
+  import { submitLead } from "../lib/leads";
+  import { checkName, checkEmail, checkUse } from "../lib/validate";
+  const box = document.querySelector<HTMLElement>("[data-consult]");
+  if (box) {
+    const form = box.querySelector("form")!;
+    const done = box.querySelector<HTMLElement>(".cf-done")!;
+    const checks: Record<string, [(v: string) => string, string]> = {
+      name: [checkName, "#cf-name-err"], email: [checkEmail, "#cf-email-err"], need: [checkUse, "#cf-need-err"],
+    };
+    const field = (n: string) => form.elements.namedItem(n) as HTMLInputElement;
+    const validate = (n: string) => {
+      const msg = checks[n][0](field(n).value);
+      field(n).setAttribute("aria-invalid", msg ? "true" : "false");
+      box.querySelector(checks[n][1])!.textContent = msg;
+      return !msg;
+    };
+    Object.keys(checks).forEach((n) => field(n).addEventListener("input", () => validate(n)));
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const ok = Object.keys(checks).map(validate);
+      if (ok.includes(false)) { field(Object.keys(checks)[ok.indexOf(false)]).focus(); return; }
+      const lead = { name: field("name").value.trim(), email: field("email").value.trim(), need: field("need").value.trim() };
+      const r = await submitLead("consulting", lead);
+      const out: Record<string, string> = { name: lead.name, email: lead.email, id: r.id };
+      done.querySelectorAll<HTMLElement>("[data-out]").forEach((el) => (el.textContent = out[el.dataset.out!]));
+      form.hidden = true; done.hidden = false; done.focus();
+    });
+  }
+</script>

@@ -1,0 +1,15 @@
+---
+import CopyButton from "./CopyButton.astro";
+interface Props { cmd: string; what?: string; class?: string }
+const { cmd, what = "command", class: cls } = Astro.props;
+---
+<div class:list={["cmdline", "cmd-wrap", cls]}>
+  <span class="cmd-prompt" aria-hidden="true">$</span>
+  <code class="cmd-text">{cmd}</code>
+  <CopyButton text={cmd} what={what} />
+</div>
+<style>
+  .cmd-wrap { align-items: flex-start; }
+  .cmd-wrap .cmd-prompt { padding-top: 10px; }
+  .cmd-wrap .cmd-text { white-space: pre-wrap; overflow-wrap: anywhere; overflow: visible; padding-block: 10px; }
+</style>

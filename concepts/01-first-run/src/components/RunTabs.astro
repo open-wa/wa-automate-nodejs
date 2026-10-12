@@ -51,9 +51,10 @@ const { id = "run" } = Astro.props;
   :global(.copy-hero:hover) { background: var(--amber-tint) !important; }
   :global(.copy-hero[data-state="copied"]) { background: var(--lime) !important; border-color: var(--lime) !important; }
   @media (max-width: 520px) {
-    .term-line { flex-wrap: wrap; }
-    .term-line .cmd-text { flex-basis: calc(100% - 30px); font-size: 16.5px; padding-block: 2px; }
+    .term-line .cmd-text { font-size: 16.5px; padding-block: 2px; }
     .term-line .cmd-prompt { font-size: 16.5px; padding-top: 2px; }
-    :global(.copy-hero) { width: 100%; justify-content: center; }
+    .term-panel { padding: 12px 10px 12px 14px; gap: 6px; }
+    .term-top { min-height: 46px; }
+    .term-note { font-size: 16px; line-height: 1.4; }
   }
 </style>

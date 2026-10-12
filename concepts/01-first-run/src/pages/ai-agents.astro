@@ -1,0 +1,44 @@
+---
+import Page from "../layouts/Page.astro";
+import PageHead from "../components/PageHead.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import Cmd from "../components/Cmd.astro";
+import { snippets, commands, product, href } from "../data/site";
+---
+<Page title="Give Claude, Cursor or Windsurf a WhatsApp number | open-wa" description="open-wa's built-in MCP server exposes each Easy API method as a tool for AI agents. Config, start command and Claude Desktop set-up.">
+  <div class="wrap">
+    <PageHead kicker="ai-agents" title="Give your AI agent a WhatsApp number" lede="The built-in Model Context Protocol server exposes each Easy API method as a tool that agents such as Claude, Cursor and Windsurf can call." />
+    <ol class="ai-steps">
+      <li>
+        <h2>Turn on MCP in your config</h2>
+        <CodeBlock code={snippets.mcpConfig} lang="js" title="wa.config.mjs" />
+      </li>
+      <li>
+        <h2>Start the session with an API key</h2>
+        <Cmd cmd={snippets.mcpStart} what="MCP start command" />
+        <p class="muted">The MCP endpoint is <code>{commands.mcpEndpoint}</code>. Link your number with the QR code on the first run, as in the <a href={href("quickstart/")}>quick start</a>.</p>
+      </li>
+      <li>
+        <h2>Point your agent at it</h2>
+        <CodeBlock code={snippets.claudeDesktop} lang="json" title="Claude Desktop config" />
+        <p class="muted">Other MCP clients, such as Cursor and Windsurf, connect to the same URL with the same header.</p>
+      </li>
+    </ol>
+    <section class="sec" aria-labelledby="ai-rules">
+      <div class="sec-head"><h2 id="ai-rules">Which methods become tools</h2></div>
+      <div class="prose">
+        <p>Each Easy API method becomes a tool. With <code>exposeToolsMeta</code> on, each tool carries its method's metadata.</p>
+        <p><strong>Licence rules follow the method.</strong> A tool for a method marked insiders or restricted needs that key on the session, the same as calling it over HTTP. Everything marked none works without one. <a href={href("pricing/")}>See the tiers</a>.</p>
+        <p class="note"><strong>An agent sends from your real number.</strong> {product.risk} Keep the API key secret and review what the agent is allowed to do.</p>
+      </div>
+    </section>
+  </div>
+</Page>
+<style>
+  .ai-steps { list-style: none; margin: 0; padding: 0; counter-reset: s; border-top: 1px solid var(--line); }
+  .ai-steps > li { counter-increment: s; display: grid; gap: 14px; padding: 32px 0 32px 64px; border-bottom: 1px solid var(--line); position: relative; max-width: 900px; }
+  .ai-steps > li::before { content: counter(s); position: absolute; left: 0; top: 30px; font-family: var(--font-display); font-size: 44px; color: var(--amber); line-height: 1; }
+  .ai-steps h2 { font-size: 27.5px; }
+  .ai-steps a, .prose a { color: var(--amber); }
+  @media (max-width: 600px) { .ai-steps > li { padding-left: 0; padding-top: 72px; } }
+</style>

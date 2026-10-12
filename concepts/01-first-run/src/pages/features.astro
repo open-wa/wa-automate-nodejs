@@ -1,0 +1,60 @@
+---
+import Page from "../layouts/Page.astro";
+import PageHead from "../components/PageHead.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import Cmd from "../components/Cmd.astro";
+import { capabilities, snippets, commands, href } from "../data/site";
+type F = { id: string; name: string; text: string; methods?: string[]; code?: { code: string; lang: string; title: string }; cmd?: string; note?: string };
+const list: F[] = [
+  { id: "messages", name: "Messages", text: capabilities.messages, methods: ["sendText", "onMessage", "reply", "forwardMessages", "react", "editMessage", "deleteMessage"], code: { code: snippets.socketClient, lang: "js", title: "reply to Hi" } },
+  { id: "media", name: "Media", text: capabilities.media, methods: ["sendImage", "sendFile", "sendPtt", "sendVideoAsGif"] },
+  { id: "groups", name: "Groups", text: capabilities.groups, methods: ["onParticipantsChanged", "createGroup", "joinGroupViaLink"], note: "createGroup and joinGroupViaLink need a Restricted key." },
+  { id: "polls", name: "Polls", text: capabilities.polls },
+  { id: "events", name: "Events", text: capabilities.events, code: { code: snippets.event, lang: "js", title: "event card" } },
+  { id: "stickers", name: "Stickers", text: capabilities.stickers, cmd: commands.stickerCli, note: "Local rendering with the CLI is free. client.sendSticker needs a private finalizer, so it isn't available to everyone." },
+  { id: "multi-session", name: "Multi-session", text: capabilities.multiSession, cmd: commands.namedSession },
+  { id: "sessions", name: "Session files and keys", text: capabilities.sessions, code: { code: snippets.sessionKey, lang: "js", title: "your own key" } },
+  { id: "refresh", name: "Live refresh", text: capabilities.refresh, methods: ["client.refresh()"] },
+  { id: "drivers", name: "Drivers", text: capabilities.drivers, note: "Lightpanda is experimental." },
+  { id: "docs", name: "Generated API docs", text: capabilities.docs, methods: [commands.proofOfLife, commands.swagger, commands.postman] },
+];
+---
+<Page title="Features: messages, media, groups, events and more | open-wa" description="What open-wa can do with a linked WhatsApp number: messages, media, groups, polls, event cards, stickers, multi-session, encrypted session files, live refresh and generated API docs.">
+  <div class="wrap">
+    <PageHead kicker="features" title="Everything a linked number can do, from code" lede="Each capability below works through the Easy API, a SocketClient or the embedded runtime. Methods that need a licence say so." />
+    <nav class="toc" aria-label="On this page">
+      {list.map((f) => <a href={`#${f.id}`}>{f.name}</a>)}
+    </nav>
+    <div class="feats">
+      {list.map((f) => (
+        <section class="feat" id={f.id} aria-labelledby={`${f.id}-h`}>
+          <div class="feat-text">
+            <h2 id={`${f.id}-h`}>{f.name}</h2>
+            <p>{f.text}</p>
+            {f.methods && <ul class="methods">{f.methods.map((m) => <li><code>{m}</code></li>)}</ul>}
+            {f.note && <p class="note">{f.note}</p>}
+          </div>
+          <div class="feat-code">
+            {f.code && <CodeBlock {...f.code} />}
+            {f.cmd && <Cmd cmd={f.cmd} />}
+          </div>
+        </section>
+      ))}
+    </div>
+    <p class="feats-more"><a class="btn btn-amber" href={href("quickstart/")}>Quick start <span class="arrow" aria-hidden="true">→</span></a> <a class="btn" href={href("pricing/")}>Which methods need a key</a></p>
+  </div>
+</Page>
+<style>
+  .toc { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; }
+  .toc a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: var(--radius); text-decoration: none; font-size: 16px; }
+  .toc a:hover { border-color: var(--amber); color: var(--amber); }
+  .feats { border-top: 1px solid var(--line); }
+  .feat { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 32px; padding: 40px 0; border-bottom: 1px solid var(--line); scroll-margin-top: 80px; }
+  .feat-text { display: grid; gap: 12px; align-content: start; }
+  .feat-text h2 { color: var(--amber); font-size: 27.5px; }
+  .feat-code { min-width: 0; display: grid; gap: 12px; align-content: start; }
+  .methods { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .methods li { padding: 4px 10px; border: 1px solid var(--line-2); border-radius: var(--radius); overflow-wrap: anywhere; max-width: 100%; }
+  .feats-more { padding: 40px 0 80px; display: flex; flex-wrap: wrap; gap: 10px; }
+  @media (max-width: 860px) { .feat { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
+</style>

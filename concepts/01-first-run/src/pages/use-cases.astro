@@ -1,0 +1,43 @@
+---
+import Page from "../layouts/Page.astro";
+import PageHead from "../components/PageHead.astro";
+import { useCases, href } from "../data/site";
+const detail = [
+  { path: "SocketClient + Chatwoot or Webhooks", methods: ["onMessage", "sendText", "reply"], link: "integrations/#chatwoot" },
+  { path: "Easy API over HTTP", methods: ["sendText", "sendImage", "sendFile"], link: "quickstart/" },
+  { path: "SocketClient or embedded runtime", methods: ["onMessage", "onParticipantsChanged", "sendPoll"], link: "features/#messages" },
+  { path: "Webhooks, Node-RED, Plugin SDK", methods: ["onMessage", "sendText"], link: "integrations/" },
+  { path: "Named sessions (sessionId)", methods: ["--session-id", "SocketClient.connect"], link: "features/#multi-session" },
+  { path: "Built-in MCP server", methods: ["mcp.enabled", "/mcp"], link: "ai-agents/" },
+];
+---
+<Page title="Use cases: support inboxes, notifications, bots, agents | open-wa" description="What developers build with open-wa: support inboxes, order and delivery notifications, bots, webhook bridges, multi-session automations and AI-agent workflows.">
+  <div class="wrap">
+    <PageHead kicker="use-cases" title="What you can build on your own number" lede="Six common jobs, the path each one usually takes and the methods it calls." />
+    <ol class="uc">
+      {useCases.map((u, k) => (
+        <li>
+          <span class="uc-n">{String(k + 1).padStart(2, "0")}</span>
+          <div>
+            <h2>{u}</h2>
+            <p class="muted">Path: {detail[k].path}</p>
+            <ul class="methods">{detail[k].methods.map((m) => <li><code>{m}</code></li>)}</ul>
+          </div>
+          <a class="btn" href={href(detail[k].link)}>How <span class="arrow" aria-hidden="true">→</span></a>
+        </li>
+      ))}
+    </ol>
+    <p class="uc-help muted">Want it built for you? <a href={href("support/")}>Tell us what you need</a>.</p>
+  </div>
+</Page>
+<style>
+  .uc { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .uc > li { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 20px; align-items: start; padding: 28px 0; border-bottom: 1px solid var(--line); }
+  .uc-n { font-family: var(--font-display); font-size: 22px; color: var(--amber); padding-top: 4px; }
+  .uc h2 { font-size: 22px; margin-bottom: 8px; font-family: var(--font-text); font-weight: 600; line-height: 1.3; }
+  .methods { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .methods li { padding: 4px 10px; border: 1px solid var(--line-2); border-radius: var(--radius); }
+  .uc-help { padding: 32px 0 80px; }
+  .uc-help a { color: var(--amber); }
+  @media (max-width: 700px) { .uc > li { grid-template-columns: minmax(0, 1fr); gap: 8px; } .uc .btn { justify-self: start; } }
+</style>

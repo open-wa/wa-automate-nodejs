@@ -1,0 +1,28 @@
+---
+import Page from "../layouts/Page.astro";
+import PageHead from "../components/PageHead.astro";
+import Cmd from "../components/Cmd.astro";
+import { migration, commands, releases, support } from "../data/site";
+---
+<Page title="Migrate from v4 to v5 | open-wa" description="Version 5 is the current release line. Pin v4 while you migrate, then move to v5 with the migration guide.">
+  <div class="wrap">
+    <PageHead kicker="migrate" title="Moving a v4 bot to v5" lede={migration.summary} />
+    <div class="prose mig">
+      <h2>Keep your v4 bot running</h2>
+      <p>Unqualified installs now get v5. Pin v4 explicitly until you've migrated:</p>
+      <Cmd cmd={migration.v4Pin} what="v4 pin command" />
+      <h2>What changed at a glance</h2>
+      <ul>
+        <li>Four ways in: the Easy API, a SocketClient consumer, the embedded runtime with <code>createClient</code>, and the MCP server.</li>
+        <li>Drivers are separate packages: <code>@open-wa/driver-puppeteer</code>, Playwright, and the experimental Lightpanda driver.</li>
+        <li>Each method is marked none, insiders or restricted, and the key goes in with <code>--license-key</code> or <code>licenseKey</code>.</li>
+        <li>Since {releases[1].version}: your own session encryption key and portable session files. Since {releases[0].version}: live refresh and event cards.</li>
+      </ul>
+      <h2>Try v5 next to it</h2>
+      <p>Run v5 on another port with its own session ID while the v4 bot keeps working:</p>
+      <Cmd cmd={commands.namedSession} what="named session command" />
+      <p><a class="btn btn-amber" href={support.migrationDocs}>Full migration guide <span class="ext" aria-hidden="true">↗</span></a></p>
+    </div>
+  </div>
+</Page>
+<style>.mig { padding-bottom: 80px; }</style>

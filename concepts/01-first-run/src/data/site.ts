@@ -21,7 +21,8 @@ export const href = (p: string) => base + p.replace(/^\//u, "");
 
 /** 3666 -> "3.6k": round down, as the fact pack asks. */
 export const kfloor = (n: number) =>
-  n >= 1000 ? `${Math.floor(n / 100) / 10}k`.replace(/\.0k$/u, "k") : String(n);
+  n >= 100000 ? `${Math.floor(n / 1000)}k`
+  : n >= 1000 ? `${Math.floor(n / 100) / 10}k`.replace(/\.0k$/u, "k") : String(n);
 
 export const starsShort = kfloor(stats.githubStars);
 export const checked = stats.checkedOn;

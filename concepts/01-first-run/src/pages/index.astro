@@ -241,7 +241,7 @@ const stepCmd = [commands.easyApi, "scan the QR code, or use a link code", comma
 </Page>
 
 <style>
-  .hero { padding-block: clamp(28px, 6vw, 72px) clamp(48px, 7vw, 96px); position: relative; overflow: clip; }
+  .hero { padding-block: clamp(20px, 6vw, 72px) clamp(48px, 7vw, 96px); position: relative; overflow: clip; }
   .hero::before {
     content: ""; position: absolute; inset: 0; pointer-events: none;
     background-image: radial-gradient(circle at 1px 1px, rgba(237, 232, 220, 0.07) 1px, transparent 1.5px);
@@ -269,11 +269,13 @@ const stepCmd = [commands.easyApi, "scan the QR code, or use a link code", comma
     .hero-cta { order: 3; }
     .hero-run { order: 4; margin-top: 14px; }
     .proof { order: 5; }
-    h1 { font-size: clamp(30px, 8vw, 44px); }
+    .hero-copy h1 { font-size: clamp(27.5px, 7.2vw, 44px); }
     .hero-sub { font-size: 17px; }
   }
   @media (max-width: 520px) {
     .hero-cta .btn { flex: 1; }
+    .hero-copy { gap: 12px; }
+    .hero-sub { font-size: 16.5px; line-height: 1.5; }
   }
 
   .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }

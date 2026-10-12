@@ -37,7 +37,7 @@ for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (qr.modules.data[y * 
 
 const cmd = commands.easyApi;
 const curl = [
-  "curl -X POST localhost:8080/sendText \\",
+  "curl -X POST localhost:8080/api/sendText \\",
   "  -H 'Content-Type: application/json' \\",
   `  -d '{"args":{"to":"447700900456@c.us","content":"Your order has shipped"}}'`,
 ];
@@ -68,7 +68,7 @@ const beats = ["Run", "Scan", "Ready", "Send", "Reply"];
         <span data-b="3" data-k="phone" data-state="linked" data-d="200" hidden></span>
         <p class="ln" data-b="3" data-k="out" data-d="420"><span class="lime">ready</span>  session <span class="amber-tint">"default"</span> linked to +44 7700 900123</p>
         <p class="ln" data-b="3" data-k="out" data-d="140"><span class="muted">docs </span>  <span class="url">http://localhost:8080/api-docs/</span></p>
-        <p class="ln" data-b="3" data-k="out" data-d="1100"><span class="muted">api  </span>  POST /sendText, /sendImage, /getAllChats <span class="muted">and the rest</span></p>
+        <p class="ln" data-b="3" data-k="out" data-d="1100"><span class="muted">api  </span>  POST /api/sendText, /api/sendImage <span class="muted">and the rest</span></p>
       </section>
 
       <section class="blk" aria-label="Block 2: send a message">
@@ -78,7 +78,7 @@ const beats = ["Run", "Scan", "Ready", "Send", "Reply"];
         </header>
         <p class="ln ln-cmd" data-b="4" data-k="type" data-d="420"><span class="p" aria-hidden="true">$</span> <span class="t">{curlText}</span><span class="caret" aria-hidden="true"></span></p>
         <span data-b="4" data-k="phone" data-state="sent" data-d="160" hidden></span>
-        <p class="ln" data-b="4" data-k="out" data-d="1500"><span class="muted">{"{"}</span><span class="amber-tint">"success"</span><span class="muted">:</span><span class="lime">true</span><span class="muted">,</span><span class="amber-tint">"response"</span><span class="muted">:</span>"true_447700900456@c.us_3EB0C4F1"<span class="muted">{"}"}</span></p>
+        <p class="ln" data-b="4" data-k="out" data-d="1500"><span class="muted">{"{"}</span><span class="amber-tint">"success"</span><span class="muted">:</span><span class="lime">true</span><span class="muted">,</span><span class="amber-tint">"data"</span><span class="muted">:</span>"true_447700900456@c.us_3EB0C4F1"<span class="muted">{"}"}</span></p>
       </section>
 
       <section class="blk blk-event" aria-label="Block 3: an incoming message event">
@@ -157,7 +157,7 @@ const beats = ["Run", "Scan", "Ready", "Send", "Reply"];
     display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 14px;
     border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 16.5px; color: var(--grey);
   }
-  .run-tag { color: var(--ink); background: var(--amber); padding: 1px 8px; border-radius: 2px; }
+  .run-tag { white-space: nowrap; flex: none; color: var(--ink); background: var(--amber); padding: 1px 8px; border-radius: 2px; }
   .run-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .run-body { display: grid; grid-template-columns: minmax(0, 1fr) 156px; min-width: 0; }
   .run-screen {
@@ -165,6 +165,7 @@ const beats = ["Run", "Scan", "Ready", "Send", "Reply"];
     font-family: var(--font-mono); font-size: var(--code-size); line-height: var(--line-h);
     scrollbar-width: thin; scrollbar-color: var(--line-2) transparent;
   }
+  :global(html:not(.anim)) .run-screen { height: auto; }
   .run-screen:focus-visible { outline-offset: -2px; }
   .blk { margin: 6px 8px 0; padding: 4px 10px 8px; border-radius: var(--radius); border: 1px solid transparent; transition: background var(--speed) var(--ease), border-color var(--speed) var(--ease); }
   .blk:hover, .blk:focus-within { background: var(--ink-3); border-color: var(--line); }
