@@ -1,0 +1,141 @@
+---
+/**
+ * Free vs Insiders vs Restricted, with a billing-period toggle (monthly,
+ * 3 months, 6 months, yearly) that updates every price from the fact pack.
+ * Prices reach the browser as data attributes only. Reduced motion: the
+ * numbers swap with no transition.
+ */
+import { licences, periods, perMonth, commands } from "../data/facts";
+
+interface Props { ctaBase?: string; headingLevel?: 2 | 3 }
+const { ctaBase } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const formHref = ctaBase ?? `${base}pricing/`;
+const [insiders, restricted] = licences.tiers;
+const methods: Record<string, string[]> = {
+  insiders: ["getNumberProfile", "checkNumberStatus", "sendInteractive", "sendButtons", "sendListMessage"],
+  restricted: ["createGroup", "joinGroupViaLink", "joinGroup"],
+};
+const blurb: Record<string, string> = {
+  insiders: "Number checks, buttons and lists, status and stories, orders, raw message payloads, starred messages and setting the profile picture.",
+  restricted: "Everything in Insiders, plus messaging numbers that aren't already contacts, creating groups and joining groups by invite link.",
+};
+const priceAttrs = (t: (typeof licences.tiers)[number]) =>
+  Object.fromEntries(periods.flatMap((p) => [
+    [`data-${p.id.toLowerCase()}`, (t.prices as Record<string, string>)[p.id]],
+    [`data-${p.id.toLowerCase()}-pm`, p.months > 1 ? `Works out at ${perMonth((t.prices as Record<string, string>)[p.id], p.months)} a month` : "Billed monthly"],
+  ]));
+const id = "bill";
+---
+
+<div class="pt" data-pt>
+  <fieldset class="pt-toggle">
+    <legend>Billing period</legend>
+    <div class="pt-seg">
+      {periods.map((p, i) => (
+        <label>
+          <input type="radio" name={`${id}-period`} value={p.id} data-short={p.short} checked={i === 0} />
+          <span>{p.label}</span>
+        </label>
+      ))}
+    </div>
+  </fieldset>
+
+  <div class="pt-grid">
+    <article class="pt-card">
+      <h3>No key</h3>
+      <p class="pt-price"><span class="pt-amt">£0</span><span class="pt-per">free, open source</span></p>
+      <p class="pt-pm">No licence needed</p>
+      <p class="pt-what">{licences.free.covers}</p>
+      <ul class="pt-list">
+        <li>Easy API, SocketClient, embedded runtime</li>
+        <li>Webhooks, Chatwoot, Node-RED, S3 plugins</li>
+        <li>MCP tools for every free method</li>
+      </ul>
+      <a class="btn btn--ghost pt-cta" href={`${base}quickstart/`}>Start with the quick start</a>
+    </article>
+
+    {[insiders, restricted].map((t) => (
+      <article class:list={["pt-card", { "pt-card--key": t.id === "restricted" }]}>
+        <h3>{t.name} <span class="tag tag--sun">Licence key</span></h3>
+        <p class="pt-price" {...priceAttrs(t)}>
+          <span class="pt-amt" data-amt>{t.prices.month}</span>
+          <span class="pt-per">per WhatsApp number, per <span data-short>month</span></span>
+        </p>
+        <p class="pt-pm" data-pm>Billed monthly</p>
+        <p class="pt-what">{blurb[t.id]}</p>
+        <ul class="pt-list pt-methods" aria-label={`Methods ${t.name} unlocks, examples`}>
+          {methods[t.id].map((m) => <li><code>{m}</code></li>)}
+        </ul>
+        <a class="btn btn--primary pt-cta" href={`${formHref}?tier=${t.id}#licence`} data-tier={t.id}>Get a {t.name} key</a>
+      </article>
+    ))}
+  </div>
+
+  <p class="pt-note">
+    Prices in GBP, checked {licences.pricesCheckedOn.split(",")[0]} from the Gumroad product page. Checkout shows the current price.
+    A key covers one WhatsApp number; pass it at launch with <code>{commands.licenceFlag}</code>.
+  </p>
+</div>
+
+<script>
+  import { shouldAnimate } from "../lib/runtime";
+  document.querySelectorAll<HTMLElement>("[data-pt]").forEach((pt) => {
+    const animate = shouldAnimate();
+    const prices = [...pt.querySelectorAll<HTMLElement>(".pt-price[data-month]")];
+    const update = (period: string, short: string) => {
+      const key = period.toLowerCase();
+      prices.forEach((p) => {
+        const amt = p.querySelector<HTMLElement>("[data-amt]")!;
+        const pm = p.parentElement!.querySelector<HTMLElement>("[data-pm]")!;
+        const next = p.dataset[key as "month"] ?? "";
+        const nextPm = p.getAttribute(`data-${key}-pm`) ?? "";
+        p.querySelector<HTMLElement>("[data-short]")!.textContent = short;
+        if (amt.textContent === next) return;
+        if (animate) {
+          amt.classList.remove("is-swap"); void amt.offsetWidth; amt.classList.add("is-swap");
+        }
+        amt.textContent = next;
+        pm.textContent = nextPm;
+      });
+    };
+    pt.querySelectorAll<HTMLInputElement>('input[type="radio"]').forEach((r) =>
+      r.addEventListener("change", () => r.checked && update(r.value, r.dataset.short ?? r.value)),
+    );
+  });
+</script>
+
+<style>
+  .pt-toggle { border: 0; margin: 0 0 24px; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+  .pt-toggle legend { float: left; font-weight: 650; padding: 0; margin-right: 4px; }
+  .pt-seg { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; background: var(--slate-100); border: 1px solid var(--slate-150); border-radius: 12px; }
+  .pt-seg label { position: relative; }
+  .pt-seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .pt-seg span {
+    display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 9px;
+    font-weight: 620; color: var(--slate-600); transition: background var(--speed) var(--ease), color var(--speed) var(--ease);
+  }
+  .pt-seg input:checked + span { background: var(--white); color: var(--slate); box-shadow: 0 1px 2px rgba(30, 42, 56, 0.16), inset 0 -2px 0 var(--sun-strong); }
+  .pt-seg input:focus-visible + span { outline: 2px solid var(--slate); outline-offset: 2px; }
+
+  .pt-grid { display: grid; gap: 20px; }
+  @media (min-width: 960px) { .pt-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .pt-card { display: flex; flex-direction: column; gap: 14px; background: var(--white); border: 1px solid var(--color-line); border-radius: var(--radius-lg); padding: 28px; }
+  .pt-card--key { border-color: var(--slate); box-shadow: inset 0 4px 0 var(--sun); }
+  .pt-card h3 { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .pt-price { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
+  .pt-amt { font: 760 2.75rem/1 var(--font-display); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; display: inline-block; }
+  .pt-amt.is-swap { animation: pt-swap 360ms var(--ease) both; }
+  @keyframes pt-swap { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+  .pt-per { color: var(--color-muted); font-size: var(--text-sm); }
+  .pt-pm { margin-top: -6px; font-size: var(--text-sm); color: var(--sun-ink); font-weight: 600; min-height: 1.6em; }
+  .pt-what { color: var(--slate-700); }
+  .pt-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: var(--text-sm); }
+  .pt-list li { position: relative; padding-left: 22px; }
+  .pt-list li::before { content: ""; position: absolute; left: 2px; top: 0.5em; width: 10px; height: 6px; border-left: 2px solid var(--slate); border-bottom: 2px solid var(--slate); transform: rotate(-45deg); }
+  .pt-methods { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pt-methods li { padding: 0; }
+  .pt-methods li::before { display: none; }
+  .pt-cta { margin-top: auto; width: 100%; }
+  .pt-note { margin-top: 20px; color: var(--color-muted); font-size: var(--text-sm); max-width: 820px; }
+</style>

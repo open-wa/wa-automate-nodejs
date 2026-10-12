@@ -1,0 +1,45 @@
+---
+import "../styles/global.css";
+import figtree from "../fonts/figtree-latin-wght.woff2?url";
+import scp from "../fonts/source-code-pro-latin-wght.woff2?url";
+
+interface Props {
+  title: string;
+  description: string;
+  themeColor?: string;
+}
+const { title, description, themeColor = "#1e2a38" } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+const faces = `
+@font-face{font-family:"Figtree";src:url("${figtree}") format("woff2");font-weight:300 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Source Code Pro";src:url("${scp}") format("woff2");font-weight:200 900;font-style:normal;font-display:swap}
+`;
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content={themeColor} />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="preload" href={figtree} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={scp} as="font" type="font/woff2" crossorigin />
+    <style is:inline set:html={faces}></style>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <slot />
+  </body>
+</html>

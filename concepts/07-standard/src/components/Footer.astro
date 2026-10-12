@@ -1,0 +1,107 @@
+---
+import Mark from "./Mark.astro";
+import { product, support, legal, releases, stats, kDown, checked } from "../data/facts";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const cols = [
+  {
+    title: "Product",
+    links: [
+      ["Features", `${base}features/`],
+      ["Integrations", `${base}integrations/`],
+      ["AI agents (MCP)", `${base}ai-agents/`],
+      ["Use cases", `${base}use-cases/`],
+      ["Pricing", `${base}pricing/`],
+      ["Official API or open-wa?", `${base}compare/`],
+    ],
+  },
+  {
+    title: "Developers",
+    links: [
+      ["Quick start", `${base}quickstart/`],
+      ["Docs", support.docs],
+      ["API explorer", support.apiExplorer],
+      ["Changelog", `${base}changelog/`],
+      ["Migrate from v4", `${base}migrate/`],
+      ["GitHub", support.github],
+      ["npm", support.npm],
+      ["Docker Hub", support.dockerHub],
+    ],
+  },
+  {
+    title: "Community",
+    links: [
+      ["Discord", support.discord],
+      ["Community", `${base}community/`],
+      ["Contributing", `${base}community/#contributing`],
+      ["Plugin SDK", `${base}integrations/#plugin-sdk`],
+      ["Support and consulting", `${base}support/`],
+      ["Report an issue", support.issues],
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      ["Terms of Service", support.terms],
+      ["Software licence", support.licenceText],
+      ["Unofficial notice", `${base}legal/#unofficial`],
+      ["Ban-risk notice", `${base}legal/#risk`],
+      ["Cryptography notice", `${base}legal/#crypto`],
+    ],
+  },
+];
+const latest = releases[0];
+---
+
+<footer class="site-footer on-dark">
+  <div class="wrap">
+    <div class="top">
+      <div class="about">
+        <a class="mark-host brand" href={base} aria-label="open-wa home">
+          <Mark size={34} label="" tone="light" />
+          <span>open-wa</span>
+        </a>
+        <p>A Node.js toolkit that turns a WhatsApp account into a local HTTP API, bot runtime, webhook source, plugin host or MCP server.</p>
+        <p class="signals">
+          <a href={`${base}changelog/`}>v{latest.version}, {latest.date}</a>
+          <span aria-hidden="true">·</span>
+          <a href={support.github}>{kDown(stats.githubStars)} GitHub stars</a>
+          <span aria-hidden="true">·</span>
+          <a href={support.discord}>{stats.discordMembers.toLocaleString("en-GB")} on Discord</a>
+        </p>
+        <p class="checked">Figures checked {checked}.</p>
+      </div>
+      {cols.map((c) => (
+        <nav class="col" aria-label={c.title}>
+          <h2>{c.title}</h2>
+          <ul>
+            {c.links.map(([label, href]) => <li><a href={href}>{label}</a></li>)}
+          </ul>
+        </nav>
+      ))}
+    </div>
+    <div class="bottom">
+      <p class="disclaimer"><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> {product.risk}</p>
+      <p>{legal.copyright}. Maintained by {support.maintainer}. Licensed under {product.softwareLicence}.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer { background: var(--slate-950); color: var(--slate-200); padding-block: 64px 40px; font-size: var(--text-sm); }
+  .top { display: grid; gap: 40px 32px; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .top { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1080px) { .top { grid-template-columns: 1.6fr repeat(4, minmax(0, 1fr)); } }
+  .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--white); text-decoration: none; font: 760 1.25rem/1 var(--font-display); letter-spacing: -0.03em; min-height: 44px; }
+  .about p { margin-top: 14px; max-width: 380px; color: var(--slate-300); }
+  .signals { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+  .signals a { color: var(--white); text-decoration: underline; text-decoration-color: var(--slate-600); text-underline-offset: 3px; }
+  .signals a:hover { text-decoration-color: var(--sun); }
+  .about .checked { margin-top: 6px; font-size: 0.875rem; color: var(--slate-300); }
+  .col h2 { font: 700 0.875rem/1 var(--font-mono); letter-spacing: 0.04em; color: var(--sun); margin: 12px 0 10px; }
+  .col ul { list-style: none; margin: 0; padding: 0; }
+  .col a { display: flex; align-items: center; min-height: 44px; color: var(--slate-200); text-decoration: none; }
+  .col a:hover { color: var(--white); text-decoration: underline; text-underline-offset: 3px; }
+  .bottom { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--slate-800); display: grid; gap: 10px; color: var(--slate-300); }
+  .disclaimer strong { color: var(--white); }
+</style>

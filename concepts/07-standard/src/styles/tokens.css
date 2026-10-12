@@ -1,0 +1,71 @@
+/* 07 Category standard: slate, sun yellow, white. Figtree + Source Code Pro.
+   Every colour, font, radius and easing for this concept lives here. */
+/* @font-face rules are emitted in layouts/Base.astro from src/fonts (?url). */
+:root {
+  /* Palette */
+  --slate: #1e2a38;
+  --slate-950: #121a24;
+  --slate-850: #243243;
+  --slate-800: #2b3a4d;
+  --slate-700: #3b4c61;
+  --slate-600: #4f6077;
+  --slate-500: #5b6b7f;   /* muted text on white, 5.4:1 */
+  --slate-300: #a9b5c3;
+  --slate-200: #d3dae3;
+  --slate-150: #e2e7ee;
+  --slate-100: #edf1f5;
+  --slate-50: #f6f8fa;
+  --white: #ffffff;
+  --sun: #ffd23f;
+  --sun-strong: #f5c312;
+  --sun-soft: #fff3c4;
+  --sun-ink: #6b5200;     /* yellow-family text on white, 7:1 */
+  --ok: #1f7a4d;
+  --ok-soft: #e3f3ea;
+  --err: #b42318;
+  --err-soft: #fdecea;
+
+  --color-bg: var(--white);
+  --color-ink: var(--slate);
+  --color-muted: var(--slate-500);
+  --color-line: var(--slate-150);
+  --color-surface: var(--slate-50);
+  --color-accent: var(--sun);
+
+  /* Code (on slate) */
+  --code-bg: var(--slate);
+  --code-bar: var(--slate-850);
+  --code-ink: #e8edf3;
+  --code-dim: #93a3b6;
+  --code-string: #ffd23f;
+  --code-key: #9cc4ff;
+  --code-fn: #ffe9a3;
+  --code-num: #ffb58a;
+  --code-prop: #c9d7e8;
+
+  /* Type */
+  --font-display: "Figtree", system-ui, sans-serif;
+  --font-text: "Figtree", system-ui, sans-serif;
+  --font-mono: "Source Code Pro", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --text: 1.0625rem;      /* 17px body */
+  --text-sm: 1rem;        /* 16px floor */
+  --text-mono: 0.9375rem; /* 15px code */
+  --h1: clamp(2.25rem, 1.4rem + 3.4vw, 3.75rem);
+  --h2: clamp(1.75rem, 1.3rem + 1.8vw, 2.5rem);
+  --h3: 1.25rem;
+
+  /* Shape and motion */
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 18px;
+  --shadow-card: 0 1px 0 rgba(30, 42, 56, 0.04), 0 12px 32px -12px rgba(30, 42, 56, 0.22);
+  --shadow-lift: 0 2px 0 rgba(30, 42, 56, 0.05), 0 24px 48px -20px rgba(30, 42, 56, 0.35);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-seat: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --speed: 220ms;
+
+  --wrap: 1180px;
+  --gutter: clamp(16px, 4vw, 32px);
+  --header-h: 64px;
+}

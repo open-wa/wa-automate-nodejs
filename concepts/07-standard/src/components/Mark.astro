@@ -1,0 +1,60 @@
+---
+/**
+ * The open-wa mark for 07: a slate rounded square with a socket notch on its
+ * right edge and a hand-drawn lowercase "wa". A sun-yellow plug waits beside
+ * it; on hover or keyboard focus of the wrapping link (.mark-host) the plug
+ * slides in and seats in the notch with a small overshoot, and the status
+ * light in the square comes on. It eases back out on leave. Reduced motion:
+ * the plug is drawn seated and nothing moves. The favicon is the seated mark.
+ */
+interface Props { size?: number; label?: string; tone?: "dark" | "light" }
+const { size = 30, label = "open-wa", tone = "dark" } = Astro.props;
+const h = Math.round((size * 30) / 40);
+---
+
+<svg class:list={["mark", `mark--${tone}`]} viewBox="0 0 40 30" width={size} height={h} role="img" aria-label={label}>
+  <path
+    class="mark-body"
+    fill-rule="evenodd"
+    d="M8 1h14a7 7 0 0 1 7 7v4h-3v6h3v4a7 7 0 0 1-7 7H8a7 7 0 0 1-7-7V8a7 7 0 0 1 7-7z"
+  />
+  <path class="mark-glyph" d="M4.5 11.6 6.7 19.4 9 13.7l2.3 5.7 2.2-7.8" />
+  <path class="mark-glyph" d="M22.3 12.6v6.8M16.1 15.9a3.1 3.1 0 1 0 6.2 0a3.1 3.1 0 1 0-6.2 0" />
+  <circle class="mark-led" cx="25.4" cy="5.6" r="1.35" />
+  <g class="mark-plug">
+    <rect class="mark-prong" x="30" y="13" width="4.4" height="1.6" rx="0.5" />
+    <rect class="mark-prong" x="30" y="15.4" width="4.4" height="1.6" rx="0.5" />
+    <rect class="mark-plugbody" x="34" y="10.5" width="5" height="9" rx="1.6" />
+  </g>
+</svg>
+
+<style>
+  .mark { display: block; flex: none; overflow: visible; }
+  .mark-body { fill: var(--slate); }
+  .mark--light .mark-body { fill: var(--white); }
+  .mark-glyph {
+    fill: none; stroke: var(--white); stroke-width: 2.1;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  .mark--light .mark-glyph { stroke: var(--slate); }
+  .mark-led { fill: var(--slate-700); transition: fill 160ms var(--ease) 0ms; }
+  .mark--light .mark-led { fill: var(--slate-200); }
+  .mark-plug { fill: var(--sun); transform: translateX(0); transition: transform 380ms var(--ease); }
+  .mark-prong { fill: var(--sun-strong); }
+
+  :global(.mark-host:hover) .mark-plug,
+  :global(.mark-host:focus-visible) .mark-plug {
+    transform: translateX(-4px);
+    transition: transform 520ms var(--ease-seat);
+  }
+  :global(.mark-host:hover) .mark-led,
+  :global(.mark-host:focus-visible) .mark-led {
+    fill: var(--sun);
+    transition: fill 160ms var(--ease) 360ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mark-plug { transform: translateX(-4px); transition: none; }
+    .mark-led { fill: var(--sun); transition: none; }
+  }
+</style>

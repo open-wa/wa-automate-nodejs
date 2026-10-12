@@ -1,0 +1,48 @@
+---
+import Base from "./Base.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
+interface Props { title: string; description: string }
+const { title, description } = Astro.props;
+---
+
+<Base title={title} description={description}>
+  <slot name="head" slot="head" />
+  <Header />
+  <main id="main">
+    <slot />
+  </main>
+  <Footer />
+  <div class="sr-only" aria-live="polite" id="copy-status"></div>
+</Base>
+
+<script>
+  // One handler for every [data-copy] button on the page: copies the text,
+  // shows "Copied" for two seconds and announces it to screen readers.
+  const status = document.getElementById("copy-status");
+  const fallback = (text: string) => {
+    const t = document.createElement("textarea");
+    t.value = text; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0";
+    document.body.appendChild(t); t.select();
+    try { document.execCommand("copy"); } catch {}
+    t.remove();
+  };
+  document.addEventListener("click", async (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-copy]");
+    if (!btn) return;
+    const text = btn.dataset.copy ?? "";
+    try { await navigator.clipboard.writeText(text); } catch { fallback(text); }
+    const label = btn.querySelector(".copy-label");
+    btn.classList.add("is-copied");
+    if (label) label.textContent = "Copied";
+    if (status) status.textContent = "Copied to clipboard";
+    btn.dispatchEvent(new CustomEvent("copied", { bubbles: true }));
+    window.clearTimeout(Number(btn.dataset.timer));
+    btn.dataset.timer = String(window.setTimeout(() => {
+      btn.classList.remove("is-copied");
+      if (label) label.textContent = "Copy";
+      if (status) status.textContent = "";
+    }, 2000));
+  });
+</script>
