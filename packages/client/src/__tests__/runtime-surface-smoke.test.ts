@@ -25,7 +25,11 @@ function createTestClient() {
 
   const transport: Transport = {
     evaluate: vi.fn(),
-    setPortableMessageHandler: vi.fn(() => () => undefined),
+    setPortableMessageHandler: vi.fn((handler) => {
+      const listener = ({ message }: any) => handler(message);
+      events.on('message.received', listener);
+      return () => events.off('message.received', listener);
+    }),
   } as any;
 
   return new Client({ client: openwaClient, transport });

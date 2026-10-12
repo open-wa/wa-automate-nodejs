@@ -40,7 +40,11 @@ function createTestClient() {
   };
 
   const transport: Transport = {
-    setPortableMessageHandler: vi.fn(() => () => undefined),
+    setPortableMessageHandler: vi.fn((handler) => {
+      const listener = ({ message }: any) => handler(message);
+      events.on('message.received', listener);
+      return () => events.off('message.received', listener);
+    }),
     evaluate: vi.fn(),
   } as any;
 
@@ -91,7 +95,7 @@ describe('Client.loaded contract', () => {
     expect(events.listenerCount('message.any')).toBeGreaterThan(0);
     expect(events.listenerCount('ack.changed')).toBeGreaterThan(0);
     expect(events.listenerCount('session.state.changed')).toBeGreaterThan(0);
-    expect(events.listenerCount('message.deleted')).toBeGreaterThan(0);
+    expect(events.listenerCount('message.deleted')).toBe(0);
     expect(events.listenerCount('session.logout')).toBeGreaterThan(0);
     expect(evaluate).toHaveBeenCalledTimes(4);
   });

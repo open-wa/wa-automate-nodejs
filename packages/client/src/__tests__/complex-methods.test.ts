@@ -31,7 +31,11 @@ function createTestClient() {
   };
 
   const transport: Transport = {
-    setPortableMessageHandler: vi.fn(() => () => undefined),
+    setPortableMessageHandler: vi.fn((handler) => {
+      const listener = ({ message }: any) => handler(message);
+      events.on('message.received', listener);
+      return () => events.off('message.received', listener);
+    }),
     evaluate: vi.fn(),
   } as any;
 

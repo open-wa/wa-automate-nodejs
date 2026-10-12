@@ -6,6 +6,7 @@ export interface ClientRuntimeMethodSurfaceEntry {
   support: ClientRuntimeSupport;
   runtimeMethod?: string;
   runtimeSource?: 'asset' | 'live-patch';
+  runtimePatch?: string;
   reason?: string;
 }
 
@@ -44,7 +45,7 @@ export const clientRuntimeMethodSurface = {
   },
   sendLocation: { support: 'runtime', runtimeMethod: 'sendLocation' },
   sendContact: { support: 'runtime', runtimeMethod: 'sendContact' },
-  sendSticker: { support: 'runtime', runtimeSource: 'live-patch', runtimeMethod: 'sendStickerJob' },
+  sendSticker: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'private', runtimeMethod: 'sendStickerJob', reason: 'provided by the private donor finalizer' },
   reply: { support: 'runtime', runtimeMethod: 'reply' },
   forwardMessages: { support: 'runtime', runtimeMethod: 'forwardMessages' },
   deleteMessage: { support: 'runtime', runtimeMethod: 'smartDeleteMessages' },
@@ -171,8 +172,8 @@ export const clientRuntimeMethodSurface = {
 } as const satisfies Record<string, ClientRuntimeMethodSurfaceEntry>;
 
 export const clientRuntimeListenerSurface = {
-  onIncomingCall: { support: 'licensed', runtimeSupportEvent: 'call.incoming' },
-  onCallState: { support: 'licensed', runtimeSupportEvent: 'call.state' },
+  onIncomingCall: { support: 'licensed', runtimeSupportEvent: 'call.incoming', reason: 'provided by the licensed calling provider' },
+  onCallState: { support: 'licensed', runtimeSupportEvent: 'call.state', reason: 'provided by the licensed calling provider' },
   onInteractiveResponse: { support: 'runtime', runtimeSupportEvent: 'interactive.response' },
   onFormResponse: { support: 'runtime', runtimeSupportEvent: 'interactive.response' },
   onMessage: { support: 'runtime', runtimeSupportEvent: 'message.received' },
