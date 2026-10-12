@@ -54,8 +54,9 @@ import { commands, firstRun, product, support, href, migration } from "../../dat
   .qs { list-style: none; margin: 48px 0 0; padding: 0; display: grid; gap: 16px; }
   .qs > li { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; padding: 24px; background: var(--graphite-2); border: 1px solid var(--line); border-radius: var(--radius-lg); }
   .qs h2 { margin: 0 0 8px !important; font-size: 24px !important; }
+  .qs > li > div { min-width: 0; }
   .qs-n { color: var(--cyan); font-size: 15px; padding-top: 6px; }
-  .qs-cmd .cmd { background: #0d0f12; border: 1px solid var(--line); border-radius: var(--radius); padding: 4px 4px 4px 12px; font-size: 14px; margin-bottom: 12px; }
+  .qs-cmd :global(.cmd) { background: #0d0f12; border: 1px solid var(--line); border-radius: var(--radius); padding: 4px 4px 4px 12px; font-size: 14px; margin-bottom: 12px; }
   .urls { padding-left: 18px; font-size: 14.5px; color: var(--cyan); }
   @media (max-width: 640px) { .qs > li { grid-template-columns: minmax(0, 1fr); padding: 18px; } }
 </style>

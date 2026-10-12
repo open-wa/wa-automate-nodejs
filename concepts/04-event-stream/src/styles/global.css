@@ -57,7 +57,7 @@ p { margin: 0 0 1em; }
 
 /* Section scaffolding: an instrument-panel label above each heading */
 .sec { padding: 96px 0 0; }
-.sec-head { display: grid; gap: 14px; margin-bottom: 36px; max-width: 760px; }
+.sec-head { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; margin-bottom: 36px; max-width: 760px; min-width: 0; }
 .sec-head p { color: var(--muted); font-size: 18px; margin: 0; }
 .label {
   font: 500 13px/1.2 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase;

@@ -354,7 +354,7 @@ const json = (o: unknown) => JSON.stringify(o, null, 2);
   .rt-opt input:focus-visible + .rt-pill { outline: 2px solid var(--cyan); outline-offset: 2px; }
   @media (pointer: coarse) { .rt-pill { min-height: 44px; } }
   .rt-pane { display: grid; gap: 10px; }
-  .rt-pane :global(.rt-line) { display: grid; grid-template-columns: auto minmax(40px, 1fr) auto; align-items: center; gap: 10px; }
+  .rt-pane :global(.rt-line) { display: grid; grid-template-columns: minmax(0, max-content) minmax(28px, 1fr) minmax(0, max-content); align-items: center; gap: 10px; }
   .rt-pane :global(.rt-node) { font-size: 13.5px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--graphite-2); color: var(--cyan); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
   .rt-pane :global(.rt-dst) { color: var(--warm); border-color: var(--cyan-dim); }
   .rt-pane :global(.rt-wire) { position: relative; height: 2px; background: repeating-linear-gradient(90deg, var(--cyan-dim) 0 6px, transparent 6px 10px); }
