@@ -1,0 +1,135 @@
+---
+import Site from "../layouts/Site.astro";
+import LicenceForm from "../components/LicenceForm.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { licences, tiers, methodsByTier, product, commands, support, pricesNote } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const periods = [
+  { id: "month", label: "Monthly" },
+  { id: "threeMonths", label: "3 months" },
+  { id: "sixMonths", label: "6 months" },
+  { id: "year", label: "Yearly" },
+] as const;
+const per = { month: "a month", threeMonths: "every 3 months", sixMonths: "every 6 months", year: "a year" };
+const extras: Record<string, string[]> = {
+  insiders: ["Number profile and status checks", "Orders", "Posting and reading status and stories", "Buttons, lists and other interactive messages", "Raw message payloads", "Starred messages", "Setting the profile picture"],
+  restricted: ["Everything in Insiders", "Starting conversations with numbers that aren't contacts", "Creating groups", "Joining groups by invite link"],
+};
+const faqs = [
+  ["Is the key per WhatsApp number?", "Yes. A key is bought per WhatsApp number. If you run three numbers that need licensed methods, you need three keys."],
+  ["How do I use the key?", `Pass it at launch with ${commands.licenceFlag.split(" ")[0]} on the command line or licenseKey in your config. You can also apply it to a running session from the dashboard or with client.refresh(), without restarting Node (5.5).`],
+  ["Do AI agents through MCP need a key?", "The licence follows the method. MCP tools for free methods stay free; a tool backed by an Insiders or Restricted method needs that key."],
+  ["Which methods need a key?", "Method metadata marks each method none, insiders or restricted. Most methods are none. The licensing docs list them all."],
+  ["What currency are the prices in?", `GBP. ${pricesNote}`],
+  ["Does a licence lower the ban risk?", `No. ${product.risk}`],
+];
+---
+<Site title="Pricing and licence keys | open-wa" description="open-wa is free for most methods. Insiders and Restricted licence keys cover the rest, per WhatsApp number, from £5 a month. Prices in GBP, checked 12 Oct 2026.">
+  <section class="page-head">
+    <div class="wrap">
+      <span class="eyebrow">Pricing</span>
+      <h1>Free for most methods. A key per number for the rest.</h1>
+      <p class="lede">{licences.summary}</p>
+    </div>
+  </section>
+
+  <section class="pr">
+    <div class="wrap">
+      <div class="pr-periods" role="radiogroup" aria-label="Billing period" data-periods>
+        {periods.map((p, i) => (
+          <label class="pr-period"><input type="radio" name="period" value={p.id} checked={i === 0} /><span>{p.label}</span></label>
+        ))}
+      </div>
+      <div class="pr-grid">
+        <article class="pr-col">
+          <h2>No key</h2>
+          <p class="pr-price">£0</p>
+          <p class="muted pr-per">free, for every method marked none</p>
+          <p>{licences.free.covers}</p>
+          <a class="btn btn-line" href={`${base}quickstart/`}>Start with the quick start</a>
+        </article>
+        {tiers.map((t) => (
+          <article class={`pr-col ${t.id === "restricted" ? "pr-col-hi" : ""}`}>
+            <h2>{t.name}</h2>
+            <p class="pr-price">{periods.map((p, i) => <span data-price={p.id} hidden={i !== 0}>{t.prices[p.id]}</span>)}</p>
+            <p class="muted pr-per">{periods.map((p, i) => <span data-price={p.id} hidden={i !== 0}>per number, {per[p.id]}</span>)}</p>
+            <ul class="pr-list">{extras[t.id].map((x) => <li>{x}</li>)}</ul>
+            <ul class="methods">{methodsByTier[t.id].map((m) => <li>{m}</li>)}</ul>
+            <a class={`btn ${t.id === "restricted" ? "btn-ink" : "btn-line"}`} href="#licence" data-pick-tier={t.id}>Get {t.name}</a>
+          </article>
+        ))}
+      </div>
+      <p class="muted small pr-note">{pricesNote}</p>
+    </div>
+  </section>
+
+  <section class="section" id="licence">
+    <div class="wrap pr-form-grid">
+      <div class="pr-form-copy">
+        <span class="eyebrow">Get a key</span>
+        <h2>Four details, then checkout.</h2>
+        <p class="lede">We fill in a Gumroad checkout with these details. You review the price and terms there and pay.</p>
+        <h3>Before you buy</h3>
+        <ol class="pr-checks">{licences.beforeYouBuy.map((b) => <li>{b}</li>)}</ol>
+        <CodeBlock code={`${commands.easyApi} ${commands.licenceFlag}`} lang="bash" file="Start with your key" />
+        <p class="note"><strong>Ban risk.</strong> {product.risk} A licence doesn't change that.</p>
+      </div>
+      <LicenceForm />
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <div class="wrap">
+      <div class="section-head"><span class="eyebrow">Questions</span><h2>Before you pay.</h2></div>
+      <div class="faq">
+        {faqs.map(([q, a]) => (
+          <details class="faq-i"><summary>{q}</summary><p>{a}</p></details>
+        ))}
+      </div>
+      <p class="muted pr-more">Still unsure? Ask in <a href={support.discord}>Discord</a>, read the <a href={support.licensingDocs}>licensing docs</a>, or email <a href={`mailto:${support.consultingEmail}`}>{support.consultingEmail}</a>.</p>
+    </div>
+  </section>
+</Site>
+
+<style>
+  .pr { padding-bottom: 96px; }
+  .pr-periods { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--grey-1); border: 1px solid var(--grey-2); margin-bottom: 24px; flex-wrap: wrap; }
+  .pr-period { position: relative; }
+  .pr-period input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .pr-period span { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 999px; font-weight: 550; font-size: 16px; color: var(--grey-5); }
+  .pr-period input:checked + span { background: var(--white); color: var(--ink); box-shadow: var(--shadow); }
+  .pr-period input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .pr-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .pr-col { background: var(--white); border: 1px solid var(--grey-2); border-radius: var(--radius-l); padding: 28px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+  .pr-col h2 { font-size: 24px; }
+  .pr-col-hi { border-color: var(--ink); box-shadow: var(--shadow); }
+  .pr-price { font-size: 52px; font-weight: 650; letter-spacing: -0.04em; line-height: 1; }
+  .pr-per { margin-top: -6px; }
+  .pr-list { margin: 0; padding: 0 0 0 20px; display: grid; gap: 6px; }
+  .pr-list li::marker { color: var(--blue); }
+  .pr-col .btn { justify-self: start; margin-top: 6px; }
+  .pr-note { margin-top: 16px; }
+  @media (max-width: 900px) { .pr-grid { grid-template-columns: minmax(0, 1fr); } }
+  .pr-form-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 520px); gap: 56px; align-items: start; }
+  .pr-form-copy { display: grid; gap: 18px; min-width: 0; }
+  .pr-form-copy h2 { font-size: clamp(32px, 4.4vw, 52px); }
+  .pr-form-copy h3 { font-size: 20px; margin-top: 8px; }
+  .pr-checks { margin: 0; padding-left: 22px; display: grid; gap: 8px; color: var(--grey-5); }
+  @media (max-width: 960px) { .pr-form-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; } }
+  .faq { border-top: 1px solid var(--grey-2); max-width: 860px; }
+  .faq-i { border-bottom: 1px solid var(--grey-2); }
+  .faq-i summary { cursor: pointer; min-height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px; font-weight: 600; font-size: 19px; list-style: none; }
+  .faq-i summary::-webkit-details-marker { display: none; }
+  .faq-i summary::after { content: "+"; font: 22px var(--font-mono); color: var(--blue); }
+  .faq-i[open] summary::after { content: "−"; }
+  .faq-i p { padding: 0 0 20px; color: var(--grey-5); max-width: 68ch; }
+  .pr-more { margin-top: 24px; }
+  .pr-more a { color: var(--blue); }
+</style>
+<script>
+  const group = document.querySelector("[data-periods]");
+  group?.addEventListener("change", (e) => {
+    const id = (e.target as HTMLInputElement).value;
+    document.querySelectorAll<HTMLElement>("[data-price]").forEach((el) => (el.hidden = el.dataset.price !== id));
+  });
+</script>

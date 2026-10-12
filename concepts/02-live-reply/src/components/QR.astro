@@ -1,0 +1,24 @@
+---
+/** A drawn, deterministic QR-like code for the first-run illustration. Decorative. */
+interface Props { size?: number }
+const { size = 120 } = Astro.props;
+const N = 25;
+let seed = 7;
+const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+const finder = (x: number, y: number) => {
+  const inBox = (ox: number, oy: number) => x >= ox && x < ox + 7 && y >= oy && y < oy + 7;
+  return inBox(0, 0) || inBox(N - 7, 0) || inBox(0, N - 7);
+};
+const cells: string[] = [];
+for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+  if (finder(x, y)) continue;
+  const nearFinder = (x < 8 && y < 8) || (x > N - 9 && y < 8) || (x < 8 && y > N - 9);
+  if (!nearFinder && rnd() > 0.52) cells.push(`M${x} ${y}h1v1h-1z`);
+}
+const f = (ox: number, oy: number) => `M${ox} ${oy}h7v7h-7zM${ox + 1} ${oy + 1}v5h5v-5zM${ox + 2} ${oy + 2}h3v3h-3z`;
+---
+<svg viewBox={`-1 -1 ${N + 2} ${N + 2}`} width={size} height={size} aria-hidden="true" class="qr">
+  <rect x="-1" y="-1" width={N + 2} height={N + 2} fill="#fff" />
+  <path d={cells.join("")} fill="currentColor" />
+  <path d={`${f(0, 0)}${f(N - 7, 0)}${f(0, N - 7)}`} fill="currentColor" fill-rule="evenodd" />
+</svg>

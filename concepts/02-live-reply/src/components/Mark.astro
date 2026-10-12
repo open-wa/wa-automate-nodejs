@@ -1,0 +1,36 @@
+---
+/**
+ * The mark: two code brackets with a gap between them, the right one ending in
+ * a chat tail. On hover or keyboard focus of the wrapping .mark-host link the
+ * brackets snap shut into a speech bubble and the cursor dot inside blinks
+ * once. Under reduced motion it stays in its resting state.
+ */
+interface Props { size?: number; label?: string }
+const { size = 28, label = "open-wa" } = Astro.props;
+---
+
+<svg class="mark" viewBox="0 0 32 32" width={size} height={size} role="img" aria-label={label}>
+  <path class="mark-l" d="M13 6.5H7.5v18H13" />
+  <path class="mark-r" d="M19 6.5h5.5v18l3.5 4.5-7-4.5H19" />
+  <rect class="mark-dot" x="14.25" y="13.75" width="3.5" height="3.5" rx="0.6" />
+</svg>
+
+<style>
+  .mark { display: block; overflow: visible; flex: none; }
+  .mark path {
+    fill: none; stroke: currentColor; stroke-width: 3; stroke-linejoin: miter; stroke-linecap: butt;
+    transition: transform 420ms var(--snap);
+  }
+  .mark-dot { fill: var(--blue); transform-origin: 16px 15.5px; transition: transform 300ms var(--ease); }
+  :global(.mark-host:hover) .mark-l,
+  :global(.mark-host:focus-visible) .mark-l { transform: translateX(3px); }
+  :global(.mark-host:hover) .mark-r,
+  :global(.mark-host:focus-visible) .mark-r { transform: translateX(-3px); }
+  :global(.mark-host:hover) .mark-dot,
+  :global(.mark-host:focus-visible) .mark-dot { animation: mark-blink 900ms steps(1) 120ms 1; transform: scaleX(0.75); }
+  @keyframes mark-blink { 0%, 100% { opacity: 1; } 33% { opacity: 0; } 66% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.mark-host:hover) .mark path, :global(.mark-host:focus-visible) .mark path { transform: none; }
+    :global(.mark-host:hover) .mark-dot, :global(.mark-host:focus-visible) .mark-dot { animation: none; transform: none; }
+  }
+</style>

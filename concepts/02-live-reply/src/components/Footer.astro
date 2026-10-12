@@ -1,0 +1,65 @@
+---
+import Mark from "./Mark.astro";
+import Command from "./Command.astro";
+import { support, product, legal, commands, stats, short } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const { cta = true } = Astro.props as { cta?: boolean };
+const cols = [
+  { title: "Product", links: [["Features", `${base}features/`], ["Integrations", `${base}integrations/`], ["AI agents", `${base}ai-agents/`], ["Use cases", `${base}use-cases/`], ["Pricing", `${base}pricing/`], ["Compare", `${base}compare/`]] },
+  { title: "Developers", links: [["Quick start", `${base}quickstart/`], ["Docs", support.docs], ["API explorer", support.apiExplorer], ["Changelog", `${base}changelog/`], ["Migrate from v4", `${base}migrate/`], ["GitHub", support.github], ["npm", support.npm], ["Docker Hub", support.dockerHub]] },
+  { title: "Community", links: [["Discord", support.discord], ["Contributing", `${base}community/`], ["Plugin SDK", `${base}integrations/#plugin-sdk`], ["Support", `${base}support/`]] },
+  { title: "Legal", links: [["Terms of Service", support.terms], ["Licence", `${base}legal/#licence`], ["Unofficial notice", `${base}legal/#unofficial`], ["Ban-risk notice", `${base}legal/#risk`]] },
+];
+---
+<footer class="ftr">
+  {cta && (
+    <div class="wrap ftr-cta">
+      <h2>Your number, answering<br /> from your code.</h2>
+      <div class="ftr-cta-do">
+        <Command cmd={commands.easyApi} />
+        <div class="ftr-cta-links">
+          <a class="btn btn-ink" href={`${base}quickstart/`}>Quick start</a>
+          <a class="btn btn-line" href={support.discord}>Join the Discord</a>
+        </div>
+      </div>
+    </div>
+  )}
+  <div class="wrap ftr-grid">
+    <div class="ftr-brand">
+      <a class="mark-host brand" href={base} aria-label="open-wa home"><Mark size={32} label="" /><span>open-wa</span></a>
+      <p class="muted small">WhatsApp automation for Node.js, maintained by {support.maintainer} since 2019.</p>
+      <p class="muted small mono">{short(stats.githubStars)} stars · {short(stats.discordMembers)} on Discord · {stats.checkedOn}</p>
+    </div>
+    {cols.map((c) => (
+      <nav class="ftr-col" aria-label={c.title}>
+        <h3>{c.title}</h3>
+        <ul>{c.links.map(([label, href]) => <li><a href={href}>{label}</a></li>)}</ul>
+      </nav>
+    ))}
+  </div>
+  <div class="wrap ftr-legal">
+    <p><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> {product.risk}</p>
+    <p class="muted">{legal.copyright}. Software licence: {product.softwareLicence}.</p>
+  </div>
+</footer>
+<style>
+  .ftr { border-top: 1px solid var(--grey-2); background: var(--white); margin-top: 0; }
+  .ftr-cta { display: grid; grid-template-columns: 1fr minmax(0, 560px); gap: 48px; align-items: end; padding-top: 96px; padding-bottom: 96px; border-bottom: 1px solid var(--grey-2); }
+  .ftr-cta h2 { font-size: clamp(36px, 5vw, 60px); }
+  .ftr-cta-do { display: grid; gap: 16px; min-width: 0; }
+  .ftr-cta-links { display: flex; gap: 10px; flex-wrap: wrap; }
+  .ftr-grid { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); gap: 32px; padding-top: 64px; padding-bottom: 48px; }
+  .ftr-brand { display: grid; gap: 14px; align-content: start; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; font-size: 20px; min-height: 44px; }
+  .ftr-col h3 { font: 500 14px/1 var(--font-mono); color: var(--grey-4); letter-spacing: 0.02em; margin-bottom: 12px; }
+  .ftr-col ul { list-style: none; margin: 0; padding: 0; display: grid; }
+  .ftr-col a { display: inline-flex; align-items: center; min-height: 36px; text-decoration: none; color: var(--grey-5); font-size: 16px; }
+  .ftr-col a:hover { color: var(--blue); }
+  .ftr-legal { display: grid; gap: 8px; padding-top: 24px; padding-bottom: 40px; border-top: 1px solid var(--grey-2); font-size: 16px; }
+  @media (max-width: 900px) {
+    .ftr-cta { grid-template-columns: 1fr; gap: 28px; padding-top: 72px; padding-bottom: 72px; }
+    .ftr-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ftr-brand { grid-column: 1 / -1; }
+    .ftr-col a { min-height: 44px; }
+  }
+</style>

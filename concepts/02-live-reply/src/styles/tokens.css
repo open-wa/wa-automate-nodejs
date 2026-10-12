@@ -1,0 +1,62 @@
+/* Live reply: crisp ultramarine on paper, one grotesk, one mono. Every colour,
+   font, radius and easing for this concept lives here. */
+@font-face {
+  font-family: "Schibsted Grotesk";
+  src: url("../fonts/SchibstedGrotesk-latin.woff2") format("woff2");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fragment Mono";
+  src: url("../fonts/FragmentMono-latin.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --paper: #FAFAF7;
+  --white: #FFFFFF;
+  --ink: #0A0A0A;
+  --blue: #2B3BFF;
+  --blue-deep: #1A24B8;
+  --blue-tint: #ECEEFF;
+  --blue-wash: #F4F5FF;
+  --grey-1: #F2F1EC;   /* quiet surfaces */
+  --grey-2: #E3E2DC;   /* rules and borders */
+  --grey-3: #B9B8B0;   /* decorative strokes only */
+  --grey-4: #5C5B55;   /* secondary text, 6.4:1 on paper */
+  --grey-5: #2E2E2B;
+
+  /* syntax colour, used only inside code */
+  --tk-keyword: #2B3BFF;
+  --tk-string: #9A3412;
+  --tk-fn: #0A0A0A;
+  --tk-type: #1A24B8;
+  --tk-prop: #3F3E3A;
+  --tk-number: #2B3BFF;
+  --tk-punct: #6A6963;
+  --tk-comment: #6A6963;
+  --tk-flag: #1A24B8;
+
+  --color-bg: var(--paper);
+  --color-ink: var(--ink);
+  --color-accent: var(--blue);
+  --color-muted: var(--grey-4);
+  --color-surface: var(--grey-1);
+
+  --font-display: "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-text: "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Fragment Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --radius-s: 8px;
+  --radius: 12px;
+  --radius-l: 20px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --snap: cubic-bezier(0.34, 1.7, 0.5, 1);
+  --speed: 200ms;
+
+  --shadow: 0 1px 0 rgba(10, 10, 10, 0.04), 0 8px 24px -12px rgba(10, 10, 10, 0.18);
+  --wrap: 1200px;
+}

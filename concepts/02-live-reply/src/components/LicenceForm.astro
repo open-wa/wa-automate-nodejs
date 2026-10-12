@@ -1,0 +1,196 @@
+---
+/**
+ * The lead seam: tier, GitHub username, WhatsApp number and use case, handed
+ * to submitLead("licence", ...), then a confirmation naming the tier and the
+ * next step (a prefilled Gumroad checkout). Validates as people type and on
+ * submit, never on blur.
+ */
+import { licences, tiers } from "../data/site";
+const f = Object.fromEntries(licences.checkoutFields.map((x) => [x.name, x]));
+---
+<div class="lf" data-lf>
+  <form class="lf-form" novalidate data-lf-form>
+    <fieldset class="lf-tiers">
+      <legend class="lf-label">{f.tier.label}</legend>
+      <div class="lf-tier-row">
+        {tiers.map((t) => (
+          <label class="lf-tier">
+            <input type="radio" name="tier" value={t.id} aria-describedby="err-tier" />
+            <span class="lf-tier-name">{t.name}</span>
+            <span class="lf-tier-price mono">from {t.prices.month} a month</span>
+          </label>
+        ))}
+      </div>
+      <p class="lf-err" id="err-tier" data-err="tier"></p>
+    </fieldset>
+    <div class="lf-field">
+      <label class="lf-label" for="lf-github">{f.github.label}</label>
+      <input id="lf-github" name="github" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" aria-describedby="err-github" />
+      <p class="lf-err" id="err-github" data-err="github"></p>
+    </div>
+    <div class="lf-field">
+      <label class="lf-label" for="lf-phone">{f.phone.label}</label>
+      <input id="lf-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+44 7700 900123" aria-describedby="help-phone err-phone" />
+      <p class="lf-help" id="help-phone">{f.phone.help} The key works for this number only.</p>
+      <p class="lf-err" id="err-phone" data-err="phone"></p>
+    </div>
+    <div class="lf-field">
+      <label class="lf-label" for="lf-use">{f.useCase.label}</label>
+      <textarea id="lf-use" name="useCase" rows="3" placeholder={f.useCase.placeholder} aria-describedby="err-useCase"></textarea>
+      <p class="lf-err" id="err-useCase" data-err="useCase"></p>
+    </div>
+    <button class="btn btn-blue lf-submit" type="submit">Continue to checkout</button>
+    <p class="lf-fine muted">No account needed. You review the price and pay on Gumroad.</p>
+  </form>
+
+  <div class="lf-done" data-lf-done hidden tabindex="-1">
+    <span class="tag tag-blue">Details saved</span>
+    <h3 class="lf-done-h" data-lf-title>Your licence is ready for checkout.</h3>
+    <dl class="lf-sum">
+      <div><dt>Licence</dt><dd data-lf-v="tier"></dd></div>
+      <div><dt>GitHub</dt><dd data-lf-v="github"></dd></div>
+      <div><dt>WhatsApp number</dt><dd data-lf-v="phone"></dd></div>
+    </dl>
+    <p><strong>Next:</strong> a Gumroad checkout opens with these details filled in. Review the price and terms there, then pay. Start open-wa with your key using <code>--license-key</code>.</p>
+    <div class="lf-done-do">
+      <a class="btn btn-blue" data-lf-checkout href="https://openwa.dev/checkout?tier=insiders">Open the prefilled checkout <span class="arrow" aria-hidden="true"></span></a>
+      <button type="button" class="btn btn-line" data-lf-edit>Edit details</button>
+    </div>
+    <p class="muted small">Demo: nothing has been charged and nothing was sent.</p>
+  </div>
+</div>
+
+<style>
+  .lf { background: var(--white); border: 1px solid var(--grey-2); border-radius: var(--radius-l); padding: 28px; box-shadow: var(--shadow); }
+  .lf-form { display: grid; gap: 22px; }
+  .lf-tiers { border: 0; padding: 0; margin: 0; min-width: 0; }
+  .lf-label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 16px; padding: 0; }
+  .lf-tier-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .lf-tier { position: relative; display: grid; gap: 4px; padding: 14px 16px 14px 44px; border: 1px solid var(--grey-2); border-radius: var(--radius); cursor: pointer; min-height: 44px; }
+  .lf-tier input { position: absolute; left: 16px; top: 17px; width: 18px; height: 18px; margin: 0; accent-color: var(--blue); }
+  .lf-tier:has(input:checked) { border-color: var(--blue); background: var(--blue-wash); box-shadow: inset 0 0 0 1px var(--blue); }
+  .lf-tier-name { font-weight: 650; }
+  .lf-tier-price { font-size: 14px; color: var(--grey-4); }
+  .lf-field { display: grid; }
+  .lf-field input, .lf-field textarea {
+    width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid var(--grey-2); border-radius: 10px; background: var(--paper);
+    font: 16px/1.4 var(--font-text); color: var(--ink);
+  }
+  .lf-field textarea { resize: vertical; }
+  .lf-field input:focus-visible, .lf-field textarea:focus-visible { outline: 2px solid var(--blue); outline-offset: 0; border-color: var(--blue); background: var(--white); }
+  .lf-field [aria-invalid="true"] { border-color: #B42318; }
+  .lf-help { font-size: 15px; color: var(--grey-4); margin-top: 6px; }
+  .lf-err { color: #B42318; font-size: 15px; margin-top: 6px; min-height: 0; }
+  .lf-err:empty { display: none; }
+  .lf-submit { min-height: 52px; font-size: 17px; }
+  .lf-fine { font-size: 15px; text-align: center; margin-top: -8px; }
+  .lf-done { display: grid; gap: 16px; justify-items: start; }
+  .lf-done:focus { outline: none; }
+  .lf-done-h { font-size: 28px; }
+  .lf-done code { font-size: 15px; background: var(--grey-1); padding: 2px 6px; border-radius: 5px; }
+  .lf-sum { margin: 0; display: grid; gap: 0; width: 100%; border-top: 1px solid var(--grey-2); }
+  .lf-sum div { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--grey-2); }
+  .lf-sum dt { color: var(--grey-4); }
+  .lf-sum dd { margin: 0; font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+  .lf-done-do { display: flex; flex-wrap: wrap; gap: 10px; }
+  @media (max-width: 480px) { .lf { padding: 20px; } .lf-tier-row { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+  import { submitLead } from "../lib/leads";
+
+  const root = document.querySelector<HTMLElement>("[data-lf]");
+  if (root) {
+    const form = root.querySelector<HTMLFormElement>("[data-lf-form]")!;
+    const done = root.querySelector<HTMLElement>("[data-lf-done]")!;
+    const names: Record<string, string> = { insiders: "Insiders", restricted: "Restricted" };
+    const shown = new Set<string>();
+
+    const digitsOf = (s: string) =>
+      s.replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+       .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0));
+    const normPhone = (raw: string) => {
+      const s = digitsOf(raw).trim().replace(/^\(/, "");
+      const plus = s.startsWith("+") || s.startsWith("00");
+      const digits = s.replace(/^00/, "").replace(/\D/g, "");
+      return { ok: plus && digits.length >= 8 && digits.length <= 15 && /^[\d\s()+\-.]+$/.test(s), value: `+${digits}` };
+    };
+
+    const rules: Record<string, (v: string) => string> = {
+      tier: (v) => (v ? "" : "Choose Insiders or Restricted."),
+      github: (v) => (!v.trim() ? "Enter your GitHub username." : /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i.test(v.trim().replace(/^@/, "")) ? "" : "GitHub usernames use letters, numbers and single hyphens."),
+      phone: (v) => {
+        const s = digitsOf(v).trim().replace(/^\(/, "");
+        if (!s) return "Enter the WhatsApp number you'll run open-wa on.";
+        if (!/^(\+|00)/.test(s)) return "Start with + and the country code, like +44 7700 900123.";
+        return normPhone(v).ok ? "" : "That doesn't look like a full number. Check the digits after the country code.";
+      },
+      useCase: (v) => (v.trim().length >= 3 ? "" : "Tell us in a few words what you'll build."),
+    };
+    const value = (name: string) => {
+      if (name === "tier") return (form.querySelector<HTMLInputElement>("input[name=tier]:checked")?.value) ?? "";
+      return (form.elements.namedItem(name) as HTMLInputElement).value;
+    };
+    const check = (name: string) => {
+      const msg = rules[name](value(name));
+      const err = root.querySelector<HTMLElement>(`[data-err="${name}"]`)!;
+      err.textContent = msg;
+      const field = name === "tier" ? null : (form.elements.namedItem(name) as HTMLElement);
+      field?.setAttribute("aria-invalid", msg ? "true" : "false");
+      return !msg;
+    };
+
+    // as people type: once a field has content, keep it checked
+    form.addEventListener("input", (e) => {
+      const t = e.target as HTMLInputElement;
+      if (!t.name) return;
+      if (t.name === "tier" || t.value.trim() || shown.has(t.name)) { shown.add(t.name); check(t.name); }
+    });
+
+    const params = new URLSearchParams(location.search);
+    const pre = params.get("tier");
+    const select = (id: string | null) => {
+      const r = id && form.querySelector<HTMLInputElement>(`input[name=tier][value="${id}"]`);
+      if (r) r.checked = true;
+    };
+    select(pre);
+    document.addEventListener("click", (e) => {
+      const a = (e.target as Element).closest<HTMLElement>("[data-pick-tier]");
+      if (a) select(a.dataset.pickTier ?? null);
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const order = ["tier", "github", "phone", "useCase"];
+      order.forEach((n) => shown.add(n));
+      const bad = order.filter((n) => !check(n));
+      if (bad.length) {
+        const first = bad[0] === "tier" ? form.querySelector<HTMLInputElement>("input[name=tier]") : (form.elements.namedItem(bad[0]) as HTMLElement);
+        first?.focus();
+        return;
+      }
+      const btn = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+      btn.disabled = true;
+      btn.textContent = "Saving…";
+      const tier = value("tier");
+      const phone = normPhone(value("phone")).value;
+      const github = value("github").trim().replace(/^@/, "");
+      await submitLead("licence", { tier, github, phone, useCase: value("useCase").trim() });
+      btn.disabled = false;
+      btn.textContent = "Continue to checkout";
+      root.querySelector<HTMLElement>("[data-lf-title]")!.textContent = `Your ${names[tier]} licence is ready for checkout.`;
+      root.querySelector<HTMLElement>('[data-lf-v="tier"]')!.textContent = `${names[tier]}, per number`;
+      root.querySelector<HTMLElement>('[data-lf-v="github"]')!.textContent = `@${github}`;
+      root.querySelector<HTMLElement>('[data-lf-v="phone"]')!.textContent = phone;
+      root.querySelector<HTMLAnchorElement>("[data-lf-checkout]")!.href = `https://openwa.dev/checkout?tier=${tier}`;
+      form.hidden = true;
+      done.hidden = false;
+      done.focus();
+    });
+    root.querySelector("[data-lf-edit]")!.addEventListener("click", () => {
+      done.hidden = true;
+      form.hidden = false;
+      form.querySelector<HTMLInputElement>("#lf-github")?.focus();
+    });
+  }
+</script>

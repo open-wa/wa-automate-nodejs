@@ -1,0 +1,322 @@
+---
+/**
+ * Signature moment. The real SocketClient snippet from the fact pack, with its
+ * trigger word and reply text as live fields, beside a drawn phone chat. Edit
+ * the reply and the bot's bubble changes as you type; send the trigger word
+ * from the phone and the handler lines light up as they run. Under reduced
+ * motion or ?still everything updates instantly with no typing indicator.
+ */
+import { snippets } from "../data/site";
+import { highlight } from "../lib/highlight";
+
+const code = snippets.socketClient;
+const TRIGGER = "Hi";
+const REPLY = "👋 Hello!";
+const lines = code.split("\n");
+const triggerLine = lines.findIndex((l) => l.includes(`=== '${TRIGGER}'`));
+const replyLine = lines.findIndex((l) => l.includes(`'${REPLY}'`));
+const handlerLine = lines.findIndex((l) => l.includes("onMessage"));
+if (triggerLine < 0 || replyLine < 0 || handlerLine < 0) throw new Error("SocketClient snippet changed shape");
+
+const split = (line: string, literal: string) => {
+  const at = line.indexOf(`'${literal}'`);
+  return [line.slice(0, at), line.slice(at + literal.length + 2)];
+};
+const [tPre, tPost] = split(lines[triggerLine], TRIGGER);
+const [rPre, rPost] = split(lines[replyLine], REPLY);
+const foldEnd = handlerLine; // lines before the handler (import, connect) fold on phones
+---
+<div class="lr" data-lr data-trigger-line={triggerLine} data-reply-line={replyLine} data-handler-line={handlerLine}>
+  <div class="lr-code">
+    <div class="lr-bar">
+      <span class="lr-file">bot.mjs</span>
+      <span class="tag tag-blue">Example</span>
+      <span class="lr-hint">Edit the <span class="lr-hint-s">blue</span> strings</span>
+      <button type="button" class="copy" data-copy={code} data-lr-copy aria-label="Copy bot.mjs to clipboard">
+        <svg class="copy-ico" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect x="6.5" y="6.5" width="10" height="10" rx="2"/><path d="M13.5 3.5h-8a2 2 0 0 0-2 2v8"/></svg>
+        <svg class="copy-ok" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="m4.5 10.5 3.5 3.5 7.5-8"/></svg>
+        <span class="copy-txt">Copy</span>
+      </button>
+    </div>
+    <pre class="lr-pre"><code>
+      <button type="button" class="lr-fold" aria-expanded="false" data-lr-fold><span class="lr-fold-n">{foldEnd} lines</span> import and connect</button>
+      <span class="lr-folded">{lines.slice(0, foldEnd).map((l, i) => <span class="ln" data-n={i + 1} set:html={highlight(l) || " "} />)}</span>
+      {lines.slice(foldEnd).map((l, j) => {
+        const i = j + foldEnd;
+        if (i === triggerLine) return (
+          <span class="ln is-hit" data-n={i + 1} data-badge="true" data-line={i}><Fragment set:html={highlight(tPre)} /><span class="tk-string">'</span><label class="lr-field tk-string" data-value={TRIGGER}><span class="sr-only">Trigger word</span><input id="lr-trigger" value={TRIGGER} maxlength="24" spellcheck="false" autocomplete="off" autocapitalize="off" /></label><span class="tk-string">'</span><Fragment set:html={highlight(tPost)} /></span>
+        );
+        if (i === replyLine) return (
+          <span class="ln is-hit" data-n={i + 1} data-line={i}><Fragment set:html={highlight(rPre)} /><span class="tk-string">'</span><label class="lr-field tk-string" data-value={REPLY}><span class="sr-only">Reply text</span><input id="lr-reply" value={REPLY} maxlength="80" spellcheck="false" autocomplete="off" /></label><span class="tk-string">'</span><Fragment set:html={highlight(rPost)} /></span>
+        );
+        return <span class="ln" data-n={i + 1} data-line={i} set:html={highlight(l) || " "} />;
+      })}
+    </code></pre>
+    <div class="lr-log">
+      <span class="lr-log-h">Example output</span>
+      <ol class="lr-log-list" data-lr-log>
+        <li><span class="lr-ev">onMessage</span> <span class="tk-string">'{TRIGGER}'</span> <span class="muted">from +44 7700 900123</span></li>
+        <li><span class="lr-ev lr-ev-out">sendText</span> <span class="tk-string" data-lr-log-reply>'{REPLY}'</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="lr-phone-wrap">
+    <div class="lr-phone" role="group" aria-label="Example chat with your WhatsApp number">
+      <div class="lr-phone-top">
+        <span class="lr-avatar" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="22" height="22"><g fill="none" stroke="currentColor" stroke-width="3"><path d="M16 6.5h-5.5v18H16"/><path d="M16 6.5h5.5v18l3.5 4.5-7-4.5H16"/></g></svg>
+        </span>
+        <span class="lr-who"><strong>Your number</strong><span>+44 7700 900100</span></span>
+        <span class="tag">Example</span>
+      </div>
+      <ol class="lr-chat" data-lr-chat aria-live="polite" aria-label="Messages">
+        <li class="lr-day">Today</li>
+        <li class="msg msg-in"><span class="bub">Hi</span><span class="meta">10:41</span></li>
+        <li class="msg msg-out is-live"><span class="bub" data-lr-live>{REPLY}</span><span class="meta"><span class="mono">sendText</span> · 10:41</span></li>
+      </ol>
+      <form class="lr-compose" data-lr-form>
+        <button type="button" class="lr-chip" data-lr-say>Send <q data-lr-chip>{TRIGGER}</q></button>
+        <div class="lr-row">
+          <label class="sr-only" for="lr-msg">Message to your number</label>
+          <input id="lr-msg" class="lr-input" placeholder="Message" maxlength="60" autocomplete="off" />
+          <button class="lr-send" type="submit" aria-label="Send message">
+            <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="M4 10h11M10.5 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </form>
+    </div>
+    <p class="lr-caption muted">Example. Messages here run against the code on the left, in your browser.</p>
+  </div>
+</div>
+
+<style is:global>
+  .lr {
+    display: grid; grid-template-columns: minmax(0, 1fr) 372px; gap: 24px; align-items: stretch;
+    padding: 12px; border-radius: 28px; background: var(--grey-1); border: 1px solid var(--grey-2);
+  }
+  .lr-code { display: grid; grid-template-rows: auto 1fr auto; background: var(--white); border: 1px solid var(--grey-2); border-radius: 18px; overflow: hidden; min-width: 0; }
+  .lr-bar { display: flex; align-items: center; gap: 10px; padding: 0 4px 0 18px; min-height: 52px; border-bottom: 1px solid var(--grey-2); }
+  .lr-file { font: 15px/1 var(--font-mono); color: var(--ink); }
+  .lr-hint { flex: 1; text-align: right; font-size: 15px; color: var(--grey-4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lr-hint-s { color: var(--blue); }
+  .lr-pre { margin: 0; white-space: normal; padding: 22px 20px 22px 0; font-size: 15.5px; line-height: 1.75; align-self: start; padding-top: 28px; }
+  .lr-pre code { display: block; }
+  .lr-pre .ln { display: block; position: relative; padding: 0 16px 0 56px; white-space: pre-wrap; overflow-wrap: anywhere; transition: background 240ms var(--ease), box-shadow 240ms var(--ease); }
+  .lr-pre .ln::before { content: attr(data-n); position: absolute; left: 0; width: 38px; text-align: right; color: var(--grey-3); }
+  .lr-pre .ln.is-run { background: var(--grey-1); }
+  .lr-pre .ln.is-hit { background: var(--blue-tint); box-shadow: inset 3px 0 var(--blue); }
+  .lr-pre .ln.is-miss { background: var(--grey-1); box-shadow: inset 3px 0 var(--grey-3); }
+  .lr-pre .ln[data-badge]::after {
+    content: attr(data-badge); position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    font: 13px/1 var(--font-mono); padding: 4px 7px; border-radius: 6px; background: var(--blue); color: var(--white);
+  }
+  .lr-pre .ln.is-miss[data-badge]::after { background: var(--grey-4); }
+  .lr-fold { display: none; }
+  .lr-folded { display: block; }
+  .lr-field { display: inline-grid; vertical-align: baseline; }
+  .lr-field::after { content: attr(data-value) " "; visibility: hidden; white-space: pre; grid-area: 1 / 1; font: inherit; padding: 0 2px; }
+  .lr-field input {
+    grid-area: 1 / 1; width: 100%; min-width: 2ch; font: inherit; color: var(--tk-string); background: transparent;
+    border: 0; padding: 0 2px; margin: 0; border-radius: 3px; outline: none;
+    background-image: linear-gradient(var(--blue), var(--blue)); background-size: 100% 1.5px; background-position: 0 92%; background-repeat: no-repeat;
+    background-color: color-mix(in srgb, var(--blue) 7%, transparent);
+    caret-color: var(--blue);
+  }
+  .lr-field input:hover { background-color: color-mix(in srgb, var(--blue) 12%, transparent); }
+  .lr-field input:focus-visible { box-shadow: 0 0 0 2px var(--blue); background-color: var(--white); }
+  .lr-log { border-top: 1px solid var(--grey-2); background: var(--paper); padding: 14px 18px 16px; display: grid; gap: 8px; }
+  .lr-log-h { font: 13px/1 var(--font-mono); color: var(--grey-4); letter-spacing: 0.02em; text-transform: uppercase; }
+  .lr-log-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font: 14.5px/1.5 var(--font-mono); min-height: 3em; }
+  .lr-log-list li { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lr-ev { display: inline-block; min-width: 10ch; color: var(--grey-5); }
+  .lr-ev::before { content: "← "; color: var(--grey-3); }
+  .lr-ev-out { color: var(--blue); }
+  .lr-ev-out::before { content: "→ "; color: var(--blue); }
+  .lr-ev-miss { color: var(--grey-4); }
+  .lr-ev-miss::before { content: "· "; }
+
+  .lr-phone-wrap { display: grid; gap: 10px; align-content: start; }
+  .lr-phone {
+    display: grid; grid-template-rows: auto 1fr auto; height: 500px; background: var(--white); border-radius: 36px;
+    border: 1px solid var(--grey-2); box-shadow: 0 0 0 6px var(--white), 0 0 0 7px var(--grey-2), var(--shadow); overflow: hidden; margin: 7px;
+  }
+  .lr-phone-top { display: flex; align-items: center; gap: 10px; padding: 14px 14px 12px; border-bottom: 1px solid var(--grey-2); }
+  .lr-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--ink); color: var(--white); display: grid; place-items: center; flex: none; }
+  .lr-who { display: grid; flex: 1; min-width: 0; line-height: 1.25; }
+  .lr-who strong { font-size: 16px; }
+  .lr-who span { font-size: 13.5px; color: var(--grey-4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lr-chat {
+    list-style: none; margin: 0; padding: 16px 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
+    background-color: var(--paper);
+    background-image: radial-gradient(var(--grey-2) 1px, transparent 1px); background-size: 14px 14px;
+  }
+  .lr-day { align-self: center; font: 12.5px/1 var(--font-mono); color: var(--grey-4); background: var(--white); padding: 5px 9px; border-radius: 999px; border: 1px solid var(--grey-2); }
+  .msg { display: grid; gap: 4px; max-width: 82%; }
+  .msg .bub { padding: 10px 14px; font-size: 16px; line-height: 1.35; overflow-wrap: anywhere; min-height: 41px; }
+  .msg .meta { font-size: 12.5px; color: var(--grey-4); }
+  .msg-in { align-self: flex-end; justify-items: end; }
+  .msg-in .bub { background: var(--ink); color: var(--white); border-radius: 18px 18px 5px 18px; }
+  .msg-out { align-self: flex-start; }
+  .msg-out .bub { background: var(--blue); color: var(--white); border-radius: 18px 18px 18px 5px; }
+  .msg-out .bub:empty::before { content: "(empty)"; opacity: 0.6; }
+  .msg-out.is-live .bub { box-shadow: 0 0 0 3px var(--blue-tint); }
+  .msg-out.flash .bub { animation: lr-flash 420ms var(--ease); }
+  @keyframes lr-flash { 0% { transform: scale(0.98); } 60% { transform: scale(1.015); } 100% { transform: none; } }
+  .msg.enter { animation: lr-in 260ms var(--ease) both; }
+  @keyframes lr-in { from { opacity: 0; transform: translateY(8px); } }
+  .lr-typing .bub { display: inline-flex; gap: 5px; align-items: center; height: 41px; }
+  .lr-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--white); opacity: 0.5; animation: lr-dot 900ms infinite; }
+  .lr-typing i:nth-child(2) { animation-delay: 150ms; } .lr-typing i:nth-child(3) { animation-delay: 300ms; }
+  @keyframes lr-dot { 30% { opacity: 1; transform: translateY(-2px); } }
+  .lr-compose { display: grid; gap: 8px; padding: 10px 10px 14px; border-top: 1px solid var(--grey-2); }
+  .lr-chip {
+    justify-self: start; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px dashed var(--blue); background: var(--blue-wash);
+    color: var(--blue-deep); font: 600 16px/1 var(--font-text); cursor: pointer; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .lr-chip:hover { background: var(--blue-tint); }
+  .lr-chip q { quotes: "“" "”"; }
+  .lr-row { display: flex; gap: 8px; }
+  .lr-input { flex: 1; min-width: 0; min-height: 44px; border-radius: 999px; border: 1px solid var(--grey-2); background: var(--paper); padding: 0 16px; font: 16px var(--font-text); color: var(--ink); }
+  .lr-input:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+  .lr-send { width: 44px; height: 44px; flex: none; border-radius: 50%; border: 0; background: var(--ink); color: var(--white); display: grid; place-items: center; cursor: pointer; }
+  .lr-send:hover { background: var(--blue); }
+  .lr-caption { font-size: 14.5px; text-align: center; padding: 0 12px; }
+
+  @media (max-width: 960px) {
+    .lr { grid-template-columns: minmax(0, 1fr); padding: 8px; border-radius: 22px; gap: 12px; }
+    .lr-phone { height: 440px; margin: 7px auto; width: calc(100% - 14px); max-width: 400px; }
+    .lr-fold { display: flex; align-items: center; gap: 8px; width: calc(100% - 16px); margin: 0 0 6px 8px; min-height: 44px; padding: 0 12px; border: 1px dashed var(--grey-2); border-radius: 8px; background: var(--paper); font: 14px var(--font-mono); color: var(--grey-4); cursor: pointer; text-align: left; }
+    .lr-fold::before { content: "+"; color: var(--blue); }
+    .lr-fold[aria-expanded="true"]::before { content: "−"; }
+    .lr-fold[aria-expanded="false"] + .lr-folded { display: none; }
+    .lr-pre { padding: 14px 0; font-size: 14.5px; }
+    .lr-pre .ln { padding: 0 12px 0 40px; }
+    .lr-pre .ln::before { width: 26px; }
+    .lr-hint { display: none; }
+    .lr-bar { justify-content: space-between; }
+    .lr-bar .copy { margin-left: auto; }
+  }
+</style>
+
+<script>
+  import { shouldAnimate } from "../lib/runtime";
+
+  const root = document.querySelector<HTMLElement>("[data-lr]");
+  if (root) {
+    const animate = shouldAnimate();
+    const $ = <T extends Element>(s: string) => root.querySelector<T>(s)!;
+    const trigger = $<HTMLInputElement>("#lr-trigger");
+    const reply = $<HTMLInputElement>("#lr-reply");
+    const chat = $<HTMLOListElement>("[data-lr-chat]");
+    const log = $<HTMLOListElement>("[data-lr-log]");
+    const chip = $<HTMLElement>("[data-lr-chip]");
+    const form = $<HTMLFormElement>("[data-lr-form]");
+    const msg = $<HTMLInputElement>("#lr-msg");
+    const copyBtn = $<HTMLButtonElement>("[data-lr-copy]");
+    const fold = $<HTMLButtonElement>("[data-lr-fold]");
+    const line = (n: string | undefined) => root.querySelector<HTMLElement>(`.ln[data-line="${n}"]`)!;
+    const handlerLn = line(root.dataset.handlerLine);
+    const triggerLn = line(root.dataset.triggerLine);
+    const replyLn = line(root.dataset.replyLine);
+    const source = copyBtn.dataset.copy ?? "";
+    const timers: number[] = [];
+    const later = (ms: number, fn: () => void) => timers.push(window.setTimeout(fn, animate ? ms : 0));
+    const esc = (s: string) => s.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+    const now = () => new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+
+    const sync = (input: HTMLInputElement) => (input.parentElement as HTMLElement).dataset.value = input.value;
+    const liveBubble = () => chat.querySelector<HTMLElement>(".msg-out.is-live .bub");
+    const updateCopy = () => {
+      copyBtn.dataset.copy = source
+        .replace("=== 'Hi'", `=== '${esc(trigger.value)}'`)
+        .replace("'👋 Hello!'", `'${esc(reply.value)}'`);
+    };
+
+    reply.addEventListener("input", () => {
+      sync(reply);
+      updateCopy();
+      const b = liveBubble();
+      if (b) b.textContent = reply.value;
+      const logReply = log.querySelector("[data-lr-log-reply]");
+      if (logReply) logReply.textContent = `'${reply.value}'`;
+    });
+    trigger.addEventListener("input", () => {
+      sync(trigger);
+      updateCopy();
+      chip.textContent = trigger.value || " ";
+    });
+
+    const clearLines = () => {
+      for (const l of [handlerLn, triggerLn, replyLn]) l.classList.remove("is-run", "is-hit", "is-miss");
+      triggerLn.removeAttribute("data-badge");
+    };
+    const addMsg = (cls: string, text: string, meta: string) => {
+      const li = document.createElement("li");
+      li.className = `msg ${cls}${animate ? " enter" : ""}`;
+      const b = document.createElement("span");
+      b.className = "bub";
+      b.textContent = text;
+      const m = document.createElement("span");
+      m.className = "meta";
+      m.innerHTML = meta;
+      li.append(b, m);
+      chat.append(li);
+      while (chat.querySelectorAll(".msg").length > 14) chat.querySelector(".msg")?.remove();
+      chat.scrollTop = chat.scrollHeight;
+      return li;
+    };
+    const addLog = (html: string) => {
+      const li = document.createElement("li");
+      li.innerHTML = html;
+      log.append(li);
+      while (log.children.length > 3) log.firstElementChild?.remove();
+    };
+    const escHtml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    const run = (text: string) => {
+      const body = text;
+      if (!body) return;
+      timers.splice(0).forEach(clearTimeout);
+      chat.querySelector(".lr-typing")?.remove();
+      clearLines();
+      addMsg("msg-in", body, now());
+      addLog(`<span class="lr-ev">onMessage</span> <span class="tk-string">'${escHtml(body)}'</span> <span class="muted">from +44 7700 900123</span>`);
+      handlerLn.classList.add("is-run");
+      const match = body === trigger.value;
+      later(380, () => {
+        triggerLn.classList.add(match ? "is-hit" : "is-miss");
+        triggerLn.dataset.badge = match ? "true" : "false";
+        if (!match) {
+          addLog(`<span class="lr-ev lr-ev-miss">no reply</span> <span class="muted">body is not '${escHtml(trigger.value)}'</span>`);
+          return;
+        }
+        later(380, () => {
+          replyLn.classList.add("is-hit");
+          let typing: HTMLElement | null = null;
+          if (animate) {
+            typing = addMsg("msg-out lr-typing", "", "");
+            typing.querySelector(".bub")!.innerHTML = "<i></i><i></i><i></i>";
+            typing.querySelector(".bub")!.setAttribute("aria-label", "Typing");
+          }
+          later(650, () => {
+            typing?.remove();
+            chat.querySelector(".msg-out.is-live")?.classList.remove("is-live");
+            const li = addMsg("msg-out is-live", reply.value, `<span class="mono">sendText</span> · ${now()}`);
+            li.querySelector(".bub")!.setAttribute("data-lr-live", "");
+            log.querySelector("[data-lr-log-reply]")?.removeAttribute("data-lr-log-reply");
+            addLog(`<span class="lr-ev lr-ev-out">sendText</span> <span class="tk-string" data-lr-log-reply>'${escHtml(reply.value)}'</span>`);
+          });
+        });
+      });
+    };
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      run(msg.value.trim() === msg.value ? msg.value : msg.value.trim());
+      msg.value = "";
+    });
+    $<HTMLButtonElement>("[data-lr-say]").addEventListener("click", () => run(trigger.value));
+    fold.addEventListener("click", () => fold.setAttribute("aria-expanded", String(fold.getAttribute("aria-expanded") !== "true")));
+  }
+</script>

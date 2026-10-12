@@ -1,0 +1,264 @@
+---
+import Site from "../layouts/Site.astro";
+import Command from "../components/Command.astro";
+import LiveReply from "../components/LiveReply.astro";
+import PathTabs from "../components/PathTabs.astro";
+import QR from "../components/QR.astro";
+import { commands, firstRun, useCases, capabilities, integrations, licences, tiers, methodsByTier, product, stats, releases, support, fmt, short, pricesNote } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const latest = releases[0];
+const capList = [
+  ["Messages", capabilities.messages],
+  ["Media", capabilities.media],
+  ["Groups", capabilities.groups],
+  ["Polls", capabilities.polls],
+  ["Events", capabilities.events],
+  ["Multi-session", capabilities.multiSession],
+];
+const useCasePath = ["Webhooks, SocketClient", "Easy API", "SocketClient, embedded", "Webhooks, Plugin SDK", "Named sessions", "MCP server"];
+---
+<Site title="open-wa: reply to WhatsApp messages from Node.js" description="open-wa turns your own WhatsApp number into a local API for Node.js. Run one command, scan the QR code, and your code sends and receives messages. Free for most methods.">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-top">
+        <div class="hero-title">
+          <a class="pill" href={`${base}changelog/`}><span class="pill-v mono">v{latest.version.slice(0, 3)}</span> {latest.headline}</a>
+          <h1>Answer WhatsApp messages <span class="nb">from Node.js.</span></h1>
+        </div>
+        <p class="lede hero-lede">open-wa turns your own WhatsApp number into a local API. Run one command, scan the QR code, and your code sends and receives messages. Free for most methods.</p>
+        <div class="hero-do">
+          <Command cmd={commands.easyApi} size="l" />
+          <div class="hero-ctas">
+            <a class="btn btn-ink" href={`${base}quickstart/`}>Quick start <span class="arrow" aria-hidden="true"></span></a>
+            <a class="btn btn-line" href={support.docs}>Docs</a>
+            <a class="hero-risk" href="#risk">Unofficial: read the ban-risk note</a>
+          </div>
+        </div>
+      </div>
+      <LiveReply />
+    </div>
+  </section>
+
+  <section class="section" id="first-run">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">First run</span>
+        <h2>From npx to a session in three steps.</h2>
+        <p class="lede">No Meta business account and no templates. It runs WhatsApp Web in a browser it controls, on your machine.</p>
+      </div>
+      <ol class="steps">
+        <li class="step">
+          <div class="step-vis">
+            <Command cmd={commands.easyApi} />
+          </div>
+          <span class="step-n mono">01</span>
+          <h3>Run the command</h3>
+          <p>{firstRun[0]}</p>
+        </li>
+        <li class="step">
+          <div class="step-vis step-qr">
+            <QR size={112} />
+            <div class="step-qr-txt"><span class="tag">Example</span><span class="muted small">Scan with WhatsApp on the phone, or use a link code.</span></div>
+          </div>
+          <span class="step-n mono">02</span>
+          <h3>Scan or link</h3>
+          <p>{firstRun[1]}</p>
+        </li>
+        <li class="step">
+          <div class="step-vis step-docs">
+            <div class="url mono"><span class="muted">http://</span>localhost:8080/api-docs/</div>
+            <ul class="docs-files mono">
+              <li><span>/api-docs/</span><span class="muted">interactive</span></li>
+              <li><span>/meta/swagger.json</span><span class="muted">Swagger</span></li>
+              <li><span>/meta/postman.json</span><span class="muted">Postman</span></li>
+            </ul>
+          </div>
+          <span class="step-n mono">03</span>
+          <h3>Open the API docs</h3>
+          <p>{firstRun[2]}</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" id="paths">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Four ways in</span>
+        <h2>Pick how open-wa sits in your app.</h2>
+        <p class="lede">Start with the HTTP API, connect a bot to it, embed the runtime, or hand the methods to an AI agent.</p>
+      </div>
+      <PathTabs id="home-paths" />
+    </div>
+  </section>
+
+  <section class="section" id="build">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">What you can build</span>
+        <h2>Support inboxes, order updates, bots and agents.</h2>
+      </div>
+      <ol class="uses">
+        {useCases.map((u, i) => (
+          <li><span class="mono uses-n">0{i + 1}</span><span class="uses-t">{u}</span><span class="mono uses-p">{useCasePath[i]}</span></li>
+        ))}
+      </ol>
+      <div class="caps">
+        {capList.map(([h, t]) => (
+          <div class="cap"><h3>{h}</h3><p>{t}</p></div>
+        ))}
+      </div>
+      <div class="more-row">
+        <a class="link-arrow" href={`${base}features/`}>All features</a>
+        <a class="link-arrow" href={`${base}use-cases/`}>Use cases in detail</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="integrations">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Integrations</span>
+        <h2>Plug WhatsApp into the tools you already run.</h2>
+      </div>
+      <ul class="ints">
+        {integrations.map((it) => (
+          <li><strong>{it.name}</strong><span class="muted">{it.what}</span><code class="ints-pkg">{it.package}</code></li>
+        ))}
+      </ul>
+      <div class="more-row"><a class="link-arrow" href={`${base}integrations/`}>How each integration works</a><a class="link-arrow" href={`${base}ai-agents/`}>MCP for AI agents</a></div>
+    </div>
+  </section>
+
+  <section class="section" id="free">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Free and licensed</span>
+        <h2>Most methods need no key.</h2>
+        <p class="lede">{licences.summary}</p>
+      </div>
+      <div class="tiers">
+        <div class="tier">
+          <h3>No key</h3>
+          <p class="tier-price">£0</p>
+          <p class="muted">{licences.free.covers}</p>
+        </div>
+        {tiers.map((t) => (
+          <div class={`tier ${t.id === "restricted" ? "tier-hi" : ""}`}>
+            <h3>{t.name}</h3>
+            <p class="tier-price">{t.prices.month}<span class="muted small"> a month per number</span></p>
+            <ul class="methods">{methodsByTier[t.id].map((m) => <li>{m}</li>)}</ul>
+            <p class="muted small">{t.id === "insiders" ? "Plus orders, status and stories, raw payloads, starred messages and the profile picture." : "Plus everything in Insiders, and messaging numbers that aren't contacts yet."}</p>
+          </div>
+        ))}
+      </div>
+      <p class="muted small fine">{pricesNote}</p>
+      <div class="more-row"><a class="btn btn-ink" href={`${base}pricing/`}>See pricing and get a key</a></div>
+    </div>
+  </section>
+
+  <section class="section" id="risk">
+    <div class="wrap risk">
+      <div class="section-head">
+        <span class="eyebrow">Before you build</span>
+        <h2>Unofficial, and plain about it.</h2>
+      </div>
+      <div class="risk-grid">
+        <div class="risk-copy">
+          <p class="note"><strong>Ban risk.</strong> {product.risk}</p>
+          <p class="note"><strong>Not affiliated.</strong> {product.unofficial}</p>
+          <p class="muted">Need the officially supported route instead? <a href={`${base}compare/`}>Compare the WhatsApp Business Platform with open-wa</a>.</p>
+        </div>
+        <dl class="signals">
+          <div><dt>Latest release</dt><dd>{product.currentVersion}</dd><span class="muted small">{product.currentVersionNote}</span></div>
+          <div><dt>GitHub stars</dt><dd>{fmt(stats.githubStars)}</dd><span class="muted small">{stats.checkedOn}</span></div>
+          <div><dt>npm downloads, 12 months</dt><dd>{short(stats.npmDownloadsLast12Months)}</dd><span class="muted small">to 11 Oct 2026</span></div>
+          <div><dt>Discord members</dt><dd>{fmt(stats.discordMembers)}</dd><span class="muted small">{stats.checkedOn}</span></div>
+          <div><dt>Maintained since</dt><dd>2019</dd><span class="muted small">by {support.maintainer}</span></div>
+          <div><dt>Software licence</dt><dd class="dd-s">Hippocratic + Do Not Harm 1.1</dd><a class="small" href={`${base}legal/`}>Read the legal notes</a></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+</Site>
+
+<style>
+  .hero { padding: 64px 0 96px; }
+  .hero-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 600px); column-gap: 64px; row-gap: 36px; align-items: end; margin-bottom: 48px; }
+  .hero-title { grid-column: 1 / -1; }
+  .pill { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px 0 6px; border-radius: 999px; border: 1px solid var(--grey-2); background: var(--white); text-decoration: none; font-size: 16px; color: var(--grey-5); margin-bottom: 28px; }
+  .pill:hover { border-color: var(--grey-3); color: var(--ink); }
+  .pill-v { background: var(--blue); color: var(--white); border-radius: 999px; padding: 6px 10px; font-size: 14px; }
+  h1 { font-size: clamp(44px, 6vw, 86px); letter-spacing: -0.045em; line-height: 0.98; font-weight: 680; text-wrap: balance; }
+  .hero-do .lede { align-self: end; }
+  .hero-do { display: grid; gap: 20px; min-width: 0; }
+  .nb { white-space: nowrap; }
+  .hero-lede { color: var(--grey-5); font-size: 20px; max-width: 34ch; }
+  .hero-ctas { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .hero-risk { color: var(--grey-4); font-size: 16px; margin-left: 6px; min-height: 44px; display: inline-flex; align-items: center; text-underline-offset: 3px; }
+  .hero-risk:hover { color: var(--ink); }
+  @media (max-width: 960px) {
+    .hero { padding: 28px 0 64px; }
+    .hero-top { grid-template-columns: minmax(0, 1fr); gap: 16px; margin-bottom: 28px; }
+    .pill { margin-bottom: 16px; font-size: 15px; }
+    h1 { font-size: clamp(38px, 10.5vw, 64px); }
+    .hero-do { gap: 14px; }
+    .hero-lede { font-size: 17px; max-width: none; }
+    .hero-risk { margin-left: 0; font-size: 15px; }
+  }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .step { display: grid; gap: 10px; align-content: start; min-width: 0; }
+  .step-vis { height: 196px; border-radius: var(--radius-l); background: var(--grey-1); border: 1px solid var(--grey-2); padding: 20px; display: grid; align-items: center; margin-bottom: 14px; min-width: 0; }
+  .step-qr { grid-template-columns: auto 1fr; gap: 18px; }
+  .step-qr :global(.qr) { color: var(--ink); border-radius: 8px; }
+  .step-qr-txt { display: grid; gap: 8px; justify-items: start; }
+  .step-docs { align-content: center; gap: 12px; }
+  .url { background: var(--white); border: 1px solid var(--grey-2); border-radius: 999px; padding: 8px 14px; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .docs-files { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 14px; }
+  .docs-files li { display: flex; justify-content: space-between; gap: 8px; background: var(--white); border-radius: 8px; padding: 7px 12px; }
+  .docs-files li:first-child { box-shadow: inset 3px 0 var(--blue); }
+  .step-n { color: var(--blue); font-size: 14px; }
+  .step h3 { font-size: 22px; }
+  .step p { color: var(--grey-4); }
+  @media (max-width: 900px) { .steps { grid-template-columns: minmax(0, 1fr); } .step-vis { height: auto; min-height: 150px; } }
+
+  .uses { list-style: none; margin: 0 0 48px; padding: 0; border-top: 1px solid var(--grey-2); }
+  .uses li { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 16px; align-items: baseline; padding: 18px 0; border-bottom: 1px solid var(--grey-2); }
+  .uses-n { color: var(--blue); font-size: 14px; }
+  .uses-t { font-size: 20px; font-weight: 550; letter-spacing: -0.01em; }
+  .uses-p { font-size: 14px; color: var(--grey-4); }
+  @media (max-width: 640px) { .uses li { grid-template-columns: 40px minmax(0, 1fr); } .uses-p { grid-column: 2; } .uses-t { font-size: 18px; } }
+  .caps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--grey-2); border: 1px solid var(--grey-2); border-radius: var(--radius-l); overflow: hidden; }
+  .cap { background: var(--white); padding: 24px; display: grid; gap: 8px; align-content: start; }
+  .cap h3 { font-size: 19px; }
+  .cap p { color: var(--grey-4); font-size: 16px; }
+  @media (max-width: 900px) { .caps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 600px) { .caps { grid-template-columns: minmax(0, 1fr); } }
+  .more-row { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 28px; align-items: center; }
+
+  .ints { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--grey-2); }
+  .ints li { display: grid; grid-template-columns: 220px minmax(0, 1fr) auto; gap: 16px; align-items: baseline; padding: 18px 0; border-bottom: 1px solid var(--grey-2); }
+  .ints strong { font-size: 19px; font-weight: 620; }
+  .ints-pkg { font-size: 14px; color: var(--blue-deep); background: var(--blue-wash); padding: 5px 8px; border-radius: 6px; }
+  @media (max-width: 760px) { .ints li { grid-template-columns: minmax(0, 1fr); gap: 6px; } .ints-pkg { justify-self: start; } }
+
+  .tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .tier { background: var(--white); border: 1px solid var(--grey-2); border-radius: var(--radius-l); padding: 28px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+  .tier h3 { font-size: 20px; }
+  .tier-price { font-size: 40px; font-weight: 650; letter-spacing: -0.03em; line-height: 1; }
+  .tier-hi { border-color: var(--ink); }
+  .fine { margin-top: 16px; }
+  @media (max-width: 900px) { .tiers { grid-template-columns: minmax(0, 1fr); } }
+
+  .risk-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
+  .risk-copy { display: grid; gap: 16px; }
+  .risk-copy a { color: var(--blue); }
+  .signals { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--grey-2); border: 1px solid var(--grey-2); border-radius: var(--radius-l); overflow: hidden; }
+  .signals > div { background: var(--white); padding: 20px; display: grid; gap: 4px; align-content: start; }
+  .signals dt { font: 14px/1.3 var(--font-mono); color: var(--grey-4); }
+  .signals dd { margin: 0; font-size: 30px; font-weight: 650; letter-spacing: -0.02em; }
+  .signals .dd-s { font-size: 19px; line-height: 1.25; }
+  .signals a { color: var(--blue); }
+  @media (max-width: 900px) { .risk-grid { grid-template-columns: minmax(0, 1fr); gap: 28px; } }
+</style>

@@ -1,0 +1,24 @@
+---
+/** A copy button: copies data-copy, shows "Copied" and announces it. */
+interface Props { text: string; label?: string; class?: string }
+const { text, label = "Copy", class: cls = "" } = Astro.props;
+---
+<button type="button" class={`copy ${cls}`} data-copy={text} aria-label={`${label} to clipboard`}>
+  <svg class="copy-ico" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect x="6.5" y="6.5" width="10" height="10" rx="2"/><path d="M13.5 3.5h-8a2 2 0 0 0-2 2v8"/></svg>
+  <svg class="copy-ok" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="m4.5 10.5 3.5 3.5 7.5-8"/></svg>
+  <span class="copy-txt">Copy</span>
+</button>
+<style is:global>
+  .copy {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 44px; min-width: 44px; padding: 0 12px;
+    border: 0; background: transparent; color: var(--grey-4); border-radius: var(--radius-s);
+    font: 500 16px/1 var(--font-text); cursor: pointer; flex: none;
+    transition: color var(--speed) var(--ease), background var(--speed) var(--ease);
+  }
+  .copy:hover { color: var(--ink); background: var(--grey-1); }
+  .copy svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .copy .copy-ok { display: none; stroke: var(--blue); stroke-width: 2; }
+  .copy.is-copied { color: var(--blue); }
+  .copy.is-copied .copy-ok { display: block; }
+  .copy.is-copied .copy-ico { display: none; }
+</style>

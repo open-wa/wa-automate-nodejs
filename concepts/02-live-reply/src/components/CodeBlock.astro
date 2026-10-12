@@ -1,0 +1,29 @@
+---
+/** A code panel with a file name, syntax colour and a copy button. */
+import { highlight } from "../lib/highlight";
+import CopyButton from "./CopyButton.astro";
+interface Props { code: string; lang?: string; file?: string; label?: string }
+const { code, lang = "js", file, label } = Astro.props;
+const html = highlight(code, lang);
+---
+<figure class="code">
+  <figcaption class="code-bar">
+    <span class="code-file">{file ?? (lang === "bash" ? "Terminal" : lang)}</span>
+    {label && <span class="tag">{label}</span>}
+    <CopyButton text={code} label={`Copy ${file ?? "code"}`} />
+  </figcaption>
+  <pre><code set:html={html} /></pre>
+</figure>
+<style is:global>
+  .code {
+    margin: 0; min-width: 0; background: var(--white); border: 1px solid var(--grey-2); border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .code-bar {
+    display: flex; align-items: center; gap: 10px; padding: 0 4px 0 16px; min-height: 48px;
+    border-bottom: 1px solid var(--grey-2); background: var(--paper);
+  }
+  .code-file { font: 14px/1 var(--font-mono); color: var(--grey-4); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .code pre { margin: 0; padding: 18px 20px 20px; overflow-x: auto; font-size: 15px; line-height: 1.65; tab-size: 2; }
+  @media (max-width: 640px) { .code pre { font-size: 14px; padding: 16px; } }
+</style>
