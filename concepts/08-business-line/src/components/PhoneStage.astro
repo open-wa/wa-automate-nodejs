@@ -81,8 +81,18 @@ let step = 0;
     let playing = false;
     let current: HTMLButtonElement | null = null;
 
+    const phone = stage.querySelector<HTMLElement>(".phone")!;
     const place = (btn: HTMLElement) => {
-      if (narrow()) { panel.style.removeProperty("--y"); return; }
+      if (narrow()) {
+        // Phone: the code sheet opens over the phone, right under the message.
+        const s = stage.getBoundingClientRect();
+        const b = btn.getBoundingClientRect();
+        const p = phone.getBoundingClientRect();
+        const top = b.bottom - s.top + 12;
+        panel.style.setProperty("--ny", `${top}px`);
+        panel.style.setProperty("--nh", `${Math.max(240, p.bottom - s.top - top + 40)}px`);
+        return;
+      }
       const s = stage.getBoundingClientRect();
       const b = btn.getBoundingClientRect();
       const h = panel.offsetHeight;
@@ -131,8 +141,11 @@ let step = 0;
 
     if (animate) {
       panel.classList.add("is-waiting");
-      for (const s of steps) s.classList.add("pending");
-      const io = new IntersectionObserver(([e]) => { if (e?.isIntersecting) { io.disconnect(); play(); } }, { threshold: 0.25 });
+      // The first thread and the customer's question are there from the start,
+      // so the phone is never empty; the replies arrive once it's on screen.
+      steps.forEach((s, n) => { if (n >= 2) s.classList.add("pending"); });
+      i = 2;
+      const io = new IntersectionObserver(([e]) => { if (e?.isIntersecting) { io.disconnect(); timer = window.setTimeout(play, 500); } }, { threshold: 0.15 });
       io.observe(screen);
     } else {
       stage.classList.add("is-still");
@@ -154,8 +167,12 @@ let step = 0;
         take();
         if (narrow()) {
           if (playing) { stop(); showAll(); i = steps.length; toggle.textContent = "Done"; }
+          // Bring the tapped message near the top of the screen, then open the sheet under it.
+          screen.scrollTop += b.getBoundingClientRect().top - screen.getBoundingClientRect().top - 76;
+          place(b);
           panel.querySelector<HTMLElement>("[data-close]")?.focus({ preventScroll: true });
-          panel.scrollIntoView({ block: "nearest", behavior: animate ? "smooth" : "auto" });
+          const r = phone.getBoundingClientRect();
+          if (r.top < 60 || r.bottom > window.innerHeight) phone.scrollIntoView({ block: "center", behavior: animate ? "smooth" : "auto" });
         }
       });
       b.addEventListener("mouseenter", () => { if (!narrow()) take(); });
@@ -260,9 +277,10 @@ let step = 0;
   @media (max-width: 759px) {
     .stage { grid-template-columns: minmax(0, 1fr); gap: 16px; }
     .phone { width: min(340px, 100%); height: 600px; }
-    .call-panel { transform: none; display: none; }
+    .call-panel { transform: none; display: none; position: absolute; z-index: 5; left: 6px; right: 6px; top: var(--ny, 200px); max-height: var(--nh, 360px); overflow-y: auto; overscroll-behavior: contain; padding: 14px; }
     .call-panel.is-open { display: block; animation: slide-up 360ms var(--ease) both; }
-    .call-panel::before { left: 50%; top: -9px; translate: -50% 0; }
+    .call-panel::before { display: none; }
+    .call :global(.codeblock pre) { max-height: none; }
     .panel-close { display: inline-flex; float: right; min-height: 44px; padding: 0 14px; border-radius: 12px; background: var(--plum-2); color: var(--cream); border: 0; font: 600 15px var(--font-text); align-items: center; cursor: pointer; }
     @keyframes slide-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
   }

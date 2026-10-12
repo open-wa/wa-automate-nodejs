@@ -56,7 +56,7 @@ const byJob = [
         <li>
           <span class="num">1</span>
           <h3>Run the command</h3>
-          <p>{firstRun[0]}</p>
+          <p>{firstRun[0].split(". ").slice(1).join(". ")}</p>
           <CopyCommand command={commands.easyApi} tone="plum" />
         </li>
         <li>
@@ -68,7 +68,7 @@ const byJob = [
         <li>
           <span class="num">3</span>
           <h3>Call it from any language</h3>
-          <p>{http.note.split(". ")[1]}.</p>
+          <p>{http.note.split(". ").slice(1).join(". ")}</p>
           <CodeBlock code={http.sendTextCurl} lang="bash" label="curl" />
         </li>
       </ol>
