@@ -1,0 +1,38 @@
+---
+/**
+ * A code panel: title bar, build-time syntax colour (the Harbour theme) and a
+ * Copy button. `example` labels illustrative output.
+ */
+import { Code } from "astro:components";
+import { harbour } from "../lib/shiki-theme";
+
+interface Props { code: string; lang?: string; title?: string; example?: boolean; copy?: boolean; class?: string; wrap?: boolean }
+const { code, lang = "bash", title, example = false, copy = true, class: cls, wrap = false } = Astro.props;
+const label = title ?? ({ bash: "Terminal", sh: "Terminal", js: "JavaScript", ts: "TypeScript", json: "JSON" } as Record<string, string>)[lang] ?? lang;
+---
+
+<figure class:list={["code", cls, { "code--wrap": wrap }]}>
+  <figcaption class="code-bar">
+    <span class="code-title">{label}</span>
+    {example && <span class="code-example">Example output</span>}
+    {copy && (
+      <button class="copy" type="button" data-copy={code} aria-label={`Copy ${label} code`}>
+        <span class="copy-label">Copy</span>
+      </button>
+    )}
+  </figcaption>
+  <div class="code-body">
+    <Code code={code} lang={lang as any} theme={harbour as any} />
+  </div>
+</figure>
+
+<style>
+  .code { margin: 0; min-width: 0; background: var(--code-bg); color: var(--code-ink); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--ocean-900); }
+  .code-bar { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 4px 0 16px; background: var(--code-bar); border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .code-title { font: 400 1rem/1 var(--font-mono); color: var(--code-dim); }
+  .code-example { font: 600 0.8125rem/1 var(--font-text); color: var(--ocean); background: var(--sand); padding: 4px 8px; border-radius: 999px; }
+  .code-body { overflow-x: auto; }
+  .code-body :global(pre) { margin: 0; padding: 16px 20px 20px; background: transparent !important; font: 400 var(--text-mono)/1.55 var(--font-mono); tab-size: 2; }
+  .code--wrap .code-body :global(pre) { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .code-body :global(code) { font: inherit; background: none; border: 0; padding: 0; }
+</style>

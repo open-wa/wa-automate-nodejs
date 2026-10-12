@@ -1,0 +1,71 @@
+---
+import "../styles/global.css";
+import youngSerif from "../fonts/young-serif-latin-400-normal.woff2?url";
+import workSans from "../fonts/work-sans-latin-wght-normal.woff2?url";
+import ubuntuMono from "../fonts/ubuntu-mono-latin-400-normal.woff2?url";
+import ubuntuMonoBold from "../fonts/ubuntu-mono-latin-700-normal.woff2?url";
+
+interface Props { title: string; description: string }
+const { title, description } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+const fontCss = `
+@font-face { font-family: "Young Serif"; src: url(${youngSerif}) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Work Sans"; src: url(${workSans}) format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }
+@font-face { font-family: "Ubuntu Mono"; src: url(${ubuntuMono}) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Ubuntu Mono"; src: url(${ubuntuMonoBold}) format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }`;
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#efe7da" />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="preload" href={youngSerif} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={workSans} as="font" type="font/woff2" crossorigin />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <style is:inline set:html={fontCss}></style>
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <slot />
+    <p class="copy-status" role="status" aria-live="polite" data-copy-status></p>
+    <script>
+      // Every [data-copy] button: copy, show "Copied" for a moment, announce it.
+      const status = document.querySelector<HTMLElement>("[data-copy-status]");
+      document.addEventListener("click", async (e) => {
+        const btn = (e.target as Element).closest<HTMLButtonElement>("button[data-copy]");
+        if (!btn) return;
+        const text = btn.dataset.copy ?? "";
+        let ok = true;
+        try { await navigator.clipboard.writeText(text); }
+        catch {
+          const ta = document.createElement("textarea");
+          ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+          document.body.append(ta); ta.select();
+          try { ok = document.execCommand("copy"); } catch { ok = false; }
+          ta.remove();
+        }
+        const label = btn.querySelector(".copy-label");
+        if (label) label.textContent = ok ? "Copied" : "Press Ctrl+C";
+        btn.classList.toggle("is-copied", ok);
+        if (status) status.textContent = ok ? "Copied to the clipboard" : "Copy failed. Select the text and copy it.";
+        window.setTimeout(() => {
+          if (label) label.textContent = "Copy";
+          btn.classList.remove("is-copied");
+        }, 1800);
+      });
+    </script>
+  </body>
+</html>

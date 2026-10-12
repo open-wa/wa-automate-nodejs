@@ -1,0 +1,64 @@
+/* 13 Front desk: hospitality calm. Sand paper, ocean ink, terracotta for the
+   one thing to press. Every colour, face, radius and easing lives here. */
+:root {
+  --sand: #efe7da;
+  --sand-50: #f8f3ea;
+  --sand-100: #f3ece0;
+  --sand-200: #e6dbc8;
+  --sand-300: #d6c7ae;
+  --paper: #fffdf8;
+  --ocean: #0f3b57;
+  --ocean-900: #0a2a3f;
+  --ocean-800: #0d3450;
+  --ocean-700: #1d4c69;
+  --ocean-500: #4d728a;
+  --ocean-300: #9fb6c4;
+  --ocean-100: #d9e5ec;
+  --ocean-50: #ebf1f4;
+  --terracotta: #c8553d;
+  --terracotta-strong: #b24a33;
+  --terracotta-ink: #a3402b;
+  --terracotta-soft: #f3d9cf;
+  --brass: #b58a3c;
+  --ok: #2f6b4f;
+  --ok-soft: #dcebe1;
+  --err: #a3402b;
+
+  --color-bg: var(--sand);
+  --color-ink: var(--ocean);
+  --color-muted: #4a5f6d;
+  --color-line: #d9ccb6;
+  --color-surface: var(--sand-50);
+  --color-accent: var(--terracotta);
+
+  --code-bg: #0b2d43;
+  --code-bar: #0a2638;
+  --code-ink: #eef3f6;
+  --code-dim: #a9bfcd;
+
+  --font-display: "Young Serif", "Iowan Old Style", Georgia, serif;
+  --font-text: "Work Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Ubuntu Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --text: 1.0625rem;
+  --text-sm: 1rem;
+  --text-mono: 1.0625rem;
+  --h1: clamp(2.35rem, 1.5rem + 3.6vw, 4.25rem);
+  --h2: clamp(1.85rem, 1.3rem + 2.2vw, 2.85rem);
+  --h3: clamp(1.2rem, 1.05rem + 0.5vw, 1.45rem);
+
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
+  --wrap: 1240px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --header-h: 68px;
+
+  --shadow-card: 0 1px 0 rgba(15, 59, 87, 0.06), 0 12px 32px -18px rgba(15, 59, 87, 0.28);
+  --shadow-lift: 0 2px 0 rgba(15, 59, 87, 0.05), 0 30px 60px -30px rgba(15, 59, 87, 0.45);
+
+  --ease: cubic-bezier(0.22, 0.8, 0.24, 1);
+  --ease-bell: cubic-bezier(0.36, 0, 0.3, 1);
+  --speed: 220ms;
+}

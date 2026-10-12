@@ -1,0 +1,32 @@
+---
+/** The run command on one line with a Copy button. The command wraps on phones. */
+interface Props { command: string; label?: string; tone?: "light" | "ocean"; id?: string }
+const { command, label = "Run the Easy API", tone = "light", id } = Astro.props;
+// Tokens never break inside (no split at the hyphens of --port); lines wrap at spaces.
+const tokens = command.split(" ");
+---
+
+<div class:list={["cmd", `cmd--${tone}`]} id={id}>
+  <span class="cmd-label">{label}</span>
+  <div class="cmd-line">
+    <code class="cmd-text"><span class="cmd-prompt" aria-hidden="true">$</span> {tokens.map((t, i) => <><span class="tok">{t}</span>{i < tokens.length - 1 ? " " : ""}</>)}</code>
+    <button class="copy cmd-copy" type="button" data-copy={command} aria-label="Copy the command">
+      <span class="copy-label">Copy</span>
+    </button>
+  </div>
+</div>
+
+<style>
+  .cmd { display: grid; gap: 8px; min-width: 0; }
+  .cmd-label { font: 600 0.9375rem/1.2 var(--font-text); color: var(--color-muted); }
+  .cmd--ocean .cmd-label { color: var(--ocean-100); }
+  .cmd-line {
+    display: flex; align-items: center; gap: 8px; min-width: 0;
+    background: var(--ocean); color: var(--sand-50); border-radius: 16px; padding: 6px 6px 6px 18px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), var(--shadow-card);
+  }
+  .cmd--ocean .cmd-line { background: var(--ocean-900); }
+  .cmd-text { flex: 1; min-width: 0; font: 400 1.125rem/1.4 var(--font-mono); background: none !important; border: 0 !important; padding: 8px 0 !important; color: inherit; }
+  .tok { white-space: nowrap; }
+  .cmd-prompt { color: #f0a48f; margin-right: 4px; user-select: none; }
+</style>
