@@ -36,9 +36,9 @@ const any = sendTextAll("Hello from my own number.");
           <h2><span>3</span>Open your live API docs</h2>
           <p>{f.firstRun[2]}</p>
           <ul class="links">
-            <li><code>{f.commands.proofOfLife}</code> interactive docs for every method</li>
-            <li><code>{f.commands.swagger}</code> Swagger file</li>
-            <li><code>{f.commands.postman}</code> Postman collection to import</li>
+            <li><span>Interactive docs for every method</span><code>{f.commands.proofOfLife}</code></li>
+            <li><span>Swagger file</span><code>{f.commands.swagger}</code></li>
+            <li><span>Postman collection to import</span><code>{f.commands.postman}</code></li>
           </ul>
           <CodeBlock code={f.http.health} lang="bash" title="Check it's up" />
         </li>
@@ -82,7 +82,10 @@ const any = sendTextAll("Hello from my own number.");
   .qs-steps h2 { font-size: 26px; display: flex; gap: 14px; align-items: center; }
   .qs-steps h2 span { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--red); color: var(--navy); font: 700 17px var(--font-mono); flex: none; }
   .qs-steps p { margin: 0; color: #d9dbe5; }
-  .links { margin: 0; padding-left: 20px; color: #d9dbe5; display: grid; gap: 6px; }
+  .links { margin: 0; padding: 0; list-style: none; color: #d9dbe5; display: grid; gap: 0; border: 1px solid var(--line); border-radius: var(--radius); }
+  .links li { display: grid; gap: 2px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  .links li:last-child { border-bottom: 0; }
+  .links span { font-size: 15.5px; color: var(--muted); }
   .links code { color: var(--peach); overflow-wrap: anywhere; }
   .qs-side { position: sticky; top: 88px; border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 22px; background: var(--navy-2); }
   .qs-side h2 { font-size: 20px; }
