@@ -1,0 +1,102 @@
+---
+import Page from "../../layouts/Page.astro";
+import PageHead from "../../components/PageHead.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import CopyCommand from "../../components/CopyCommand.astro";
+import { commands, firstRun, http, product, snippets, support, paths } from "../../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const other = paths.filter((p) => p.id !== "easy-api");
+const otherCode: Record<string, { code: string; lang: string; label: string }[]> = {
+  "socket-client": [{ code: commands.socketClientInstall, lang: "bash", label: "Terminal" }, { code: snippets.socketClient, lang: "js", label: "JavaScript" }],
+  embedded: [{ code: commands.embeddedInstall, lang: "bash", label: "Terminal" }, { code: snippets.embedded, lang: "js", label: "JavaScript" }],
+  mcp: [{ code: snippets.mcpConfig, lang: "js", label: "wa.config.mjs" }, { code: snippets.mcpStart, lang: "bash", label: "Terminal" }],
+};
+---
+
+<Page title="Quick start: a WhatsApp API on your number in minutes | open-wa" description="Run one command, scan the QR code with the business phone, open the live API docs and send your first message with curl.">
+  <PageHead eyebrow="Quick start" title="From a phone to your first message." lede={`You need Node.js ${product.node} and the phone with the WhatsApp number you want to use.`} />
+
+  <section class="section">
+    <div class="wrap qs">
+      <ol class="qs-steps">
+        <li>
+          <h2><span class="n">1</span>Run the command</h2>
+          <p>{firstRun[0]}</p>
+          <CopyCommand command={commands.easyApi} />
+          <p class="fine">Protect the API with a key of your own:</p>
+          <CodeBlock code={commands.easyApiWithKey} lang="bash" label="Terminal" />
+          <p class="fine">Prefer Docker?</p>
+          <CodeBlock code={commands.docker} lang="bash" label="Terminal" />
+        </li>
+        <li>
+          <h2><span class="n">2</span>Scan or link</h2>
+          <p>{firstRun[1]}</p>
+          <div class="risk"><strong>Ban risk.</strong> {product.risk} Test with a number you can afford to lose, and only message people who expect it.</div>
+        </li>
+        <li>
+          <h2><span class="n">3</span>Open your API docs</h2>
+          <p>{firstRun[2]}</p>
+          <CodeBlock code={`${commands.proofOfLife}\n${commands.swagger}\n${commands.postman}`} lang="text" label="Your session's docs" />
+        </li>
+        <li>
+          <h2><span class="n">4</span>Send a message</h2>
+          <p>{http.sendTextRoute}. {http.chatId}</p>
+          <CodeBlock code={http.sendTextCurl} lang="bash" label="curl" />
+          <p class="fine">Check the session is up: <code>{http.health}</code></p>
+        </li>
+        <li>
+          <h2><span class="n">5</span>Run more numbers or add a key</h2>
+          <p>Name each session to run several numbers side by side:</p>
+          <CodeBlock code={commands.namedSession} lang="bash" label="Terminal" />
+          <p>If your job needs a licensed method, add the key at launch: <code>{commands.licenceFlag}</code>. <a href={`${base}pricing/`}>Which jobs need one</a>.</p>
+        </li>
+      </ol>
+
+      <aside class="next-jobs">
+        <h2>Now build a job</h2>
+        <ul>
+          <li><a href={`${base}recipes/salon-bookings/`}>Salon bookings</a></li>
+          <li><a href={`${base}recipes/hotel-notifications/`}>Hotel notifications</a></li>
+          <li><a href={`${base}recipes/otp/`}>OTP codes</a></li>
+          <li><a href={`${base}recipes/pbx-calls/`}>Calls and your PBX</a></li>
+          <li><a href={`${base}recipes/`}>All recipes</a></li>
+        </ul>
+        <p class="fine">Stuck? <a href={support.discord}>Ask in Discord</a> or read the <a href={support.quickstartDocs}>full quick start in the docs</a>.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section other" aria-labelledby="other-h">
+    <div class="wrap">
+      <h2 id="other-h">Other ways to connect</h2>
+      <p class="lede">The command above covers most jobs. For Node.js apps that want more control:</p>
+      <div class="other-grid">
+        {other.map((p) => (
+          <article>
+            <h3>{p.name}</h3>
+            <p>{p.what}</p>
+            {otherCode[p.id].map((c) => <CodeBlock code={c.code} lang={c.lang} label={c.label} />)}
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .qs { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 56px; align-items: start; }
+  .qs-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 48px; min-width: 0; }
+  .qs-steps li { display: grid; gap: 12px; min-width: 0; }
+  .qs-steps h2 { font-size: 26px; display: flex; align-items: center; gap: 12px; margin: 0; }
+  .n { width: 40px; height: 40px; border-radius: 50%; background: var(--tangerine); display: grid; place-items: center; font-size: 17px; flex: none; }
+  .risk { background: var(--plum); color: var(--cream); border-radius: 16px; padding: 16px 18px; }
+  .next-jobs { position: sticky; top: 96px; background: var(--paper); border: 1px solid var(--cream-3); border-radius: var(--radius-lg); padding: 22px; }
+  .next-jobs h2 { font-size: 20px; }
+  .next-jobs ul { padding: 0; list-style: none; margin: 0 0 12px; }
+  .next-jobs a { display: flex; min-height: 44px; align-items: center; font-weight: 600; }
+  .other { background: var(--cream-2); }
+  .other-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+  .other-grid article { display: grid; gap: 12px; align-content: start; min-width: 0; }
+  @media (max-width: 1000px) { .other-grid { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 900px) { .qs { grid-template-columns: minmax(0, 1fr); } .next-jobs { position: static; } }
+</style>

@@ -1,0 +1,25 @@
+---
+import Page from "../../layouts/Page.astro";
+import PageHead from "../../components/PageHead.astro";
+import JobCard from "../../components/JobCard.astro";
+import CopyCommand from "../../components/CopyCommand.astro";
+import { jobs, commands } from "../../data/facts";
+const photoJobs = ["salon-bookings", "hotel-notifications", "pbx-calls", "order-updates"];
+const ordered = [...jobs.filter((j) => photoJobs.includes(j.id)), ...jobs.filter((j) => !photoJobs.includes(j.id))];
+---
+
+<Page title="Recipes: WhatsApp jobs you can build | open-wa" description="Salon bookings, hotel notifications, OTP codes, PBX calls, stickers, media, order updates, a support inbox and an AI agent: each with the conversation, the code and the key it needs.">
+  <PageHead eyebrow="Recipes" title="Pick the job. Copy the code." lede="Each recipe starts from the same command, shows the conversation your customer sees, and lists the methods and the key it needs.">
+    <div class="ph-cmd"><CopyCommand command={commands.easyApi} /></div>
+  </PageHead>
+  <section class="section">
+    <div class="wrap grid">
+      {ordered.map((j, i) => <JobCard job={j} span={i < 4 ? 6 : i < 7 ? 4 : 6} />)}
+    </div>
+  </section>
+</Page>
+
+<style>
+  .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; }
+  .ph-cmd { max-width: 620px; margin-top: 24px; }
+</style>

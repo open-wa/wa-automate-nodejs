@@ -1,0 +1,39 @@
+---
+import BubbleBody from "./BubbleBody.astro";
+import type { Line } from "../data/conversations";
+interface Props { biz: string; lines: Line[] }
+const { biz, lines } = Astro.props;
+---
+
+<figure class="mini">
+  <div class="mini-phone">
+    <div class="mini-screen">
+      <div class="mini-head"><span class="mini-av" aria-hidden="true">{biz[0]}</span><b>{biz}</b><span class="mini-ex">Example</span></div>
+      {lines.map((l) => (
+        <div class={`mini-row ${l.from}`}>
+          <div class={`mini-msg ${l.from} t-${l.type}`}><BubbleBody type={l.type} text={l.text} /></div>
+          {l.note && <span class="mini-note"><span aria-hidden="true">&lt;/&gt;</span> {l.note}</span>}
+        </div>
+      ))}
+    </div>
+  </div>
+  <figcaption>Example conversation. Business and number are invented.</figcaption>
+</figure>
+
+<style>
+  .mini { margin: 0; display: grid; gap: 10px; justify-items: center; }
+  .mini-phone { width: min(340px, 100%); border-radius: 46px; padding: 11px; background: linear-gradient(160deg, #4A1E50, var(--plum-deep) 45%, #12040F); box-shadow: 0 0 0 2px #5A2A61, 0 40px 70px -30px rgba(10, 2, 10, 0.7); }
+  .mini-screen { border-radius: 36px; background: var(--cream); padding: 24px 12px 28px; display: grid; gap: 10px; min-height: 420px; align-content: start; color: var(--plum); }
+  .mini-head { display: flex; align-items: center; gap: 8px; padding: 0 2px 8px; border-bottom: 1px dashed var(--cream-3); font-size: 14px; }
+  .mini-av { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--plum); color: var(--tangerine); font: 700 12px/1 var(--font-display); }
+  .mini-ex { margin-left: auto; font: 500 11px/1 var(--font-mono); color: var(--muted-cream); border: 1px dashed currentColor; border-radius: 6px; padding: 3px 5px; }
+  .mini-row { display: grid; gap: 4px; }
+  .mini-row.them { justify-items: end; }
+  .mini-row.biz { justify-items: start; }
+  .mini-msg { max-width: 88%; font-size: 15px; line-height: 1.4; }
+  .mini-msg.them { background: var(--plum); color: var(--cream); padding: 9px 13px; border-radius: 18px 18px 6px 18px; }
+  .mini-msg.biz { background: var(--paper); border: 1px solid var(--cream-3); padding: 9px 11px; border-radius: 18px 18px 18px 6px; }
+  .mini-msg.t-sticker { background: transparent; border: 0; }
+  .mini-note { font: 500 12px/1.3 var(--font-mono); color: var(--tangerine-ink); }
+  figcaption { font-size: 14px; color: var(--muted-cream); }
+</style>

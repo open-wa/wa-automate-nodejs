@@ -5,10 +5,9 @@
  * sent it slides out beside the phone. Reduced motion or ?still: every message
  * is shown and tapping still reveals the code.
  */
-import { Image } from "astro:assets";
 import CodeBlock from "./CodeBlock.astro";
+import BubbleBody from "./BubbleBody.astro";
 import { calls, scenes } from "../data/stage";
-import salonPhoto from "../assets/generated/salon.webp";
 const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
 const methodOf = (i: number) => calls[i].methods[calls[i].methods.length > 1 && calls[i].methods[0] === "onMessage" ? 1 : 0];
 let step = 0;
@@ -32,52 +31,7 @@ let step = 0;
               <p class="msg msg-them" data-step={step++}><span>{b.text}</span></p>
             ) : (
               <button type="button" class={`msg msg-biz t-${b.type}`} data-step={step++} data-call={b.call} aria-controls="call-panel" aria-pressed="false" aria-label={`Show the call that sent this ${b.type === "text" ? "message" : b.type}`}>
-                {b.type === "text" && <span class="txt">{b.text}</span>}
-                {b.type === "otp" && <span class="txt">Your Acme code is <b class="otp">482913</b>. It expires in 10 minutes.</span>}
-                {b.type === "poll" && (
-                  <span class="poll">
-                    <span class="poll-q">Friday: pick a time</span>
-                    {["10:00", "13:30", "16:00"].map((t) => (
-                      <span class={`poll-opt ${t === "13:30" ? "on" : ""}`}><i aria-hidden="true"></i>{t}<span class="poll-bar" aria-hidden="true"></span></span>
-                    ))}
-                  </span>
-                )}
-                {b.type === "event" && (
-                  <span class="event">
-                    <span class="cal" aria-hidden="true"><small>FRI</small>13:30</span>
-                    <span class="ev-body"><b>Haircut with Rosa, Friday 13:30</b><span class="rsvp"><span class="on">Going</span><span>Maybe</span><span>Not going</span></span></span>
-                  </span>
-                )}
-                {b.type === "pin" && (
-                  <span class="pin">
-                    <svg class="map" viewBox="0 0 220 96" aria-hidden="true">
-                      <rect width="220" height="96" fill="#F3E2CB" />
-                      <path d="M0 70 C60 60 90 80 140 66 S200 52 220 58 V96 H0Z" fill="#C9DCE0" />
-                      <path d="M-5 30 L230 44 M60 -5 L74 100 M150 -5 L140 70" stroke="#FFFBF5" stroke-width="7" fill="none" />
-                      <path d="M-5 30 L230 44 M60 -5 L74 100 M150 -5 L140 70" stroke="#E7CFAF" stroke-width="1" fill="none" />
-                      <g transform="translate(104 20)"><path d="M12 0C5 0 0 5 0 12c0 9 12 22 12 22s12-13 12-22C24 5 19 0 12 0z" fill="#FF7A1A" /><circle cx="12" cy="12" r="4.5" fill="#2A0E2E" /></g>
-                    </svg>
-                    <span class="pin-txt"><b>Harbour House</b><span>12 Quay Road</span></span>
-                  </span>
-                )}
-                {b.type === "pdf" && (
-                  <span class="pdf">
-                    <span class="doc" aria-hidden="true">PDF</span>
-                    <span class="pdf-txt"><b>booking-HH2291.pdf</b><span>Your booking confirmation</span></span>
-                  </span>
-                )}
-                {b.type === "sticker" && (
-                  <span class="sticker">
-                    <Image src={salonPhoto} alt="Example sticker made from the salon illustration photo, with comic and sparkle effects" width={300} class="sticker-img" />
-                    <svg class="spark" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2l4 14 14 4-14 4-4 14-4-14-14-4 14-4z" fill="#FFF4E6" stroke="#2A0E2E" stroke-width="2" /></svg>
-                  </span>
-                )}
-                {b.type === "call" && (
-                  <span class="callcard">
-                    <svg class="handset" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z" fill="currentColor" /></svg>
-                    <span class="call-txt"><b>Voice call answered</b><span>Greeting played, caller recorded</span><span class="mono">received.wav, 0:42</span></span>
-                  </span>
-                )}
+                <BubbleBody type={b.type} text={b.text} />
                 <span class="via" aria-hidden="true"><span class="via-code">&lt;/&gt;</span> {methodOf(b.call)}</span>
               </button>
             ))}
@@ -261,38 +215,7 @@ let step = 0;
   .msg-biz[aria-pressed="true"] { transform: translateX(3px); }
   .via { font: 500 11.5px/1 var(--font-mono); color: var(--tangerine-ink); display: inline-flex; gap: 6px; align-items: center; }
   .via-code { background: #FFE2C7; border-radius: 4px; padding: 2px 4px; }
-  .otp { font: 700 18px/1 var(--font-mono); letter-spacing: 0.12em; background: #FFE2C7; padding: 1px 6px; border-radius: 6px; }
-
-  .poll { display: grid; gap: 6px; min-width: 210px; }
-  .poll-q { font-weight: 700; }
-  .poll-opt { position: relative; display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: var(--cream); overflow: hidden; font-family: var(--font-mono); font-size: 14px; }
-  .poll-opt i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--plum-3); flex: none; position: relative; z-index: 1; }
-  .poll-opt.on i { background: var(--tangerine); border-color: var(--plum); }
-  .poll-bar { position: absolute; inset: 0 auto 0 0; width: 0; background: rgba(255, 122, 26, 0.22); }
-  .poll-opt.on .poll-bar { width: 100%; transition: width 900ms var(--ease) 500ms; }
-  .pending .poll-opt.on .poll-bar { width: 0; }
-
-  .event { display: flex; gap: 10px; align-items: center; min-width: 220px; }
-  .cal { display: grid; place-items: center; width: 52px; height: 56px; border-radius: 12px; background: var(--plum); color: var(--cream); font: 700 14px/1 var(--font-mono); flex: none; }
-  .cal small { font-size: 10px; color: var(--tangerine); letter-spacing: 0.1em; }
-  .ev-body { display: grid; gap: 6px; font-size: 14px; }
-  .rsvp { display: flex; gap: 4px; flex-wrap: wrap; }
-  .rsvp span { font-size: 12px; padding: 3px 7px; border-radius: 999px; border: 1px solid var(--cream-3); }
-  .rsvp .on { background: var(--plum); color: var(--cream); border-color: var(--plum); }
-
-  .pin { display: grid; gap: 6px; width: 220px; }
-  .map { width: 100%; height: auto; border-radius: 10px; display: block; }
-  .pin-txt, .pdf-txt, .call-txt { display: grid; font-size: 14px; line-height: 1.3; }
-  .pin-txt span, .pdf-txt span, .call-txt span { color: var(--muted-cream); }
-  .pdf { display: flex; gap: 10px; align-items: center; min-width: 220px; }
-  .doc { width: 40px; height: 50px; border-radius: 6px; background: var(--tangerine); color: var(--plum); display: grid; place-items: end center; padding-bottom: 6px; font: 700 11px/1 var(--font-mono); clip-path: polygon(0 0, 70% 0, 100% 22%, 100% 100%, 0 100%); }
-  .sticker { position: relative; display: block; width: 150px; }
   .t-sticker { background: transparent; border-color: transparent; box-shadow: none; }
-  .sticker-img { width: 150px; height: 150px; object-fit: cover; border-radius: 50%; border: 6px solid #fff; box-shadow: 0 6px 16px rgba(42, 14, 46, 0.25); filter: contrast(1.25) saturate(1.35); rotate: -4deg; }
-  .spark { position: absolute; width: 34px; top: -6px; right: -4px; }
-  .callcard { display: flex; gap: 10px; align-items: center; min-width: 220px; }
-  .handset { width: 40px; height: 40px; padding: 9px; border-radius: 50%; background: var(--plum); color: var(--tangerine); flex: none; }
-  .mono { font-family: var(--font-mono); font-size: 12.5px; }
   .feed-end { font: 500 12px/1.4 var(--font-mono); color: var(--muted-cream); text-align: center; margin: 4px 0 0; }
 
   .pending { display: none !important; }

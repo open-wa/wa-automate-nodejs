@@ -1,0 +1,38 @@
+---
+import Page from "../../layouts/Page.astro";
+import PageHead from "../../components/PageHead.astro";
+import { stats, support, k } from "../../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+
+<Page title="Community: Discord, GitHub and plugins | open-wa" description="Join about a thousand developers on Discord, contribute on GitHub, or package your own integration with the Plugin SDK.">
+  <PageHead eyebrow="Community" title="Built in the open since 2019." lede={`Figures checked ${stats.checkedOn}.`}>
+    <dl class="nums">
+      <div><dt>Discord members</dt><dd>{stats.discordMembers.toLocaleString("en-GB")}</dd></div>
+      <div><dt>GitHub stars</dt><dd>{k(stats.githubStars)}</dd></div>
+      <div><dt>Forks</dt><dd>{stats.githubForks}</dd></div>
+      <div><dt>Published versions</dt><dd>{stats.publishedVersions}</dd></div>
+    </dl>
+  </PageHead>
+  <section class="section">
+    <div class="wrap cards">
+      <article><h2>Discord</h2><p>Ask questions, share what you've built and hear about releases first.</p><a class="btn btn-primary" href={support.discord}>Join the Discord</a></article>
+      <article id="contributing"><h2>Contributing</h2><p>Fix a bug, improve the docs or add a method. Open an issue first for anything large, so we can agree the shape.</p><a class="btn btn-plum" href={support.github}>Open the repository</a></article>
+      <article><h2>Plugin SDK</h2><p>Package your own integration with <code>@open-wa/plugin-sdk</code> and load it with <code>plugins</code> and <code>pluginConfig</code>.</p><a class="btn btn-plum" href={`${base}integrations/#plugin-sdk`}>Plugin SDK</a></article>
+      <article><h2>Support the maintainer</h2><p>open-wa is maintained by {support.maintainer}. Licences, consulting and coffee keep it going.</p><a class="btn btn-ghost" href={support.buyMeACoffee}>Buy a coffee</a></article>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .nums { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 28px 0 0; max-width: 860px; }
+  .nums div { border: 1px solid var(--plum-3); border-radius: 16px; padding: 16px; }
+  .nums dt { font-size: 14px; color: var(--muted-plum); }
+  .nums dd { margin: 0; font: 600 30px/1.1 var(--font-display); color: var(--tangerine); }
+  @media (max-width: 700px) { .nums { grid-template-columns: 1fr 1fr; } }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .cards article { background: var(--paper); border: 1px solid var(--cream-3); border-radius: var(--radius-lg); padding: 26px; display: grid; gap: 10px; justify-items: start; align-content: start; scroll-margin-top: 90px; }
+  .cards h2 { font-size: 24px; margin: 0; }
+  .cards p { margin: 0; }
+  @media (max-width: 760px) { .cards { grid-template-columns: minmax(0, 1fr); } }
+</style>

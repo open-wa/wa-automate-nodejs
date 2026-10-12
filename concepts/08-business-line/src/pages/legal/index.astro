@@ -1,0 +1,25 @@
+---
+import Page from "../../layouts/Page.astro";
+import PageHead from "../../components/PageHead.astro";
+import { legal, product, support } from "../../data/facts";
+---
+
+<Page title="Terms, licence and unofficial notice | open-wa" description="open-wa is unofficial software, licensed under the Hippocratic + Do Not Harm licence. Automation can get a WhatsApp account banned.">
+  <PageHead eyebrow="Legal" title="Terms, licence and the fine print." />
+  <section class="section">
+    <div class="wrap narrow">
+      <article id="unofficial"><h2>Unofficial notice</h2><p>{legal.affiliation}</p><p>{product.unofficial}</p><p><strong>{product.risk}</strong></p></article>
+      <article id="terms"><h2>Terms of Service</h2><p>{product.terms}</p><a href={support.terms}>Read the Terms of Service</a></article>
+      <article id="licence"><h2>Software licence</h2><p>open-wa is released under the {product.softwareLicence} licence.</p><a href={support.licenceText}>Read the licence</a></article>
+      <article id="crypto"><h2>Cryptography</h2><p>{legal.crypto}</p></article>
+      <article><h2>Copyright</h2><p>{legal.copyright}.</p></article>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .narrow { max-width: 820px; }
+  article { padding: 28px 0; border-top: 1px solid var(--cream-3); scroll-margin-top: 90px; }
+  article h2 { font-size: 26px; }
+  article a { font-weight: 700; color: var(--tangerine-ink); }
+</style>

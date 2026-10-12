@@ -1,0 +1,100 @@
+---
+import Page from "../../layouts/Page.astro";
+import PageHead from "../../components/PageHead.astro";
+import { support } from "../../data/facts";
+const routes = [
+  { h: "Docs", p: "Guides and the API reference.", href: support.docs, cta: "Open the docs" },
+  { h: "Discord", p: "Ask the community and the maintainer.", href: support.discord, cta: "Join the Discord" },
+  { h: "GitHub issues", p: "Report a bug with steps to reproduce.", href: support.issues, cta: "Open an issue" },
+  { h: "Paid help by the minute", p: "Book time with the maintainer.", href: support.perMinuteConsulting, cta: "Book time" },
+];
+---
+
+<Page title="Support and consulting | open-wa" description="Get help from the docs, Discord or GitHub, book paid time, or ask the maintainer to build your WhatsApp job.">
+  <PageHead eyebrow="Support" title="Help, or have it built for you." lede={`open-wa is maintained by ${support.maintainer}. Paid support and consulting fund the project.`} />
+  <section class="section">
+    <div class="wrap">
+      <ul class="routes">
+        {routes.map((r) => <li><h2>{r.h}</h2><p>{r.p}</p><a href={r.href}>{r.cta} <span aria-hidden="true">&rarr;</span></a></li>)}
+      </ul>
+    </div>
+  </section>
+  <section class="section on-plum" id="consulting">
+    <div class="wrap cgrid">
+      <div>
+        <p class="eyebrow">Consulting</p>
+        <h2>Tell us what you need built.</h2>
+        <p class="lede">Bookings for a salon chain, notifications for a hotel group, a call line into your PBX. Say what the job is and we'll reply by email.</p>
+        <p class="fine">Or email <a href={`mailto:${support.consultingEmail}`}>{support.consultingEmail}</a>.</p>
+      </div>
+      <div class="cf">
+        <form novalidate data-cf>
+          <div class="f"><label for="cf-name">Your name</label><input id="cf-name" name="name" autocomplete="name" /><p class="m" id="cf-name-m" aria-live="polite"></p></div>
+          <div class="f"><label for="cf-email">Email</label><input id="cf-email" name="email" type="email" autocomplete="email" aria-describedby="cf-email-m" /><p class="m" id="cf-email-m" aria-live="polite">We reply here.</p></div>
+          <div class="f"><label for="cf-need">What do you need?</label><textarea id="cf-need" name="need" rows="4" placeholder="e.g. WhatsApp booking reminders for 6 salons, from our booking system" aria-describedby="cf-need-m"></textarea><p class="m" id="cf-need-m" aria-live="polite"></p></div>
+          <button class="btn btn-primary" type="submit">Send</button>
+        </form>
+        <div data-cf-done hidden tabindex="-1">
+          <h3>Thanks, that's with us.</h3>
+          <p>We'll reply by email. Demo: this concept keeps your message in this browser tab only.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Page>
+
+<script>
+  import { submitLead } from "../../lib/leads";
+  const form = document.querySelector<HTMLFormElement>("[data-cf]");
+  const done = document.querySelector<HTMLElement>("[data-cf-done]");
+  if (form && done) {
+    const rules: Record<string, (v: string) => string> = {
+      name: (v) => (v.trim() ? "" : "Tell us your name."),
+      email: (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? "" : "Enter an email address we can reply to."),
+      need: (v) => (v.trim().length >= 10 ? "" : "A sentence about the job helps us reply properly."),
+    };
+    const submitted = { on: false };
+    const check = (name: string) => {
+      const input = form.querySelector<HTMLInputElement>(`[name=${name}]`)!;
+      const msg = form.querySelector<HTMLElement>(`#cf-${name}-m`)!;
+      const err = rules[name](input.value);
+      if (err && submitted.on) { input.setAttribute("aria-invalid", "true"); msg.textContent = err; msg.classList.add("bad"); }
+      else { input.removeAttribute("aria-invalid"); msg.classList.remove("bad"); msg.textContent = name === "email" ? "We reply here." : ""; }
+      return !err;
+    };
+    for (const n of Object.keys(rules)) form.querySelector(`[name=${n}]`)!.addEventListener("input", () => check(n));
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      submitted.on = true;
+      const bad = Object.keys(rules).filter((n) => !check(n));
+      if (bad.length) { form.querySelector<HTMLElement>(`[name=${bad[0]}]`)!.focus(); return; }
+      const d = new FormData(form);
+      await submitLead("consulting", { name: String(d.get("name")), email: String(d.get("email")), need: String(d.get("need")) });
+      form.hidden = true; done.hidden = false; done.focus();
+    });
+  }
+</script>
+
+<style>
+  .routes { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .routes li { background: var(--paper); border: 1px solid var(--cream-3); border-radius: 20px; padding: 20px; display: grid; gap: 6px; align-content: start; }
+  .routes h2 { font-size: 20px; margin: 0; }
+  .routes p { margin: 0; color: var(--muted-cream); }
+  .routes a { font-weight: 700; color: var(--tangerine-ink); min-height: 44px; display: inline-flex; align-items: center; }
+  @media (max-width: 900px) { .routes { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px) { .routes { grid-template-columns: minmax(0, 1fr); } }
+  .cgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+  .cgrid a { color: var(--cream); }
+  .cf { background: var(--paper); color: var(--plum); border-radius: var(--radius-lg); padding: 28px; }
+  .cf form { display: grid; gap: 16px; }
+  .f { display: grid; gap: 6px; }
+  .f label { font-weight: 700; }
+  .f input, .f textarea { font: 400 17px/1.4 var(--font-text); border: 2px solid var(--cream-3); border-radius: 14px; padding: 12px 14px; min-height: 50px; color: var(--plum); background: #fff; width: 100%; }
+  .f input:focus, .f textarea:focus { outline: none; border-color: var(--plum); box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.35); }
+  .m { margin: 0; font-size: 15px; color: var(--muted-cream); min-height: 1px; }
+  .m.bad { color: #9C1F18; font-weight: 600; }
+  [aria-invalid="true"] { border-color: #B3261E !important; }
+  .cf button { justify-self: start; }
+  [data-cf-done]:focus { outline: none; }
+  @media (max-width: 860px) { .cgrid { grid-template-columns: minmax(0, 1fr); } }
+</style>

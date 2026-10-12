@@ -1,0 +1,29 @@
+---
+import Page from "../../layouts/Page.astro";
+import PageHead from "../../components/PageHead.astro";
+import { releases, product, support } from "../../data/facts";
+---
+
+<Page title="Changelog: what's new in open-wa" description={`Release notes for open-wa. Current version ${product.currentVersion}.`}>
+  <PageHead eyebrow="Changelog" title="What's new." lede={`Current version ${product.currentVersion} (${product.currentVersionNote}).`} />
+  <section class="section">
+    <div class="wrap narrow">
+      {releases.map((r) => (
+        <article>
+          <p class="when"><span class="tag tag-restricted">v{r.version}</span> {r.date}</p>
+          <h2>{r.headline}</h2>
+          <ul>{r.highlights.map((h) => <li>{h}</li>)}</ul>
+        </article>
+      ))}
+      <p>Every release, with full notes: <a href={support.releases}>GitHub releases</a> and the <a href={support.changelog}>docs changelog</a>.</p>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .narrow { max-width: 820px; }
+  article { padding: 28px 0; border-top: 1px solid var(--cream-3); }
+  .when { display: flex; gap: 12px; align-items: center; font-family: var(--font-mono); font-size: 15px; color: var(--muted-cream); }
+  article h2 { font-size: 28px; }
+  article li { margin-bottom: 6px; }
+</style>

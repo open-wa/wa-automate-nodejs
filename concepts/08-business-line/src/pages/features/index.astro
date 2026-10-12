@@ -1,0 +1,52 @@
+---
+import Page from "../../layouts/Page.astro";
+import PageHead from "../../components/PageHead.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { capabilities, snippets, product } from "../../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const groups = [
+  { h: "Send", items: [["Messages", capabilities.messages], ["Media", capabilities.media], ["Stickers", capabilities.stickers], ["Polls", capabilities.polls], ["Event cards", capabilities.events]] },
+  { h: "Receive and react", items: [["Groups", capabilities.groups], ["Calls", "Answer, reject and start WhatsApp calls, with call state events and audio streams. Licensed preview; audio only."]] },
+  { h: "Run it", items: [["Several numbers", capabilities.multiSession], ["Portable sessions", capabilities.sessions], ["Live refresh", capabilities.refresh], ["Browsers", capabilities.drivers], ["Generated API docs", capabilities.docs]] },
+];
+---
+
+<Page title="Features: everything it can send, receive and do | open-wa" description={product.oneLine}>
+  <PageHead eyebrow="Features" title="Everything your number can do from code." lede={product.how} />
+  <section class="section">
+    <div class="wrap">
+      {groups.map((g) => (
+        <div class="group">
+          <h2>{g.h}</h2>
+          <dl class="caps">
+            {g.items.map(([t, d]) => <div><dt>{t}</dt><dd>{d}</dd></div>)}
+          </dl>
+        </div>
+      ))}
+      <div class="pair">
+        <div>
+          <h2>Event cards and RSVPs</h2>
+          <p>New in 5.5: send a native event card and hear back who's going.</p>
+          <CodeBlock code={snippets.event} lang="js" />
+        </div>
+        <div>
+          <h2>Your session, your key</h2>
+          <p>Encrypt session files with your own key and move them between containers.</p>
+          <CodeBlock code={snippets.sessionKey} lang="js" />
+        </div>
+      </div>
+      <p class="fine">Some methods need a licence key. <a href={`${base}pricing/`}>See which jobs need one</a>. Calling and the Lightpanda driver are previews.</p>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .group { margin-bottom: 48px; }
+  .caps { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin: 0; }
+  .caps div { background: var(--paper); border: 1px solid var(--cream-3); border-radius: 18px; padding: 18px; }
+  .caps dt { font: 600 18px/1.2 var(--font-display); margin-bottom: 8px; }
+  .caps dd { margin: 0; color: var(--muted-cream); }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  .pair > div { min-width: 0; }
+  @media (max-width: 860px) { .pair { grid-template-columns: minmax(0, 1fr); } }
+</style>

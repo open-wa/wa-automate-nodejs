@@ -1,0 +1,24 @@
+---
+import Page from "../layouts/Page.astro";
+import CopyCommand from "../components/CopyCommand.astro";
+import { commands } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+
+<Page title="Page not found | open-wa" description="That page doesn't exist. Start from the recipes or the quick start.">
+  <section class="nf on-plum">
+    <div class="wrap">
+      <p class="eyebrow">404</p>
+      <h1>Wrong number.</h1>
+      <p class="lede">That page doesn't exist. Try a recipe, or start a session:</p>
+      <CopyCommand command={commands.easyApi} />
+      <p class="links"><a class="btn btn-primary" href={`${base}quickstart/`}>Quick start</a> <a class="btn btn-ghost" href={`${base}recipes/`}>Recipes</a> <a class="btn btn-ghost" href={base}>Home</a></p>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .nf { padding: clamp(80px, 12vw, 160px) 0; }
+  .nf .wrap { max-width: 760px; display: grid; gap: 12px; }
+  .links { display: flex; flex-wrap: wrap; gap: 10px; }
+</style>

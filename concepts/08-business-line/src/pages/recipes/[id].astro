@@ -1,0 +1,131 @@
+---
+import { Image } from "astro:assets";
+import Page from "../../layouts/Page.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import CopyCommand from "../../components/CopyCommand.astro";
+import MiniPhone from "../../components/MiniPhone.astro";
+import { jobs, jobNeed, jobShort, commands, http, snippets, support, tier, priceNote, type Job } from "../../data/facts";
+import { conversations } from "../../data/conversations";
+import salon from "../../assets/generated/salon.webp";
+import hotel from "../../assets/generated/hotel.webp";
+import shop from "../../assets/generated/shop.webp";
+import switchboard from "../../assets/generated/switchboard.webp";
+
+export function getStaticPaths() {
+  return jobs.map((job) => ({ params: { id: job.id }, props: { job } }));
+}
+const { job } = Astro.props as { job: Job };
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const convo = conversations[job.id];
+const need = jobNeed[job.id];
+const photos: Record<string, ImageMetadata> = { "salon-bookings": salon, "hotel-notifications": hotel, "order-updates": shop, "pbx-calls": switchboard, media: shop, stickers: salon };
+const photo = photos[job.id];
+const idx = jobs.findIndex((j) => j.id === job.id);
+const next = jobs[(idx + 1) % jobs.length];
+const extra = job as Job & { audio?: string; cli?: string };
+const res = tier("restricted");
+const ins = tier("insiders");
+const priceLine = need.need === "restricted" ? `Restricted costs ${res.prices.month} a month or ${res.prices.year} a year per number.` : need.need === "insiders" ? `Insiders costs ${ins.prices.month} a month per number.` : "";
+---
+
+<Page title={`${job.name}: a WhatsApp recipe | open-wa`} description={`${job.who}. ${job.flow.split(". ")[0]}.`}>
+  <section class="r-head on-plum">
+    {photo && <Image src={photo} alt="" width={1400} class="r-bg" loading="eager" />}
+    <div class="wrap r-head-in">
+      <p class="eyebrow"><a href={`${base}recipes/`}>Recipes</a></p>
+      <h1>{job.name}</h1>
+      <p class="lede">{job.who}.</p>
+      <p><span class={`tag ${need.need === "depends" ? "" : `tag-${need.need}`}`}>{need.label}</span></p>
+    </div>
+    {photo && <p class="credit">Photograph: generated illustration</p>}
+  </section>
+
+  <section class="section">
+    <div class="wrap r-grid">
+      <div class="r-main">
+        <h2>What you'll build</h2>
+        <p class="big">{job.flow}</p>
+
+        <h2>The code</h2>
+        <p>Start a session with <code>{commands.easyApi}</code>, scan the QR code, then:</p>
+        <CodeBlock code={job.snippet} lang="js" label={job.id === "ai-agent" ? "wa.config.mjs" : "JavaScript"} />
+        {job.id === "ai-agent" && (
+          <>
+            <p>Start it with the config, then point your agent at the endpoint:</p>
+            <CodeBlock code={snippets.mcpStart} lang="bash" label="Terminal" />
+            <CodeBlock code={snippets.claudeDesktop} lang="json" label="Claude Desktop config" />
+          </>
+        )}
+        {job.id === "support-inbox" && <p class="fine">Add the plugin to your config's <code>plugins</code> list; see <a href={`${base}integrations/#chatwoot`}>Chatwoot</a> for setup.</p>}
+        {extra.cli && (
+          <>
+            <p>Make sticker files without a session, using the same renderer:</p>
+            <CodeBlock code={extra.cli} lang="bash" label="Terminal" />
+          </>
+        )}
+        {extra.audio && (
+          <div class="callout">
+            <h3>Audio format</h3>
+            <p>{extra.audio}</p>
+          </div>
+        )}
+
+        <h2>From PHP, Python or anything with HTTP</h2>
+        <p>{http.note} The one route documented here is <code>POST /api/messages/sendText</code>; every other method is listed with its route in your session's <code>/api-docs/</code>.</p>
+        <CodeBlock code={http.sendTextCurl} lang="bash" label="curl" />
+        <p class="fine">{http.chatId}</p>
+
+        <h2>Methods</h2>
+        <ul class="methods">{job.methods.map((m) => <li><code>{m}</code></li>)}</ul>
+
+        <h2>Licence</h2>
+        <div class={`callout lic lic-${need.need}`}>
+          <p><strong>{need.label}.</strong> {job.licence}</p>
+          {priceLine && <p>{priceLine} {priceNote}</p>}
+          <a class="btn btn-plum" href={`${base}pricing/`}>See pricing</a>
+        </div>
+        <p class="fine">Automation can get a number restricted or banned. Message people who expect to hear from you. <a href={`${base}legal/#unofficial`}>Unofficial notice</a>.</p>
+      </div>
+      <aside class="r-side">
+        <div class="sticky">
+          <MiniPhone biz={convo.biz} lines={convo.lines} />
+          <div class="side-cta">
+            <CopyCommand command={commands.easyApi} />
+            <a class="btn btn-primary" href={`${base}quickstart/`}>Quick start</a>
+            <a class="btn btn-ghost" href={support.docs}>Docs</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="next on-plum">
+    <a class="wrap next-in" href={`${base}recipes/${next.id}/`}><span class="eyebrow">Next recipe</span><b>{jobShort[next.id]}</b></a>
+  </section>
+</Page>
+
+<style>
+  .r-head { position: relative; overflow: hidden; isolation: isolate; padding: clamp(56px, 8vw, 110px) 0 clamp(40px, 6vw, 72px); }
+  .r-head :global(.r-bg) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+  .r-head::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(42, 14, 46, 0.96) 0%, rgba(42, 14, 46, 0.85) 55%, rgba(42, 14, 46, 0.55)); }
+  .r-head .eyebrow a { color: inherit; }
+  .r-head h1 { max-width: 18ch; }
+  .credit { position: absolute; right: 12px; bottom: 8px; margin: 0; font: 500 12px/1 var(--font-mono); color: rgba(255, 244, 230, 0.8); }
+  .r-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 56px; align-items: start; }
+  .r-main { display: grid; gap: 14px; min-width: 0; }
+  .r-main h2 { font-size: 26px; margin-top: 28px; }
+  .r-main h2:first-child { margin-top: 0; }
+  .big { font-size: 20px; }
+  .sticky { position: sticky; top: 96px; display: grid; gap: 20px; }
+  .side-cta { display: grid; gap: 10px; }
+  .methods { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .methods code { font-size: 15px; padding: 6px 10px; }
+  .callout { background: var(--paper); border: 1px solid var(--cream-3); border-left: 5px solid var(--tangerine); border-radius: 16px; padding: 18px 20px; }
+  .callout p:last-child { margin-bottom: 0; }
+  .lic { display: grid; gap: 6px; justify-items: start; }
+  .lic-restricted, .lic-preview { border-left-color: var(--plum); }
+  .next-in { display: grid; gap: 4px; padding-top: 48px; padding-bottom: 48px; text-decoration: none; }
+  .next-in b { font: 600 clamp(26px, 4vw, 44px)/1.1 var(--font-display); }
+  .next-in:hover b { color: var(--tangerine); }
+  @media (max-width: 960px) { .r-grid { grid-template-columns: minmax(0, 1fr); } .sticky { position: static; } }
+</style>
