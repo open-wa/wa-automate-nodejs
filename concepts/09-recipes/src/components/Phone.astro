@@ -9,6 +9,16 @@ import type { Job } from "../data/site";
 interface Props { job: Job; size?: "card" | "large" }
 const { job, size = "card" } = Astro.props;
 const initial = job.contact.name.replace(/[^A-Za-z]/g, "").charAt(0);
+// The call that produced each line, so the wall can light the matching method and code line.
+const callIdx = { n: 0 };
+const methodFor = (l: Job["chat"][number]): string | undefined => {
+  const byKind: Record<string, string> = { poll: "sendPoll", event: "sendEvent", rsvp: "onEventResponse", pin: "sendLocation", file: "sendFile", voice: "sendPtt", sticker: "sendSticker", code: "sendText" };
+  let m: string | undefined = byKind[l.kind];
+  if (l.kind === "text" || l.kind === "photo") m = l.who === "in" ? "onMessage" : l.kind === "photo" ? "sendImage" : "sendText";
+  if (l.kind === "call") m = ["onIncomingCall", "call.accept", "call.accept", "onCallState"][callIdx.n++];
+  if (m && job.methods.includes(m)) return m;
+  return job.methods.length === 1 ? job.methods[0] : undefined;
+};
 ---
 
 <div class:list={["ph", `ph-${size}`]} data-phone={job.id} aria-hidden="true">
@@ -23,7 +33,7 @@ const initial = job.contact.name.replace(/[^A-Za-z]/g, "").charAt(0);
     </div>
     <div class="ph-feed">
       {job.chat.map((l, i) => (
-        <div class:list={["ph-line", `ph-${l.who}`, `ph-k-${l.kind}`, "is-on"]} data-i={i}>
+        <div class:list={["ph-line", `ph-${l.who}`, `ph-k-${l.kind}`, "is-on"]} data-i={i} data-m={methodFor(l)}>
           {l.kind === "text" && (
             <div class="b"><span>{l.text}</span>{l.time && <time>{l.time}</time>}</div>
           )}

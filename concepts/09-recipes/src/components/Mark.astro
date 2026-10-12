@@ -10,7 +10,7 @@ const { size = 30, label = "open-wa" } = Astro.props;
 ---
 
 <svg class="mark" viewBox="0 0 32 32" width={size} height={size} role="img" aria-label={label}>
-  <path class="mark-body" d="M6 5 L21 5 L28 12 L28 24 Q28 26 26 26 L12 26 L8 26 L8 26 L6 26 Q4 26 4 24 L4 7 Q4 5 6 5 Z" />
+  <path class="mark-body" d="M6 5 L21 5 Q24.5 8.5 28 12 L28 24 Q28 26 26 26 L12 26 L8 26 L8 26 L6 26 Q4 26 4 24 L4 7 Q4 5 6 5 Z" />
   <path class="mark-line l1" d="M8.5 11 L16 11" />
   <path class="mark-line l2" d="M8.5 15.5 L23.5 15.5" />
   <path class="mark-line l3" d="M8.5 20 L19 20" />
@@ -33,16 +33,18 @@ const { size = 30, label = "open-wa" } = Astro.props;
     fill: var(--tomato);
     transform-box: view-box;
     transform-origin: 24.5px 8.5px;
-    transition: transform 520ms var(--ease-out), fill 260ms var(--ease) 180ms;
+    transition: transform 520ms var(--ease-out), fill 260ms var(--ease) 180ms, opacity 160ms var(--ease) 0ms;
   }
   :global(.mark-host:hover) .mark-body,
   :global(.mark-host:focus-visible) .mark-body {
-    d: path("M6 5 L26 5 L28 7 L28 24 Q28 26 26 26 L12 26 L6.5 30.5 L8 26 L6 26 Q4 26 4 24 L4 7 Q4 5 6 5 Z");
+    d: path("M6 5 L26 5 Q28 5 28 7 L28 24 Q28 26 26 26 L12 26 L6.5 30.5 L8 26 L6 26 Q4 26 4 24 L4 7 Q4 5 6 5 Z");
   }
   :global(.mark-host:hover) .mark-flap,
   :global(.mark-host:focus-visible) .mark-flap {
     transform: rotate3d(1, 1, 0, 180deg);
     fill: var(--ink);
+    opacity: 0;
+    transition: transform 520ms var(--ease-out), fill 260ms var(--ease) 180ms, opacity 200ms var(--ease) 380ms;
   }
   :global(.mark-host:hover) .l1, :global(.mark-host:focus-visible) .l1 { d: path("M11 15.5 L11 15.5"); stroke: var(--tomato); }
   :global(.mark-host:hover) .l2, :global(.mark-host:focus-visible) .l2 { d: path("M16 15.5 L16 15.5"); stroke: var(--saffron); }

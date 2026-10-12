@@ -40,8 +40,8 @@ const count = (b: string) => jobs.filter((j) => j.business.includes(b as never))
         </div>
         <div class="rc-foot">
           <ul class="rc-methods" aria-label="Methods">
-            {job.methods.slice(0, 3).map((m) => <li><code>{m}</code></li>)}
-            {job.methods.length > 3 && <li class="rc-more">+{job.methods.length - 3}</li>}
+            {job.methods.slice(0, 4).map((m) => <li><code data-method={m}>{m}</code></li>)}
+            {job.methods.length > 4 && <li class="rc-more">+{job.methods.length - 4}</li>}
           </ul>
           <button type="button" class="rc-open" aria-expanded="false" aria-controls={`rd-${job.id}`} data-open={job.id}>
             <span class="rc-open-l">Open recipe</span><span class="rc-open-x" aria-hidden="true"></span>
@@ -87,12 +87,17 @@ const count = (b: string) => jobs.filter((j) => j.business.includes(b as never))
     let timers: number[] = [];
     const p: Player = { playing: false, play: () => {}, stop: () => {} };
     const clear = () => { timers.forEach(clearTimeout); timers = []; typing.hidden = true; };
-    const settle = () => { clear(); lines.forEach((l) => { l.classList.add("is-on"); l.classList.remove("is-new"); }); };
+    const settle = () => {
+      clear();
+      lines.forEach((l) => { l.classList.add("is-on"); l.classList.remove("is-new"); });
+      phone.dispatchEvent(new CustomEvent("ph:line", { bubbles: true, detail: "" }));
+    };
     const run = (loop: boolean) => {
       clear();
       lines.forEach((l) => l.classList.remove("is-on", "is-new"));
       // The first line is there at once, so a phone never sits empty.
       lines[0]?.classList.add("is-on", "is-new");
+      phone.dispatchEvent(new CustomEvent("ph:line", { bubbles: true, detail: lines[0]?.dataset.m ?? "" }));
       let t = 900;
       lines.forEach((l, i) => {
         if (i === 0) return;
@@ -104,6 +109,7 @@ const count = (b: string) => jobs.filter((j) => j.business.includes(b as never))
         timers.push(window.setTimeout(() => {
           typing.hidden = true;
           l.classList.add("is-on", "is-new");
+          phone.dispatchEvent(new CustomEvent("ph:line", { bubbles: true, detail: l.dataset.m ?? "" }));
         }, t));
         t += i === lines.length - 1 ? 0 : 900;
       });
@@ -143,6 +149,18 @@ const count = (b: string) => jobs.filter((j) => j.business.includes(b as never))
       }, { rootMargin: hover ? "0px 0px -15% 0px" : "-30% 0px -30% 0px", threshold: hover ? 0.6 : 0 });
       cards.forEach((c) => io.observe(c));
     }
+
+    /* ---------- tie each message to the call that sent it ---------- */
+    cards.forEach((c) => {
+      const chips = [...c.querySelectorAll<HTMLElement>("[data-method]")];
+      const codeLines = [...c.querySelectorAll<HTMLElement>(".rc-code .line")];
+      c.addEventListener("ph:line", (e) => {
+        const m = (e as CustomEvent<string>).detail;
+        chips.forEach((ch) => ch.classList.toggle("is-live", !!m && ch.dataset.method === m));
+        const needle = m.includes(".") ? m : m ? `.${m}(` : "";
+        codeLines.forEach((ln) => ln.classList.toggle("is-live", !!needle && c.classList.contains("is-open") && (ln.textContent ?? "").includes(needle)));
+      });
+    });
 
     /* ---------- filters ---------- */
     const status = wall.querySelector<HTMLElement>("[data-rw-status]")!;
@@ -239,7 +257,7 @@ const count = (b: string) => jobs.filter((j) => j.business.includes(b as never))
   }
   /* the folded corner of a recipe card, in the job's swatch */
   .rc::before {
-    content: ""; position: absolute; top: 0; right: 0; width: 34px; height: 34px; border-top-right-radius: 20px;
+    content: ""; position: absolute; top: 0; right: 0; width: 34px; height: 34px;
     background: linear-gradient(225deg, var(--paper) 50%, #1C1C1C33 50%, #1C1C1C33 calc(50% + 1.5px), var(--sw) calc(50% + 1.5px));
     transition: width 300ms var(--ease-out), height 300ms var(--ease-out);
   }
@@ -265,7 +283,10 @@ const count = (b: string) => jobs.filter((j) => j.business.includes(b as never))
   .rc-phone :global(.ph) { --ph-h: 318px; }
   .rc-foot { grid-area: foot; display: flex; align-items: center; gap: 10px; margin-top: 12px; }
   .rc-methods { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; flex: 1; }
-  .rc-methods code { font-size: 0.75rem; background: var(--paper-2); padding: 3px 6px; border-radius: 6px; }
+  .rc-methods code { font-size: 0.75rem; background: var(--paper-2); padding: 3px 6px; border-radius: 6px; transition: background 200ms var(--ease), color 200ms var(--ease); }
+  .rc-methods code.is-live { background: var(--sw); color: var(--ink); }
+  .rc-code :global(.line) { display: inline-block; min-width: 100%; transition: background 250ms var(--ease); }
+  .rc-code :global(.line.is-live) { background: color-mix(in srgb, var(--sw) 28%, transparent); box-shadow: inset 3px 0 0 var(--sw); }
   .rc-more { font: 400 0.75rem/1.6 var(--font-mono); color: var(--ink-2); }
   .rc-open {
     flex: none; margin-left: auto; min-height: 44px; padding: 0 14px 0 16px; border-radius: 999px; border: 0; cursor: pointer;
@@ -304,14 +325,20 @@ const count = (b: string) => jobs.filter((j) => j.business.includes(b as never))
   @media (min-width: 900px) {
     .rc.is-open {
       padding: 30px; column-gap: 32px;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) 300px;
+      grid-template-columns: minmax(0, 1fr) 300px;
       grid-template-areas:
-        "head head phone"
-        "title title phone"
-        "sum sum phone"
-        "detail detail phone";
+        "head phone"
+        "title phone"
+        "sum phone"
+        "detail phone";
     }
-    .rc-detail { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); column-gap: 32px; margin-top: 8px; }
+    .rc-detail { margin-top: 8px; }
+    .rc-code { order: -1; }
+    .rc-steps { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); column-gap: 28px; align-items: start; }
+    .rc-steps h4 { grid-column: 1; }
+    .rc-steps ol { grid-column: 1; }
+    .rc-lic { grid-column: 2; grid-row: 1 / span 2; margin-top: 0; }
+    .rc-actions { grid-column: 2; }
     .rc.is-open .rc-phone { align-self: start; padding: 22px 20px; margin-top: 44px; }
   }
 
