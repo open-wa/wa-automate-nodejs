@@ -61,8 +61,8 @@ export const clientRuntimeMethodSurface = {
   },
   sendSeen: { support: 'runtime', runtimeMethod: 'sendSeen' },
   getMessageById: { support: 'runtime', runtimeMethod: 'getMessageById' },
-  getAlbumMessages: { support: 'runtime', runtimeMethod: 'getAlbumMessages' },
-  sendAlbum: { support: 'runtime', runtimeMethod: 'sendAlbum' },
+  getAlbumMessages: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'common', runtimeMethod: 'getAlbumMessages' },
+  sendAlbum: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'common', runtimeMethod: 'sendAlbum' },
   sendFileFromUrl: {
     support: 'unsupported',
     runtimeMethod: 'sendFile',
