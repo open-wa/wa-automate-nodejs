@@ -1,4 +1,11 @@
-# Concept agent brief (shared by all seven open-wa concepts)
+# Concept agent brief (shared by every open-wa concept)
+
+**Round 2 (concepts 08 to 13).** Round 1 (01 to 07) was rejected as boring
+and irrelevant because it sold the product's architecture ("four ways in")
+instead of the jobs people build. Read BRIEF.md §1, §3, §5 and §13 again:
+the page sells real jobs (salon bookings, hotel notifications, OTP, PBX
+calls, stickers, media) shown working, after one Easy API command. Don't
+open the round 1 folders except to avoid repeating them.
 
 You are designing and building ONE landing-page concept for open-wa
 (openwa.dev, the open-source WhatsApp automation toolkit for Node.js). Six
@@ -57,6 +64,9 @@ concept different, and make each one launchable as the real site.
 
 ## Build, in this order
 
+0. **Known build fix:** Astro 7's prerender resolves the repo root's old
+   CommonJS `cookie` and fails with "Named export 'parseCookie' not found".
+   Run `pnpm add cookie@2.0.1` in your concept right after scaffolding.
 1. **Scaffold:** `bash <skill>/scripts/new_concept.sh /Users/Mohammed/projects/tools/wa/concepts <NN-slug> "<Name>"`.
    The folder is its own pnpm root; add libraries with `pnpm add` inside it.
    Fill in `concept.json` (`"archetype": "developer"`, `audience`, `flow`,
@@ -113,7 +123,7 @@ customers, company logos or WhatsApp branding.
 1. `pnpm build`, then `node <skill>/scripts/qa_concept.mjs --dist dist --base /<NN-slug>/ --out ../_qa/<NN-slug>`.
    Fix every FAIL; fix or justify every copy warning.
 2. Three persona passes (`<skill>/references/persona-passes.md`) using BRIEF §7
-   personas: the comparer, the sceptic and the licence buyer. Finish the
+   personas (Diego, Aisha and Marco, plus Ana for pricing). Finish the
    pricing flow with believable data.
 3. Score yourself on the eight fit-for-purpose dimensions (§4) and fix
    anything under 2 that you can.

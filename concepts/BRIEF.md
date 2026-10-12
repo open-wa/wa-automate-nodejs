@@ -40,12 +40,17 @@ Most methods need no key.
 
 ## 1. Audiences, ranked by the value their action creates
 
+**Round 2 correction (Mohammed, 12 Oct 2026):** round 1 was built around "four
+ways in" (Easy API, SocketClient, embedded runtime, MCP). That's docs detail.
+People run the Easy API command, then want to see **what they can do with
+it**. The page sells the jobs, shown working.
+
 | Rank | Audience | Situation when they land | Their goal, in their words | Already want it? | Needs to trust us |
 |---|---|---|---|---|---|
-| 1 | Node.js developers who want WhatsApp in their app (indie, agency, in-house, AI-agent builders) | Laptop, mid-task, two or three tabs open (this, the official Cloud API docs, another library's README); also from a Google search or a GitHub link on a phone | "Get WhatsApp sending and receiving from my code today, with my own number" | Mostly yes, comparing options | One command that works, real code, honest ban-risk note, what's free vs paid, active maintenance (recent release, stars, Discord) |
-| 2 | Existing users who hit a licence-gated method | Coming from docs, an error message or the dashboard; know exactly which method they need | "Get a key so `createGroup` / buttons / messaging new numbers works" | Yes, ready to pay | Exact method list per tier, price, what to enter, that the key is per number |
+| 1 | Developers building a WhatsApp job for a business: salon and clinic bookings, hotel and appointment notifications, OTP codes, hooking WhatsApp calls to a PBX, order updates, a support inbox, bots that send stickers and media, an AI agent. Any language: the Easy API is HTTP, so PHP, Python, Go, n8n and PBX scripts work as well as Node.js | Laptop, mid-task, comparing with Meta's official API and other libraries; or on a phone from a search or a GitHub link | "Get my client's salon bookings / OTP codes / call line working on WhatsApp, with their own number, today" | Yes, comparing options | Their job shown working, one command, the one HTTP call, which jobs need a paid key and what it costs, honest ban-risk note, active maintenance |
+| 2 | Existing users who hit a licence-gated method | From docs, an error or the dashboard | "Get a key so OTP to new numbers / createGroup / buttons works" | Yes, ready to pay | Which job needs which tier, price, key is per number |
 | 3 | v4 users moving to v5 | Have a running v4 bot | "Upgrade without breaking my bot" | Yes | Migration guide, how to pin v4 |
-| 4 | Businesses that want it built for them | Not developers; found it via a developer or search | "Someone to set this up for us" | Partly | A contact route, what consulting covers |
+| 4 | Businesses that want it built for them | Not developers | "Someone to set this up for us" | Partly | A contact route, what consulting covers |
 | 5 | Contributors and plugin authors | GitHub | "Build or share a plugin" | Yes | Plugin SDK, repo, Discord |
 
 ## 2. Value model
@@ -63,51 +68,37 @@ Most methods need no key.
 
 ## 3. Page map and floor (every concept builds all of these)
 
-- `/`: audience #1. First screen: what it is in one line, the command with a
-  Copy button, and a route to the quick start. Then proof it works (a
-  first-run sequence, real code), the four ways to use it, what you can build,
-  what's free vs licensed, honest risk note, community and maintenance
-  signals.
-- `/quickstart/`: the first run in three steps (run, scan or link-code,
-  open `/api-docs/`), then the four paths with their real snippets, Docker,
-  and links into the full docs.
-- `/features/`: capabilities (messages, media, groups, polls, events,
-  stickers, multi-session, sessions and keys, live refresh, drivers, generated
-  API docs), each with a short snippet or method names.
+- `/`: audience #1. First screen: what you can do with your own WhatsApp
+  number, in plain job words, plus the Easy API command with a Copy button
+  and Quick start. Then the jobs **shown working** (the signature moment
+  lives here), how it works (run, scan, call the API from any language: one
+  real curl), the job gallery linking to recipes, what's free and what needs
+  a key **framed by job**, honest risk and maintenance, the command again.
+  **No "four ways in" / paths section on the home page.**
+- `/recipes/`: the job gallery. One page per job in the fact pack's `jobs`:
+  `/recipes/salon-bookings/`, `/recipes/hotel-notifications/`,
+  `/recipes/otp/`, `/recipes/pbx-calls/`, `/recipes/stickers/`,
+  `/recipes/media/`, `/recipes/order-updates/`, `/recipes/support-inbox/`,
+  `/recipes/ai-agent/`. Each: what you'll build, the flow as a phone
+  conversation, the code, the methods, the licence needed with price, and a
+  link to the docs. These replace round 1's `/use-cases/` and `/ai-agents/`.
+- `/quickstart/`: run, scan or link code, open `/api-docs/`, send with curl.
+  The other ways to connect (SocketClient, embedded, MCP) go here as a short
+  "other ways to connect" block, and nowhere more prominent.
+- `/features/`: everything it can send, receive and do (messages, media,
+  stickers, polls, events, calls, groups, multi-session, session keys, live
+  refresh, generated API docs).
 - `/integrations/`: webhooks, Chatwoot, Node-RED, S3, Cloudflare Session
-  Proxy, MCP, Plugin SDK, each with what it does and the package.
-- `/ai-agents/`: the MCP server: config, start command, Claude Desktop config,
-  which methods become tools, and that licence rules follow the method.
-- `/use-cases/`: the six use cases from the fact pack, each with the path and
-  methods it uses. Never invented customers.
-- `/pricing/`: free (no key) vs Insiders vs Restricted, prices with the check
-  date, what each unlocks by method name, per-number keys, billing periods,
-  "before you buy" checks, FAQ, and **the licence form (the lead seam):** tier,
-  GitHub username, WhatsApp number (with country code), use case → demo
-  confirmation that names the tier and the next step (prefilled Gumroad
-  checkout). Hand the details to `submitLead()`.
-- `/compare/`: "Official API or open-wa?" Honest trade-offs only, no claims
-  about named third-party libraries: Meta's WhatsApp Business Platform needs a
-  Meta business account, approved templates for conversations you start, and
-  per-message pricing, and is officially supported; open-wa uses your existing number through WhatsApp
-  Web, is free for most methods, and is unofficial with account-ban risk.
-- `/migrate/`: v4 to v5: what changed at a glance, how to pin v4, link to the
-  full migration guide.
-- `/support/`: Discord, GitHub issues, docs, paid support and consulting
-  (email, per-minute consulting, book an hour), and a simple "tell us what you
-  need" form for audience #4 (name, email, what you want built) through
-  `submitLead()`.
-- `/community/`: Discord, GitHub, contributing, the Plugin SDK, releases.
-- `/changelog/`: the 5.5 and 5.4 notes from the fact pack, linking to GitHub
-  releases and the docs changelog.
-- `/legal/`: unofficial notice, ban-risk notice, Terms of Service link,
-  software licence (Hippocratic + Do Not Harm 1.1), cryptography notice.
-- `404`.
-- **Docs** in the header links out to `https://openwa.dev/docs` (the docs site
-  stays where it is). GitHub link shows the star count (dated).
-
-Secondary audiences reach their pages from the header or footer (Pricing,
-Support, Migrate from v4), never from the hero.
+  Proxy, MCP, Plugin SDK.
+- `/pricing/`: free vs Insiders vs Restricted, **framed by job** ("OTP to new
+  numbers: Restricted"), prices with the check date, method names, per-number
+  keys, billing periods, calling-licence note, FAQ, and the licence form
+  (tier, GitHub username, WhatsApp number, use case → demo confirmation →
+  prefilled Gumroad checkout) through `submitLead()`.
+- `/compare/`, `/migrate/`, `/support/` (with the consulting form),
+  `/community/`, `/changelog/`, `/legal/`, `404`: as in round 1.
+- **Docs** in the header links out to `https://openwa.dev/docs`. GitHub link
+  shows the star count (dated).
 
 ## 4. Archetype
 
@@ -137,7 +128,7 @@ Bun, Deno, Vercel's AI SDK). Studied for structure.
   button, a primary CTA (quick start) and a secondary (docs or GitHub). Leaders
   show code or a product view in the first screen, never a slogan alone.
 - **Home sections the leaders all have:** how it works in three steps, real
-  code (send and receive), capability grid, integrations, AI/MCP, pricing or
+  code (send and receive), capability grid, integrations, pricing or
   "free vs paid", open-source signals (stars, licence, Discord), latest
   release, closing CTA repeating the command.
 - **Page set:** section 3.
@@ -147,8 +138,7 @@ Bun, Deno, Vercel's AI SDK). Studied for structure.
   Meta." in the footer of every page; a ban-risk note next to the quick start
   and on pricing; Terms of Service; software licence; maintainer name;
   copyright.
-- **Footer:** Product (Features, Integrations, AI agents, Use cases, Pricing,
-  Compare), Developers (Quick start, Docs, API explorer, Changelog, Migrate
+- **Footer:** Product (Features, Recipes, Integrations, Pricing, Compare), Developers (Quick start, Docs, API explorer, Changelog, Migrate
   from v4, GitHub, npm, Docker Hub), Community (Discord, Contributing, Plugin
   SDK, Support), Legal (Terms, Licence, Unofficial notice), plus the
   disclaimer line.
@@ -160,28 +150,29 @@ Bun, Deno, Vercel's AI SDK). Studied for structure.
   marketing and invented-looking stats; most sites hide what's free vs paid
   and say nothing honest about bans. open-wa wins with: the working command
   first, honest risk, free-vs-licensed by method name, prices up front, and
-  four clear paths.
+  the jobs people build shown working.
 
 ## 5. Narrative order (after the persona passes)
 
-1. **First screen:** what it is in one line (their words: WhatsApp, your
-   number, an API, your Node.js app), the command with Copy, Quick start and
-   Docs.
-2. **Proof it works:** the first run (command → QR or link code → session
-   ready → `/api-docs/` → a message sent and a reply received), shown with
-   the real commands, in each concept's own way.
-3. **Pick a path:** Easy API, SocketClient, embedded runtime, MCP, with the
-   real snippet for each.
-4. **What you can build and send:** use cases and capabilities, integrations.
-5. **Free vs licensed:** most methods free; Insiders and Restricted with
-   prices and method names; link to `/pricing/`.
-6. **Honest risk and status:** unofficial, ban risk, the licence, maintenance
-   signals (latest release date, stars, Discord), all dated.
+1. **First screen:** what you can do with your own WhatsApp number, in job
+   words (bookings, notifications, codes, calls, stickers), the Easy API
+   command with Copy, Quick start. Something visual that shows a job, never
+   a slogan alone.
+2. **The jobs working (the signature moment):** a salon booking poll and its
+   event card, an OTP arriving, a hotel's map pin and PDF, a call answered,
+   a sticker made from a photo, each tied to the one call that sent it.
+3. **How it works:** run the command, scan the QR code, call the API from
+   any language (the real curl). Three steps, short.
+4. **Recipes:** the job gallery, each card linking to its recipe page.
+5. **Free vs licensed, by job:** replying to people who message you is free;
+   OTP and first messages to new numbers need Restricted; buttons and lists
+   need Insiders; calls need a calling-enabled key. Prices and the date.
+6. **Honest risk and status:** unofficial, ban risk, maintenance signals.
 7. **Closing:** the command again, Discord, GitHub.
 
-**Demo data:** any terminal output, chat messages, phone numbers, event logs
-or API responses shown in demos are illustrative. Use obviously fake numbers
-(+44 7700 900xxx, the UK drama range) and label demo panels "Example output".
+**Demo data:** illustrative businesses (a salon, a hotel, a shop) with
+invented names clearly marked "Example", numbers in +44 7700 900xxx.
+Never present them as customers.
 
 ## 6. Complexity budget
 
@@ -190,15 +181,15 @@ or API responses shown in demos are illustrative. Use obviously fake numbers
 - Words on the first phone screen: about 60–80.
 - Pricing form: four fields, no account, one step to checkout.
 
-## 7. Persona passes on the plan
+## 7. Persona passes on the plan (round 2)
 
 | Pass | Persona and context | Where they hesitated or gave up | Cut or change |
 |---|---|---|---|
-| 1 | **The comparer:** Priya, freelance Node dev in Pune, building order updates for a client's shop; tabs open for Meta's Cloud API docs and another library | Wants to know in five seconds whether this uses the shop's existing number and whether it's free. Gives up if the first screen is a slogan with no command | Say "your own WhatsApp number" and "free for most methods" near the top; command on screen one; link to `/compare/` |
-| 2 | **The sceptic:** Tom, backend engineer at a UK e-commerce startup, burned by an unofficial library that broke after a WhatsApp update | Looks for maintenance signals and the ban-risk catch. Leaves if risk is hidden or "no ban" is claimed | Latest release date and changelog visible; ban-risk note stated plainly; never claim safety or reliability superlatives |
-| 3 | **The licence buyer:** Ana, already running open-wa, `createGroup` errors with a licence message | Needs which tier unlocks `createGroup`, the price, and what "WhatsApp number" in the form means | Pricing lists methods by tier; field help "the number of the account you'll run"; prices before the form; Pricing in the header |
-| 4 | **The agent builder:** Kenji, wiring Claude to WhatsApp via MCP | Wants the config and the endpoint, and whether licensed methods appear as tools | MCP path on the home page with real config; `/ai-agents/` page; "licence follows the method" line |
-| 5 | **The business owner (secondary):** a bakery owner told by their nephew about open-wa | The home page is all code | `/support/` with consulting and a short "tell us what you need" form, linked from the footer and header menu |
+| 1 | **Diego, freelance PHP dev in São Paulo,** building appointment reminders for a chain of salons | Round 1 talked about Node paths and SocketClient; he writes PHP. Leaves if he can't see a salon-shaped flow and an HTTP call | Show the salon job working on screen one or two; the curl call; say "any language" |
+| 2 | **Aisha, backend dev at a fintech in Lagos,** needs OTP over WhatsApp | Wants to know if OTP to new numbers works and what it costs | OTP job on the home page with "needs Restricted, £15 a month"; pricing framed by job |
+| 3 | **Marco, telecoms integrator,** wants WhatsApp calls on an Asterisk PBX | Needs to know if calls exist, the audio format, and the catch | PBX recipe with the stream format, "licensed preview", "most PBXs need a small adapter" |
+| 4 | **Tom, the sceptic** (from round 1) | Ban risk hidden, no maintenance signals | Risk note and dated signals stay |
+| 5 | **Ana, the licence buyer** (from round 1) | Which tier for her method | Job-framed pricing plus method names |
 
 ## 8. Market notes and assumptions
 
@@ -212,7 +203,7 @@ or API responses shown in demos are illustrative. Use obviously fake numbers
   syntax colour and copy, Docs and GitHub in the header, pricing table, dark
   or light code panels, a three-step "how it works".
 - **Deliberate differences:** method-level free vs paid, prices up front,
-  honest ban risk, four named paths, working first-run shown with the real
+  honest ban risk, real jobs shown working, the first run shown with the real
   commands.
 - **Fulfilment:** instant: the command runs locally, licences go straight to
   Gumroad checkout.
@@ -230,21 +221,29 @@ render. Primary CTA: copy `npx @open-wa/wa-automate@latest --port 8080`, then
 
 ## 10. Copy notes
 
-- **Who reads it:** developer #1, wanting a running session. Write every line
-  for them.
-- **Their words:** WhatsApp API, my own number, send a message, receive
-  messages, bot, webhook, QR code, session, Node.js, self-hosted, free, ban,
-  MCP, Claude, Chatwoot, n8n-style automation.
-- **Words to avoid:** primitives, surfaces, orchestration, engine,
-  platform-grade, "runtime substrate", seamless, effortless, powerful,
-  blazing, and anything describing the design.
-- **Spelling and register:** British English (licence as a noun, license as
-  the CLI flag and API field names, which stay as written in code), proper
-  capitalisation. The product name is "open-wa" in prose.
+- **Who reads it:** developer #1 with a job to build. Write every line about
+  their job working, never about the product's architecture.
+- **Their words:** WhatsApp API, my own number, booking reminders,
+  appointment notifications, OTP, verification code, PBX, call, IVR,
+  stickers, voice notes, PDF, send a message, receive messages, webhook, QR
+  code, session, self-hosted, free, ban, PHP, Python, Node.js, n8n.
+- **Words to avoid:** four ways in, paths, surfaces, runtime, embedded,
+  SocketClient (outside the quick start and docs), primitives,
+  orchestration, engine, seamless, effortless, powerful, blazing.
+- **Spelling and register:** British English (licence as a noun; code stays
+  as written), proper capitalisation. "open-wa" in prose.
 - **Standard:** `~/projects/ALFRED/standards/WRITING.md` §2, §4, §6 and the
   skill's `references/copy.md`. No em-dashes, ever.
 
 ## 11. Never claim
+
+- Only `POST /api/messages/sendText` has a documented HTTP route in the fact
+  pack. Show other methods in JavaScript, or say every method is listed at
+  `/api-docs/`. Never invent other routes.
+- Calls: a licensed preview needing a calling-enabled key; audio only. Never
+  say it plugs straight into any PBX: most need an adapter.
+- Stickers: never call sendSticker free of conditions in big type; its fine
+  print says it relies on the current sticker patch.
 
 - No "most reliable", "best", "#1", "fastest", "enterprise-grade" or any
   superlative. The repo description's "most reliable" has no receipt.
@@ -275,6 +274,17 @@ render. Primary CTA: copy `npx @open-wa/wa-automate@latest --port 8080`, then
   own mark, palette, type and voice.
 
 ## 13. Taste and the wow bar
+
+- **Round 1 (01 to 07) is prior art.** Mohammed: "boring and irrelevant ...
+  generic slop". Don't reuse its fonts (Departure Mono, Atkinson Hyperlegible
+  Next, Schibsted Grotesk, Fragment Mono, Newsreader, Public Sans, Martian
+  Mono, Chakra Petch, Red Hat, Gloock, Onest, Spline Sans Mono, Big Shoulders,
+  Literata, Victor Mono, Figtree, Source Code Pro), palettes, marks or
+  compositions (terminal hero, code/chat split, path diagram, event log,
+  agent transcript, riso poster, baseline split).
+- **Not boring:** each concept should feel like a real business's WhatsApp
+  coming alive. Show salons, hotels, shops and phone lines (illustrated or
+  generated imagery, labelled), not abstract dev-tool chrome.
 
 - Mohammed's developer-tool references set the craft bar: Better Auth (the
   mark's hover animation), sim.ai, c15t, the Fumadocs showcase.

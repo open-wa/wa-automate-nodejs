@@ -55,3 +55,26 @@ their own browser tab, or Mobbin) and close any tab they open.
 
 Wow anchors aren't shared between concepts. Never take logos, copy, photos,
 illustrations or brand colours.
+
+## Round 2 wow references (jobs shown working)
+
+| Ref | URL | What to take | Assigned to |
+|---|---|---|---|
+| R1 | https://www.twilio.com/en-us/messaging/channels/whatsapp | Use-case-led structure: OTP, notifications and support as the entry points, code per job | 08 (benchmark) |
+| R2 | https://www.apple.com/iphone/ | A device as the stage, with content arriving on it as you scroll | 08 |
+| R3 | https://stripe.com/payments/checkout | A product object with annotations pointing to what produced each part | 08 |
+| R4 | https://vercel.com/templates | Template gallery with filters, previews and a one-click start per card | 09 (benchmark) |
+| R5 | https://www.raycast.com/store | Extension cards with live previews and categories | 09 |
+| R6 | https://ui.shadcn.com/blocks | Block previews that expand into code beside the result | 09 |
+| R7 | https://cal.com/ | Booking product shown as the actual booking flow, warm and calm | 10 (benchmark) |
+| R8 | https://linear.app/method | Long-form scroll story with chapters and pinned visuals | 10 |
+| R9 | https://www.squarespace.com/ | Small-business photography and editorial pacing | 10 |
+| R10 | https://cloudinary.com/ | Media API sold through live transformations you can try | 11 (benchmark) |
+| R11 | https://www.remove.bg/ | Drop a photo, see the result instantly, sample images if you have none | 11 |
+| R12 | https://telegram.org/blog | Playful sticker and media showcase energy | 11 |
+| R13 | https://www.postman.com/ | Request builder: method, URL, body, response | 12 (benchmark) |
+| R14 | https://httpie.io/ | Same request in several clients, crisp terminal and app views | 12 |
+| R15 | https://www.twilio.com/docs/voice | Call-flow diagrams for telephony developers | 12 |
+| R16 | https://front.com/ | Shared inbox shown as the product, with rules and automations beside it | 13 (benchmark) |
+| R17 | https://www.mews.com/ | Hotel software that feels like hospitality, not enterprise | 13 |
+| R18 | https://www.intercom.com/ | Automation switches with the customer conversation updating beside them | 13 |
