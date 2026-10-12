@@ -1,0 +1,53 @@
+---
+import Page from "../../layouts/Page.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import RouteMap from "../../components/RouteMap.astro";
+import { integrations, snippets, href } from "../../data/site";
+import { routes } from "../../data/events";
+const cfg = Object.fromEntries(routes.map((r) => [r.id, r]));
+const extra: Record<string, { code: string; lang: string; file: string; note?: string }> = {
+  "Webhooks": { code: cfg.webhook.config, lang: "js", file: "wa.config.mjs", note: "POSTs each public event as JSON to your URL. Retries with exponential backoff; turn on durability to keep pending deliveries across restarts." },
+  "Chatwoot": { code: cfg.chatwoot.config, lang: "js", file: "wa.config.mjs", note: "Received messages become Chatwoot conversations, and agent replies go back to WhatsApp." },
+  "Node-RED": { code: cfg.nodered.config, lang: "bash", file: "terminal", note: "Adds owa-server, Command and Listen nodes that talk to a running Easy API session." },
+  "S3 media": { code: cfg.s3.config, lang: "js", file: "wa.config.mjs", note: "Uploads media from received messages and adds its cloudUrl to the message." },
+  "Cloudflare Session Proxy": { code: snippets.cfProxyConsumer, lang: "ts", file: "consumer.ts" },
+  "MCP": { code: snippets.mcpConfig, lang: "js", file: "wa.config.mjs" },
+  "Plugin SDK": { code: snippets.plugins, lang: "js", file: "wa.config.mjs (excerpt)", note: "Package your own integration, then load it by name or path alongside the official ones." },
+};
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-$/, "");
+---
+
+<Page title="Integrations: webhooks, Chatwoot, Node-RED, S3 and MCP | open-wa" description="Forward WhatsApp events from open-wa to a webhook, Chatwoot, Node-RED or S3, reach a session through your own Cloudflare Worker, or write a plugin with the Plugin SDK.">
+  <div class="wrap">
+    <header class="page-hero">
+      <span class="label">Integrations</span>
+      <h1>One session, many destinations</h1>
+      <p>Plugins run inside the open-wa process that owns the session. List them in <code class="mono">plugins</code>, configure them in <code class="mono">pluginConfig</code>, and your events reach the tools you already run.</p>
+    </header>
+    <div style="margin-top:40px"><RouteMap /></div>
+    <div class="ints">
+      {integrations.map((g) => (
+        <section class="int" id={slug(g.name)}>
+          <div>
+            <h2>{g.name}</h2>
+            <p class="pkg">{g.package}</p>
+            <p>{g.what}</p>
+            {extra[g.name]?.note && <p class="muted">{extra[g.name].note}</p>}
+            {g.name === "MCP" && <a href={href("ai-agents/")}>MCP set-up for Claude, Cursor and Windsurf</a>}
+          </div>
+          {extra[g.name] && <CodeBlock code={extra[g.name].code} lang={extra[g.name].lang} file={extra[g.name].file} />}
+        </section>
+      ))}
+    </div>
+  </div>
+</Page>
+
+<style>
+  .ints { margin-top: 48px; border-top: 1px solid var(--line); }
+  .int { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: 32px; padding: 32px 0; border-bottom: 1px solid var(--line); align-items: start; }
+  .int h2 { font-size: 26px; margin-bottom: 6px; }
+  .int p { color: #d6d8da; }
+  .int .muted { color: var(--muted); }
+  .page-hero code { color: var(--cyan); }
+  @media (max-width: 860px) { .int { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
+</style>

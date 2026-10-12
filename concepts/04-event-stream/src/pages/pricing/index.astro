@@ -5,7 +5,7 @@ import { licences, product, href, support } from "../../data/site";
 const periods = [["month", "1 month"], ["threeMonths", "3 months"], ["sixMonths", "6 months"], ["year", "1 year"]] as const;
 ---
 
-<Page title="Pricing and licence keys | open-wa" description="open-wa is free for most methods. Insiders and Restricted licence keys unlock specific methods per WhatsApp number, from £5 a month.">
+<Page title="Pricing and licence keys | open-wa" description="open-wa is free for most methods. Insiders and Restricted licence keys cover specific methods per WhatsApp number, from £5 a month.">
   <div class="wrap">
     <header class="page-hero">
       <span class="label">Pricing</span>
@@ -53,7 +53,7 @@ const periods = [["month", "1 month"], ["threeMonths", "3 months"], ["sixMonths"
       <h2>Questions</h2>
       <details><summary>Is the key per number or per account?</summary><p>Per WhatsApp number. Each number you run with licensed methods needs its own key.</p></details>
       <details><summary>How do I apply the key?</summary><p>Start with <code class="mono">{`--license-key "YOUR-LICENSE-KEY"`}</code> or set <code class="mono">licenseKey</code> in your config. Since 5.5 you can also apply it from the dashboard or with <code class="mono">client.refresh()</code> without restarting the Node process.</p></details>
-      <details><summary>Which tier unlocks createGroup?</summary><p>Restricted: <code class="mono">createGroup</code>, <code class="mono">joinGroupViaLink</code> and <code class="mono">joinGroup</code>, plus starting conversations with numbers that are not already contacts.</p></details>
+      <details><summary>Which tier do I need for createGroup?</summary><p>Restricted: <code class="mono">createGroup</code>, <code class="mono">joinGroupViaLink</code> and <code class="mono">joinGroup</code>, plus starting conversations with numbers that are not already contacts.</p></details>
       <details><summary>Do MCP tools follow the same rules?</summary><p>Yes. Each method keeps its licence level when an AI agent calls it as a tool.</p></details>
       <details><summary>Can I get help instead of a key?</summary><p>Paid support and consulting are on the <a href={href("support/")}>support page</a>, or email <a href={`mailto:${support.consultingEmail}`}>{support.consultingEmail}</a>.</p></details>
     </section>

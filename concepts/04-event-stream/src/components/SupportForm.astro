@@ -1,0 +1,68 @@
+---
+/** "Tell us what you need": name, email, what you want built -> submitLead("consulting"). */
+---
+
+<div class="sf" data-sf>
+  <form novalidate data-sf-form class="sf-form">
+    <div class="sf-field"><label for="sf-name">Your name</label><input id="sf-name" name="name" autocomplete="name" aria-describedby="sf-name-err" /><p class="sf-err" id="sf-name-err" aria-live="polite"></p></div>
+    <div class="sf-field"><label for="sf-email">Email</label><input id="sf-email" name="email" type="email" autocomplete="email" inputmode="email" aria-describedby="sf-email-err" /><p class="sf-err" id="sf-email-err" aria-live="polite"></p></div>
+    <div class="sf-field"><label for="sf-need">What do you want built?</label><textarea id="sf-need" name="need" rows="4" placeholder="e.g. Send booking reminders from our calendar and let customers reply to reschedule" aria-describedby="sf-need-err"></textarea><p class="sf-err" id="sf-need-err" aria-live="polite"></p></div>
+    <button class="btn btn-cyan" type="submit">Send</button>
+  </form>
+  <div data-sf-done hidden tabindex="-1" class="sf-done">
+    <p class="label">Received</p>
+    <h3>Thanks, we have your request</h3>
+    <p>The reply comes by email. For something urgent, email shah@openwa.dev or book time through per-minute consulting.</p>
+    <p class="muted">Demo: this concept keeps your details in this tab only.</p>
+  </div>
+</div>
+
+<script>
+  import { submitLead } from "../lib/leads";
+  const root = document.querySelector<HTMLElement>("[data-sf]");
+  if (root) {
+    const form = root.querySelector<HTMLFormElement>("[data-sf-form]")!;
+    const touched = new Set<string>();
+    const rules: Record<string, (v: string) => string> = {
+      name: (v) => (v.trim() ? "" : "Add your name."),
+      email: (v) => (!v.trim() ? "Add an email so we can reply." : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? "" : "Check the email address."),
+      need: (v) => (v.trim().length < 10 ? "A sentence or two is enough." : ""),
+    };
+    const check = (n: string, show: boolean) => {
+      const el = form.elements.namedItem(n) as HTMLInputElement;
+      const msg = rules[n](el.value);
+      if (show) { root.querySelector(`#${el.id}-err`)!.textContent = msg; el.setAttribute("aria-invalid", String(!!msg)); }
+      return !msg;
+    };
+    form.addEventListener("input", (e) => {
+      const el = e.target as HTMLInputElement;
+      if (!rules[el.name]) return;
+      if (el.value.trim()) touched.add(el.name);
+      check(el.name, touched.has(el.name));
+    });
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const names = Object.keys(rules);
+      const ok = names.map((n) => check(n, true)).every(Boolean);
+      if (!ok) { (form.elements.namedItem(names.find((n) => !check(n, false))!) as HTMLElement).focus(); return; }
+      const d = new FormData(form);
+      await submitLead("consulting", { name: String(d.get("name")), email: String(d.get("email")), need: String(d.get("need")) });
+      form.hidden = true;
+      const done = root.querySelector<HTMLElement>("[data-sf-done]")!;
+      done.hidden = false; done.focus();
+    });
+  }
+</script>
+
+<style>
+  .sf { background: var(--graphite-2); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: clamp(18px, 3vw, 28px); }
+  .sf-form { display: grid; gap: 16px; }
+  .sf-field label { display: block; font-weight: 600; margin-bottom: 6px; }
+  .sf-field input, .sf-field textarea { width: 100%; min-height: 48px; padding: 12px 14px; font: 400 17px/1.4 var(--font-text); color: var(--warm); background: var(--graphite); border: 1px solid var(--line); border-radius: var(--radius); }
+  .sf-field input:focus, .sf-field textarea:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(63,224,240,.18); }
+  .sf-field [aria-invalid="true"] { border-color: var(--alert); }
+  .sf-err { color: #ff8da1; font-size: 15px; margin: 6px 0 0; }
+  .sf-err:empty { display: none; }
+  .sf-done { display: grid; gap: 10px; outline: none; }
+  .sf-done p { margin: 0; }
+</style>

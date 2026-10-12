@@ -1,0 +1,33 @@
+---
+import Page from "../../layouts/Page.astro";
+import { releases, support } from "../../data/site";
+---
+
+<Page title="Changelog | open-wa" description="What's new in open-wa 5.5 and 5.4: event cards and RSVPs, live refresh, local stickers, and your own session encryption key.">
+  <div class="wrap">
+    <header class="page-hero">
+      <span class="label">Changelog</span>
+      <h1>What changed, release by release</h1>
+      <p>Highlights of recent releases. Every version's full notes are on <a href={support.releases}>GitHub releases</a> and in the <a href={support.changelog}>docs changelog</a>.</p>
+    </header>
+    <ol class="log">
+      {releases.map((r) => (
+        <li>
+          <div class="log-meta mono"><span class="v">v{r.version}</span><time>{r.date}</time></div>
+          <div class="log-body"><h2>{r.headline}</h2><ul>{r.highlights.map((h) => <li>{h}</li>)}</ul></div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</Page>
+
+<style>
+  .log { list-style: none; margin: 48px 0 0; padding: 0; border-left: 1px solid var(--line); }
+  .log > li { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 24px; padding: 0 0 48px 24px; position: relative; }
+  .log > li::before { content: ""; position: absolute; left: -5px; top: 8px; width: 9px; height: 9px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+  .log-meta { display: grid; gap: 6px; font-size: 14px; color: var(--muted); align-content: start; }
+  .v { color: var(--cyan-ink); background: var(--cyan); padding: 3px 8px; border-radius: 4px; font-weight: 600; justify-self: start; }
+  .log-body h2 { font-size: 26px; margin-bottom: 10px; }
+  .log-body ul { margin: 0; padding-left: 18px; color: #d6d8da; display: grid; gap: 6px; }
+  @media (max-width: 640px) { .log > li { grid-template-columns: minmax(0, 1fr); gap: 10px; } }
+</style>

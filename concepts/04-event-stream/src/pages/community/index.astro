@@ -1,0 +1,28 @@
+---
+import Page from "../../layouts/Page.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { support, stats, starsLabel, snippets, releases, href, product } from "../../data/site";
+---
+
+<Page title="Community: Discord, GitHub and the Plugin SDK | open-wa" description="Join over 1,000 members on Discord, contribute on GitHub, or package your own integration with the Plugin SDK.">
+  <div class="wrap prose">
+    <header class="page-hero">
+      <span class="label">Community</span>
+      <h1>Built in the open since 2019</h1>
+      <p>{starsLabel} stars, {stats.githubForks} forks and {stats.discordMembers.toLocaleString("en-GB")} Discord members, checked {stats.checkedOn}. Maintained by {support.maintainer}.</p>
+    </header>
+    <div class="grid-3" style="margin-top:32px">
+      <a class="card lk" href={support.discord}><h3>Discord</h3><p>Questions, show-and-tell and release news.</p></a>
+      <a class="card lk" href={support.github}><h3>GitHub</h3><p>Source, issues and pull requests.</p></a>
+      <a class="card lk" href={support.releases}><h3>Releases</h3><p>Latest: v{releases[0].version}, {releases[0].date}.</p></a>
+    </div>
+    <h2>Contributing</h2>
+    <p>Open an issue before a large change so it can be discussed. Bug reports with a minimal reproduction, your version and your driver are the easiest to act on. Contributions are released under the project's licence, {product.softwareLicence}.</p>
+    <h2 id="plugin-sdk">Write a plugin</h2>
+    <p>Package your own integration with <code>@open-wa/plugin-sdk</code> and load it next to the official ones by package name or local path.</p>
+    <CodeBlock code={snippets.plugins} lang="js" file="wa.config.mjs (excerpt)" />
+    <p><a href={href("integrations/")}>See the official integrations</a></p>
+  </div>
+</Page>
+
+<style>.lk { text-decoration: none; color: var(--warm); } .lk:hover { border-color: var(--cyan-dim); }</style>

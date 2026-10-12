@@ -1,0 +1,48 @@
+---
+import Page from "../../layouts/Page.astro";
+import SupportForm from "../../components/SupportForm.astro";
+import { support } from "../../data/site";
+---
+
+<Page title="Support and consulting | open-wa" description="Free help on Discord and GitHub issues, paid support and per-minute consulting, or tell us what you want built.">
+  <div class="wrap">
+    <header class="page-hero">
+      <span class="label">Support</span>
+      <h1>Get unstuck, or have it built for you</h1>
+      <p>Most questions are answered in the docs and on Discord. For your own set-up, paid help is available from the maintainer.</p>
+    </header>
+    <div class="grid-3 sup">
+      <a class="card" href={support.discord}><h2>Discord</h2><p>Ask the community and the maintainer. Search before you post: most errors have a thread.</p><span class="pkg">discord.gg/dnpp72a</span></a>
+      <a class="card" href={support.issues}><h2>GitHub issues</h2><p>Bugs with a reproduction, your version and your driver.</p><span class="pkg">open-wa/wa-automate-nodejs</span></a>
+      <a class="card" href={support.docs}><h2>Docs</h2><p>Guides, the API reference and the licensing pages.</p><span class="pkg">openwa.dev/docs</span></a>
+    </div>
+    <section class="paid">
+      <div>
+        <span class="label">Paid help</span>
+        <h2>Support and consulting</h2>
+        <ul class="paid-list">
+          <li><strong>Email</strong> <a href={`mailto:${support.consultingEmail}`}>{support.consultingEmail}</a></li>
+          <li><strong>Per-minute consulting</strong> <a href={support.perMinuteConsulting}>otechie.com/smashah</a></li>
+          <li><strong>Book an hour</strong> email with what you need and a couple of times that suit you.</li>
+          <li><strong>Say thanks</strong> <a href={support.buyMeACoffee}>Buy me a coffee</a></li>
+        </ul>
+        <p class="muted">Not a developer? Describe the job in plain words and we'll reply with what it takes.</p>
+      </div>
+      <div><h2 class="form-h">Tell us what you need</h2><SupportForm /></div>
+    </section>
+  </div>
+</Page>
+
+<style>
+  .sup { margin-top: 40px; }
+  .sup .card { text-decoration: none; color: var(--warm); display: grid; gap: 6px; }
+  .sup .card:hover { border-color: var(--cyan-dim); }
+  .sup h2 { font-size: 22px; }
+  .paid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; margin-top: 72px; }
+  .paid h2 { margin: 12px 0 16px; }
+  .form-h { margin-top: 0 !important; }
+  .paid-list { list-style: none; padding: 0; margin: 0 0 16px; display: grid; gap: 10px; }
+  .paid-list strong { display: block; }
+  .paid-list a { color: var(--cyan); }
+  @media (max-width: 860px) { .paid { grid-template-columns: minmax(0, 1fr); } }
+</style>

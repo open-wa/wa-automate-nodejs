@@ -22,7 +22,7 @@ const json = (o: unknown) => JSON.stringify(o, null, 2);
     </div>
     <div class="bb-cmd">
       <span class="prompt mono" aria-hidden="true">$</span>
-      <code class="mono" tabindex="0">{commands.easyApi}</code>
+      <code class="mono" tabindex="0">{commands.easyApi.split(" --").map((part, i) => <>{i ? " " : ""}<span class="nw">{i ? `--${part}` : part}</span></>)}</code>
       <button class="copy copy-main" type="button" data-copy={commands.easyApi} aria-label="Copy the run command">Copy</button>
     </div>
     <div class="bb-go">
@@ -398,5 +398,11 @@ const json = (o: unknown) => JSON.stringify(o, null, 2);
     .bf-hint { display: none; }
     .bq-pause span[data-pause-text] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     .bq-pause { min-width: 44px; justify-content: center; }
+  }
+</style>
+<style>
+  @media (max-width: 640px) {
+    .bb-cmd code { white-space: normal; line-height: 1.45; }
+    .bb-cmd .nw { white-space: nowrap; }
   }
 </style>

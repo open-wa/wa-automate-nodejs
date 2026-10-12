@@ -1,0 +1,74 @@
+---
+import CodeBlock from "./CodeBlock.astro";
+import { paths, commands, snippets } from "../data/site";
+const code: Record<string, { code: string; lang: string; file: string }[]> = {
+  "easy-api": [{ code: commands.easyApi, lang: "bash", file: "terminal" }, { code: commands.docker, lang: "bash", file: "or with Docker" }],
+  "socket-client": [{ code: commands.socketClientInstall, lang: "bash", file: "terminal" }, { code: snippets.socketClient, lang: "ts", file: "bot.ts" }],
+  embedded: [{ code: commands.embeddedInstall, lang: "bash", file: "terminal" }, { code: snippets.embedded, lang: "ts", file: "app.ts" }],
+  mcp: [{ code: snippets.mcpConfig, lang: "js", file: "wa.config.mjs" }, { code: snippets.mcpStart, lang: "bash", file: "terminal" }],
+};
+---
+
+<div class="paths" data-paths>
+  <div class="paths-tabs" role="tablist" aria-label="Ways to use open-wa">
+    {paths.map((p, i) => (
+      <button role="tab" type="button" id={`pt-${p.id}`} aria-controls={`pp-${p.id}`} aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1}>
+        <span class="pt-n mono">0{i + 1}</span>
+        <span class="pt-name">{p.name}</span>
+        <span class="pt-for">{p.for}</span>
+      </button>
+    ))}
+  </div>
+  {paths.map((p, i) => (
+    <div class="paths-panel" role="tabpanel" id={`pp-${p.id}`} aria-labelledby={`pt-${p.id}`} hidden={i !== 0} tabindex="0">
+      <p class="pp-what">{p.what}</p>
+      <div class="pp-code">{code[p.id].map((c) => <CodeBlock code={c.code} lang={c.lang} file={c.file} />)}</div>
+    </div>
+  ))}
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement>("[data-paths]");
+  if (root) {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const select = (tab: HTMLButtonElement, focus = false) => {
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.setAttribute("aria-selected", String(on));
+        t.tabIndex = on ? 0 : -1;
+        (document.getElementById(t.getAttribute("aria-controls")!) as HTMLElement).hidden = !on;
+      });
+      if (focus) tab.focus();
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => select(t));
+      t.addEventListener("keydown", (e) => {
+        const d = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
+        if (d) { e.preventDefault(); select(tabs[(i + d + tabs.length) % tabs.length], true); }
+      });
+    });
+  }
+</script>
+
+<style>
+  .paths { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 20px; align-items: start; }
+  .paths-tabs { display: grid; gap: 8px; }
+  .paths-tabs button {
+    display: grid; grid-template-columns: auto 1fr; column-gap: 12px; row-gap: 2px; text-align: left; cursor: pointer;
+    padding: 14px 16px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--graphite-2); color: var(--warm);
+    font: inherit;
+  }
+  .paths-tabs button:hover { border-color: var(--cyan-dim); }
+  .paths-tabs button[aria-selected="true"] { border-color: var(--cyan); box-shadow: inset 3px 0 0 var(--cyan); background: var(--graphite-3); }
+  .pt-n { grid-row: span 2; font-size: 13px; color: var(--cyan); padding-top: 4px; }
+  .pt-name { font: 600 19px/1.2 var(--font-display); }
+  .pt-for { color: var(--muted); font-size: 15px; line-height: 1.4; }
+  .paths-panel { display: grid; gap: 14px; min-width: 0; }
+  .pp-what { margin: 0; color: #d6d8da; font-size: 18px; }
+  .pp-code { display: grid; gap: 12px; }
+  @media (max-width: 860px) {
+    .paths { grid-template-columns: minmax(0, 1fr); }
+    .paths-tabs { grid-template-columns: 1fr 1fr; }
+    .pt-for { display: none; }
+  }
+</style>

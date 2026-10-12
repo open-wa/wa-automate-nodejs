@@ -1,0 +1,61 @@
+---
+import Page from "../../layouts/Page.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import CopyCommand from "../../components/CopyCommand.astro";
+import Paths from "../../components/Paths.astro";
+import { commands, firstRun, product, support, href, migration } from "../../data/site";
+---
+
+<Page title="Quick start: a WhatsApp API on your own number in three steps | open-wa" description="Run one npx command, scan the QR code with your phone, and open the live API docs. Then pick Easy API, SocketClient, the embedded runtime or MCP.">
+  <div class="wrap prose">
+    <header class="page-hero">
+      <span class="label">Quick start</span>
+      <h1>Your number as a local API in three steps</h1>
+      <p>You need Node.js {product.node.replace(">=", "")} or newer and a phone with WhatsApp on the number you want to use.</p>
+    </header>
+
+    <ol class="qs">
+      <li>
+        <span class="qs-n mono">01</span>
+        <div><h2>Run the command</h2><p>{firstRun[0]}</p><div class="qs-cmd"><CopyCommand command={commands.easyApi} /></div>
+        <p class="muted">Protect the API with a key before you expose it anywhere:</p><div class="qs-cmd"><CopyCommand command={commands.easyApiWithKey} /></div></div>
+      </li>
+      <li>
+        <span class="qs-n mono">02</span>
+        <div><h2>Link WhatsApp</h2><p>{firstRun[1]}</p>
+        <p class="note-risk"><strong>Use a number you can afford to lose access to while you test.</strong> {product.risk}</p></div>
+      </li>
+      <li>
+        <span class="qs-n mono">03</span>
+        <div><h2>Open the live docs</h2><p>{firstRun[2]}</p>
+        <ul class="urls mono">
+          <li>{commands.proofOfLife}</li><li>{commands.swagger}</li><li>{commands.postman}</li>
+        </ul></div>
+      </li>
+    </ol>
+
+    <h2>Run it in Docker</h2>
+    <CodeBlock code={commands.docker} lang="bash" file="terminal" />
+
+    <h2>Run more than one number</h2>
+    <p>Give each session a name and its own port.</p>
+    <CodeBlock code={commands.namedSession} lang="bash" file="terminal" />
+
+    <h2>Then pick a path</h2>
+    <Paths />
+
+    <h2>On v4?</h2>
+    <p>{migration.summary} <a href={href("migrate/")}>Migrate from v4</a>.</p>
+    <p><a class="btn btn-cyan" href={support.quickstartDocs}>Full quick start in the docs</a></p>
+  </div>
+</Page>
+
+<style>
+  .qs { list-style: none; margin: 48px 0 0; padding: 0; display: grid; gap: 16px; }
+  .qs > li { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; padding: 24px; background: var(--graphite-2); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+  .qs h2 { margin: 0 0 8px !important; font-size: 24px !important; }
+  .qs-n { color: var(--cyan); font-size: 15px; padding-top: 6px; }
+  .qs-cmd .cmd { background: #0d0f12; border: 1px solid var(--line); border-radius: var(--radius); padding: 4px 4px 4px 12px; font-size: 14px; margin-bottom: 12px; }
+  .urls { padding-left: 18px; font-size: 14.5px; color: var(--cyan); }
+  @media (max-width: 640px) { .qs > li { grid-template-columns: minmax(0, 1fr); padding: 18px; } }
+</style>

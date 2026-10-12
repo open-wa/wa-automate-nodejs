@@ -1,0 +1,49 @@
+---
+import Page from "../../layouts/Page.astro";
+import { href, product } from "../../data/site";
+const rows = [
+  ["Number", "A number registered to a Meta business account", "Your existing WhatsApp number, linked like WhatsApp Web"],
+  ["Set-up", "A Meta business account", "One npx command and a QR scan"],
+  ["Starting conversations", "Approved message templates for conversations you start", "Free to existing contacts; new numbers need a Restricted key"],
+  ["Cost", "Per-message pricing from Meta", "Free for most methods; Insiders and Restricted keys per number"],
+  ["Status", "Official and supported by Meta", "Unofficial, not affiliated with WhatsApp or Meta"],
+  ["Account risk", "Official route; Meta's policies apply", "Automation can get the account restricted or banned"],
+  ["Where it runs", "Meta's cloud", "Your machine or server, in a browser open-wa controls"],
+];
+---
+
+<Page title="Official WhatsApp API or open-wa? Honest trade-offs | open-wa" description="Meta's WhatsApp Business Platform is official, needs a business account, templates and per-message pricing. open-wa uses your existing number, is free for most methods, and is unofficial with ban risk.">
+  <div class="wrap">
+    <header class="page-hero">
+      <span class="label">Compare</span>
+      <h1>Official API or open-wa?</h1>
+      <p>Both send and receive WhatsApp messages from code. They trade off in different places, and for some projects the official route is the right one.</p>
+    </header>
+    <div class="tbl-wrap">
+      <table class="cmp">
+        <caption class="sr">Meta's WhatsApp Business Platform compared with open-wa</caption>
+        <thead><tr><th scope="col"></th><th scope="col">WhatsApp Business Platform (Cloud API)</th><th scope="col">open-wa</th></tr></thead>
+        <tbody>{rows.map(([k, a, b]) => <tr><th scope="row">{k}</th><td>{a}</td><td>{b}</td></tr>)}</tbody>
+      </table>
+    </div>
+    <div class="grid-2 pick">
+      <div class="card"><h2>Choose the official API when</h2><ul><li>You message customers at scale and need Meta's support.</li><li>Losing the number would hurt the business.</li><li>Templates and per-message pricing fit your volume.</li></ul></div>
+      <div class="card"><h2>Choose open-wa when</h2><ul><li>Your shop's own number should answer customers today.</li><li>You want events like RSVPs, poll votes and group changes in your code.</li><li>You accept the ban risk and test on a number you can spare.</li></ul></div>
+    </div>
+    <p class="note-risk" style="margin-top:24px"><strong>Plainly:</strong> {product.risk}</p>
+    <p style="margin-top:24px"><a class="btn btn-cyan" href={href("quickstart/")}>Try open-wa</a></p>
+  </div>
+</Page>
+
+<style>
+  .tbl-wrap { margin-top: 40px; overflow-x: auto; position: relative; border: 1px solid var(--line); border-radius: var(--radius-lg); }
+  .cmp { width: 100%; border-collapse: collapse; min-width: 640px; }
+  .cmp th, .cmp td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .cmp thead th { font: 600 16px var(--font-display); background: var(--graphite-2); }
+  .cmp thead th:last-child { color: var(--cyan); }
+  .cmp tbody th { font-weight: 600; color: var(--muted); width: 22%; }
+  .cmp td { color: #d6d8da; }
+  .pick { margin-top: 32px; }
+  .pick h2 { font-size: 22px; margin-bottom: 10px; }
+  .pick ul { margin: 0; padding-left: 18px; color: #d6d8da; display: grid; gap: 6px; }
+</style>
