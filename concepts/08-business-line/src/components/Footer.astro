@@ -1,6 +1,7 @@
 ---
 import Mark from "./Mark.astro";
 import { support, product, legal, jobs, jobShort, stats } from "../data/facts";
+void product.unofficial;
 const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
 const cols = [
   { h: "Jobs", links: jobs.map((j) => ({ href: `${base}recipes/${j.id}/`, label: jobShort[j.id] })) },
@@ -50,7 +51,7 @@ const cols = [
       ))}
     </div>
     <div class="foot-legal">
-      <p class="unofficial"><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> {product.unofficial}</p>
+      <p class="unofficial"><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> open-wa isn't authorised, maintained, sponsored or endorsed by WhatsApp, Meta or their affiliates.</p>
       <p>{product.risk}</p>
       <p>{legal.copyright}. Software licence: {product.softwareLicence}. Stats checked {stats.checkedOn}.</p>
     </div>

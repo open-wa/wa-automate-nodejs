@@ -132,6 +132,7 @@ const byJob = [
           <div><dt>Docker pulls</dt><dd>{k(stats.dockerPulls)}</dd></div>
           <div><dt>Discord members</dt><dd>{stats.discordMembers.toLocaleString("en-GB")}</dd></div>
           <div><dt>Published versions</dt><dd>{stats.publishedVersions}</dd></div>
+          <div><dt>GitHub forks</dt><dd>{stats.githubForks}</dd></div>
         </dl>
         <a class="release" href={`${base}changelog/`}>
           <span class="tag">v{rel.version}, {rel.date}</span>
@@ -202,7 +203,8 @@ const byJob = [
     .collage :global(.ph-4) { grid-column: auto; }
   }
 
-  .steps { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 20px; }
+  .steps { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .steps li:nth-child(3) { grid-column: 1 / -1; }
   .steps li { background: var(--paper); border: 1px solid var(--cream-3); border-radius: var(--radius-lg); padding: 24px; display: grid; gap: 4px; align-content: start; min-width: 0; }
   .num { width: 40px; height: 40px; border-radius: 50%; background: var(--tangerine); color: var(--plum); display: grid; place-items: center; font: 700 17px/1 var(--font-display); margin-bottom: 12px; }
   @media (max-width: 960px) { .steps { grid-template-columns: minmax(0, 1fr); } }
