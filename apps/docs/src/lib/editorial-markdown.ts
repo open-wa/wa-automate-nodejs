@@ -2,8 +2,52 @@ import { remark } from 'remark';
 import remarkGfm from 'remark-gfm';
 import remarkRehype from 'remark-rehype';
 import { visit } from 'unist-util-visit';
+import { remarkCodeTab } from 'fumadocs-core/mdx-plugins/remark-code-tab';
+import { parseCodeBlockAttributes } from 'fumadocs-core/mdx-plugins/codeblock-utils';
+import type { Element } from 'hast';
 
-const markdown = remark().use(remarkGfm).use(remarkRehype);
+const tabElements: Record<string, string> = {
+  CodeBlockTabs: 'editorial-code-tabs',
+  CodeBlockTabsList: 'editorial-code-tabs-list',
+  CodeBlockTabsTrigger: 'editorial-code-tabs-trigger',
+  CodeBlockTab: 'editorial-code-tab',
+};
+
+const markdown = remark().use(remarkGfm).use(remarkCodeTab).use(remarkRehype, {
+  handlers: {
+    // Only remarkCodeTab creates these nodes. CMS HTML and MDX are never parsed.
+    mdxJsxFlowElement(state, node) {
+      const tab = node as typeof node & {
+        name: string;
+        attributes: { type: string; name: string; value: unknown }[];
+      };
+      const tagName = tabElements[tab.name];
+      if (!tagName) return undefined;
+      const properties: Element['properties'] = {};
+      for (const attribute of tab.attributes) {
+        if (attribute.type !== 'mdxJsxAttribute') continue;
+        if (['defaultValue', 'groupId', 'value'].includes(attribute.name) && typeof attribute.value === 'string') {
+          properties[attribute.name] = attribute.value;
+        } else if (attribute.name === 'persist' && attribute.value === null) {
+          properties.persist = true;
+        }
+      }
+      return { type: 'element', tagName, properties, children: state.all(node) };
+    },
+    code(_state, node) {
+      const { attributes } = parseCodeBlockAttributes(node.meta ?? '', ['title']);
+      return {
+        type: 'element', tagName: 'pre',
+        properties: typeof attributes.title === 'string' ? { 'data-title': attributes.title } : {},
+        children: [{
+          type: 'element', tagName: 'code',
+          properties: node.lang ? { className: [`language-${node.lang}`] } : {},
+          children: [{ type: 'text', value: node.value }],
+        }],
+      };
+    },
+  },
+});
 const mediaPrefix = '/_emdash/api/media/file/';
 const publicMediaPrefix = '/api/editorial-media/';
 

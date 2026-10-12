@@ -1,11 +1,39 @@
-import { useMemo } from 'react';
+import { Children, useMemo, type ComponentProps, type ReactElement } from 'react';
 import { Fragment, jsx, jsxs } from 'react/jsx-runtime';
 import { toJsxRuntime } from 'hast-util-to-jsx-runtime';
 import { DocsBody } from 'fumadocs-ui/layouts/notebook/page';
+import { DynamicCodeBlock } from 'fumadocs-ui/components/dynamic-codeblock';
+import {
+  CodeBlockTabs, CodeBlockTabsList, CodeBlockTabsTrigger, CodeBlockTab,
+} from 'fumadocs-ui/components/codeblock';
 import { parseEditorialMarkdown } from '@/lib/editorial-markdown';
+
+const languageNames: Record<string, string> = {
+  ts: 'TypeScript', typescript: 'TypeScript', js: 'JavaScript', javascript: 'JavaScript',
+  sh: 'Shell', bash: 'Shell', python: 'Python', json: 'JSON', text: 'Text',
+};
+
+function EditorialCodeBlock(props: ComponentProps<'pre'> & { 'data-title'?: string }) {
+  const code = Children.only(props.children) as ReactElement<ComponentProps<'code'>>;
+  if (typeof code.props.children !== 'string') return <pre {...props} />;
+  const lang = code.props.className?.split(' ').find(value => value.startsWith('language-'))?.slice(9) ?? 'text';
+  return <DynamicCodeBlock
+    lang={lang === 'mdx' ? 'md' : lang}
+    code={code.props.children}
+    codeblock={{ title: props['data-title'] ?? languageNames[lang] ?? lang, className: 'editorial-code-block' }}
+  />;
+}
+
+const components = {
+  pre: EditorialCodeBlock,
+  'editorial-code-tabs': CodeBlockTabs,
+  'editorial-code-tabs-list': CodeBlockTabsList,
+  'editorial-code-tabs-trigger': CodeBlockTabsTrigger,
+  'editorial-code-tab': CodeBlockTab,
+};
 
 // CMS content is Markdown data, never executable MDX. Raw HTML is discarded.
 export function EditorialMarkdown({body}: {body: string}) {
-  const content = useMemo(() => toJsxRuntime(parseEditorialMarkdown(body), {Fragment, jsx, jsxs}), [body]);
+  const content = useMemo(() => toJsxRuntime(parseEditorialMarkdown(body), {Fragment, jsx, jsxs, components}), [body]);
   return <DocsBody className="release-prose">{content}</DocsBody>;
 }
