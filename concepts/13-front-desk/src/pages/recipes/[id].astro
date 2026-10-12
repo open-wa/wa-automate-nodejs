@@ -24,7 +24,7 @@ const needsKey = lic.kind !== "free";
   <section class="page-head wrap">
     <p class="kicker"><a href={`${base}recipes/`}>Recipes</a></p>
     <h1>{job.name}</h1>
-    <p class="lead">{job.who}. {jobCard[job.id].line}</p>
+    <p class="lead">For {job.who.charAt(0).toLowerCase() + job.who.slice(1)}. {jobCard[job.id].line}</p>
     <p class="head-chips"><span class:list={["chip", chipClass[lic.kind]]}>{lic.label}</span></p>
   </section>
 

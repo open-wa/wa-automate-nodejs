@@ -62,7 +62,7 @@ export const rules: Rule[] = [
     label: "Reply to “where are you?”",
     when: "When a guest asks for directions",
     methods: ["onMessage", "sendLocation"],
-    licence: { kind: "free", text: "Free. The guest wrote first, so no key is needed." },
+    licence: { kind: "free", text: "The guest wrote first, so no key is needed." },
     code: `client.onMessage(async (message) => {
   if (/where are you/i.test(message.body)) {
     await client.sendLocation(message.from, 50.7192, -1.8808, 'Harbour House', '12 Quay Road');
@@ -79,7 +79,7 @@ export const rules: Rule[] = [
     label: "Answer calls with a greeting",
     when: "When a guest calls the number",
     methods: ["onIncomingCall", "call.accept"],
-    licence: { kind: "preview", text: "Calling is a licensed preview: it needs a calling-enabled licence key. Audio only." },
+    licence: { kind: "preview", text: "Needs a calling-enabled licence key. Audio only." },
     code: pbxGreeting,
     bubbles: [
       { from: "hotel", kind: "call", title: "Voice call, answered", detail: "greeting.wav played, reply saved to received.wav" },
@@ -91,7 +91,7 @@ export const rules: Rule[] = [
     label: "Send the guest wifi code",
     when: "When a guest asks for the wifi",
     methods: ["onMessage", "sendText"],
-    licence: { kind: "free", text: "Free. The guest asked, so the reply needs no key." },
+    licence: { kind: "free", text: "The guest asked, so the reply needs no key." },
     code: `import { randomInt } from 'node:crypto';
 
 client.onMessage(async (message) => {
