@@ -5,6 +5,8 @@ export type ClientRuntimeSupport = 'runtime' | 'licensed' | 'unsupported';
 export interface ClientRuntimeMethodSurfaceEntry {
   support: ClientRuntimeSupport;
   runtimeMethod?: string;
+  runtimeSource?: 'asset' | 'live-patch';
+  runtimePatch?: string;
   reason?: string;
 }
 
@@ -15,13 +17,13 @@ export interface ClientRuntimeListenerSurfaceEntry {
 }
 
 export const clientRuntimeMethodSurface = {
-  sendEvent: { support: 'runtime', runtimeMethod: 'sendEvent' },
-  getEvent: { support: 'runtime', runtimeMethod: 'getEvent' },
-  getEvents: { support: 'runtime', runtimeMethod: 'getEvents' },
-  getEventResponses: { support: 'runtime', runtimeMethod: 'getEventResponses' },
-  editEvent: { support: 'runtime', runtimeMethod: 'editEvent' },
-  cancelEvent: { support: 'runtime', runtimeMethod: 'cancelEvent' },
-  respondToEvent: { support: 'runtime', runtimeMethod: 'respondToEvent' },
+  sendEvent: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'events', runtimeMethod: 'sendEvent' },
+  getEvent: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'events', runtimeMethod: 'getEvent' },
+  getEvents: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'events', runtimeMethod: 'getEvents' },
+  getEventResponses: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'events', runtimeMethod: 'getEventResponses' },
+  editEvent: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'events', runtimeMethod: 'editEvent' },
+  cancelEvent: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'events', runtimeMethod: 'cancelEvent' },
+  respondToEvent: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'events', runtimeMethod: 'respondToEvent' },
   getCallCapabilities: { support: 'runtime', reason: 'calling admission service' },
   getActiveCall: { support: 'licensed', reason: 'calling-enabled licensed provider' },
   startCall: { support: 'licensed', reason: 'calling-enabled licensed provider' },
@@ -42,16 +44,16 @@ export const clientRuntimeMethodSurface = {
     reason: 'provided by the server-confirmed Insiders license payload',
   },
   sendText: { support: 'runtime', runtimeMethod: 'sendMessage' },
-  sendImage: { support: 'runtime', runtimeMethod: 'sendImage' },
-  sendFile: { support: 'runtime', runtimeMethod: 'sendImage', reason: 'generic media pipeline in the common patch' },
-  sendAudio: { support: 'runtime', runtimeMethod: 'sendImage' },
-  sendPtt: { support: 'runtime', runtimeMethod: 'sendImage' },
-  sendVideoAsGif: { support: 'runtime', runtimeMethod: 'sendImage' },
-  voteOnPoll: { support: 'runtime', runtimeMethod: 'voteOnPoll' },
-  getPollResults: { support: 'runtime', runtimeMethod: 'getPollResults' },
-  pinMessage: { support: 'runtime', runtimeMethod: 'pinMessage' },
-  unpinMessage: { support: 'runtime', runtimeMethod: 'pinMessage' },
-  sendPoll: { support: 'runtime', runtimeMethod: 'sendPoll', reason: 'provided by the common patch' },
+  sendImage: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'sendImage' },
+  sendFile: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'sendImage', reason: 'generic media pipeline in the common patch' },
+  sendAudio: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'sendImage' },
+  sendPtt: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'sendImage' },
+  sendVideoAsGif: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'sendImage' },
+  voteOnPoll: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'voteOnPoll' },
+  getPollResults: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'getPollResults' },
+  pinMessage: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'pinMessage' },
+  unpinMessage: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'pinMessage' },
+  sendPoll: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'sendPoll', reason: 'provided by the common patch' },
   sendLocation: { support: 'runtime', runtimeMethod: 'sendLocation' },
   sendContact: { support: 'runtime', runtimeMethod: 'sendContact' },
   sendMultipleContacts: { support: 'runtime', runtimeMethod: 'sendContact' },
@@ -66,7 +68,7 @@ export const clientRuntimeMethodSurface = {
   getMessageById: { support: 'runtime', runtimeMethod: 'getMessageById' },
   getAlbumMessages: { support: 'runtime', runtimeMethod: 'getAlbumMessages' },
   sendAlbum: { support: 'runtime', runtimeMethod: 'sendAlbum' },
-  sendFileFromUrl: { support: 'runtime', runtimeMethod: 'sendImage' },
+  sendFileFromUrl: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'sendImage' },
   postTextStatus: { support: 'licensed', runtimeMethod: 'postTextStatus', reason: 'licensed text story payload' },
   postImageStatus: { support: 'licensed', runtimeMethod: 'postImageStatus', reason: 'licensed image story payload' },
   postVideoStatus: { support: 'licensed', runtimeMethod: 'postVideoStatus', reason: 'licensed video story payload' },
@@ -130,8 +132,8 @@ export const clientRuntimeMethodSurface = {
   getAllMessages: { support: 'runtime', runtimeMethod: 'getAllMessagesInChat' },
   loadEarlierMessages: { support: 'runtime', runtimeMethod: 'loadEarlierMessages' },
   getContact: { support: 'runtime', runtimeMethod: 'getContact' },
-  requestPhoneNumber: { support: 'runtime', runtimeMethod: 'requestPhoneNumber' },
-  sharePhoneNumber: { support: 'runtime', runtimeMethod: 'sharePhoneNumber' },
+  requestPhoneNumber: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'requestPhoneNumber' },
+  sharePhoneNumber: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'message-options', runtimeMethod: 'sharePhoneNumber' },
   getAllContacts: { support: 'runtime', runtimeMethod: 'getAllContacts' },
   getContactById: { support: 'runtime', runtimeMethod: 'getContact' },
   checkNumberStatus: { support: 'runtime', runtimeMethod: 'checkNumberStatus' },

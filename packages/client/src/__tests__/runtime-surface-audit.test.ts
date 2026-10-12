@@ -45,6 +45,7 @@ describe('Client runtime surface audit', () => {
   const declaredMethods = extractDeclaredClientMethods(clientSource);
   const listenerMethods = extractClientListenerMethods(clientSource);
   const wapiAssignments = extractWapiTerminalAssignments(wapiSource);
+  const commonPatches = JSON.parse(readFileSync(getFixturePath('../../../../patches.json'), 'utf8')) as string[];
 
   it('tracks every declared facade method in the runtime inventory', () => {
     expect(Object.keys(clientRuntimeMethodSurface).sort()).toEqual(declaredMethods);
@@ -54,10 +55,18 @@ describe('Client runtime surface audit', () => {
     expect(Object.keys(clientRuntimeListenerSurface).sort()).toEqual(listenerMethods);
   });
 
-  it('only marks methods as runtime-backed when shipped wapi.js ends with a real implementation', () => {
+  it('checks immutable-asset backing separately from declared live-patch methods', () => {
     for (const [clientMethod, entry] of Object.entries(clientRuntimeMethodSurface)) {
       if (!entry.runtimeMethod) {
+        expect(entry.reason).toBeTruthy();
+        continue;
+      }
+
+      // Live patches install after the immutable asset, so its assignments
+      // cannot establish their final runtime implementation.
+      if ('runtimeSource' in entry && entry.runtimeSource === 'live-patch') {
         expect(entry.support).toBe('runtime');
+        expect(commonPatches.some(patch => patch.startsWith(`/* OpenWA feature: ${entry.runtimePatch} */\n`))).toBe(true);
         continue;
       }
 
