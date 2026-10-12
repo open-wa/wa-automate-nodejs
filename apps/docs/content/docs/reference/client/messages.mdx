@@ -6,7 +6,7 @@ icon: "BookOpen"
 
 # Messages Client API
 
-This page documents 41 schema-registry client methods in the `messages` namespace.
+This page documents 45 schema-registry client methods in the `messages` namespace.
 
 
 ## `deleteMessage`
@@ -790,6 +790,109 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 </details>
 
+
+## `getPollResults`
+
+Hydrates the local poll vote store and returns synced counts, choices and votes. Hidden-voter polls omit voter identities and the votes array. Unsynced votes may be absent.
+
+**Signature** `client.getPollResults(messageId: string): Promise<PollResults>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.getPollResults("false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB");
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getPollResults({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/getPollResults" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "messageId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {
+    "pollId": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+    "chatId": "447123456789@c.us",
+    "name": "example",
+    "selectableCount": 0,
+    "isClosed": true,
+    "hideVoterNames": true,
+    "options": [],
+    "voterCount": 0,
+    "scope": "synced"
+  }
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="GetPollResultsParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<PollResults>` |
+| PollResults | [View fields](/docs/reference/client/return-types#pollresults) |
+
+Resolves to `PollResults`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<PollResults>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `get` |
+| Functionality | `both` |
+| Positional parameter order | `messageId` |
+| Aliases | `messages.getPollResults` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/getPollResults` | `getPollResults` | Active |
+| Alias | `POST` | `/api/getPollResults` | `getPollResults` | Active |
+
+</details>
+
 <LicensedMethodSection tier="insiders">
 
 <span id="getstarredmessages---insiders" aria-hidden="true"></span>
@@ -1136,6 +1239,98 @@ In-process Client resolves to `Promise<Message[]>`. The contract above is for th
 </details>
 
 
+## `pinMessage`
+
+Pins a message in its chat for everyone, subject to native permissions. This differs from pinChat, which changes the current account chat list.
+
+**Signature** `client.pinMessage(messageId: string, duration?: "OneDay" \| "SevenDays" \| "ThirtyDays"): Promise<boolean>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.pinMessage("false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB");
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.pinMessage({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/pin" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "messageId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="PinMessageParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<boolean>` |
+
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `set` |
+| Functionality | `both` |
+| Positional parameter order | `messageId`, `duration` |
+| Aliases | `messages.pin` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/pin` | `pinMessage` | Active |
+| Alias | `POST` | `/api/pinMessage` | `pinMessage` | Active |
+
+</details>
+
+
 ## `react`
 
 React to message with emoji
@@ -1451,13 +1646,20 @@ Submitted album parent and child message IDs, in input order. Submission does no
 
 ## `sendAudio`
 
-Sends an audio file to a chat
+Sends an audio attachment with an optional quoted message. Use sendPtt for voice notes and view-once audio.
 
-**Signature** `client.sendAudio(to: string, file: string, filename?: string, quotedMsgId?: string): Promise<MessageIdReturn \| boolean>`
+**Signature** `client.sendAudio(to: string, file: string, filename?: string, options?: { quotedMsgId?: string }): Promise<MessageIdReturn \| boolean>`
 
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.sendAudio("447123456789@c.us", "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...");
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -1508,7 +1710,7 @@ Example response envelope:
 
 Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<MediaSendResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -1520,7 +1722,7 @@ This method is not declared on the in-process Client facade. Use the remote Node
 | Namespace | `messages` |
 | Action | `send` |
 | Functionality | `both` |
-| Positional parameter order | `to`, `file`, `filename`, `quotedMsgId` |
+| Positional parameter order | `to`, `file`, `filename`, `options` |
 | Aliases | `messages.sendAudio` |
 | Deprecated aliases | - |
 | License | `none` |
@@ -1721,7 +1923,7 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 Sends a single contact
 
-**Signature** `client.sendContact(to: string, contactId: string \| string[]): Promise<MessageIdReturn \| boolean \| void>`
+**Signature** `client.sendContact(to: string, contactId: string \| string[]): Promise<MessageIdReturn \| boolean \| (MessageIdReturn \| boolean)[]>`
 
 ### Usage
 
@@ -1778,12 +1980,12 @@ Example response envelope:
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<MessageIdReturn \| boolean \| void>` |
+| Return type | `Promise<MessageIdReturn \| boolean \| (MessageIdReturn \| boolean)[]>` |
 | MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-Resolves to `MessageIdReturn \| boolean \| void`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `MessageIdReturn \| boolean \| (MessageIdReturn \| boolean)[]`. A rejected Promise indicates input validation or dispatch failure.
 
-In-process Client resolves to `Promise<void>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+In-process Client resolves to `Promise<MessageId \| boolean \| (MessageId \| boolean)[]>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -1814,9 +2016,9 @@ In-process Client resolves to `Promise<void>`. The contract above is for the rem
 
 ## `sendFile`
 
-Sends a file or document to a chat
+Sends an image, video, audio file or document using MIME detection or an explicit typed presentation. Incompatible options are rejected before sending. Media is not transcoded.
 
-**Signature** `client.sendFile(to: string, file: string, filename?: string, caption?: string): Promise<MessageIdReturn \| string>`
+**Signature** `client.sendFile(to: string, file: string, filename?: string, options?: { caption?: string; quotedMsgId?: string; type?: "auto"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "image"; viewOnce?: boolean } \| { caption?: string; isGif?: boolean; quotedMsgId?: string; type: "video"; videoNote?: boolean; viewOnce?: boolean } \| { ptt?: boolean; quotedMsgId?: string; type: "audio"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "document" }): Promise<MessageIdReturn \| boolean>`
 
 ### Usage
 
@@ -1873,12 +2075,12 @@ Example response envelope:
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<MessageIdReturn \| string>` |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
 | MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-Resolves to `MessageIdReturn \| string`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-In-process Client resolves to `Promise<MessageId>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+In-process Client resolves to `Promise<MediaSendResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -1890,7 +2092,7 @@ In-process Client resolves to `Promise<MessageId>`. The contract above is for th
 | Namespace | `messages` |
 | Action | `send` |
 | Functionality | `both` |
-| Positional parameter order | `to`, `file`, `filename`, `caption` |
+| Positional parameter order | `to`, `file`, `filename`, `options` |
 | Aliases | `messages.sendFile` |
 | Deprecated aliases | - |
 | License | `none` |
@@ -1909,9 +2111,9 @@ In-process Client resolves to `Promise<MessageId>`. The contract above is for th
 
 ## `sendFileFromUrl`
 
-Downloads a file from a URL and sends it to a chat
+Downloads media and sends it through sendFile with the same typed presentation options.
 
-**Signature** `client.sendFileFromUrl(to: string, url: string, filename: string, caption?: string, headers?: object): Promise<string \| boolean>`
+**Signature** `client.sendFileFromUrl(to: string, url: string, filename?: string, options?: { caption?: string; quotedMsgId?: string; type?: "auto"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "image"; viewOnce?: boolean } \| { caption?: string; isGif?: boolean; quotedMsgId?: string; type: "video"; videoNote?: boolean; viewOnce?: boolean } \| { ptt?: boolean; quotedMsgId?: string; type: "audio"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "document" }, headers?: object): Promise<string \| boolean>`
 
 ### Usage
 
@@ -1925,7 +2127,6 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.sendFileFromUrl({
   to: "447123456789@c.us",
   url: "url",
-  filename: "filename",
 });
 ```
 
@@ -1938,8 +2139,7 @@ curl -X POST "http://localhost:8080/api/messages/sendFileFromUrl" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
     "to": "447123456789@c.us",
-    "url": "url",
-    "filename": "filename"
+    "url": "url"
   }'
 ```
 
@@ -1980,7 +2180,7 @@ Message ID or success status
 | Namespace | `messages` |
 | Action | `send` |
 | Functionality | `both` |
-| Positional parameter order | `to`, `url`, `filename`, `caption`, `headers` |
+| Positional parameter order | `to`, `url`, `filename`, `options`, `headers` |
 | Aliases | `messages.sendFileFromUrl` |
 | Deprecated aliases | - |
 | License | `none` |
@@ -1999,9 +2199,9 @@ Message ID or success status
 
 ## `sendImage`
 
-Sends an image to a chat
+Sends media through the native attachment pipeline, including images and videos. Options select presentation, view once, GIF playback or circular video notes; media is not transcoded. Returns submission status, not a delivery receipt.
 
-**Signature** `client.sendImage(to: string, imgData: string, filename?: string, caption?: string, id?: string, waitForId?: boolean): Promise<MessageIdReturn \| boolean \| string>`
+**Signature** `client.sendImage(to: string, file: string, filename?: string, options?: { caption?: string; quotedMsgId?: string; type?: "auto"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "image"; viewOnce?: boolean } \| { caption?: string; isGif?: boolean; quotedMsgId?: string; type: "video"; videoNote?: boolean; viewOnce?: boolean } \| { ptt?: boolean; quotedMsgId?: string; type: "audio"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "document" }): Promise<MessageIdReturn \| boolean>`
 
 ### Usage
 
@@ -2009,7 +2209,7 @@ Sends an image to a chat
   <InterfaceTab value="Embedded">
 
 ```ts
-const result = await client.sendImage("447123456789@c.us", "data:image/png;base64,iVBORw0KGgo...");
+const result = await client.sendImage("447123456789@c.us", "data:application/pdf;base64,JVBERi0xLjQK...");
 ```
 
   </InterfaceTab>
@@ -2021,7 +2221,7 @@ import { SocketClient } from '@open-wa/socket-client';
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
 const result = await client.sendImage({
   to: "447123456789@c.us",
-  imgData: "data:image/png;base64,iVBORw0KGgo...",
+  file: "data:application/pdf;base64,JVBERi0xLjQK...",
 });
 ```
 
@@ -2034,7 +2234,7 @@ curl -X POST "http://localhost:8080/api/messages/sendImage" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
     "to": "447123456789@c.us",
-    "imgData": "data:image/png;base64,iVBORw0KGgo..."
+    "file": "data:application/pdf;base64,JVBERi0xLjQK..."
   }'
 ```
 
@@ -2058,12 +2258,12 @@ Example response envelope:
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<MessageIdReturn \| boolean \| string>` |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
 | MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-Resolves to `MessageIdReturn \| boolean \| string`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-In-process Client resolves to `Promise<MessageId \| false>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+In-process Client resolves to `Promise<MediaSendResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -2075,7 +2275,7 @@ In-process Client resolves to `Promise<MessageId \| false>`. The contract above 
 | Namespace | `messages` |
 | Action | `send` |
 | Functionality | `both` |
-| Positional parameter order | `to`, `imgData`, `filename`, `caption`, `id`, `waitForId` |
+| Positional parameter order | `to`, `file`, `filename`, `options` |
 | Aliases | `messages.sendImage` |
 | Deprecated aliases | - |
 | License | `none` |
@@ -2583,6 +2783,13 @@ Sends multiple contacts
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.sendMultipleContacts("447123456789@c.us", ["447123456789@c.us"]);
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -2635,7 +2842,7 @@ Example response envelope:
 
 Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<MessageId \| boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -2758,13 +2965,20 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 ## `sendPoll`
 
-Sends a poll message
+Sends a text poll with a selection limit, quote, optional closing time in Unix milliseconds and hidden voter names. Closing time and hidden names require native WhatsApp support for the sending account/chat. These fields select the native V6 poll payload.
 
-**Signature** `client.sendPoll(to: string, name: string, options: string[], selectableCount?: number): Promise<MessageIdReturn \| boolean>`
+**Signature** `client.sendPoll(to: string, name: string, options: string[], config?: { endTime?: number; hideVoterNames?: boolean; quotedMsgId?: string; selectableCount?: number }): Promise<MessageIdReturn \| boolean>`
 
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.sendPoll("447123456789@c.us", "name", ["Yes", "No"]);
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -2820,7 +3034,7 @@ Example response envelope:
 
 Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<MessageId \| boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -2832,7 +3046,7 @@ This method is not declared on the in-process Client facade. Use the remote Node
 | Namespace | `messages` |
 | Action | `send` |
 | Functionality | `both` |
-| Positional parameter order | `to`, `name`, `options`, `selectableCount` |
+| Positional parameter order | `to`, `name`, `options`, `config` |
 | Aliases | `messages.sendPoll` |
 | Deprecated aliases | - |
 | License | `none` |
@@ -2851,13 +3065,20 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 ## `sendPtt`
 
-Sends a voice note (push-to-talk) to a chat
+Sends prepared audio as a voice note, optionally view once. It does not transcode the input; use suitable voice-note audio such as Ogg Opus.
 
-**Signature** `client.sendPtt(to: string, file: string, quotedMsgId?: string): Promise<MessageIdReturn \| boolean>`
+**Signature** `client.sendPtt(to: string, file: string, options?: { quotedMsgId?: string; viewOnce?: boolean }): Promise<MessageIdReturn \| boolean>`
 
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.sendPtt("447123456789@c.us", "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...");
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -2908,7 +3129,7 @@ Example response envelope:
 
 Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<MediaSendResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -2920,7 +3141,7 @@ This method is not declared on the in-process Client facade. Use the remote Node
 | Namespace | `messages` |
 | Action | `send` |
 | Functionality | `both` |
-| Positional parameter order | `to`, `file`, `quotedMsgId` |
+| Positional parameter order | `to`, `file`, `options` |
 | Aliases | `messages.sendPtt`, `messages.sendVoiceNote`, `sendVoiceNote` |
 | Deprecated aliases | - |
 | License | `none` |
@@ -3407,11 +3628,18 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 Sends a contact card (vCard)
 
-**Signature** `client.sendVCard(to: string, vcard: string, contactName?: string, contactNumber?: string): Promise<boolean>`
+**Signature** `client.sendVCard(to: string, vcard: string, contactName?: string, contactNumber?: string): Promise<MessageIdReturn \| boolean>`
 
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.sendVCard("447123456789@c.us", "vcard");
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -3442,7 +3670,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": true
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -3457,11 +3685,12 @@ Example response envelope:
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<boolean>` |
+| Return type | `Promise<MessageIdReturn \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
-Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<MessageId \| boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -3492,13 +3721,20 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 ## `sendVideoAsGif`
 
-Sends a video as an animated GIF
+Sends MP4 video with WhatsApp GIF playback. GIF is a video presentation flag; this method does not convert a GIF image or transcode video.
 
-**Signature** `client.sendVideoAsGif(to: string, file: string, filename?: string, caption?: string, quotedMsgId?: string): Promise<MessageIdReturn \| boolean>`
+**Signature** `client.sendVideoAsGif(to: string, file: string, filename?: string, options?: { caption?: string; quotedMsgId?: string }): Promise<MessageIdReturn \| boolean>`
 
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.sendVideoAsGif("447123456789@c.us", "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...");
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -3549,7 +3785,7 @@ Example response envelope:
 
 Resolves to `MessageIdReturn \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<MediaSendResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -3561,7 +3797,7 @@ This method is not declared on the in-process Client facade. Use the remote Node
 | Namespace | `messages` |
 | Action | `send` |
 | Functionality | `both` |
-| Positional parameter order | `to`, `file`, `filename`, `caption`, `quotedMsgId` |
+| Positional parameter order | `to`, `file`, `filename`, `options` |
 | Aliases | `messages.sendVideoAsGif` |
 | Deprecated aliases | - |
 | License | `none` |
@@ -3753,6 +3989,98 @@ This method is not declared on the in-process Client facade. Use the remote Node
 </details>
 
 
+## `unpinMessage`
+
+Removes a message pin for everyone, subject to native chat permissions.
+
+**Signature** `client.unpinMessage(messageId: string): Promise<boolean>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.unpinMessage("false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB");
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.unpinMessage({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/unpin" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "messageId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="UnpinMessageParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<boolean>` |
+
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `set` |
+| Functionality | `both` |
+| Positional parameter order | `messageId` |
+| Aliases | `messages.unpin` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/unpin` | `unpinMessage` | Active |
+| Alias | `POST` | `/api/unpinMessage` | `unpinMessage` | Active |
+
+</details>
+
+
 ## `unstarMessage`
 
 Unstar a message
@@ -3834,5 +4162,99 @@ This method is not declared on the in-process Client facade. Use the remote Node
 | --- | --- | --- | --- | --- |
 | Primary | `PUT` | `/api/messages/unstar` | `unstarMessage` | Active |
 | Alias | `PUT` | `/api/unstarMessage` | `unstarMessage` | Active |
+
+</details>
+
+
+## `voteOnPoll`
+
+Votes using option IDs returned by getPollResults; an empty array removes the current vote. The poll must be open and allow this account to vote.
+
+**Signature** `client.voteOnPoll(messageId: string, optionIds: number[]): Promise<boolean>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.voteOnPoll("false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB", []);
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.voteOnPoll({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+  optionIds: [],
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/voteOnPoll" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "messageId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+    "optionIds": []
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="VoteOnPollParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<boolean>` |
+
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `messageId`, `optionIds` |
+| Aliases | `messages.voteOnPoll` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/voteOnPoll` | `voteOnPoll` | Active |
+| Alias | `POST` | `/api/voteOnPoll` | `voteOnPoll` | Active |
 
 </details>

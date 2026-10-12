@@ -173,6 +173,9 @@ export interface OpenWAEventMap {
   'message.received': { ctx: EventContext; message: Message };
   'message.any': { ctx: EventContext; message: Message };
   'interactive.response': { ctx: EventContext; response: unknown };
+  'poll.vote': { ctx: EventContext; vote: import('@open-wa/schema').PollVote };
+  'event.changed': { ctx: EventContext; event: import('@open-wa/schema').WhatsAppEvent };
+  'event.response': { ctx: EventContext; response: import('@open-wa/schema').EventResponse };
   'message.deleted': { ctx: EventContext; messageId: string; chatId: string; by?: string };
 
   'ack.changed': { ctx: EventContext; ack: Ack };
@@ -354,6 +357,9 @@ export const OpenWAEventMetaMap: Record<keyof OpenWAEventMap, OpenWAEventMeta> =
   'message.received': { internal: false, sensitive: false },
   'message.any': { internal: false, sensitive: false },
   'interactive.response': { internal: false, sensitive: true },
+  'poll.vote': { internal: false, sensitive: true },
+  'event.changed': { internal: false, sensitive: true },
+  'event.response': { internal: false, sensitive: true },
   'message.deleted': { internal: false, sensitive: false },
   'ack.changed': { internal: false, sensitive: false },
   'session.data': { internal: true, sensitive: true },

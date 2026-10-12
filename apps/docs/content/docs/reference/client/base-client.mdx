@@ -25,6 +25,7 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `approveGroupJoinRequest` | `groups` | `approveGroupJoinRequest` | `groupId`, `contactId` | `string \| boolean` |
 | `archiveChat` | `chats` | `archiveChat` | `chatId` | `boolean` |
 | `blockContact` | `contacts` | `contactBlock` | `contactId` | `boolean` |
+| `cancelEvent` | `events` | `cancelEvent` | `eventId` | `boolean` |
 | `checkNumberStatus` | `contacts` | `checkNumberStatus` | `contactId` | `NumberCheck` |
 | `checkReadReceipts` | `contacts` | `checkReadReceipts` | `contactId` | `boolean \| string` |
 | `clearCallAudio` | `calls` | `clearCallAudio` | `call` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
@@ -37,6 +38,7 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `deleteStatus` | `status` | `deleteStatus` | `statusesToDelete` | `boolean` |
 | `demoteParticipant` | `groups` | `demoteParticipant` | `groupId`, `contactId` | `boolean \| string` |
 | `downloadMedia` | `media` | `downloadMedia` | `message`, `path` | `string` |
+| `editEvent` | `events` | `editEvent` | `eventId`, `changes` | `boolean` |
 | `endCall` | `calls` | `endCall` | `call` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
 | `forwardMessages` | `messages` | `forwardMessages` | `to`, `messages`, `skipMyMessages` | `MessageIdReturn[] \| boolean` |
 | `getActiveCall` | `calls` | `getActiveCall` | - | `{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: "incoming" \| "outgoing"; video: boolean; terminal: boolean; observedAt: number \| "Infinity" \| "-Infinity" \| "NaN"; endReason?: { code: string; message: string; source: "local" \| "media" \| "license" \| "session" \| "whatsapp" } \| null; media?: { state: "attached" \| "ended"; reason?: string \| null } \| null` |
@@ -52,7 +54,7 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `getBlockedIds` | `contacts` | `getBlockedIds` | - | `ContactId[] \| false` |
 | `getBusinessProducts` | `business` | `getBusinessProfilesProducts` | `contactId` | `Product[] \| false` |
 | `getBusinessProfile` | `business` | `getBusinessProfile` | `contactId` | `BusinessProfile` |
-| `getCallCapabilities` | `calls` | `getCallCapabilities` | - | `{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" } \| null }` |
+| `getCallCapabilities` | `calls` | `getCallCapabilities` | - | `{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" } }` |
 | `getChat` | `chats` | `getChat` | `chatId` | `Chat \| null \| undefined \| false` |
 | `getChatsByLabel` | `labels` | `getChatsByLabel` | `label` | `Chat[]` |
 | `getChatWithNonContacts` | `chats` | `getChatWithNonContacts` | - | `Contact[]` |
@@ -64,6 +66,9 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `getCommunityParticipants` | `communities` | `getCommunityParticipants` | `communityId` | `CommunityParticipants[]` |
 | `getConnectionState` | `session` | `getConnectionState` | - | `string` |
 | `getContact` | `contacts` | `getContact` | `contactId` | `Contact \| null` |
+| `getEvent` | `events` | `getEvent` | `eventId` | `WhatsAppEvent \| null` |
+| `getEventResponses` | `events` | `getEventResponses` | `eventId` | `EventResponse[]` |
+| `getEvents` | `events` | `getEvents` | `chatId`, `options` | `EventPage` |
 | `getFeatures` | `session` | `getFeatures` | - | `FeatureFlags` |
 | `getGroupAdmins` | `groups` | `getGroupAdmins` | `groupId` | `ContactId[]` |
 | `getGroupInfo` | `groups` | `getGroupInfo` | `groupId` | `GroupMetadata \| null` |
@@ -82,6 +87,7 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `getMyLastMessage` | `messages` | `getMyLastMessage` | `chatId` | `Message \| undefined` |
 | `getNumberProfile` | `contacts` | `getNumberProfile` | `contactId` | `NumberProfile` |
 | `getOrder` | `business` | `getOrder` | `id` | `Order` |
+| `getPollResults` | `messages` | `getPollResults` | `messageId` | `PollResults` |
 | `getProcessStats` | `session` | `getProcessStats` | - | `ProcessStats` |
 | `getProfilePicture` | `contacts` | `getProfilePicFromServer` | `chatId` | `string` |
 | `getSnapshot` | `session` | `getSnapshot` | `chatId`, `width`, `height` | `string` |
@@ -104,6 +110,7 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `muteChat` | `chats` | `muteChat` | `chatId`, `muteDuration` | `string \| boolean \| number` |
 | `observeCallAudio` | `calls` | `observeCallAudio` | `call`, `speaker` | `{ ok: true; status: "requested"; observerId: string } \| { ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
 | `pinChat` | `chats` | `pinChat` | `chatId` | `boolean` |
+| `pinMessage` | `messages` | `pinMessage` | `messageId`, `duration` | `boolean` |
 | `postImageStatus` | `status` | `postImageStatus` | `image`, `caption` | `MessageId \| string \| boolean` |
 | `postTextStatus` | `status` | `postTextStatus` | `text`, `backgroundColor`, `font` | `MessageId \| string \| boolean` |
 | `postVideoStatus` | `status` | `postVideoStatus` | `video`, `caption` | `MessageId \| string \| boolean` |
@@ -113,16 +120,19 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `rejectGroupJoinRequest` | `groups` | `rejectGroupJoinRequest` | `groupId`, `contactId` | `string \| boolean` |
 | `removeLabel` | `labels` | `removeLabel` | `label`, `chatId` | `boolean` |
 | `removeParticipant` | `groups` | `removeParticipant` | `groupId`, `contactId` | `boolean` |
+| `requestPhoneNumber` | `contacts` | `requestPhoneNumber` | `to` | `string` |
+| `respondToEvent` | `events` | `respondToEvent` | `eventId`, `response` | `boolean` |
 | `revokeGroupInviteLink` | `groups` | `revokeGroupInviteLink` | `groupId` | `string \| boolean` |
 | `sendAdvancedButtons` | `messages` | `sendAdvancedButtons` | `to`, `body`, `buttons`, `text`, `footer`, `filename` | `MessageIdReturn \| boolean` |
 | `sendAlbum` | `messages` | `sendAlbum` | `to`, `media`, `caption`, `quotedMsgId` | `AlbumSendResult` |
-| `sendAudio` | `messages` | `sendAudio` | `to`, `file`, `filename`, `quotedMsgId` | `MessageIdReturn \| boolean` |
+| `sendAudio` | `messages` | `sendAudio` | `to`, `file`, `filename`, `options` | `MessageIdReturn \| boolean` |
 | `sendBanner` | `messages` | `sendBanner` | `to`, `base64` | `MessageIdReturn \| boolean` |
 | `sendButtons` | `messages` | `sendButtons` | `to`, `body`, `buttons`, `title`, `footer` | `MessageIdReturn \| boolean` |
-| `sendContact` | `messages` | `sendContact` | `to`, `contactId` | `MessageIdReturn \| boolean \| void` |
-| `sendFile` | `messages` | `sendFile` | `to`, `file`, `filename`, `caption` | `MessageIdReturn \| string` |
-| `sendFileFromUrl` | `messages` | `sendFileFromUrl` | `to`, `url`, `filename`, `caption`, `headers` | `string \| boolean` |
-| `sendImage` | `messages` | `sendImage` | `to`, `imgData`, `filename`, `caption`, `id`, `waitForId` | `MessageIdReturn \| boolean \| string` |
+| `sendContact` | `messages` | `sendContact` | `to`, `contactId` | `MessageIdReturn \| boolean \| (MessageIdReturn \| boolean)[]` |
+| `sendEvent` | `events` | `sendEvent` | `to`, `event` | `string` |
+| `sendFile` | `messages` | `sendFile` | `to`, `file`, `filename`, `options` | `MessageIdReturn \| boolean` |
+| `sendFileFromUrl` | `messages` | `sendFileFromUrl` | `to`, `url`, `filename`, `options`, `headers` | `string \| boolean` |
+| `sendImage` | `messages` | `sendImage` | `to`, `file`, `filename`, `options` | `MessageIdReturn \| boolean` |
 | `sendInteractive` | `messages` | `sendInteractive` | `to`, `content` | `string` |
 | `sendLinkWithAutoPreview` | `messages` | `sendLinkWithAutoPreview` | `to`, `url`, `text`, `thumbnail`, `quotedMsgId`, `customSize` | `MessageIdReturn \| boolean` |
 | `sendListMessage` | `messages` | `sendListMessage` | `to`, `sections`, `title`, `description`, `actionText` | `MessageIdReturn \| boolean` |
@@ -130,15 +140,15 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `sendMessageWithThumb` | `messages` | `sendMessageWithThumb` | `thumb`, `url`, `title`, `description`, `content`, `to`, `quotedMsgId`, `customSize` | `MessageIdReturn \| boolean` |
 | `sendMultipleContacts` | `messages` | `sendMultipleContacts` | `to`, `contactIds` | `MessageIdReturn \| boolean` |
 | `sendPaymentRequest` | `messages` | `sendPaymentRequest` | `to`, `amount`, `currency`, `message` | `MessageIdReturn \| boolean` |
-| `sendPoll` | `messages` | `sendPoll` | `to`, `name`, `options`, `selectableCount` | `MessageIdReturn \| boolean` |
-| `sendPtt` | `messages` | `sendPtt` | `to`, `file`, `quotedMsgId` | `MessageIdReturn \| boolean` |
+| `sendPoll` | `messages` | `sendPoll` | `to`, `name`, `options`, `config` | `MessageIdReturn \| boolean` |
+| `sendPtt` | `messages` | `sendPtt` | `to`, `file`, `options` | `MessageIdReturn \| boolean` |
 | `sendRawMessage` | `messages` | `sendRawMessage` | `to`, `payload` | `string` |
 | `sendReplyWithMentions` | `messages` | `sendReplyWithMentions` | `to`, `content`, `replyMessageId`, `hideTags`, `mentions` | `MessageIdReturn \| boolean` |
 | `sendSeen` | `messages` | `sendSeen` | `chatId` | `boolean` |
 | `sendText` | `messages` | `sendText` | `to`, `content`, `options` | `MessageId` |
 | `sendTextWithMentions` | `messages` | `sendTextWithMentions` | `to`, `content`, `hideTags`, `mentions` | `MessageIdReturn \| boolean` |
-| `sendVCard` | `messages` | `sendVCard` | `to`, `vcard`, `contactName`, `contactNumber` | `boolean` |
-| `sendVideoAsGif` | `messages` | `sendVideoAsGif` | `to`, `file`, `filename`, `caption`, `quotedMsgId` | `MessageIdReturn \| boolean` |
+| `sendVCard` | `messages` | `sendVCard` | `to`, `vcard`, `contactName`, `contactNumber` | `MessageIdReturn \| boolean` |
+| `sendVideoAsGif` | `messages` | `sendVideoAsGif` | `to`, `file`, `filename`, `options` | `MessageIdReturn \| boolean` |
 | `sendYouTubeLink` | `messages` | `sendYoutubeLink` | `to`, `url`, `text`, `thumbnail`, `quotedMsgId`, `customSize` | `MessageIdReturn \| boolean` |
 | `setCallMedia` | `calls` | `setCallMedia` | `call`, `media` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
 | `setChatEphemeral` | `chats` | `setChatEphemeral` | `chatId`, `ephemeral` | `boolean` |
@@ -150,6 +160,7 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `setMyName` | `session` | `setMyName` | `name` | `boolean` |
 | `setMyStatus` | `session` | `setMyStatus` | `statusText` | `boolean` |
 | `setProfilePicture` | `session` | `setProfilePic` | `image` | `boolean` |
+| `sharePhoneNumber` | `contacts` | `sharePhoneNumber` | `to` | `string` |
 | `starMessage` | `messages` | `starMessage` | `messageId` | `boolean` |
 | `startCall` | `calls` | `startCall` | `to`, `microphone`, `speaker`, `camera` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
 | `stopCallAudioObserver` | `calls` | `stopCallAudioObserver` | `call`, `observerId` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
@@ -157,4 +168,6 @@ At runtime each call normalizes arguments, validates them with the method's Zod 
 | `unblockContact` | `contacts` | `contactUnblock` | `contactId` | `boolean` |
 | `unmuteChat` | `chats` | `unmuteChat` | `chatId` | `string \| boolean \| number` |
 | `unpinChat` | `chats` | `unpinChat` | `chatId` | `boolean` |
+| `unpinMessage` | `messages` | `unpinMessage` | `messageId` | `boolean` |
 | `unstarMessage` | `messages` | `unstarMessage` | `messageId` | `boolean` |
+| `voteOnPoll` | `messages` | `voteOnPoll` | `messageId`, `optionIds` | `boolean` |

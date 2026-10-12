@@ -706,6 +706,27 @@ export class Transport {
    * bridge metadata. No WAPI code is called.
    */
   async registerRuntimeEventBridgeBindings(): Promise<void> {
+    const pollSurface = getRuntimeListenerSurfaceEntry('poll.vote');
+    await this.injectionController.registerRuntimeWapiBridge(
+      pollSurface.event, pollSurface.bindingName,
+      (vote: import('@open-wa/schema').PollVote) => {
+        this.events.emit('poll.vote', { ctx: { correlationId: 'runtime-poll-vote', ts: Date.now() }, vote });
+      }, { wapiMethod: pollSurface.wapiMethod, required: pollSurface.required },
+    );
+    const eventSurface = getRuntimeListenerSurfaceEntry('event.changed');
+    await this.injectionController.registerRuntimeWapiBridge(
+      eventSurface.event, eventSurface.bindingName,
+      (event: import('@open-wa/schema').WhatsAppEvent) => {
+        this.events.emit('event.changed', { ctx: { correlationId: 'runtime-event', ts: Date.now() }, event });
+      }, { wapiMethod: eventSurface.wapiMethod, required: eventSurface.required },
+    );
+    const eventResponseSurface = getRuntimeListenerSurfaceEntry('event.response');
+    await this.injectionController.registerRuntimeWapiBridge(
+      eventResponseSurface.event, eventResponseSurface.bindingName,
+      (response: import('@open-wa/schema').EventResponse) => {
+        this.events.emit('event.response', { ctx: { correlationId: 'runtime-event-response', ts: Date.now() }, response });
+      }, { wapiMethod: eventResponseSurface.wapiMethod, required: eventResponseSurface.required },
+    );
     const interactiveSurface = getRuntimeListenerSurfaceEntry('interactive.response');
     await this.injectionController.registerRuntimeWapiBridge(
       interactiveSurface.event, interactiveSurface.bindingName,
@@ -792,6 +813,8 @@ export class Transport {
 
     this.logger.info('runtime_event_bridge_bindings_registered', {
       bindings: [
+        eventSurface.bindingName,
+        eventResponseSurface.bindingName,
         interactiveSurface.bindingName,
         messageReceivedSurface.bindingName,
         messageAnySurface.bindingName,

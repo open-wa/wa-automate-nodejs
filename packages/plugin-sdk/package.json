@@ -22,6 +22,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@open-wa/schema": "workspace:*",
     "hono": "catalog:",
     "zod": "catalog:"
   },

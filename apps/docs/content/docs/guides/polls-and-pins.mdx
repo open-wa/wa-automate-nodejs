@@ -1,0 +1,86 @@
+---
+title: Polls and message pins
+description: Create polls, handle votes, read synced results and pin messages.
+---
+
+# Polls and message pins
+
+## Create a poll
+
+```ts
+const pollId = await client.sendPoll(chatId, 'Which day?', [
+  'Friday', 'Saturday', 'Sunday',
+], {
+  selectableCount: 1,
+  endTime: Date.now() + 60 * 60 * 1000,
+  hideVoterNames: true,
+  quotedMsgId: messageId,
+});
+```
+
+`selectableCount` defaults to 1; zero allows all choices. Choices must be
+nonempty and unique. WhatsApp enforces the account's native choice-count and
+text-length limits. `endTime` is **Unix milliseconds**, whereas WhatsApp event
+start/end times use Unix seconds.
+
+Closing times and hidden voter names require WhatsApp to enable those native
+sender features for the account/chat. The patch uses WhatsApp's payload builder,
+which selects `pollCreationMessageV6` for those options. Unsupported sender
+features throw an explicit error; these options are not silently discarded.
+Recipient rendering of V6 depends on its WhatsApp version and configuration.
+
+`hideVoterNames` describes WhatsApp's display behavior. It does not promise
+cryptographic anonymity. The SDK omits individual votes and identities from
+results for these polls.
+
+## Read results and vote
+
+```ts
+if (typeof pollId === 'string') {
+  const results = await client.getPollResults(pollId);
+  console.log(results.options); // [{ id, name, count }, ...]
+  await client.voteOnPoll(pollId, [results.options[0].id]);
+  await client.voteOnPoll(pollId, []); // Remove this account's vote.
+}
+```
+
+Use the returned option IDs, rather than deriving them from display text.
+Voting rejects duplicate/unknown choices, too many selections and closed polls.
+Successful native completion returns `true`, which is not a delivery receipt.
+
+Results hydrate WhatsApp's local vote store and return `scope: 'synced'`;
+unsynced votes may be absent. Counts include locally pending votes and exclude
+known failed sends. These APIs support direct chats and groups. Channel polls
+use a different native vote store and are not exposed by these methods.
+
+## Listen for votes
+
+```ts
+const listener = client.onPollVote(async (vote) => {
+  console.log(vote.pollId, vote.selectedOptionIds);
+  const results = await client.getPollResults(vote.pollId);
+  console.log(results.voterCount, results.options);
+});
+
+// When this subscription is no longer needed:
+listener.off();
+```
+
+The listener reads decrypted native votes, including this account's changes.
+History hydration can emit votes too; it is not exclusively a new incoming
+message notification. Deduplicate ordinary votes by `id` and `timestamp`,
+and use results for current totals. Hidden-voter notifications omit `id` and
+`senderId`. A removed vote has an empty `selectedOptionIds` array.
+
+## Pin a message
+
+```ts
+await client.pinMessage(messageId); // Seven days by default.
+await client.pinMessage(messageId, 'OneDay');
+await client.pinMessage(messageId, 'ThirtyDays');
+await client.unpinMessage(messageId);
+```
+
+Message pins affect the conversation for everyone and are subject to WhatsApp's
+chat permissions. `pinChat(chatId)` and `unpinChat(chatId)` instead control the
+current account's chat list. These are different operations.

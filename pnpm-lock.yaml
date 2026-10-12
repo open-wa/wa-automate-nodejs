@@ -1108,6 +1108,9 @@ importers:
 
   packages/plugin-sdk:
     dependencies:
+      '@open-wa/schema':
+        specifier: workspace:*
+        version: link:../schema
       hono:
         specifier: 'catalog:'
         version: 4.13.9

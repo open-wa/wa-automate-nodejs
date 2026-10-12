@@ -20,6 +20,7 @@ icon: "BookOpen"
 | [`approveGroupJoinRequest`](/docs/reference/client/client#approvegroupjoinrequest) | `groups` | Approve group join request | - |
 | [`archiveChat`](/docs/reference/client/client#archivechat) | `chats` | Archive a chat | - |
 | [`blockContact`](/docs/reference/client/client#blockcontact) | `contacts` | Block a contact | - |
+| [`cancelEvent`](/docs/reference/client/client#cancelevent) | `events` | Cancel an event created by this account using WhatsApp’s encrypted event edit action. | - |
 | [`checkNumberStatus`](/docs/reference/client/client#checknumberstatus) | `contacts` | Check if number is on WhatsApp | `insiders` |
 | [`checkReadReceipts`](/docs/reference/client/client#checkreadreceipts) | `contacts` | Check read receipts setting | - |
 | [`clearCallAudio`](/docs/reference/client/client#clearcallaudio) | `calls` | Discard queued outgoing audio. | `restricted` |
@@ -32,6 +33,7 @@ icon: "BookOpen"
 | [`deleteStatus`](/docs/reference/client/client#deletestatus) | `status` | Delete status | `insiders` |
 | [`demoteParticipant`](/docs/reference/client/client#demoteparticipant) | `groups` | Demote participant from admin | - |
 | [`downloadMedia`](/docs/reference/client/client#downloadmedia) | `media` | Downloads and decrypts media from a message to a file | - |
+| [`editEvent`](/docs/reference/client/client#editevent) | `events` | Edit an event created by this account. Unspecified fields retain their current values; endTime: null removes the end time. | - |
 | [`endCall`](/docs/reference/client/client#endcall) | `calls` | Request hangup for this call. | `restricted` |
 | [`forwardMessages`](/docs/reference/client/client#forwardmessages) | `messages` | Forwards messages to a chat | - |
 | [`getActiveCall`](/docs/reference/client/client#getactivecall) | `calls` | Get the current call snapshot. SDK clients hydrate its bound methods. | `restricted` |
@@ -59,6 +61,9 @@ icon: "BookOpen"
 | [`getCommunityParticipants`](/docs/reference/client/client#getcommunityparticipants) | `communities` | Get community participants | - |
 | [`getConnectionState`](/docs/reference/client/client#getconnectionstate) | `session` | Get connection state | - |
 | [`getContact`](/docs/reference/client/client#getcontact) | `contacts` | Get specific contact | - |
+| [`getEvent`](/docs/reference/client/client#getevent) | `events` | Retrieve an event by message ID from WhatsApp local history. Returns null when absent. | - |
+| [`getEventResponses`](/docs/reference/client/client#geteventresponses) | `events` | Get the latest decrypted RSVP per participant, including responses persisted in WhatsApp local history. | - |
+| [`getEvents`](/docs/reference/client/client#getevents) | `events` | Page through a chat’s locally synced event history, newest first. Pass nextCursor as options.before to retrieve the next page. | - |
 | [`getFeatures`](/docs/reference/client/client#getfeatures) | `session` | Get enabled features | - |
 | [`getGroupAdmins`](/docs/reference/client/client#getgroupadmins) | `groups` | Get group admins | - |
 | [`getGroupInfo`](/docs/reference/client/client#getgroupinfo) | `groups` | Get group metadata | - |
@@ -77,6 +82,7 @@ icon: "BookOpen"
 | [`getMyLastMessage`](/docs/reference/client/client#getmylastmessage) | `messages` | Get last message sent by host | - |
 | [`getNumberProfile`](/docs/reference/client/client#getnumberprofile) | `contacts` | Get profile of number | `insiders` |
 | [`getOrder`](/docs/reference/client/client#getorder) | `business` | Get order details | `insiders` |
+| [`getPollResults`](/docs/reference/client/client#getpollresults) | `messages` | Hydrates the local poll vote store and returns synced counts, choices and votes. Hidden-voter polls omit voter identities and the votes array. Unsynced votes may be absent. | - |
 | [`getProcessStats`](/docs/reference/client/client#getprocessstats) | `session` | Get process statistics | - |
 | [`getProfilePicture`](/docs/reference/client/client#getprofilepicture) | `contacts` | Get profile picture from server | - |
 | [`getSnapshot`](/docs/reference/client/client#getsnapshot) | `session` | Take screenshot | - |
@@ -99,6 +105,7 @@ icon: "BookOpen"
 | [`muteChat`](/docs/reference/client/client#mutechat) | `chats` | Mute a chat | - |
 | [`observeCallAudio`](/docs/reference/client/client#observecallaudio) | `calls` | Attach an isolated receive-only audio sink. Its failure does not interrupt the call owner. | `restricted` |
 | [`pinChat`](/docs/reference/client/client#pinchat) | `chats` | Pin a chat | - |
+| [`pinMessage`](/docs/reference/client/client#pinmessage) | `messages` | Pins a message in its chat for everyone, subject to native permissions. This differs from pinChat, which changes the current account chat list. | - |
 | [`postImageStatus`](/docs/reference/client/client#postimagestatus) | `status` | Post image status | `insiders` |
 | [`postTextStatus`](/docs/reference/client/client#posttextstatus) | `status` | Post text status | `insiders` |
 | [`postVideoStatus`](/docs/reference/client/client#postvideostatus) | `status` | Post video status | `insiders` |
@@ -108,16 +115,19 @@ icon: "BookOpen"
 | [`rejectGroupJoinRequest`](/docs/reference/client/client#rejectgroupjoinrequest) | `groups` | Reject group join request | - |
 | [`removeLabel`](/docs/reference/client/client#removelabel) | `labels` | Remove label from chat | - |
 | [`removeParticipant`](/docs/reference/client/client#removeparticipant) | `groups` | Remove participant from group | - |
+| [`requestPhoneNumber`](/docs/reference/client/client#requestphonenumber) | `contacts` | Ask a direct LID chat to voluntarily share their phone number. A submitted request does not confirm sharing. | - |
+| [`respondToEvent`](/docs/reference/client/client#respondtoevent) | `events` | RSVP through WhatsApp’s native encrypted event-response action. | - |
 | [`revokeGroupInviteLink`](/docs/reference/client/client#revokegroupinvitelink) | `groups` | Revoke group invite link | - |
 | [`sendAdvancedButtons`](/docs/reference/client/client#sendadvancedbuttons) | `messages` | Sends an advanced button message with media (deprecated) | `insiders` |
 | [`sendAlbum`](/docs/reference/client/client#sendalbum) | `messages` | Sends images and videos together as a native WhatsApp album with one caption on its first item. GIFs use MP4 video data with isGif: true. Documents are rejected. Phone-number IDs are resolved to LIDs; the destination chat must already be loaded and allow sending. WhatsApp controls the minimum item count and upload limits. Runtime failures include the parent and submitted child IDs when available; inspect the chat before retrying. | - |
-| [`sendAudio`](/docs/reference/client/client#sendaudio) | `messages` | Sends an audio file to a chat | - |
+| [`sendAudio`](/docs/reference/client/client#sendaudio) | `messages` | Sends an audio attachment with an optional quoted message. Use sendPtt for voice notes and view-once audio. | - |
 | [`sendBanner`](/docs/reference/client/client#sendbanner) | `messages` | Sends a banner image | - |
 | [`sendButtons`](/docs/reference/client/client#sendbuttons) | `messages` | Sends a button message (deprecated) | `insiders` |
 | [`sendContact`](/docs/reference/client/client#sendcontact) | `messages` | Sends a single contact | - |
-| [`sendFile`](/docs/reference/client/client#sendfile) | `messages` | Sends a file or document to a chat | - |
-| [`sendFileFromUrl`](/docs/reference/client/client#sendfilefromurl) | `messages` | Downloads a file from a URL and sends it to a chat | - |
-| [`sendImage`](/docs/reference/client/client#sendimage) | `messages` | Sends an image to a chat | - |
+| [`sendEvent`](/docs/reference/client/client#sendevent) | `events` | Send a native WhatsApp event with Unix-second times. Returns its submitted message ID; delivery is observed through ACKs. | - |
+| [`sendFile`](/docs/reference/client/client#sendfile) | `messages` | Sends an image, video, audio file or document using MIME detection or an explicit typed presentation. Incompatible options are rejected before sending. Media is not transcoded. | - |
+| [`sendFileFromUrl`](/docs/reference/client/client#sendfilefromurl) | `messages` | Downloads media and sends it through sendFile with the same typed presentation options. | - |
+| [`sendImage`](/docs/reference/client/client#sendimage) | `messages` | Sends media through the native attachment pipeline, including images and videos. Options select presentation, view once, GIF playback or circular video notes; media is not transcoded. Returns submission status, not a delivery receipt. | - |
 | [`sendInteractive`](/docs/reference/client/client#sendinteractive) | `messages` | Send a portable interactive message document (Insiders and above) | `insiders` |
 | [`sendLinkWithAutoPreview`](/docs/reference/client/client#sendlinkwithautopreview) | `messages` | Sends a link with auto-generated preview | - |
 | [`sendListMessage`](/docs/reference/client/client#sendlistmessage) | `messages` | Sends a list/menu message (deprecated) | `insiders` |
@@ -125,15 +135,15 @@ icon: "BookOpen"
 | [`sendMessageWithThumb`](/docs/reference/client/client#sendmessagewiththumb) | `messages` | Sends a link preview message with custom thumbnail | - |
 | [`sendMultipleContacts`](/docs/reference/client/client#sendmultiplecontacts) | `messages` | Sends multiple contacts | - |
 | [`sendPaymentRequest`](/docs/reference/client/client#sendpaymentrequest) | `messages` | Sends a payment request message | - |
-| [`sendPoll`](/docs/reference/client/client#sendpoll) | `messages` | Sends a poll message | - |
-| [`sendPtt`](/docs/reference/client/client#sendptt) | `messages` | Sends a voice note (push-to-talk) to a chat | - |
+| [`sendPoll`](/docs/reference/client/client#sendpoll) | `messages` | Sends a text poll with a selection limit, quote, optional closing time in Unix milliseconds and hidden voter names. Closing time and hidden names require native WhatsApp support for the sending account/chat. These fields select the native V6 poll payload. | - |
+| [`sendPtt`](/docs/reference/client/client#sendptt) | `messages` | Sends prepared audio as a voice note, optionally view once. It does not transcode the input; use suitable voice-note audio such as Ogg Opus. | - |
 | [`sendRawMessage`](/docs/reference/client/client#sendrawmessage) | `messages` | Send a constructed WhatsApp protobuf Message payload (Insiders and above); media must already be uploaded | `insiders` |
 | [`sendReplyWithMentions`](/docs/reference/client/client#sendreplywithmentions) | `messages` | Sends a reply to a message that includes @mentions | - |
 | [`sendSeen`](/docs/reference/client/client#sendseen) | `messages` | Mark message as seen | - |
 | [`sendText`](/docs/reference/client/client#sendtext) | `messages` | Sends a text message and returns a validated serialized message ID. The in-process Client throws SendTextError on failure. An unknown outcome means the message may have been sent: check the chat before retrying. Starting a chat with a new number requires an applied restricted or premium license. | - |
 | [`sendTextWithMentions`](/docs/reference/client/client#sendtextwithmentions) | `messages` | Sends a text message that includes @mentions | - |
 | [`sendVCard`](/docs/reference/client/client#sendvcard) | `messages` | Sends a contact card (vCard) | - |
-| [`sendVideoAsGif`](/docs/reference/client/client#sendvideoasgif) | `messages` | Sends a video as an animated GIF | - |
+| [`sendVideoAsGif`](/docs/reference/client/client#sendvideoasgif) | `messages` | Sends MP4 video with WhatsApp GIF playback. GIF is a video presentation flag; this method does not convert a GIF image or transcode video. | - |
 | [`sendYouTubeLink`](/docs/reference/client/client#sendyoutubelink) | `messages` | Sends a YouTube link with auto-generated preview | - |
 | [`setCallMedia`](/docs/reference/client/client#setcallmedia) | `calls` | Prepare a replacement before releasing the working media. | `restricted` |
 | [`setChatEphemeral`](/docs/reference/client/client#setchatephemeral) | `chats` | Set ephemeral messages for chat | - |
@@ -145,6 +155,7 @@ icon: "BookOpen"
 | [`setMyName`](/docs/reference/client/client#setmyname) | `session` | Set host name | - |
 | [`setMyStatus`](/docs/reference/client/client#setmystatus) | `session` | Set host status | - |
 | [`setProfilePicture`](/docs/reference/client/client#setprofilepicture) | `session` | Set profile picture | `insiders` |
+| [`sharePhoneNumber`](/docs/reference/client/client#sharephonenumber) | `contacts` | Share the signed-in account’s own phone number with a direct LID chat using WhatsApp’s native protocol. No arbitrary phone number is accepted. | - |
 | [`starMessage`](/docs/reference/client/client#starmessage) | `messages` | Star a message | - |
 | [`startCall`](/docs/reference/client/client#startcall) | `calls` | Prepare media and place an outgoing audio or video call. | `restricted` |
 | [`stopCallAudioObserver`](/docs/reference/client/client#stopcallaudioobserver) | `calls` | Stop an audio observer and finalize its sink. | `restricted` |
@@ -152,6 +163,8 @@ icon: "BookOpen"
 | [`unblockContact`](/docs/reference/client/client#unblockcontact) | `contacts` | Unblock a contact | - |
 | [`unmuteChat`](/docs/reference/client/client#unmutechat) | `chats` | Unmute a chat | - |
 | [`unpinChat`](/docs/reference/client/client#unpinchat) | `chats` | Unpin a chat | - |
+| [`unpinMessage`](/docs/reference/client/client#unpinmessage) | `messages` | Removes a message pin for everyone, subject to native chat permissions. | - |
 | [`unstarMessage`](/docs/reference/client/client#unstarmessage) | `messages` | Unstar a message | - |
+| [`voteOnPoll`](/docs/reference/client/client#voteonpoll) | `messages` | Votes using option IDs returned by getPollResults; an empty array removes the current vote. The poll must be open and allow this account to vote. | - |
 
 </details>

@@ -285,6 +285,13 @@ Post image status
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.postImageStatus("image");
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -333,7 +340,7 @@ Example response envelope:
 
 Resolves to `MessageId \| string \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<MediaSendResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -375,6 +382,13 @@ Post text status
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.postTextStatus("text");
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -423,7 +437,7 @@ Example response envelope:
 
 Resolves to `MessageId \| string \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<MediaSendResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -465,6 +479,13 @@ Post video status
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.postVideoStatus("video");
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -513,7 +534,7 @@ Example response envelope:
 
 Resolves to `MessageId \| string \| boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<MediaSendResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>

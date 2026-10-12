@@ -5,7 +5,10 @@ import type {
   Contact,
   NumberCheck,
   GroupId,
+  MessageId,
 } from '@open-wa/schema';
+import { chatIdCodec, MessageIdSchema } from '@open-wa/schema';
+import { invokePatch } from '../patchRuntime';
 import { createUnsupportedMethodStub } from '../runtimeSurface';
 
 declare const WAPI: {
@@ -22,6 +25,8 @@ declare const WAPI: {
 };
 
 export interface ContactMethods {
+  requestPhoneNumber(to: string): Promise<MessageId>;
+  sharePhoneNumber(to: string): Promise<MessageId>;
   getContact(contactId: ContactId): Promise<Contact | null>;
   getAllContacts(): Promise<Contact[]>;
   getContactById(contactId: ContactId): Promise<Contact | null>;
@@ -41,6 +46,12 @@ export function contactMethods(client: Client): ContactMethods {
   const unsupportedGetCommonGroups = createUnsupportedMethodStub<ContactMethods['getCommonGroups']>('getCommonGroups');
   
   return {
+    async requestPhoneNumber(to) {
+      return MessageIdSchema.parse(await invokePatch(client, 'requestPhoneNumber', [chatIdCodec.decode(to)]));
+    },
+    async sharePhoneNumber(to) {
+      return MessageIdSchema.parse(await invokePatch(client, 'sharePhoneNumber', [chatIdCodec.decode(to)]));
+    },
     async getContact(contactId: ContactId): Promise<Contact | null> {
       return evaluate(
         ({ contactId }) => WAPI.getContact(contactId),

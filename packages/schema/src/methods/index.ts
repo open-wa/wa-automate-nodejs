@@ -33,3 +33,4 @@ export * from './session';
 export * from './media';
 export * from './interactive';
 export * from './calls';
+export * from './whatsapp-events';

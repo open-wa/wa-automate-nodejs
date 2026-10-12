@@ -13,9 +13,10 @@ function getFixturePath(relativePath: string): string {
 }
 
 function extractDeclaredClientMethods(clientSource: string): string[] {
-  return [...clientSource.matchAll(/declare\s+([A-Za-z0-9_]+)\s*:/g)]
-    .map((match) => match[1])
-    .sort();
+  return [...new Set([
+    ...[...clientSource.matchAll(/declare\s+([A-Za-z0-9_]+)\s*:/g)].map(match => match[1]),
+    ...[...clientSource.matchAll(/^  (?:async )?([A-Za-z0-9_]+)\(/gm)].map(match => match[1]).filter(name => Object.hasOwn(clientRuntimeMethodSurface, name)),
+  ])].sort();
 }
 
 function extractClientListenerMethods(clientSource: string): string[] {
@@ -45,6 +46,7 @@ describe('Client runtime surface audit', () => {
   const declaredMethods = extractDeclaredClientMethods(clientSource);
   const listenerMethods = extractClientListenerMethods(clientSource);
   const wapiAssignments = extractWapiTerminalAssignments(wapiSource);
+  const commonPatches = JSON.parse(readFileSync(getFixturePath('../../../../patches.json'), 'utf8')) as string[];
 
   it('tracks every declared facade method in the runtime inventory', () => {
     expect(Object.keys(clientRuntimeMethodSurface).sort()).toEqual(declaredMethods);
@@ -54,10 +56,18 @@ describe('Client runtime surface audit', () => {
     expect(Object.keys(clientRuntimeListenerSurface).sort()).toEqual(listenerMethods);
   });
 
-  it('only marks methods as runtime-backed when shipped wapi.js ends with a real implementation', () => {
+  it('checks immutable-asset backing separately from declared live-patch methods', () => {
     for (const [clientMethod, entry] of Object.entries(clientRuntimeMethodSurface)) {
       if (!entry.runtimeMethod) {
+        expect(entry.reason).toBeTruthy();
+        continue;
+      }
+
+      // Live patches install after the immutable asset, so its assignments
+      // cannot establish their final runtime implementation.
+      if ('runtimeSource' in entry && entry.runtimeSource === 'live-patch') {
         expect(entry.support).toBe('runtime');
+        expect(entry.runtimePatch === 'common' ? commonPatches.some(patch => patch.length > 0) : commonPatches.some(patch => patch.startsWith(`/* OpenWA feature: ${entry.runtimePatch} */\n`))).toBe(true);
         continue;
       }
 
@@ -76,9 +86,10 @@ describe('Client runtime surface audit', () => {
 
   it('only marks listeners as runtime-backed when core ships matching bridge or navigation support', () => {
     for (const [listenerName, entry] of Object.entries(clientRuntimeListenerSurface)) {
-      if (entry.support === 'runtime') {
+      if (entry.support === 'runtime' || entry.support === 'licensed') {
         expect(entry.runtimeSupportEvent).toBeTruthy();
-        expect(runtimeListenerSurface).toHaveProperty(entry.runtimeSupportEvent as string);
+        if (entry.support === 'runtime') expect(runtimeListenerSurface).toHaveProperty(entry.runtimeSupportEvent as string);
+        else expect(entry.reason).toBeTruthy();
         continue;
       }
 
