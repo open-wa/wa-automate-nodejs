@@ -36,7 +36,7 @@ const nav = [
     <nav aria-label="Main, phone">
       {nav.map((n) => <a href={n.url}>{n.label}</a>)}
       <a href={support.docs} rel="external">Docs</a>
-      <a href={support.github} rel="external">GitHub, {starsLabel} <small>({checked})</small></a>
+      <a href={support.github} rel="external">GitHub, {starsLabel}{" "}<small>(checked {checked})</small></a>
       <a href={support.discord} rel="external">Discord</a>
       <a class="btn btn-yellow" href={href("/quickstart/")}>Quick start</a>
     </nav>

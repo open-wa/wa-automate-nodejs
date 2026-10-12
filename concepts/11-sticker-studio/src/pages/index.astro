@@ -19,7 +19,7 @@ const byJob = [
   { job: "Buttons, lists, number checks, status posts", need: "Insiders", tone: "insiders", price: `${insiders.prices.month} a month` },
   { job: "OTP codes and first messages to new numbers", need: "Restricted (includes Insiders)", tone: "restricted", price: `${restricted.prices.month} a month` },
   { job: "Creating and joining groups", need: "Restricted", tone: "restricted", price: `${restricted.prices.month} a month` },
-  { job: "Answering and making WhatsApp calls", need: "A calling-enabled key (licensed preview, audio only)", tone: "calls", price: "Ask with your key" },
+  { job: "Answering and making WhatsApp calls", need: "A calling-enabled key (licensed preview, audio only)", tone: "calls", price: "On request" },
 ];
 ---
 
@@ -39,6 +39,7 @@ const byJob = [
           <a class="btn" href={support.docs} rel="external">Read the docs</a>
         </div>
         <p class="hero-fine">Free and open source; some methods need a licence key. Unofficial, so <a href="#risk">ban risk applies</a>.</p>
+        <p class="hero-jump"><a href="#recipes">Building bookings, OTP or calls? See the recipes</a></p>
       </div>
       <div class="hero-studio">
         <Studio />
@@ -174,6 +175,9 @@ const byJob = [
   .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 18px; }
   .hero-fine { margin-top: 18px; font-size: 0.95rem; }
   .hero-fine a { font-weight: 700; }
+  .hero-jump { margin: 6px 0 0; }
+  .hero-jump a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; text-underline-offset: 4px; }
+  .hero-jump a::after { content: "↓"; margin-left: 6px; }
   @media (max-width: 860px) {
     .hero { padding: 16px 0 48px; }
     .hero-grid { grid-template-columns: 1fr; gap: 28px; }
