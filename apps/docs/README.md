@@ -27,6 +27,8 @@ See the [docs site](https://openwa.dev).
 feedback migrations, and deploys `openwa-docs` to `https://openwa.dev`. Changes to
 the docs, their schema/client/UI sources, workspace READMEs and package manifests
 on `master` trigger publication. Dependency changes also rebuild the site.
+The Bumpy release workflow explicitly dispatches the same deployment from
+`release`, so versioned API contracts publish after the package release too.
 
 The job uses the GitHub `Docs` environment's `CLOUDFLARE_API_TOKEN` and
 `CLOUDFLARE_ACCOUNT_ID` secrets. The deployment token is account-owned, with

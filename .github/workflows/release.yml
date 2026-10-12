@@ -22,6 +22,7 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 permissions:
+  actions: write
   contents: write
   pull-requests: write
   packages: write
@@ -201,6 +202,15 @@ jobs:
           fi
 
           echo "✅ GitHub Release image ready: $TAG"
+
+      # GITHUB_TOKEN-created releases do not trigger another workflow's
+      # release event. An explicit workflow_dispatch does, and uses the
+      # versioned release source for the docs' generated API contracts.
+      - name: Publish documentation from release source
+        if: github.event_name == 'push' && steps.plan.outputs.mode != 'version-pr'
+        run: gh workflow run docs-run.yml --ref release
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       # ── Post-publish: Discord notification ───────────────────────
       - name: Notify Discord

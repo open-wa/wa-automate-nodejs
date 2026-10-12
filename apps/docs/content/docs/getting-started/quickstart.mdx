@@ -72,9 +72,9 @@ For a QR login, open WhatsApp on the phone that owns the account:
 2. Tap **Linked devices** and then **Link a device**.
 3. Scan the QR code shown by open-wa in the computer terminal.
 
-The published Easy API CLI `5.1.0` uses QR authentication. For an embedded Node.js app that requests a link code, follow **[Link-code login](/docs/getting-started/link-code)**; the computer runs open-wa and generates the code, and the phone enters it in its **Linked devices** flow.
+The Easy API CLI uses QR authentication. For an embedded Node.js app that requests a link code, follow **[Link-code login](/docs/getting-started/link-code)**; the computer runs open-wa and generates the code, and the phone enters it in its **Linked devices** flow.
 
-When authentication succeeds, the runtime can restore this session on a later run using the same session profile. Authentication is complete only when the readiness check reports `connected: true` and `session.ready: true`.
+On later starts, the runtime restores the saved portable session data. Authentication is complete only when the readiness check reports `connected: true` and `session.ready: true`.
 
 ## 3. Check readiness
 
