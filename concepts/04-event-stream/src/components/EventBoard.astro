@@ -65,7 +65,7 @@ const json = (o: unknown) => JSON.stringify(o, null, 2);
           <div class="ev-d" id={`evd-${i}`} hidden>
             <div class="ev-cols">
               <div class="code ev-code">
-                <div class="code-bar"><span class="fname">handler &middot; {t.handler}</span><span class="example">Example</span></div>
+                <div class="code-bar"><span class="fname">handler &middot; {t.handler}</span><button class="copy" type="button" data-copy={handlers[e.type]} aria-label={`Copy the ${t.handler} handler`}>Copy</button></div>
                 <div data-slot="handler"></div>
               </div>
               <div class="code ev-code">
@@ -144,7 +144,7 @@ const json = (o: unknown) => JSON.stringify(o, null, 2);
     const sync = () => {
       const p = paused();
       liveState.dataset.paused = String(p);
-      liveText.textContent = !animate && userPaused ? "Still" : p ? "Paused" : "Live";
+      liveText.textContent = !looping && userPaused ? "Still" : p ? "Paused" : "Live";
       pauseBtn.setAttribute("aria-pressed", String(userPaused));
       pauseText.textContent = userPaused ? "Resume" : "Pause";
     };
@@ -213,7 +213,15 @@ const json = (o: unknown) => JSON.stringify(o, null, 2);
       if (input.type === "radio") renderRoute(input.closest<HTMLLIElement>(".ev")!, input.value);
     });
 
-    pauseBtn.addEventListener("click", () => { userPaused = !userPaused; sync(); });
+    let looping = false;
+    const startLoop = () => {
+      if (looping) return;
+      looping = true;
+      const loop = () => { tick(); window.setTimeout(loop, 1100 + ((cursor * 733) % 1500)); };
+      window.setTimeout(loop, 900);
+    };
+    // Reduced motion starts still; Resume is an explicit choice to stream.
+    pauseBtn.addEventListener("click", () => { userPaused = !userPaused; if (!userPaused) startLoop(); sync(); });
     log.addEventListener("pointerenter", () => { hover = true; sync(); });
     log.addEventListener("pointerleave", () => { hover = false; sync(); });
     new IntersectionObserver(([en]) => { onScreen = !!en?.isIntersecting; sync(); }).observe(log);
@@ -240,11 +248,7 @@ const json = (o: unknown) => JSON.stringify(o, null, 2);
       );
       cursor = (cursor + 1) % rows().length;
     };
-    if (animate) {
-      let wait = 1400;
-      const loop = () => { tick(); wait = 1100 + ((cursor * 733) % 1500); window.setTimeout(loop, wait); };
-      window.setTimeout(loop, 900);
-    }
+    if (animate) startLoop();
     sync();
   }
 </script>

@@ -20,7 +20,7 @@ export const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
 export const href = (p = "") => `${base}${p.replace(/^\//u, "")}`;
 
 /** 3,666 -> "3.6k" (rounded down, as the fact pack asks). */
-export const k = (n: number) => `${Math.floor(n / 100) / 10}k`;
+export const k = (n: number) => (n >= 100000 ? `${Math.floor(n / 1000)}k` : `${Math.floor(n / 100) / 10}k`);
 
 export const starsLabel = `${k(stats.githubStars)}`;
 export const checked = stats.checkedOn;

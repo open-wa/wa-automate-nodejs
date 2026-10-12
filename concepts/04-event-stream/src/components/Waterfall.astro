@@ -3,9 +3,9 @@
 import { commands } from "../data/site";
 const spans = [
   { d: 0, name: commands.easyApi, kind: "cli", s: 0, w: 100, mono: true },
-  { d: 1, name: "launch WhatsApp Web in a browser it controls", kind: "runtime", s: 2, w: 14 },
-  { d: 1, name: "print QR code, or a link code", kind: "auth", s: 16, w: 4 },
-  { d: 1, name: "you scan it with WhatsApp on your phone", kind: "you", s: 20, w: 26, wait: true },
+  { d: 1, name: "launch WhatsApp Web", kind: "runtime", s: 2, w: 14 },
+  { d: 1, name: "print QR or link code", kind: "auth", s: 16, w: 4 },
+  { d: 1, name: "you scan with your phone", kind: "you", s: 20, w: 26, wait: true },
   { d: 1, name: "session ready", kind: "ready", s: 46, w: 0.6, tick: true },
   { d: 0, name: `GET ${commands.proofOfLife}`, kind: "http", s: 50, w: 8, mono: true },
   { d: 0, name: "sendText to 447700900123@c.us", kind: "http", s: 62, w: 6, mono: true },
@@ -46,7 +46,7 @@ const spans = [
   .wf-title b { color: var(--warm); font-weight: 600; }
   .wf-ok { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); margin-right: 8px; }
   .wf-rows { list-style: none; margin: 0; padding: 8px 0; }
-  .wf-row { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1fr); gap: 16px; align-items: center; padding: 6px 16px; min-height: 38px; }
+  .wf-row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; align-items: center; padding: 6px 16px; min-height: 38px; }
   .wf-row:hover { background: var(--graphite-3); }
   .wf-name { padding-left: calc(var(--d) * 22px); font-size: 15px; color: var(--warm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; position: relative; }
   .wf-name.mono { font-size: 13.5px; }
