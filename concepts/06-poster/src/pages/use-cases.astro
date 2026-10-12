@@ -1,0 +1,39 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import { useCases } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const how = [
+  { path: "Easy API with the Chatwoot or webhook plugin", methods: ["onMessage", "sendText"], href: "integrations/#chatwoot" },
+  { path: "Easy API, called from your own system", methods: ["sendText", "sendEvent"], href: "quickstart/" },
+  { path: "SocketClient or the embedded runtime", methods: ["onMessage", "onEventResponse"], href: "quickstart/" },
+  { path: "Webhook plugin or Node-RED on top of Easy API", methods: ["@open-wa/integration-webhook", "@open-wa/node-red"], href: "integrations/#webhooks" },
+  { path: "Named sessions, one per account", methods: ["--session-id", "sessionId"], href: "features/#multi-session" },
+  { path: "The built-in MCP server", methods: ["mcp.enabled", "/mcp"], href: "ai-agents/" },
+];
+---
+
+<Base title="Use cases: what developers build with open-wa | open-wa" description="Support inboxes, order and delivery notifications, bots, webhook bridges, multi-session automations and AI-agent workflows, each with the path and methods it uses.">
+  <PageHero title="What you can build" lede="Six things developers wire up with open-wa, and the path and methods each one uses." />
+  <section class="doc wrap">
+    <ol class="uc">
+      {useCases.map((u, i) => (
+        <li class="card">
+          <h2>{u}</h2>
+          <p><strong>Path:</strong> {how[i].path}</p>
+          <p class="methods">{how[i].methods.map((m) => <code>{m}</code>)}</p>
+          <p><a href={`${base}${how[i].href}`}>How to set it up</a></p>
+        </li>
+      ))}
+    </ol>
+    <p>Want it built for you instead? <a href={`${base}support/`}>Tell us what you need</a>.</p>
+  </section>
+</Base>
+
+<style>
+  .uc { list-style: none; margin: 0 0 32px; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .uc h2 { font-size: clamp(1.8rem, 3vw, 2.3rem); margin-top: 0; }
+  .uc p { margin: 0 0 8px; }
+  .methods { display: flex; flex-wrap: wrap; gap: 8px; }
+  @media (max-width: 860px) { .uc { grid-template-columns: minmax(0, 1fr); } }
+</style>

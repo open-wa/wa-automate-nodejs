@@ -54,10 +54,10 @@ const terminal = `$ ${commands.easyApi}
             <div class="browser-body">
               <span class="tag-example">Example output</span>
               <ul>
-                <li><b>POST</b> sendText</li>
-                <li><b>POST</b> sendImage</li>
-                <li><b>POST</b> sendEvent</li>
-                <li><b>POST</b> getAllChats</li>
+                <li>sendText</li>
+                <li>sendEvent</li>
+                <li>checkNumberStatus</li>
+                <li>createGroup</li>
               </ul>
               <p class="browser-files">swagger.json · postman.json</p>
             </div>
@@ -207,8 +207,7 @@ const terminal = `$ ${commands.easyApi}
   .browser-body { padding: 12px; display: grid; gap: 8px; justify-items: start; }
   .browser-body ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; width: 100%; font-family: var(--font-mono); font-size: 0.88rem; }
   .browser-body li { border: 2px solid var(--ink); padding: 4px 8px; border-radius: 3px; }
-  .browser-body b { color: var(--blue-text); margin-right: 6px; }
-  .browser-files { font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink-soft); }
+    .browser-files { font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink-soft); }
   .chat { display: grid; gap: 10px; padding: 14px; border: 2.5px solid var(--ink); border-radius: var(--radius); background: #FBF9F3; justify-items: start; }
   .bubble { position: relative; margin: 0; padding: 8px 14px 10px; border: 2.5px solid var(--ink); border-radius: 16px; max-width: 90%; font-size: 1.05rem; }
   .bubble .who { display: block; font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-soft); }

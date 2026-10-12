@@ -1,0 +1,28 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { migration, support, paths } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+
+<Base title="Migrate from v4 to v5 | open-wa" description="Version 5 is the current release line. Pin v4 while you migrate, then follow the migration guide. Unqualified installs get v5.">
+  <PageHero title="Moving from v4" lede={migration.summary} />
+  <section class="doc wrap doc-grid">
+    <h2>Pin v4 first</h2>
+    <p>Unqualified installs get v5, so pin your running bot before anything else:</p>
+    <CodeBlock code={migration.v4Pin} lang="bash" label="Terminal" />
+
+    <h2>What changed at a glance</h2>
+    <ul>
+      <li>Four ways to use it: {paths.map((p) => p.name).join(", ")}.</li>
+      <li>The embedded runtime takes an explicit driver, for example <code>@open-wa/driver-puppeteer</code>, through <code>createClient</code>.</li>
+      <li>Remote consumers connect with <code>@open-wa/socket-client</code>: commands over HTTP RPC, events as Server-Sent Events.</li>
+      <li>Integrations load as plugins with <code>plugins</code> and <code>pluginConfig</code>.</li>
+      <li>Sessions are compact encrypted files you can move between containers with your own key (5.4).</li>
+    </ul>
+    <p>Read the full guide before you upgrade a running bot.</p>
+    <p><a class="btn btn-ink" href={support.migrationDocs}>Read the migration guide<span class="ext" aria-hidden="true">↗</span></a> <a class="btn" href={`${base}changelog/`}>Changelog</a></p>
+    <p>Stuck? <a href={support.discord}>Ask on Discord</a> or <a href={`${base}support/`}>get paid support</a>.</p>
+  </section>
+</Base>

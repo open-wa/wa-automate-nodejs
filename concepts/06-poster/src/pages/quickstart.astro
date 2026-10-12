@@ -1,0 +1,65 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import PathTabs from "../components/PathTabs.astro";
+import { commands, firstRun, product, support } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+
+<Base title="Quick start: run open-wa and send from your own number | open-wa" description="Run one npx command, scan the QR code with your phone, and open the live API docs at localhost:8080/api-docs/. Then pick Easy API, SocketClient, embedded or MCP.">
+  <PageHero title="Quick start" lede={`Three steps from nothing to a live session with interactive API docs. You need Node.js ${product.node.replace(">=", "")} or newer and a phone with WhatsApp.`} />
+  <section class="doc wrap">
+    <div class="note">
+      <strong>Ban risk</strong>
+      <p>{product.risk} open-wa is unofficial and not affiliated with WhatsApp or Meta. Start with a number you can afford to lose. <a href={`${base}legal/#risk`}>Read the full note</a>.</p>
+    </div>
+
+    <ol class="steps">
+      <li>
+        <h2>Run the command</h2>
+        <p>{firstRun[0]}</p>
+        <CodeBlock code={commands.easyApi} lang="bash" label="Terminal" />
+        <p>Protect the API with a key of your own:</p>
+        <CodeBlock code={commands.easyApiWithKey} lang="bash" label="Terminal" />
+      </li>
+      <li>
+        <h2>Scan or link</h2>
+        <p>{firstRun[1]}</p>
+      </li>
+      <li>
+        <h2>Open the API docs</h2>
+        <p>{firstRun[2]}</p>
+        <CodeBlock code={commands.proofOfLife} lang="text" label="Browser" />
+        <p>The schemas live at <code>{commands.swagger}</code> and <code>{commands.postman}</code>.</p>
+      </li>
+    </ol>
+
+    <h2>Then pick a path</h2>
+    <PathTabs />
+
+    <h2>Docker</h2>
+    <p>The same Easy API, in a container:</p>
+    <CodeBlock code={commands.docker} lang="bash" label="Terminal" />
+
+    <h2>More than one number</h2>
+    <p>Give each session its own ID and port, so each account keeps its own consumers.</p>
+    <CodeBlock code={commands.namedSession} lang="bash" label="Terminal" />
+
+    <h2>Keep going</h2>
+    <ul>
+      <li><a href={support.quickstartDocs}>The full quick start in the docs</a></li>
+      <li><a href={support.apiExplorer}>API explorer</a></li>
+      <li><a href={`${base}pricing/`}>Which methods need a licence key</a></li>
+      <li><a href={support.discord}>Ask on Discord</a></li>
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .steps { list-style: none; padding: 0; margin: 0 0 48px; counter-reset: s; display: grid; gap: 40px; max-width: 860px; }
+  .steps > li { counter-increment: s; position: relative; padding-left: clamp(56px, 8vw, 92px); }
+  .steps > li::before { content: counter(s); position: absolute; left: 0; top: -6px; font-family: var(--font-display); font-weight: 900; font-size: clamp(4rem, 8vw, 6rem); line-height: 0.8; color: var(--blue); text-shadow: 4px 4px 0 var(--pink); }
+  .steps h2 { margin-top: 0; }
+  .doc :global(.paths) { margin-bottom: 24px; }
+</style>

@@ -1,0 +1,39 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import SupportForm from "../components/SupportForm.astro";
+import { support, stats } from "../data/facts";
+const fmt = (n: number) => n.toLocaleString("en-GB");
+---
+
+<Base title="Support and consulting | open-wa" description="Free help on Discord and GitHub issues, the docs, and paid support from the maintainer: email, per-minute consulting, or tell us what you want built.">
+  <PageHero title="Get help, or get it built" lede="Free help comes from the community and the docs. Paid help comes from the maintainer, Mohammed Shah." />
+  <section class="doc wrap">
+    <div class="card-grid">
+      <article class="card"><h2 class="h">Discord</h2><p>{fmt(stats.discordMembers)} members (checked {stats.checkedOn}). Ask questions, share what you built.</p><a class="btn" href={support.discord}>Join the Discord</a></article>
+      <article class="card"><h2 class="h">GitHub issues</h2><p>Bugs and feature requests, with your version and a minimal reproduction.</p><a class="btn" href={support.issues}>Open an issue</a></article>
+      <article class="card"><h2 class="h">Docs</h2><p>Guides, the API reference and the licensing pages.</p><a class="btn" href={support.docs}>Read the docs</a></article>
+    </div>
+
+    <div class="paid">
+      <div>
+        <h2>Paid support and consulting</h2>
+        <ul>
+          <li>Email the maintainer: <a href={`mailto:${support.consultingEmail}`}>{support.consultingEmail}</a></li>
+          <li>Per-minute consulting: <a href={support.perMinuteConsulting}>book time on Otechie</a></li>
+          <li>Need an hour on a call? Ask by email or through the form.</li>
+        </ul>
+        <p>Not a developer? Tell us what you want WhatsApp to do for your business, and we'll reply with what it takes.</p>
+      </div>
+      <SupportForm />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .h { font-size: 2.2rem; margin-top: 0; }
+  .card .btn { margin-top: 4px; }
+  .paid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); margin-top: 64px; align-items: start; }
+  .paid h2 { margin-top: 0; }
+  @media (max-width: 860px) { .paid { grid-template-columns: minmax(0, 1fr); } }
+</style>

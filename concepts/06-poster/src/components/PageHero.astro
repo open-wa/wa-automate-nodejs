@@ -1,0 +1,21 @@
+---
+interface Props { title: string; lede?: string; art?: { src: string; width: number; height: number }; alt?: string }
+const { title, lede, art, alt = "" } = Astro.props;
+---
+
+<section class="page-hero">
+  <div class="wrap ph-grid">
+    <div>
+      <h1>{title}</h1>
+      {lede && <p class="lede">{lede}</p>}
+      <slot />
+    </div>
+    {art && <img class="ph-art" src={art.src} width={art.width} height={art.height} alt={alt} decoding="async" />}
+  </div>
+</section>
+
+<style>
+  .ph-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: center; }
+  .ph-art { width: clamp(160px, 22vw, 300px); height: auto; }
+  @media (max-width: 760px) { .ph-grid { grid-template-columns: minmax(0, 1fr); } .ph-art { display: none; } }
+</style>

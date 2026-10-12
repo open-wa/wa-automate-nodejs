@@ -1,0 +1,19 @@
+---
+import Base from "../layouts/Base.astro";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+
+<Base title="Page not found | open-wa" description="This page isn't on openwa.dev. Try the quick start, the docs or the home page.">
+  <section class="page-hero nf">
+    <div class="wrap">
+      <h1>404: misprint</h1>
+      <p class="lede">This page didn't make it onto the press. Try one of these instead.</p>
+      <p class="nf-ctas"><a class="btn btn-ink" href={`${base}quickstart/`}>Quick start</a> <a class="btn" href="https://openwa.dev/docs">Docs</a> <a class="btn" href={base}>Home</a></p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf { min-height: 60vh; }
+  .nf-ctas { display: flex; flex-wrap: wrap; gap: 14px; }
+</style>
