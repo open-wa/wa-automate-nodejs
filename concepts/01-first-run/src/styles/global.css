@@ -94,7 +94,7 @@ p { margin: 0; text-wrap: pretty; }
 /* ---------- header ---------- */
 .site-head {
   position: sticky; top: 0; z-index: 40;
-  background: color-mix(in srgb, var(--ink) 88%, transparent);
+  background: color-mix(in srgb, var(--ink) 96%, transparent);
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line);
 }
