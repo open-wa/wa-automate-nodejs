@@ -1,0 +1,12 @@
+{
+  "slug": "11-sticker-studio",
+  "name": "Sticker studio",
+  "tagline": "Turn photos into stickers in the page, then send them and the rest of your media from your own WhatsApp number",
+  "archetype": "developer",
+  "audience": "Developers building a WhatsApp job for a business on its own number (BRIEF.md audience #1), arriving through stickers and media",
+  "flow": "Copy the Easy API command or try the studio, then Quick start; licence buyers configure a key on /pricing/",
+  "benchmark": "Cloudinary (cloudinary.com)",
+  "floor": ["/", "/recipes/", "/recipes/salon-bookings/", "/recipes/hotel-notifications/", "/recipes/otp/", "/recipes/pbx-calls/", "/recipes/stickers/", "/recipes/media/", "/recipes/order-updates/", "/recipes/support-inbox/", "/recipes/ai-agent/", "/quickstart/", "/features/", "/integrations/", "/pricing/", "/compare/", "/migrate/", "/support/", "/community/", "/changelog/", "/legal/", "/404"],
+  "fonts": ["Bagel Fat One (OFL)", "DM Sans (OFL)", "Azeret Mono (OFL)"],
+  "libraries": ["astro", "@open-wa/stickers (local package, real in-page rendering)"]
+}

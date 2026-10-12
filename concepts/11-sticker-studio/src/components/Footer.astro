@@ -1,0 +1,56 @@
+---
+import Mark from "./Mark.astro";
+import { support, product, legal, stats, href, commands } from "../data/site";
+import CopyCommand from "./CopyCommand.astro";
+const cols = [
+  { title: "Product", links: [
+    ["Features", href("/features/")], ["Recipes", href("/recipes/")], ["Sticker studio", href("/#studio")],
+    ["Integrations", href("/integrations/")], ["Pricing", href("/pricing/")], ["Compare", href("/compare/")],
+  ] },
+  { title: "Developers", links: [
+    ["Quick start", href("/quickstart/")], ["Docs", support.docs], ["API explorer", support.apiExplorer],
+    ["Changelog", href("/changelog/")], ["Migrate from v4", href("/migrate/")], ["GitHub", support.github],
+    ["npm", support.npm], ["Docker Hub", support.dockerHub],
+  ] },
+  { title: "Community", links: [
+    ["Discord", support.discord], ["Contributing", `${support.github}/blob/master/CONTRIBUTING.md`],
+    ["Plugin SDK", href("/integrations/#plugin-sdk")], ["Community", href("/community/")], ["Support", href("/support/")],
+  ] },
+  { title: "Legal", links: [
+    ["Terms of Service", support.terms], ["Software licence", support.licenceText], ["Unofficial notice", href("/legal/#unofficial")],
+    ["Legal", href("/legal/")],
+  ] },
+];
+const ext = (u: string) => u.startsWith("http");
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a class="mark-host brand" href={href("/")} aria-label="open-wa home">
+          <Mark size={44} label="" /><span class="brand-word">open-wa</span>
+        </a>
+        <p>Open-source WhatsApp automation for Node.js, with an HTTP API any language can call. Maintained by {support.maintainer} since 2019.</p>
+        <CopyCommand command={commands.easyApi} size="md" />
+      </div>
+      <div class="footer-cols">
+        {cols.map((c) => (
+          <div>
+            <h2>{c.title}</h2>
+            <ul>
+              {c.links.map(([label, url]) => (
+                <li><a href={url} rel={ext(url) ? "external" : undefined}>{label}</a></li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div class="footer-legal">
+      <p class="footer-unofficial"><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> {product.unofficial}</p>
+      <p>{product.risk} {product.terms} Software licence: {product.softwareLicence}.</p>
+      <p>{legal.copyright}. Stats checked {stats.checkedOn}. Sample photos on this site are generated illustrations.</p>
+    </div>
+  </div>
+</footer>

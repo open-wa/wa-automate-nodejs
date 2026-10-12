@@ -1,0 +1,32 @@
+/* Sticker studio brand tokens. Every colour, face, radius and easing lives here. */
+:root {
+  --lilac: #c9b8ff;
+  --lilac-soft: #e6ddff;
+  --lilac-wash: #f5f1ff;
+  --ink: #111111;
+  --ink-soft: #3a3350;
+  --yellow: #ffe600;
+  --paper: #ffffff;
+  --rose: #ff8fc7;
+
+  --color-bg: var(--lilac-wash);
+  --color-ink: var(--ink);
+  --color-accent: var(--yellow);
+  --color-muted: var(--ink-soft);
+  --color-surface: var(--paper);
+
+  --font-display: "Bagel Fat One", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --font-text: "DM Sans", system-ui, sans-serif;
+  --font-mono: "Azeret Mono", ui-monospace, monospace;
+
+  --line: 2.5px solid var(--ink);
+  --pop: 4px 4px 0 var(--ink);
+  --pop-lg: 7px 7px 0 var(--ink);
+  --radius: 18px;
+  --radius-sm: 10px;
+  --radius-pill: 999px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --speed: 220ms;
+  --wrap: 1200px;
+}

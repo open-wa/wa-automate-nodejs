@@ -1,0 +1,61 @@
+---
+import Mark from "./Mark.astro";
+import { support, starsLabel, checked, href } from "../data/site";
+const nav = [
+  { label: "Studio", url: href("/#studio") },
+  { label: "Recipes", url: href("/recipes/") },
+  { label: "Features", url: href("/features/") },
+  { label: "Integrations", url: href("/integrations/") },
+  { label: "Pricing", url: href("/pricing/") },
+];
+---
+
+<header class="site-header">
+  <div class="wrap header-row">
+    <a class="mark-host brand" href={href("/")} aria-label="open-wa home">
+      <Mark size={36} label="" />
+      <span class="brand-word">open-wa</span>
+    </a>
+    <nav class="nav-main" aria-label="Main">
+      {nav.map((n) => <a href={n.url}>{n.label}</a>)}
+      <a href={support.docs} rel="external">Docs</a>
+    </nav>
+    <div class="nav-side">
+      <a class="nav-gh" href={support.github} rel="external" title={`GitHub stars, checked ${checked}`}>
+        <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.05-.49.05-.49.8.06 1.23.83 1.23.83.72 1.22 1.87.87 2.33.67.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 8 0Z"/></svg>
+        <span>{starsLabel}</span>
+      </a>
+      <a class="nav-discord" href={support.discord} rel="external">Discord</a>
+      <a class="btn btn-yellow btn-sm" href={href("/quickstart/")}>Quick start</a>
+      <button type="button" class="menu-btn" aria-expanded="false" aria-controls="menu-sheet">
+        <span class="menu-lines" aria-hidden="true"></span><span>Menu</span>
+      </button>
+    </div>
+  </div>
+  <div class="menu-sheet" id="menu-sheet" hidden>
+    <nav aria-label="Main, phone">
+      {nav.map((n) => <a href={n.url}>{n.label}</a>)}
+      <a href={support.docs} rel="external">Docs</a>
+      <a href={support.github} rel="external">GitHub, {starsLabel} <small>({checked})</small></a>
+      <a href={support.discord} rel="external">Discord</a>
+      <a class="btn btn-yellow" href={href("/quickstart/")}>Quick start</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>(".menu-btn");
+  const sheet = document.getElementById("menu-sheet");
+  if (btn && sheet) {
+    const set = (open: boolean) => {
+      btn.setAttribute("aria-expanded", String(open));
+      sheet.hidden = !open;
+      document.documentElement.classList.toggle("menu-open", open);
+    };
+    btn.addEventListener("click", () => set(sheet.hidden));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !sheet.hidden) { set(false); btn.focus(); }
+    });
+    sheet.addEventListener("click", (e) => { if ((e.target as Element).closest("a")) set(false); });
+  }
+</script>

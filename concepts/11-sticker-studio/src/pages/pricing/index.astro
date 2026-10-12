@@ -1,0 +1,138 @@
+---
+import Base from "../../layouts/Base.astro";
+import LicenceForm from "../../components/LicenceForm.astro";
+import { licences, tier, product, support, href, commands, jobs } from "../../data/site";
+const ins = tier("insiders");
+const res = tier("restricted");
+const periods: [keyof typeof ins.prices, string][] = [["month", "1 month"], ["threeMonths", "3 months"], ["sixMonths", "6 months"], ["year", "1 year"]];
+const checkedOn = licences.pricesCheckedOn.split(",")[0];
+const byJob = [
+  { job: "Stickers, photos, voice notes, PDFs and video notes", tier: "No key", tone: "free", note: "Sending stickers relies on the current sticker patch." },
+  { job: "Salon and clinic bookings, when the customer messages first", tier: "No key", tone: "free", note: "sendPoll, sendEvent, onEventResponse, sendText" },
+  { job: "Order updates and support replies to existing chats", tier: "No key", tone: "free", note: "sendText, onMessage, Chatwoot" },
+  { job: "Buttons, lists and interactive messages", tier: "Insiders", tone: "insiders", note: "sendInteractive, sendButtons, sendListMessage" },
+  { job: "Checking a number is on WhatsApp", tier: "Insiders", tone: "insiders", note: "checkNumberStatus, getNumberProfile" },
+  { job: "OTP codes to new users", tier: "Restricted", tone: "restricted", note: "First messages to numbers that aren't contacts" },
+  { job: "Hotel and appointment notifications to new guests", tier: "Restricted", tone: "restricted", note: "First messages to new numbers" },
+  { job: "Creating and joining groups", tier: "Restricted", tone: "restricted", note: "createGroup, joinGroupViaLink, joinGroup" },
+  { job: "WhatsApp calls and your PBX", tier: "Calling-enabled key", tone: "calls", note: jobs.find((j) => j.id === "pbx-calls")!.licence },
+];
+const faq = [
+  { q: "Is open-wa free?", a: `${licences.free.covers} The library is free to use; only methods marked Insiders or Restricted need a key.` },
+  { q: "Is a key per account or per number?", a: "Per WhatsApp number. Each number that runs licensed methods needs its own key." },
+  { q: "How do I add the key?", a: `Pass it at launch with ${commands.licenceFlag} (or licenseKey in code), or apply it to a running session from the dashboard or with client.refresh() without restarting.` },
+  { q: "Which tier do I need for OTP?", a: jobs.find((j) => j.id === "otp")!.licence },
+  { q: "What about calls?", a: "Calling is a licensed preview and needs a calling-enabled key. It's audio only, and most PBXs need a small adapter for the audio stream." },
+  { q: "Will a key stop my number being banned?", a: `No. ${product.risk}` },
+];
+---
+
+<Base title="Pricing: free vs licensed by job | open-wa" description="Most of open-wa is free. Insiders from £5 a month and Restricted from £15 a month unlock specific methods, per WhatsApp number. Prices checked 12 Oct 2026.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="eyebrow">Pricing</p>
+      <h1>Free for most jobs. A key for the few that need one.</h1>
+      <p class="lede">Keys are per WhatsApp number and unlock the methods marked Insiders or Restricted. Prices in GBP, checked {checkedOn}; checkout shows the current price.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="tiers">
+        <article class="tier-card tier-free">
+          <h2>No key</h2>
+          <p class="tier-price">£0</p>
+          <p>{licences.free.covers}</p>
+          <a class="btn" href={href("/quickstart/")}>Quick start</a>
+        </article>
+        {[ins, res].map((t) => (
+          <article class={`tier-card tier-${t.id}`}>
+            <h2>{t.name}</h2>
+            <p class="tier-price">{t.prices.month}<small> a month</small></p>
+            <ul class="tier-periods">
+              {periods.map(([k, label]) => <li><span>{label}</span><strong>{t.prices[k]}</strong></li>)}
+            </ul>
+            <p>{t.unlocks}</p>
+            <a class="btn btn-yellow" href="#licence" data-tier={t.id}>Get {t.name}</a>
+          </article>
+        ))}
+      </div>
+      <p class="fine">Prices checked {checkedOn} from the Gumroad product page. Prices can change; checkout shows the current price. Calling needs a calling-enabled key: ask with your use case in the form below.</p>
+    </div>
+  </section>
+
+  <section class="section section-lilac">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Which tier your job needs</h2>
+        <p class="lede">Name the exact method your workflow needs, then pick the tier that covers it.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">Job</th><th scope="col">Needs</th><th scope="col">Methods and notes</th></tr></thead>
+          <tbody>
+            {byJob.map((r) => <tr><td>{r.job}</td><td><span class={`badge badge-${r.tone}`}>{r.tier}</span></td><td><small>{r.note}</small></td></tr>)}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="licence">
+    <div class="wrap licence-grid">
+      <div>
+        <p class="eyebrow">Get a key</p>
+        <h2>Four fields, then checkout.</h2>
+        <p>We prefill a Gumroad checkout with your tier, GitHub username and number. You review the price and terms there and pay.</p>
+        <h3>Before you buy</h3>
+        <ol class="before">
+          {licences.beforeYouBuy.map((b) => <li>{b}</li>)}
+        </ol>
+        <p class="note"><strong>Ban risk:</strong> {product.risk} A key unlocks methods; it doesn't change that risk.</p>
+      </div>
+      <LicenceForm />
+    </div>
+  </section>
+
+  <section class="section section-lilac">
+    <div class="wrap prose">
+      <h2>Questions</h2>
+      {faq.map((f) => (
+        <details class="faq">
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+      <p>More in the <a href={support.licensingDocs} rel="external">licensing docs</a>. Need it built for you? <a href={href("/support/")}>Ask about consulting</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  document.querySelectorAll<HTMLAnchorElement>("[data-tier]").forEach((a) =>
+    a.addEventListener("click", () => {
+      const r = document.querySelector<HTMLInputElement>(`input[name="tier"][value="${a.dataset.tier}"]`);
+      if (r) r.checked = true;
+    }));
+</script>
+
+<style>
+  .tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: start; }
+  .tier-card { background: var(--paper); border: var(--line); border-radius: 22px; padding: 24px; box-shadow: var(--pop); display: grid; gap: 10px; min-width: 0; }
+  .tier-card h2 { font-size: 2rem; margin: 0; }
+  .tier-restricted { background: var(--yellow); }
+  .tier-insiders { background: var(--lilac-soft); }
+  .tier-price { font: 400 3rem/1 var(--font-display); margin: 0; }
+  .tier-price small { font: 600 1rem var(--font-text); }
+  .tier-periods { list-style: none; padding: 0; margin: 0; border: 2px solid var(--ink); border-radius: 12px; overflow: hidden; background: var(--paper); }
+  .tier-periods li { display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1.5px dashed #c9b8ff; }
+  .tier-periods li:last-child { border: 0; }
+  .tier-card .btn { justify-self: start; }
+  .fine { font-size: 0.9rem; color: var(--ink-soft); margin-top: 18px; }
+  .licence-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 48px; align-items: start; }
+  .before { padding-left: 1.2em; }
+  .faq { border: var(--line); border-radius: 14px; background: var(--paper); margin-bottom: 10px; }
+  .faq summary { cursor: pointer; padding: 14px 16px; font-weight: 800; min-height: 44px; }
+  .faq p { padding: 0 16px 14px; margin: 0; }
+  @media (max-width: 960px) { .tiers, .licence-grid { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,12 @@
+---
+import { commands } from "../data/site";
+interface Props { command?: string; size?: "lg" | "md"; id?: string }
+const { command = commands.easyApi, size = "lg", id } = Astro.props;
+---
+
+<div class={`cmd cmd-${size}`} id={id}>
+  <code class="cmd-text"><span class="cmd-prompt" aria-hidden="true">$</span>{command}</code>
+  <button type="button" class="copy-btn cmd-copy" data-copy={command} aria-label="Copy the command">
+    <span class="copy-idle">Copy</span><span class="copy-done">Copied</span>
+  </button>
+</div>
