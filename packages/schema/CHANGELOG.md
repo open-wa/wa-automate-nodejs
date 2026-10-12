@@ -4,6 +4,48 @@
 
 
 
+
+## 5.5.0
+<sub>2026-10-12</sub>
+
+- [#3521](https://github.com/open-wa/wa-automate-nodejs/pull/3521)  *(minor)*
+  - ✨ Add native album sending for images, videos and MP4 GIFs, with one caption, PN-to-LID resolution and explicit partial-send errors.
+  - 🐛 Accept album message events, expose declared media counts and parent associations, and add `getAlbumMessages` to retrieve loaded child media.
+- [#3503](https://github.com/open-wa/wa-automate-nodejs/pull/3503)  *(minor)*
+  - ✨ Add the public licensed-calling audio preview: bound Call controls, file and stream audio, recordings, remote media helpers and the Calls dashboard.
+  - 🔒️ Calling uses the existing licensed patch delivery; expected availability failures log an actionable reason without stopping messaging.
+  - ♻️ Own call media in scoped resources and finalize recordings on observed call end, media failure, disconnect and browser recovery.
+- [#3520](https://github.com/open-wa/wa-automate-nodejs/pull/3520)  *(minor)*
+  - Add live session patch refresh and dashboard license activation through a shared page replacement coordinator, retaining the browser process and host session.
+  - Preserve portable persistence ownership and report refresh progress; WhatsApp reloads without pausing or draining application operations.
+  - Evaluate the existing license response during refresh and report rejected keys without blocking public functionality.
+- [#3520](https://github.com/open-wa/wa-automate-nodejs/pull/3520)  *(minor)*
+  Add a lazy local sticker package and CLI with automatic whole-job backend selection,
+  ordered shared recipes, bounded executors and typed sticker sending through the
+  private donor finalizer.
+- [#3518](https://github.com/open-wa/wa-automate-nodejs/pull/3518)  *(minor)*
+  - 🐛 Restore patch-backed file, URL media, reaction and message-edit sending instead of rejecting them as unsupported.
+  - ✨ Expose audio, voice-note, looping video, poll, vCard, multi-contact and licensed status-posting methods on Client.
+  - 🐛 Preserve media MIME types and align poll selection limits and contact return schemas with the runtime.
+- [#3518](https://github.com/open-wa/wa-automate-nodejs/pull/3518)  *(minor)*
+  Add typed media options for view-once attachments, circular video notes, GIFs and documents. Media captions and quoted message IDs now belong in the options object. Add poll closing times, hidden voter names, voting, synced results and vote listeners, plus message pinning and unpinning.
+
+  Add voluntary phone-number request and share-own-number methods, plus native call-link generation and scheduled-call options on events. Fix native attachment construction, prepared video dimensions, submitted IDs and native media failure reporting discovered during live phone demos.
+- [#3518](https://github.com/open-wa/wa-automate-nodejs/pull/3518)  *(minor)*
+  - ✨ Add native WhatsApp event creation, history, editing, cancellation and RSVPs.
+  - ✨ Expose event and decrypted RSVP listeners with Effect schemas and JSON serializers.
+  - ✨ Deliver event support through the common live patch without a licence requirement.
+  - 📝 Add event and RSVP usage, Easy API routes, generated types and serializer documentation. Event times use Unix seconds; RSVP timestamps use milliseconds.
+- [#3521](https://github.com/open-wa/wa-automate-nodejs/pull/3521)  *(patch)*
+  - 🐛 Restore complete available message snapshots in `onAck` instead of reducing acknowledgements to an ID and status.
+  - 🐛 Restore the shared `ev` helper, v4 wildcard subscriptions, and supported session/listener event aliases, with Effect-owned session cleanup and optional scoped subscriptions.
+  - 🐛 Return contacts from `getGroupMembers` and restore `getGroupMembersId` for ID-only lookups, resolving contacts in one browser round trip.
+- [#3519](https://github.com/open-wa/wa-automate-nodejs/pull/3519)  *(patch)*
+  Restore schema-bound client methods for file sending, editing, reactions, group
+  information, titles and descriptions through the existing private patch pipeline.
+  Restore per-group and global participant listeners through the schema event bridge,
+  including shared ev aliases, and correct the migration guide's unsupported claims.
+
 ## 5.4.0
 <sub>2026-09-30</sub>
 

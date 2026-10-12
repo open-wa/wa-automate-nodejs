@@ -4,6 +4,15 @@
 
 
 
+
+## 5.5.0
+<sub>2026-10-12</sub>
+
+- [#3520](https://github.com/open-wa/wa-automate-nodejs/pull/3520)  *(minor)*
+  - Add live session patch refresh and dashboard license activation through a shared page replacement coordinator, retaining the browser process and host session.
+  - Preserve portable persistence ownership and report refresh progress; WhatsApp reloads without pausing or draining application operations.
+  - Evaluate the existing license response during refresh and report rejected keys without blocking public functionality.
+
 ## 5.4.0
 <sub>2026-09-30</sub>
 

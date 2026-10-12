@@ -4,6 +4,19 @@
 
 
 
+
+## 5.5.0
+<sub>2026-10-12</sub>
+
+- [#3503](https://github.com/open-wa/wa-automate-nodejs/pull/3503)  *(minor)*
+  - ✨ Add the public licensed-calling audio preview: bound Call controls, file and stream audio, recordings, remote media helpers and the Calls dashboard.
+  - 🔒️ Calling uses the existing licensed patch delivery; expected availability failures log an actionable reason without stopping messaging.
+  - ♻️ Own call media in scoped resources and finalize recordings on observed call end, media failure, disconnect and browser recovery.
+- [#3521](https://github.com/open-wa/wa-automate-nodejs/pull/3521)  *(patch)*
+  Remove browser downloads during CLI installation, prefer installed Chrome, and prompt for Chrome, Chromium or Lightpanda when a browser is missing. Explicit browser flags provision on demand and reuse persistent per-user caches on subsequent runs.
+
+  Use stable Effect v4 for provisioning locks, temporary files, download retries and browser preference validation, and update the Effect package family together.
+
 ## 5.4.0
 <sub>2026-09-30</sub>
 

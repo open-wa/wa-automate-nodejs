@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "open-wa API",
-    "version": "5.4.0",
-    "description": "API definition for open-wa v5.4.0"
+    "version": "5.5.0",
+    "description": "API definition for open-wa v5.5.0"
   },
   "servers": [
     {
