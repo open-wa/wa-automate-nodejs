@@ -21,6 +21,47 @@ Part of the [@open-wa v5 monorepo](https://github.com/open-wa/wa-automate-nodejs
 
 See the [docs site](https://openwa.dev).
 
+## Blog and changelog code examples
+
+EmDash content uses Markdown, not executable MDX. The shared editorial renderer
+uses Fumadocs `DynamicCodeBlock` for highlighting and copy buttons, and
+`CodeBlockTabs` for adjacent fences with `tab` metadata. Use `title` for the
+filename, runtime, or command label:
+
+````md
+```ts tab="SDK · TypeScript" tab-group="openwa-api-examples" title="Node.js SDK"
+const id = await client.sendText('447700900123@c.us', 'Hello');
+```
+
+```bash tab="Easy API · cURL" title="HTTP request"
+curl --fail-with-body "$OPENWA_API_URL/api/messages/sendText" \
+  -H "X-API-Key: $OPENWA_API_KEY" \
+  -H 'Content-Type: application/json' \
+  --data '{"to":"447700900123@c.us","content":"Hello"}'
+```
+
+```js tab="Easy API · JavaScript" title="Node.js fetch"
+// Complete JavaScript HTTP example.
+```
+
+```python tab="Easy API · Python" title="Python · requests"
+# Complete Python HTTP example.
+```
+````
+
+Keep the fences adjacent, with only blank lines between them. Use the same four
+labels for API examples: `tab-group` remembers the reader's choice across those
+examples. For a different set of tabs, choose a different group ID or omit it.
+Single fences also support `title` and have copy controls.
+
+Each feature article must explain Easy API startup, pairing, API-key headers,
+and the canonical route and named JSON fields from the shipped schema. HTTP
+method results use `{ success, data }`; host controls such as session refresh
+have their own response shape. Document event-stream topics and envelope fields
+for listeners. State which machine owns file paths, and provide working HTTP
+examples rather than serializing SDK methods or streams. Use standalone terminal
+examples for operations that have no HTTP equivalent.
+
 ## Publishing
 
 `.github/workflows/docs-run.yml` builds the schema and documentation, applies
