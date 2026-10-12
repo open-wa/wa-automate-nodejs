@@ -33,7 +33,7 @@ const methodFor = (l: Job["chat"][number]): string | undefined => {
     </div>
     <div class="ph-feed">
       {job.chat.map((l, i) => (
-        <div class:list={["ph-line", `ph-${l.who}`, `ph-k-${l.kind}`, "is-on"]} data-i={i} data-m={methodFor(l)}>
+        <div class:list={["ph-line", `ph-${l.who}`, `ph-k-${l.kind}`, "is-on", { "is-old": i < job.chat.length - 3 }]} data-i={i} data-m={methodFor(l)}>
           {l.kind === "text" && (
             <div class="b"><span>{l.text}</span>{l.time && <time>{l.time}</time>}</div>
           )}

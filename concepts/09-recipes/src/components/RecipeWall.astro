@@ -87,14 +87,17 @@ const count = (b: string) => jobs.filter((j) => j.business.includes(b as never))
     let timers: number[] = [];
     const p: Player = { playing: false, play: () => {}, stop: () => {} };
     const clear = () => { timers.forEach(clearTimeout); timers = []; typing.hidden = true; };
+    // Compact cards (phones) show only the latest three lines: older ones get is-old.
+    const keepLast = (upto: number) => lines.forEach((l, k) => l.classList.toggle("is-old", k < upto - 2));
     const settle = () => {
       clear();
       lines.forEach((l) => { l.classList.add("is-on"); l.classList.remove("is-new"); });
+      keepLast(lines.length - 1);
       phone.dispatchEvent(new CustomEvent("ph:line", { bubbles: true, detail: "" }));
     };
     const run = (loop: boolean) => {
       clear();
-      lines.forEach((l) => l.classList.remove("is-on", "is-new"));
+      lines.forEach((l) => l.classList.remove("is-on", "is-new", "is-old"));
       // The first line is there at once, so a phone never sits empty.
       lines[0]?.classList.add("is-on", "is-new");
       phone.dispatchEvent(new CustomEvent("ph:line", { bubbles: true, detail: lines[0]?.dataset.m ?? "" }));
@@ -109,6 +112,7 @@ const count = (b: string) => jobs.filter((j) => j.business.includes(b as never))
         timers.push(window.setTimeout(() => {
           typing.hidden = true;
           l.classList.add("is-on", "is-new");
+          keepLast(i);
           phone.dispatchEvent(new CustomEvent("ph:line", { bubbles: true, detail: l.dataset.m ?? "" }));
         }, t));
         t += i === lines.length - 1 ? 0 : 900;
@@ -281,7 +285,35 @@ const count = (b: string) => jobs.filter((j) => j.business.includes(b as never))
     display: flex; align-items: flex-start; align-self: end;
   }
   .rc-phone :global(.ph) { --ph-h: 318px; }
-  @media (max-width: 599px) { .rc:not(.is-open) .rc-phone :global(.ph) { --ph-h: 280px; } }
+  /* Phones: compact cards. Title and button on the left, a mini phone showing the
+     latest two or three messages on the right. Opening restores the full layout. */
+  @media (max-width: 599px) {
+    .rc:not(.is-open) {
+      grid-template-columns: minmax(0, 1fr) 138px; column-gap: 14px; padding: 14px;
+      grid-template-areas: "head phone" "title phone" "foot phone"; grid-template-rows: auto 1fr auto;
+    }
+    .rc:not(.is-open) .rc-head { padding-right: 0; flex-direction: column; align-items: flex-start; gap: 8px; }
+    .rc:not(.is-open) .rc-title { font-size: 1.5rem; margin: 10px 0 8px; }
+    .rc:not(.is-open) .rc-phone { padding: 10px 8px; border-radius: 12px; align-self: stretch; align-items: center; }
+    .rc:not(.is-open) .rc-phone :global(.ph) { --ph-h: 236px; --ph-text: 0.625rem; border-radius: 20px; padding: 4px; }
+    .rc:not(.is-open) .rc-phone :global(.ph-screen) { border-radius: 16px; }
+    .rc:not(.is-open) .rc-phone :global(.ph-top) { padding: 7px 7px 6px; gap: 5px; }
+    .rc:not(.is-open) .rc-phone :global(.ph-av) { width: 18px; height: 18px; font-size: 0.5625rem; }
+    .rc:not(.is-open) .rc-phone :global(.ph-name) { font-size: 0.625rem; }
+    .rc:not(.is-open) .rc-phone :global(.ph-num) { display: none; }
+    .rc:not(.is-open) .rc-phone :global(.ph-ex) { font-size: 0.5rem; padding: 2px 4px; }
+    .rc:not(.is-open) .rc-phone :global(.ph-feed) { padding: 6px 5px 7px; gap: 4px; }
+    .rc:not(.is-open) .rc-phone :global(.b) { padding: 5px 7px 4px; border-radius: 10px; }
+    .rc:not(.is-open) .rc-phone :global(.ph-map) { height: 46px; }
+    .rc:not(.is-open) .rc-phone :global(.ph-callcard) { padding: 6px; gap: 6px; }
+    .rc:not(.is-open) .rc-phone :global(.ph-callico) { width: 20px; height: 20px; }
+    .rc:not(.is-open) .rc-methods { display: none; }
+    .rc:not(.is-open) .rc-phone :global(.ph-line.is-old) { display: none; }
+    .rc:not(.is-open) .rc-foot { margin-top: 0; }
+    .rc:not(.is-open) .rc-open { margin-left: 0; }
+    .rc:not(.is-open)::before { width: 26px; height: 26px; }
+    .rw-grid { gap: 12px; }
+  }
   .rc-foot { grid-area: foot; display: flex; align-items: center; gap: 10px; margin-top: 12px; }
   .rc-methods { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; flex: 1; }
   .rc-methods code { font-size: 0.75rem; background: var(--paper-2); padding: 3px 6px; border-radius: 6px; transition: background 200ms var(--ease), color 200ms var(--ease); }
