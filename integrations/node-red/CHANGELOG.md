@@ -4,6 +4,12 @@
 
 
 
+
+## 5.5.0
+<sub>2026-10-12</sub>
+
+- *(minor)* Version bump from group with `@open-wa/api` v5.5.0, `@open-wa/cli` v5.5.0, `@open-wa/client` v5.5.0, `@open-wa/config` v5.5.0, `@open-wa/core` v5.5.0, `@open-wa/driver-interface` v5.5.0, `@open-wa/driver-lightpanda` v5.5.0, `@open-wa/driver-puppeteer` v5.5.0, `@open-wa/mcp` v5.5.0, `@open-wa/plugin-sdk` v5.5.0, `@open-wa/schema` v5.5.0, `@open-wa/socket-client` v5.5.0, `@open-wa/stickers` v5.4.0, `@open-wa/wa-automate` v5.5.0, `@open-wa/wa-automate-types-only` v5.5.0
+
 ## 5.4.0
 <sub>2026-09-30</sub>
 

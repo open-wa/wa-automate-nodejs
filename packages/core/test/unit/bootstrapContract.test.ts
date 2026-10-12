@@ -869,7 +869,7 @@ describe('bootstrap contract harness', () => {
     await client.stop('phase_e_missing_license_cleanup');
   });
 
-  it('Phase E: invalid license classification blocks readiness before finalization', async () => {
+  it('Phase E: invalid license remains observable without blocking public readiness', async () => {
     const { client, recordedEvents } = await createHarness({
       runtimeAvailable: true,
       storeMsgAvailable: true,
@@ -879,14 +879,15 @@ describe('bootstrap contract harness', () => {
 
     const startResult = await settleStart(client);
 
-    if (startResult.status !== 'rejected') {
-      throw new Error('Expected invalid-license bootstrap fixture to reject, but start() resolved.');
+    if (startResult.status !== 'resolved') {
+      throw new Error(`Expected public bootstrap to resolve after an invalid license, but it rejected with: ${String(startResult.error)}`);
     }
 
-    requireBlockedReady(
-      recordedEvents,
-      'Section 27.E/27.G requires invalid license outcomes to block readiness explicitly, but client.ready still emitted after invalid license classification.'
-    );
+    expect(client.getReadiness()).toMatchObject({
+      ready: true,
+      requirements: { licenseLifecycle: { state: 'non_blocking' } },
+    });
+    expect(recordedEvents.filter((event) => event.name === 'client.ready')).toHaveLength(1);
 
     const invalidCheckIndex = recordedEvents.findIndex((event) => {
       if (event.name !== 'launch.license.check.after') return false;
@@ -899,14 +900,12 @@ describe('bootstrap contract harness', () => {
     }
 
     const finalizeIndex = findEventIndex(recordedEvents, 'launch.client.finalize.before');
-    if (finalizeIndex !== -1 && finalizeIndex > invalidCheckIndex) {
-      throw new Error('Expected invalid license classification to stop bootstrap before finalization began.');
-    }
+    expect(finalizeIndex).toBeGreaterThan(invalidCheckIndex);
 
     await client.stop('phase_e_invalid_license_cleanup');
   });
 
-  it('Phase E: expired license classification blocks readiness before finalization', async () => {
+  it('Phase E: expired license remains observable without blocking public readiness', async () => {
     const { client, recordedEvents } = await createHarness({
       runtimeAvailable: true,
       storeMsgAvailable: true,
@@ -916,14 +915,15 @@ describe('bootstrap contract harness', () => {
 
     const startResult = await settleStart(client);
 
-    if (startResult.status !== 'rejected') {
-      throw new Error('Expected expired-license bootstrap fixture to reject, but start() resolved.');
+    if (startResult.status !== 'resolved') {
+      throw new Error(`Expected public bootstrap to resolve after an expired license, but it rejected with: ${String(startResult.error)}`);
     }
 
-    requireBlockedReady(
-      recordedEvents,
-      'Section 27.E/27.G requires expired license outcomes to block readiness explicitly, but client.ready still emitted after expired license classification.'
-    );
+    expect(client.getReadiness()).toMatchObject({
+      ready: true,
+      requirements: { licenseLifecycle: { state: 'non_blocking' } },
+    });
+    expect(recordedEvents.filter((event) => event.name === 'client.ready')).toHaveLength(1);
 
     const expiredCheckIndex = recordedEvents.findIndex((event) => {
       if (event.name !== 'launch.license.check.after') return false;
@@ -936,9 +936,7 @@ describe('bootstrap contract harness', () => {
     }
 
     const finalizeIndex = findEventIndex(recordedEvents, 'launch.client.finalize.before');
-    if (finalizeIndex !== -1 && finalizeIndex > expiredCheckIndex) {
-      throw new Error('Expected expired license classification to stop bootstrap before finalization began.');
-    }
+    expect(finalizeIndex).toBeGreaterThan(expiredCheckIndex);
 
     await client.stop('phase_e_expired_license_cleanup');
   });
@@ -1834,7 +1832,7 @@ describe('bootstrap contract harness', () => {
       expect(client.getReadiness()).toMatchObject({
         ready: false,
         status: 'blocked',
-        blockers: ['patchLifecycle'],
+        blockers: ['runtimeUsable'],
       });
 
       await client.stop('deferred_init_patch_failure_cleanup');

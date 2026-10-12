@@ -65,9 +65,23 @@ jobs:
 
       - name: Create version PR or publish to npm
         if: github.event_name == 'push' && steps.plan.outputs.mode != 'nothing'
-        run: pnpm exec bumpy ci release --expect-mode "${{ steps.plan.outputs.mode }}"
+        run: |
+          if [ "$RELEASE_MODE" = 'publish' ] && ! npm view @open-wa/stickers version --prefer-online >/dev/null 2>&1; then
+            if [ -z "$FIRST_PUBLISH_NPM_TOKEN" ]; then
+              echo "::error::Set NPM_TOKEN for the first @open-wa/stickers publication"
+              exit 1
+            fi
+            export NPM_TOKEN="$FIRST_PUBLISH_NPM_TOKEN"
+            export NPM_CONFIG_USERCONFIG="$(mktemp)"
+            printf '%s\n' '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > "$NPM_CONFIG_USERCONFIG"
+            trap 'rm -f "$NPM_CONFIG_USERCONFIG"' EXIT
+          fi
+          unset FIRST_PUBLISH_NPM_TOKEN
+          pnpm exec bumpy ci release --expect-mode "$RELEASE_MODE"
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_MODE: ${{ steps.plan.outputs.mode }}
+          FIRST_PUBLISH_NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to GitHub Packages
         if: github.event_name == 'push' && steps.plan.outputs.mode != 'version-pr'

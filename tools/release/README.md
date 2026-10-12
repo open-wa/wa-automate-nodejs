@@ -10,11 +10,11 @@ The repository uses `@varlock/bumpy` 1.18.1 for package versions, changelogs, an
 4. The publish job builds packages, packs with pnpm to resolve `workspace:` and `catalog:` ranges, and publishes to npm with the npm CLI and GitHub OIDC. It then publishes the same versions to GitHub Packages, creates package tags and releases, and runs the aggregate notes, image, release, and Discord steps when `@open-wa/core` is included.
 5. Confirm the registry `latest` tags and the GitHub release. The release workflow's success alone is not proof that every registry read has propagated.
 
-The 27 packages in Bumpy's `fixed` group retain one version. Other public packages can receive their own version updates through their dependencies. Stable releases use npm's `latest` tag.
+The 28 packages in Bumpy's `fixed` group retain one version. Other public packages can receive their own version updates through their dependencies. Stable releases use npm's `latest` tag.
 
 ## Publishing access
 
-Each existing npm package has a Trusted Publisher connection to `open-wa/wa-automate-nodejs`, workflow `release.yml`, environment `Release`. The workflow grants `id-token: write` and uses npm 11 on Node 24. npm requires a package to exist before its Trusted Publisher can be configured, so first publication of a new package needs an authenticated maintainer publish.
+Each existing npm package has a Trusted Publisher connection to `open-wa/wa-automate-nodejs`, workflow `release.yml`, environment `Release`. The workflow grants `id-token: write` and uses npm 11 on Node 24. npm requires a package to exist before its Trusted Publisher can be configured. For the first `@open-wa/stickers` publication, the Bumpy action exposes the existing `NPM_TOKEN` secret through a temporary npm configuration file. npm uses OIDC for existing trusted packages and the token for the new package. The action removes the temporary file when publishing exits. After the package exists, configure its Trusted Publisher with the same repository, workflow and environment; subsequent release runs use OIDC without loading the bootstrap token.
 
 The built-in `GITHUB_TOKEN` creates Bumpy's version PR and publishes to GitHub Packages. GitHub does not trigger other workflows from PRs created with this token; merging the version PR still triggers the release push. Set `DISCORD_WEBHOOK_URL` in the repository or `Release` environment secrets before publishing; the aggregate release fails visibly without it.
 
@@ -27,7 +27,7 @@ pnpm version-packages             # consume bump files locally
 pnpm publish-packages             # publish unpublished versions locally
 ```
 
-`tools/release/publish-github-packages.sh` is the CI step for GitHub Packages. It receives the package names from Bumpy's publish plan, skips versions already present, and packs each missing package with pnpm before publishing with `GITHUB_TOKEN`. When npm is already published, the step reconciles every public package so a failed GitHub Packages publish can be retried by pushing `release` again. The aggregate GitHub release is also resumed if its npm version exists but its `vX.Y.Z` release does not.
+`tools/release/publish-github-packages.sh` is the CI step for GitHub Packages. It validates the package names from Bumpy's publish plan and reconciles the current version of every public package, including packages published to npm in earlier attempts. It skips versions already present, runs build scripts when provided, and packs each missing package with pnpm before publishing with `GITHUB_TOKEN`. A failed GitHub Packages publish can be retried by pushing `release` again. The aggregate GitHub release is also resumed if its npm version exists but its `vX.Y.Z` release does not.
 
 `generate-notes.ts` writes the same concise copy to `RELEASE_BODY.md` and `release-notes-detailed.md`. Notes and images share the change parser: duplicate features appear once, and version-only/dependency bumps go in one final section. Curated releases set `notesFile` in `image-highlights.json`. `release-image.js` renders `release.png` and numbered pages from those notes and the package changelogs. The images are required for the aggregate GitHub release. New releases automatically announce on Discord: `discord-notify.ts` sends the cover and page batches as visible file attachments and checks that Discord returned every file.
 
