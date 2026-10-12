@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/mcp",
-  "version": "5.5.0",
+  "version": "5.5.1",
   "type": "module",
   "description": "MCP server integration for open-wa",
   "main": "./dist/index.cjs",
