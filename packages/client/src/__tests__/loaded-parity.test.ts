@@ -40,6 +40,7 @@ function createTestClient() {
   };
 
   const transport: Transport = {
+    setPortableMessageHandler: vi.fn(() => () => undefined),
     evaluate: vi.fn(),
   } as any;
 

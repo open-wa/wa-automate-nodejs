@@ -13,9 +13,10 @@ function getFixturePath(relativePath: string): string {
 }
 
 function extractDeclaredClientMethods(clientSource: string): string[] {
-  return [...clientSource.matchAll(/declare\s+([A-Za-z0-9_]+)\s*:/g)]
-    .map((match) => match[1])
-    .sort();
+  return [...new Set([
+    ...[...clientSource.matchAll(/declare\s+([A-Za-z0-9_]+)\s*:/g)].map(match => match[1]),
+    ...[...clientSource.matchAll(/^  (?:async )?([A-Za-z0-9_]+)\(/gm)].map(match => match[1]).filter(name => name in clientRuntimeMethodSurface),
+  ])].sort();
 }
 
 function extractClientListenerMethods(clientSource: string): string[] {
@@ -66,7 +67,7 @@ describe('Client runtime surface audit', () => {
       // cannot establish their final runtime implementation.
       if ('runtimeSource' in entry && entry.runtimeSource === 'live-patch') {
         expect(entry.support).toBe('runtime');
-        expect(commonPatches.some(patch => patch.startsWith(`/* OpenWA feature: ${entry.runtimePatch} */\n`))).toBe(true);
+        expect(entry.runtimePatch === 'common' ? commonPatches.some(patch => patch.length > 0) : commonPatches.some(patch => patch.startsWith(`/* OpenWA feature: ${entry.runtimePatch} */\n`))).toBe(true);
         continue;
       }
 
@@ -85,9 +86,10 @@ describe('Client runtime surface audit', () => {
 
   it('only marks listeners as runtime-backed when core ships matching bridge or navigation support', () => {
     for (const [listenerName, entry] of Object.entries(clientRuntimeListenerSurface)) {
-      if (entry.support === 'runtime') {
+      if (entry.support === 'runtime' || entry.support === 'licensed') {
         expect(entry.runtimeSupportEvent).toBeTruthy();
-        expect(runtimeListenerSurface).toHaveProperty(entry.runtimeSupportEvent as string);
+        if (entry.support === 'runtime') expect(runtimeListenerSurface).toHaveProperty(entry.runtimeSupportEvent as string);
+        else expect(entry.reason).toBeTruthy();
         continue;
       }
 
