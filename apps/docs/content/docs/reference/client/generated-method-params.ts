@@ -1214,6 +1214,20 @@ export interface SendSeenParams {
   chatId: string;
 }
 
+export interface SendStickerParams {
+  /**
+   * Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c|g)\.us$|^\d+@lid$
+   * @example "447123456789@c.us"
+   * @remarks Key aliases: 'chatId'
+   */
+  to: string;
+  /**
+   * A media data URL or HTTP(S) URL. The local library additionally accepts bytes, Blob and local filenames. Pattern: ^(?:data:(?:image|video)\/[^;,]+;base64,[A-Za-z0-9+/]+={0,2}|https?:\/\/\S+)$
+   */
+  input: string;
+  job?: { author?: string; backend?: "auto" | "browser" | "standalone"; background?: string; circle?: boolean; effects?: (string | { name: string; options?: object })[]; fit?: "contain" | "cover"; fps?: number; loopCount?: number; pack?: string; quality?: number; quotedMsgId?: string; trim?: number[] };
+}
+
 export interface SendTextParams {
   /**
    * Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\d+(-\d+)?@(c|g)\.us$|^\d+@lid$
