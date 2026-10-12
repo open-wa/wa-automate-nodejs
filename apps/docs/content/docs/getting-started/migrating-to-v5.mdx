@@ -5,10 +5,18 @@ description: Upgrade an existing open-wa application, with before-and-after exam
 
 # Migrate from v4 to v5
 
-**v5 is the current stable release and the version to use for production.** This
-guide uses Bun and TypeScript to move an existing v4 application to v5.
+This guide uses Bun and TypeScript to move an existing v4 application to v5.
 If you are starting a new application, use the
 [project initializer](/docs/getting-started/initializer) instead.
+
+**QR codes are still the default way to link your WhatsApp account.** Scan the
+terminal QR code from **Linked Devices** on your phone. Link-code login is an
+optional alternative.
+
+The saved login changes. Current v5 saves an encrypted session file instead of
+keeping a full browser profile. Keep that file to reuse your login on later
+runs. When moving from v4, use a separate folder and scan once to create the
+new v5 session file.
 
 v4 and earlier are legacy releases. open-wa runs against WhatsApp Web, which
 changes independently of your installed package. An older release can stop
@@ -23,10 +31,11 @@ methods remain, some have different inputs or results, and some v4 features
 have no supported replacement yet. Start with the changes below, then check
 the [known gaps](#known-gaps) before moving a workflow that depends on them.
 
-> **Release status:** The restored `onAck`, global `ev`, and group-member APIs
-> described below are implemented for the next package release. They are not
-> included in 5.4.0. Follow these examples with a release that includes these
-> fixes; updating to 5.4.0 alone will not restore those contracts.
+> **Release status:** The CLI startup fix and restored client methods and
+> listeners described here are changes for the next package release. They are
+> not included in 5.4.0. That release can fail during startup before printing a
+> QR code. Follow these examples with a release that includes the fixes.
+> `@latest` selects the published npm release, not the code on `master`.
 
 ## What needs to change?
 
@@ -45,12 +54,13 @@ owns its WhatsApp browser session. Remote consumers also need the
 | `onAck((message) => ...)` | Keep the message callback, including `message.id`, `message.ack`, and the message details. |
 | `onStateChanged` checks for `CONNECTED` | Read the core lifecycle with `client.getState()` and check for `READY`. |
 | `getGroupMembers()` and `getGroupMembersId()` | Keep both: the first returns contacts, the second returns IDs. |
-| A saved `.data.json` file or base64 session string | Pair again and persist the current compact session in a separate directory. The old token file does not restore this format. |
+| QR code pairing | Keep it. Scan the terminal QR code from **Linked Devices** on your phone. |
+| A saved v4 `.data.json` file or base64 session string | Keep a backup. Use a separate v5 session folder and scan a QR code to save the new login file. |
 
 ## 1. Update the dependency
 
 Stop the old bot and keep a backup of its configuration and session storage.
-Use a separate session-data directory for v5 and pair the account again.
+Use a separate session-data directory for v5 and scan a QR code to link the account again.
 Running both bots against the same conversations with reply handlers enabled
 can produce duplicate replies.
 
@@ -128,11 +138,15 @@ Run it with:
 bun run index.ts
 ```
 
-`./v5-sessions` stores the new compact session file, relative to where you
-run the application. The first run asks you to link the account. On iPhone, open
+`./v5-sessions` stores the new session file, relative to where you run the
+application. The first run prints a QR code. On iPhone, open
 WhatsApp **Settings → Linked Devices**. On Android, open the WhatsApp menu and
 select **Linked Devices**. Tap **Link a Device**, then scan the terminal QR code.
 After the `Ready` message, send `!ping` from another chat and look for `Pong!`.
+
+Keep `./v5-sessions/support.data.json` after pairing. Restart the application
+with the same session ID and folder to restore the saved login. You do not
+need to scan a QR code on every restart.
 
 [`create()`](/docs/reference/create) chooses Puppeteer, provisions its matched
 browser if needed, handles terminal pairing, and resolves when the session is
@@ -178,19 +192,36 @@ For example, one minute is `authTimeout: 60` with `create()` and
 `authTimeoutMs: 60_000` with `createClient()`. Copying the number `60` into the
 millisecond option would allow only 60 milliseconds.
 
-### Keep the compact session file
+### Keep the saved login for later runs
 
-Current v5 restores authentication into a disposable browser profile. Persist
-`<sessionId>.data.json` in the directory selected by `sessionDataPath`, along
-with your custom encryption key if you supplied one. Restart with the same
-session ID, storage path, and key. Without a custom key, the runtime uses its
-default encryption configuration.
+After pairing, v5 saves your login in `<sessionId>.data.json`, in the directory
+selected by `sessionDataPath`. The example above saves `support.data.json` in
+`./v5-sessions`. The documentation calls this encrypted file a compact session.
 
-An old v4 browser profile or token file is not a current compact session.
-Start in the separate directory from the example above and pair again. The
-file contains credentials, so keep it in private persistent storage.
+Restart with the same session ID, storage path, and custom encryption key, if
+you supplied one. The saved login lets v5 reconnect without another QR scan.
+Without a custom key, the runtime uses its default encryption configuration.
+
+V5 starts a fresh browser profile and restores the saved login from the file.
+You do not need to keep the browser profile directory. Keep the session file
+in private persistent storage because it contains login credentials.
 [`stop()`](/docs/reference/create#stop) closes the browser without unlinking
 the account or deleting its saved login.
+
+An old v4 profile or token file cannot restore this v5 login. Keep the old
+storage as a backup and pair once in the separate v5 directory. If the new
+file is missing or unusable, or you unlink the account, you must pair again.
+
+### If no QR code appears
+
+If v5 restores a saved login, no QR scan is needed. If startup reports
+`Bootstrap failed`, the application has failed before it can finish linking.
+QR pairing has not been removed.
+
+An unusable session file can cause `PORTABLE_SESSION_PROVISION_FAILED` before
+the QR code appears. Use the separate v5 folder shown above to keep old files
+out of the new login path. Published 5.4.0 also has the startup issue described
+in the release notice at the start of this guide.
 
 ### Pass configuration to an embedded application
 
@@ -442,11 +473,18 @@ is for applications that already communicate with a separate open-wa process.
 
 ### Start the v5 server
 
-Use an explicit session name and private bind address:
+Start in a new folder so v5 does not read an old session file. Use an explicit
+session name and private bind address:
 
 ```bash
+mkdir open-wa-v5
+cd open-wa-v5
 bunx --bun @open-wa/wa-automate@latest --session-id migration --host 127.0.0.1 --port 8080
 ```
+
+Scan the terminal QR code from **Linked Devices** on your phone. Keep the new
+session file and use this same folder for later starts. Link-code login is
+optional. The release notice above also applies to this CLI example.
 
 For an existing deployment, review its `wa.config.ts`, session-data path, API key,
 and [CLI flags](/docs/guides/configuration-and-cli#full-cli-reference) before
@@ -523,6 +561,30 @@ flag alone does not establish v5 delivery. The v5 CLI also does not load the
 shared plugin configuration; use the [core plugin-loading path](/docs/guides/configuration-and-cli#plugins-field-docs)
 when migrating a webhook integration.
 
+## Keep the file, message, and group methods
+
+The client binds these methods through the schema system to their existing
+private patch implementations. Keep the flat client names below. Their absence
+from the bundled `wapi.js` does not mean they were removed from the patches.
+The restored bindings are part of the next package release described above.
+
+| Method | v5 client behavior |
+| --- | --- |
+| `sendFile(to, file, filename, caption)` | Sends through the existing private `WAPI.sendFile` implementation. The file schema accepts a file path, URL, data URL, base64, or bytes. |
+| `sendFileFromUrl(to, url, filename, caption, headers)` | Downloads the file on the host and delegates to `sendFile`. |
+| `editMessage(messageId, newContent)` | Calls the existing private editing method. |
+| `react(messageId, emoji)` | Calls the existing private reaction method. |
+| `getGroupInfo(groupId)` | Returns the patch's group title and description. Check for a returned error string before reading the result. |
+| `setGroupTitle(groupId, title)` | Calls the existing private group-title method. |
+| `setGroupDescription(groupId, description)` | Calls the existing private group-description method. |
+| `onParticipantsChanged(groupId, callback)` | Subscribes to participant changes for one group. Use `handle.off()` to remove the subscription. |
+| `onGlobalParticipantsChanged(callback)` | Subscribes to participant changes across the session's groups. |
+
+Participant callbacks retain the patch's `who`, `chat`, `action`, and `by`
+fields. The schema also supplies `groupId` and `participantIds`.
+The same change is available as `group.participants.changed.global` on
+`client.events` and through the shared `ev` listener aliases.
+
 ## Known gaps
 
 Stable v5 does not mean that every v4 feature has parity. These limitations
@@ -532,10 +594,7 @@ implements it.
 
 | Feature your application may use | v5 limitation |
 | --- | --- |
-| File sending | Embedded `sendFile` and `sendFileFromUrl` are explicit unsupported methods. Do not substitute them for a v4 document or audio workflow. |
-| Message editing and reactions | Embedded `editMessage` and `react` are unsupported. |
-| Group metadata and settings | Embedded `getGroupInfo`, `setGroupTitle`, and `setGroupDescription` are unsupported. `getGroupAdmins` is not an embedded `Client` method. |
-| Group membership changes | `onParticipantsChanged` and `onGlobalParticipantsChanged` have no current embedded listener or shipped event bridge. The declared `group.participants.changed.global` event is not a working replacement. |
+| Other group methods | `getGroupAdmins` is not an embedded `Client` method. |
 | Added-to-group notifications | `onAddedToGroup` is not an embedded convenience method. The optional `client.events` event `group.addedToGroup` supplies a `groupId`, not the full v4 chat object. |
 | Message deletion notifications | `onMessageDeleted` throws an unsupported-listener error; there is no shipped deletion bridge. |
 | Other v4 listeners | Do not assume call, battery, poll, reaction, label, or commerce listeners work because their names remain in an event schema. They are not among the embedded client's supported listeners. |

@@ -6,7 +6,7 @@ icon: "BookOpen"
 
 # Messages Client API
 
-This page documents 46 schema-registry client methods in the `messages` namespace.
+This page documents 47 schema-registry client methods in the `messages` namespace.
 
 
 ## `deleteMessage`
@@ -102,6 +102,93 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 | --- | --- | --- | --- | --- |
 | Primary | `DELETE` | `/api/messages/delete` | `deleteMessage` | Active |
 | Alias | `DELETE` | `/api/deleteMessage` | `deleteMessage` | Active |
+
+</details>
+
+
+## `editMessage`
+
+Edits the text of a message through the installed private patch
+
+**Signature** `client.editMessage(messageId: string, newContent: string): Promise<boolean>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.editMessage({
+  messageId: "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+  newContent: "newContent",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X PUT "http://localhost:8080/api/messages/edit" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "messageId": "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+    "newContent": "newContent"
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="EditMessageParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<boolean>` |
+
+Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `update` |
+| Functionality | `both` |
+| Positional parameter order | `messageId`, `newContent` |
+| Aliases | `messages.edit` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `PUT` | `/api/messages/edit` | `editMessage` | Active |
+| Alias | `PUT` | `/api/editMessage` | `editMessage` | Active |
 
 </details>
 
@@ -1340,13 +1427,6 @@ React to message with emoji
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.react("false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB", "emoji");
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -1396,7 +1476,7 @@ Example response envelope:
 
 Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -2113,7 +2193,7 @@ In-process Client resolves to `Promise<MediaSendResult>`. The contract above is 
 
 Downloads media and sends it through sendFile with the same typed presentation options.
 
-**Signature** `client.sendFileFromUrl(to: string, url: string, filename?: string, options?: { caption?: string; quotedMsgId?: string; type?: "auto"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "image"; viewOnce?: boolean } \| { caption?: string; isGif?: boolean; quotedMsgId?: string; type: "video"; videoNote?: boolean; viewOnce?: boolean } \| { ptt?: boolean; quotedMsgId?: string; type: "audio"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "document" }, headers?: object): Promise<string \| boolean>`
+**Signature** `client.sendFileFromUrl(to: string, url: string, filename?: string, options?: { caption?: string; quotedMsgId?: string; type?: "auto"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "image"; viewOnce?: boolean } \| { caption?: string; isGif?: boolean; quotedMsgId?: string; type: "video"; videoNote?: boolean; viewOnce?: boolean } \| { ptt?: boolean; quotedMsgId?: string; type: "audio"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "document" }, headers?: object): Promise<MessageIdReturn \| string \| boolean>`
 
 ### Usage
 
@@ -2148,7 +2228,7 @@ Example response envelope:
 ```json
 {
   "success": true,
-  "data": "example"
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 }
 ```
 
@@ -2163,7 +2243,8 @@ Example response envelope:
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<string \| boolean>` |
+| Return type | `Promise<MessageIdReturn \| string \| boolean>` |
+| MessageIdReturn | [View fields](/docs/reference/client/return-types#messageidreturn) |
 
 Message ID or success status
 

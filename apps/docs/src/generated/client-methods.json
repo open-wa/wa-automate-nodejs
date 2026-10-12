@@ -1039,6 +1039,65 @@
     }
   },
   {
+    "id": "messages.editmessage",
+    "anchor": "editmessage",
+    "name": "editMessage",
+    "namespacedName": "messages.edit",
+    "namespace": "messages",
+    "description": "Edits the text of a message through the installed private patch",
+    "license": null,
+    "aliases": [
+      "messages.edit"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "messageId",
+      "newContent"
+    ],
+    "parameters": [
+      {
+        "name": "messageId",
+        "type": "string",
+        "required": true,
+        "description": "Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$",
+        "aliases": [
+          "id",
+          "msgId"
+        ],
+        "deprecatedAliases": [
+          "msgId"
+        ],
+        "example": "`\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"`",
+        "namedType": "MessageId"
+      },
+      {
+        "name": "newContent",
+        "type": "string",
+        "required": true,
+        "description": "Replacement message text",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "boolean",
+    "returnTypeLinks": {},
+    "sdkReturnType": null,
+    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "route": {
+      "method": "PUT",
+      "path": "/api/messages/edit",
+      "flatPath": "/api/editMessage"
+    },
+    "examples": {
+      "inProcessSdk": "",
+      "nodeCall": "const result = await client.editMessage({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  newContent: \"newContent\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.editMessage({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  newContent: \"newContent\",\n});",
+      "http": "curl -X PUT \"http://localhost:8080/api/messages/edit\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"messageId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n    \"newContent\": \"newContent\"\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": true\n}"
+    }
+  },
+  {
     "id": "calls.endcall",
     "anchor": "endcall",
     "name": "endCall",
@@ -2489,7 +2548,7 @@
     "name": "getGroupInfo",
     "namespacedName": "groups.getInfo",
     "namespace": "groups",
-    "description": "Get group metadata",
+    "description": "Get the group title and description through the installed private patch",
     "license": null,
     "aliases": [
       "groups.getInfo"
@@ -2515,23 +2574,21 @@
         "namedType": "GroupChatId"
       }
     ],
-    "returnType": "GroupMetadata | null",
-    "returnTypeLinks": {
-      "GroupMetadata": "/docs/reference/client/return-types#groupmetadata"
-    },
-    "sdkReturnType": "GroupMetadata | null",
-    "returnNotes": "Resolves to `GroupMetadata \\| null`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnType": "{ title: string; description?: string | null } | string | null",
+    "returnTypeLinks": {},
+    "sdkReturnType": null,
+    "returnNotes": "Resolves to `{ title: string; description?: string \\| null } \\| string \\| null`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "GET",
       "path": "/api/groups/getInfo",
       "flatPath": "/api/getGroupInfo"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.getGroupInfo(\"447123456789-1445627445@g.us\");",
+      "inProcessSdk": "",
       "nodeCall": "const result = await client.getGroupInfo({\n  groupId: \"447123456789-1445627445@g.us\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getGroupInfo({\n  groupId: \"447123456789-1445627445@g.us\",\n});",
       "http": "curl -G \"http://localhost:8080/api/groups/getInfo\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"groupId=447123456789-1445627445@g.us\"",
-      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"447123456789-1445627445@g.us\",\n    \"subject\": \"example\",\n    \"creation\": 0,\n    \"participants\": []\n  }\n}"
+      "response": "{\n  \"success\": true,\n  \"data\": {\n    \"title\": \"example\"\n  }\n}"
     }
   },
   {
@@ -4646,7 +4703,7 @@
     ],
     "returnType": "boolean",
     "returnTypeLinks": {},
-    "sdkReturnType": "boolean",
+    "sdkReturnType": null,
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "POST",
@@ -4654,7 +4711,7 @@
       "flatPath": "/api/react"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.react(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\", \"emoji\");",
+      "inProcessSdk": "",
       "nodeCall": "const result = await client.react({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  emoji: \"emoji\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.react({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  emoji: \"emoji\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/react\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"messageId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n    \"emoji\": \"emoji\"\n  }'",
@@ -5716,8 +5773,10 @@
         "example": "-"
       }
     ],
-    "returnType": "string | boolean",
-    "returnTypeLinks": {},
+    "returnType": "MessageIdReturn | string | boolean",
+    "returnTypeLinks": {
+      "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
+    },
     "sdkReturnType": null,
     "returnCaveat": "Message ID or success status",
     "returnNotes": "Message ID or success status",
@@ -5731,7 +5790,7 @@
       "nodeCall": "const result = await client.sendFileFromUrl({\n  to: \"447123456789@c.us\",\n  url: \"url\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendFileFromUrl({\n  to: \"447123456789@c.us\",\n  url: \"url\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendFileFromUrl\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"url\": \"url\"\n  }'",
-      "response": "{\n  \"success\": true,\n  \"data\": \"example\"\n}"
+      "response": "{\n  \"success\": true,\n  \"data\": \"true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n}"
     }
   },
   {
@@ -7449,7 +7508,7 @@
     ],
     "returnType": "boolean",
     "returnTypeLinks": {},
-    "sdkReturnType": "boolean",
+    "sdkReturnType": null,
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
@@ -7457,7 +7516,7 @@
       "flatPath": "/api/setGroupDescription"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.setGroupDescription(\"447123456789-1445627445@g.us\", \"description\");",
+      "inProcessSdk": "",
       "nodeCall": "const result = await client.setGroupDescription({\n  groupId: \"447123456789-1445627445@g.us\",\n  description: \"description\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.setGroupDescription({\n  groupId: \"447123456789-1445627445@g.us\",\n  description: \"description\",\n});",
       "http": "curl -X PUT \"http://localhost:8080/api/groups/setDescription\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"groupId\": \"447123456789-1445627445@g.us\",\n    \"description\": \"description\"\n  }'",
@@ -7627,7 +7686,7 @@
     ],
     "returnType": "boolean",
     "returnTypeLinks": {},
-    "sdkReturnType": "boolean",
+    "sdkReturnType": null,
     "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
     "route": {
       "method": "PUT",
@@ -7635,7 +7694,7 @@
       "flatPath": "/api/setGroupTitle"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.setGroupTitle(\"447123456789-1445627445@g.us\", \"title\");",
+      "inProcessSdk": "",
       "nodeCall": "const result = await client.setGroupTitle({\n  groupId: \"447123456789-1445627445@g.us\",\n  title: \"title\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.setGroupTitle({\n  groupId: \"447123456789-1445627445@g.us\",\n  title: \"title\",\n});",
       "http": "curl -X PUT \"http://localhost:8080/api/groups/setTitle\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"groupId\": \"447123456789-1445627445@g.us\",\n    \"title\": \"title\"\n  }'",

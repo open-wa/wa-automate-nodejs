@@ -19,6 +19,7 @@
   "demoteParticipant": "/docs/reference/client/client#demoteparticipant",
   "downloadMedia": "/docs/reference/client/client#downloadmedia",
   "editEvent": "/docs/reference/client/client#editevent",
+  "editMessage": "/docs/reference/client/client#editmessage",
   "endCall": "/docs/reference/client/client#endcall",
   "forwardMessages": "/docs/reference/client/client#forwardmessages",
   "getActiveCall": "/docs/reference/client/client#getactivecall",

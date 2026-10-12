@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "open-wa API",
-    "version": "5.3.0",
-    "description": "API definition for open-wa v5.3.0"
+    "version": "5.4.0",
+    "description": "API definition for open-wa v5.4.0"
   },
   "servers": [
     {
@@ -12307,6 +12307,172 @@
         }
       }
     },
+    "/api/messages/edit": {
+      "put": {
+        "tags": [
+          "messages"
+        ],
+        "operationId": "editMessage",
+        "summary": "Edits the text of a message through the installed private patch",
+        "description": "Edits the text of a message through the installed private patch",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "messageId": {
+                    "description": "Message ID",
+                    "type": "string",
+                    "pattern": "^(true|false)_.+_.+$"
+                  },
+                  "newContent": {
+                    "type": "string",
+                    "description": "Replacement message text"
+                  }
+                },
+                "required": [
+                  "messageId",
+                  "newContent"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "x-openwa-aliases": [
+          "PUT /api/editMessage"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "details"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "Validation Error"
+                      ]
+                    },
+                    "details": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "code",
+                          "path",
+                          "message"
+                        ],
+                        "properties": {
+                          "code": {
+                            "type": "string"
+                          },
+                          "path": {
+                            "type": "array",
+                            "items": {
+                              "oneOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "integer"
+                                }
+                              ]
+                            }
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "validationError": {
+                    "summary": "Input validation failed",
+                    "value": {
+                      "error": "Validation Error",
+                      "details": [
+                        {
+                          "code": "invalid_type",
+                          "path": [
+                            "to"
+                          ],
+                          "message": "Invalid input"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "internalError": {
+                    "summary": "Execution failed",
+                    "value": {
+                      "error": "Internal Server Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/messages/react": {
       "post": {
         "tags": [
@@ -13695,7 +13861,32 @@
                     "data": {
                       "anyOf": [
                         {
-                          "type": "string"
+                          "anyOf": [
+                            {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "description": "Message identifier returned by a send method or message event."
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "_serialized": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "_serialized"
+                                  ],
+                                  "additionalProperties": {}
+                                }
+                              ],
+                              "description": "A message ID as a string or an object containing the serialized ID. Validate it before passing it to another method."
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
                         },
                         {
                           "type": "boolean"
@@ -20073,8 +20264,8 @@
           "groups"
         ],
         "operationId": "getGroupInfo",
-        "summary": "Get group metadata",
-        "description": "Get group metadata",
+        "summary": "Get the group title and description through the installed private patch",
+        "description": "Get the group title and description through the installed private patch",
         "parameters": [
           {
             "name": "groupId",
@@ -20111,70 +20302,28 @@
                     },
                     "data": {
                       "nullable": true,
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "description": "Identifier for a WhatsApp group. Use the value returned by the API."
-                        },
-                        "subject": {
-                          "type": "string"
-                        },
-                        "creation": {
-                          "type": "number"
-                        },
-                        "owner": {
-                          "type": "string",
-                          "description": "Opaque WhatsApp contact identifier. Preserve the exact value returned by the API."
-                        },
-                        "desc": {
-                          "type": "string"
-                        },
-                        "descTime": {
-                          "type": "number"
-                        },
-                        "descOwner": {
-                          "type": "string",
-                          "description": "Opaque WhatsApp contact identifier. Preserve the exact value returned by the API."
-                        },
-                        "restrict": {
-                          "type": "boolean"
-                        },
-                        "announce": {
-                          "type": "boolean"
-                        },
-                        "participants": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "id": {
-                                "type": "string",
-                                "description": "Opaque WhatsApp contact identifier. Preserve the exact value returned by the API."
-                              },
-                              "isAdmin": {
-                                "type": "boolean"
-                              },
-                              "isSuperAdmin": {
-                                "type": "boolean"
-                              }
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string"
                             },
-                            "required": [
-                              "id",
-                              "isAdmin"
-                            ],
-                            "additionalProperties": false
-                          }
+                            "description": {
+                              "nullable": true,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "title"
+                          ],
+                          "additionalProperties": {},
+                          "description": "Group title and description returned by the private getGroupInfo patch."
+                        },
+                        {
+                          "type": "string"
                         }
-                      },
-                      "required": [
-                        "id",
-                        "subject",
-                        "creation",
-                        "participants"
-                      ],
-                      "additionalProperties": {},
-                      "description": "Serialized group metadata returned by group lookups. Additional WhatsApp Web fields may be present."
+                      ]
                     }
                   }
                 }

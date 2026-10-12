@@ -1,20 +1,13 @@
 import axios from 'axios';
 import { decryptMedia as decryptMediaBuffer } from '@open-wa/decrypt';
 import type { Client } from '../Client';
-import type { ChatId, DataURL, Message, MessageId, MediaSendOptions } from '@open-wa/schema';
-
-type DownloadHeaders = Record<string, string>;
+import type { DataURL, Message, MessageId } from '@open-wa/schema';
+import { implementMethod, sendFileFromUrl as sendFileFromUrlSchema } from '@open-wa/schema';
 
 export interface MediaMethods {
   decryptMedia(message: Message | MessageId): Promise<DataURL>;
   downloadMedia(message: Message | MessageId, path: string): Promise<string>;
-  sendFileFromUrl(
-    to: ChatId,
-    url: string,
-    filename?: string,
-    options?: MediaSendOptions,
-    headers?: DownloadHeaders
-  ): Promise<MessageId | boolean>;
+  sendFileFromUrl: ReturnType<typeof implementMethod<typeof sendFileFromUrlSchema>>;
 }
 
 type DecryptableMessage = Message & {
@@ -57,17 +50,11 @@ export function mediaMethods(client: Client): MediaMethods {
       return path;
     },
 
-    async sendFileFromUrl(
-      to: ChatId,
-      url: string,
-      filename?: string,
-      options: MediaSendOptions = {},
-      headers?: DownloadHeaders
-    ): Promise<MessageId | boolean> {
+    sendFileFromUrl: implementMethod(sendFileFromUrlSchema, async ({ to, url, filename, options, headers }) => {
       const response = await axios.get<ArrayBuffer>(url, { headers, responseType: 'arrayBuffer' });
       const mime = response.headers.get('content-type') || 'application/octet-stream';
       const dataUrl = `data:${mime};base64,${Buffer.from(response.data).toString('base64')}`;
       return client.sendFile(to, dataUrl, filename, options);
-    },
+    }),
   };
 }

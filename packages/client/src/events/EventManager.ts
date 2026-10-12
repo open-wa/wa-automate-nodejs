@@ -7,7 +7,7 @@ import {
   type RuntimeObservabilityShape,
 } from '@open-wa/runtime-core';
 import { eventRegistry, type QueueOptions } from '@open-wa/schema';
-import type { Message, InteractiveResponse, FormResponse } from '@open-wa/schema';
+import type { Message, InteractiveResponse, FormResponse, ParticipantChange } from '@open-wa/schema';
 import type { CallSnapshot } from '@open-wa/schema';
 import type { WhatsAppEvent, EventResponse } from '@open-wa/schema';
 
@@ -45,6 +45,7 @@ type EventPayloadMap = {
   ack: Message;
   stateChanged: { state: STATE; previousState?: STATE };
   logout: { reason?: string; timestamp: number };
+  participantsChanged: ParticipantChange;
 };
 
 type EventName = keyof EventPayloadMap;
@@ -61,6 +62,10 @@ const EVENT_BRIDGES: { [K in EventName]: RuntimeBridge<K> } = {
   eventResponse: { runtimeEvent: 'event.response', transform: payload => (payload as OpenWAEventMap['event.response']).response },
   incomingCall: { runtimeEvent: 'call.incoming', transform: payload => (payload as OpenWAEventMap['call.incoming']).call as CallSnapshot },
   callState: { runtimeEvent: 'call.state', transform: payload => (payload as OpenWAEventMap['call.state']).state as CallSnapshot },
+  participantsChanged: {
+    runtimeEvent: 'group.participants.changed.global',
+    transform: payload => (payload as OpenWAEventMap['group.participants.changed.global']).change,
+  },
   interactiveResponse: {
     runtimeEvent: 'interactive.response',
     transform: payload => (payload as OpenWAEventMap['interactive.response']).response as InteractiveResponse,

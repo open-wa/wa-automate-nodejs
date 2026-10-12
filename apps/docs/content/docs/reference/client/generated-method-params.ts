@@ -209,6 +209,20 @@ export interface EditEventParams {
   changes: { description?: string; endTime?: number | null; location?: string; name?: string; startTime?: number };
 }
 
+export interface EditMessageParams {
+  /**
+   * Message ID A WhatsApp message identifier Branded type: MessageId Pattern: ^(true|false)_.+_.+$
+   * @example "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+   * @remarks Key aliases: 'id', 'msgId'
+   * @remarks Deprecated key aliases: 'msgId'
+   */
+  messageId: string;
+  /**
+   * Replacement message text
+   */
+  newContent: string;
+}
+
 export interface EndCallParams {
   call: { generation: string; id: string; sessionId: string };
 }

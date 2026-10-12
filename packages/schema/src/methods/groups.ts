@@ -1,4 +1,4 @@
-import { ChatSchema, ContactIdSchema, ContactSchema, GroupChatIdSchema, GroupMetadataSchema } from '../common-types';
+import { ChatSchema, ContactIdSchema, ContactSchema, GroupChatIdSchema } from '../common-types';
 import { GroupCreationResultSchema } from '../return-types';
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
@@ -50,9 +50,15 @@ export const getGroupMembersId = defineMethodV2('getGroupMembersId', {
     output: z.array(ContactIdSchema),
 });
 
+export const GroupInfoSchema = z.object({
+    title: z.string(),
+    description: z.string().nullish(),
+}).passthrough().describe('Group title and description returned by the private getGroupInfo patch.');
+export type GroupInfo = z.infer<typeof GroupInfoSchema>;
+
 export const getGroupInfo = defineMethodV2('getGroupInfo', {
     meta: {
-        description: 'Get group metadata',
+        description: 'Get the group title and description through the installed private patch',
         action: 'read',
         namespace: 'groups',
         license: 'none',
@@ -61,7 +67,7 @@ export const getGroupInfo = defineMethodV2('getGroupInfo', {
     },
     input: z.object({ groupId: groupIdParam }),
     parameterOrder: ['groupId'],
-    output: GroupMetadataSchema.nullable(),
+    output: GroupInfoSchema.or(z.string()).nullable(),
 });
 
 export const getGroupAdmins = defineMethodV2('getGroupAdmins', {

@@ -42,6 +42,8 @@ export type {
   Chat,
   Contact,
   GroupMetadata,
+  GroupInfo,
+  ParticipantChange,
   DataURL,
   Base64,
   Content,

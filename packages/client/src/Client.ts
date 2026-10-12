@@ -14,6 +14,7 @@ import type {
 } from '@open-wa/core';
 import type {
   ChatId,
+  GroupId,
   ContactId,
   MessageId,
   Message,
@@ -23,7 +24,9 @@ import type {
   FormResponse,
   WhatsAppEvent,
   EventResponse,
+  ParticipantChange,
 } from '@open-wa/schema';
+import { groupIdParam } from '@open-wa/schema';
 import {
   MessageCollector,
   MessageCollectorEvents,
@@ -386,6 +389,28 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   onAnyMessage(callback: (message: Message) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
     return this._listenerManager.on('anyMessage', async (payload) => {
       await callback(payload);
+    }, options);
+  }
+
+  /** Listen to the existing participant-change patch for one group. */
+  onParticipantsChanged(
+    groupId: GroupId,
+    callback: (change: ParticipantChange) => void | boolean | Promise<void | boolean>,
+    options?: QueueOptions,
+  ): ListenerHandle {
+    const id = groupIdParam.parse(groupId);
+    return this._listenerManager.on('participantsChanged', async change => {
+      if (change.groupId === id) await callback(change);
+    }, options);
+  }
+
+  /** Listen to participant changes across the session's groups. */
+  onGlobalParticipantsChanged(
+    callback: (change: ParticipantChange) => void | boolean | Promise<void | boolean>,
+    options?: QueueOptions,
+  ): ListenerHandle {
+    return this._listenerManager.on('participantsChanged', async change => {
+      await callback(change);
     }, options);
   }
 

@@ -12,7 +12,7 @@ import type {
   AlbumSendResult,
   MediaSendOptions, AudioAttachmentOptions, VoiceNoteOptions, GifSendOptions, PollSendOptions, PollResults, PinDuration,
 } from '@open-wa/schema';
-import { SendTextResultSchema, AlbumSendResultSchema, sendAlbum as sendAlbumSchema, sendPoll as sendPollSchema, AudioAttachmentOptionsSchema, VoiceNoteOptionsSchema, GifSendOptionsSchema, PollResultsSchema, voteOnPoll as voteOnPollSchema, getPollResults as getPollResultsMethodSchema, pinMessage as pinMessageSchema, unpinMessage as unpinMessageSchema } from '@open-wa/schema';
+import { implementMethod, editMessage as editMessageSchema, react as reactSchema, SendTextResultSchema, AlbumSendResultSchema, sendAlbum as sendAlbumSchema, sendPoll as sendPollSchema, AudioAttachmentOptionsSchema, VoiceNoteOptionsSchema, GifSendOptionsSchema, PollResultsSchema, voteOnPoll as voteOnPollSchema, getPollResults as getPollResultsMethodSchema, pinMessage as pinMessageSchema, unpinMessage as unpinMessageSchema } from '@open-wa/schema';
 import { SendTextError } from '../SendTextError';
 import type { StickerInput, StickerJob } from '@open-wa/stickers';
 import { sendClientSticker } from '../stickers';
@@ -65,8 +65,8 @@ export interface MessagingMethods {
   reply(to: ChatId, content: string, quotedMsgId: MessageId): Promise<MessageId | boolean>;
   forwardMessages(to: ChatId, messages: MessageId | MessageId[], skipMyMessages?: boolean): Promise<MessageIdReturn[] | boolean>;
   deleteMessage(chatId: ChatId, messageId: MessageId | MessageId[], onlyLocal?: boolean): Promise<boolean>;
-  editMessage(messageId: MessageId, newContent: string): Promise<boolean>;
-  react(messageId: MessageId, emoji: string): Promise<boolean>;
+  editMessage: ReturnType<typeof implementMethod<typeof editMessageSchema>>;
+  react: ReturnType<typeof implementMethod<typeof reactSchema>>;
   sendSeen(chatId: ChatId): Promise<boolean>;
   getMessageById(messageId: MessageId): Promise<Message | false | null>;
   /** Returns currently loaded album children; the snapshot can be incomplete. */
@@ -248,13 +248,11 @@ export function messagingMethods(client: Client): MessagingMethods {
       );
     },
     
-    async editMessage(messageId: MessageId, newContent: string): Promise<boolean> {
-      return invokePatch<boolean>(client, 'editMessage', [messageId, newContent]);
-    },
+    editMessage: implementMethod(editMessageSchema, ({ messageId, newContent }) =>
+      invokePatch<boolean>(client, 'editMessage', [messageId, newContent])),
     
-    async react(messageId: MessageId, emoji: string): Promise<boolean> {
-      return invokePatch<boolean>(client, 'react', [messageId, emoji]);
-    },
+    react: implementMethod(reactSchema, ({ messageId, emoji }) =>
+      invokePatch<boolean>(client, 'react', [messageId, emoji])),
     
     async sendSeen(chatId: ChatId): Promise<boolean> {
       return evaluate(
