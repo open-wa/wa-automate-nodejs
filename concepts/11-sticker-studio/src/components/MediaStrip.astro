@@ -11,7 +11,7 @@ const bars = [6, 12, 18, 9, 22, 28, 16, 10, 24, 30, 20, 12, 8, 18, 26, 14, 9, 20
 
 <ul class="media-strip">
   {items.map((it, i) => (
-    <li class={`media-card media-${it.id}`} style={`--tilt:${[-1.5, 1, -0.5, 1.5][i]}deg`}>
+    <li class={`media-card mc-${it.id}`} style={`--tilt:${[-1.5, 1, -0.5, 1.5][i]}deg`}>
       <div class="media-visual" role="img" aria-label={`Drawn example of a ${it.title.toLowerCase()} in a chat`}>
         {it.id === "voice" && (
           <div class="bub bub-out media-voice">
@@ -62,7 +62,7 @@ const bars = [6, 12, 18, 9, 22, 28, 16, 10, 24, 30, 20, 12, 8, 18, 26, 14, 9, 20
   .media-card h3 { margin-bottom: 4px; }
   .media-method { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
   .media-code { margin-top: auto; display: grid; gap: 8px; background: var(--ink); color: #f4f0ff; border-radius: 12px; padding: 12px; }
-  .media-code code { font-size: 0.8rem; line-height: 1.5; overflow-wrap: anywhere; }
+  .media-code code { font-size: 0.8rem; line-height: 1.5; overflow-wrap: anywhere; background: none; padding: 0; color: inherit; }
   .media-code .copy-btn { justify-self: start; min-height: 36px; border-width: 2px; font-size: 0.85rem; }
   .media-voice { display: flex; align-items: center; gap: 8px; max-width: 100%; }
   .media-play { width: 0; height: 0; border-left: 12px solid var(--ink); border-block: 8px solid transparent; flex: none; }
