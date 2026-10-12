@@ -29,7 +29,7 @@ code, kbd, pre { font-family: var(--font-mono); }
   font-size: 0.92em; background: var(--slate-100); border: 1px solid var(--slate-150);
   padding: 0.05em 0.35em; border-radius: 5px; overflow-wrap: anywhere;
 }
-.on-dark :not(pre) > code { background: var(--slate-800); border-color: var(--slate-700); color: var(--white); }
+.on-dark :not(pre) > code, .section--dark :not(pre) > code { background: var(--slate-800); border-color: var(--slate-700); color: var(--white); }
 
 .wrap { width: 100%; max-width: var(--wrap); margin-inline: auto; padding-inline: var(--gutter); }
 .section { padding-block: clamp(64px, 9vw, 112px); }

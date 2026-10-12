@@ -33,7 +33,7 @@ const latest = releases[0];
   <section class="signals" aria-label="Project signals">
     <div class="wrap">
       <ul class="sig">
-        <li><strong>v{latest.version}</strong><span>released {latest.date}</span></li>
+        <li><strong>v{product.currentVersion}</strong><span>latest on npm, {latest.date}</span></li>
         <li><strong>{kDown(stats.githubStars)}</strong><span>GitHub stars</span></li>
         <li><strong>{kDown(stats.npmDownloadsLast12Months)}</strong><span>npm downloads in 12 months</span></li>
         <li><strong>{kDown(stats.dockerPulls)}</strong><span>Docker pulls</span></li>
@@ -135,10 +135,9 @@ const latest = releases[0];
       <ul class="integ">
         {integrations.map((it) => (
           <li class="integ-card">
-            <span class="integ-mono" aria-hidden="true">{it.name.slice(0, 2)}</span>
+            <span class="integ-pkg">{it.package === "built in" ? "mcp: { enabled: true }" : `'${it.package}'`}</span>
             <h3>{it.name}</h3>
             <p>{it.what}</p>
-            <code>{it.package}</code>
           </li>
         ))}
       </ul>
@@ -205,7 +204,7 @@ const latest = releases[0];
         </div>
         <div class="card">
           <h3>Maintained</h3>
-          <p>v{latest.version} on npm, {releases[0].headline.toLowerCase()} in 5.5.0 ({latest.date}). {stats.publishedVersions} versions published since 2020.</p>
+          <p>v{product.currentVersion} is the latest on npm. 5.5.0 ({latest.date}) added {latest.headline.toLowerCase()}. {stats.publishedVersions} versions published since 2020.</p>
           <a class="link" href={`${base}changelog/`}>Changelog</a>
         </div>
         <div class="card">
@@ -356,8 +355,8 @@ const latest = releases[0];
   .integ { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
   .integ-card { display: grid; gap: 8px; align-content: start; padding: 22px; background: var(--white); border: 1px solid var(--color-line); border-radius: var(--radius-lg); }
   .integ-card p { color: var(--slate-700); font-size: var(--text-sm); }
-  .integ-card code { justify-self: start; font-size: 0.875rem; }
-  .integ-mono { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; background: var(--slate); color: var(--sun); font: 700 0.9375rem/1 var(--font-mono); text-transform: lowercase; }
+  .integ-card { padding-top: 0; overflow: hidden; }
+  .integ-pkg { margin: 0 -22px 8px; padding: 12px 22px; background: var(--slate); color: var(--sun); font: 500 0.8125rem/1.4 var(--font-mono); overflow-wrap: anywhere; border-bottom: 3px solid var(--sun); }
   .mcp { display: grid; gap: 40px; align-items: start; }
   @media (min-width: 960px) { .mcp { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); } }
   .mcp-copy { display: grid; gap: 18px; justify-items: start; }

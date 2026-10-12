@@ -24,6 +24,7 @@ export const checked = stats.checkedOn;
 /** 3666 -> "3.6k" (rounded down, as the fact pack asks). */
 export const kDown = (n: number) => {
   if (n < 1000) return String(n);
+  if (n >= 100000) return `${Math.floor(n / 1000)}k`;
   const k = Math.floor(n / 100) / 10;
   return `${k}k`;
 };
