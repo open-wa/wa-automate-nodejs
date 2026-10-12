@@ -1,0 +1,162 @@
+{
+  "product": {
+    "name": "open-wa",
+    "package": "@open-wa/wa-automate",
+    "oneLine": "A Node.js toolkit that turns a WhatsApp account into a local HTTP API, bot runtime, webhook source, plugin host or MCP server.",
+    "how": "It runs WhatsApp Web in a browser it controls (Puppeteer, Playwright, or the experimental Lightpanda driver) and exposes the account's chats, messages and events to your code.",
+    "currentVersion": "5.5.1",
+    "currentVersionNote": "Latest npm tag on 12 Oct 2026",
+    "node": ">=22.21.1",
+    "since": "GitHub repository created August 2019; first npm release April 2020",
+    "unofficial": "Unofficial. Not affiliated with, authorised, maintained, sponsored or endorsed by WhatsApp, Meta or their affiliates.",
+    "risk": "Automation tools can cause a WhatsApp account to be restricted or banned. You accept that risk when you use it.",
+    "softwareLicence": "Hippocratic + Do Not Harm Version 1.1",
+    "terms": "Using the project means you agree to the Terms of Service."
+  },
+  "stats": {
+    "checkedOn": "12 Oct 2026",
+    "githubStars": 3666,
+    "githubForks": 723,
+    "npmDownloadsLast12Months": 105179,
+    "npmDownloadsLast30Days": 16566,
+    "npmDownloadsWindow": "@open-wa/wa-automate, 12 Oct 2025 to 11 Oct 2026",
+    "dockerPulls": 43524,
+    "discordMembers": 1047,
+    "publishedVersions": 648,
+    "note": "Quote these with the date and source. Round down if you round (3.6k stars, 105k downloads a year). Never present them as users or customers."
+  },
+  "commands": {
+    "easyApi": "npx @open-wa/wa-automate@latest --port 8080",
+    "easyApiWithKey": "npx @open-wa/wa-automate@latest --port 8080 --api-key \"your-secure-key\"",
+    "namedSession": "npx @open-wa/wa-automate@latest --session-id sales --port 8081",
+    "licenceFlag": "--license-key \"YOUR-LICENSE-KEY\"",
+    "docker": "docker run -p 8080:8080 --init openwa/wa-automate",
+    "socketClientInstall": "npm install @open-wa/socket-client",
+    "embeddedInstall": "npm install @open-wa/wa-automate @open-wa/driver-puppeteer",
+    "stickerCli": "npx --package @open-wa/stickers@5.5.0 openwa-sticker photo.jpg --output sticker.webp --effects comic,sparkle",
+    "proofOfLife": "http://localhost:8080/api-docs/",
+    "swagger": "http://localhost:8080/meta/swagger.json",
+    "postman": "http://localhost:8080/meta/postman.json",
+    "mcpEndpoint": "http://localhost:8080/mcp"
+  },
+  "firstRun": [
+    "Run the command. It starts an Easy API instance on the port you choose.",
+    "Authenticate WhatsApp: scan the QR code it prints with the phone, or use link-code login.",
+    "Open http://localhost:8080/api-docs/ to see the live session's interactive API docs, with generated Swagger and Postman files."
+  ],
+  "snippets": {
+    "socketClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'your-secure-key');\n\nclient.onMessage(async (message) => {\n  if (message.body === 'Hi') {\n    await client.sendText(message.from, '👋 Hello!');\n  }\n});",
+    "embedded": "import { createClient } from '@open-wa/wa-automate';\nimport { PuppeteerDriver } from '@open-wa/driver-puppeteer';\n\nconst client = await createClient({\n  sessionId: 'sales',\n  driver: new PuppeteerDriver(),\n  headless: true,\n});\n\nclient.onMessage(async (message) => {\n  if (message.body === 'Hi') {\n    await client.sendText(message.from, '👋 Hello!');\n  }\n});",
+    "mcpConfig": "// wa.config.mjs\nexport default {\n  apiKey: process.env.WA_API_KEY,\n  port: 8080,\n  mcp: {\n    enabled: true,\n    path: '/mcp',\n    exposeToolsMeta: true,\n  },\n};",
+    "mcpStart": "WA_API_KEY=\"your-secure-key\" npx @open-wa/wa-automate@latest --config ./wa.config.mjs",
+    "claudeDesktop": "{\n  \"mcpServers\": {\n    \"open-wa\": {\n      \"url\": \"http://localhost:8080/mcp\",\n      \"headers\": { \"X-API-Key\": \"your-secure-key\" }\n    }\n  }\n}",
+    "plugins": "plugins: [\n  '@open-wa/integration-chatwoot',\n  '@open-wa/integration-webhook',\n  './my-local-plugin'\n],\npluginConfig: {\n  webhook: { /* plugin-specific config */ }\n}",
+    "cfProxyConsumer": "const client = await SocketClient.connect(\n  'cf-proxy://open-wa-proxy.account.workers.dev?sessionId=my-session&token=CONSUMER_TOKEN'\n);",
+    "event": "const eventId = await client.sendEvent(chatId, {\n  name: 'Community meetup',\n  startTime: Math.floor(Date.now() / 1000) + 3600,\n});\n\nclient.onEventResponse(response => {\n  console.log(response.eventId, response.response);\n});",
+    "sessionKey": "const client = await create({\n  sessionId: 'sales',\n  sessionDataEncryptionKeyFile: '/run/secrets/openwa-session-key',\n});"
+  },
+  "paths": [
+    { "id": "easy-api", "name": "Easy API", "for": "Get a WhatsApp-backed HTTP API running in minutes", "what": "One CLI command runs the runtime and an HTTP API with interactive docs and generated Swagger and Postman schemas.", "start": "commands.easyApi" },
+    { "id": "socket-client", "name": "SocketClient", "for": "Build a bot or worker without owning the browser runtime", "what": "Your Node.js app connects to a running Easy API instance as a remote consumer. Commands go over HTTP RPC; runtime events arrive as Server-Sent Events.", "start": "snippets.socketClient" },
+    { "id": "embedded", "name": "Embedded runtime", "for": "Own the runtime inside your own Node.js app", "what": "createClient gives your app control of browser selection, lifecycle and runtime behaviour.", "start": "snippets.embedded" },
+    { "id": "mcp", "name": "MCP server", "for": "Let an AI agent use WhatsApp", "what": "The built-in Model Context Protocol server exposes each Easy API method as a tool that agents such as Claude, Cursor and Windsurf can call.", "start": "snippets.mcpConfig" }
+  ],
+  "useCases": [
+    "Customer support inboxes that sync WhatsApp into your own tools",
+    "Order, booking and delivery notifications from internal systems",
+    "Bots that react to messages, group activity and runtime events",
+    "Webhook bridges for CRMs, helpdesks, automations and low-code tools",
+    "Multi-session automations with named accounts and isolated consumers",
+    "AI-agent workflows through the built-in Model Context Protocol server"
+  ],
+  "capabilities": {
+    "messages": "Send and receive text, replies, forwards, reactions and edits; delete messages; pin and unpin.",
+    "media": "Images, video, documents, voice notes, view-once attachments, circular video notes and looping videos, with captions and quoted replies in typed options.",
+    "groups": "Read group activity and participant changes; create and join groups (Restricted licence).",
+    "polls": "Poll voting, synced results and vote listeners.",
+    "events": "Create, edit and cancel native WhatsApp event cards and handle RSVPs (going, not going, maybe). New in 5.5.",
+    "stickers": "Render WebP stickers locally with @open-wa/stickers (62 recipes in the first release, lazily loaded resources).",
+    "multiSession": "Run several named sessions (sessionId) side by side with isolated consumers.",
+    "sessions": "Compact encrypted session files you can move between containers with your own encryption key (5.4).",
+    "refresh": "Refresh a running session or apply a licence from the dashboard or with client.refresh() without restarting the Node process (5.5).",
+    "drivers": "Puppeteer, Playwright and an experimental Lightpanda driver.",
+    "docs": "Every running instance serves interactive API docs plus Swagger and Postman files."
+  },
+  "integrations": [
+    { "name": "Webhooks", "package": "@open-wa/integration-webhook", "what": "Push WhatsApp events into your own service." },
+    { "name": "Chatwoot", "package": "@open-wa/integration-chatwoot", "what": "Two-way bridge between WhatsApp and Chatwoot conversations." },
+    { "name": "Node-RED", "package": "@open-wa/node-red", "what": "Low-code visual automation on top of Easy API." },
+    { "name": "S3 media", "package": "@open-wa/integration-s3", "what": "Store media in S3-compatible storage." },
+    { "name": "Cloudflare Session Proxy", "package": "@open-wa/cf-proxy", "what": "Reach a local session remotely through your own Cloudflare Worker without opening public ports." },
+    { "name": "MCP", "package": "built in", "what": "Expose Easy API methods as tools for AI agents." },
+    { "name": "Plugin SDK", "package": "@open-wa/plugin-sdk", "what": "Package your own integration and load it with plugins and pluginConfig." }
+  ],
+  "licences": {
+    "summary": "The library is free to use. Some methods are marked as needing a licence key: method metadata marks each method none, insiders or restricted. A key is bought per WhatsApp number and passed at launch with --license-key or licenseKey.",
+    "free": { "name": "No key", "covers": "Every method marked none, including reading chats, sending to existing contacts, media, polls, events, webhooks and MCP for those methods." },
+    "tiers": [
+      {
+        "id": "insiders",
+        "name": "Insiders",
+        "prices": { "month": "£5", "threeMonths": "£15", "sixMonths": "£30", "year": "£50" },
+        "unlocks": "Number profile and status checks (getNumberProfile, checkNumberStatus), orders, posting and reading status/stories, buttons, lists and other interactive messages (sendInteractive, sendButtons, sendListMessage), raw message payloads, starred messages, setting the profile picture.",
+        "gumroadVariant": "Insiders Program",
+        "checkout": "https://openwa.dev/checkout?tier=insiders"
+      },
+      {
+        "id": "restricted",
+        "name": "Restricted",
+        "prices": { "month": "£15", "threeMonths": "£42.50", "sixMonths": "£85", "year": "£150" },
+        "unlocks": "Everything in Insiders, plus starting conversations with numbers that are not already contacts, creating groups and joining groups by invite link (createGroup, joinGroupViaLink, joinGroup).",
+        "gumroadVariant": "1 Restricted License Key",
+        "checkout": "https://openwa.dev/checkout?tier=restricted"
+      }
+    ],
+    "pricesCheckedOn": "12 Oct 2026, from the Gumroad product page. Prices can change; checkout shows the current price.",
+    "checkoutFields": [
+      { "name": "tier", "label": "License", "type": "select", "options": ["Insiders", "Restricted"] },
+      { "name": "github", "label": "GitHub username", "type": "text" },
+      { "name": "phone", "label": "WhatsApp number", "type": "tel", "help": "Include the country code. Use the WhatsApp account you want to license." },
+      { "name": "useCase", "label": "What will you use open-wa for?", "type": "textarea", "placeholder": "e.g. Send order updates from our shop" }
+    ],
+    "checkoutFlow": "The licence form collects tier, GitHub username, WhatsApp number and use case, then opens a prefilled Gumroad checkout where the buyer reviews price and terms and pays.",
+    "beforeYouBuy": [
+      "Name the exact restricted or insiders method your workflow needs.",
+      "Know which WhatsApp account and session will run it.",
+      "Test that method in that session after adding the key."
+    ]
+  },
+  "support": {
+    "docs": "https://openwa.dev/docs",
+    "quickstartDocs": "https://openwa.dev/docs/getting-started/quickstart",
+    "migrationDocs": "https://openwa.dev/docs/getting-started/migrating-to-v5",
+    "licensingDocs": "https://openwa.dev/docs/licensing/pricing",
+    "apiExplorer": "https://openwa.dev/api-explorer",
+    "changelog": "https://openwa.dev/changelog",
+    "discord": "https://discord.gg/dnpp72a",
+    "github": "https://github.com/open-wa/wa-automate-nodejs",
+    "issues": "https://github.com/open-wa/wa-automate-nodejs/issues",
+    "releases": "https://github.com/open-wa/wa-automate-nodejs/releases",
+    "npm": "https://www.npmjs.com/package/@open-wa/wa-automate",
+    "dockerHub": "https://hub.docker.com/r/openwa/wa-automate",
+    "terms": "https://github.com/open-wa/wa-automate-nodejs/blob/master/tos.md",
+    "licenceText": "https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md",
+    "consultingEmail": "shah@openwa.dev",
+    "perMinuteConsulting": "http://otechie.com/smashah",
+    "buyMeACoffee": "https://www.buymeacoffee.com/smashah",
+    "maintainer": "Mohammed Shah (smashah)"
+  },
+  "migration": {
+    "summary": "Version 5 is the current release line. v4 applications should pin an explicit v4 version while they migrate; unqualified installs get v5.",
+    "v4Pin": "npm install @open-wa/wa-automate@4"
+  },
+  "releases": [
+    { "version": "5.5.0", "date": "12 Oct 2026", "headline": "Events, live refresh and local stickers", "highlights": ["Create native event cards and handle RSVPs.", "Refresh a running session or apply a licence from the dashboard.", "Render WebP stickers locally with lazily loaded resources."] },
+    { "version": "5.4.0", "date": "30 Sep 2026", "headline": "Your session, your key", "highlights": ["Supply your own session encryption key or use the default.", "Move compact session files between containers with the same key and session ID."] }
+  ],
+  "legal": {
+    "affiliation": "This code is in no way affiliated with, authorised, maintained, sponsored or endorsed by WhatsApp or any of its affiliates or subsidiaries. This is independent and unofficial software.",
+    "crypto": "This distribution includes cryptographic software. Your country may restrict the import, possession, use or re-export of encryption software. The U.S. BIS classifies it as ECCN 5D002.C.1, eligible for License Exception ENC Technology Software Unrestricted (TSU).",
+    "copyright": "© 2019–2026 Mohammed Shah and open-wa contributors"
+  }
+}

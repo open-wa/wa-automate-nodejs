@@ -1,0 +1,6 @@
+_site/
+*/dist/
+*/node_modules/
+*/.astro/
+_qa/
+*/.scratch/
