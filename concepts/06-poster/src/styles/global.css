@@ -93,8 +93,6 @@ html.menu-open { overflow: hidden; }
 .site-footer a:hover { color: var(--pink); text-decoration: underline; }
 .ft-top { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; padding-bottom: 32px; border-bottom: 1.5px solid rgba(242,238,227,.25); }
 .ft-brand .brand-word { font-size: 3rem; color: var(--paper); }
-.ft-brand .mark-blue { mix-blend-mode: normal; }
-.ft-brand .mark-blue { stroke: var(--paper); }
 .ft-line { margin: 0; max-width: 46ch; color: rgba(242,238,227,.85); }
 .ft-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; padding: 36px 0; }
 .ft-grid h2 { font-size: 1.4rem; color: var(--pink); margin-bottom: 12px; letter-spacing: 0.06em; }
@@ -120,6 +118,7 @@ html.menu-open { overflow: hidden; }
 /* Sections and pages */
 .section { padding: clamp(64px, 9vw, 120px) 0; border-top: 2.5px solid var(--ink); }
 .section-head { display: grid; gap: 8px; margin-bottom: 40px; max-width: 760px; }
+.section-head h2 { color: var(--blue); text-shadow: 0.035em 0.03em 0 var(--pink); }
 .section-head p { font-size: 1.15rem; color: var(--ink-soft); margin: 0; }
 .lede { font-size: 1.2rem; max-width: 62ch; }
 .page-hero { padding: clamp(48px, 7vw, 96px) 0 clamp(32px, 4vw, 56px); border-bottom: 2.5px solid var(--ink); position: relative; overflow: hidden; }
