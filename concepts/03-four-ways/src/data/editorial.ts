@@ -8,7 +8,7 @@ export const capabilityList = [
   { id: "groups", title: "Groups", text: capabilities.groups, methods: ["createGroup", "joinGroupViaLink"] },
   { id: "polls", title: "Polls", text: capabilities.polls },
   { id: "events", title: "Event cards", text: capabilities.events, methods: ["sendEvent", "onEventResponse"] },
-  { id: "stickers", title: "Stickers", text: capabilities.stickers },
+  { id: "stickers", title: "Stickers", text: "Render WebP stickers locally with @open-wa/stickers: 62 recipes, with resources loaded only when used." },
   { id: "multiSession", title: "Multiple sessions", text: capabilities.multiSession },
   { id: "sessions", title: "Portable sessions", text: capabilities.sessions },
   { id: "refresh", title: "Live refresh", text: capabilities.refresh, methods: ["client.refresh()"] },

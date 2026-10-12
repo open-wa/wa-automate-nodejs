@@ -34,8 +34,9 @@ const tallText = variant === "tall";
     <rect class="bubble out" x={p.x + p.w * 0.38} y={p.y + p.h * 0.45} width={p.w * 0.5} height={p.h * 0.1} rx={p.h * 0.05} />
     <rect class="bubble in" x={p.x + 11} y={p.y + p.h * 0.62} width={p.w * 0.36} height={p.h * 0.1} rx={p.h * 0.05} />
     <text class="n-title" x={p.labelX} y={p.labelY} text-anchor={p.anchor}>Your phone</text>
-    <text class="n-sub" x={p.labelX} y={p.labelY + 20} text-anchor={p.anchor}>your WhatsApp account</text>
-    {!tallText && <text class="n-sub" x={p.labelX} y={p.labelY + 40} text-anchor={p.anchor}>linked by QR or link code</text>}
+    <text class="n-sub" x={p.labelX} y={p.labelY + 20} text-anchor={p.anchor}>{tallText ? "your WhatsApp account" : "WhatsApp account"}</text>
+    {!tallText && <text class="n-sub" x={p.labelX} y={p.labelY + 38} text-anchor={p.anchor}>linked by QR</text>}
+    {!tallText && <text class="n-sub" x={p.labelX} y={p.labelY + 56} text-anchor={p.anchor}>or link code</text>}
   </g>
 
   <g class:list={["node runtime", { on: on("runtime") }]} data-node="runtime">
@@ -47,9 +48,9 @@ const tallText = variant === "tall";
   {Object.entries(L.nodes).map(([id, b]) => (
     <g class:list={["node box", `n-${id}`, { on: on(id) }]} data-node={id}>
       <rect class="box-bg" x={b.x} y={b.y} width={b.w} height={b.h} rx="9" />
-      <circle class="port" cx={b.x + 16} cy={b.y + (tallText && b.w < 120 ? 18 : b.h / 2)} r="4" />
-      <text class="n-title" x={b.x + (tallText && b.w < 120 ? 10 : 30)} y={b.y + (tallText && b.w < 120 ? 46 : b.h / 2 - 3)}>{b.title}</text>
-      {b.sub && <text class="n-sub" x={b.x + (tallText && b.w < 120 ? 10 : 30)} y={b.y + (tallText && b.w < 120 ? 66 : b.h / 2 + 17)}>{b.sub}</text>}
+      <circle class="port" cx={b.x + 15} cy={b.y + (tallText && b.w < 120 ? 18 : b.h / 2)} r="4" />
+      <text class="n-title" x={b.x + (tallText && b.w < 120 ? 10 : 28)} y={b.y + (tallText && b.w < 120 ? 46 : b.h / 2 - 3)}>{b.title}</text>
+      {b.sub && <text class="n-sub" x={b.x + (tallText && b.w < 120 ? 10 : 28)} y={b.y + (tallText && b.w < 120 ? 66 : b.h / 2 + 17)}>{b.sub}</text>}
     </g>
   ))}
 </svg>

@@ -32,7 +32,7 @@ const seq = ["Command runs", "QR or link code", "Session ready", "/api-docs open
     </ol>
 
     <div class="fr-demo">
-      <div class="fr-seq" aria-label="The first run, in order">
+      <div class="fr-seq" aria-label="First-run sequence">
         <ol>{seq.map((s) => <li><span class="dot" aria-hidden="true"></span>{s}</li>)}</ol>
       </div>
       <figure class="fr-chat" aria-label="Example output: a message sent from the API and a reply received">
@@ -40,8 +40,8 @@ const seq = ["Command runs", "QR or link code", "Session ready", "/api-docs open
         <div class="chat">
           <p class="chat-meta mono">+44 7700 900123</p>
           <p class="bub out">Your order #1042 has shipped. Reply HELP for options.</p>
-          <p class="bub in">Thanks! When will it arrive?</p>
-          <p class="chat-evt mono">onMessage → message.body: "Thanks! When will it arrive?"</p>
+          <p class="bub in">Thanks. When will it arrive?</p>
+          <p class="chat-evt mono">onMessage → message.body: "Thanks. When will it arrive?"</p>
         </div>
       </figure>
     </div>
