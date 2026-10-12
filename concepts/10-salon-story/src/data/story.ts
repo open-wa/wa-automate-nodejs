@@ -114,18 +114,18 @@ export type Msg =
 
 export const messages: Msg[] = [
   { kind: "day", at: 0, text: "Tuesday" },
-  { kind: "me", at: 0, text: "Hi! Can I book a cut on Friday?", time: "09:12" },
+  { kind: "me", at: 0, text: "Hi, can I book a cut on Friday?", time: "09:12" },
   { kind: "poll", at: 1, q: "Friday: pick a time", options: ["10:00", "13:30", "16:00"], pick: "13:30", pickAt: 1.5, time: "09:12" },
   { kind: "event", at: 2, name: "Haircut with Rosa, Friday 13:30", when: "Fri 13:30 to 14:15", rsvpAt: 2.5, time: "09:13" },
   { kind: "day", at: 3, text: "Thursday" },
   { kind: "them", at: 3, text: "Reminder: your haircut with Rosa is tomorrow at 13:30. Reply here if you need to move it.", time: "18:00" },
   { kind: "day", at: 4, text: "Friday" },
-  { kind: "me", at: 4, text: "Running 10 minutes late, sorry!", time: "13:21" },
+  { kind: "me", at: 4, text: "Running 10 minutes late, sorry", time: "13:21" },
   { kind: "them", at: 4.5, text: "No problem, Rosa knows. See you soon.", time: "13:21" },
 ];
 
 export const staffNote = {
   at: 4.5,
   who: "Rosa's phone",
-  text: "447700900123@c.us is running late: Running 10 minutes late, sorry!",
+  text: "447700900123@c.us is running late: Running 10 minutes late, sorry",
 };

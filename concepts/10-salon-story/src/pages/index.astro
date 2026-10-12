@@ -21,7 +21,7 @@ const byJob = [
   { job: "One-time codes (OTP) to any number", href: "recipes/otp/", needs: "Restricted", price: `${restricted.prices.month} a month` },
   { job: "Buttons, lists and number checks", href: "pricing/#insiders", needs: "Insiders", price: `${insiders.prices.month} a month` },
   { job: "Answering WhatsApp calls, bridging to a PBX", href: "recipes/pbx-calls/", needs: "Calling-enabled key (licensed preview)", price: "Ask before you buy" },
-  { job: "Stickers made from photos", href: "recipes/stickers/", needs: "No key listed; relies on the current sticker patch", price: "Free" },
+  { job: "Stickers made from photos", href: "recipes/stickers/", needs: "No key listed; sending relies on the current sticker patch", price: "No key listed" },
 ];
 ---
 <Base title="open-wa: WhatsApp bookings, reminders and codes from your own number" description="Run one command and a business's own WhatsApp number becomes an API. Follow an example salon from “can I book Friday?” to the reminder, then build it for a hotel, OTP codes or a phone line.">
@@ -40,7 +40,7 @@ const byJob = [
       <figure class="hero-fig">
         <img src={heroImg.src} width={heroImg.width} height={heroImg.height} alt="Illustration: an empty small salon in the morning, two leather chairs, round brass mirrors, a phone and an appointment book on the counter." fetchpriority="high" />
         <div class="hero-bubble" aria-hidden="true">
-          <p class="hb-me">Hi! Can I book a cut on Friday?</p>
+          <p class="hb-me">Hi, can I book a cut on Friday?</p>
           <p class="hb-them">Friday: pick a time<span>10:00 · <b>13:30</b> · 16:00</span></p>
         </div>
         <figcaption>Illustration. Rosa's is an example salon.</figcaption>
@@ -118,7 +118,7 @@ const byJob = [
           </tbody>
         </table>
       </div>
-      <p class="free-foot">Prices in GBP, checked 12 Oct 2026. Checkout shows the current price. Longer billing periods cost less per month. <a href={`${base}pricing/`}>See pricing and get a key</a></p>
+      <p class="free-foot">Prices in GBP, checked 12 Oct 2026. Checkout shows the current price. Keys also come in 3, 6 and 12-month periods. <a href={`${base}pricing/`}>See pricing and get a key</a></p>
     </div>
   </section>
 
@@ -130,6 +130,7 @@ const byJob = [
         <p><strong>Your number can be banned.</strong> {product.risk} Test on a spare number first, and tell your client.</p>
         <p>If a business needs WhatsApp's official route, Meta's Cloud API asks for a business account, approved templates and per-message pricing. <a href={`${base}compare/`}>Compare the two</a>.</p>
       </div>
+      <div class="signals-wrap">
       <dl class="signals">
         <div><dt>Maintained since</dt><dd>2019</dd></div>
         <div><dt>Latest release</dt><dd>{product.currentVersion}</dd></div>
@@ -137,8 +138,9 @@ const byJob = [
         <div><dt>npm downloads, last 12 months</dt><dd>105k</dd></div>
         <div><dt>Docker pulls</dt><dd>43.5k</dd></div>
         <div><dt>Discord members</dt><dd>{stats.discordMembers.toLocaleString("en-GB")}</dd></div>
-        <p class="signals-date">Checked {stats.checkedOn} on GitHub, npm, Docker Hub and Discord.</p>
       </dl>
+      <p class="signals-date">Checked {stats.checkedOn} on GitHub, npm, Docker Hub and Discord.</p>
+      </div>
     </div>
   </section>
 
@@ -230,11 +232,11 @@ const byJob = [
   .signals div { background: var(--paper); padding: 18px; }
   .signals dt { font-size: 14px; color: var(--muted); }
   .signals dd { margin: 4px 0 0; font: 500 30px/1.1 var(--font-display); }
-  .signals-date { grid-column: 1 / -1; background: var(--paper); margin: 0 !important; padding: 12px 18px; font: 400 13px/1.4 var(--font-mono); color: var(--muted); }
+  .signals-date { margin-top: 10px !important; font: 400 13.5px/1.4 var(--font-mono); color: var(--muted); }
 
   .close { position: relative; padding: 140px 0; color: var(--cream-on-dark); background: var(--espresso); overflow: hidden; }
-  .close-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.35; }
-  .close::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(43, 27, 23, 0.95), rgba(43, 27, 23, 0.55)); }
+  .close-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 50%; }
+  .close::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(43, 27, 23, 0.94) 0%, rgba(43, 27, 23, 0.82) 45%, rgba(43, 27, 23, 0.25) 100%); }
   .close-in { position: relative; z-index: 1; display: grid; gap: 24px; max-width: 760px; margin-left: max(var(--gutter), calc((100% - var(--wrap)) / 2 + var(--gutter))); }
   .close h2 { font-size: clamp(36px, 5vw, 64px); }
   .close h2 em { color: var(--brass-light); }

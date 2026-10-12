@@ -37,6 +37,7 @@ const uniq = (a: number[]) => [...new Set(a)];
 
   <div class="story-body wrap">
     <div class="stage">
+      <svg class="wire" aria-hidden="true"><path class="wire-path" d="" /><circle class="wire-end" r="4.5" cx="-10" cy="-10" /><circle class="wire-start" r="3.5" cx="-10" cy="-10" /></svg>
       <div class="stage-cap" aria-hidden="true">
         <p class="stage-num"><span class="stage-i">1</span> of 5 · <span class="stage-when">{scenes[0].when}</span></p>
         <p class="stage-title">{scenes[0].title}</p>
@@ -124,6 +125,51 @@ const uniq = (a: number[]) => [...new Set(a)];
     const hHand = stage.querySelector<SVGElement>(".clk-h")!;
     const mHand = stage.querySelector<SVGElement>(".clk-m")!;
     let cur = "";
+    const wire = stage.querySelector<SVGSVGElement>(".wire")!;
+    const wirePath = wire.querySelector<SVGPathElement>(".wire-path")!;
+    const wireEnd = wire.querySelector<SVGCircleElement>(".wire-end")!;
+    const wireStart = wire.querySelector<SVGCircleElement>(".wire-start")!;
+    let target: HTMLElement | null = null;
+    let wireTimer = 0;
+    // Draw a brass thread from the highlighted code line to the message it sent.
+    const drawWire = () => {
+      const panel = panels.find((p) => p.classList.contains("is-on"));
+      const line = panel?.querySelector<HTMLElement>(".line.hl");
+      if (!line || !target) { wire.classList.remove("is-on"); return; }
+      const box = stage.getBoundingClientRect();
+      const pre = panel!.querySelector<HTMLElement>("pre")!.getBoundingClientRect();
+      const lr = line.getBoundingClientRect();
+      const tr = target.getBoundingClientRect();
+      const view = (target.closest(".ph-view") as HTMLElement).getBoundingClientRect();
+      if (tr.bottom < view.top || tr.top > view.bottom) { wire.classList.remove("is-on"); return; }
+      const narrow = window.innerWidth <= 820;
+      let sx: number, sy: number, ex: number, ey: number, d: string;
+      if (narrow) {
+        sx = Math.min(lr.left + 28, pre.right - 20) - box.left;
+        sy = Math.max(lr.top, pre.top) - box.top;
+        ex = tr.left + Math.min(tr.width / 2, 60) - box.left;
+        ey = Math.min(tr.bottom, view.bottom) - box.top;
+        d = `M${sx},${sy} C${sx},${sy - 36} ${ex},${ey + 36} ${ex},${ey}`;
+      } else {
+        sx = pre.left - box.left;
+        sy = Math.min(Math.max(lr.top + 11, pre.top + 8), pre.bottom - 8) - box.top;
+        ex = tr.right - box.left;
+        ey = tr.top + Math.min(tr.height / 2, 22) - box.top;
+        const k = Math.max(40, (sx - ex) * 0.5);
+        d = `M${sx},${sy} C${sx - k},${sy} ${ex + k},${ey} ${ex},${ey}`;
+      }
+      wire.setAttribute("viewBox", `0 0 ${box.width} ${box.height}`);
+      wirePath.setAttribute("d", d);
+      wireStart.setAttribute("cx", String(sx)); wireStart.setAttribute("cy", String(sy));
+      wireEnd.setAttribute("cx", String(ex)); wireEnd.setAttribute("cy", String(ey));
+      const len = wirePath.getTotalLength();
+      wirePath.style.strokeDasharray = `${len}`;
+      wirePath.style.strokeDashoffset = `${len}`;
+      wire.classList.remove("is-on");
+      void wire.getBoundingClientRect();
+      wire.classList.add("is-on");
+      wirePath.style.strokeDashoffset = "0";
+    };
 
     const apply = (i: number, phase: number) => {
       const key = `${i}.${phase}`;
@@ -134,6 +180,12 @@ const uniq = (a: number[]) => [...new Set(a)];
       stage.dataset.scene = String(i);
       steps.forEach((st, n) => st.classList.toggle("is-cur", n === i));
       for (const el of anim) el.classList.toggle("ph-on", Number(el.dataset.at) <= v);
+      const fresh = anim.filter((el) => Number(el.dataset.at) === v);
+      if (fresh.length) target = fresh[fresh.length - 1];
+      else if (phase === 0 || !target) target = anim.filter((el) => Number(el.dataset.at) <= v && el.classList.contains("ph-a")).pop() ?? null;
+      wire.classList.remove("is-on");
+      window.clearTimeout(wireTimer);
+      wireTimer = window.setTimeout(drawWire, 760);
       staff.classList.toggle("is-on", v >= 4.5);
       for (const p of panels) {
         const on = p.dataset.panel === s.panel;
@@ -186,7 +238,7 @@ const uniq = (a: number[]) => [...new Set(a)];
       if (!ticking) { ticking = true; requestAnimationFrame(measure); }
     };
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", () => { cur = ""; onScroll(); });
+    window.addEventListener("resize", () => { cur = ""; onScroll(); window.clearTimeout(wireTimer); wireTimer = window.setTimeout(drawWire, 300); });
     dots.forEach((d) => d.addEventListener("click", () => {
       const st = steps[Number(d.dataset.go)];
       const y = st.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.3;
@@ -214,6 +266,8 @@ const uniq = (a: number[]) => [...new Set(a)];
   .step-meta code { margin-right: 6px; }
   .step-key { margin-top: 10px !important; font-size: 15.5px; color: var(--muted); padding-left: 14px; border-left: 2px solid var(--brass); }
   .step-still { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 28px; align-items: start; }
+  .step-still :global(pre) { white-space: pre-wrap; }
+  .step-still :global(pre code) { min-width: 0; }
   .step-ph { display: grid; gap: 16px; justify-items: center; }
   .step-ph :global(.ph) { --ph-w: 280px; aspect-ratio: auto; min-height: 340px; }
   @media (min-width: 1100px) {
@@ -226,8 +280,8 @@ const uniq = (a: number[]) => [...new Set(a)];
   /* Live layout: pinned stage, steps scroll past it. */
   :global(.story--live) .step-still { display: none; }
   :global(.story--live) .stage { display: grid; }
-  :global(.story--live) .story-body { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 48px; padding-bottom: 12vh; }
-  :global(.story--live) .steps { grid-column: 1; grid-row: 1; gap: 0; }
+  :global(.story--live) .story-body { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 48px; }
+  :global(.story--live) .steps { grid-column: 1; grid-row: 1; gap: 0; padding-bottom: 14vh; }
   :global(.story--live) .step { min-height: 92vh; align-content: center; padding: 10vh 0; }
   :global(.story--live) .step-text { opacity: 0.35; transition: opacity 400ms var(--ease); }
   .stage {
@@ -236,6 +290,14 @@ const uniq = (a: number[]) => [...new Set(a)];
     grid-template-columns: auto minmax(0, 1fr); gap: 32px; align-items: center;
   }
   .stage-cap { display: none; }
+  .wire { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 3; }
+  .wire-path { fill: none; stroke: var(--brass); stroke-width: 2; stroke-linecap: round; opacity: 0; }
+  .wire-end, .wire-start { fill: var(--brass); opacity: 0; transform-box: fill-box; transform-origin: center; }
+  .wire-end { stroke: var(--paper); stroke-width: 2; }
+  .wire:global(.is-on) .wire-path { opacity: 0.9; transition: stroke-dashoffset 620ms var(--ease-swing), opacity 120ms; }
+  .wire:global(.is-on) .wire-start { opacity: 1; transition: opacity 120ms; }
+  .wire:global(.is-on) .wire-end { opacity: 1; transition: opacity 200ms 560ms; animation: wire-pop 520ms var(--ease) 560ms both; }
+  @keyframes wire-pop { 0% { transform: scale(0.2); } 60% { transform: scale(1.6); } 100% { transform: scale(1); } }
   .stage-phone { position: relative; height: 100%; max-height: 620px; display: grid; align-items: center; }
   .stage-phone :global(.ph) { height: min(100%, 600px); width: auto; --ph-w: auto; }
   .stage-phone .staff { position: absolute; right: -40px; top: 18%; opacity: 0; transform: translateY(-10px) scale(0.96); transition: opacity 400ms var(--ease), transform 500ms var(--ease); z-index: 2; max-width: 250px; }
@@ -262,13 +324,13 @@ const uniq = (a: number[]) => [...new Set(a)];
 
   /* Phone layout: one pinned stage, one caption swapped per scene. */
   @media (max-width: 820px) {
-    :global(.story--live) .story-body { display: block; padding-bottom: 30svh; }
+    :global(.story--live) .story-body { display: block; }
     :global(.story--live) .stage {
       top: var(--header-h); height: calc(100svh - var(--header-h) - var(--bar-h)); min-height: 0;
       grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; gap: 10px; padding: 10px 0 12px;
       align-items: stretch;
     }
-    :global(.story--live) .steps { margin-top: calc(-1 * (100svh - var(--header-h) - var(--bar-h))); position: relative; pointer-events: none; }
+    :global(.story--live) .steps { margin-top: calc(-1 * (100svh - var(--header-h) - var(--bar-h))); position: relative; pointer-events: none; padding-bottom: 36svh; }
     :global(.story--live) .step { min-height: 100svh; padding: 0; }
     :global(.story--live) .step-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     .stage-cap { display: block; }

@@ -29,7 +29,7 @@ export const recipeBusiness: Record<string, { name: string; sub: string }> = {
 
 export const convo: Record<string, Line[]> = {
   "salon-bookings": [
-    { k: "me", t: "Hi! Can I book a cut on Friday?", time: "09:12" },
+    { k: "me", t: "Hi, can I book a cut on Friday?", time: "09:12" },
     { k: "them", t: "Friday: pick a time · 10:00 · 13:30 · 16:00", time: "09:12" },
     { k: "note", t: "Sam votes 13:30" },
     { k: "them", t: "Event: Haircut with Rosa, Friday 13:30", time: "09:13" },
