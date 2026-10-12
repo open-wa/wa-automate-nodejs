@@ -1,0 +1,402 @@
+---
+/**
+ * Signature moment: a live board of WhatsApp events from an example session.
+ * Rows stream in at the top; open one and it unfolds into the handler that
+ * receives it, the payload, and a route switch that forwards the same event to
+ * Webhook, Chatwoot, Node-RED or S3 with that plugin's config.
+ * Reduced motion and ?still: a still log; rows still open on click.
+ */
+import { Code } from "astro:components";
+import { events, types, handlers, routes, routeTakes } from "../data/events";
+import { commands, href, support } from "../data/site";
+
+const typeOf = Object.fromEntries(types.map((t) => [t.id, t]));
+const json = (o: unknown) => JSON.stringify(o, null, 2);
+---
+
+<section class="board" data-board aria-label="Example event stream from a WhatsApp session">
+  <div class="bb">
+    <div class="bb-id">
+      <span class="live" data-live-state><span class="live-dot" aria-hidden="true"></span><span data-live-text>Live</span></span>
+      <span class="bb-sess mono">session <b>sales</b> <span class="muted">localhost:8080</span></span>
+    </div>
+    <div class="bb-cmd">
+      <span class="prompt mono" aria-hidden="true">$</span>
+      <code class="mono" tabindex="0">{commands.easyApi}</code>
+      <button class="copy copy-main" type="button" data-copy={commands.easyApi} aria-label="Copy the run command">Copy</button>
+    </div>
+    <div class="bb-go">
+      <a class="btn btn-cyan" href={href("quickstart/")}>Quick start</a>
+      <a class="btn btn-ghost" href={support.docs}>Docs</a>
+    </div>
+  </div>
+
+  <div class="bq" role="group" aria-label="Filter events by type">
+    <span class="bq-kw mono" aria-hidden="true">on</span>
+    <div class="bq-chips">
+      <button type="button" class="chip" data-filter="all" aria-pressed="true">all</button>
+      {types.map((t) => (
+        <button type="button" class="chip" data-filter={t.id} aria-pressed="false"><span class={`g g-${t.id}`} aria-hidden="true">{t.glyph}</span>{t.label}</button>
+      ))}
+    </div>
+    <button type="button" class="bq-pause" data-pause aria-pressed="false">
+      <span class="pz" aria-hidden="true"></span><span data-pause-text>Pause</span>
+    </button>
+  </div>
+
+  <div class="bl-head mono" aria-hidden="true">
+    <span>time</span><span>event</span><span>handler</span><span>chat</span><span>detail</span><span></span>
+  </div>
+
+  <ol class="bl" data-log>
+    {events.map((e, i) => {
+      const t = typeOf[e.type];
+      const why = Object.fromEntries(routes.map((r) => [r.id, routeTakes(r.id, e)]));
+      return (
+        <li class="ev" data-type={e.type} data-why={JSON.stringify(why)} data-handler={t.handler}>
+          <button class="ev-row" type="button" aria-expanded="false" aria-controls={`evd-${i}`}>
+            <time class="ev-t mono" data-t={i}>14:02:{String(58 - i * 3).padStart(2, "0")}.{String(100 + i * 37).slice(-3)}</time>
+            <span class="ev-type mono"><span class={`g g-${e.type}`} aria-hidden="true">{t.glyph}</span>{t.label}</span>
+            <span class="ev-h mono">{t.handler}</span>
+            <span class="ev-chat">{e.chat}</span>
+            <span class="ev-sum">{e.summary}</span>
+            <span class="ev-chev" aria-hidden="true"></span>
+          </button>
+          <div class="ev-d" id={`evd-${i}`} hidden>
+            <div class="ev-cols">
+              <div class="code ev-code">
+                <div class="code-bar"><span class="fname">handler &middot; {t.handler}</span><span class="example">Example</span></div>
+                <div data-slot="handler"></div>
+              </div>
+              <div class="code ev-code">
+                <div class="code-bar"><span class="fname">payload &middot; trimmed</span><span class="example">Example output</span></div>
+                <Code code={json(e.payload)} lang="json" theme="css-variables" />
+              </div>
+            </div>
+            <div class="rt">
+              <div class="rt-switch" role="radiogroup" aria-label="Route this event">
+                <span class="rt-kw mono" aria-hidden="true">route to</span>
+                {routes.map((r, ri) => (
+                  <label class="rt-opt">
+                    <input type="radio" name={`rt-${i}`} value={r.id} checked={ri === 0} />
+                    <span class:list={["rt-pill", { "rt-skip": !why[r.id].ok }]}>{r.label}</span>
+                  </label>
+                ))}
+              </div>
+              <div class="rt-pane" data-slot="route"></div>
+            </div>
+          </div>
+        </li>
+      );
+    })}
+  </ol>
+  <div class="bf mono">
+    <span class="example">Example output</span>
+    <span class="muted bf-hint">Open a row to see the handler, the payload and where else it can go.</span>
+  </div>
+
+  {types.map((t) => (
+    <template data-handler-tpl={t.id}>
+      <Code code={handlers[t.id]} lang="ts" theme="css-variables" />
+    </template>
+  ))}
+  {routes.filter((r) => r.config).map((r) => (
+    <template data-route-tpl={r.id} data-pkg={r.pkg} data-file={r.file}>
+      <div class="code">
+        <div class="code-bar"><span class="fname">{r.file}</span><button class="copy" type="button" data-copy={r.config} aria-label={`Copy ${r.label} config`}>Copy</button></div>
+        <Code code={r.config} lang={r.lang as any} theme="css-variables" />
+      </div>
+    </template>
+  ))}
+</section>
+
+<script>
+  import { shouldAnimate } from "../lib/runtime";
+
+  const board = document.querySelector<HTMLElement>("[data-board]");
+  if (board) init(board);
+
+  function init(board: HTMLElement) {
+    const log = board.querySelector<HTMLOListElement>("[data-log]")!;
+    const rows = () => Array.from(log.children) as HTMLLIElement[];
+    const liveText = board.querySelector<HTMLElement>("[data-live-text]")!;
+    const liveState = board.querySelector<HTMLElement>("[data-live-state]")!;
+    const pauseBtn = board.querySelector<HTMLButtonElement>("[data-pause]")!;
+    const pauseText = board.querySelector<HTMLElement>("[data-pause-text]")!;
+    const animate = shouldAnimate();
+    let filter = "all";
+    let userPaused = !animate;
+    let hover = false;
+    let onScreen = true;
+    let cursor = rows().length - 1;
+
+    // Timestamps: spread the starting rows over the last few seconds.
+    const fmt = (d: Date) =>
+      `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}.${String(d.getMilliseconds()).padStart(3, "0")}`;
+    let clock = Date.now();
+    rows().forEach((li, i) => {
+      const t = li.querySelector("time")!;
+      t.textContent = fmt(new Date(clock - i * 2300 - (i * 397) % 900));
+    });
+
+    const anyOpen = () => !!log.querySelector('.ev-row[aria-expanded="true"]');
+    const paused = () => userPaused || hover || anyOpen() || !onScreen;
+    const sync = () => {
+      const p = paused();
+      liveState.dataset.paused = String(p);
+      liveText.textContent = !animate && userPaused ? "Still" : p ? "Paused" : "Live";
+      pauseBtn.setAttribute("aria-pressed", String(userPaused));
+      pauseText.textContent = userPaused ? "Resume" : "Pause";
+    };
+
+    // Filters
+    board.querySelectorAll<HTMLButtonElement>(".chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        filter = chip.dataset.filter!;
+        board.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", String(c === chip)));
+        rows().forEach((li) => li.classList.toggle("is-filtered", filter !== "all" && li.dataset.type !== filter));
+      });
+    });
+
+    // Open a row: fill the handler and route panes on first open.
+    const renderRoute = (li: HTMLLIElement, route: string) => {
+      const pane = li.querySelector<HTMLElement>('[data-slot="route"]')!;
+      const why = JSON.parse(li.dataset.why || "{}")[route] as { ok: boolean; why: string };
+      const handler = li.dataset.handler!;
+      const tpl = board.querySelector<HTMLTemplateElement>(`template[data-route-tpl="${route}"]`);
+      const dest = route === "code" ? "your handler" : tpl?.dataset.pkg ?? route;
+      pane.innerHTML = "";
+      const line = document.createElement("div");
+      line.className = `rt-line${why.ok ? "" : " is-skip"}`;
+      line.innerHTML = `<span class="rt-node mono"></span><span class="rt-wire" aria-hidden="true"><i></i></span><span class="rt-node rt-dst mono"></span>`;
+      line.children[0].textContent = handler;
+      line.children[2].textContent = why.ok ? dest : `${dest} (skipped)`;
+      const p = document.createElement("p");
+      p.className = "rt-why";
+      p.textContent = why.why;
+      pane.append(line, p);
+      if (tpl) pane.append(tpl.content.cloneNode(true));
+      if (animate) line.querySelector("i")?.animate(
+        [{ left: "0%", opacity: 0 }, { opacity: 1, offset: 0.15 }, { left: "100%", opacity: why.ok ? 1 : 0 }],
+        { duration: 900, easing: "cubic-bezier(.65,0,.35,1)", iterations: 2 },
+      );
+    };
+
+    log.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(".ev-row");
+      if (!btn) return;
+      const li = btn.closest<HTMLLIElement>(".ev")!;
+      const d = li.querySelector<HTMLElement>(".ev-d")!;
+      const open = btn.getAttribute("aria-expanded") !== "true";
+      // One row open at a time keeps the board readable.
+      log.querySelectorAll<HTMLButtonElement>('.ev-row[aria-expanded="true"]').forEach((b) => {
+        if (b === btn) return;
+        b.setAttribute("aria-expanded", "false");
+        b.closest(".ev")!.querySelector<HTMLElement>(".ev-d")!.hidden = true;
+        b.closest(".ev")!.classList.remove("is-open");
+      });
+      btn.setAttribute("aria-expanded", String(open));
+      d.hidden = !open;
+      li.classList.toggle("is-open", open);
+      if (open) {
+        const slot = li.querySelector<HTMLElement>('[data-slot="handler"]')!;
+        if (!slot.childElementCount) {
+          const tpl = board.querySelector<HTMLTemplateElement>(`template[data-handler-tpl="${li.dataset.type}"]`);
+          if (tpl) slot.append(tpl.content.cloneNode(true));
+          renderRoute(li, "code");
+        }
+      }
+      sync();
+    });
+    log.addEventListener("change", (e) => {
+      const input = e.target as HTMLInputElement;
+      if (input.type === "radio") renderRoute(input.closest<HTMLLIElement>(".ev")!, input.value);
+    });
+
+    pauseBtn.addEventListener("click", () => { userPaused = !userPaused; sync(); });
+    log.addEventListener("pointerenter", () => { hover = true; sync(); });
+    log.addEventListener("pointerleave", () => { hover = false; sync(); });
+    new IntersectionObserver(([en]) => { onScreen = !!en?.isIntersecting; sync(); }).observe(log);
+
+    // Stream: take the oldest row matching the filter and bring it to the top
+    // with a fresh timestamp. FLIP keeps the rows below gliding down.
+    const tick = () => {
+      if (paused()) return;
+      const list = rows().filter((li) => !li.classList.contains("is-filtered"));
+      if (list.length < 2) return;
+      const next = list[list.length - 1];
+      const before = new Map(list.map((li) => [li, li.getBoundingClientRect().top]));
+      clock = Date.now();
+      next.querySelector("time")!.textContent = fmt(new Date(clock));
+      log.prepend(next);
+      for (const li of list) {
+        if (li === next) continue;
+        const dy = (before.get(li) ?? 0) - li.getBoundingClientRect().top;
+        if (dy) li.animate([{ transform: `translateY(${dy}px)` }, { transform: "none" }], { duration: 420, easing: "cubic-bezier(.2,.8,.2,1)" });
+      }
+      next.animate(
+        [{ opacity: 0, transform: "translateY(-10px)", backgroundColor: "rgba(63,224,240,.16)" }, { opacity: 1, transform: "none", backgroundColor: "rgba(63,224,240,.10)", offset: 0.4 }, { backgroundColor: "rgba(63,224,240,0)" }],
+        { duration: 1400, easing: "ease-out" },
+      );
+      cursor = (cursor + 1) % rows().length;
+    };
+    if (animate) {
+      let wait = 1400;
+      const loop = () => { tick(); wait = 1100 + ((cursor * 733) % 1500); window.setTimeout(loop, wait); };
+      window.setTimeout(loop, 900);
+    }
+    sync();
+  }
+</script>
+
+<style>
+  .board {
+    position: relative; min-width: 0;
+    background: var(--graphite-2); border: 1px solid var(--line); border-radius: var(--radius-lg);
+    box-shadow: 0 0 0 1px rgba(0,0,0,.4), 0 40px 80px -40px rgba(0,0,0,.8), 0 0 120px -60px rgba(63,224,240,.35);
+  }
+  /* header bar */
+  .bb {
+    display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 16px;
+    padding: 10px 10px 10px 16px; border-bottom: 1px solid var(--line);
+    background: linear-gradient(#1b1f24, #171a1e); border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+  .bb-id { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .live {
+    display: inline-flex; align-items: center; gap: 7px; font: 600 12px/1 var(--font-mono);
+    letter-spacing: .08em; text-transform: uppercase; color: var(--cyan);
+    padding: 6px 8px; border: 1px solid color-mix(in srgb, var(--cyan) 35%, transparent); border-radius: 4px;
+  }
+  .live[data-paused="true"] { color: var(--muted); border-color: var(--line); }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 0 currentColor; animation: beat 1.6s var(--ease) infinite; }
+  .live[data-paused="true"] .live-dot { animation: none; }
+  @keyframes beat { 0% { box-shadow: 0 0 0 0 rgba(63,224,240,.6); } 70% { box-shadow: 0 0 0 7px rgba(63,224,240,0); } 100% { box-shadow: 0 0 0 0 rgba(63,224,240,0); } }
+  .bb-sess { font-size: 13px; color: var(--warm); white-space: nowrap; }
+  .bb-sess b { font-weight: 600; color: var(--cyan); }
+  .bb-cmd {
+    display: flex; align-items: center; gap: 10px; min-width: 0;
+    background: #0d0f12; border: 1px solid var(--line); border-radius: var(--radius); padding: 4px 4px 4px 12px;
+  }
+  .bb-cmd code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font-size: 14.5px; scrollbar-width: none; padding: 6px 0; }
+  .bb-cmd code::-webkit-scrollbar { display: none; }
+  .bb-cmd .prompt { color: var(--cyan); }
+  .copy-main { min-height: 40px; }
+  .bb-go { display: flex; gap: 8px; }
+
+  /* query bar */
+  .bq { display: flex; align-items: center; gap: 12px; padding: 10px 12px 10px 16px; border-bottom: 1px solid var(--line); }
+  .bq-kw { font-size: 13px; color: var(--cyan); }
+  .bq-kw::after { content: "("; color: var(--faint); margin-left: 2px; }
+  .bq-chips { display: flex; gap: 6px; flex: 1; overflow-x: auto; scrollbar-width: none; min-width: 0; }
+  .bq-chips::-webkit-scrollbar { display: none; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; flex: none; min-height: 36px; padding: 0 11px;
+    font: 500 13.5px/1 var(--font-mono); color: var(--muted); background: transparent;
+    border: 1px solid var(--line); border-radius: 4px; cursor: pointer;
+  }
+  .chip:hover { color: var(--warm); border-color: var(--cyan-dim); }
+  .chip[aria-pressed="true"] { color: var(--cyan-ink); background: var(--cyan); border-color: var(--cyan); }
+  .chip[aria-pressed="true"] .g { color: inherit; }
+  .bq-pause {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 12px; flex: none;
+    font: 500 13.5px/1 var(--font-mono); color: var(--warm); background: var(--graphite-3);
+    border: 1px solid var(--line); border-radius: 4px; cursor: pointer;
+  }
+  .pz { width: 9px; height: 10px; border-left: 3px solid currentColor; border-right: 3px solid currentColor; }
+  .bq-pause[aria-pressed="true"] .pz { border: 0; width: 0; height: 0; border-left: 9px solid currentColor; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+  @media (pointer: coarse) { .chip, .bq-pause { min-height: 44px; } }
+
+  /* log */
+  .bl-head, .ev-row {
+    display: grid; grid-template-columns: 112px 150px 230px 150px minmax(0, 1fr) 20px; gap: 14px; align-items: center;
+  }
+  .bl-head { padding: 9px 16px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); border-bottom: 1px solid var(--graphite-4); }
+  .bl { list-style: none; margin: 0; padding: 0; }
+  .ev { border-bottom: 1px solid var(--graphite-4); position: relative; }
+  .ev:not(:nth-child(-n+8 of .ev:not(.is-filtered))) { display: none; }
+  .ev.is-filtered { display: none; }
+  .ev-row {
+    width: 100%; min-height: 46px; padding: 6px 16px; text-align: left; cursor: pointer;
+    background: transparent; border: 0; color: var(--warm); font: 400 15px/1.35 var(--font-text);
+  }
+  .ev-row:hover { background: var(--graphite-3); }
+  .ev.is-open .ev-row { background: var(--graphite-3); box-shadow: inset 2px 0 0 var(--cyan); }
+  .ev-t { font-size: 13.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .ev-type { font-size: 13.5px; display: inline-flex; gap: 8px; align-items: center; color: var(--warm); }
+  .ev-h { font-size: 13.5px; color: var(--cyan); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ev-chat { color: var(--muted); font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ev-sum { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ev-chev { width: 8px; height: 8px; border-right: 1.5px solid var(--faint); border-bottom: 1.5px solid var(--faint); transform: rotate(-45deg); transition: transform var(--speed) var(--ease); justify-self: center; }
+  .ev-row[aria-expanded="true"] .ev-chev { transform: rotate(45deg); border-color: var(--cyan); }
+  .g { display: inline-block; width: 1em; text-align: center; }
+  .g-message { color: var(--cyan); }
+  .g-any { color: var(--cyan); }
+  .g-ack { color: var(--muted); }
+  .g-group, .g-rsvp, .g-poll { color: var(--warm); }
+
+  .ev-d { padding: 4px 16px 20px; background: var(--graphite-3); animation: unfold 360ms var(--ease) both; }
+  @keyframes unfold { from { opacity: 0; transform: translateY(-6px); clip-path: inset(0 0 100% 0); } to { opacity: 1; transform: none; clip-path: inset(0 0 0 0); } }
+  .ev-cols { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; }
+  .ev-code :global(pre) { font-size: 13.5px; max-height: 300px; }
+
+  .rt { margin-top: 14px; display: grid; gap: 12px; }
+  .rt-switch { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .rt-kw { font-size: 13px; color: var(--faint); margin-right: 6px; }
+  .rt-opt { position: relative; }
+  .rt-opt input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .rt-pill {
+    display: inline-flex; align-items: center; min-height: 38px; padding: 0 14px; border-radius: 999px;
+    border: 1px solid var(--line); color: var(--warm); font: 500 14.5px/1 var(--font-text); background: var(--graphite-2);
+  }
+  .rt-pill.rt-skip { color: var(--muted); border-style: dashed; }
+  .rt-opt input:checked + .rt-pill { background: var(--cyan); border-color: var(--cyan); color: var(--cyan-ink); border-style: solid; }
+  .rt-opt input:checked + .rt-pill.rt-skip { background: var(--alert); border-color: var(--alert); color: var(--alert-ink); }
+  .rt-opt input:focus-visible + .rt-pill { outline: 2px solid var(--cyan); outline-offset: 2px; }
+  @media (pointer: coarse) { .rt-pill { min-height: 44px; } }
+  .rt-pane { display: grid; gap: 10px; }
+  .rt-pane :global(.rt-line) { display: grid; grid-template-columns: auto minmax(40px, 1fr) auto; align-items: center; gap: 10px; }
+  .rt-pane :global(.rt-node) { font-size: 13.5px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 4px; background: var(--graphite-2); color: var(--cyan); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .rt-pane :global(.rt-dst) { color: var(--warm); border-color: var(--cyan-dim); }
+  .rt-pane :global(.rt-wire) { position: relative; height: 2px; background: repeating-linear-gradient(90deg, var(--cyan-dim) 0 6px, transparent 6px 10px); }
+  .rt-pane :global(.rt-wire i) { position: absolute; top: -4px; left: 100%; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 12px var(--cyan); }
+  .rt-pane :global(.is-skip .rt-wire) { background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--alert) 55%, transparent) 0 6px, transparent 6px 10px); }
+  .rt-pane :global(.is-skip .rt-wire i) { left: 45%; background: var(--alert); box-shadow: 0 0 12px var(--alert); }
+  .rt-pane :global(.is-skip .rt-dst) { color: var(--alert); border-color: color-mix(in srgb, var(--alert) 50%, var(--line)); border-style: dashed; }
+  .rt-pane :global(.rt-why) { margin: 0; color: var(--muted); font-size: 15px; }
+  .rt-pane :global(.is-skip + .rt-why) { color: #f3c6ce; }
+  .rt-pane :global(pre) { font-size: 13.5px; }
+
+  .bf { display: flex; align-items: center; gap: 14px; padding: 10px 16px; font-size: 13px; }
+
+  @media (max-width: 1080px) {
+    .bl-head, .ev-row { grid-template-columns: 104px 140px minmax(0, 1fr) 150px 20px; }
+    .bl-head span:nth-child(3), .ev-h { display: none; }
+  }
+  @media (max-width: 900px) {
+    .bb { grid-template-columns: minmax(0, 1fr) auto; }
+    .bb-cmd { grid-column: 1 / -1; grid-row: 2; }
+    .bb-go { grid-row: 1; grid-column: 2; }
+    .ev-cols { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .board { border-radius: var(--radius); }
+    .bb { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 10px; }
+    .bb-id { display: none; }
+    .bb-cmd { grid-row: 1; }
+    .bb-cmd code { font-size: 13.5px; }
+    .bb-go { grid-row: 2; grid-column: 1; }
+    .bb-go .btn { flex: 1; min-height: 46px; }
+    .bq { padding: 8px 10px; gap: 8px; }
+    .bq-kw { display: none; }
+    .bl-head { display: none; }
+    .ev:not(:nth-child(-n+4 of .ev:not(.is-filtered))) { display: none; }
+    .ev-row { grid-template-columns: 104px minmax(0, 1fr) 16px; gap: 10px; padding: 6px 10px; min-height: 48px; font-size: 15px; }
+    .ev-t, .ev-chat { display: none; }
+    .ev-type { font-size: 13px; }
+    .ev-d { padding: 4px 10px 16px; }
+    .bf { flex-wrap: wrap; padding: 10px; }
+    .bf-hint { display: none; }
+    .bq-pause span[data-pause-text] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .bq-pause { min-width: 44px; justify-content: center; }
+  }
+</style>

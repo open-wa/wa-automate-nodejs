@@ -1,0 +1,75 @@
+/* Event stream: instrument dark. Graphite ground, one cyan signal, warm white
+   text and a single alert colour (rose) kept for risk, licence gates and
+   errors. Every colour, face, radius and easing lives here. */
+@font-face {
+  font-family: "Chakra Petch";
+  src: url("../fonts/chakra-petch-latin-500-normal.woff2") format("woff2");
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Chakra Petch";
+  src: url("../fonts/chakra-petch-latin-600-normal.woff2") format("woff2");
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Chakra Petch";
+  src: url("../fonts/chakra-petch-latin-700-normal.woff2") format("woff2");
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Red Hat Text";
+  src: url("../fonts/red-hat-text-latin-wght-normal.woff2") format("woff2");
+  font-weight: 300 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Red Hat Mono";
+  src: url("../fonts/red-hat-mono-latin-wght-normal.woff2") format("woff2");
+  font-weight: 300 700; font-style: normal; font-display: swap;
+}
+
+:root {
+  --graphite: #121417;
+  --graphite-2: #171a1e;   /* panels */
+  --graphite-3: #1e2227;   /* raised rows, inputs */
+  --graphite-4: #2a2f36;   /* hairlines */
+  --line: #2b3037;
+  --cyan: #3fe0f0;
+  --cyan-dim: #1f6f78;
+  --cyan-ink: #04181b;     /* text on cyan */
+  --warm: #f1efea;
+  --muted: #a3a8ae;        /* 7.6:1 on graphite */
+  --faint: #7c838b;        /* 4.6:1 on graphite, labels only */
+  --alert: #ff5a76;        /* rose: risk, licence gates, errors */
+  --alert-ink: #2a0910;
+
+  --color-bg: var(--graphite);
+  --color-ink: var(--warm);
+  --color-accent: var(--cyan);
+  --color-muted: var(--muted);
+  --color-surface: var(--graphite-2);
+
+  --font-display: "Chakra Petch", "Red Hat Text", system-ui, sans-serif;
+  --font-text: "Red Hat Text", system-ui, sans-serif;
+  --font-mono: "Red Hat Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --radius: 6px;
+  --radius-lg: 10px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --speed: 220ms;
+  --wrap: 1200px;
+  --gutter: clamp(16px, 4vw, 40px);
+
+  /* Shiki css-variables theme */
+  --astro-code-foreground: #d9dde1;
+  --astro-code-background: transparent;
+  --astro-code-token-constant: #f5b08a;
+  --astro-code-token-string: #e8d5a3;
+  --astro-code-token-comment: #7c838b;
+  --astro-code-token-keyword: #3fe0f0;
+  --astro-code-token-parameter: #f1efea;
+  --astro-code-token-function: #8ef0fa;
+  --astro-code-token-string-expression: #e8d5a3;
+  --astro-code-token-punctuation: #a3a8ae;
+  --astro-code-token-link: #3fe0f0;
+}

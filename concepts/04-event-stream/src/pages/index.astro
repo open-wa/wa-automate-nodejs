@@ -1,0 +1,97 @@
+---
+import Page from "../layouts/Page.astro";
+import EventBoard from "../components/EventBoard.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import CopyCommand from "../components/CopyCommand.astro";
+import { commands, snippets, paths, licences, product, releases, stats, support, href, starsLabel, integrations, capabilities, useCases, k } from "../data/site";
+const latest = releases[0];
+---
+
+<Page
+  title="open-wa: your WhatsApp number as a live event stream in Node.js"
+  description="open-wa runs WhatsApp Web for your own number and streams messages, receipts, group changes, RSVPs and poll votes into your Node.js code. Free for most methods. Unofficial."
+>
+  <section class="hero wrap">
+    <div class="hero-copy">
+      <h1>Tail your WhatsApp number from Node.js</h1>
+      <p class="hero-sub">Messages, read receipts, group changes, RSVPs and poll votes from your own number, streamed into your code through a local API. Free for most methods.</p>
+    </div>
+    <EventBoard />
+  </section>
+
+  <section class="sec wrap" id="first-run">
+    <div class="sec-head">
+      <span class="label">First run</span>
+      <h2>Three steps from npx to your first event</h2>
+    </div>
+    <ol class="steps">
+      <li><span class="step-n mono">01</span><h3>Run it</h3><p>{product.oneLine.split(".")[0]}. Easy API starts on the port you choose.</p><CopyCommand command={commands.easyApi} /></li>
+      <li><span class="step-n mono">02</span><h3>Link your phone</h3><p>Scan the QR code it prints with WhatsApp on your phone, or use link-code login.</p></li>
+      <li><span class="step-n mono">03</span><h3>Open the live docs</h3><p>Every method of the live session, with Swagger and Postman files.</p><code class="mono step-url">{commands.proofOfLife}</code></li>
+    </ol>
+    <p class="note-risk"><strong>Unofficial, with ban risk.</strong> {product.risk} Not affiliated with WhatsApp or Meta.</p>
+  </section>
+
+  <section class="sec wrap">
+    <div class="sec-head">
+      <span class="label">Send and receive</span>
+      <h2>A handler per event, a method per action</h2>
+      <p>Connect a bot to the running session with SocketClient. Events arrive over Server-Sent Events; commands go back over HTTP.</p>
+    </div>
+    <div class="grid-2">
+      <CodeBlock code={`${commands.socketClientInstall}`} lang="bash" file="terminal" />
+      <CodeBlock code={snippets.socketClient} lang="ts" file="bot.ts" />
+    </div>
+  </section>
+
+  <section class="sec wrap">
+    <div class="sec-head">
+      <span class="label">Free or licensed</span>
+      <h2>Most methods need no key</h2>
+      <p>{licences.summary}</p>
+    </div>
+    <div class="grid-3">
+      <div class="card"><h3>{licences.free.name}</h3><p class="mono">£0</p><p>{licences.free.covers}</p></div>
+      {licences.tiers.map((t) => (
+        <div class="card"><h3>{t.name}</h3><p class="mono">{t.prices.month}/month &middot; {t.prices.year}/year</p><p>{t.unlocks}</p></div>
+      ))}
+    </div>
+    <p class="muted small">Prices checked {licences.pricesCheckedOn}</p>
+    <a class="btn btn-cyan" href={href("pricing/")}>See pricing and get a key</a>
+  </section>
+
+  <section class="sec wrap closing">
+    <h2>Start the stream</h2>
+    <CopyCommand command={commands.easyApi} />
+    <div class="closing-links">
+      <a class="btn btn-cyan" href={href("quickstart/")}>Quick start</a>
+      <a class="btn" href={support.discord}>Discord</a>
+      <a class="btn" href={support.github}>GitHub &middot; {starsLabel} stars</a>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .hero { padding-top: clamp(28px, 6vw, 72px); display: grid; gap: clamp(20px, 3vw, 36px); }
+  .hero-copy { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 32px; align-items: end; }
+  .hero-sub { color: #cfd2d5; font-size: 19px; margin: 0; max-width: 46ch; }
+  .steps { list-style: none; margin: 0 0 24px; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .steps li { background: var(--graphite-2); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+  .steps p { color: var(--muted); margin: 0; }
+  .step-n { color: var(--cyan); font-size: 13px; }
+  .step-url { color: var(--cyan); font-size: 14.5px; word-break: break-all; }
+  .small { font-size: 15px; }
+  .closing { display: grid; gap: 20px; justify-items: start; }
+  .closing .cmd { max-width: 640px; width: 100%; background: #0d0f12; border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 6px 6px 14px; }
+  .closing-links { display: flex; gap: 10px; flex-wrap: wrap; }
+  .steps .cmd { background: #0d0f12; border: 1px solid var(--line); border-radius: var(--radius); padding: 4px 4px 4px 12px; font-size: 13.5px; }
+  @media (max-width: 860px) {
+    .hero-copy { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .steps { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .hero { padding-top: 18px; gap: 16px; }
+    h1 { font-size: 31px; }
+    .hero-sub { font-size: 16px; line-height: 1.5; }
+  }
+</style>

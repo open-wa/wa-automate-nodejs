@@ -1,0 +1,16 @@
+---
+import { Code } from "astro:components";
+interface Props { code: string; lang?: string; file?: string; label?: string }
+const { code, lang = "ts", file, label } = Astro.props;
+---
+
+<div class="code">
+  <div class="code-bar">
+    <span class="fname">{file ?? lang}</span>
+    <span style="display:flex;gap:8px;align-items:center">
+      {label && <span class="example">{label}</span>}
+      <button class="copy" type="button" data-copy={code} aria-label={`Copy ${file ?? "code"}`}>Copy</button>
+    </span>
+  </div>
+  <Code code={code} lang={lang as any} theme="css-variables" />
+</div>
