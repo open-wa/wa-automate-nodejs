@@ -618,6 +618,8 @@ function captureEvents(client: OpenWAClient): RecordedEvent[] {
   return recorded;
 }
 
+const harnessClients = new Set<OpenWAClient>();
+
 async function createHarness(options: HarnessOptions = {}): Promise<{
   client: OpenWAClient;
   page: FakePage;
@@ -639,6 +641,7 @@ async function createHarness(options: HarnessOptions = {}): Promise<{
     licenseKey: options.licenseKey,
     patchConfig: options.patchConfig,
   });
+  harnessClients.add(client);
 
   if (options.qrPollingMs != null) {
     (client.getTransport() as unknown as { qrPollingMs: number }).qrPollingMs = options.qrPollingMs;
@@ -672,8 +675,13 @@ function requireBlockedReady(recordedEvents: RecordedEvent[], reason: string): v
   }
 }
 
-afterEach(() => {
-  vi.restoreAllMocks();
+afterEach(async () => {
+  try {
+    await Promise.all([...harnessClients].map(client => client.stop('bootstrap_harness_cleanup')));
+  } finally {
+    harnessClients.clear();
+    vi.restoreAllMocks();
+  }
 });
 
 describe('bootstrap contract harness', () => {
@@ -1077,43 +1085,8 @@ describe('bootstrap contract harness', () => {
       sessionLoaded: false,
     });
 
-    vi.spyOn(Transport.prototype, 'validateRuntimeUsability')
-      .mockResolvedValueOnce({
-        stage: 'post_injection',
-        usable: false,
-        repairable: true,
-        failureReason: 'required_method_missing',
-        hasRuntime: true,
-        hasStoreMsg: true,
-        sessionLoaded: false,
-        bridgeReady: false,
-        requiredMethods,
-        missingMethods: ['onAck'],
-      })
-      .mockResolvedValueOnce({
-        stage: 'post_injection',
-        usable: true,
-        repairable: false,
-        hasRuntime: true,
-        hasStoreMsg: true,
-        sessionLoaded: true,
-        bridgeReady: true,
-        requiredMethods,
-        missingMethods: [],
-      })
-      .mockResolvedValueOnce({
-        stage: 'post_overlay',
-        usable: true,
-        repairable: false,
-        hasRuntime: true,
-        hasStoreMsg: true,
-        sessionLoaded: true,
-        bridgeReady: true,
-        requiredMethods,
-        missingMethods: [],
-      });
-
-    const repairRuntimeIntegrity = vi.spyOn(Transport.prototype, 'repairRuntimeIntegrity').mockResolvedValue(true);
+    const validateRuntimeUsability = vi.spyOn(Transport.prototype, 'validateRuntimeUsability');
+    const repairRuntimeIntegrity = vi.spyOn(Transport.prototype, 'repairRuntimeIntegrity');
     vi.spyOn(Transport.prototype, 'waitForAuthentication').mockImplementation(async function (this: Transport) {
       const transport = this as unknown as {
         events: { emit: (eventName: string, payload: unknown) => void };
@@ -1150,30 +1123,26 @@ describe('bootstrap contract harness', () => {
       throw new Error(`Expected deferred pre-auth integrity scenario to resolve, but bootstrap rejected with: ${String(startResult.error)}`);
     }
 
-    const postInjectionValidationEvents = recordedEvents
+    const validationEvents = recordedEvents
       .map((event, index) => ({ event, index }))
-      .filter(({ event }) => event.name === 'launch.session.validityCheck.after')
-      .filter(({ event }) => {
-        const payload = event.payload as { details?: { phase?: string } } | undefined;
-        return payload?.details?.phase === 'post_injection';
-      });
-
-    expect(postInjectionValidationEvents).toHaveLength(2);
-
-    const firstValidationPayload = postInjectionValidationEvents[0]?.event.payload as {
-      details?: { valid?: boolean; failureReason?: string };
-    } | undefined;
-    const secondValidationPayload = postInjectionValidationEvents[1]?.event.payload as {
-      details?: { valid?: boolean; failureReason?: string };
-    } | undefined;
-
-    expect(firstValidationPayload?.details?.valid).toBe(false);
-    expect(firstValidationPayload?.details?.failureReason).toBe('required_method_missing');
-    expect(secondValidationPayload?.details?.valid).toBe(true);
-
+      .filter(({ event }) => event.name === 'launch.session.validityCheck.after');
     const qrGeneratedIndex = findEventIndex(recordedEvents, 'launch.auth.qr.generated');
-    expect(qrGeneratedIndex).toBeGreaterThan(postInjectionValidationEvents[0]!.index);
-    expect(qrGeneratedIndex).toBeLessThan(postInjectionValidationEvents[1]!.index);
+    expect(qrGeneratedIndex).toBeGreaterThan(-1);
+
+    const preAuthValidation = validationEvents.find(({ index }) => index < qrGeneratedIndex);
+    expect(preAuthValidation?.event.payload).toMatchObject({
+      details: { phase: 'post_injection', valid: true, sessionLoaded: false, missingMethods: [] },
+    });
+
+    const strictValidation = validationEvents.find(({ event, index }) => {
+      const payload = event.payload as { details?: { phase?: string } } | undefined;
+      return index > qrGeneratedIndex && payload?.details?.phase === 'post_overlay';
+    });
+    expect(strictValidation?.event.payload).toMatchObject({
+      details: { valid: true, sessionLoaded: true, missingMethods: [] },
+    });
+    expect(validateRuntimeUsability).toHaveBeenCalledWith('post_overlay');
+    expect(validateRuntimeUsability).not.toHaveBeenCalledWith('post_injection');
 
     const fatalIntegrityErrorIndex = recordedEvents.findIndex((event) => {
       if (event.name !== 'error') return false;
