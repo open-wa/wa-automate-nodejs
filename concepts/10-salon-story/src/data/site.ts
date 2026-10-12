@@ -36,8 +36,8 @@ export const checked = stats.checkedOn;
 /** Short job-framed licence labels used on cards and the pricing table. */
 export const jobKey: Record<string, { label: string; tone: "free" | "key" | "preview" | "note" }> = {
   "salon-bookings": { label: "Free when they message first", tone: "free" },
-  "hotel-notifications": { label: "Restricted for new guests", tone: "key" },
-  otp: { label: "Restricted", tone: "key" },
+  "hotel-notifications": { label: "Restricted for new guests, £15 a month", tone: "key" },
+  otp: { label: "Restricted, £15 a month", tone: "key" },
   "pbx-calls": { label: "Calling key, preview", tone: "preview" },
   stickers: { label: "No key listed, uses sticker patch", tone: "note" },
   media: { label: "Free", tone: "free" },
