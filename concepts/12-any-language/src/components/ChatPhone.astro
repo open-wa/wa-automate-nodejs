@@ -22,7 +22,7 @@ const { convo, label } = Astro.props;
         );
         if (m.t === "event") return (
           <div class="cm cm-biz cm-event" style={d}>
-            <span class="ev-date" aria-hidden="true"><small>FRI</small>14</span>
+            <span class="ev-date" aria-hidden="true">FRI</span>
             <span><b>{m.name}</b><small>Event · {m.when}</small></span>
             <span class="ev-rsvp"><span class="on">Going</span><span>Maybe</span><span>Not going</span></span>
           </div>
@@ -48,7 +48,7 @@ const { convo, label } = Astro.props;
         if (m.t === "voice") return (
           <div class="cm cm-biz cm-voice" style={d}>
             <span class="vplay" aria-hidden="true"></span>
-            <span class="vwave" aria-hidden="true">{Array.from({ length: 18 }).map((_, k) => <i style={`--k:${k}`}></i>)}</span>
+            <span class="vwave" aria-hidden="true">{Array.from({ length: 18 }).map((_, k) => <i style={`height:${4 + ((k * 5) % 16)}px`}></i>)}</span>
             <small>{m.secs}</small>
           </div>
         );
@@ -96,7 +96,7 @@ const { convo, label } = Astro.props;
   .cm-event { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; padding-bottom: 11px; }
   .cm-event b { display: block; font-size: 13px; }
   .cm-event small { font-size: 11px; opacity: .75; }
-  .ev-date { width: 40px; height: 44px; border-radius: 8px; background: var(--paper); color: var(--ink); display: grid; place-items: center; font: 800 17px var(--font-display); line-height: 1; }
+  .ev-date { width: 40px; height: 44px; border-radius: 8px; background: var(--paper); color: var(--ink); display: grid; place-items: center; font: 800 13px var(--font-display); line-height: 1; letter-spacing: .04em; color: var(--red-ink); }
   .ev-date small { font-size: 9px; color: var(--red-ink); opacity: 1; }
   .ev-rsvp { grid-column: 1 / -1; display: flex; gap: 4px; }
   .ev-rsvp span { flex: 1; text-align: center; font-size: 11px; padding: 4px 2px; border-radius: 6px; border: 1px solid #3a4570; }
@@ -114,7 +114,7 @@ const { convo, label } = Astro.props;
   .cm-voice { display: flex; align-items: center; gap: 8px; padding-bottom: 11px; }
   .vplay { width: 0; height: 0; border-left: 10px solid var(--paper); border-top: 6px solid transparent; border-bottom: 6px solid transparent; }
   .vwave { display: flex; align-items: center; gap: 2px; height: 20px; }
-  .vwave i { width: 3px; border-radius: 2px; background: var(--paper); height: calc(4px + (var(--k) * 5 % 16) * 1px); opacity: .8; }
+  .vwave i { width: 3px; border-radius: 2px; background: var(--paper); opacity: .8; }
   .cm-voice small { font-size: 11px; opacity: .75; }
   .cm-photo { align-self: flex-end; width: 150px; height: 120px; border-radius: 12px; display: grid; place-items: center; background: repeating-linear-gradient(-45deg, #e7e0cf 0 8px, #ddd5c2 8px 16px); border: 1px solid #d3cbb8; font: 500 11px var(--font-mono); color: var(--muted-paper); }
   .cm-sticker { align-self: flex-start; display: grid; justify-items: center; gap: 2px; }

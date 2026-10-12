@@ -6,15 +6,10 @@ import RequestBuilder from "../components/RequestBuilder.astro";
 import PbxFlow from "../components/PbxFlow.astro";
 import { f, href, S, stars, checked, insiders, restricted, priceNote, job } from "../data/facts";
 import { byJob } from "../data/pricing";
+import { recipeMeta } from "../data/recipes";
 
 const pbx = job("pbx-calls");
-const recipeCards = f.jobs.map((j) => ({
-  id: j.id,
-  name: j.name,
-  methods: j.methods.slice(0, 3),
-  tag: j.id === "otp" ? `Restricted, ${restricted.prices.month}/mo` : j.id === "pbx-calls" ? "Calling key, preview" : j.id === "media" ? "Free" : j.id === "stickers" ? "Free, see notes" : "Free to reply",
-  paid: j.id === "otp" || j.id === "pbx-calls",
-}));
+const recipeCards = f.jobs.map((j) => ({ id: j.id, name: j.name, methods: j.methods.slice(0, 3), tag: recipeMeta[j.id].tag, paid: recipeMeta[j.id].paid }));
 const nf = (n: number) => n.toLocaleString("en-GB");
 ---
 <Site
@@ -23,10 +18,8 @@ const nf = (n: number) => n.toLocaleString("en-GB");
 >
   <section class="hero">
     <div class="wrap hero-in">
-      <div class="hero-copy">
-        <h1>Send WhatsApp from PHP, Python, Node.js or your PBX</h1>
-        <p class="hero-sub">One command turns your own WhatsApp number into a local HTTP API. Pick a job below and copy the request.</p>
-      </div>
+      <h1>Send WhatsApp from PHP, Python, Node.js or your PBX</h1>
+      <p class="hero-sub">One command turns your own WhatsApp number into a local HTTP API. Pick a job below and copy the request.</p>
       <div class="hero-act">
         <CopyCommand cmd={f.commands.easyApi} size="lg" />
         <div class="btn-row">
@@ -97,7 +90,7 @@ const nf = (n: number) => n.toLocaleString("en-GB");
       <div class="pbx-head">
         <div>
           <p class="kicker">Calls and your PBX</p>
-          <h2 class="h2">Answer WhatsApp calls on the business's number, then hand the audio to your phone system</h2>
+          <h2 class="h2">Answer WhatsApp calls, then hand the audio to your PBX</h2>
         </div>
         <p class="lead">{pbx.flow} Calling is a licensed preview with a calling-enabled key, audio only.</p>
       </div>
@@ -193,9 +186,10 @@ const nf = (n: number) => n.toLocaleString("en-GB");
 
 <style>
   .hero { padding: 48px 0 72px; background: radial-gradient(70% 60% at 85% 0%, #1a2550 0%, transparent 70%); }
-  .hero-in { display: grid; grid-template-columns: 1fr 1.05fr; gap: 40px; align-items: end; }
-  .hero h1 { font-size: clamp(34px, 5vw, 60px); font-weight: 700; letter-spacing: -0.035em; max-width: 15ch; }
-  .hero-sub { font-size: 20px; color: var(--muted); margin: 18px 0 0; max-width: 44ch; }
+  .hero-in { display: grid; grid-template-columns: 1fr 1.05fr; grid-template-areas: "h h" "sub act"; column-gap: 48px; row-gap: 28px; align-items: start; }
+  .hero h1 { grid-area: h; font-size: clamp(34px, 5.2vw, 68px); font-weight: 700; letter-spacing: -0.035em; max-width: 19ch; }
+  .hero-sub { grid-area: sub; font-size: 21px; color: var(--muted); margin: 4px 0 0; max-width: 40ch; }
+  .hero-act { grid-area: act; }
   .hero-act { display: grid; gap: 14px; }
   .hero-fine { margin: 0; font-size: 15.5px; color: var(--muted); }
   .builder-wrap { margin-top: 40px; }
@@ -246,8 +240,8 @@ const nf = (n: number) => n.toLocaleString("en-GB");
   .release:hover { border-color: var(--red); }
   .release .mono { font-size: 14px; color: var(--red); }
 
-  .ints { list-style: none; padding: 0; margin: 32px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-  .ints li { background: var(--navy); padding: 18px; display: grid; gap: 4px; }
+  .ints { list-style: none; padding: 0; margin: 32px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .ints li { border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 4px; align-content: start; }
   .ints b { font: 700 17px var(--font-display); }
   .ints span { color: var(--muted); font-size: 16px; }
 
@@ -259,7 +253,8 @@ const nf = (n: number) => n.toLocaleString("en-GB");
   .closing :global(.cmd) { width: min(100%, 640px); }
 
   @media (max-width: 960px) {
-    .hero-in, .pbx-head, .pbx-grid, .risk-grid { grid-template-columns: 1fr; }
+    .hero-in { grid-template-columns: 1fr; grid-template-areas: "h" "sub" "act"; row-gap: 18px; }
+    .pbx-head, .pbx-grid, .risk-grid { grid-template-columns: 1fr; }
     .steps, .recipes { grid-template-columns: 1fr; }
     .jt-row { grid-template-columns: 1fr; gap: 6px; }
     .jt-head { display: none; }

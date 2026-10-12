@@ -23,7 +23,7 @@ const cols = [
     ))}
   </div>
   <div class="ftr-legal">
-    <p><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> {f.product.unofficial.replace(/^Unofficial\. /u, "")} {f.product.risk}</p>
+    <p><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> open-wa is independent software, not authorised, sponsored or endorsed by WhatsApp, Meta or their affiliates. {f.product.risk} <a href={href("legal/")}>Full notice</a>.</p>
     <p>{f.legal.copyright}. Maintained by {S.maintainer}. Software licence: {f.product.softwareLicence}. {f.product.terms}</p>
   </div>
 </footer>
@@ -40,5 +40,6 @@ const cols = [
   .ftr-legal { max-width: var(--wrap); margin: 0 auto; padding: 20px 20px 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: 16px; }
   .ftr-legal p { margin: 8px 0; max-width: 100ch; }
   .ftr-legal strong { color: var(--paper); }
+  .ftr-legal a { color: var(--paper); }
   @media (max-width: 900px) { .ftr-in { grid-template-columns: 1fr 1fr; } .ftr-brand { grid-column: 1 / -1; } }
 </style>

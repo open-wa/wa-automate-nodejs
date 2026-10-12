@@ -45,7 +45,7 @@ const first = bjobs[0];
           <div class="rb-url rb-url-js" data-show={`js:${j.id}`} hidden>
             <span class="rb-verb rb-verb-js">JS</span>
             <span class="rb-path">client.{j.method}()</span>
-            <button type="button" class="rb-send" data-send>Run</button>
+            <button type="button" class="rb-send" data-send>Replay</button>
           </div>
         ))}
 
@@ -70,11 +70,18 @@ const first = bjobs[0];
           )))}
           {bjobs.filter((j) => !j.http).map((j) => (
             <div class="rb-panel" data-panel={`${j.id}:*`} hidden>
-              <p class="rb-note" data-note>
-                <strong>{j.method}</strong> is an HTTP endpoint on your running instance too, but this page only prints routes we document.
-                Every method is listed at <code>/api-docs/</code> on your running instance, and <code>/meta/postman.json</code> imports into Postman.
-                Here it is in Node.js:
-              </p>
+              {j.id === "call" ? (
+                <p class="rb-note" data-note>
+                  Answering a call means listening for an event, so this job is Node.js.
+                  Every method is listed at <code>/api-docs/</code> on your running instance. Here it is in Node.js:
+                </p>
+              ) : (
+                <p class="rb-note" data-note>
+                  <strong>{j.method}</strong> is an HTTP endpoint on your running instance too; this page only prints the route it documents, sendText.
+                  Every method is listed at <code>/api-docs/</code> on your running instance, and <code>/meta/postman.json</code> imports into Postman.
+                  Here it is in Node.js:
+                </p>
+              )}
               <CodeBlock code={j.js!} lang="js" title={`Node.js: ${j.label.toLowerCase()}`} />
             </div>
           ))}
@@ -95,6 +102,7 @@ const first = bjobs[0];
       </div>
 
       <div class="rb-phone-wrap">
+        <span class="rb-cable" aria-hidden="true"><span class="rb-plug"></span><span class="rb-pulse"></span></span>
         <div class="phone" data-phone aria-label="Drawn phone showing the result. Example output." role="img">
           <div class="ph-screen">
             <div class="ph-status" aria-hidden="true"><span>13:02</span><span class="ph-island"></span><span>5G</span></div>
@@ -107,6 +115,7 @@ const first = bjobs[0];
                 <div class="msg-typing" style="--d:350ms" aria-hidden="true"><i></i><i></i><i></i></div>
                 <div class="msg msg-biz" style="--d:1000ms">Hi Sam, your cut with Rosa is booked for Friday at 13:30. Reply here if you need to move it.<span class="msg-t">13:02</span></div>
               </div>
+              <div class="ph-compose" aria-hidden="true"><span>Message</span><i></i></div>
             </div>
 
             <div class="ph-view" data-view="otp" hidden>
@@ -129,6 +138,7 @@ const first = bjobs[0];
                   Your booking confirmation<span class="msg-t">13:02</span>
                 </div>
               </div>
+              <div class="ph-compose" aria-hidden="true"><span>Message</span><i></i></div>
             </div>
 
             <div class="ph-view ph-call" data-view="call" hidden>
@@ -136,7 +146,7 @@ const first = bjobs[0];
               <b class="call-name">Rosa's Salon</b>
               <small class="call-sub">Example business</small>
               <p class="call-state"><span class="cs-ring">Ringing</span><span class="cs-on">Connected 0:04</span></p>
-              <div class="wave" aria-hidden="true">{Array.from({ length: 22 }).map((_, i) => <i style={`--i:${i}`}></i>)}</div>
+              <div class="wave" aria-hidden="true">{Array.from({ length: 22 }).map((_, i) => <i style={`--i:${i};height:${10 + ((i * 7) % 34)}px`}></i>)}</div>
               <p class="call-note">Playing greeting.wav<br />Recording to received.wav</p>
               <div class="call-btns" aria-hidden="true"><span class="cb"></span><span class="cb cb-end"></span><span class="cb"></span></div>
             </div>
@@ -307,13 +317,25 @@ const first = bjobs[0];
   .call-state { margin: 10px 0 0; font: 500 14px var(--font-mono); color: var(--ok); position: relative; }
   .cs-ring { display: none; }
   .wave { display: flex; align-items: center; gap: 3px; height: 50px; margin: 26px 0 8px; }
-  .wave i { width: 4px; border-radius: 2px; background: var(--red); height: calc(10px + (var(--i) * 7 % 34) * 1px); }
+  .wave i { width: 4px; border-radius: 2px; background: var(--red); }
   .call-note { margin: 0; font: 13px/1.5 var(--font-mono); color: var(--muted); }
   .call-btns { margin-top: auto; display: flex; gap: 22px; }
   .cb { width: 48px; height: 48px; border-radius: 50%; background: var(--navy-3); }
   .cb-end { background: var(--red); }
   .ph-cap { margin: 0; font-size: 15px; color: var(--muted); }
 
+
+  .ph-compose { margin: 0 10px 12px; display: flex; align-items: center; gap: 8px; }
+  .ph-compose span { flex: 1; padding: 9px 14px; border-radius: 99px; background: #fff; border: 1px solid #ddd6c6; font-size: 13px; color: var(--muted-paper); }
+  .ph-compose i { width: 34px; height: 34px; border-radius: 50%; background: var(--navy); flex: none; }
+  .rb-phone-wrap { position: relative; }
+  .rb-cable { position: absolute; left: -1px; top: 94px; width: 46px; height: 2px; background: color-mix(in srgb, var(--red) 45%, var(--line)); }
+  .rb-plug { position: absolute; left: -7px; top: -7px; width: 14px; height: 16px; border-radius: 3px; background: var(--red); box-shadow: inset 0 3px 0 -1px var(--navy-2); }
+  .rb-pulse { position: absolute; left: 0; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--red); opacity: 0; }
+  .play .rb-pulse, .rb-phone-wrap:has(.play) .rb-pulse { animation: pulse 520ms var(--ease) both; }
+  @keyframes pulse { 0% { opacity: 1; transform: translateX(0); } 90% { opacity: 1; } 100% { opacity: 0; transform: translateX(42px); } }
+  .play.phone { animation: glow 900ms 380ms var(--ease) both; }
+  @keyframes glow { 0% { box-shadow: inset 0 0 0 1.5px var(--red), 0 0 0 6px color-mix(in srgb, var(--red) 25%, transparent), 0 30px 60px -20px rgba(0,0,0,.7); } 100% { box-shadow: inset 0 0 0 1.5px #3a4570, 0 0 0 0 transparent, 0 30px 60px -20px rgba(0,0,0,.7); } }
   /* Replay (only when .play is set, so reduced motion shows settled frames) */
   .play .msg, .play .ph-field { animation: pop 420ms var(--d, 0ms) var(--ease-plug) both; }
   .play .msg-typing { display: flex; gap: 4px; align-self: flex-start; padding: 10px 12px; background: var(--navy); border-radius: 14px; overflow: hidden; max-height: 30px; animation: typing 650ms var(--d, 0ms) both; }
@@ -339,6 +361,8 @@ const first = bjobs[0];
   @media (max-width: 760px) {
     .rb-body { grid-template-columns: minmax(0, 1fr); }
     .rb-phone-wrap { border-left: 0; border-top: 1px solid var(--line); }
+    .rb-cable { display: none; }
+    .phone { height: 440px; }
     .rb-req { padding: 12px; }
     .rb-ex { display: none; }
     .rb-job-m { display: none; }
