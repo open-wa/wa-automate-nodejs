@@ -5,6 +5,13 @@
 
 
 
+
+## 5.5.1
+<sub>2026-10-12</sub>
+
+- [#3526](https://github.com/open-wa/wa-automate-nodejs/pull/3526)  *(patch)*
+  Ignore invalid saved session files and show the QR code for fresh pairing instead of stopping startup. Leave the ignored file in place until the newly paired session replaces it. Resolve session files only from the configured path or working directory, without searching beside the executable.
+
 ## 5.5.0
 <sub>2026-10-12</sub>
 
