@@ -74,7 +74,7 @@ const glyph: Record<PathId, string> = {
       {paths.map((p, i) => (
         <button
           type="button" role="tab" class="tab" id={`tab-${p.id}`} aria-controls={`panel-${p.id}`}
-          aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1} data-path={p.id}
+          aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1} data-path={p.id} data-name={p.name}
         >
           <svg class="tab-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d={glyph[p.id as PathId]} /></svg>
           <span class="tab-name"><span class="long">{p.name.replace(" runtime", "")}</span><span class="short">{panels[p.id as PathId].short}</span></span>
@@ -84,6 +84,7 @@ const glyph: Record<PathId, string> = {
     <div class="figure">
       <SystemDiagram layout={wide} variant="wide" active={first} nodes={routes[first].nodes} edges={routes[first].edges} describe={routes[first].describe} />
       <SystemDiagram layout={tall} variant="tall" active={first} nodes={routes[first].nodes} edges={routes[first].edges} describe={routes[first].describe} />
+      <p class="caption" id="diagram-caption" data-caption><strong data-caption-name>{paths[0].name}.</strong> <span data-caption-text>{routes[first].describe}</span></p>
     </div>
   </div>
 
@@ -135,8 +136,9 @@ const glyph: Record<PathId, string> = {
       if (on && focus) t.focus();
     });
     panels.forEach((p) => (p.hidden = p.dataset.panel !== id));
+    root.querySelector("[data-caption-name]")!.textContent = `${tabs.find((t) => t.dataset.path === id)?.dataset.name ?? ""}.`;
+    root.querySelector("[data-caption-text]")!.textContent = route.describe;
     for (const svg of diagrams) {
-      svg.setAttribute("aria-label", route.describe);
       svg.querySelectorAll<SVGGElement>("[data-node]").forEach((n) => n.classList.toggle("on", route.nodes.includes(n.dataset.node!)));
       svg.querySelectorAll<SVGGElement>("[data-edge]").forEach((e) => {
         const idx = route.edges.indexOf(e.dataset.edge!);
@@ -193,7 +195,9 @@ const glyph: Record<PathId, string> = {
   .tab-name { font: 600 15.5px/1.2 var(--font-text); white-space: nowrap; }
   .tab-name .short { display: none; }
 
-  .figure { border: 1px solid var(--color-rule); border-radius: 16px; background: var(--color-paper-3); padding: clamp(10px, 1.6vw, 20px); }
+  .figure { border: 1px solid var(--color-rule); border-radius: 16px; background: var(--color-paper-3); padding: clamp(10px, 1.6vw, 20px); display: grid; gap: 14px; }
+  .caption { font-size: 15px; line-height: 1.5; color: var(--color-muted); border-top: 1px solid var(--color-rule); padding-top: 12px; min-height: 4.5em; }
+  .caption strong { color: var(--color-ink); font-weight: 600; }
   .panel { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: clamp(24px, 4vw, 56px); align-items: start; outline: none; border-top: 1px solid var(--color-ink); padding-top: 28px; }
   .panel:focus-visible { outline: 2px solid var(--color-coral-ink); outline-offset: 8px; border-radius: 8px; }
   .panel-text { display: grid; gap: 16px; min-width: 0; }
@@ -232,7 +236,8 @@ const glyph: Record<PathId, string> = {
 
   .ways :global(.edge path) { fill: none; stroke-linecap: round; }
   .ways :global(.e-idle) { stroke: var(--color-rule); stroke-width: 1.5; stroke-dasharray: 2 5; }
-  .ways :global(.e-draw) { stroke: var(--color-coral); stroke-width: 2.5; stroke-dasharray: 1; stroke-dashoffset: 1; }
+  .ways :global(.e-draw) { stroke: var(--color-coral); stroke-width: 2.5; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; }
+  .ways :global(.edge.on .e-draw) { opacity: 1; }
   .ways :global(.e-flow) { stroke: var(--color-ink); stroke-width: 4.5; stroke-dasharray: 0 16; opacity: 0; }
   .ways :global(.e-label) { font: 500 13px var(--font-mono); fill: var(--color-coral-ink); opacity: 0; transition: opacity 300ms; paint-order: stroke; stroke: var(--color-paper-3); stroke-width: 5px; stroke-linejoin: round; }
   .ways :global(.edge.on .e-draw) { animation: e-draw 520ms var(--d) var(--ease-draw) forwards; }
@@ -271,6 +276,7 @@ const glyph: Record<PathId, string> = {
     .ways :global(.diagram-tall .n-title) { font-size: 15px; }
     .ways :global(.diagram-tall .n-sub) { font-size: 13px; }
     .ways :global(.diagram-tall .e-label) { font-size: 12px; }
+    .ways :global(.diagram-tall .b-label) { font-size: 11px; letter-spacing: 0; }
     .tabs { gap: 3px; padding: 3px; border-radius: 12px; }
     .tab { flex-direction: column; gap: 4px; padding: 8px 2px; min-height: 56px; }
     .tab-name { font-size: 13.5px; }

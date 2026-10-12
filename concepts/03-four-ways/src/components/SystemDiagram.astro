@@ -7,7 +7,7 @@ const eOn = (id: string) => edges.includes(id);
 const p = L.phone;
 const tallText = variant === "tall";
 ---
-<svg class:list={["diagram", `diagram-${variant}`]} viewBox={L.viewBox} role="img" aria-label={describe} data-diagram>
+<svg class:list={["diagram", `diagram-${variant}`]} viewBox={L.viewBox} role="img" aria-labelledby="diagram-caption" data-diagram>
   <defs>
     <pattern id={`dots-${variant}`} width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#D6CFC1" /></pattern>
   </defs>
@@ -34,9 +34,9 @@ const tallText = variant === "tall";
     <rect class="bubble out" x={p.x + p.w * 0.38} y={p.y + p.h * 0.45} width={p.w * 0.5} height={p.h * 0.1} rx={p.h * 0.05} />
     <rect class="bubble in" x={p.x + 11} y={p.y + p.h * 0.62} width={p.w * 0.36} height={p.h * 0.1} rx={p.h * 0.05} />
     <text class="n-title" x={p.labelX} y={p.labelY} text-anchor={p.anchor}>Your phone</text>
-    <text class="n-sub" x={p.labelX} y={p.labelY + 20} text-anchor={p.anchor}>{tallText ? "your WhatsApp account" : "WhatsApp account"}</text>
-    {!tallText && <text class="n-sub" x={p.labelX} y={p.labelY + 38} text-anchor={p.anchor}>linked by QR</text>}
-    {!tallText && <text class="n-sub" x={p.labelX} y={p.labelY + 56} text-anchor={p.anchor}>or link code</text>}
+    <text class="n-sub" x={p.labelX} y={p.labelY + 20} text-anchor={p.anchor}>your account,</text>
+    <text class="n-sub" x={p.labelX} y={p.labelY + 38} text-anchor={p.anchor}>linked by QR</text>
+    <text class="n-sub" x={p.labelX} y={p.labelY + 56} text-anchor={p.anchor}>or link code</text>
   </g>
 
   <g class:list={["node runtime", { on: on("runtime") }]} data-node="runtime">

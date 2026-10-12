@@ -18,22 +18,22 @@ export const routes: Record<PathId, { nodes: string[]; edges: string[]; describe
   "easy-api": {
     nodes: ["phone", "runtime", "browser", "api", "http"],
     edges: ["phone", "browserApi", "apiHttp"],
-    describe: "Easy API: your phone links to the open-wa runtime, which runs WhatsApp Web and serves an HTTP API on port 8080, with interactive docs, to any HTTP client.",
+    describe: "Your phone links to the open-wa runtime. It runs WhatsApp Web and serves an HTTP API on port 8080, with interactive docs, to anything that speaks HTTP.",
   },
   "socket-client": {
     nodes: ["phone", "runtime", "browser", "api", "app"],
     edges: ["phone", "browserApi", "rpc", "sse"],
-    describe: "SocketClient: the runtime serves the Easy API, and your Node.js app connects to it, sending commands over HTTP RPC and receiving events as Server-Sent Events.",
+    describe: "The runtime serves the Easy API. Your Node.js app connects to it, sends commands over HTTP RPC and receives events as Server-Sent Events.",
   },
   embedded: {
     nodes: ["phone", "runtime", "browser", "app", "boundary"],
     edges: ["phone", "embedded"],
-    describe: "Embedded runtime: your Node.js app calls createClient and runs the WhatsApp Web runtime inside its own process.",
+    describe: "Your Node.js app calls createClient and runs the runtime, browser included, inside its own process.",
   },
   mcp: {
     nodes: ["phone", "runtime", "browser", "api", "mcp", "agent"],
     edges: ["phone", "browserApi", "apiMcp", "mcpAgent"],
-    describe: "MCP server: the runtime exposes each Easy API method as a tool at /mcp, and an AI agent such as Claude calls those tools.",
+    describe: "The runtime exposes each Easy API method as a tool at /mcp, and an AI agent such as Claude calls them.",
   },
 };
 
@@ -48,7 +48,7 @@ export const wide: Layout = {
     mcp: { x: 144, y: 276, w: 198, h: 62, title: "MCP server", sub: "/mcp" },
     app: { x: 436, y: 36, w: 176, h: 72, title: "Your Node.js app", sub: "bots, jobs, handlers" },
     http: { x: 436, y: 170, w: 176, h: 72, title: "Any HTTP client", sub: "curl, your backend" },
-    agent: { x: 436, y: 290, w: 176, h: 72, title: "AI agent", sub: "Claude, Cursor, Windsurf" },
+    agent: { x: 436, y: 290, w: 176, h: 72, title: "AI agent", sub: "Claude, Cursor" },
   },
   edges: {
     phone: { d: "M92 104 C 118 104, 118 130, 144 130" },
@@ -64,9 +64,9 @@ export const wide: Layout = {
 
 export const tall: Layout = {
   viewBox: "0 0 360 548",
-  phone: { x: 144, y: 8, w: 72, h: 112, labelX: 228, labelY: 52, anchor: "start" },
+  phone: { x: 144, y: 8, w: 72, h: 112, labelX: 228, labelY: 40, anchor: "start" },
   runtime: { x: 40, y: 160, w: 280, h: 248, title: "open-wa runtime" },
-  boundary: { d: "M2 146 H332 V420 H124 V540 H2 Z", labelX: 12, labelY: 138 },
+  boundary: { d: "M2 146 H332 V420 H124 V540 H2 Z", labelX: 6, labelY: 138 },
   nodes: {
     browser: { x: 58, y: 198, w: 244, h: 58, title: "WhatsApp Web", sub: "in Puppeteer or Playwright" },
     api: { x: 58, y: 272, w: 244, h: 54, title: "Easy API", sub: "HTTP :8080, /api-docs" },
@@ -76,7 +76,7 @@ export const tall: Layout = {
     agent: { x: 125, y: 452, w: 110, h: 80, title: "AI agent", sub: "Claude, Cursor" },
   },
   edges: {
-    phone: { d: "M180 120 V198", label: { x: 190, y: 150, text: "QR or link code", anchor: "start" } },
+    phone: { d: "M180 120 V198" },
     browserApi: { d: "M180 256 V272" },
     apiMcp: { d: "M180 326 V342" },
     apiHttp: { d: "M302 299 H338 V430 C 338 444, 300 438, 300 452" },
