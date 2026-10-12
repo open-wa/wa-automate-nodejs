@@ -1,0 +1,12 @@
+---
+import { Code } from "astro:components";
+import CopyButton from "./CopyButton.astro";
+import { theme } from "../lib/shiki-theme";
+interface Props { code: string; lang?: string; title?: string; class?: string }
+const { code, lang = "js", title, class: cls } = Astro.props;
+const label = title ?? (lang === "sh" || lang === "bash" ? "Terminal" : lang === "json" ? "JSON" : "JavaScript");
+---
+<figure class:list={["code", cls]} style="margin:0">
+  <figcaption class="code-bar"><span>{label}</span><CopyButton text={code} describe={label} /></figcaption>
+  <Code code={code} lang={lang as any} theme={theme as any} />
+</figure>

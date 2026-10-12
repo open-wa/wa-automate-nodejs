@@ -1,0 +1,56 @@
+---
+import Mark from "./Mark.astro";
+import CopyButton from "./CopyButton.astro";
+import { footer, product, legal, links, commands, stats, latest, href, base } from "../data/site";
+---
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr-top">
+      <div class="ftr-brand">
+        <a class="mark-host brand" href={base}><Mark size={34} label="" /><span>open-wa</span></a>
+        <p class="muted">Your own WhatsApp number as an HTTP API, a client, an embedded runtime or an MCP server, for Node.js.</p>
+        <div class="ftr-cmd">
+          <code id="ftr-cmd">{commands.easyApi}</code>
+          <CopyButton target="ftr-cmd" describe="the run command" />
+        </div>
+        <p class="small muted">Latest release {latest.version}, {latest.date}. Stats checked {stats.checkedOn}.</p>
+      </div>
+      {footer.map((g) => (
+        <nav class="ftr-col" aria-label={g.title}>
+          <p class="ftr-title">{g.title}</p>
+          <ul>{g.items.map(([label, url]) => <li><a href={url}>{label}</a></li>)}</ul>
+        </nav>
+      ))}
+    </div>
+    <div class="ftr-legal">
+      <p><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> {legal.affiliation}</p>
+      <p>{product.risk} <a href={href("legal/")}>Read the notices</a>.</p>
+      <p>Software licence: {product.softwareLicence}. Maintained by {links.maintainer}. {legal.copyright}.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ftr { background: var(--color-ink); color: var(--color-on-navy); padding: 72px 0 40px; margin-top: 0; }
+  .ftr a { color: inherit; }
+  .ftr-top { display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); gap: 40px; padding-bottom: 48px; border-bottom: 1px solid rgba(244, 241, 234, 0.14); }
+  .ftr-brand { display: grid; gap: 16px; align-content: start; }
+  .ftr-brand .muted, .ftr .small { color: var(--color-on-navy-muted); }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 600 24px/1 var(--font-display); min-height: 44px; }
+  .ftr-cmd { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 14px; border: 1px solid rgba(244, 241, 234, 0.2); border-radius: 999px; max-width: 100%; min-width: 0; }
+  .ftr-cmd code { background: none; padding: 0; color: var(--color-on-navy); font-size: 12.5px; white-space: nowrap; overflow-x: auto; flex: 1; min-width: 0; scrollbar-width: none; }
+  .ftr-cmd :global(.copy) { color: var(--color-on-navy); border-color: rgba(244, 241, 234, 0.3); }
+  .ftr-title { font: 500 12.5px/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-brass); margin-bottom: 14px; }
+  .ftr-col ul { list-style: none; padding: 0; margin: 0; }
+  .ftr-col a { display: inline-flex; align-items: center; min-height: 36px; text-decoration: none; font-size: 16px; }
+  .ftr-col a:hover { text-decoration: underline; text-decoration-color: var(--color-coral); text-underline-offset: 4px; }
+  .ftr-legal { padding-top: 28px; display: grid; gap: 8px; font-size: 15px; color: var(--color-on-navy-muted); max-width: 980px; }
+  .ftr-legal strong { color: var(--color-on-navy); }
+  .ftr-legal a { text-decoration: underline; text-underline-offset: 3px; }
+  :global(.ftr :focus-visible) { outline-color: var(--color-coral); }
+  @media (max-width: 900px) {
+    .ftr-top { grid-template-columns: 1fr 1fr; }
+    .ftr-brand { grid-column: 1 / -1; }
+    .ftr-col a { min-height: 44px; }
+  }
+</style>
