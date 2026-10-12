@@ -4,6 +4,15 @@
 
 
 
+
+## 5.5.0
+<sub>2026-10-12</sub>
+
+- [#3518](https://github.com/open-wa/wa-automate-nodejs/pull/3518)  *(minor)*
+  Add typed media options for view-once attachments, circular video notes, GIFs and documents. Media captions and quoted message IDs now belong in the options object. Add poll closing times, hidden voter names, voting, synced results and vote listeners, plus message pinning and unpinning.
+
+  Add voluntary phone-number request and share-own-number methods, plus native call-link generation and scheduled-call options on events. Fix native attachment construction, prepared video dimensions, submitted IDs and native media failure reporting discovered during live phone demos.
+
 ## 5.4.0
 <sub>2026-09-30</sub>
 

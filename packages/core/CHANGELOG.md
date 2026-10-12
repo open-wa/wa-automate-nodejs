@@ -4,6 +4,51 @@
 
 
 
+
+## 5.5.0
+<sub>2026-10-12</sub>
+
+- [#3521](https://github.com/open-wa/wa-automate-nodejs/pull/3521)  *(minor)*
+  - ✨ Add native album sending for images, videos and MP4 GIFs, with one caption, PN-to-LID resolution and explicit partial-send errors.
+  - 🐛 Accept album message events, expose declared media counts and parent associations, and add `getAlbumMessages` to retrieve loaded child media.
+- [#3503](https://github.com/open-wa/wa-automate-nodejs/pull/3503)  *(minor)*
+  - ✨ Add the public licensed-calling audio preview: bound Call controls, file and stream audio, recordings, remote media helpers and the Calls dashboard.
+  - 🔒️ Calling uses the existing licensed patch delivery; expected availability failures log an actionable reason without stopping messaging.
+  - ♻️ Own call media in scoped resources and finalize recordings on observed call end, media failure, disconnect and browser recovery.
+- [#3520](https://github.com/open-wa/wa-automate-nodejs/pull/3520)  *(minor)*
+  - Add live session patch refresh and dashboard license activation through a shared page replacement coordinator, retaining the browser process and host session.
+  - Preserve portable persistence ownership, drain admitted operations, and report progress and bounded restoration through dedicated session controls.
+  - Evaluate the existing license response during refresh and report rejected keys without blocking public functionality.
+- [#3518](https://github.com/open-wa/wa-automate-nodejs/pull/3518)  *(minor)*
+  Add typed media options for view-once attachments, circular video notes, GIFs and documents. Media captions and quoted message IDs now belong in the options object. Add poll closing times, hidden voter names, voting, synced results and vote listeners, plus message pinning and unpinning.
+
+  Add voluntary phone-number request and share-own-number methods, plus native call-link generation and scheduled-call options on events. Fix native attachment construction, prepared video dimensions, submitted IDs and native media failure reporting discovered during live phone demos.
+- [#3518](https://github.com/open-wa/wa-automate-nodejs/pull/3518)  *(minor)*
+  - ✨ Add native WhatsApp event creation, history, editing, cancellation and RSVPs.
+  - ✨ Expose event and decrypted RSVP listeners with Effect schemas and JSON serializers.
+  - ✨ Deliver event support through the common live patch without a licence requirement.
+  - 📝 Add event and RSVP usage, Easy API routes, generated types and serializer documentation. Event times use Unix seconds; RSVP timestamps use milliseconds.
+- [#3521](https://github.com/open-wa/wa-automate-nodejs/pull/3521)  *(patch)*
+  Remove browser downloads during CLI installation, prefer installed Chrome, and prompt for Chrome, Chromium or Lightpanda when a browser is missing. Explicit browser flags provision on demand and reuse persistent per-user caches on subsequent runs.
+
+  Use stable Effect v4 for provisioning locks, temporary files, download retries and browser preference validation, and update the Effect package family together.
+- [#3521](https://github.com/open-wa/wa-automate-nodejs/pull/3521)  *(patch)*
+  - ✨ Add experimental WhatsApp startup through Easy API `--lightpanda`, with a separately prepared cached Lightpanda 1.0.0 executable, worker/crypto bridges and compression streams. Custom native CryptoKey and IndexedDB request-lifetime source patches are retained separately; the stock downloaded executable has not been replaced.
+  - 🐛 Refresh and clear QR state through native pairing state, expose compact-session checkpoint phases, reactivate checkpointing after document replacement, and preserve startup failures when cleanup also fails.
+  - 💄 Explain Lightpanda's unavailable Live Portal in dashboard health and the portal itself, because this browser has no graphical rendering pipeline.
+  - 📝 Include controlled stock-browser benchmark evidence and an editable launch film with OpenWA identity, the upcoming command and local onboarding steps.
+
+  Lightpanda support remains experimental. Custom native Debug runs reached authenticated library READY and loaded chat/contact data, but subsequent reload recovery failed with session takeover and initialization errors. Automatic recovery, outbound delivery, long-session durability and full Chrome parity remain unconfirmed. The controlled 1,000-record DOM benchmark does not measure authenticated WhatsApp performance or sync speed. This bump prepares the next minor release; it does not publish it.
+- [#3521](https://github.com/open-wa/wa-automate-nodejs/pull/3521)  *(patch)*
+  - 🐛 Restore complete available message snapshots in `onAck` instead of reducing acknowledgements to an ID and status.
+  - 🐛 Restore the shared `ev` helper, v4 wildcard subscriptions, and supported session/listener event aliases, with Effect-owned session cleanup and optional scoped subscriptions.
+  - 🐛 Return contacts from `getGroupMembers` and restore `getGroupMembersId` for ID-only lookups, resolving contacts in one browser round trip.
+- [#3519](https://github.com/open-wa/wa-automate-nodejs/pull/3519)  *(patch)*
+  Restore schema-bound client methods for file sending, editing, reactions, group
+  information, titles and descriptions through the existing private patch pipeline.
+  Restore per-group and global participant listeners through the schema event bridge,
+  including shared ev aliases, and correct the migration guide's unsupported claims.
+
 ## 5.4.0
 <sub>2026-09-30</sub>
 

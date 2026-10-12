@@ -4,6 +4,19 @@
 
 
 
+
+## 5.5.0
+<sub>2026-10-12</sub>
+
+- [#3520](https://github.com/open-wa/wa-automate-nodejs/pull/3520)  *(minor)*
+  - Add live session patch refresh and dashboard license activation through a shared page replacement coordinator, retaining the browser process and host session.
+  - Preserve portable persistence ownership, drain admitted operations, and report progress and bounded restoration through dedicated session controls.
+  - Evaluate the existing license response during refresh and report rejected keys without blocking public functionality.
+- [#3521](https://github.com/open-wa/wa-automate-nodejs/pull/3521)  *(patch)*
+  Remove browser downloads during CLI installation, prefer installed Chrome, and prompt for Chrome, Chromium or Lightpanda when a browser is missing. Explicit browser flags provision on demand and reuse persistent per-user caches on subsequent runs.
+
+  Use stable Effect v4 for provisioning locks, temporary files, download retries and browser preference validation, and update the Effect package family together.
+
 ## 5.4.0
 <sub>2026-09-30</sub>
 
