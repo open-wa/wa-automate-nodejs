@@ -1,0 +1,8 @@
+---
+interface Props { text?: string; from?: string; label?: string; class?: string; what?: string }
+const { text, from, label = "Copy", class: cls = "", what = "command" } = Astro.props;
+---
+<button type="button" class:list={["copy", cls]} data-copy={text} data-copy-from={from} aria-label={`Copy ${what}`}>
+  <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" shape-rendering="crispEdges"><path class="copy-i1" d="M4 1h7v7H4z"/><path class="copy-i2" d="M1 4v7h7"/><path class="copy-ok" d="M1 6l3 3 7-7"/></svg>
+  <span data-copy-label>{label}</span>
+</button>

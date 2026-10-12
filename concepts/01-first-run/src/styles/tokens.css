@@ -1,0 +1,59 @@
+/* 01 First run: brand tokens. Every colour, font, radius and easing lives here. */
+@font-face {
+  font-family: "Departure Mono";
+  src: url("../fonts/DepartureMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("../fonts/atkinson-hyperlegible-next-latin-wght-normal.woff2") format("woff2-variations");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("../fonts/atkinson-hyperlegible-next-latin-wght-italic.woff2") format("woff2-variations");
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  /* Palette: ink, phosphor amber, bone, a muted grey and one status colour. */
+  --ink: #0e0f0c;
+  --ink-2: #151612;      /* raised surface (terminal body, cards) */
+  --ink-3: #1d1e19;      /* bars, hovered blocks */
+  --line: #2b2c25;       /* hairlines */
+  --line-2: #3c3d34;
+  --amber: #ffb000;
+  --amber-dim: #b37c00;
+  --amber-tint: #ffd27a;
+  --bone: #ede8dc;
+  --grey: #9a968a;       /* muted text, 6.6:1 on ink */
+  --lime: #c3ea5c;       /* status: session ready, success */
+
+  --color-bg: var(--ink);
+  --color-ink: var(--bone);
+  --color-accent: var(--amber);
+  --color-muted: var(--grey);
+  --color-surface: var(--ink-2);
+
+  --font-display: "Departure Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-mono: "Departure Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-text: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Departure Mono is drawn on an 11px grid: 16.5px is 3 device pixels per
+     font pixel on 2x screens, 22px and 44px are whole multiples. */
+  --code-size: 16.5px;
+
+  --radius: 4px;
+  --radius-lg: 8px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-step: steps(1, end);
+  --speed: 180ms;
+  --wrap: 1180px;
+  --gutter: clamp(16px, 4vw, 40px);
+}

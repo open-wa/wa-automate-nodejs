@@ -1,0 +1,15 @@
+---
+import { Code } from "astro:components";
+import CopyButton from "./CopyButton.astro";
+import { phosphor } from "../lib/shiki-theme";
+interface Props { code: string; lang?: string; title?: string; class?: string }
+const { code, lang = "js", title, class: cls } = Astro.props;
+const id = "c" + crypto.randomUUID().slice(0, 8);
+---
+<figure class:list={["code", cls]}>
+  <figcaption class="code-bar"><span>{title ?? lang}</span><CopyButton from={`#${id} code`} what={title ? title : "code"} /></figcaption>
+  <div id={id}><Code code={code} lang={lang as any} theme={phosphor as any} /></div>
+</figure>
+<style>
+  figure { margin: 0; }
+</style>

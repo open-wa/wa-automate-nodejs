@@ -1,0 +1,105 @@
+---
+import Page from "../layouts/Page.astro";
+import LicenceForm from "../components/LicenceForm.astro";
+import { licences, product, commands, href, support } from "../data/site";
+const [insiders, restricted] = licences.tiers;
+const periods: [keyof typeof insiders.prices, string][] = [["month", "1 month"], ["threeMonths", "3 months"], ["sixMonths", "6 months"], ["year", "12 months"]];
+const faq = [
+  ["Do I need a key to start?", "No. Every method marked none works without one, including reading chats, sending to existing contacts, media, polls, events, webhooks and MCP for those methods."],
+  ["What does \"per WhatsApp number\" mean?", "A key is bought for one WhatsApp account, the one you link to the session. A second number needs its own key."],
+  ["How do I use the key?", `Pass it at launch with ${commands.licenceFlag}, or set licenseKey in your config. Since 5.5 you can also apply it to a running session from the dashboard or with client.refresh().`],
+  ["Which methods need which tier?", "Method metadata marks each method none, insiders or restricted. The lists above name the methods people ask about most. The docs list every method's tier."],
+  ["Does a licence lower the ban risk?", "No. A licence unlocks methods. " + product.risk],
+  ["Can I get help choosing?", "Ask in Discord, or email for paid support and consulting."],
+];
+---
+<Page title="Pricing and licence keys | open-wa" description="open-wa is free for most methods. Insiders from £5 a month and Restricted from £15 a month, per WhatsApp number. Prices checked 12 Oct 2026.">
+  <div class="wrap">
+    <header class="page-head">
+      <p class="kicker">$ pricing</p>
+      <h1>Free for most methods. Pay per number for the rest.</h1>
+      <p>{licences.summary}</p>
+    </header>
+
+    <section class="price-grid" aria-label="Tiers">
+      <article class="pt">
+        <h2>No key</h2>
+        <p class="pt-price">£0</p>
+        <p>{licences.free.covers}</p>
+        <a class="btn" href={href("quickstart/")}>Start free <span class="arrow" aria-hidden="true">→</span></a>
+      </article>
+      {[insiders, restricted].map((t) => (
+        <article class="pt pt-paid">
+          <h2>{t.name}</h2>
+          <p class="pt-price">{t.prices.month}<span> a month</span></p>
+          <table class="pt-periods">
+            <caption class="sr-only">{t.name} prices by billing period</caption>
+            <tbody>
+              {periods.map(([k, label]) => <tr><th scope="row">{label}</th><td>{t.prices[k]}</td></tr>)}
+            </tbody>
+          </table>
+          <p>{t.unlocks}</p>
+          <a class="btn btn-amber" href={`?tier=${t.id}#licence`}>Get a {t.name} key <span class="arrow" aria-hidden="true">→</span></a>
+        </article>
+      ))}
+    </section>
+    <p class="price-note muted">Prices in GBP, checked 12 Oct 2026 on the Gumroad product page. Prices can change; checkout shows the current price. Keys are per WhatsApp number.</p>
+
+    <section class="buy" id="licence" aria-labelledby="buy-h">
+      <div class="buy-side">
+        <h2 id="buy-h">Get a licence key</h2>
+        <p class="muted">Four fields, then a prefilled Gumroad checkout.</p>
+        <h3>Before you buy</h3>
+        <ol>
+          {licences.beforeYouBuy.map((b) => <li>{b}</li>)}
+        </ol>
+        <p class="note"><strong>Ban risk:</strong> {product.risk} A licence doesn't change that.</p>
+      </div>
+      <LicenceForm />
+    </section>
+
+    <section class="faq" aria-labelledby="faq-h">
+      <h2 id="faq-h">Questions</h2>
+      {faq.map(([q, a]) => (
+        <details>
+          <summary>{q}</summary>
+          <p>{a}</p>
+        </details>
+      ))}
+      <p class="muted">More in the <a href={support.licensingDocs}>licensing docs</a>, or <a href={href("support/")}>ask for help</a>.</p>
+    </section>
+  </div>
+</Page>
+
+<style>
+  .price-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .pt { border: 1px solid var(--line-2); border-radius: var(--radius-lg); padding: 24px; display: grid; gap: 14px; align-content: start; }
+  .pt-paid { background: var(--ink-2); }
+  .pt h2 { font-size: 27.5px; }
+  .pt-price { font-family: var(--font-display); font-size: 44px; color: var(--amber); line-height: 1; }
+  .pt-price span { font-size: 16.5px; color: var(--grey); }
+  .pt > p:not(.pt-price) { color: var(--grey); font-size: 16.5px; }
+  .pt .btn { justify-self: start; }
+  .pt-periods { border-collapse: collapse; width: 100%; font-family: var(--font-mono); font-size: 16.5px; }
+  .pt-periods th, .pt-periods td { padding: 6px 0; border-bottom: 1px solid var(--line); text-align: left; font-weight: 400; }
+  .pt-periods th { color: var(--grey); }
+  .pt-periods td { text-align: right; }
+  .price-note { margin-top: 14px; font-size: 16px; }
+  .buy { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px; padding-block: 72px; border-top: 1px solid var(--line); margin-top: 56px; scroll-margin-top: 80px; }
+  .buy-side { display: grid; gap: 14px; align-content: start; }
+  .buy-side h3 { margin-top: 10px; }
+  .buy-side ol { margin: 0; padding-left: 22px; display: grid; gap: 8px; }
+  .faq { border-top: 1px solid var(--line); padding-block: 56px 80px; display: grid; gap: 0; max-width: 820px; }
+  .faq h2 { margin-bottom: 18px; }
+  .faq details { border-bottom: 1px solid var(--line); }
+  .faq summary { cursor: pointer; min-height: 56px; display: flex; align-items: center; font-weight: 600; font-size: 18px; list-style: none; }
+  .faq summary::before { content: "+"; font-family: var(--font-mono); color: var(--amber); width: 28px; flex: none; }
+  .faq details[open] summary::before { content: "-"; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq details p { padding: 0 0 18px 28px; color: var(--grey); }
+  .faq > p { margin-top: 18px; }
+  .faq a { color: var(--amber); }
+  @media (max-width: 900px) {
+    .price-grid, .buy { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

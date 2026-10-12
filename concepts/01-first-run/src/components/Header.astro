@@ -1,0 +1,49 @@
+---
+import Mark from "./Mark.astro";
+import { nav, href, support, starsShort, checked } from "../data/site";
+const path = Astro.url.pathname;
+---
+<header class="site-head">
+  <div class="wrap head-row">
+    <a class="mark-host brand" href={href("")} aria-label="open-wa home">
+      <Mark size={30} label="" />
+      <span class="brand-word">open-wa</span>
+    </a>
+    <nav class="head-nav" aria-label="Main">
+      <a href={support.docs}>Docs <span class="ext" aria-hidden="true">↗</span></a>
+      {nav.map((n) => <a href={n.href} aria-current={path.startsWith(n.href) ? "page" : undefined}>{n.label}</a>)}
+    </nav>
+    <div class="head-end">
+      <a class="head-gh" href={support.github} title={`GitHub stars, checked ${checked}`}>
+        <span>GitHub</span> <span class="star" aria-label={`${starsShort} stars`}>★ {starsShort}</span>
+      </a>
+      <a class="head-dc" href={support.discord}>Discord</a>
+      <a class="btn btn-amber btn-sm" href={href("quickstart/")}>Quick start</a>
+      <details class="menu">
+        <summary aria-label="Menu"><span class="menu-bars" aria-hidden="true"></span><span class="menu-word">Menu</span></summary>
+        <div class="menu-sheet">
+          <nav aria-label="Main (phone)">
+            <a href={support.docs}>Docs <span aria-hidden="true">↗</span></a>
+            {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+            <a href={href("use-cases/")}>Use cases</a>
+            <a href={href("compare/")}>Official API or open-wa?</a>
+            <a href={href("support/")}>Support</a>
+            <a href={href("migrate/")}>Migrate from v4</a>
+            <a href={support.github}>GitHub <span class="star">★ {starsShort}</span></a>
+            <a href={support.discord}>Discord</a>
+          </nav>
+          <a class="btn btn-amber" href={href("quickstart/")}>Quick start</a>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>
+<script>
+  const menu = document.querySelector<HTMLDetailsElement>(".site-head .menu");
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && menu?.open) { menu.open = false; menu.querySelector("summary")?.focus(); }
+  });
+  document.addEventListener("click", (e) => {
+    if (menu?.open && !menu.contains(e.target as Node)) menu.open = false;
+  });
+</script>

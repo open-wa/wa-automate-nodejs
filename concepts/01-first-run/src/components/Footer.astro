@@ -1,0 +1,37 @@
+---
+import Mark from "./Mark.astro";
+import CopyButton from "./CopyButton.astro";
+import { footer, product, commands, support, legal, stats, href, kfloor, releases } from "../data/site";
+const latest = releases[0];
+---
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-run">
+      <p class="foot-run-label">Start a session</p>
+      <div class="cmdline">
+        <span class="cmd-prompt" aria-hidden="true">$</span>
+        <code class="cmd-text">{commands.easyApi}</code>
+        <CopyButton text={commands.easyApi} />
+      </div>
+    </div>
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="mark-host brand" href={href("")} aria-label="open-wa home"><Mark size={30} label="" /><span class="brand-word">open-wa</span></a>
+        <p>Open-source WhatsApp automation for Node.js. Maintained by {support.maintainer} since 2019.</p>
+        <p class="foot-meta">v{product.currentVersion} · {kfloor(stats.githubStars)} stars · {kfloor(stats.npmDownloadsLast12Months)} npm downloads a year · checked {stats.checkedOn}</p>
+      </div>
+      {footer.map((col) => (
+        <nav class="foot-col" aria-label={col.title}>
+          <h2>{col.title}</h2>
+          <ul>
+            {col.links.map((l) => <li><a href={l.href}>{l.label}{l.ext && <span class="ext" aria-hidden="true"> ↗</span>}</a></li>)}
+          </ul>
+        </nav>
+      ))}
+    </div>
+    <div class="foot-legal">
+      <p class="foot-unofficial"><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> {product.risk}</p>
+      <p>{legal.copyright}. Software licence: {product.softwareLicence}. Latest release {latest.version}, {latest.date}.</p>
+    </div>
+  </div>
+</footer>
