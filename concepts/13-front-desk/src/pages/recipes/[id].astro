@@ -1,0 +1,106 @@
+---
+import Page from "../../layouts/Page.astro";
+import ChatPhone from "../../components/ChatPhone.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import CopyCommand from "../../components/CopyCommand.astro";
+import { jobs, jobLicence, jobSnippet, jobCard, http, commands, snippets, priceNote, DOCS, product } from "../../data/facts";
+import { convo } from "../../data/recipes";
+
+export function getStaticPaths() {
+  return jobs.map((j) => ({ params: { id: j.id } }));
+}
+const { id } = Astro.params;
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const i = jobs.findIndex((j) => j.id === id);
+const job = jobs[i];
+const lic = jobLicence[job.id];
+const c = convo[job.id];
+const next = jobs[(i + 1) % jobs.length];
+const chipClass = { free: "chip--free", insiders: "chip--insiders", restricted: "chip--restricted", preview: "chip--preview" } as const;
+const needsKey = lic.kind !== "free";
+---
+
+<Page title={`${job.name}: a WhatsApp recipe | open-wa`} description={`${job.flow.split(". ")[0]}. The flow, the code and the licence it needs.`}>
+  <section class="page-head wrap">
+    <p class="kicker"><a href={`${base}recipes/`}>Recipes</a></p>
+    <h1>{job.name}</h1>
+    <p class="lead">{job.who}. {jobCard[job.id].line}</p>
+    <p class="head-chips"><span class:list={["chip", chipClass[lic.kind]]}>{lic.label}</span></p>
+  </section>
+
+  <section class="wrap recipe">
+    <div class="recipe-phone">
+      <ChatPhone business={c.business} number={c.number} msgs={c.msgs} label={`Example conversation: ${job.name}`} />
+    </div>
+    <div class="recipe-body">
+      <div class="block">
+        <h2>What you'll build</h2>
+        <p>{job.flow}</p>
+      </div>
+      <div class="block">
+        <h2>The code</h2>
+        <CodeBlock code={jobSnippet(job.id)} lang="js" title={job.id === "ai-agent" ? "wa.config.mjs" : "JavaScript"} />
+        {job.id === "ai-agent" && <CodeBlock code={snippets.mcpStart} lang="bash" title="Start it" wrap />}
+        {job.id === "ai-agent" && <CodeBlock code={snippets.claudeDesktop} lang="json" title="Claude Desktop config" />}
+        {"cli" in job && job.cli && <><p>The same renderer as a CLI, for making sticker files:</p><CodeBlock code={job.cli as string} lang="bash" title="Sticker CLI" wrap /></>}
+        {"audio" in job && job.audio && <p class="note">{job.audio as string}</p>}
+      </div>
+      <div class="block">
+        <h2>Methods</h2>
+        <ul class="methods">{job.methods.map((m) => <li><code>{m}</code></li>)}</ul>
+      </div>
+      <div class:list={["block", "licence", `licence--${lic.kind}`]}>
+        <h2>Licence</h2>
+        <p>{job.licence}</p>
+        {needsKey && lic.kind !== "preview" && <p class="small muted">{priceNote}</p>}
+        <p><a class="link-arrow" href={`${base}pricing/${lic.kind === "restricted" ? "?tier=restricted#licence" : lic.kind === "preview" ? "#calls" : ""}`}>{lic.kind === "restricted" ? "Get a Restricted key" : lic.kind === "preview" ? "About calling keys" : "Free and licensed methods"} <span aria-hidden="true">→</span></a></p>
+      </div>
+      <div class="block">
+        <h2>From any language</h2>
+        <p>{http.note}</p>
+        <CodeBlock code={http.sendTextCurl} lang="bash" title="sendText over HTTP" />
+        <p class="small muted">Every other method is listed with its route at <code>/api-docs/</code> on your running instance. <a href={DOCS}>Read the docs</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--paper">
+    <div class="wrap start">
+      <div>
+        <h2>Start with one command.</h2>
+        <p class="lead">Run it, scan the QR code with the business's phone, and the methods above are live. {product.risk}</p>
+      </div>
+      <div class="start-act">
+        <CopyCommand command={commands.easyApi} />
+        <div class="btn-row">
+          <a class="btn btn--primary" href={`${base}quickstart/`}>Quick start <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn btn--ghost" href={`${base}recipes/${next.id}/`}>Next: {next.name}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .page-head .kicker a { text-decoration: none; }
+  .head-chips { margin-top: 18px; }
+  .recipe { display: grid; grid-template-columns: 380px 1fr; gap: clamp(32px, 5vw, 72px); align-items: start; padding-bottom: clamp(56px, 8vw, 96px); }
+  .recipe-phone { position: sticky; top: calc(var(--header-h) + 24px); }
+  .recipe-body { display: grid; gap: 36px; min-width: 0; }
+  .block { display: grid; gap: 14px; min-width: 0; }
+  .block h2 { font-size: 1.6rem; }
+  .methods { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+  .methods code { font-size: 1.0625rem; }
+  .note { padding: 14px 16px; border-radius: 12px; background: var(--sand-100); border: 1px solid var(--color-line); }
+  .licence { padding: 22px; border-radius: var(--radius-lg); background: var(--paper); border: 1px solid var(--color-line); }
+  .licence--restricted { border-color: #e9bfb1; }
+  .licence--preview { border-color: #e2cf9f; }
+  .block a:not(.link-arrow) { color: var(--terracotta-ink); }
+  .start { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
+  .start h2 { margin-bottom: 12px; }
+  .start-act { display: grid; gap: 16px; min-width: 0; }
+  @media (max-width: 900px) {
+    .recipe, .start { grid-template-columns: 1fr; }
+    .recipe-phone { position: static; }
+  }
+</style>

@@ -1,0 +1,38 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { support, stats, kDown, snippets } from "../data/facts";
+const ways = [
+  { title: "Ask on Discord", text: `${kDown(stats.discordMembers)} members (checked ${stats.checkedOn}) trade recipes, debug sessions and answer questions.`, href: support.discord, cta: "Join the Discord" },
+  { title: "Report and fix", text: "Open an issue with your version and the method you called, or send a pull request.", href: support.issues, cta: "Open an issue" },
+  { title: "Star and watch", text: `${kDown(stats.githubStars)} stars and ${kDown(stats.githubForks)} forks (checked ${stats.checkedOn}). Watch releases to hear about new versions.`, href: support.github, cta: "Go to GitHub" },
+  { title: "Support the maintainer", text: `open-wa is maintained by ${support.maintainer}. Licence keys and consulting fund the work.`, href: support.buyMeACoffee, cta: "Buy me a coffee" },
+];
+---
+
+<Page title="Community and contributing | open-wa" description="Join the open-wa Discord, report issues, contribute on GitHub or package your own integration with the Plugin SDK.">
+  <section class="page-head wrap">
+    <p class="kicker">Community</p>
+    <h1>Built in the open since 2019.</h1>
+    <p class="lead">Contributions, recipes and plugins are welcome.</p>
+  </section>
+  <section class="wrap">
+    <div class="grid grid-2">
+      {ways.map((w) => <div class="card way"><h2>{w.title}</h2><p>{w.text}</p><a class="link-arrow" href={w.href}>{w.cta} <span aria-hidden="true">→</span></a></div>)}
+    </div>
+  </section>
+  <section class="section wrap plug">
+    <div>
+      <h2>Write a plugin</h2>
+      <p class="lead">Package your own integration with <code>@open-wa/plugin-sdk</code> and load it with <code>plugins</code> and <code>pluginConfig</code>.</p>
+    </div>
+    <CodeBlock code={snippets.plugins} lang="js" title="wa.config.mjs" />
+  </section>
+</Page>
+
+<style>
+  .way h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .plug { display: grid; grid-template-columns: 1fr 1.2fr; gap: 32px; align-items: start; }
+  .plug h2 { margin-bottom: 12px; }
+  @media (max-width: 860px) { .plug { grid-template-columns: 1fr; } }
+</style>

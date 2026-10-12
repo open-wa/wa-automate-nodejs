@@ -53,7 +53,7 @@ const extras = [
       </div>
     </div>
 
-    <div class="stage">
+    <div class="stage" id="desk">
       <div class="stage-photo" aria-hidden="true">
         <Image src={reception} alt="" widths={[800, 1600]} sizes="100vw" loading="eager" />
       </div>
@@ -184,7 +184,7 @@ const extras = [
     <div class="closing-photo" aria-hidden="true"><Image src={room} alt="" widths={[800, 1400]} sizes="100vw" /></div>
     <div class="wrap closing-in">
       <h2>Open the desk on your number today.</h2>
-      <p>Run it, scan it, and send the first check-in from curl.</p>
+      <p>Run it, scan it, and send a check-in from curl.</p>
       <CopyCommand command={commands.easyApi} tone="ocean" label="Run the Easy API" />
       <div class="btn-row">
         <a class="btn btn--primary" href={`${base}quickstart/`}>Quick start <span class="arrow" aria-hidden="true">→</span></a>

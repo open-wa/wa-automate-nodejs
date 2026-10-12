@@ -1,0 +1,30 @@
+---
+import Page from "../layouts/Page.astro";
+import { legal, product, support } from "../data/facts";
+---
+
+<Page title="Legal: unofficial notice, terms and licence | open-wa" description="open-wa is unofficial and not affiliated with WhatsApp or Meta. Terms of Service, software licence, ban risk and export notice.">
+  <section class="page-head wrap">
+    <p class="kicker">Legal</p>
+    <h1>The unofficial notice, terms and licence.</h1>
+  </section>
+  <section class="wrap prose lg">
+    <h2>Unofficial</h2>
+    <p>{legal.affiliation}</p>
+    <h2>Account risk</h2>
+    <p>{product.risk}</p>
+    <h2>Terms of Service</h2>
+    <p>{product.terms} <a href={support.terms}>Read the Terms of Service</a>.</p>
+    <h2>Software licence</h2>
+    <p>open-wa is released under the {product.softwareLicence}. <a href={support.licenceText}>Read the licence</a>.</p>
+    <h2>Cryptography</h2>
+    <p>{legal.crypto}</p>
+    <h2>Copyright</h2>
+    <p>{legal.copyright}. Maintained by {support.maintainer}.</p>
+  </section>
+</Page>
+
+<style>
+  .lg { padding-bottom: clamp(56px, 8vw, 96px); }
+  .lg a { color: var(--terracotta-ink); }
+</style>

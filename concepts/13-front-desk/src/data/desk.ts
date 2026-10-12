@@ -101,7 +101,7 @@ client.onMessage(async (message) => {
   }
 });`,
     bubbles: [
-      { from: "guest", kind: "text", text: "Hi! What's the wifi code?" },
+      { from: "guest", kind: "text", text: "Hi, what's the wifi code?" },
       { from: "hotel", kind: "text", text: "Wifi code for your stay: 482915" },
     ],
     inboxLine: "Wifi code sent",

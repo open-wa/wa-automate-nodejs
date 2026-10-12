@@ -1,0 +1,72 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { capabilities, snippets, commands, DOCS } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const groups = [
+  { title: "Send", items: [
+    { name: "Messages", text: capabilities.messages },
+    { name: "Media", text: capabilities.media },
+    { name: "Stickers", text: `${capabilities.stickers} Sending stickers with sendSticker relies on the current sticker patch.` },
+    { name: "Polls", text: capabilities.polls },
+    { name: "Event cards", text: capabilities.events },
+  ] },
+  { title: "Receive and react", items: [
+    { name: "Messages and events", text: "onMessage and the other listeners give your code every incoming message, vote, RSVP and call state as it happens." },
+    { name: "Groups", text: capabilities.groups },
+    { name: "Calls", text: "Answer, reject and start WhatsApp calls, and stream call audio to your own system. A licensed preview: it needs a calling-enabled key. Audio only." },
+  ] },
+  { title: "Run it", items: [
+    { name: "Several numbers", text: capabilities.multiSession },
+    { name: "Session files", text: capabilities.sessions },
+    { name: "Live refresh", text: capabilities.refresh },
+    { name: "Browsers", text: `${capabilities.drivers} Lightpanda is experimental.` },
+    { name: "Generated API docs", text: capabilities.docs },
+  ] },
+];
+---
+
+<Page title="Features: messages, media, stickers, polls, events and calls | open-wa" description="Everything open-wa can send, receive and do on your own WhatsApp number, from media and polls to event cards, calls and multiple sessions.">
+  <section class="page-head wrap">
+    <p class="kicker">Features</p>
+    <h1>What the desk can send, receive and run.</h1>
+    <p class="lead">Every feature below is a method on your running session and an HTTP endpoint listed at <code>/api-docs/</code>. Some methods need a key; <a href={`${base}pricing/`}>pricing</a> lists which.</p>
+  </section>
+  {groups.map((g, gi) => (
+    <section class:list={["section", "feat", { "section--paper": gi % 2 === 0 }]}>
+      <div class="wrap feat-in">
+        <h2>{g.title}</h2>
+        <dl class="feat-list">
+          {g.items.map((x) => <div><dt>{x.name}</dt><dd>{x.text}</dd></div>)}
+        </dl>
+      </div>
+    </section>
+  ))}
+  <section class="section wrap feat-code">
+    <div>
+      <h2>Event cards, new in 5.5</h2>
+      <p class="lead">Send a native WhatsApp event and handle each RSVP.</p>
+    </div>
+    <CodeBlock code={snippets.event} lang="js" />
+    <div>
+      <h2>Encrypted session files, from 5.4</h2>
+      <p class="lead">Move a session between containers with your own key.</p>
+    </div>
+    <CodeBlock code={snippets.sessionKey} lang="js" />
+    <p class="small muted">More in the <a href={DOCS}>docs</a>. Run <code>{commands.easyApi}</code> and open <code>{commands.proofOfLife}</code> to try every method.</p>
+  </section>
+</Page>
+
+<style>
+  .feat { padding-block: clamp(48px, 6vw, 80px); }
+  .feat-in { display: grid; grid-template-columns: 280px 1fr; gap: 32px; }
+  .feat-list { margin: 0; display: grid; }
+  .feat-list div { display: grid; grid-template-columns: 200px 1fr; gap: 16px; padding: 16px 0; border-top: 1px solid var(--color-line); }
+  .feat-list dt { font-weight: 600; }
+  .feat-list dd { margin: 0; color: var(--color-muted); }
+  .feat-code { display: grid; grid-template-columns: 1fr 1.3fr; gap: 24px 48px; align-items: start; }
+  .feat-code h2 { font-size: 1.75rem; margin-bottom: 8px; }
+  .feat-code > p { grid-column: 1 / -1; }
+  .page-head a, .feat-code a { color: var(--terracotta-ink); }
+  @media (max-width: 860px) { .feat-in, .feat-list div, .feat-code { grid-template-columns: 1fr; } .feat-list div { gap: 4px; } }
+</style>

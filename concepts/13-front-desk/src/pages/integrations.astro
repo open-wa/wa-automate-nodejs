@@ -1,0 +1,60 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { integrations, snippets, DOCS } from "../data/facts";
+const anchor = (n: string) => n.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+---
+
+<Page title="Integrations: webhooks, Chatwoot, Node-RED, S3 and MCP | open-wa" description="Connect your WhatsApp number to webhooks, Chatwoot, Node-RED, S3 storage, a Cloudflare session proxy, AI agents over MCP, or your own plugin.">
+  <section class="page-head wrap">
+    <p class="kicker">Integrations</p>
+    <h1>Plug the desk into the tools you already use.</h1>
+    <p class="lead">Integrations are plugins you list in your config. Each one runs alongside your session.</p>
+  </section>
+  <section class="wrap ints">
+    {integrations.map((i) => (
+      <article class="int" id={anchor(i.name)}>
+        <h2>{i.name}</h2>
+        <p>{i.what}</p>
+        <code>{i.package}</code>
+      </article>
+    ))}
+  </section>
+  <section class="section section--paper">
+    <div class="wrap two">
+      <div>
+        <h2>Load plugins</h2>
+        <p class="lead">List packages or a local file, then give each its config.</p>
+        <CodeBlock code={snippets.plugins} lang="js" title="wa.config.mjs" />
+      </div>
+      <div>
+        <h2>Reach a session remotely</h2>
+        <p class="lead">Connect through your own Cloudflare Worker without opening public ports.</p>
+        <CodeBlock code={snippets.cfProxyConsumer} lang="js" />
+      </div>
+      <div>
+        <h2>Give an AI agent the number</h2>
+        <p class="lead">Turn on the built-in MCP server; each method becomes a tool.</p>
+        <CodeBlock code={snippets.mcpConfig} lang="js" />
+      </div>
+      <div>
+        <h2>Connect Claude Desktop</h2>
+        <p class="lead">Point the client at your running instance. Guides for each are in the <a href={DOCS}>docs</a>.</p>
+        <CodeBlock code={snippets.claudeDesktop} lang="json" />
+      </div>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .ints { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; padding-bottom: clamp(56px, 8vw, 96px); }
+  .int { background: var(--paper); border: 1px solid var(--color-line); border-radius: var(--radius-lg); padding: 24px; display: grid; gap: 10px; align-content: start; }
+  .int h2 { font-size: 1.5rem; }
+  .int p { color: var(--color-muted); }
+  .int code { width: fit-content; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+  .two > div { display: grid; gap: 12px; align-content: start; min-width: 0; }
+  .two h2 { font-size: 1.75rem; }
+  .two a { color: var(--terracotta-ink); }
+  @media (max-width: 860px) { .two { grid-template-columns: 1fr; } }
+</style>

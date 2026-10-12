@@ -1,0 +1,100 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import CopyCommand from "../components/CopyCommand.astro";
+import { commands, firstRun, http, snippets, product, paths, DOCS, support } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const other = paths.filter((p) => p.id !== "easy-api");
+const otherCode: Record<string, { code: string; lang: string; title: string }> = {
+  "socket-client": { code: `${commands.socketClientInstall}\n`, lang: "bash", title: "Install" },
+  embedded: { code: commands.embeddedInstall, lang: "bash", title: "Install" },
+  mcp: { code: snippets.mcpStart, lang: "bash", title: "Start with MCP" },
+};
+---
+
+<Page title="Quick start: your WhatsApp number as an HTTP API in three steps | open-wa" description="Run one command, scan the QR code, then send your first WhatsApp message with curl from any language.">
+  <section class="page-head wrap">
+    <p class="kicker">Quick start</p>
+    <h1>From one command to your first message.</h1>
+    <p class="lead">You need Node.js {product.node} and the phone with the WhatsApp number you want to use. Nothing to register.</p>
+    <p class="risk"><strong>Before you start:</strong> {product.unofficial} {product.risk}</p>
+  </section>
+
+  <section class="wrap qs">
+    <ol class="qs-steps">
+      <li>
+        <span class="n" aria-hidden="true">1</span>
+        <div class="qs-body">
+          <h2>Run the command</h2>
+          <p>{firstRun[0]}</p>
+          <CopyCommand command={commands.easyApi} label="Terminal" />
+          <p class="small muted">Protect the API with a key of your own:</p>
+          <CodeBlock code={commands.easyApiWithKey} lang="bash" title="With an API key" wrap />
+          <p class="small muted">Or run it in Docker:</p>
+          <CodeBlock code={commands.docker} lang="bash" title="Docker" wrap />
+        </div>
+      </li>
+      <li>
+        <span class="n" aria-hidden="true">2</span>
+        <div class="qs-body">
+          <h2>Scan the QR code</h2>
+          <p>{firstRun[1]} On the phone, open WhatsApp, then Linked devices, then Link a device.</p>
+        </div>
+      </li>
+      <li>
+        <span class="n" aria-hidden="true">3</span>
+        <div class="qs-body">
+          <h2>Open the docs and send a message</h2>
+          <p>{firstRun[2]}</p>
+          <CodeBlock code={commands.proofOfLife} lang="bash" title="Your API docs" copy={true} />
+          <CodeBlock code={http.sendTextCurl} lang="bash" title="Send with curl" />
+          <p class="small muted">{http.chatId}</p>
+          <CodeBlock code={`{"success": true, "data": "..."}`} lang="json" title="Response" example copy={false} />
+          <CodeBlock code={http.health} lang="bash" title="Health check" />
+        </div>
+      </li>
+    </ol>
+    <div class="next">
+      <h2>Next: pick a job</h2>
+      <p>Bookings, hotel notifications, OTP codes, calls, stickers and media each have a recipe with the code and the licence they need.</p>
+      <div class="btn-row"><a class="btn btn--primary" href={`${base}recipes/`}>Recipes <span class="arrow" aria-hidden="true">→</span></a><a class="btn btn--ghost" href={support.quickstartDocs}>Quick start in the docs</a></div>
+      <p class="small muted">Run a second number side by side with its own session:</p>
+      <CodeBlock code={commands.namedSession} lang="bash" title="Named session" wrap />
+    </div>
+  </section>
+
+  <section class="section section--paper">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Other ways to connect</h2>
+        <p>Most people only need the HTTP API above. If you write Node.js, there are three other ways in.</p>
+      </div>
+      <div class="grid grid-3">
+        {other.map((p) => (
+          <div class="card other">
+            <h3>{p.name}</h3>
+            <p>{p.what}</p>
+            <CodeBlock code={otherCode[p.id].code.trim()} lang={otherCode[p.id].lang} title={otherCode[p.id].title} wrap />
+          </div>
+        ))}
+      </div>
+      <p class="small muted more">Full guides for each are in the <a href={DOCS}>docs</a>.</p>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .risk { margin-top: 20px; max-width: 72ch; padding: 14px 16px; border-radius: 12px; background: var(--terracotta-soft); }
+  .qs { display: grid; grid-template-columns: 1.4fr 1fr; gap: clamp(32px, 5vw, 64px); align-items: start; padding-bottom: clamp(56px, 8vw, 96px); }
+  .qs-steps { list-style: none; display: grid; gap: 40px; }
+  .qs-steps > li { display: grid; grid-template-columns: 48px 1fr; gap: 18px; }
+  .n { width: 48px; height: 48px; border-radius: 50%; background: var(--ocean); color: var(--sand); display: grid; place-items: center; font: 400 1.35rem/1 var(--font-display); }
+  .qs-body { display: grid; gap: 14px; min-width: 0; }
+  .qs-body h2 { font-size: 1.75rem; }
+  .next { position: sticky; top: calc(var(--header-h) + 24px); display: grid; gap: 14px; padding: 24px; background: var(--paper); border: 1px solid var(--color-line); border-radius: var(--radius-lg); min-width: 0; }
+  .next h2 { font-size: 1.6rem; }
+  .other { display: grid; gap: 12px; align-content: start; min-width: 0; }
+  .more { margin-top: 18px; }
+  .more a { color: var(--terracotta-ink); }
+  @media (max-width: 960px) { .qs { grid-template-columns: 1fr; } .next { position: static; } }
+</style>

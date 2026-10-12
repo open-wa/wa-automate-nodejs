@@ -1,0 +1,80 @@
+---
+/** "Tell us what you need" for businesses: name, email, what to build. */
+---
+
+<div class="cf" data-cf>
+  <form class="cf-form" novalidate>
+    <div class="cf-field">
+      <label for="cf-name">Your name</label>
+      <input id="cf-name" name="name" autocomplete="name" required aria-describedby="cf-name-err" />
+      <p class="cf-err" id="cf-name-err" aria-live="polite"></p>
+    </div>
+    <div class="cf-field">
+      <label for="cf-email">Email</label>
+      <input id="cf-email" name="email" type="email" autocomplete="email" required aria-describedby="cf-email-err" />
+      <p class="cf-err" id="cf-email-err" aria-live="polite"></p>
+    </div>
+    <div class="cf-field">
+      <label for="cf-what">What do you want built?</label>
+      <textarea id="cf-what" name="what" rows="4" placeholder="e.g. Send check-in details and answer guests on our guesthouse's WhatsApp number" required aria-describedby="cf-what-err"></textarea>
+      <p class="cf-err" id="cf-what-err" aria-live="polite"></p>
+    </div>
+    <button class="btn btn--primary" type="submit">Send</button>
+  </form>
+  <div class="cf-done" hidden tabindex="-1">
+    <p class="cf-badge">Sent</p>
+    <h3>Thanks, <span data-name></span></h3>
+    <p>Your note is with the maintainer. The reply goes to <strong data-email></strong>.</p>
+    <p class="muted small">Demo: this concept keeps the details in your browser tab only.</p>
+  </div>
+</div>
+
+<script>
+  import { submitLead } from "../lib/leads";
+  const rules: Record<string, (v: string) => string> = {
+    name: (v) => (v.trim() ? "" : "Tell us your name."),
+    email: (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? "" : "Enter an email address we can reply to."),
+    what: (v) => (v.trim().length >= 10 ? "" : "A sentence or two is enough."),
+  };
+  document.querySelectorAll<HTMLElement>("[data-cf]").forEach((root) => {
+    const form = root.querySelector("form")!;
+    const touched = new Set<string>();
+    const check = (n: string) => {
+      const el = form.elements.namedItem(n) as HTMLInputElement;
+      const msg = rules[n](el.value);
+      el.setAttribute("aria-invalid", msg ? "true" : "false");
+      root.querySelector(`#cf-${n}-err`)!.textContent = msg;
+      return !msg;
+    };
+    Object.keys(rules).forEach((n) => {
+      const el = form.elements.namedItem(n) as HTMLInputElement;
+      el.addEventListener("input", () => { if (el.value.trim()) touched.add(n); if (touched.has(n)) check(n); });
+    });
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const bad = Object.keys(rules).filter((n) => !check(n));
+      Object.keys(rules).forEach((n) => touched.add(n));
+      if (bad.length) { (form.elements.namedItem(bad[0]) as HTMLElement).focus(); return; }
+      const d = new FormData(form);
+      await submitLead("consulting", { name: String(d.get("name")).trim(), email: String(d.get("email")).trim(), what: String(d.get("what")).trim() });
+      root.querySelector("[data-name]")!.textContent = String(d.get("name")).trim().split(" ")[0];
+      root.querySelector("[data-email]")!.textContent = String(d.get("email")).trim();
+      form.hidden = true;
+      const done = root.querySelector<HTMLElement>(".cf-done")!;
+      done.hidden = false; done.focus();
+    });
+  });
+</script>
+
+<style>
+  .cf { background: var(--paper); border: 1px solid var(--color-line); border-radius: var(--radius-lg); padding: clamp(20px, 3vw, 32px); box-shadow: var(--shadow-card); }
+  .cf-form { display: grid; gap: 18px; }
+  .cf-field { display: grid; gap: 6px; }
+  .cf-field label { font-weight: 680; }
+  .cf-field input, .cf-field textarea { width: 100%; min-height: 48px; padding: 10px 14px; border: 1.5px solid var(--sand-300); border-radius: 10px; font: 500 1.0625rem/1.4 var(--font-text); color: var(--ocean); }
+  .cf-field [aria-invalid="true"] { border-color: var(--err); }
+  .cf-err { color: var(--err); font-weight: 600; font-size: var(--text-sm); }
+  .cf-err:empty { display: none; }
+  .cf-done { display: grid; gap: 12px; outline: none; }
+  .cf-badge { width: fit-content; padding: 4px 10px; border-radius: 999px; background: var(--ok-soft); color: var(--ok); font-weight: 700; font-size: 0.875rem; }
+</style>
