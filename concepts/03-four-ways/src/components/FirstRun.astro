@@ -5,13 +5,20 @@
  */
 import Command from "./Command.astro";
 import { commands, firstRun } from "../data/site";
-const seq = ["Command runs", "QR or link code", "Session ready", "/api-docs open", "Message sent", "Reply received"];
+const seq = [
+  ["Command runs", "npx … --port 8080"],
+  ["Phone linked", "QR or link code"],
+  ["Session ready", "localhost:8080"],
+  ["Docs open", "/api-docs/"],
+  ["Message sent", "sendText"],
+  ["Reply received", "onMessage"],
+];
 ---
 <section class="section fr" aria-labelledby="fr-title">
   <div class="wrap">
     <div class="section-head">
       <h2 id="fr-title">From one command to a working session</h2>
-      <p class="lede">The Easy API path, start to finish. The other three ways start from the same session.</p>
+      <p class="lede">The Easy API path, start to finish. SocketClient and MCP connect to this same instance.</p>
     </div>
 
     <ol class="fr-steps">
@@ -32,8 +39,9 @@ const seq = ["Command runs", "QR or link code", "Session ready", "/api-docs open
     </ol>
 
     <div class="fr-demo">
-      <div class="fr-seq" aria-label="First-run sequence">
-        <ol>{seq.map((s) => <li><span class="dot" aria-hidden="true"></span>{s}</li>)}</ol>
+      <div class="fr-seq" role="group" aria-label="First-run sequence">
+        <p class="label-demo fr-seq-label">First run, step by step</p>
+        <ol>{seq.map(([s, c]) => <li><span class="dot" aria-hidden="true"></span><span class="seq-t">{s}</span><code class="seq-c">{c}</code></li>)}</ol>
       </div>
       <figure class="fr-chat" aria-label="Example output: a message sent from the API and a reply received">
         <figcaption class="label-demo">Example output</figcaption>
@@ -57,10 +65,13 @@ const seq = ["Command runs", "QR or link code", "Session ready", "/api-docs open
   .fr-steps h3 { font-size: 26px; }
   .fr-url { justify-self: start; font-size: 13px !important; }
   .fr-demo { margin-top: clamp(32px, 4vw, 48px); display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; align-items: stretch; }
-  .fr-seq { border: 1px solid var(--color-rule); border-radius: 16px; background: var(--color-paper-3); padding: 28px; display: grid; align-items: center; }
+  .fr-seq { border: 1px solid var(--color-rule); border-radius: 16px; background: var(--color-paper-3); padding: 28px; display: grid; align-content: center; }
   .fr-seq ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); position: relative; }
   .fr-seq ol::before { content: ""; position: absolute; left: 6px; right: 6px; top: 6px; height: 2px; background: repeating-linear-gradient(90deg, var(--color-coral) 0 8px, transparent 8px 14px); }
-  .fr-seq li { position: relative; display: grid; gap: 14px; font-size: 14.5px; line-height: 1.3; padding-right: 8px; }
+  .fr-seq li { position: relative; display: grid; gap: 10px; align-content: start; font-size: 15px; line-height: 1.3; padding-right: 10px; }
+  .seq-t { font-weight: 600; }
+  .seq-c { justify-self: start; font-size: 11.5px !important; overflow-wrap: anywhere; }
+  .fr-seq-label { margin-bottom: 18px; }
   .fr-seq .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--color-paper-3); border: 2px solid var(--color-ink); position: relative; z-index: 1; }
   .fr-seq li:last-child .dot { background: var(--color-coral); }
   .fr-chat { margin: 0; border: 1px solid var(--color-rule); border-radius: 16px; background: var(--color-paper-2); padding: 18px; display: grid; gap: 12px; }
@@ -76,6 +87,8 @@ const seq = ["Command runs", "QR or link code", "Session ready", "/api-docs open
     .fr-demo { grid-template-columns: minmax(0, 1fr); }
     .fr-seq ol { grid-template-columns: minmax(0, 1fr); gap: 14px; }
     .fr-seq ol::before { left: 6px; right: auto; top: 6px; bottom: 6px; width: 2px; height: auto; background: repeating-linear-gradient(180deg, var(--color-coral) 0 8px, transparent 8px 14px); }
-    .fr-seq li { grid-template-columns: 14px 1fr; align-items: center; }
+    .fr-seq li { grid-template-columns: 14px 1fr; align-items: center; column-gap: 12px; row-gap: 4px; }
+    .fr-seq .dot { grid-row: span 2; }
+    .seq-c { grid-column: 2; }
   }
 </style>

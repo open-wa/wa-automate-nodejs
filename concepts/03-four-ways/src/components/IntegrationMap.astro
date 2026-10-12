@@ -4,7 +4,7 @@
  * Hovering or focusing a row lights its line. Phone: the list alone.
  */
 import { integrations, href } from "../data/site";
-const ROW = 72;
+const ROW = 84;
 const H = integrations.length * ROW;
 const hubY = H / 2;
 const anchor = (name: string) => (name === "Plugin SDK" ? "plugin-sdk" : name === "MCP" ? "mcp" : name.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
@@ -58,7 +58,8 @@ const anchor = (name: string) => (name === "Plugin SDK" ? "plugin-sdk" : name ==
   .im-list a:hover, .im-list a:focus-visible { background: var(--color-paper-3); }
   .im-name { font-weight: 600; grid-row: 1 / span 2; align-self: center; }
   .im-pkg { justify-self: start; font-size: 12px !important; }
-  .im-what { font-size: 14.5px; color: var(--color-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .im-what { font-size: 14.5px; line-height: 1.35; color: var(--color-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .im-list a { row-gap: 4px; }
   @media (max-width: 700px) {
     .im { grid-template-columns: minmax(0, 1fr); }
     .im-lines { display: none; }
