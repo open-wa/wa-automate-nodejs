@@ -1,0 +1,35 @@
+---
+import Site from "../../layouts/Site.astro";
+import { f, S } from "../../data/facts";
+---
+<Site title="Changelog: what's new in open-wa" description="Recent open-wa releases: event cards and RSVPs, live refresh, local stickers, and your own session encryption key.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="kicker">Changelog</p>
+      <h1>What's new</h1>
+      <p class="lead">Latest on npm: v{f.product.currentVersion} ({f.product.currentVersionNote}). {f.stats.publishedVersions} versions published since {f.product.since.split(";")[1].trim().replace("first npm release ", "")}.</p>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap">
+      <ol class="rel">
+        {f.releases.map((r) => (
+          <li>
+            <span class="rel-v mono">v{r.version}</span>
+            <div><h2>{r.headline}</h2><p class="rel-d">{r.date}</p><ul>{r.highlights.map((h) => <li>{h}</li>)}</ul></div>
+          </li>
+        ))}
+      </ol>
+      <div class="btn-row"><a class="btn btn-ghost" href={S.changelog}>Full changelog</a><a class="btn btn-ghost" href={S.releases}>GitHub releases</a></div>
+    </div>
+  </section>
+</Site>
+<style>
+  .rel { list-style: none; margin: 0 0 32px; padding: 0; display: grid; gap: 0; }
+  .rel > li { display: grid; grid-template-columns: 140px 1fr; gap: 24px; padding: 28px 0; border-bottom: 1px solid var(--line); }
+  .rel-v { font-size: 18px; color: var(--red); }
+  .rel h2 { font-size: 26px; }
+  .rel-d { color: var(--muted); margin: 6px 0 10px; }
+  .rel ul { margin: 0; padding-left: 20px; color: #d9dbe5; display: grid; gap: 6px; }
+  @media (max-width: 700px) { .rel > li { grid-template-columns: 1fr; gap: 8px; } }
+</style>

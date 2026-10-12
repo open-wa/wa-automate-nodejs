@@ -1,0 +1,68 @@
+---
+import Site from "../../layouts/Site.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { f, href } from "../../data/facts";
+const slug = (n: string) => n.toLowerCase().replace(/[^a-z0-9]+/gu, "-").replace(/-$/u, "");
+---
+<Site title="Integrations: webhooks, Chatwoot, Node-RED, MCP | open-wa" description="Connect your WhatsApp number to webhooks, Chatwoot, Node-RED, S3 storage, a Cloudflare session proxy, AI agents over MCP, or your own plugin.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="kicker">Integrations</p>
+      <h1>Send WhatsApp events where your work already happens</h1>
+      <p class="lead">Plugins load with <code>plugins</code> and <code>pluginConfig</code> in your config. Anything else talks to the HTTP API directly.</p>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap">
+      <div class="ig">
+        {f.integrations.map((i) => (
+          <article class="ig-c" id={slug(i.name)}>
+            <h2>{i.name}</h2>
+            <p>{i.what}</p>
+            <code class="ig-p">{i.package}</code>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap two">
+      <div>
+        <h2 class="h2">Load plugins in your config</h2>
+        <p class="lead">Name a published plugin or a local folder. Each plugin reads its own block from <code>pluginConfig</code>.</p>
+        <a class="btn btn-ghost" href={href("recipes/support-inbox/")}>Chatwoot support inbox recipe</a>
+      </div>
+      <CodeBlock code={f.snippets.plugins} lang="js" title="wa.config.mjs" />
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap two">
+      <div>
+        <h2 class="h2">Reach a local session from anywhere</h2>
+        <p class="lead">The Cloudflare Session Proxy runs in your own Worker, so a session on a machine in the shop can be used from your server without opening public ports.</p>
+      </div>
+      <CodeBlock code={f.snippets.cfProxyConsumer} lang="js" title="Connect through your Worker" />
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap two">
+      <div>
+        <h2 class="h2">Give an AI agent the number</h2>
+        <p class="lead">Turn on the built-in MCP server and each method becomes a tool for Claude, Cursor or Windsurf. Licensed methods still need their key.</p>
+        <a class="btn btn-ghost" href={href("recipes/ai-agent/")}>AI agent recipe</a>
+      </div>
+      <CodeBlock code={f.snippets.mcpConfig} lang="js" title="wa.config.mjs: MCP" />
+    </div>
+  </section>
+</Site>
+<style>
+  .ig { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .ig-c { display: grid; gap: 10px; align-content: start; padding: 22px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--navy-2); scroll-margin-top: 90px; }
+  .ig-c:target { border-color: var(--red); }
+  .ig-c h2 { font-size: 21px; }
+  .ig-c p { margin: 0; color: #d9dbe5; }
+  .ig-p { font-size: 14px; color: var(--peach); }
+  .two { display: grid; grid-template-columns: 1fr 1.1fr; gap: 40px; align-items: center; }
+  .two .btn { margin-top: 20px; }
+  @media (max-width: 960px) { .two { grid-template-columns: 1fr; } }
+</style>

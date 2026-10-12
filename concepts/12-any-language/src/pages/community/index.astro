@@ -1,0 +1,26 @@
+---
+import Site from "../../layouts/Site.astro";
+import { f, S, stars, checked, href } from "../../data/facts";
+const cards = [
+  { h: "Discord", t: `About ${f.stats.discordMembers.toLocaleString("en-GB")} members (${checked}). Ask questions, share what you built, hear about releases first.`, l: "Join Discord", u: S.discord },
+  { h: "GitHub", t: `${stars} stars and ${f.stats.githubForks} forks (${checked}). Issues, pull requests and releases.`, l: "Open the repo", u: S.github },
+  { h: "Report a bug", t: "Include your version, driver, Node.js version and the smallest code that shows the problem.", l: "Open an issue", u: S.issues },
+  { h: "Build a plugin", t: "Package your own integration with the Plugin SDK and share it. Load it with plugins and pluginConfig.", l: "Plugin SDK", u: href("integrations/#plugin-sdk") },
+  { h: "Support the maintainer", t: `open-wa is maintained by ${S.maintainer}. A licence key or a coffee keeps it going.`, l: "Buy me a coffee", u: S.buyMeACoffee },
+];
+---
+<Site title="Community and contributing | open-wa" description="Join the open-wa Discord, report bugs, contribute on GitHub and build plugins.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="kicker">Community</p>
+      <h1>Ask, report, contribute</h1>
+      <p class="lead">open-wa has been open source since {f.product.since.split(";")[0].replace("GitHub repository created ", "")}. Contributions are welcome under the project's software licence ({f.product.softwareLicence}).</p>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap grid-cards">
+      {cards.map((c) => <article class="card cc"><h2>{c.h}</h2><p>{c.t}</p><a class="btn btn-ghost" href={c.u}>{c.l}</a></article>)}
+    </div>
+  </section>
+</Site>
+<style>.cc { display: grid; gap: 12px; align-content: start; } .cc h2 { font-size: 21px; } .cc .btn { justify-self: start; }</style>

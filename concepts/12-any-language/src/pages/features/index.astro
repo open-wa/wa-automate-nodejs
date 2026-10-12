@@ -1,0 +1,72 @@
+---
+import Site from "../../layouts/Site.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { f, href } from "../../data/facts";
+const c = f.capabilities;
+const groups = [
+  { h: "Messages", t: c.messages, m: ["sendText", "onMessage", "reply", "react"] },
+  { h: "Media", t: c.media, m: ["sendImage", "sendFile", "sendPtt", "decryptMedia"] },
+  { h: "Polls", t: c.polls, m: ["sendPoll"] },
+  { h: "Event cards", t: c.events, m: ["sendEvent", "onEventResponse"] },
+  { h: "Stickers", t: c.stickers.replace("in the first release", "in this release") + " Sending with sendSticker relies on the current sticker patch.", m: ["sendSticker", "openwa-sticker"] },
+  { h: "Calls", t: "Answer, reject and start WhatsApp calls, and stream call audio as PCM16 at 16 kHz. Licensed preview, audio only.", m: ["onIncomingCall", "startCall", "onCallState"] },
+  { h: "Groups", t: c.groups, m: ["createGroup", "joinGroupViaLink"] },
+  { h: "Several numbers", t: c.multiSession, m: ["--session-id"] },
+  { h: "Session files", t: c.sessions, m: ["sessionDataEncryptionKeyFile"] },
+  { h: "Live refresh", t: c.refresh, m: ["client.refresh()"] },
+  { h: "Browsers", t: c.drivers + " Lightpanda is experimental.", m: ["Puppeteer", "Playwright"] },
+  { h: "API docs", t: c.docs, m: ["/api-docs/", "/meta/swagger.json", "/meta/postman.json"] },
+];
+---
+<Site title="Features: send, receive, media, events and calls | open-wa" description="Everything open-wa can send, receive and do on your own WhatsApp number: messages, media, polls, event cards, stickers, calls, groups, several sessions and live API docs.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="kicker">Features</p>
+      <h1>What your number can do once it's an API</h1>
+      <p class="lead">{f.product.how}</p>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap">
+      <div class="fg">
+        {groups.map((g) => (
+          <article class="fg-c">
+            <h2>{g.h}</h2>
+            <p>{g.t}</p>
+            <span class="fg-m">{g.m.map((x) => <code>{x}</code>)}</span>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap two">
+      <div>
+        <h2 class="h2">Event cards, new in 5.5</h2>
+        <p class="lead">Send a native event card and handle each RSVP: going, not going or maybe. Bookings and meetups read it as a real calendar item.</p>
+        <a class="btn btn-ghost" href={href("recipes/salon-bookings/")}>See the salon recipe</a>
+      </div>
+      <CodeBlock code={f.snippets.event} lang="js" title="Node.js: send an event card" />
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap two">
+      <div>
+        <h2 class="h2">Your session, your key</h2>
+        <p class="lead">{c.sessions}</p>
+      </div>
+      <CodeBlock code={f.snippets.sessionKey} lang="js" title="Node.js: session encryption key" />
+    </div>
+  </section>
+</Site>
+<style>
+  .fg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+  .fg-c { background: var(--navy); padding: 24px; display: grid; gap: 10px; align-content: start; }
+  .fg-c h2 { font-size: 21px; }
+  .fg-c p { margin: 0; color: #d9dbe5; }
+  .fg-m { display: flex; flex-wrap: wrap; gap: 6px; }
+  .fg-m code { font-size: 13px; color: var(--sky); background: #0a1024; padding: 2px 7px; border-radius: 6px; }
+  .two { display: grid; grid-template-columns: 1fr 1.1fr; gap: 40px; align-items: center; }
+  .two .btn { margin-top: 20px; }
+  @media (max-width: 960px) { .fg, .two { grid-template-columns: 1fr; } }
+</style>

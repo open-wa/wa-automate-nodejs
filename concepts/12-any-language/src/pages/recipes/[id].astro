@@ -1,0 +1,93 @@
+---
+import Site from "../../layouts/Site.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import LangTabs from "../../components/LangTabs.astro";
+import ChatPhone from "../../components/ChatPhone.astro";
+import CopyCommand from "../../components/CopyCommand.astro";
+import { f, href, S, priceNote } from "../../data/facts";
+import { recipeMeta, snippetFor } from "../../data/recipes";
+import { convos } from "../../data/conversations";
+
+export function getStaticPaths() {
+  return f.jobs.map((j) => ({ params: { id: j.id } }));
+}
+const { id } = Astro.params;
+const j = f.jobs.find((x) => x.id === id)!;
+const m = recipeMeta[id!];
+const i = f.jobs.findIndex((x) => x.id === id);
+const next = f.jobs[(i + 1) % f.jobs.length];
+const pbx = id === "pbx-calls";
+---
+<Site title={`${j.name} on WhatsApp: recipe | open-wa`} description={`${m.build} The flow, the code, the methods and the licence it needs.`}>
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="kicker"><a href={href("recipes/")}>Recipes</a> / {m.short}</p>
+      <h1>{j.name}</h1>
+      <p class="lead">{j.who}.</p>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap rcp">
+      <div class="rcp-main">
+        <h2>What you'll build</h2>
+        <p>{j.flow}</p>
+        <h2>The code</h2>
+        <CodeBlock code={snippetFor(id!, j.snippet)} lang="js" title={`Node.js: ${j.name.toLowerCase()}`} />
+        {m.extra?.map((x) => <CodeBlock code={x.code} lang={x.lang} title={x.title} />)}
+        {m.any && (
+          <>
+            <h2>The same send from any language</h2>
+            <p>sendText is a documented HTTP route on your running instance: <code>{f.http.sendTextRoute}</code>. Everything else is listed at <code>/api-docs/</code> on your instance.</p>
+            <LangTabs items={m.any} name="Language" />
+          </>
+        )}
+        {pbx && (
+          <>
+            <h2>Audio format</h2>
+            <p>{j.audio}</p>
+            <p class="risk"><strong>Licensed preview.</strong> Calls need a calling-enabled key and are audio only; camera calls are in development. Most PBXs need a small adapter between the OpenWA audio protocol and their own socket format.</p>
+          </>
+        )}
+        <h2>Methods</h2>
+        <ul class="meth">{j.methods.map((x) => <li><code>{x}</code></li>)}</ul>
+        <h2>Licence</h2>
+        <p class="lic"><span class:list={["pill", m.paid ? "pill-red" : "pill-free"]}>{m.tag}</span> {j.licence}</p>
+        <p class="fine">{priceNote} <a href={href("pricing/")}>See pricing</a>.</p>
+        <div class="btn-row">
+          <a class="btn btn-red" href={href("quickstart/")}>Start with the quick start</a>
+          <a class="btn btn-ghost" href={S.docs}>Read the docs</a>
+        </div>
+      </div>
+      <aside class="rcp-side">
+        <ChatPhone convo={convos[id!]} label={j.name} />
+        <p class="cap">Example conversation. Business invented for illustration.</p>
+        <CopyCommand cmd={f.commands.easyApi} />
+      </aside>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap nx">
+      <a href={href(`recipes/${next.id}/`)} class="nx-a"><span>Next recipe</span><b>{next.name}</b></a>
+      <a href={href("recipes/")} class="nx-a"><span>All recipes</span><b>Back to the gallery</b></a>
+    </div>
+  </section>
+</Site>
+<style>
+  .kicker a { color: inherit; }
+  .rcp { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 56px; align-items: start; }
+  .rcp-main { display: grid; gap: 16px; min-width: 0; }
+  .rcp-main h2 { font-size: 24px; margin-top: 20px; }
+  .rcp-main p { margin: 0; color: #d9dbe5; max-width: 66ch; }
+  .rcp-side { position: sticky; top: 88px; display: grid; gap: 14px; justify-items: center; }
+  .cap { margin: 0; font-size: 15px; color: var(--muted); text-align: center; }
+  .meth { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .meth code { font-size: 15px; color: var(--sky); background: #0a1024; padding: 4px 10px; border-radius: 7px; border: 1px solid var(--line); }
+  .lic { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .fine { font-size: 16px; color: var(--muted) !important; }
+  .nx { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .nx-a { display: grid; gap: 4px; padding: 20px; border: 1px solid var(--line); border-radius: 14px; text-decoration: none; color: var(--paper); }
+  .nx-a:hover { border-color: var(--red); }
+  .nx-a span { font: 600 13px var(--font-mono); color: var(--red); }
+  .nx-a b { font: 700 20px var(--font-display); }
+  @media (max-width: 960px) { .rcp { grid-template-columns: 1fr; } .rcp-side { position: static; order: -1; } .nx { grid-template-columns: 1fr; } }
+</style>

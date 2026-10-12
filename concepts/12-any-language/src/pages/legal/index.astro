@@ -1,0 +1,30 @@
+---
+import Site from "../../layouts/Site.astro";
+import { f, S } from "../../data/facts";
+---
+<Site title="Legal and unofficial notice | open-wa" description="open-wa is unofficial and not affiliated with WhatsApp or Meta. Terms of Service, software licence, ban risk and export notice.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="kicker">Legal</p>
+      <h1>Unofficial notice, terms and licence</h1>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap prose">
+      <h2 id="unofficial">Unofficial notice</h2>
+      <p>{f.legal.affiliation}</p>
+      <h2>Ban risk</h2>
+      <p>{f.product.risk}</p>
+      <h2>Terms of Service</h2>
+      <p>{f.product.terms} <a href={S.terms}>Read the Terms of Service</a>.</p>
+      <h2>Software licence</h2>
+      <p>open-wa is released under the {f.product.softwareLicence} licence. <a href={S.licenceText}>Read the licence</a>.</p>
+      <h2>Licence keys</h2>
+      <p>{f.licences.summary}</p>
+      <h2>Export notice</h2>
+      <p>{f.legal.crypto}</p>
+      <h2>Copyright</h2>
+      <p>{f.legal.copyright}. Maintained by {S.maintainer}. Contact <a href={`mailto:${S.consultingEmail}`}>{S.consultingEmail}</a>.</p>
+    </div>
+  </section>
+</Site>

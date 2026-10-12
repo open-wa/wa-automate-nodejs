@@ -1,0 +1,32 @@
+---
+import Site from "../../layouts/Site.astro";
+import CopyCommand from "../../components/CopyCommand.astro";
+import { f, S } from "../../data/facts";
+---
+<Site title="Migrate from v4 to v5 | open-wa" description="Pin v4 while you move, then upgrade to open-wa v5. What changed and where the migration guide lives.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="kicker">Migrate from v4</p>
+      <h1>Keep your v4 bot running while you move to v5</h1>
+      <p class="lead">{f.migration.summary}</p>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap prose">
+      <h2>1. Pin v4 today</h2>
+      <p>An unqualified install now gets v5. Pin v4 so nothing changes under you:</p>
+      <CopyCommand cmd={f.migration.v4Pin} />
+      <h2>2. Read the guide</h2>
+      <p>The <a href={S.migrationDocs}>migration guide</a> lists what changed method by method.</p>
+      <h2>3. Pick up what v5 adds</h2>
+      <ul>
+        {f.releases.flatMap((r) => r.highlights.map((h) => <li>{h} <span class="mono v">v{r.version}</span></li>))}
+      </ul>
+      <h2>4. Test on a spare session</h2>
+      <p>Run v5 on a named session next to your v4 bot before switching the business number:</p>
+      <CopyCommand cmd={f.commands.namedSession} />
+      <p>Stuck? Ask in <a href={S.discord}>Discord</a> or open an <a href={S.issues}>issue on GitHub</a>.</p>
+    </div>
+  </section>
+</Site>
+<style>.v { color: var(--muted); font-size: 14px; } .prose :global(.cmd) { margin: 12px 0; }</style>

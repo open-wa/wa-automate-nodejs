@@ -103,3 +103,10 @@ export const bjobs: BJob[] = [
 
 export const responseJson = `{\n  "success": true,\n  "data": { }\n}`;
 export const sendTextRoute = f.http.sendTextRoute;
+
+/** The documented sendText route in every language, for a fixed message (no apostrophes). */
+export function sendTextAll(literal: string) {
+  const m: Msg = { literal, php: `'${literal}'`, python: `"${literal}"`, node: `'${literal}'`, n8n: literal };
+  return langs.map((l) => ({ id: l.id, label: l.label, shiki: l.id === "n8n" ? "json" : l.shiki, code: http(l.id, m), title: l.id === "n8n" ? "n8n HTTP Request node, JSON body" : `${l.label}: sendText` }));
+}
+export const otpAll = langs.map((l) => ({ id: l.id, label: l.label, shiki: l.id === "n8n" ? "json" : l.shiki, code: http(l.id, otp), title: l.id === "n8n" ? "n8n HTTP Request node, JSON body" : `${l.label}: send a code` }));

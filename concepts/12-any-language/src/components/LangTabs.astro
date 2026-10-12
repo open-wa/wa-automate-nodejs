@@ -1,0 +1,36 @@
+---
+// The same request in several languages, as tabs. Each panel is a Shiki block.
+import CodeBlock from "./CodeBlock.astro";
+interface Props { items: { id: string; label: string; shiki: string; code: string; title: string }[]; name: string }
+const { items, name } = Astro.props;
+---
+<div class="lt" data-lt>
+  <div class="lt-tabs" role="tablist" aria-label={name}>
+    {items.map((it, i) => <button type="button" role="tab" class="lt-tab" aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1} data-i={i}>{it.label}</button>)}
+  </div>
+  {items.map((it, i) => <div role="tabpanel" class="lt-p" data-i={i} hidden={i !== 0}><CodeBlock code={it.code} lang={it.shiki} title={it.title} /></div>)}
+</div>
+<script>
+  document.querySelectorAll<HTMLElement>("[data-lt]").forEach((root) => {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>(".lt-tab"));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>(".lt-p"));
+    const pick = (n: number, focus = false) => {
+      tabs.forEach((t, i) => { t.setAttribute("aria-selected", String(i === n)); t.tabIndex = i === n ? 0 : -1; });
+      panels.forEach((p, i) => (p.hidden = i !== n));
+      if (focus) tabs[n].focus();
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => pick(i));
+      t.addEventListener("keydown", (e) => {
+        const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+        if (d) { e.preventDefault(); pick((i + d + tabs.length) % tabs.length, true); }
+      });
+    });
+  });
+</script>
+<style>
+  .lt { display: grid; gap: 10px; min-width: 0; }
+  .lt-tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--line); }
+  .lt-tab { flex: none; min-height: 44px; padding: 0 14px; background: transparent; border: 0; border-bottom: 2px solid transparent; color: var(--muted); font: 600 15px var(--font-text); cursor: pointer; margin-bottom: -1px; }
+  .lt-tab[aria-selected="true"] { color: var(--paper); border-bottom-color: var(--red); }
+</style>

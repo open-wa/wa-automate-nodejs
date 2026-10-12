@@ -1,0 +1,49 @@
+---
+import Site from "../../layouts/Site.astro";
+import { f, href, restricted } from "../../data/facts";
+const rows = [
+  ["Which number", "Your existing WhatsApp number, linked by scanning a QR code", "A number on a Meta business account"],
+  ["Starting a conversation", `Free to reply to people who message you; first messages to new numbers need Restricted (${restricted.prices.month} a month per number)`, "Approved message templates"],
+  ["Cost", "Free for methods marked none; licence keys per number for the rest", "Meta's per-message pricing"],
+  ["Where it runs", "On your machine or server, in a browser it controls", "Meta's cloud"],
+  ["Calling it", "A local HTTP API from any language, plus Node.js clients", "Meta's HTTP API"],
+  ["Status", "Unofficial. Not affiliated with WhatsApp or Meta, with a risk of restriction or ban", "Official, under Meta's policies"],
+];
+---
+<Site title="open-wa compared with the WhatsApp Business Platform | open-wa" description="How open-wa on your own number compares with Meta's official WhatsApp Business Platform: number, templates, pricing, where it runs and ban risk.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="kicker">Compare</p>
+      <h1>Your own number, or Meta's Business Platform</h1>
+      <p class="lead">Both send WhatsApp messages from code. They suit different jobs, and the official route is the right one when you need Meta's approval behind you.</p>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap">
+      <div class="cmp" role="table" aria-label="open-wa compared with the WhatsApp Business Platform">
+        <div class="cmp-r cmp-h" role="row"><span role="columnheader"></span><span role="columnheader">open-wa</span><span role="columnheader">WhatsApp Business Platform (Cloud API)</span></div>
+        {rows.map(([a, b, c]) => <div class="cmp-r" role="row"><span role="rowheader">{a}</span><span role="cell">{b}</span><span role="cell">{c}</span></div>)}
+      </div>
+      <div class="cmp-when">
+        <article><h2>Pick open-wa when</h2><ul><li>The business's own number should answer customers, today.</li><li>You want to try the job before any approval process.</li><li>You can accept the ban risk on that number.</li></ul></article>
+        <article><h2>Pick the official platform when</h2><ul><li>You send at volume to people who never messaged you.</li><li>Policy or compliance needs an official channel.</li><li>The number can't be put at risk.</li></ul></article>
+      </div>
+      <p class="risk"><strong>{f.product.risk}</strong> {f.product.unofficial}</p>
+      <div class="btn-row" style="margin-top:24px"><a class="btn btn-red" href={href("quickstart/")}>Try the quick start</a><a class="btn btn-ghost" href={href("pricing/")}>See pricing</a></div>
+    </div>
+  </section>
+</Site>
+<style>
+  .cmp { border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+  .cmp-r { display: grid; grid-template-columns: 200px 1fr 1fr; gap: 20px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+  .cmp-r:last-child { border-bottom: 0; }
+  .cmp-r span:first-child { font-weight: 700; }
+  .cmp-r span { color: #d9dbe5; }
+  .cmp-h { background: var(--navy-2); font: 600 14px var(--font-mono); }
+  .cmp-h span { color: var(--paper); }
+  .cmp-when { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 32px 0; }
+  .cmp-when article { border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 22px; }
+  .cmp-when h2 { font-size: 21px; }
+  .cmp-when ul { margin: 12px 0 0; padding-left: 20px; color: #d9dbe5; display: grid; gap: 6px; }
+  @media (max-width: 860px) { .cmp-r { grid-template-columns: 1fr; gap: 4px; } .cmp-h { display: none; } .cmp-r span:nth-child(2)::before { content: "open-wa: "; color: var(--red); font-weight: 700; } .cmp-r span:nth-child(3)::before { content: "Business Platform: "; color: var(--muted); font-weight: 700; } .cmp-when { grid-template-columns: 1fr; } }
+</style>
