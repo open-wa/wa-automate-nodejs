@@ -27,12 +27,12 @@ const faq = [
 ];
 ---
 
-<Base title="Pricing: free vs licensed by job | open-wa" description="Most of open-wa is free. Insiders from £5 a month and Restricted from £15 a month unlock specific methods, per WhatsApp number. Prices checked 12 Oct 2026.">
+<Base title="Pricing: free vs licensed by job | open-wa" description="Most of open-wa is free. Insiders from £5 a month and Restricted from £15 a month add specific methods, per WhatsApp number. Prices checked 12 Oct 2026.">
   <section class="page-hero">
     <div class="wrap">
       <p class="eyebrow">Pricing</p>
       <h1>Free for most jobs. A key for the few that need one.</h1>
-      <p class="lede">Keys are per WhatsApp number and unlock the methods marked Insiders or Restricted. Prices in GBP, checked {checkedOn}; checkout shows the current price.</p>
+      <p class="lede">Keys are per WhatsApp number and cover the methods marked Insiders or Restricted. Prices in GBP, checked {checkedOn}; checkout shows the current price.</p>
     </div>
   </section>
 
@@ -88,7 +88,7 @@ const faq = [
         <ol class="before">
           {licences.beforeYouBuy.map((b) => <li>{b}</li>)}
         </ol>
-        <p class="note"><strong>Ban risk:</strong> {product.risk} A key unlocks methods; it doesn't change that risk.</p>
+        <p class="note"><strong>Ban risk:</strong> {product.risk} A key adds methods; it doesn't change that risk.</p>
       </div>
       <LicenceForm />
     </div>

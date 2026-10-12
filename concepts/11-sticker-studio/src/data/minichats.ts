@@ -61,8 +61,8 @@ export const miniChats: Record<string, { who: string; lines: Line[]; call: strin
     who: "Rosa Salon",
     call: "client.sendSticker(chatId, './team-photo.jpg', { effects: ['comic', 'sparkle'] })",
     lines: [
-      { kind: "in", text: "Send us the team photo as a sticker!", time: "17:40" },
-      { kind: "sticker", src: "stickers/highfive-comic.webp", alt: "Example output: the high-five sample photo as a comic sticker", time: "17:41" },
+      { kind: "in", text: "Send us the team photo as a sticker please", time: "17:40" },
+      { kind: "sticker", src: "stickers/highfive-stamp.webp", alt: "Example output: the high-five sample photo as a stamp sticker", time: "17:41" },
     ],
   },
   media: {

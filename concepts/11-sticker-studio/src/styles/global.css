@@ -79,7 +79,7 @@ small { font-size: 0.875rem; }
 .site-header { position: sticky; top: 0; z-index: 40; background: var(--lilac); border-bottom: var(--line); }
 .header-row { display: flex; align-items: center; gap: 20px; min-height: 68px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; min-height: 44px; }
-.brand-word { font-family: var(--font-display); font-size: 1.5rem; line-height: 1; }
+.brand-word { font-family: var(--font-display); font-size: 1.5rem; line-height: 1; white-space: nowrap; }
 .nav-main { display: flex; gap: 4px; margin-left: 12px; }
 .nav-main a, .nav-side > a:not(.btn) {
   display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; border-radius: var(--radius-pill);
@@ -99,7 +99,7 @@ small { font-size: 0.875rem; }
 .menu-sheet nav { display: grid; gap: 4px; padding: 12px 16px 20px; }
 .menu-sheet a:not(.btn) { display: flex; align-items: center; min-height: 48px; font-weight: 700; font-size: 1.1rem; text-decoration: none; border-bottom: 1.5px dashed #b3a5e6; }
 .menu-sheet .btn { margin-top: 10px; }
-@media (max-width: 1060px) { .nav-main, .nav-discord, .nav-gh { display: none; } .menu-btn { display: inline-flex; } }
+@media (max-width: 1060px) { .nav-main, .nav-side > a.nav-discord, .nav-side > a.nav-gh { display: none; } .menu-btn { display: inline-flex; } }
 @media (max-width: 420px) { .nav-side .btn-sm { padding: 0 12px; } .menu-btn span:last-child { display: none; } .menu-btn { padding: 0 13px; } }
 
 /* Sections */

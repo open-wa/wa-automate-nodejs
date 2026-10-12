@@ -28,7 +28,7 @@ const first = samples[0];
             <span>Your photo</span>
           </label>
         </div>
-        <p class="st-help">Drop a photo anywhere on the studio. It stays in this browser.</p>
+        <p class="st-help"><span class="st-help-drop">Drop a photo anywhere on the studio. </span>Your photo stays in this browser.</p>
       </fieldset>
 
       <fieldset class="st-effects">
@@ -54,8 +54,8 @@ const first = samples[0];
           <p class="bub bub-in">Can you send the photo as a sticker? <time>13:02</time></p>
           <figure class="st-sticker-msg" aria-live="polite">
             <div class="st-sticker-wrap">
-              <img class="st-sticker" src={`${base}stickers/${first.id}-comic.webp`} width="512" height="512"
-                alt="Example output: the dog photo rendered as a sticker with the comic effect" />
+              <img class="st-sticker" src={`${base}stickers/${first.id}-polaroid.webp`} width="512" height="512"
+                alt="Example output: the dog photo rendered as a sticker with the polaroid effect" />
               <div class="st-busy" hidden><span></span>Rendering</div>
             </div>
             <figcaption><time>13:02</time><svg viewBox="0 0 18 12" width="18" height="12" aria-label="delivered"><path d="M1 6.5 4.5 10 11 2M7 9l1 1 6.5-8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></figcaption>
@@ -141,7 +141,7 @@ const first = samples[0];
   }
   .st-sticker-msg { align-self: flex-end; margin: 0; display: grid; justify-items: end; gap: 2px; }
   .st-sticker-wrap { position: relative; width: clamp(160px, 15vw, 210px); aspect-ratio: 1; }
-  .st-sticker { width: 100%; height: 100%; display: block; filter: drop-shadow(0 0 0 var(--paper)) drop-shadow(3px 4px 0 rgba(17,17,17,.25)); transform-origin: 70% 90%; }
+  .st-sticker { width: 100%; height: 100%; display: block; filter: drop-shadow(3px 0 0 var(--paper)) drop-shadow(-3px 0 0 var(--paper)) drop-shadow(0 3px 0 var(--paper)) drop-shadow(0 -3px 0 var(--paper)) drop-shadow(3px 5px 0 rgba(17,17,17,.28)); transform-origin: 70% 90%; }
   .st-sticker.is-landing { animation: st-land 620ms var(--ease-spring); }
   @keyframes st-land {
     0% { transform: translate(-60%, -45%) scale(0.35) rotate(-18deg); opacity: 0; }
@@ -177,7 +177,9 @@ const first = samples[0];
     .st-chip { flex: none; min-height: 44px; }
     .st-thread { min-height: 0; }
     .st-sticker-wrap { width: 170px; }
-    .studio-where { display: none; }
+    .studio-where, .st-help-drop { display: none; }
+    .st-thread { padding: 10px; gap: 6px; }
+    .st-thread .bub-in { font-size: 0.9rem; }
     .st-panel { padding: 14px; padding-bottom: 64px; }
     .st-copy { top: auto; bottom: 12px; }
   }

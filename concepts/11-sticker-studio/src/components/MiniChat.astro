@@ -45,7 +45,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
   .mini-doc { background: var(--paper); color: #b0174f; }
   .mini-call { background: radial-gradient(circle, var(--ink) 0 5px, #8ff0c9 6px); border-radius: 50%; }
   .mini-sticker { align-self: flex-end; display: grid; justify-items: end; gap: 2px; }
-  .mini-sticker img { width: 120px; border: 5px solid var(--paper); border-radius: 18px; box-shadow: 2px 3px 0 rgba(17,17,17,.3); rotate: 3deg; }
+  .mini-sticker img { width: 130px; rotate: 3deg; filter: drop-shadow(3px 0 0 var(--paper)) drop-shadow(-3px 0 0 var(--paper)) drop-shadow(0 3px 0 var(--paper)) drop-shadow(0 -3px 0 var(--paper)) drop-shadow(2px 4px 0 rgba(17,17,17,.28)); }
   .mini-sticker time { font-size: 0.75rem; color: var(--ink-soft); }
   .mini-voice { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; min-width: 70%; }
   .mini-voice time { grid-column: 1 / -1; }

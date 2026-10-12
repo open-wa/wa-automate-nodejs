@@ -32,7 +32,7 @@ const byJob = [
       <div class="hero-copy">
         <p class="eyebrow"><span class="eyebrow-new">New in 5.5</span> stickers render locally</p>
         <h1>Photos in, stickers out, sent from your own WhatsApp number.</h1>
-        <p class="hero-sub">Run one command and your number becomes an API. Send stickers, voice notes, PDFs, booking reminders and login codes from Node.js, PHP, Python or anything that speaks HTTP.</p>
+        <p class="hero-sub">Run one command and your number becomes an API. Send stickers, voice notes, PDFs, booking reminders and login codes from Node.js, PHP, Python or any language.</p>
         <CopyCommand id="hero-command" />
         <div class="hero-actions">
           <a class="btn btn-yellow" href={href("/quickstart/")}>Quick start</a>
@@ -109,7 +109,7 @@ const byJob = [
       <div class="section-head">
         <p class="eyebrow">Free vs licensed</p>
         <h2>What's free and what needs a key, by job.</h2>
-        <p class="lede">Most methods need no key. A key is per WhatsApp number and unlocks the methods marked Insiders or Restricted.</p>
+        <p class="lede">Most methods need no key. A key is per WhatsApp number and covers the methods marked Insiders or Restricted.</p>
       </div>
       <div class="table-wrap">
         <table>
@@ -147,9 +147,9 @@ const byJob = [
   <section class="section closing">
     <div class="wrap closing-inner">
       <div class="closing-stickers" aria-hidden="true">
-        <img src={`${import.meta.env.BASE_URL}stickers/coffee-comic.webp`} alt="" width="512" height="512" loading="lazy" />
-        <img src={`${import.meta.env.BASE_URL}stickers/cake-comic.webp`} alt="" width="512" height="512" loading="lazy" />
-        <img src={`${import.meta.env.BASE_URL}stickers/highfive-comic.webp`} alt="" width="512" height="512" loading="lazy" />
+        <img src={`${import.meta.env.BASE_URL}stickers/coffee-comic-stars.webp`} alt="" width="512" height="512" loading="lazy" />
+        <img src={`${import.meta.env.BASE_URL}stickers/cake-polaroid.webp`} alt="" width="512" height="512" loading="lazy" />
+        <img src={`${import.meta.env.BASE_URL}stickers/highfive-stamp.webp`} alt="" width="512" height="512" loading="lazy" />
       </div>
       <h2>Your number, your first sticker, about two minutes.</h2>
       <CopyCommand command={commands.easyApi} />
@@ -163,12 +163,14 @@ const byJob = [
 </Base>
 
 <style>
-  .hero { background: var(--lilac); border-bottom: var(--line); padding: 40px 0 64px; overflow: hidden; }
-  .hero-grid { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: 40px; align-items: start; }
-  .hero-copy { padding-top: 24px; }
+  .hero { background: var(--lilac); border-bottom: var(--line); padding: 32px 0 64px; overflow: hidden; }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 40px; align-items: start; }
+  @media (max-width: 1100px) and (min-width: 861px) { .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+  .hero-copy { padding-top: 8px; }
+  .hero-copy h1 { font-size: clamp(2.4rem, 4vw, 3.7rem); }
   .hero-copy h1 { margin-bottom: 18px; }
   .eyebrow-new { background: var(--yellow); border: 2px solid var(--ink); border-radius: 999px; padding: 1px 8px; margin-left: -6px; }
-  .hero-sub { font-size: 1.2rem; max-width: 34em; margin-bottom: 24px; }
+  .hero-sub { font-size: 1.15rem; max-width: 34em; margin-bottom: 20px; }
   .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 18px; }
   .hero-fine { margin-top: 18px; font-size: 0.95rem; }
   .hero-fine a { font-weight: 700; }
@@ -177,7 +179,7 @@ const byJob = [
     .hero-grid { grid-template-columns: 1fr; gap: 28px; }
     .hero-copy { padding-top: 0; }
     .hero-copy h1 { font-size: 2.25rem; margin-bottom: 10px; }
-    .hero-copy .eyebrow { margin-bottom: 10px; font-size: 0.8rem; }
+    .hero-copy .eyebrow { display: none; }
     .hero-sub { font-size: 1.02rem; margin-bottom: 14px; }
     .hero-actions { margin-top: 12px; gap: 10px; }
     .hero-actions .btn { flex: 1 1 0; padding: 0 12px; }
@@ -229,6 +231,6 @@ const byJob = [
   .closing .cmd { width: min(100%, 560px); text-align: left; }
   .closing .hero-actions { justify-content: center; }
   .closing-stickers { display: flex; justify-content: center; margin-bottom: 12px; }
-  .closing-stickers img { width: 120px; border: 6px solid var(--paper); border-radius: 22px; box-shadow: 3px 4px 0 rgba(17,17,17,.3); margin: 0 -10px; }
+  .closing-stickers img { width: 150px; margin: 0 -14px; filter: drop-shadow(4px 0 0 var(--paper)) drop-shadow(-4px 0 0 var(--paper)) drop-shadow(0 4px 0 var(--paper)) drop-shadow(0 -4px 0 var(--paper)) drop-shadow(3px 5px 0 rgba(17,17,17,.28)); }
   .closing-stickers img:nth-child(1) { rotate: -9deg; } .closing-stickers img:nth-child(2) { rotate: 4deg; translate: 0 -10px; } .closing-stickers img:nth-child(3) { rotate: 11deg; }
 </style>

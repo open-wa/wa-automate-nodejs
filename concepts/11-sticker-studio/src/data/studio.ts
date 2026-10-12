@@ -23,4 +23,4 @@ export const effects = [
   { name: "newspaper", hint: "Halftone front page", animated: false },
 ] as const;
 
-export const defaultEffects = ["comic"];
+export const defaultEffects = ["polaroid"];
