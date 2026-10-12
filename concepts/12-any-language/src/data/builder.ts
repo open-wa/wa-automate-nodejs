@@ -83,7 +83,7 @@ export const bjobs: BJob[] = [
   },
   {
     id: "otp", who: "Acme", label: "Send a one-time code", method: "sendText", http: true, recipe: "otp",
-    licence: "Needs Restricted, " + restricted.prices.month + " a month: codes go to numbers that haven't messaged you.",
+    licence: "Needs Restricted, " + restricted.prices.month + " a month per number: codes go to numbers that haven't messaged you.",
     licenceTone: "paid",
     code: Object.fromEntries(langs.map((l) => [l.id, http(l.id, otp)])) as Record<Lang, string>,
   },
