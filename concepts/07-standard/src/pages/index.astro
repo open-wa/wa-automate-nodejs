@@ -3,7 +3,9 @@ import Page from "../layouts/Page.astro";
 import QuickStartCard from "../components/QuickStartCard.astro";
 import CodeBlock from "../components/CodeBlock.astro";
 import PricingTable from "../components/PricingTable.astro";
-import { DOCS, product, stats, commands, snippets, paths, releases, support, kDown, checked } from "../data/facts";
+import CapRow from "../components/CapRow.astro";
+import Faq from "../components/Faq.astro";
+import { DOCS, product, stats, commands, snippets, paths, releases, support, kDown, checked, curlSend, integrations, useCases, generalFaqs, migration } from "../data/facts";
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
 const latest = releases[0];
@@ -98,7 +100,7 @@ const latest = releases[0];
         {paths.map((p, i) => (
           <div class="paths-panel" role="tabpanel" id={`path-${p.id}`} aria-labelledby={`path-tab-${p.id}`} hidden={i !== 0}>
             <p>{p.what}</p>
-            {p.id === "easy-api" && <CodeBlock code={`curl -X POST http://localhost:8080/api/messages/sendText \\\n  -H "Content-Type: application/json" \\\n  -d '{"to":"447700900123@c.us","content":"Hello from open-wa","options":{}}'`} lang="bash" title="Send a message with curl" />}
+            {p.id === "easy-api" && <CodeBlock code={curlSend} lang="bash" title="Send a message with curl" />}
             {p.id === "socket-client" && <CodeBlock code={snippets.socketClient} lang="js" title="bot.mjs" />}
             {p.id === "embedded" && <CodeBlock code={snippets.embedded} lang="js" title="app.mjs" />}
             {p.id === "mcp" && <CodeBlock code={snippets.mcpConfig} lang="js" title="wa.config.mjs" />}
@@ -108,13 +110,137 @@ const latest = releases[0];
     </div>
   </section>
 
-  <section class="section" id="pricing">
+  <section class="section" id="capabilities">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>What your code can do with WhatsApp</h2>
+        <p>Each capability with the request or call that does it. The full list is on the features page.</p>
+      </div>
+      <div class="caps">
+        <CapRow title="Send and receive messages" text="Text, replies, forwards, reactions and edits. Images, video, documents and voice notes with captions. Listen for incoming messages and answer them." code={snippets.socketClient} codeTitle="bot.mjs" methods={["sendText", "onMessage"]} />
+        <CapRow flip title="Native event cards and RSVPs" text="Create, edit and cancel WhatsApp event cards and handle going, not going and maybe. New in 5.5." code={snippets.event} codeTitle="events.mjs" methods={["sendEvent", "onEventResponse"]} />
+        <CapRow title="Several numbers side by side" text="Run named sessions on their own ports, each with isolated consumers. Session files are compact, encrypted with your own key, and move between containers." code={commands.namedSession} lang="bash" codeTitle="Terminal" methods={["--session-id"]} />
+        <CapRow flip title="Stickers rendered on your machine" text="Turn a photo into a WebP sticker locally with @open-wa/stickers: 62 recipes in the first release." code={commands.stickerCli} lang="bash" codeTitle="Terminal" note="Sending stickers from the client needs a private finalizer; local rendering is open to everyone." />
+      </div>
+      <p class="more"><a class="link" href={`${base}features/`}>See every capability</a></p>
+    </div>
+  </section>
+
+  <section class="section section--tint" id="integrations">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Plugs into the tools you already run</h2>
+        <p>Official plugins load with one line in your config. Write your own with the Plugin SDK.</p>
+      </div>
+      <ul class="integ">
+        {integrations.map((it) => (
+          <li class="integ-card">
+            <span class="integ-mono" aria-hidden="true">{it.name.slice(0, 2)}</span>
+            <h3>{it.name}</h3>
+            <p>{it.what}</p>
+            <code>{it.package}</code>
+          </li>
+        ))}
+      </ul>
+      <p class="more"><a class="link" href={`${base}integrations/`}>How each integration works</a></p>
+    </div>
+  </section>
+
+  <section class="section section--dark" id="mcp">
+    <div class="wrap mcp">
+      <div class="mcp-copy">
+        <span class="kicker">Built-in MCP server</span>
+        <h2>Give Claude, Cursor or Windsurf a WhatsApp number</h2>
+        <p>Turn on MCP in your config and each Easy API method becomes a tool your agent can call at <code>{commands.mcpEndpoint}</code>.</p>
+        <ul class="ticks">
+          <li>Tools keep the method's licence rule: free methods are free tools, licensed methods need the key.</li>
+          <li>Protect the endpoint with the same API key as the HTTP API.</li>
+          <li>Agents such as Claude, Cursor and Windsurf call the tools over HTTP.</li>
+        </ul>
+        <a class="btn btn--primary" href={`${base}ai-agents/`}>Set up the MCP server <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+      <div class="mcp-code">
+        <CodeBlock code={snippets.mcpConfig} lang="js" title="wa.config.mjs" />
+        <CodeBlock code={snippets.claudeDesktop} lang="json" title="Claude Desktop config" />
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="use-cases">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>What people build with it</h2>
+      </div>
+      <ul class="uses">
+        {useCases.map((u, i) => <li><span aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>{u}</li>)}
+      </ul>
+      <p class="more"><a class="link" href={`${base}use-cases/`}>Use cases with the methods they need</a></p>
+    </div>
+  </section>
+
+  <section class="section section--tint" id="pricing">
     <div class="wrap">
       <div class="section-head">
         <h2>Free for most methods. A key for the rest.</h2>
         <p>Each method is marked free, Insiders or Restricted. You only need a key, per WhatsApp number, if your workflow calls a licensed method.</p>
       </div>
       <PricingTable />
+    </div>
+  </section>
+
+  <section class="section" id="status">
+    <div class="wrap status">
+      <div>
+        <h2>Unofficial, maintained, and plain about the risk</h2>
+        <p class="lead">Read this before you put a number you care about on it.</p>
+      </div>
+      <div class="status-grid">
+        <div class="card">
+          <h3>Unofficial</h3>
+          <p>{product.unofficial}</p>
+        </div>
+        <div class="card">
+          <h3>Ban risk</h3>
+          <p>{product.risk}</p>
+        </div>
+        <div class="card">
+          <h3>Maintained</h3>
+          <p>v{latest.version} on npm, {releases[0].headline.toLowerCase()} in 5.5.0 ({latest.date}). {stats.publishedVersions} versions published since 2020.</p>
+          <a class="link" href={`${base}changelog/`}>Changelog</a>
+        </div>
+        <div class="card">
+          <h3>Licence</h3>
+          <p>Source under the {product.softwareLicence}. Using the project means you agree to the Terms of Service.</p>
+          <a class="link" href={`${base}legal/`}>Legal notices</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint" id="faq">
+    <div class="wrap faq-wrap">
+      <div class="section-head"><h2>Questions developers ask first</h2></div>
+      <Faq items={generalFaqs} />
+    </div>
+  </section>
+
+  <section class="section routes-sec">
+    <div class="wrap routes">
+      <div class="route">
+        <h3>Building it yourself</h3>
+        <p>Run the command, follow the quick start and ask in Discord when you're stuck. {stats.discordMembers.toLocaleString("en-GB")} members, checked {checked}.</p>
+        <div class="btn-row">
+          <a class="btn btn--dark" href={`${base}quickstart/`}>Quick start</a>
+          <a class="btn btn--ghost" href={`${base}migrate/`}>Coming from v4?</a>
+        </div>
+      </div>
+      <div class="route route--biz">
+        <h3>Want it built for you</h3>
+        <p>Paid support and consulting from the maintainer: by email, per minute, or a booked hour. Or describe the project in a short form.</p>
+        <div class="btn-row">
+          <a class="btn btn--primary" href={`${base}support/`}>Tell us what you need</a>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -158,7 +284,7 @@ const latest = releases[0];
 </script>
 
 <style>
-  .hero { padding-block: clamp(28px, 6vw, 88px) clamp(48px, 7vw, 96px); background:
+  .hero { padding-block: clamp(20px, 6vw, 88px) clamp(48px, 7vw, 96px); background:
     radial-gradient(1200px 400px at 85% -10%, var(--sun-soft), transparent 60%), var(--white); }
   .hero-grid {
     display: grid; gap: 20px 56px; align-items: center;
@@ -174,7 +300,7 @@ const latest = releases[0];
 
   @media (max-width: 959px) {
     .hero-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "h1" "card" "act" "sub"; grid-template-rows: none; gap: 16px; }
-    .hero-h1 { max-width: 18ch; font-size: clamp(2rem, 1.5rem + 3vw, 3rem); }
+    .hero-h1 { max-width: 18ch; font-size: clamp(1.875rem, 1.3rem + 3vw, 3rem); }
     .hero-actions { margin-top: 0; }
     .hero-actions .btn { flex: 1; }
     .hero-risk { display: none; }
@@ -225,4 +351,34 @@ const latest = releases[0];
   .closing-cmd { display: flex; align-items: center; gap: 12px; max-width: 100%; padding: 10px 10px 10px 18px; background: var(--slate-950); border: 1px solid var(--slate-700); border-radius: 14px; }
   .closing-cmd code { font: 500 1rem/1.5 var(--font-mono); color: var(--white); background: none; border: 0; padding: 0; text-align: left; overflow-wrap: anywhere; }
   .closing .btn-row { justify-content: center; }
+  .caps { display: grid; }
+  .more { margin-top: 28px; }
+  .integ { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  .integ-card { display: grid; gap: 8px; align-content: start; padding: 22px; background: var(--white); border: 1px solid var(--color-line); border-radius: var(--radius-lg); }
+  .integ-card p { color: var(--slate-700); font-size: var(--text-sm); }
+  .integ-card code { justify-self: start; font-size: 0.875rem; }
+  .integ-mono { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; background: var(--slate); color: var(--sun); font: 700 0.9375rem/1 var(--font-mono); text-transform: lowercase; }
+  .mcp { display: grid; gap: 40px; align-items: start; }
+  @media (min-width: 960px) { .mcp { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); } }
+  .mcp-copy { display: grid; gap: 18px; justify-items: start; }
+  .mcp-copy p { color: var(--slate-200); font-size: 1.125rem; }
+  .mcp-code { display: grid; gap: 16px; min-width: 0; }
+  .mcp-code :global(.code) { border-color: var(--slate-700); }
+  .uses { list-style: none; margin: 0; padding: 0; display: grid; gap: 0 40px; }
+  @media (min-width: 800px) { .uses { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .uses li { display: flex; gap: 16px; align-items: baseline; padding: 18px 0; border-bottom: 1px solid var(--color-line); font-size: 1.125rem; font-weight: 560; }
+  .uses span { font: 600 0.875rem/1 var(--font-mono); color: var(--sun-ink); }
+  .status { display: grid; gap: 32px; }
+  .status-grid { display: grid; gap: 16px; }
+  @media (min-width: 720px) { .status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1100px) { .status-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .status-grid .card { display: grid; gap: 10px; align-content: start; }
+  .status-grid .card p { color: var(--slate-700); font-size: var(--text-sm); }
+  .status-grid .card:nth-child(2) { background: var(--sun-soft); border-color: #f3dc8a; }
+  .faq-wrap { max-width: 880px; }
+  .routes { display: grid; gap: 20px; }
+  @media (min-width: 860px) { .routes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .route { display: grid; gap: 14px; align-content: start; padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--color-line); background: var(--slate-50); }
+  .route p { color: var(--slate-700); }
+  .route--biz { background: var(--white); border-color: var(--slate); }
 </style>

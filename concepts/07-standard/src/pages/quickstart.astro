@@ -1,0 +1,113 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import QuickStartCard from "../components/QuickStartCard.astro";
+import { DOCS, product, commands, snippets, paths, support, curlSend, curlHealth, migration } from "../data/facts";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const pathCode: Record<string, { code: string; lang: string; title: string }> = {
+  "easy-api": { code: commands.easyApiWithKey, lang: "bash", title: "Terminal" },
+  "socket-client": { code: snippets.socketClient, lang: "js", title: "bot.mjs" },
+  embedded: { code: snippets.embedded, lang: "js", title: "app.mjs" },
+  mcp: { code: snippets.mcpConfig, lang: "js", title: "wa.config.mjs" },
+};
+const installs: Record<string, string> = {
+  "socket-client": commands.socketClientInstall,
+  embedded: commands.embeddedInstall,
+  mcp: snippets.mcpStart,
+};
+---
+
+<Page title="Quick start: your first WhatsApp message from Node.js | open-wa" description="Run one command, link your phone with a QR code or link code, open the API docs and send a message. Then pick SocketClient, the embedded runtime or MCP.">
+  <section class="page-hero">
+    <div class="wrap qs-hero">
+      <div>
+        <p class="crumbs"><a href={base}>Home</a> / Quick start</p>
+        <h1>Your first message in three steps</h1>
+        <p>You need Node.js {product.node.replace(">=", "")} or later (or Docker) and the phone with the WhatsApp account you want to use.</p>
+        <p class="note qs-risk"><span><strong>Before you link a number:</strong> {product.risk} open-wa is unofficial and not affiliated with WhatsApp or Meta.</span></p>
+      </div>
+      <QuickStartCard id="page-qs" />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap narrow">
+      <ol class="run">
+        <li>
+          <h2><span class="n">1</span> Run the command</h2>
+          <p>It starts an Easy API instance on the port you choose. Add an API key so only your code can call it.</p>
+          <CodeBlock code={commands.easyApiWithKey} lang="bash" />
+          <p class="muted small">With Docker instead:</p>
+          <CodeBlock code={commands.docker} lang="bash" />
+        </li>
+        <li>
+          <h2><span class="n">2</span> Link your phone</h2>
+          <p>Scan the QR code it prints: in WhatsApp on your phone, open Linked devices, then Link a device. Link-code login is available too. Check the session is ready before you send:</p>
+          <CodeBlock code={curlHealth} lang="bash" />
+          <p class="muted small">Wait for <code>"connected": true</code> and <code>"ready": true</code> in the response. Keep <code>/health</code> on a private network: it's public and can include QR data.</p>
+        </li>
+        <li>
+          <h2><span class="n">3</span> Open the API docs and send a message</h2>
+          <p>Open <a class="link" href={commands.proofOfLife}>{commands.proofOfLife}</a> for interactive docs of the live session, with <a class="link" href={commands.swagger}>Swagger</a> and <a class="link" href={commands.postman}>Postman</a> files. Or send from the terminal:</p>
+          <CodeBlock code={curlSend} lang="bash" title="Send a message" />
+          <p class="muted small">Use the recipient's full international number followed by <code>@c.us</code>, with no <code>+</code>, spaces or dashes.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--tint" id="paths">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Then pick how your code connects</h2>
+        <p>All four start from the same runtime. You can switch later.</p>
+      </div>
+      <div class="pgrid">
+        {paths.map((p) => (
+          <article class="pcard" id={p.id}>
+            <h3>{p.name}</h3>
+            <p class="pfor">{p.for}</p>
+            <p>{p.what}</p>
+            {installs[p.id] && <CodeBlock code={installs[p.id]} lang="bash" />}
+            <CodeBlock code={pathCode[p.id].code} lang={pathCode[p.id].lang} title={pathCode[p.id].title} />
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap narrow next">
+      <h2>Next in the docs</h2>
+      <ul class="nextlist">
+        <li><a href={support.quickstartDocs}>Full quick start, with Windows and PowerShell notes</a></li>
+        <li><a href={DOCS}>Messages, media and events guides</a></li>
+        <li><a href={support.apiExplorer}>API explorer</a></li>
+        <li><a href={`${base}migrate/`}>Upgrading from v4? Pin it first: <code>{migration.v4Pin}</code></a></li>
+        <li><a href={support.discord}>Stuck? Ask in Discord</a></li>
+      </ul>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .qs-hero { display: grid; gap: 32px; align-items: start; }
+  @media (min-width: 1000px) { .qs-hero { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); } }
+  .qs-risk { margin-top: 24px; max-width: 560px; }
+  .narrow { max-width: 860px; }
+  .run { list-style: none; margin: 0; padding: 0; display: grid; gap: 56px; }
+  .run li { display: grid; gap: 14px; min-width: 0; }
+  .run h2 { display: flex; align-items: center; gap: 14px; font-size: 1.75rem; }
+  .n { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 11px; background: var(--sun); font: 800 1.125rem/1 var(--font-mono); }
+  .run p { color: var(--slate-700); }
+  .pgrid { display: grid; gap: 20px; }
+  @media (min-width: 1000px) { .pgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .pcard { display: grid; gap: 14px; align-content: start; padding: 26px; background: var(--white); border: 1px solid var(--color-line); border-radius: var(--radius-lg); min-width: 0; }
+  .pcard p { color: var(--slate-700); }
+  .pfor { font-weight: 650; color: var(--slate) !important; }
+  .next { display: grid; gap: 20px; }
+  .nextlist { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-line); }
+  .nextlist a { display: flex; align-items: center; min-height: 56px; padding: 8px 0; border-bottom: 1px solid var(--color-line); color: var(--slate); font-weight: 600; text-decoration: none; }
+  .nextlist a:hover { text-decoration: underline; text-decoration-color: var(--sun-strong); text-underline-offset: 4px; }
+</style>

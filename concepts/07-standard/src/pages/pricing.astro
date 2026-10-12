@@ -11,21 +11,21 @@ const faqs = [
   { q: "How do I know which tier a method needs?", a: "Method metadata marks each method none, insiders or restricted, and the API docs show it. If a call fails with a licence message, the tier is the one that method is marked with. For example, createGroup is Restricted." },
   { q: "What does \"per WhatsApp number\" mean?", a: "A key is tied to the WhatsApp account it was bought for. If you run two numbers that both need licensed methods, you need two keys." },
   { q: "How do I add the key?", a: `Pass it at launch with ${commands.licenceFlag}, or set licenseKey in your config. From 5.5 you can also apply it from the dashboard or with client.refresh() without restarting the Node process.` },
-  { q: "Does a licence lower the risk of a ban?", a: `No. ${product.risk} A key unlocks methods; it changes nothing about how WhatsApp treats the account.` },
-  { q: "Are the prices current?", a: `They were ${licences.pricesCheckedOn.charAt(0).toLowerCase()}${licences.pricesCheckedOn.slice(1)}` },
+  { q: "Does a licence lower the risk of a ban?", a: `No. ${product.risk} A key enables licensed methods; it changes nothing about how WhatsApp treats the account.` },
+  { q: "Are the prices current?", a: `They were checked on ${licences.pricesCheckedOn}` },
   { q: "Can I get help choosing or setting up?", a: "Yes. Ask in Discord, or book paid support and consulting from the support page." },
 ];
 ---
 
 <Page
   title="Pricing and licence keys | open-wa"
-  description="open-wa is free for most methods. Insiders and Restricted keys unlock the rest, per WhatsApp number, from £5 a month. Prices checked 12 Oct 2026."
+  description="open-wa is free for most methods. Insiders and Restricted keys cover the rest, per WhatsApp number, from £5 a month. Prices checked 12 Oct 2026."
 >
   <section class="page-hero">
     <div class="wrap">
       <p class="crumbs"><a href={base}>Home</a> / Pricing</p>
       <h1>Free for most methods. Pay per number for the rest.</h1>
-      <p>{licences.summary.replace("--license-key or licenseKey", "--license-key or licenseKey")}</p>
+      <p>The library is free to use. A few methods need a licence key, bought per WhatsApp number and passed at launch with <code>--license-key</code>. Prices are on the page, before any form.</p>
     </div>
   </section>
 

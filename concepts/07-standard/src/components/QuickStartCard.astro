@@ -51,7 +51,7 @@ const onMessage = snippets.socketClient.split("\n").slice(4).join("\n");
   </div>
 
   <div class="qs-cmd" id={`${id}-cmd`} role="tabpanel" aria-labelledby={`${id}-tab-npx`}>
-    <code class="qs-line"><span class="qs-prompt" aria-hidden="true">$</span><span class="qs-text" data-cmd-text>{tabs[0].cmd}</span></code>
+    <code class="qs-line"><span class="qs-prompt" aria-hidden="true">$</span><span class="qs-text" data-cmd-text>{tabs[0].cmd.split(" ").map((w, i) => <>{i > 0 && " "}<span class="tok">{w}</span></>)}</span></code>
     <button class="copy copy--solid qs-copy" type="button" data-copy={tabs[0].cmd} aria-label="Copy the command">
       <span class="copy-label">Copy</span>
     </button>
@@ -190,7 +190,11 @@ const onMessage = snippets.socketClient.split("\n").slice(4).join("\n");
         x.tabIndex = on ? 0 : -1;
       });
       tab = t.dataset.tab!;
-      text.textContent = t.dataset.cmd!;
+      text.replaceChildren(...t.dataset.cmd!.split(" ").flatMap((w, i) => {
+        const tok = document.createElement("span");
+        tok.className = "tok"; tok.textContent = w;
+        return i > 0 ? [document.createTextNode(" "), tok] : [tok];
+      }));
       copy.dataset.copy = t.dataset.cmd!;
       cmdPanel.setAttribute("aria-labelledby", t.id);
       if (focus) t.focus();
@@ -253,7 +257,8 @@ const onMessage = snippets.socketClient.split("\n").slice(4).join("\n");
   .qs-cmd { display: flex; align-items: center; gap: 12px; margin: 10px 8px 0; padding: 10px 10px 10px 16px; background: var(--slate-950); border-radius: 12px; }
   .qs-line { flex: 1; min-width: 0; display: flex; gap: 10px; font: 500 1rem/1.5 var(--font-mono); color: var(--white); background: none; border: 0; padding: 0; }
   .qs-prompt { color: var(--sun); user-select: none; }
-  .qs-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .qs-text { white-space: normal; }
+  .qs-text :global(.tok) { white-space: nowrap; }
   .qs-copy { flex: none; }
 
   .qs-rail { list-style: none; margin: 0; padding: 14px 12px 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
@@ -281,7 +286,7 @@ const onMessage = snippets.socketClient.split("\n").slice(4).join("\n");
   .qs-stage { position: relative; margin: 12px 8px 8px; height: 188px; background: var(--slate-850); border-radius: 12px; overflow: hidden; }
   .qs-panel { position: absolute; inset: 0; padding: 16px 18px; }
   .qs-panel.is-in { animation: qs-in 320ms var(--ease) both; }
-  @keyframes qs-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes qs-in { from { opacity: 0.35; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   .qs--still .qs-panel.is-in { animation: none; }
   .qs-cap { position: absolute; left: 18px; right: 18px; bottom: 14px; font-size: 0.875rem; color: var(--slate-300); font-family: var(--font-text); }
 
@@ -312,11 +317,15 @@ const onMessage = snippets.socketClient.split("\n").slice(4).join("\n");
 
   @media (max-width: 520px) {
     .qs-node { display: none; }
-    .qs-tab { min-width: 0; flex: 1; }
-    .qs-tabs { flex: 1; }
-    .qs-line { font-size: 0.9375rem; }
+    .qs-tab { min-width: 0; flex: 1; padding: 0 8px; }
+    .qs-tabs { flex: 1; margin-right: 96px; }
+    .qs-copy { position: absolute; top: 10px; right: 8px; min-height: 48px; }
+    .qs-cmd { padding: 10px 12px; margin-inline: 6px; }
+    .qs-line { font-size: 0.875rem; gap: 8px; min-height: 2.9em; align-items: flex-start; }
+    .qs-rail { padding-top: 10px; }
+    .qs-stage { height: 140px; margin-top: 8px; }
+    .qs-term .qs-cap { display: none; }
     .qs-step { font-size: 0.875rem; }
-    .qs-stage { height: 176px; }
     .qs-link { grid-template-columns: 92px 1fr; gap: 12px; }
     .qs-qr { width: 92px; height: 92px; }
     .qs-link .qs-cap { display: none; }

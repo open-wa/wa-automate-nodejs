@@ -1,0 +1,56 @@
+---
+import Page from "../layouts/Page.astro";
+import ConsultForm from "../components/ConsultForm.astro";
+import { support, stats, checked } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+
+<Page title="Support and consulting | open-wa" description="Free help in Discord and GitHub issues, or paid support and consulting from the maintainer: email, per-minute consulting or a booked hour.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="crumbs"><a href={base}>Home</a> / Support</p>
+      <h1>Get help, or get it built</h1>
+      <p>Community help is free. Paid support and consulting come from the maintainer, {support.maintainer}.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap">
+      <div class="grid grid--3">
+        <div class="card sc"><h2>Discord</h2><p>Ask the community. {stats.discordMembers.toLocaleString("en-GB")} members, checked {checked}.</p><a class="btn btn--ghost" href={support.discord}>Join the Discord</a></div>
+        <div class="card sc"><h2>GitHub issues</h2><p>Report a bug with your version, driver and the steps to reproduce it.</p><a class="btn btn--ghost" href={support.issues}>Open an issue</a></div>
+        <div class="card sc"><h2>Docs</h2><p>Guides, the method reference and the full quick start.</p><a class="btn btn--ghost" href={support.docs}>Read the docs</a></div>
+      </div>
+    </div>
+  </section>
+  <section class="section section--tint" id="consulting">
+    <div class="wrap paid">
+      <div class="paid-copy">
+        <h2>Paid support and consulting</h2>
+        <p class="lead">For teams that want an answer fast, or want the work done for them.</p>
+        <ul class="routes">
+          <li><strong>Email</strong><a class="link" href={`mailto:${support.consultingEmail}`}>{support.consultingEmail}</a></li>
+          <li><strong>Per-minute consulting</strong><a class="link" href={support.perMinuteConsulting}>Book on Otechie</a></li>
+          <li><strong>Book an hour</strong><a class="link" href={`mailto:${support.consultingEmail}?subject=Book%20an%20hour`}>Ask for a slot by email</a></li>
+          <li><strong>Say thanks</strong><a class="link" href={support.buyMeACoffee}>Buy me a coffee</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2 class="formh">Tell us what you need</h2>
+        <ConsultForm />
+      </div>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .sc { display: grid; gap: 12px; align-content: start; justify-items: start; }
+  .sc h2 { font-size: 1.375rem; }
+  .sc p { color: var(--slate-700); }
+  .paid { display: grid; gap: 40px; align-items: start; }
+  @media (min-width: 960px) { .paid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); } }
+  .paid-copy { display: grid; gap: 16px; }
+  .routes { list-style: none; margin: 8px 0 0; padding: 0; border-top: 1px solid var(--color-line); }
+  .routes li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: center; min-height: 56px; padding: 8px 0; border-bottom: 1px solid var(--color-line); }
+  .routes a { display: inline-flex; align-items: center; min-height: 44px; }
+  .formh { font-size: 1.5rem; margin-bottom: 16px; }
+</style>

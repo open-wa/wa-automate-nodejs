@@ -1,0 +1,70 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { integrations, snippets, DOCS } from "../data/facts";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const slug = (n: string) => n.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-$/, "");
+const extra: Record<string, { code: string; lang: string; title: string } | undefined> = {
+  "cloudflare-session-proxy": { code: snippets.cfProxyConsumer, lang: "js", title: "consumer.mjs" },
+  mcp: { code: snippets.mcpConfig, lang: "js", title: "wa.config.mjs" },
+  "plugin-sdk": { code: snippets.plugins, lang: "js", title: "wa.config.mjs" },
+};
+---
+
+<Page title="Integrations: webhooks, Chatwoot, Node-RED, S3, MCP | open-wa" description="Push WhatsApp events to your service, bridge into Chatwoot, automate in Node-RED, store media in S3, reach a session through Cloudflare, or package your own plugin.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="crumbs"><a href={base}>Home</a> / Integrations</p>
+      <h1>Connect WhatsApp to the tools you already run</h1>
+      <p>Plugins load from your config with <code>plugins</code> and <code>pluginConfig</code>. Each one is its own npm package.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="load">
+        <div>
+          <h2>Load a plugin</h2>
+          <p class="lead">Add the package to your config and give it its settings. Local plugins load by path.</p>
+        </div>
+        <CodeBlock code={snippets.plugins} lang="js" title="wa.config.mjs" />
+      </div>
+
+      <ul class="ilist">
+        {integrations.map((it) => {
+          const id = slug(it.name);
+          const ex = extra[id];
+          return (
+            <li class="irow" id={id}>
+              <div class="ihead">
+                <span class="imono" aria-hidden="true">{it.name.slice(0, 2).toLowerCase()}</span>
+                <div>
+                  <h3>{it.name}</h3>
+                  <p>{it.what}</p>
+                  <p class="ipkg">{it.package === "built in" ? "Built in, no package to install" : <code>{it.package}</code>}</p>
+                </div>
+              </div>
+              {ex && <CodeBlock code={ex.code} lang={ex.lang} title={ex.title} />}
+            </li>
+          );
+        })}
+      </ul>
+      <p class="more">Settings for each plugin are in <a class="link" href={DOCS}>the docs</a>. For agents, see <a class="link" href={`${base}ai-agents/`}>AI agents</a>.</p>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .load { display: grid; gap: 24px; align-items: center; margin-bottom: 56px; }
+  @media (min-width: 960px) { .load { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); } }
+  .load .lead { margin-top: 12px; }
+  .ilist { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+  .irow { display: grid; gap: 20px; padding: 24px; border: 1px solid var(--color-line); border-radius: var(--radius-lg); align-items: center; min-width: 0; }
+  @media (min-width: 960px) { .irow:has(.code) { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); } }
+  .ihead { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; }
+  .ihead p { color: var(--slate-700); margin-top: 6px; }
+  .imono { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 11px; background: var(--slate); color: var(--sun); font: 700 1rem/1 var(--font-mono); }
+  .ipkg { font-size: var(--text-sm); }
+  .more { margin-top: 32px; color: var(--slate-700); }
+</style>

@@ -1,0 +1,36 @@
+---
+import Page from "../layouts/Page.astro";
+import { releases, support, product } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+
+<Page title="Changelog: what's new in open-wa 5.5 and 5.4" description="5.5.0 adds event cards and RSVPs, live refresh and local stickers. 5.4.0 lets you bring your own session encryption key.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="crumbs"><a href={base}>Home</a> / Changelog</p>
+      <h1>Changelog</h1>
+      <p>Latest on npm: {product.currentVersion} ({product.currentVersionNote}). Every release is on <a class="link" href={support.releases}>GitHub</a>, and the docs keep the <a class="link" href={support.changelog}>full changelog</a>.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap log">
+      {releases.map((r) => (
+        <article class="rel">
+          <div class="rel-meta"><span class="tag tag--sun">v{r.version}</span><time>{r.date}</time></div>
+          <div>
+            <h2>{r.headline}</h2>
+            <ul class="ticks">{r.highlights.map((h) => <li>{h}</li>)}</ul>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</Page>
+
+<style>
+  .log { display: grid; gap: 0; max-width: 960px; }
+  .rel { display: grid; gap: 16px; padding: 32px 0; border-bottom: 1px solid var(--color-line); }
+  @media (min-width: 760px) { .rel { grid-template-columns: 200px 1fr; } }
+  .rel-meta { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; color: var(--color-muted); }
+  .rel h2 { font-size: 1.625rem; margin-bottom: 16px; }
+</style>

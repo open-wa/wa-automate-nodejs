@@ -1,0 +1,44 @@
+---
+/** One capability with the exact request beside it (WAHA's pattern, W20). */
+import CodeBlock from "./CodeBlock.astro";
+interface Props {
+  title: string;
+  text: string;
+  code: string;
+  lang?: string;
+  codeTitle?: string;
+  methods?: string[];
+  flip?: boolean;
+  id?: string;
+  note?: string;
+}
+const { title, text, code, lang = "js", codeTitle, methods = [], flip = false, id, note } = Astro.props;
+---
+
+<article class:list={["cap", { "cap--flip": flip }]} id={id}>
+  <div class="cap-copy">
+    <h3>{title}</h3>
+    <p>{text}</p>
+    {methods.length > 0 && (
+      <ul class="cap-methods" aria-label="Methods">
+        {methods.map((m) => <li><code>{m}</code></li>)}
+      </ul>
+    )}
+    {note && <p class="cap-note">{note}</p>}
+    <slot />
+  </div>
+  <CodeBlock code={code} lang={lang} title={codeTitle} />
+</article>
+
+<style>
+  .cap { display: grid; gap: 20px 56px; align-items: center; padding-block: 36px; border-top: 1px solid var(--color-line); }
+  .cap:first-child { border-top: 0; padding-top: 0; }
+  @media (min-width: 960px) {
+    .cap { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); }
+    .cap--flip .cap-copy { order: 2; }
+  }
+  .cap-copy { display: grid; gap: 12px; align-content: start; }
+  .cap-copy p { color: var(--slate-700); }
+  .cap-methods { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .cap-note { font-size: var(--text-sm); color: var(--color-muted) !important; }
+</style>

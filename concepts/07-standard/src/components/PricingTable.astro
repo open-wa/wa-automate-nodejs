@@ -64,7 +64,7 @@ const id = "bill";
         </p>
         <p class="pt-pm" data-pm>Billed monthly</p>
         <p class="pt-what">{blurb[t.id]}</p>
-        <ul class="pt-list pt-methods" aria-label={`Methods ${t.name} unlocks, examples`}>
+        <ul class="pt-list pt-methods" aria-label={`Examples of methods ${t.name} adds`}>
           {methods[t.id].map((m) => <li><code>{m}</code></li>)}
         </ul>
         <a class="btn btn--primary pt-cta" href={`${formHref}?tier=${t.id}#licence`} data-tier={t.id}>Get a {t.name} key</a>

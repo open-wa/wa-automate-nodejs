@@ -1,0 +1,32 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { support, stats, checked, kDown, snippets, releases } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+
+<Page title="Community: Discord, GitHub and plugins | open-wa" description="Join the open-wa Discord, follow releases on GitHub, contribute fixes and share plugins built with the Plugin SDK.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="crumbs"><a href={base}>Home</a> / Community</p>
+      <h1>Built in the open since 2019</h1>
+      <p>{kDown(stats.githubStars)} stars and {stats.githubForks} forks on GitHub, {stats.discordMembers.toLocaleString("en-GB")} Discord members and {stats.publishedVersions} published versions, checked {checked}.</p>
+      <div class="btn-row"><a class="btn btn--dark" href={support.discord}>Join the Discord</a><a class="btn btn--ghost" href={support.github}>Star on GitHub</a></div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap grid grid--3">
+      <div class="card cc" id="contributing"><h2>Contributing</h2><p>Fixes and docs improvements are welcome as pull requests on GitHub.</p><a class="link" href={support.issues}>Open issues</a></div>
+      <div class="card cc"><h2>Releases</h2><p>Latest: {releases[0].version}, {releases[0].headline.toLowerCase()}, {releases[0].date}.</p><a class="link" href={support.releases}>GitHub releases</a></div>
+      <div class="card cc"><h2>Plugin SDK</h2><p>Package your own integration with <code>@open-wa/plugin-sdk</code> and load it from config.</p><a class="link" href={`${base}integrations/#plugin-sdk`}>Plugin docs</a></div>
+    </div>
+    <div class="wrap plug"><CodeBlock code={snippets.plugins} lang="js" title="wa.config.mjs" /></div>
+  </section>
+</Page>
+
+<style>
+  .cc { display: grid; gap: 12px; align-content: start; }
+  .cc h2 { font-size: 1.375rem; }
+  .cc p { color: var(--slate-700); }
+  .plug { margin-top: 24px; }
+</style>
