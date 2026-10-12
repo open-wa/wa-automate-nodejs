@@ -12,7 +12,7 @@ const tiers = licences.tiers.map((t) => ({ id: t.id, name: t.name, month: t.pric
 <div class="lf" data-licence>
   <form class="lf-form" novalidate data-lf-form>
     <fieldset class="lf-tiers">
-      <legend class="lf-legend">{tierField.label}</legend>
+      <legend class="lf-legend">Licence tier</legend>
       <div class="lf-tier-row">
         {tiers.map((t, i) => (
           <label class="lf-tier">

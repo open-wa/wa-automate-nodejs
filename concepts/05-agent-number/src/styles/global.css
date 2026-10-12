@@ -90,6 +90,7 @@ kbd {
 :where(.doc) h3 { margin: 32px 0 10px; }
 :where(.doc) ul { padding-left: 1.2em; }
 :where(.doc) li + li { margin-top: 6px; }
+:where(.doc) .cb + p { margin-top: 14px; }
 
 .page-hero { padding-block: clamp(56px, 8vw, 104px) clamp(24px, 4vw, 48px); }
 .page-hero h1 { font-size: clamp(40px, 6vw, 72px); max-width: 16ch; }
