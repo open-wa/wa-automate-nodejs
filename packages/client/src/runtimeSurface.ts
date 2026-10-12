@@ -58,7 +58,7 @@ export const clientRuntimeMethodSurface = {
   sendContact: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'common', runtimeMethod: 'sendContact' },
   sendMultipleContacts: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'common', runtimeMethod: 'sendContact' },
   sendVCard: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'common', runtimeMethod: 'sendVCard' },
-  sendSticker: { support: 'runtime', runtimeMethod: 'sendImageAsSticker' },
+  sendSticker: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'private', runtimeMethod: 'sendSticker', reason: 'provided by the private donor finalizer' },
   reply: { support: 'runtime', runtimeMethod: 'reply' },
   forwardMessages: { support: 'runtime', runtimeMethod: 'forwardMessages' },
   deleteMessage: { support: 'runtime', runtimeMethod: 'smartDeleteMessages' },

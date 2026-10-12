@@ -6798,6 +6798,75 @@
     }
   },
   {
+    "id": "messages.sendsticker",
+    "anchor": "sendsticker",
+    "name": "sendSticker",
+    "namespacedName": "messages.sendSticker",
+    "namespace": "messages",
+    "description": "Render a sticker locally using automatic whole-job backend selection and ordered effects, then submit through the private donor finalizer. Author and pack labels are configurable; donor app links are owned by the installed patch. Returns a submitted message ID, not a delivery receipt. Unknown send outcomes must be reconciled before retrying.",
+    "license": null,
+    "aliases": [
+      "messages.sendSticker"
+    ],
+    "deprecatedAliases": [],
+    "parameterOrder": [
+      "to",
+      "input",
+      "job"
+    ],
+    "parameters": [
+      {
+        "name": "to",
+        "type": "string",
+        "required": true,
+        "description": "Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\\d+(-\\d+)?@(c|g)\\.us$|^\\d+@lid$",
+        "aliases": [
+          "chatId"
+        ],
+        "deprecatedAliases": [],
+        "example": "`\"447123456789@c.us\"`",
+        "namedType": "ChatId"
+      },
+      {
+        "name": "input",
+        "type": "string",
+        "required": true,
+        "description": "A media data URL or HTTP(S) URL. The local library additionally accepts bytes, Blob and local filenames. Pattern: ^(?:data:(?:image|video)\\/[^;,]+;base64,[A-Za-z0-9+/]+={0,2}|https?:\\/\\/\\S+)$",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      },
+      {
+        "name": "job",
+        "type": "{ author?: string; backend?: \"auto\" | \"browser\" | \"standalone\"; background?: string; circle?: boolean; effects?: (string | { name: string; options?: object })[]; fit?: \"contain\" | \"cover\"; fps?: number; loopCount?: number; pack?: string; quality?: number; quotedMsgId?: string; trim?: number[] }",
+        "required": false,
+        "description": "",
+        "aliases": [],
+        "deprecatedAliases": [],
+        "example": "-"
+      }
+    ],
+    "returnType": "MessageId",
+    "returnTypeLinks": {
+      "MessageId": "/docs/reference/client/return-types#messageid"
+    },
+    "sdkReturnType": "MessageId",
+    "returnCaveat": "Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.",
+    "returnNotes": "Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.",
+    "route": {
+      "method": "POST",
+      "path": "/api/messages/sendSticker",
+      "flatPath": "/api/sendSticker"
+    },
+    "examples": {
+      "inProcessSdk": "const result = await client.sendSticker(\"447123456789@c.us\", \"input\");",
+      "nodeCall": "const result = await client.sendSticker({\n  to: \"447123456789@c.us\",\n  input: \"input\",\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendSticker({\n  to: \"447123456789@c.us\",\n  input: \"input\",\n});",
+      "http": "curl -X POST \"http://localhost:8080/api/messages/sendSticker\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"input\": \"input\"\n  }'",
+      "response": "{\n  \"success\": true,\n  \"data\": \"true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n}"
+    }
+  },
+  {
     "id": "messages.sendtext",
     "anchor": "sendtext",
     "name": "sendText",

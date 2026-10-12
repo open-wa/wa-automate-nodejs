@@ -14,7 +14,11 @@ function createTestClient(killClientOnLogout: boolean) {
   } as unknown as OpenWAClient;
   const transport = {
     evaluate: vi.fn().mockResolvedValueOnce(true).mockResolvedValueOnce('2.26.3'),
-    setPortableMessageHandler: vi.fn(() => () => undefined),
+    setPortableMessageHandler: vi.fn((handler) => {
+      const listener = ({ message }: any) => handler(message);
+      events.on('message.received', listener);
+      return () => events.off('message.received', listener);
+    }),
     invalidatePortableSession: vi.fn().mockResolvedValue(undefined),
   };
   const client = new Client({ client: openwaClient, transport: transport as unknown as Transport });

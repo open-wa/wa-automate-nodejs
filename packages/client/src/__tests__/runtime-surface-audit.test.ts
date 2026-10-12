@@ -67,7 +67,7 @@ describe('Client runtime surface audit', () => {
       // cannot establish their final runtime implementation.
       if ('runtimeSource' in entry && entry.runtimeSource === 'live-patch') {
         expect(entry.support).toBe('runtime');
-        expect(entry.runtimePatch === 'common' ? commonPatches.some(patch => patch.length > 0) : commonPatches.some(patch => patch.startsWith(`/* OpenWA feature: ${entry.runtimePatch} */\n`))).toBe(true);
+        expect(entry.runtimePatch === 'private' ? Boolean(entry.reason) : entry.runtimePatch === 'common' ? commonPatches.some(patch => patch.length > 0) : commonPatches.some(patch => patch.startsWith(`/* OpenWA feature: ${entry.runtimePatch} */\n`))).toBe(true);
         continue;
       }
 

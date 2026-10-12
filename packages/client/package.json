@@ -30,7 +30,8 @@
     "@open-wa/runtime-core": "workspace:*",
     "@open-wa/schema": "workspace:*",
     "axios": "catalog:",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "@open-wa/stickers": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",

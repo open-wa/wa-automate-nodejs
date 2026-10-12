@@ -6,7 +6,7 @@ icon: "BookOpen"
 
 # Messages Client API
 
-This page documents 45 schema-registry client methods in the `messages` namespace.
+This page documents 46 schema-registry client methods in the `messages` namespace.
 
 
 ## `deleteMessage`
@@ -3436,6 +3436,102 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 | --- | --- | --- | --- | --- |
 | Primary | `PUT` | `/api/messages/sendSeen` | `sendSeen` | Active |
 | Alias | `PUT` | `/api/sendSeen` | `sendSeen` | Active |
+
+</details>
+
+
+## `sendSticker`
+
+Render a sticker locally using automatic whole-job backend selection and ordered effects, then submit through the private donor finalizer. Author and pack labels are configurable; donor app links are owned by the installed patch. Returns a submitted message ID, not a delivery receipt. Unknown send outcomes must be reconciled before retrying.
+
+**Signature** `client.sendSticker(to: string, input: string, job?: { author?: string; backend?: "auto" \| "browser" \| "standalone"; background?: string; circle?: boolean; effects?: (string \| { name: string; options?: object })[]; fit?: "contain" \| "cover"; fps?: number; loopCount?: number; pack?: string; quality?: number; quotedMsgId?: string; trim?: number[] }): Promise<MessageId>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.sendSticker("447123456789@c.us", "input");
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.sendSticker({
+  to: "447123456789@c.us",
+  input: "input",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendSticker" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "input": "input"
+  }'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+<AutoTypeTable path="./generated-method-params.ts" name="SendStickerParams" />
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<MessageId>` |
+| MessageId | [View fields](/docs/reference/client/return-types#messageid) |
+
+Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.
+
+In-process Client resolves to `Promise<MessageId>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `messages` |
+| Action | `send` |
+| Functionality | `both` |
+| Positional parameter order | `to`, `input`, `job` |
+| Aliases | `messages.sendSticker` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | `sendStickerJob` |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `POST` | `/api/messages/sendSticker` | `sendSticker` | Active |
+| Alias | `POST` | `/api/sendSticker` | `sendSticker` | Active |
 
 </details>
 

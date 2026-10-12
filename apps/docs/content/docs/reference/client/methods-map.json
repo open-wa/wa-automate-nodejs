@@ -125,6 +125,7 @@
   "sendRawMessage": "/docs/reference/client/client#sendrawmessage",
   "sendReplyWithMentions": "/docs/reference/client/client#sendreplywithmentions",
   "sendSeen": "/docs/reference/client/client#sendseen",
+  "sendSticker": "/docs/reference/client/client#sendsticker",
   "sendText": "/docs/reference/client/client#sendtext",
   "sendTextWithMentions": "/docs/reference/client/client#sendtextwithmentions",
   "sendVCard": "/docs/reference/client/client#sendvcard",
