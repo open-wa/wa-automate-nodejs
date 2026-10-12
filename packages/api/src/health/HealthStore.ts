@@ -10,6 +10,8 @@
  * only stores small summaries — no message payloads.
  */
 
+import type { SessionRefreshSnapshot } from '@open-wa/schema';
+
 const MAX_RECONNECTIONS = 100;
 const MAX_TIMELINE_STEPS = 50;
 
@@ -43,6 +45,7 @@ export interface ReconnectionEntry {
 }
 
 export interface HealthSnapshot {
+  refresh: SessionRefreshSnapshot | null;
   launchTimeline: TimelineStep[];
   patches: PatchInfo[];
   license: LicenseInfo | null;
@@ -52,6 +55,9 @@ export interface HealthSnapshot {
 }
 
 export class HealthStore {
+  private refresh: SessionRefreshSnapshot | null = null;
+  private stagedPatches: PatchInfo[] = [];
+  private stagedLicense: LicenseInfo | null = null;
   private timeline: TimelineStep[] = [];
   private patches: PatchInfo[] = [];
   private license: LicenseInfo | null = null;
@@ -70,6 +76,35 @@ export class HealthStore {
     const data = payload as Record<string, unknown> | undefined;
     const ts = Date.now();
     this.lastEventAt = ts;
+
+    if (event === 'session.refresh.progress' && data?.refresh) {
+      this.refresh = data.refresh as SessionRefreshSnapshot;
+      if (this.refresh.phase === 'reloading') {
+        this.patches = []; this.license = null;
+        this.stagedPatches = []; this.stagedLicense = null;
+      }
+      if (!this.refresh.running && (this.refresh.phase === 'ready' || this.refresh.restored)) {
+        this.patches = [...this.stagedPatches];
+        this.license = this.stagedLicense ?? { status: 'missing', source: 'none', keyType: 'none', detail: 'No license is applied.' };
+      }
+      return;
+    }
+    if (this.refresh?.running || this.refresh?.phase === 'needs_auth') {
+      if (event === 'patch.apply.after') this.stagedPatches.push(...this.readAppliedPatches(data?.details as Record<string, unknown> | undefined));
+      if (event === 'license.inject.after' && data?.details) {
+        const current = this.license;
+        this.captureLicenseInfo(data.details as Record<string, unknown>);
+        this.stagedLicense = this.license; this.license = current;
+      }
+      return; // Candidate preparation/install events do not rewrite the launch timeline or installed status.
+    }
+    if (event === 'patch.apply.after') {
+      const results = this.readAppliedPatches(data?.details as Record<string, unknown> | undefined);
+      for (const result of results) {
+        this.patches = [...this.patches.filter(patch => patch.patchId !== result.patchId), result];
+      }
+      return;
+    }
 
     // ── Launch timeline ──
     if (event.startsWith('launch.') && event.endsWith('.before')) {
@@ -97,13 +132,8 @@ export class HealthStore {
         timestamp: ts,
       });
 
-      // Special: capture patch info from launch.patch.init.after
-      if (step === 'launch.patch.init') {
-        this.capturePatchInfo(details);
-      }
-
       // Special: capture license info from launch.license.preload.after or launch.license.check.after
-      if (step === 'launch.license.preload' || step === 'launch.license.check') {
+      if (step === 'launch.license.check' && details?.status === 'missing') {
         this.captureLicenseInfo(details);
       }
       return;
@@ -194,6 +224,7 @@ export class HealthStore {
    */
   getSnapshot(): HealthSnapshot {
     return {
+      refresh: this.refresh && { ...this.refresh },
       launchTimeline: [...this.timeline],
       patches: [...this.patches],
       license: this.license ? { ...this.license } : null,
@@ -210,18 +241,12 @@ export class HealthStore {
     }
   }
 
-  private capturePatchInfo(details?: Record<string, unknown>) {
-    if (!details) return;
-    const applied = (details.applied as string[]) || [];
-    const available = (details.available as string[]) || applied;
-    const outcome = details.outcome as string;
-
-    this.patches = available.map((id) => ({
-      patchId: id,
-      description: `Patch ${id}`,
-      required: true,
-      outcome: applied.includes(id) ? 'applied' as const : (outcome === 'none' ? 'not_applicable' as const : 'failed' as const),
-    }));
+  private readAppliedPatches(details?: Record<string, unknown>): PatchInfo[] {
+    if (!details) return [];
+    const results = Array.isArray(details.results) ? details.results
+      : typeof details.patchId === 'string' ? [details] : [];
+    return results.map(result => ({ patchId: String(result.patchId), description: String(result.description ?? `Patch ${result.patchId}`),
+      required: Boolean(result.required), outcome: result.outcome as PatchInfo['outcome'] }));
   }
 
   private captureLicenseInfo(details?: Record<string, unknown>) {

@@ -119,6 +119,7 @@ export function createApiMiddleware(clientSource: ClientSource, options: ApiMidd
     if (result.success) {
       return c.json({ success: true, data: result.data });
     }
+    if (result.status === 503) c.header('Retry-After', '2');
 
     return c.json(
       {

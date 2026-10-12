@@ -3,6 +3,7 @@ import type { SimpleListener } from "@open-wa/wa-automate-types-only";
 import type { BaseClient as _Client } from "@open-wa/wa-automate-types-only";
 import makeDebug from 'debug';
 import WebSocket from 'isomorphic-ws';
+import type { SessionRefreshOptions, SessionRefreshResult, SessionRefreshSnapshot } from '@open-wa/schema';
 
 const debug = makeDebug('wa:socket:tunnel');
 const uuidv4 = () => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -169,6 +170,25 @@ export class TunnelSocketClient {
         this.close();
     }
 
+    public async requestRefresh(options: SessionRefreshOptions = {}): Promise<{ operationId: string }> {
+        return await this.ask('requestRefresh' as ClientMethods, options as any) as { operationId: string };
+    }
+
+    public async getRefreshStatus(): Promise<SessionRefreshSnapshot> {
+        return await this.ask('getRefreshStatus' as ClientMethods) as SessionRefreshSnapshot;
+    }
+
+    public async refresh(options: SessionRefreshOptions = {}): Promise<SessionRefreshResult> {
+        const { operationId } = await this.requestRefresh(options);
+        while (!this.isDestroyed) {
+            const status = await this.getRefreshStatus();
+            if (status.operationId !== operationId) throw new Error('The refresh operation was superseded. Read the current session status.');
+            if (!status.running || status.phase === 'needs_auth') return status;
+            await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+        throw new Error('The client disconnected. The accepted refresh continues on the server.');
+    }
+
     public async reconnect(): Promise<void> {
         this.isDestroyed = false;
         if (this.ws) this.ws.close();
@@ -176,7 +196,7 @@ export class TunnelSocketClient {
     }
 
     public async ask<M extends ClientMethods, P extends Parameters<Pick<Client, M>[M]>>(method: M, args?: any[] | P | { [k: string]: unknown }): Promise<unknown> {
-        debug("ask", method, args);
+        debug("ask", method, method === 'requestRefresh' ? '[session control]' : args);
         if (typeof args !== "object" && !Array.isArray(args) && (typeof args === "string" || typeof args === "number")) args = [args] as any;
         
         return new Promise((resolve, reject) => {

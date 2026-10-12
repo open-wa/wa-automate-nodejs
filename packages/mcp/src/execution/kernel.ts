@@ -81,7 +81,7 @@ export async function executeCapability(
     };
   } catch (error: any) {
     const isValidationError = error?.name === 'ZodError';
-    const status = isValidationError ? 400 : 500;
+    const status = error?.code === 'SESSION_REFRESHING' ? 503 : isValidationError ? 400 : 500;
 
     // Log failure to monitoring
     elasticEmitter?.log({

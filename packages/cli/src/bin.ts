@@ -93,6 +93,7 @@ async function main() {
         proxyToken: runtime.config.proxyToken,
         sessionId: runtime.config.sessionId,
         localSessionPort: runtime.config.port,
+        localApiKey: runtime.config.apiKey,
         log,
       });
       tunnelClient.connect();

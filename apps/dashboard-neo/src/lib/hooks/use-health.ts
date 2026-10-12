@@ -15,6 +15,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { getApiUrl, getClient } from "@/lib/api-client"
+import type { SessionRefreshSnapshot } from '@open-wa/socket-client'
 import { useDemo } from "@/lib/demo/use-demo"
 import {
   demoLaunchTimeline,
@@ -55,6 +56,7 @@ export interface ReconnectionEntry {
 }
 
 export interface HealthData {
+  refresh?: SessionRefreshSnapshot | null
   status: string
   version: string
   connected: boolean
@@ -163,6 +165,17 @@ function ensureSocketListener() {
 
   getClient()
     .then((client) => {
+      client.ev.on('session.refresh.progress', (event: { refresh?: SessionRefreshSnapshot }) => {
+        if (!event.refresh) return
+        const refresh = event.refresh
+        setCachedHealth(current => ({ ...current, refresh,
+          ...(refresh.phase === 'reloading' ? { patches: [], license: null } : {}),
+          session: { ...current.session, ready: refresh.runtimeUsable,
+            state: refresh.runtimeUsable ? 'READY' : refresh.phase === 'preparing' ? current.session.state : 'STARTING' },
+          lastEventAt: Date.now(),
+        }))
+        if (!refresh.running) _lastFetch = 0
+      })
       client.ev.on("session.state.changed", (data: unknown) => {
         const payload = unwrapEventPayload(data) as
           | Record<string, any>
@@ -220,7 +233,9 @@ function ensureSocketListener() {
       })
 
       client.ev.on("patch.apply.after", (data: unknown) => {
-        const payload = unwrapEventPayload(data) as
+        if (_cachedHealth?.refresh?.running) return
+        const event = data as { details?: Record<string, any> } | undefined
+        const payload = (event?.details ?? unwrapEventPayload(data)) as
           | Record<string, any>
           | undefined
         if (!payload) return
@@ -235,7 +250,7 @@ function ensureSocketListener() {
 
         setCachedHealth((current) => ({
           ...current,
-          patches: [...current.patches, patch],
+          patches: [...current.patches.filter(currentPatch => currentPatch.patchId !== patch.patchId), patch],
           lastEventAt: Date.now(),
         }))
       })
@@ -255,6 +270,7 @@ function ensureSocketListener() {
       })
 
       client.ev.on("internal_launch_progress", (data: unknown) => {
+        if (_cachedHealth?.refresh?.running) return
         const payload = unwrapEventPayload(data) as
           | Record<string, any>
           | undefined
