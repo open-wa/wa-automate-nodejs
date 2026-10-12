@@ -25,7 +25,7 @@ const bizLabels = businesses.filter((b) => job.business.includes(b.id)).map((b) 
           <div class="rd-start">
             <p class="rd-start-k">Start this recipe</p>
             <div class="rd-cmd">
-              <code>{commands.easyApi}</code>
+              <code>{commands.easyApi.split(" ").map((t, i) => <>{i > 0 && " "}<span class="nw">{t}</span></>)}</code>
               <button class="copy" type="button" data-copy={commands.easyApi} aria-label="Copy the command"><span class="copy-label">Copy</span></button>
             </div>
             <p class="rd-start-help">Run it, scan the QR code with the business's phone, then add the code below. <a href={`${base}quickstart/`}>Quick start</a></p>
@@ -154,7 +154,8 @@ const bizLabels = businesses.filter((b) => job.business.includes(b.id)).map((b) 
   .rd-start { margin-top: 24px; background: var(--ink); color: var(--paper); border-radius: 18px; padding: 16px; max-width: 620px; }
   .rd-start-k { margin: 0 0 8px; font: 600 0.8125rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--saffron); }
   .rd-cmd { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
-  .rd-cmd code { font-size: 0.9375rem; overflow-wrap: anywhere; color: var(--paper); }
+  .rd-cmd code { font-size: 0.9375rem; color: var(--paper); min-width: 0; }
+  .nw { white-space: nowrap; }
   .rd-cmd .copy { min-height: 44px; flex: none; }
   .rd-start-help { margin: 10px 0 0; font-size: 0.9375rem; color: #D6D6CC; }
   .rd-start-help a { color: var(--paper); }

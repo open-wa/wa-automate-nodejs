@@ -11,7 +11,7 @@ const { variant = "top" } = Astro.props;
 <div class:list={["cmd", `cmd-${variant}`]}>
   <div class="cmd-line">
     <span class="cmd-prompt" aria-hidden="true">$</span>
-    <code class="cmd-text">{commands.easyApi}</code>
+    <code class="cmd-text">{commands.easyApi.split(" ").map((t, i) => <>{i > 0 && " "}<span class="cmd-tok">{t}</span></>)}</code>
   </div>
   <div class="cmd-actions">
     <button type="button" class="copy cmd-copy" data-copy={commands.easyApi} aria-label="Copy the command">
@@ -29,6 +29,7 @@ const { variant = "top" } = Astro.props;
   .cmd-line { display: flex; gap: 10px; align-items: baseline; min-width: 0; padding-top: 4px; }
   .cmd-prompt { font: 400 1rem/1 var(--font-mono); color: var(--saffron); }
   .cmd-text { font: 400 0.9375rem/1.5 var(--font-mono); color: var(--paper); overflow-wrap: break-word; min-width: 0; }
+  .cmd-tok { white-space: nowrap; }
   .cmd-actions { display: flex; gap: 8px; }
   .cmd-copy { min-height: 44px; padding: 0 16px; font-size: 1rem; flex: 1; }
   .cmd-copy-ico { width: 14px; height: 16px; position: relative; border: 1.8px solid currentColor; border-radius: 3px; }

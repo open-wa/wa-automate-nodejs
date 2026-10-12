@@ -281,6 +281,7 @@ const count = (b: string) => jobs.filter((j) => j.business.includes(b as never))
     display: flex; align-items: flex-start; align-self: end;
   }
   .rc-phone :global(.ph) { --ph-h: 318px; }
+  @media (max-width: 599px) { .rc:not(.is-open) .rc-phone :global(.ph) { --ph-h: 280px; } }
   .rc-foot { grid-area: foot; display: flex; align-items: center; gap: 10px; margin-top: 12px; }
   .rc-methods { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; flex: 1; }
   .rc-methods code { font-size: 0.75rem; background: var(--paper-2); padding: 3px 6px; border-radius: 6px; transition: background 200ms var(--ease), color 200ms var(--ease); }
