@@ -16,7 +16,6 @@ chmod 600 "$temp_dir/npmrc"
 node - <<'NODE' > "$temp_dir/packages"
 const fs = require('fs');
 const names = new Set(JSON.parse(process.env.BUMPY_PACKAGES));
-const reconcileAll = names.size === 0;
 for (const root of ['packages', 'integrations', 'sdks', 'apps']) {
   if (!fs.existsSync(root)) continue;
   for (const entry of fs.readdirSync(root)) {
@@ -28,10 +27,8 @@ for (const root of ['packages', 'integrations', 'sdks', 'apps']) {
       if (names.has(pkg.name)) throw new Error(`Refusing to publish private package ${pkg.name}`);
       continue;
     }
-    if (reconcileAll || names.has(pkg.name)) {
-      names.delete(pkg.name);
-      console.log(dir);
-    }
+    names.delete(pkg.name);
+    console.log(dir);
   }
 }
 if (names.size > 0) {
@@ -55,7 +52,7 @@ while IFS= read -r package_dir; do
 
   package_pack_dir="$temp_dir/$(basename "$package_dir")"
   mkdir -p "$package_pack_dir"
-  pnpm -r --filter "$package_name..." run build
+  pnpm -r --filter "$package_name..." --if-present run build
   (cd "$package_dir" && pnpm pack --pack-destination "$package_pack_dir" >/dev/null)
   tarballs=("$package_pack_dir"/*.tgz)
   if [[ "${#tarballs[@]}" -ne 1 ]]; then
