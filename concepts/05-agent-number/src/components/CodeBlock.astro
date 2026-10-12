@@ -1,0 +1,51 @@
+---
+import { Code } from "astro:components";
+import { inkTheme } from "../lib/shiki-theme";
+
+interface Props {
+  code: string;
+  lang?: string;
+  title?: string;
+  copy?: boolean;
+  class?: string;
+  label?: string;
+}
+const { code, lang = "ts", title, copy = true, class: cls = "", label } = Astro.props;
+---
+
+<figure class:list={["cb", cls]}>
+  {(title || copy) && (
+    <figcaption class="cb-bar">
+      <span class="cb-title">{title ?? lang}</span>
+      {label && <span class="cb-label">{label}</span>}
+      {copy && (
+        <button class="cb-copy" type="button" data-copy={code} aria-label={`Copy ${title ?? "code"}`}>
+          <span class="cb-copy-idle">Copy</span><span class="cb-copy-done" aria-hidden="true">Copied</span>
+        </button>
+      )}
+    </figcaption>
+  )}
+  <Code code={code} lang={lang as any} theme={inkTheme as any} />
+</figure>
+
+<style>
+  .cb {
+    margin: 0; min-width: 0;
+    background: var(--code-bg); color: var(--code-fg);
+    border-radius: var(--radius); overflow: hidden;
+    border: 1px solid #2c2925;
+  }
+  .cb-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 6px 6px 16px; border-bottom: 1px solid var(--code-line);
+    font: 500 13px/1 var(--font-mono); color: var(--code-dim);
+  }
+  .cb-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cb-label { font-size: 12px; color: var(--code-num); }
+  .cb :global(pre) {
+    margin: 0; padding: 16px 18px; overflow-x: auto;
+    font: 400 14.5px/1.65 var(--font-mono); background: transparent !important;
+    tab-size: 2;
+  }
+  .cb :global(pre code) { background: none; padding: 0; font-size: inherit; }
+</style>

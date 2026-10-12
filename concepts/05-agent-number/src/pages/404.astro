@@ -1,0 +1,17 @@
+---
+import Page from "../layouts/Page.astro";
+import { href, support } from "../data/site";
+---
+
+<Page title="Page not found | open-wa" description="That page isn't here. Start from the quick start or the docs.">
+  <section class="page-hero wrap">
+    <span class="label">404</span>
+    <h1>That page isn't here</h1>
+    <p class="lede">The link may be old, or the page may live in the docs now.</p>
+    <p style="display:flex;gap:10px;flex-wrap:wrap;margin-top:28px">
+      <a class="btn btn-primary" href={href("quickstart/")}>Quick start</a>
+      <a class="btn btn-ghost" href={support.docs}>Docs</a>
+      <a class="btn btn-ghost" href={href("")}>Home</a>
+    </p>
+  </section>
+</Page>

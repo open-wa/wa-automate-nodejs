@@ -1,0 +1,70 @@
+/* 05 Agent number: brand tokens. Every colour, face, radius and easing lives
+   here so another concept can lift this palette or type by swapping the file.
+   Bone, oxblood and ink, with lichen as the one muted secondary. */
+@font-face {
+  font-family: "Gloock";
+  src: url("../fonts/gloock-latin-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Onest";
+  src: url("../fonts/onest-latin-wght.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Spline Sans Mono";
+  src: url("../fonts/spline-sans-mono-latin-wght.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bone: #ede6da;
+  --bone-deep: #e3d9c8;
+  --paper: #f8f4ec;
+  --line: #d3c7b3;
+  --line-strong: #b9aa92;
+  --ink: #1b1a17;
+  --ink-soft: #4a443b;
+  --ink-faint: #6b6357;
+  --oxblood: #6e1423;
+  --oxblood-deep: #540e1a;
+  --oxblood-wash: #f1dcd8;
+  --lichen: #5b5a33;
+  --lichen-wash: #e2e0c6;
+
+  --code-bg: #1f1d1a;
+  --code-line: #36322c;
+  --code-fg: #ece4d6;
+  --code-dim: #9a9083;
+  --code-key: #e9a3ab;
+  --code-str: #cfcf8f;
+  --code-num: #f0b98a;
+  --code-fn: #f4ead8;
+
+  --color-bg: var(--bone);
+  --color-ink: var(--ink);
+  --color-accent: var(--oxblood);
+  --color-muted: var(--ink-soft);
+  --color-surface: var(--paper);
+
+  --font-display: "Gloock", "Iowan Old Style", Georgia, serif;
+  --font-text: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Spline Sans Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --radius-s: 6px;
+  --radius: 12px;
+  --radius-l: 20px;
+  --shadow-window: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 30px 60px -30px rgba(60, 30, 20, 0.35),
+    0 12px 24px -16px rgba(60, 30, 20, 0.25);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-pen: cubic-bezier(0.65, 0, 0.35, 1);
+  --speed: 220ms;
+  --wrap: 1200px;
+  --gutter: clamp(16px, 4vw, 40px);
+}

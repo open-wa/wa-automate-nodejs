@@ -1,0 +1,248 @@
+---
+/**
+ * Signature moment: an example transcript between a developer and their agent.
+ * Each tool call is a card that unfolds into the real MCP request
+ * (JSON-RPC tools/call) and the response shape open-wa's MCP server returns:
+ * the method's result serialised into a text content block.
+ *
+ * Motion: the transcript plays once when it scrolls into view and the first
+ * card unfolds itself. Reduced motion or ?still: everything is shown at once,
+ * cards stay closed and open on click.
+ */
+import { Code } from "astro:components";
+import { inkTheme } from "../lib/shiki-theme";
+
+const req = (id: number, name: string, args: Record<string, unknown>) =>
+  JSON.stringify({ jsonrpc: "2.0", id, method: "tools/call", params: { name, arguments: args } }, null, 2);
+
+const chats = [
+  { id: "447700900123@c.us", name: "Amira K." },
+  { id: "447700900456@c.us", name: "Ben O." },
+  { id: "447700900789@c.us", name: "Chloé R." },
+];
+const chatText = JSON.stringify(chats, null, 2);
+
+const res = (id: number, text: string) =>
+  JSON.stringify({ jsonrpc: "2.0", id, result: { content: [{ type: "text", text }] } }, null, 2);
+
+const messages = [
+  { who: "Amira", to: chats[0].id, order: "1042", msgId: "true_447700900123@c.us_3EB0A41F9C" },
+  { who: "Ben", to: chats[1].id, order: "1043", msgId: "true_447700900456@c.us_3EB0A42B17" },
+  { who: "Chloé", to: chats[2].id, order: "1045", msgId: "true_447700900789@c.us_3EB0A43D60" },
+];
+
+const cards = [
+  {
+    key: "chats",
+    tool: "chats.getAllChats",
+    args: "withNewMessagesOnly: false",
+    result: "3 chats",
+    request: req(7, "chats.getAllChats", { withNewMessagesOnly: false }),
+    response: res(7, chatText),
+  },
+  ...messages.map((m, i) => ({
+    key: `send-${i}`,
+    tool: "messages.sendText",
+    args: `to: ${m.who}`,
+    result: "sent",
+    request: req(8 + i, "messages.sendText", {
+      to: m.to,
+      content: `Hi ${m.who}, your order #${m.order} has shipped. Reply here if anything looks wrong.`,
+    }),
+    response: res(8 + i, JSON.stringify(m.msgId)),
+  })),
+];
+const [chatCard, ...sendCards] = cards;
+---
+
+<div class="tx" data-transcript>
+  <ol class="tx-list">
+    <li class="tx-item tx-you" data-step>
+      <span class="tx-who">You</span>
+      <p>Tell Amira, Ben and Chloé their orders shipped today. Use the shop's WhatsApp.</p>
+    </li>
+
+    <li class="tx-item tx-agent" data-step>
+      <span class="tx-who">Agent</span>
+      <p>Finding their chats on the shop's number.</p>
+    </li>
+
+    {[chatCard].map((c) => (
+      <li class="tx-item tx-tool" data-step data-tool>
+        <details class="tc" data-card={c.key}>
+          <summary class="tc-sum">
+            <span class="tc-chev" aria-hidden="true"></span>
+            <span class="tc-name">{c.tool}</span>
+            <span class="tc-args">{c.args}</span>
+            <span class="tc-state"><span class="tc-dot" aria-hidden="true"></span><span class="tc-calling">calling</span><span class="tc-state-text">{c.result}</span></span>
+          </summary>
+          <div class="tc-body">
+            <div class="tc-pane">
+              <span class="tc-label">Request</span>
+              <Code code={c.request} lang="json" theme={inkTheme as any} />
+            </div>
+            <div class="tc-pane">
+              <span class="tc-label">Response</span>
+              <Code code={c.response} lang="json" theme={inkTheme as any} />
+            </div>
+          </div>
+        </details>
+      </li>
+    ))}
+
+    <li class="tx-item tx-agent" data-step>
+      <span class="tx-who">Agent</span>
+      <p>All three already have a chat with the shop, so no licence key is needed. Sending now.</p>
+    </li>
+
+    <li class="tx-item tx-tool tx-stack" data-step data-tool>
+      {sendCards.map((c) => (
+        <details class="tc" data-card={c.key}>
+          <summary class="tc-sum">
+            <span class="tc-chev" aria-hidden="true"></span>
+            <span class="tc-name">{c.tool}</span>
+            <span class="tc-args">{c.args}</span>
+            <span class="tc-state"><span class="tc-dot" aria-hidden="true"></span><span class="tc-calling">calling</span><span class="tc-state-text">{c.result}</span></span>
+          </summary>
+          <div class="tc-body">
+            <div class="tc-pane">
+              <span class="tc-label">Request</span>
+              <Code code={c.request} lang="json" theme={inkTheme as any} />
+            </div>
+            <div class="tc-pane">
+              <span class="tc-label">Response</span>
+              <Code code={c.response} lang="json" theme={inkTheme as any} />
+            </div>
+          </div>
+        </details>
+      ))}
+    </li>
+
+    <li class="tx-item tx-agent" data-step>
+      <span class="tx-who">Agent</span>
+      <p>Done. Three messages went out from +44 7700 900100, each with its order number.</p>
+    </li>
+  </ol>
+</div>
+
+<script>
+  import { shouldAnimate } from "../lib/runtime";
+
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+  document.querySelectorAll<HTMLElement>("[data-transcript]").forEach((root) => {
+    const steps = Array.from(root.querySelectorAll<HTMLElement>("[data-step]"));
+    const scroller = root.closest<HTMLElement>("[data-scroll]") ?? root;
+    let run = 0;
+
+    const showAll = () => {
+      root.dataset.mode = "still";
+      steps.forEach((s) => s.classList.add("is-in", "is-done"));
+    };
+
+    const keepInView = (el: HTMLElement) => {
+      if (scroller.scrollHeight <= scroller.clientHeight + 2) return;
+      const top = el.offsetTop + el.offsetHeight - scroller.clientHeight + 16;
+      if (top > scroller.scrollTop) scroller.scrollTo({ top, behavior: "smooth" });
+    };
+
+    const play = async () => {
+      const id = ++run;
+      root.dataset.mode = "play";
+      steps.forEach((s) => s.classList.remove("is-in", "is-done"));
+      if (id === 1) steps[0]?.classList.add("is-in", "is-done");
+      root.querySelectorAll<HTMLDetailsElement>("details.tc").forEach((d) => (d.open = false));
+      scroller.scrollTop = 0;
+      await wait(350);
+      for (const step of steps) {
+        if (id !== run) return;
+        step.classList.add("is-in");
+        keepInView(step);
+        if (step.hasAttribute("data-tool")) {
+          await wait(900);
+          if (id !== run) return;
+          step.classList.add("is-done");
+          if (step.querySelector('[data-card="chats"]')) {
+            await wait(250);
+            const card = step.querySelector<HTMLDetailsElement>("details.tc");
+            if (card) { card.open = true; await wait(60); keepInView(step); }
+            await wait(1600);
+          }
+        } else {
+          step.classList.add("is-done");
+          await wait(step.classList.contains("tx-you") ? 700 : 520);
+        }
+      }
+    };
+
+    const replay = root.closest("[data-agent-window]")?.querySelector<HTMLElement>("[data-replay]");
+    if (!shouldAnimate()) { showAll(); if (replay) replay.hidden = true; return; }
+
+    root.dataset.mode = "ready";
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) { io.disconnect(); play(); }
+    }, { threshold: 0.25 });
+    io.observe(root);
+
+    replay?.addEventListener("click", () => play());
+  });
+</script>
+
+<style>
+  .tx { min-width: 0; }
+  .tx-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .tx-item { display: grid; gap: 4px; min-width: 0; }
+  .tx-who { font: 500 12px/1.2 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); }
+  .tx-item p { font-size: 16.5px; line-height: 1.5; }
+  .tx-you {
+    justify-self: end; max-width: 88%; padding: 12px 16px 13px; border-radius: 16px 16px 4px 16px;
+    background: var(--ink); color: var(--bone);
+  }
+  .tx-you .tx-who { color: #b9ae9d; }
+  .tx-agent { padding-left: 14px; border-left: 2px solid var(--oxblood); }
+  .tx-tool { padding-left: 14px; }
+  .tx-stack { gap: 6px; }
+
+  /* Play states: items keep their space, so nothing below them moves. */
+  .tx[data-mode="ready"] .tx-item:not(:first-child), .tx[data-mode="play"] .tx-item:not(.is-in) { opacity: 0; transform: translateY(8px); }
+  .tx-item { transition: opacity 360ms var(--ease), transform 460ms var(--ease); }
+
+  /* Tool-call cards */
+  .tc { min-width: 0; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--paper); overflow: hidden; }
+  .tc[open] { border-color: var(--ink-faint); }
+  .tc-sum {
+    display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 12px;
+    cursor: pointer; list-style: none; font: 500 14px/1.3 var(--font-mono);
+  }
+  .tc-sum::-webkit-details-marker { display: none; }
+  .tc-sum:hover { background: var(--bone); }
+  .tc-chev {
+    flex: none; width: 8px; height: 8px; border-right: 1.5px solid var(--ink-soft); border-bottom: 1.5px solid var(--ink-soft);
+    transform: rotate(-45deg); transition: transform var(--speed) var(--ease);
+  }
+  .tc[open] .tc-chev { transform: rotate(45deg) translate(-2px, -2px); }
+  .tc-name { color: var(--oxblood); font-weight: 600; white-space: nowrap; }
+  .tc-args { flex: 1; min-width: 0; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tc-state { display: inline-flex; align-items: center; gap: 6px; color: var(--lichen); font-size: 13px; white-space: nowrap; }
+  .tc-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lichen); }
+  .tc-calling { display: none; color: var(--oxblood); }
+  .tx[data-mode="play"] .tx-tool:not(.is-done) .tc-calling { display: inline; }
+  .tx[data-mode="play"] .tx-tool:not(.is-done) .tc-state-text { display: none; }
+  .tx[data-mode="play"] .tx-tool:not(.is-done) .tc-dot { background: var(--oxblood); animation: tc-pulse 0.9s ease-in-out infinite; }
+  @keyframes tc-pulse { 50% { opacity: 0.25; } }
+
+  .tc-body { display: grid; gap: 1px; background: var(--code-line); border-top: 1px solid var(--line-strong); }
+  .tc[open] .tc-body { animation: tc-unfold 420ms var(--ease) both; }
+  @keyframes tc-unfold { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+  .tc-pane { position: relative; min-width: 0; background: var(--code-bg); }
+  .tc-label {
+    position: absolute; top: 8px; right: 10px; font: 500 11px/1 var(--font-mono); letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--code-dim);
+  }
+  .tc-pane :global(pre) { margin: 0; padding: 12px 14px; overflow-x: auto; font: 400 13px/1.55 var(--font-mono); background: transparent !important; }
+  .tc-pane :global(pre code) { background: none; padding: 0; font-size: inherit; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tc[open] .tc-body { animation: none; }
+  }
+</style>
