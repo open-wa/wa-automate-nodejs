@@ -37,9 +37,6 @@ function createTestClient() {
 
 describe('Client runtime surface smoke coverage', () => {
   it.each([
-    ['setGroupTitle', (client: Client) => client.setGroupTitle('123@g.us' as any, 'new title')],
-    ['setGroupDescription', (client: Client) => client.setGroupDescription('123@g.us' as any, 'new description')],
-    ['getGroupInfo', (client: Client) => client.getGroupInfo('123@g.us' as any)],
     ['pinChat', (client: Client) => client.pinChat('123@c.us' as any)],
     ['unpinChat', (client: Client) => client.unpinChat('123@c.us' as any)],
     ['muteChat', (client: Client) => client.muteChat('123@c.us' as any)],

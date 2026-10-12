@@ -81,17 +81,23 @@ export const clientRuntimeMethodSurface = {
   demoteParticipant: { support: 'runtime', runtimeMethod: 'demoteParticipant' },
   setGroupTitle: {
     support: 'runtime',
+    runtimeSource: 'live-patch',
+    runtimePatch: 'private',
     runtimeMethod: 'setGroupTitle',
     reason: 'provided by the installed private patch pipeline',
   },
   setGroupDescription: {
     support: 'runtime',
+    runtimeSource: 'live-patch',
+    runtimePatch: 'private',
     runtimeMethod: 'setGroupDescription',
     reason: 'provided by the installed private patch pipeline',
   },
   setGroupIcon: { support: 'runtime', runtimeMethod: 'setGroupIcon' },
   getGroupInfo: {
     support: 'runtime',
+    runtimeSource: 'live-patch',
+    runtimePatch: 'private',
     runtimeMethod: 'getGroupInfo',
     reason: 'provided by the installed private patch pipeline',
   },
