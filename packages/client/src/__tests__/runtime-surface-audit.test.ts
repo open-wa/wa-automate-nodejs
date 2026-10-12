@@ -15,7 +15,7 @@ function getFixturePath(relativePath: string): string {
 function extractDeclaredClientMethods(clientSource: string): string[] {
   return [...new Set([
     ...[...clientSource.matchAll(/declare\s+([A-Za-z0-9_]+)\s*:/g)].map(match => match[1]),
-    ...[...clientSource.matchAll(/^  (?:async )?([A-Za-z0-9_]+)\(/gm)].map(match => match[1]).filter(name => name in clientRuntimeMethodSurface),
+    ...[...clientSource.matchAll(/^  (?:async )?([A-Za-z0-9_]+)\(/gm)].map(match => match[1]).filter(name => Object.hasOwn(clientRuntimeMethodSurface, name)),
   ])].sort();
 }
 
