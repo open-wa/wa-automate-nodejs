@@ -39,6 +39,7 @@ const cards = [
     result: "3 chats",
     request: req(7, "chats.getAllChats", { withNewMessagesOnly: false }),
     response: res(7, chatText),
+    parsed: chatText,
   },
   ...messages.map((m, i) => ({
     key: `send-${i}`,
@@ -85,6 +86,12 @@ const [chatCard, ...sendCards] = cards;
               <span class="tc-label">Response</span>
               <Code code={c.response} lang="json" theme={inkTheme as any} />
             </div>
+            {c.parsed && (
+              <div class="tc-pane">
+                <span class="tc-label">content[0].text, parsed</span>
+                <Code code={c.parsed} lang="json" theme={inkTheme as any} />
+              </div>
+            )}
           </div>
         </details>
       </li>

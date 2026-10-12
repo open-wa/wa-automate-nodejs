@@ -114,6 +114,11 @@ const [insiders, restricted] = licences.tiers;
             <code class="integ-pkg">{it.package}</code>
           </li>
         ))}
+        <li class="integ-item integ-own">
+          <h3>Your own plugin</h3>
+          <p>Load a local folder next to the packages, with its own settings in <code>pluginConfig</code>.</p>
+          <code class="integ-pkg">./my-local-plugin</code>
+        </li>
       </ul>
       <p class="more"><a class="textlink" href={href("integrations/")}>Integration set-up</a></p>
     </div>
@@ -160,7 +165,8 @@ const [insiders, restricted] = licences.tiers;
       <div class="signals">
         <h3 class="label">Maintenance, checked {stats.checkedOn}</h3>
         <dl>
-          <div><dt>Latest release</dt><dd><a class="textlink" href={href("changelog/")}>{latest.version}</a>, {latest.date}</dd></div>
+          <div><dt>Current npm version</dt><dd>{product.currentVersion}</dd></div>
+          <div><dt>Latest release notes</dt><dd><a class="textlink" href={href("changelog/")}>{latest.version}</a>, {latest.date}</dd></div>
           <div><dt>GitHub stars</dt><dd>{stats.githubStars.toLocaleString("en-GB")}</dd></div>
           <div><dt>npm downloads, 12 months</dt><dd>{stats.npmDownloadsLast12Months.toLocaleString("en-GB")}</dd></div>
           <div><dt>Docker pulls</dt><dd>{stats.dockerPulls.toLocaleString("en-GB")}</dd></div>
@@ -192,7 +198,7 @@ const [insiders, restricted] = licences.tiers;
     align-items: start; padding-block: clamp(40px, 6vw, 88px) clamp(40px, 6vw, 72px);
   }
   .hero-copy { padding-top: clamp(0px, 3vw, 40px); position: sticky; top: 100px; }
-  .hero h1 { font-size: clamp(42px, 6vw, 82px); line-height: 1.0; letter-spacing: -0.02em; }
+  .hero h1 { font-size: clamp(42px, 5.4vw, 74px); line-height: 1.0; letter-spacing: -0.02em; }
   .hero-sub { margin-top: 22px; font-size: clamp(17px, 1.5vw, 20px); color: var(--ink-soft); max-width: 34ch; }
   .hero-ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
   .hero-facts {
@@ -230,6 +236,8 @@ const [insiders, restricted] = licences.tiers;
   .integ-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1px; background: #3a352e; border: 1px solid #3a352e; border-radius: var(--radius); overflow: hidden; }
   .integ-item { background: var(--ink); padding: 22px; display: grid; gap: 8px; align-content: start; }
   .integ-item p { color: #d6ccbb; }
+  .integ-own { background: #24211d; }
+  .integ-own p code { background: #2c2925; color: var(--code-fg); }
   .integ-pkg { justify-self: start; background: #2c2925 !important; color: var(--code-str); }
   .integ .textlink { color: #f0b9bf; }
 
@@ -252,7 +260,8 @@ const [insiders, restricted] = licences.tiers;
   .signals dd { margin: 0; font-family: var(--font-mono); text-align: right; }
 
   .close { background: var(--oxblood); color: #fff3ea; }
-  .close-in { display: grid; gap: 28px; justify-items: start; }
+  .close-in { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; justify-items: start; }
+  .close-in > * { max-width: 100%; }
   .close h2 { max-width: 18ch; font-size: clamp(36px, 5vw, 64px); }
   .close-cmd { width: min(100%, 620px); }
   .close-links { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -262,16 +271,16 @@ const [insiders, restricted] = licences.tiers;
   .close .btn-ghost:hover { background: rgba(255, 255, 255, 0.08); }
 
   @media (max-width: 900px) {
-    .hero { grid-template-columns: 1fr; padding-top: 22px; gap: 18px; }
+    .hero { grid-template-columns: minmax(0, 1fr); padding-top: 22px; gap: 18px; }
     .hero-copy { position: static; padding-top: 0; }
     .hero h1 { font-size: clamp(38px, 10.4vw, 56px); }
     .hero-sub { margin-top: 12px; font-size: 16.5px; line-height: 1.5; }
     .hero-ctas { margin-top: 16px; }
     .hero-facts { display: none; }
-    .first-in, .status-in { grid-template-columns: 1fr; gap: 24px; }
-    .uses { grid-template-columns: 1fr; }
+    .first-in, .status-in { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .uses { grid-template-columns: minmax(0, 1fr); }
     .use, .use:not(:nth-child(3n + 1)) { padding-left: 0; border-left: 0; }
-    .tiers { grid-template-columns: 1fr; }
+    .tiers { grid-template-columns: minmax(0, 1fr); }
   }
   @media (min-width: 901px) and (max-width: 1100px) {
     .uses { grid-template-columns: repeat(2, minmax(0, 1fr)); }

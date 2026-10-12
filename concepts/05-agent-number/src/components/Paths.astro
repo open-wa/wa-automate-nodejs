@@ -93,7 +93,7 @@ const docs: Record<string, string> = { "easy-api": "quickstart/", "socket-client
   .pp-what { font-size: 18px; }
   .pp-more { justify-self: start; display: inline-flex; align-items: center; min-height: 44px; }
   @media (max-width: 860px) {
-    .pp { grid-template-columns: 1fr; }
+    .pp { grid-template-columns: minmax(0, 1fr); }
     .pp-list { grid-template-columns: 1fr 1fr; }
     .pp-tab { padding: 12px; gap: 10px; }
     .pp-name { font-size: 21px; }

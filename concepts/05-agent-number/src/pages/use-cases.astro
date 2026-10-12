@@ -42,5 +42,5 @@ const links: Record<string, string> = {
   .uc-meta .label { margin-right: 8px; }
   .uc-methods { display: flex; flex-wrap: wrap; gap: 6px; }
   .uc-meta a { justify-self: start; min-height: 44px; display: inline-flex; align-items: center; }
-  @media (max-width: 760px) { .uc-row { grid-template-columns: 1fr; } }
+  @media (max-width: 760px) { .uc-row { grid-template-columns: minmax(0, 1fr); } }
 </style>

@@ -30,5 +30,5 @@ import { releases, support } from "../data/site";
   .cl-v { font: 400 40px/1 var(--font-display); color: var(--oxblood); }
   .cl-rel h2 { font-size: clamp(28px, 3vw, 38px); }
   .cl-rel ul { margin: 14px 0 0; padding-left: 1.2em; display: grid; gap: 8px; }
-  @media (max-width: 700px) { .cl-rel { grid-template-columns: 1fr; gap: 10px; } }
+  @media (max-width: 700px) { .cl-rel { grid-template-columns: minmax(0, 1fr); gap: 10px; } }
 </style>

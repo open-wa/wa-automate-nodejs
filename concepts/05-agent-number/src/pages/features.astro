@@ -49,5 +49,5 @@ const rows = [
   .feat h2 { font-size: clamp(26px, 3vw, 34px); }
   .feat-note { color: var(--oxblood-deep); }
   .feat-methods { display: flex; flex-wrap: wrap; gap: 6px; }
-  @media (max-width: 860px) { .feat { grid-template-columns: 1fr; } }
+  @media (max-width: 860px) { .feat { grid-template-columns: minmax(0, 1fr); } }
 </style>

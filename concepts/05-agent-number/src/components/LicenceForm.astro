@@ -215,5 +215,5 @@ const tiers = licences.tiers.map((t) => ({ id: t.id, name: t.name, month: t.pric
   .lf-done-label { font: 500 13px/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--lichen); }
   .lf-done-title { font-size: clamp(26px, 3vw, 34px); }
   .lf-done-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
-  @media (max-width: 480px) { .lf-tier-row { grid-template-columns: 1fr; } .lf-tier-box { min-height: 0; } }
+  @media (max-width: 480px) { .lf-tier-row { grid-template-columns: minmax(0, 1fr); } .lf-tier-box { min-height: 0; } }
 </style>

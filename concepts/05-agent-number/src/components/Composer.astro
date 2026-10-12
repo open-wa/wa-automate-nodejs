@@ -12,10 +12,13 @@ const [bin, ...rest] = run.split(" ");
 ---
 
 <div class="cmp" data-composer>
+  <div class="cmp-head">
   <div class="cmp-tabs" role="tablist" aria-label="What to copy">
     <button role="tab" id="cmp-t-run" aria-controls="cmp-p-run" aria-selected="true" tabindex="0" type="button">Command</button>
     <button role="tab" id="cmp-t-mcp" aria-controls="cmp-p-mcp" aria-selected="false" tabindex="-1" type="button">MCP config</button>
     <button role="tab" id="cmp-t-claude" aria-controls="cmp-p-claude" aria-selected="false" tabindex="-1" type="button">Claude Desktop</button>
+  </div>
+  <span class="cmp-keys" aria-hidden="true"><kbd>←</kbd><kbd>→</kbd> switch</span>
   </div>
 
   <div class="cmp-panel" role="tabpanel" id="cmp-p-run" aria-labelledby="cmp-t-run">
@@ -68,6 +71,9 @@ const [bin, ...rest] = run.split(" ");
 
 <style>
   .cmp { display: grid; gap: 10px; min-width: 0; }
+  .cmp-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; }
+  .cmp-keys { display: inline-flex; align-items: center; gap: 4px; font: 400 13px/1 var(--font-mono); color: var(--ink-faint); white-space: nowrap; }
+  @media (max-width: 1100px), (pointer: coarse) { .cmp-keys { display: none; } }
   .cmp-tabs {
     display: flex; gap: 4px; padding: 4px; width: fit-content; max-width: 100%; overflow-x: auto;
     background: var(--bone-deep); border-radius: 999px;

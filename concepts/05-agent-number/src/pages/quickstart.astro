@@ -85,7 +85,7 @@ const p = Object.fromEntries(paths.map((x) => [x.id, x]));
   .qs-files { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
   .doc :global(.cb) { margin-top: 12px; }
   @media (max-width: 600px) {
-    .qs-steps li { grid-template-columns: 1fr; gap: 12px; }
+    .qs-steps li { grid-template-columns: minmax(0, 1fr); gap: 12px; }
     .qs-n { width: 44px; height: 44px; font-size: 22px; }
   }
 </style>

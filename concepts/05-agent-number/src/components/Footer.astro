@@ -12,7 +12,7 @@ import { footer, base, product, legal, support, latest, href } from "../data/sit
       </a>
       <p class="ft-one">WhatsApp for your Node.js app and your AI agent, on the number you already have.</p>
       <p class="ft-rel">
-        <a class="textlink" href={href("changelog/")}>v{latest.version}, released {latest.date}</a>
+        <a class="textlink" href={href("changelog/")}>v{product.currentVersion} on npm, {latest.headline.toLowerCase()} in {latest.version}</a>
       </p>
     </div>
     {footer.map((g) => (
