@@ -1,0 +1,20 @@
+---
+import { Code } from "astro:components";
+import { theme } from "../lib/shiki-theme";
+interface Props { code: string; lang?: string; title?: string; label?: string }
+const { code, lang = "js", title, label = "Example" } = Astro.props;
+---
+<figure class="codeblock">
+  <figcaption class="cb-bar">
+    <span class="cb-title">{title ?? label}</span>
+    <button type="button" class="copy-btn copy-sm" data-copy={code} aria-label={`Copy code${title ? `: ${title}` : ""}`}>
+      <span class="copy-idle">Copy</span><span class="copy-done" aria-hidden="true">Copied</span>
+    </button>
+  </figcaption>
+  <Code code={code} lang={lang as any} theme={theme as any} wrap />
+</figure>
+<style>
+  .codeblock { margin: 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #0E1530; min-width: 0; }
+  .cb-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 6px 6px 14px; border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+  .codeblock :global(pre) { margin: 0; padding: 16px; font-family: var(--font-mono); font-size: 14.5px; line-height: 1.6; overflow-x: auto; }
+</style>

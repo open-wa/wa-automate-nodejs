@@ -1,0 +1,13 @@
+---
+import sora from "../fonts/sora/sora-latin-wght-normal.woff2?url";
+import manrope from "../fonts/manrope/manrope-latin-wght-normal.woff2?url";
+import fira from "../fonts/fira-code/fira-code-latin-wght-normal.woff2?url";
+const css = `
+@font-face{font-family:"Sora";src:url(${sora}) format("woff2");font-weight:100 800;font-display:swap}
+@font-face{font-family:"Manrope";src:url(${manrope}) format("woff2");font-weight:200 800;font-display:swap}
+@font-face{font-family:"Fira Code";src:url(${fira}) format("woff2");font-weight:300 700;font-display:swap}
+`;
+---
+<link rel="preload" href={manrope} as="font" type="font/woff2" crossorigin />
+<link rel="preload" href={sora} as="font" type="font/woff2" crossorigin />
+<style is:inline set:html={css}></style>

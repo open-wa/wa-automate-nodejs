@@ -1,0 +1,141 @@
+---
+// The licence lead seam: four fields from the fact pack, validation as people
+// type and on submit (never on blur), submitLead("licence"), then a
+// confirmation naming the tier and the prefilled Gumroad checkout.
+import { f, tiers, priceNote } from "../data/facts";
+const fields = f.licences.checkoutFields;
+const field = (n: string) => fields.find((x) => x.name === n)!;
+---
+<form class="lf" novalidate data-lf>
+  <div class="lf-row">
+    <span class="lf-label" id="lf-tier-l">{field("tier").label}</span>
+    <div class="lf-tiers" role="radiogroup" aria-labelledby="lf-tier-l">
+      {tiers.map((t, i) => (
+        <label class="lf-tier">
+          <input type="radio" name="tier" value={t.id} checked={t.id === "restricted"} />
+          <span class="lf-tier-in">
+            <b>{t.name}</b>
+            <span class="lf-price">{t.prices.month} a month</span>
+            <small>{t.id === "restricted" ? "OTP and first messages to new numbers, groups" : "Buttons, lists, number checks, status"}</small>
+          </span>
+        </label>
+      ))}
+    </div>
+  </div>
+  <div class="lf-row">
+    <label for="lf-gh">{field("github").label}</label>
+    <input id="lf-gh" name="github" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" enterkeyhint="next" aria-describedby="lf-gh-e" required />
+    <p class="lf-err" id="lf-gh-e" aria-live="polite"></p>
+  </div>
+  <div class="lf-row">
+    <label for="lf-ph">{field("phone").label}</label>
+    <input id="lf-ph" name="phone" type="tel" inputmode="tel" autocomplete="tel" enterkeyhint="next" placeholder="+44 7700 900123" aria-describedby="lf-ph-h lf-ph-e" required />
+    <p class="lf-help" id="lf-ph-h">{field("phone").help} The key works for this number only.</p>
+    <p class="lf-err" id="lf-ph-e" aria-live="polite"></p>
+  </div>
+  <div class="lf-row">
+    <label for="lf-uc">{field("useCase").label}</label>
+    <textarea id="lf-uc" name="useCase" rows="3" placeholder={field("useCase").placeholder} aria-describedby="lf-uc-e" required></textarea>
+    <p class="lf-err" id="lf-uc-e" aria-live="polite"></p>
+  </div>
+  <button class="btn btn-red lf-submit" type="submit">Continue to checkout</button>
+  <p class="lf-fine">{priceNote} No account needed. You review the price and terms on Gumroad before paying.</p>
+</form>
+
+<div class="lf-done" data-lf-done hidden tabindex="-1">
+  <p class="kicker">Details saved</p>
+  <h3>Your <span data-tier-name>Restricted</span> key for <span class="mono" data-phone-out></span></h3>
+  <p>Next, Gumroad opens with your tier, GitHub username and number filled in. You review the price there (<span data-tier-price></span> a month, or a longer billing period) and pay. The key arrives by email; start your session with <code>--license-key "YOUR-LICENSE-KEY"</code> or apply it from the dashboard without a restart.</p>
+  <div class="btn-row">
+    <a class="btn btn-red" data-checkout href="https://openwa.dev/checkout?tier=restricted">Open prefilled checkout</a>
+    <button type="button" class="btn btn-ghost" data-lf-edit>Change details</button>
+  </div>
+  <p class="lf-fine">Reference <span class="mono" data-ref></span>. This concept keeps your details in this browser tab only.</p>
+</div>
+
+<script>
+  import { submitLead } from "../lib/leads";
+  const form = document.querySelector<HTMLFormElement>("[data-lf]");
+  const done = document.querySelector<HTMLElement>("[data-lf-done]");
+  if (form && done) {
+    const tiers: Record<string, { name: string; month: string }> = { insiders: { name: "Insiders", month: "£5" }, restricted: { name: "Restricted", month: "£15" } };
+    const normDigits = (s: string) => s
+      .replace(/[٠-٩]/gu, (d) => String(d.charCodeAt(0) - 0x0660))
+      .replace(/[۰-۹]/gu, (d) => String(d.charCodeAt(0) - 0x06f0));
+    const checks: Record<string, (v: string) => string> = {
+      github: (v) => !v.trim() ? "Enter your GitHub username." : /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/iu.test(v.trim().replace(/^@/u, "")) ? "" : "GitHub usernames use letters, numbers and single hyphens.",
+      phone: (v) => {
+        const n = normDigits(v);
+        if (!n.trim()) return "Enter the WhatsApp number you want to license.";
+        if (/[^\d+\s()\-.]/u.test(n)) return "Use digits, spaces, brackets and a leading +.";
+        const digits = n.replace(/\D/gu, "");
+        if (digits.length < 8 || digits.length > 15) return "Include the country code, for example +44 7700 900123.";
+        return "";
+      },
+      useCase: (v) => v.trim().length < 3 ? "Tell us in a few words what it's for." : "",
+    };
+    const touched = new Set<string>();
+    const show = (name: string) => {
+      const el = form.elements.namedItem(name) as HTMLInputElement;
+      const msg = checks[name](el.value);
+      const err = document.getElementById(el.getAttribute("aria-describedby")!.split(" ").pop()!)!;
+      err.textContent = msg; el.setAttribute("aria-invalid", msg ? "true" : "false");
+      return msg;
+    };
+    Object.keys(checks).forEach((n) => {
+      const el = form.elements.namedItem(n) as HTMLInputElement;
+      el.addEventListener("input", () => { touched.add(n); if (touched.has(n)) show(n); });
+    });
+    const tierParam = new URLSearchParams(location.search).get("tier");
+    if (tierParam && tiers[tierParam]) (form.querySelector(`input[value="${tierParam}"]`) as HTMLInputElement).checked = true;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const bad = Object.keys(checks).filter((n) => show(n));
+      if (bad.length) { (form.elements.namedItem(bad[0]) as HTMLElement).focus(); return; }
+      const data = new FormData(form);
+      const tier = String(data.get("tier"));
+      const phone = normDigits(String(data.get("phone"))).trim();
+      const btn = form.querySelector<HTMLButtonElement>(".lf-submit")!;
+      btn.disabled = true; btn.textContent = "Saving";
+      const receipt = await submitLead("licence", { tier, github: String(data.get("github")).trim().replace(/^@/u, ""), phone, useCase: String(data.get("useCase")).trim() });
+      done.querySelector("[data-tier-name]")!.textContent = tiers[tier].name;
+      done.querySelector("[data-tier-price]")!.textContent = tiers[tier].month;
+      done.querySelector("[data-phone-out]")!.textContent = phone;
+      done.querySelector("[data-ref]")!.textContent = receipt.id;
+      done.querySelector<HTMLAnchorElement>("[data-checkout]")!.href = `https://openwa.dev/checkout?tier=${tier}`;
+      form.hidden = true; done.hidden = false; done.focus();
+      btn.disabled = false; btn.textContent = "Continue to checkout";
+    });
+    done.querySelector("[data-lf-edit]")!.addEventListener("click", () => { done.hidden = true; form.hidden = false; (form.elements.namedItem("github") as HTMLElement).focus(); });
+  }
+</script>
+
+<style>
+  .lf, .lf-done { display: grid; gap: 18px; background: #fff; color: var(--ink); border: 1px solid #d8d1c1; border-radius: var(--radius-lg); padding: 24px; }
+  .lf-row { display: grid; gap: 6px; }
+  .lf label, .lf-label { font-weight: 700; font-size: 16px; }
+  .lf input[type="text"], .lf input[type="tel"], .lf textarea { font: 17px var(--font-text); padding: 12px 14px; min-height: 48px; border: 1.5px solid #b9b2a2; border-radius: var(--radius); background: #fff; color: var(--ink); width: 100%; }
+  .lf input:focus-visible, .lf textarea:focus-visible { outline: 3px solid color-mix(in srgb, var(--red) 55%, transparent); outline-offset: 1px; border-color: var(--ink); }
+  .lf [aria-invalid="true"] { border-color: var(--red-ink); }
+  .lf-err { margin: 0; color: var(--red-ink); font-size: 15.5px; font-weight: 600; }
+  .lf-err:empty { display: none; }
+  .lf-help { margin: 0; color: var(--muted-paper); font-size: 15.5px; }
+  .lf-tiers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .lf-tier { position: relative; cursor: pointer; }
+  .lf-tier input { position: absolute; opacity: 0; inset: 0; }
+  .lf-tier-in { display: grid; gap: 2px; padding: 14px; border: 1.5px solid #c9c3b4; border-radius: var(--radius); min-height: 100%; }
+  .lf-tier-in b { font: 700 18px var(--font-display); }
+  .lf-price { font: 600 15px var(--font-mono); color: var(--red-ink); }
+  .lf-tier-in small { font-size: 15px; color: var(--muted-paper); }
+  .lf-tier input:checked + .lf-tier-in { border-color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); background: var(--paper); }
+  .lf-tier input:focus-visible + .lf-tier-in { outline: 3px solid color-mix(in srgb, var(--red) 55%, transparent); outline-offset: 2px; }
+  .lf-submit { width: 100%; }
+  .lf-fine { margin: 0; font-size: 15px; color: var(--muted-paper); }
+  .lf-done h3 { font-size: 26px; }
+  .lf-done p { margin: 0; }
+  .lf-done code { background: var(--paper); padding: 1px 5px; border-radius: 4px; }
+  .lf-done .btn-ghost { color: var(--ink); border-color: #c9c3b4; }
+  .lf-done .kicker { color: var(--red-ink); margin: 0; }
+  @media (max-width: 520px) { .lf-tiers { grid-template-columns: 1fr; } .lf { padding: 18px; } }
+</style>

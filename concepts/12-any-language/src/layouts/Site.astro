@@ -1,0 +1,34 @@
+---
+import Base from "./Base.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+interface Props { title: string; description: string }
+const { title, description } = Astro.props;
+---
+<Base title={title} description={description}>
+  <Header />
+  <main id="main"><slot /></main>
+  <Footer />
+  <div class="sr-only" aria-live="polite" id="copy-live"></div>
+</Base>
+<script>
+  // One copy handler for every [data-copy] button on the page.
+  const live = document.getElementById("copy-live");
+  document.addEventListener("click", async (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-copy]");
+    if (!btn) return;
+    const text = btn.dataset.copy ?? "";
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.append(ta); ta.select();
+      try { document.execCommand("copy"); } catch {}
+      ta.remove();
+    }
+    btn.classList.add("is-copied");
+    if (live) live.textContent = "Copied to clipboard";
+    window.setTimeout(() => { btn.classList.remove("is-copied"); if (live) live.textContent = ""; }, 1800);
+  });
+</script>
