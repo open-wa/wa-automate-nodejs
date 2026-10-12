@@ -41,7 +41,7 @@ export function whatsappEventMethods(client: Client): WhatsAppEventMethods {
     async getEventResponses(eventId) {
       const result = await invokePatch<unknown>(client, 'getEventResponses', [messageIdCodec.decode(eventId)]);
       if (!Array.isArray(result)) throw new Error('Invalid event response list.');
-      return result.map(decodeEventResponse);
+      return result.map(value => decodeEventResponse(value));
     },
     async editEvent(eventId, changes) {
       return mutation('editEvent', [messageIdCodec.decode(eventId), validateEventUpdate(changes)]);

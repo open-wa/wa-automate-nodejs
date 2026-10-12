@@ -87,7 +87,7 @@ describe('Client complex methods', () => {
   });
 
   it('sendFileFromUrl sends downloaded bytes with media options', async () => {
-    vi.mocked(axios.get).mockResolvedValue({ data: Buffer.from('hello'), headers: { 'content-type': 'text/plain' } });
+    vi.mocked(axios.get).mockResolvedValue({ data: Buffer.from('hello'), headers: new Headers({ 'content-type': 'text/plain' }) });
     client.sendFile = vi.fn().mockResolvedValue('true_123@c.us_ABC' as any);
     const result = await client.sendFileFromUrl('123@c.us' as any, 'https://example.com/file.txt', 'file.txt', { caption: 'caption' });
     expect(client.sendFile).toHaveBeenCalledWith('123@c.us', 'data:text/plain;base64,aGVsbG8=', 'file.txt', { caption: 'caption' });

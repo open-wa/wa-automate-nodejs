@@ -64,8 +64,8 @@ export function mediaMethods(client: Client): MediaMethods {
       options: MediaSendOptions = {},
       headers?: DownloadHeaders
     ): Promise<MessageId | boolean> {
-      const response = await axios.get<ArrayBuffer>(url, { headers, responseType: 'arraybuffer' });
-      const mime = response.headers['content-type'] || 'application/octet-stream';
+      const response = await axios.get<ArrayBuffer>(url, { headers, responseType: 'arrayBuffer' });
+      const mime = response.headers.get('content-type') || 'application/octet-stream';
       const dataUrl = `data:${mime};base64,${Buffer.from(response.data).toString('base64')}`;
       return client.sendFile(to, dataUrl, filename, options);
     },
