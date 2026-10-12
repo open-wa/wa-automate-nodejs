@@ -400,7 +400,7 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   ): ListenerHandle {
     const id = groupIdParam.parse(groupId);
     return this._listenerManager.on('participantsChanged', async change => {
-      if (change.groupId === id) await callback(change);
+      if (String(change.groupId) === String(id)) await callback(change);
     }, options);
   }
 
