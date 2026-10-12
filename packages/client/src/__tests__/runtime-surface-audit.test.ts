@@ -61,6 +61,10 @@ describe('Client runtime surface audit', () => {
         continue;
       }
 
+      if ('runtimeSource' in entry && entry.runtimeSource === 'live-patch') {
+        expect(entry.support).toBe('runtime');
+        continue;
+      }
       const finalStatus = wapiAssignments.get(entry.runtimeMethod);
 
       if (entry.support === 'runtime') {

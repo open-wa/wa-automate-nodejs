@@ -5,6 +5,7 @@ export type ClientRuntimeSupport = 'runtime' | 'licensed' | 'unsupported';
 export interface ClientRuntimeMethodSurfaceEntry {
   support: ClientRuntimeSupport;
   runtimeMethod?: string;
+  runtimeSource?: 'asset' | 'live-patch';
   reason?: string;
 }
 
@@ -43,7 +44,7 @@ export const clientRuntimeMethodSurface = {
   },
   sendLocation: { support: 'runtime', runtimeMethod: 'sendLocation' },
   sendContact: { support: 'runtime', runtimeMethod: 'sendContact' },
-  sendSticker: { support: 'runtime', runtimeMethod: 'sendStickerJob' },
+  sendSticker: { support: 'runtime', runtimeSource: 'live-patch', runtimeMethod: 'sendStickerJob' },
   reply: { support: 'runtime', runtimeMethod: 'reply' },
   forwardMessages: { support: 'runtime', runtimeMethod: 'forwardMessages' },
   deleteMessage: { support: 'runtime', runtimeMethod: 'smartDeleteMessages' },

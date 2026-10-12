@@ -44,6 +44,7 @@ function createTestClient(config: OpenWAClient['config']) {
   };
 
   const transport: Transport = {
+    setPortableMessageHandler: vi.fn(() => () => undefined),
     evaluate: vi.fn()
       .mockResolvedValueOnce(true)
       .mockResolvedValueOnce('2.26.3'),
