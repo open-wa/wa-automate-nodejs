@@ -1,0 +1,55 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import ConsultingForm from "../../components/ConsultingForm.astro";
+import { links, stats, fmt } from "../../data/site";
+const free = [
+  ["Docs", "Guides, every method and the licensing rules.", links.docs],
+  ["Discord", `${fmt(stats.discordMembers)} members (${stats.checkedOn}). Ask the community and the maintainer.`, links.discord],
+  ["GitHub issues", "Report a bug with your version, driver and the error.", links.issues],
+];
+---
+<Base title="Support and consulting | open-wa" description="Get help with open-wa: docs, Discord and GitHub issues for free, or paid support and consulting from the maintainer by email, per minute or by the hour.">
+  <div class="wrap">
+    <PageHead title="Support and consulting" lede="Free help from the docs and the community, or paid time with the maintainer when you need it built or fixed." />
+    <ul class="free">
+      {free.map(([t, d, u]) => <li><a href={u}><strong>{t} <span aria-hidden="true">↗</span></strong><span>{d}</span></a></li>)}
+    </ul>
+    <div class="paid">
+      <section class="paid-text">
+        <h2>Paid support and consulting</h2>
+        <p>{links.maintainer} takes on set-ups, integrations and debugging for teams and businesses.</p>
+        <ul class="ways">
+          <li><a class="link" href={`mailto:${links.consultingEmail}`}>Email {links.consultingEmail}</a></li>
+          <li><a class="link" href={links.perMinuteConsulting}>Per-minute consulting on Otechie</a></li>
+          <li><a class="link" href={`mailto:${links.consultingEmail}?subject=Book%20an%20hour`}>Book an hour by email</a></li>
+          <li><a class="link" href={links.buyMeACoffee}>Buy the maintainer a coffee</a></li>
+        </ul>
+        <p class="muted small">Not a developer? Tell us what you need on the right, in plain words, and we'll take it from there.</p>
+      </section>
+      <section aria-labelledby="need-title">
+        <h2 id="need-title" class="need">Tell us what you need</h2>
+        <ConsultingForm />
+      </section>
+    </div>
+  </div>
+</Base>
+<style>
+  .free { list-style: none; margin: 0 0 56px; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--color-ink); }
+  .free a { display: grid; gap: 6px; padding: 22px 20px 22px 0; text-decoration: none; border-bottom: 1px solid var(--color-rule); height: 100%; }
+  .free li + li a { padding-left: 20px; border-left: 1px solid var(--color-rule); }
+  .free strong { font: 500 24px/1.2 var(--font-display); }
+  .free a:hover strong { color: var(--color-coral-ink); }
+  .free span { color: var(--color-muted); }
+  .paid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(28px, 5vw, 72px); padding-bottom: 80px; }
+  .paid-text { display: grid; gap: 14px; align-content: start; }
+  .paid h2 { font-size: 30px; }
+  .need { margin-bottom: 16px; }
+  .ways { list-style: none; padding: 0; margin: 0; }
+  .ways a { min-height: 44px; display: inline-flex; align-items: center; font-weight: 600; }
+  @media (max-width: 860px) {
+    .free { grid-template-columns: minmax(0, 1fr); }
+    .free li + li a { padding-left: 0; border-left: 0; }
+    .paid { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

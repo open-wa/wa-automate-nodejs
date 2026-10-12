@@ -1,0 +1,45 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { capabilityList } from "../../data/editorial";
+import { snippets, commands, links, href } from "../../data/site";
+const examples: Record<string, { code: string; lang: string; title: string }> = {
+  events: { code: snippets.event, lang: "js", title: "Event cards (5.5)" },
+  sessions: { code: snippets.sessionKey, lang: "js", title: "Your own session key (5.4)" },
+  stickers: { code: commands.stickerCli, lang: "sh", title: "Render a sticker locally" },
+  multiSession: { code: commands.namedSession, lang: "sh", title: "A named session" },
+  messages: { code: snippets.socketClient, lang: "js", title: "Receive and reply" },
+};
+---
+<Base title="Features: messages, media, groups, polls, events and more | open-wa" description="What open-wa gives your Node.js code: messages, media, groups, polls, event cards, local stickers, multiple sessions, portable encrypted sessions, live refresh and generated API docs.">
+  <div class="wrap">
+    <PageHead title="What your code can do with the account" lede="Everything below runs on your own WhatsApp number through WhatsApp Web. Methods marked insiders or restricted need a licence key; the rest are free." />
+    <div class="feat">
+      {capabilityList.map((c) => (
+        <article class="f" id={c.id}>
+          <div class="f-text">
+            <h2>{c.title}</h2>
+            <p>{c.text}</p>
+            {c.methods && <p class="f-m">{c.methods.map((m) => <code>{m}</code>)}</p>}
+          </div>
+          {examples[c.id] && <CodeBlock code={examples[c.id].code} lang={examples[c.id].lang} title={examples[c.id].title} />}
+        </article>
+      ))}
+    </div>
+    <div class="notes">
+      <p class="small muted"><code>client.sendSticker</code> needs a private finalizer, so it isn't available to everyone; local rendering with the sticker CLI is. Calling audio is a licensed preview. The Lightpanda driver is experimental.</p>
+      <p><a class="link" href={links.docs}>Every method in the docs</a> · <a class="link" href={href("pricing/")}>Which methods need a key</a></p>
+    </div>
+  </div>
+</Base>
+<style>
+  .feat { border-top: 1px solid var(--color-ink); }
+  .f { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(20px, 4vw, 56px); padding: 32px 0; border-bottom: 1px solid var(--color-rule); scroll-margin-top: 80px; }
+  .f:not(:has(.code)) { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); }
+  .f-text { display: grid; gap: 10px; align-content: start; }
+  .f h2 { font-size: 30px; }
+  .f-m { display: flex; gap: 6px; flex-wrap: wrap; }
+  .notes { padding: 36px 0 72px; display: grid; gap: 12px; max-width: 760px; }
+  @media (max-width: 900px) { .f { grid-template-columns: minmax(0, 1fr); } }
+</style>

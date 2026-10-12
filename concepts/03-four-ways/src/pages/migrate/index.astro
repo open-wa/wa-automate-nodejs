@@ -1,0 +1,46 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import Command from "../../components/Command.astro";
+import { migration, product, commands, links, releases, href } from "../../data/site";
+const changes = [
+  ["Node.js", `v5 needs Node.js ${product.node.replace(">=", "")} or later.`],
+  ["Browser drivers", "The embedded runtime takes a driver package, such as @open-wa/driver-puppeteer, passed to createClient."],
+  ["Remote consumers", "SocketClient (@open-wa/socket-client) connects to a running Easy API over HTTP RPC and Server-Sent Events."],
+  ["MCP server", "Built in since v5: each Easy API method can be exposed as a tool at /mcp."],
+  ["Sessions", "Compact encrypted session files with your own encryption key (5.4)."],
+  ["Live refresh", "Refresh a session or apply a licence without restarting the Node process (5.5)."],
+];
+---
+<Base title="Migrate from v4 to v5 | open-wa" description="Version 5 is the current open-wa release line. Pin v4 while you migrate, see what changed at a glance, and follow the full migration guide.">
+  <div class="wrap">
+    <PageHead title="Moving from v4 to v5" lede={migration.summary} />
+    <section class="pin" aria-labelledby="pin-title">
+      <h2 id="pin-title">Keep a v4 bot running while you move</h2>
+      <p>Unqualified installs now get v5. Pin v4 explicitly so a fresh install doesn't upgrade your bot under you:</p>
+      <Command cmd={migration.v4Pin} id="pin-cmd" />
+    </section>
+    <section aria-labelledby="chg-title" class="chg">
+      <h2 id="chg-title">v5 at a glance</h2>
+      <dl>{changes.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
+    </section>
+    <section class="next">
+      <p>Then try the v5 Easy API next to your v4 bot:</p>
+      <Command cmd={commands.easyApi} id="mg-cmd" tone="paper" />
+      <p><a class="btn btn-primary" href={links.migrationDocs}>Read the full migration guide</a> <a class="btn btn-ghost" href={href("changelog/")}>Changelog</a></p>
+      <p class="small muted">Current release: {releases[0].version}, {releases[0].date}. Stuck? Ask on <a class="link" href={links.discord}>Discord</a>.</p>
+    </section>
+  </div>
+</Base>
+<style>
+  .pin { display: grid; gap: 14px; max-width: 720px; padding-bottom: 48px; }
+  .pin h2, .chg h2 { font-size: 30px; }
+  .chg { border-top: 1px solid var(--color-ink); padding-top: 32px; }
+  .chg dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 48px; margin: 24px 0 0; }
+  .chg dl div { padding: 18px 0; border-bottom: 1px solid var(--color-rule); display: grid; gap: 6px; }
+  .chg dt { font: 500 20px/1.2 var(--font-display); }
+  .chg dd { margin: 0; color: var(--color-muted); }
+  .next { display: grid; gap: 16px; max-width: 720px; padding: 48px 0 80px; }
+  .next .btn { margin-right: 8px; }
+  @media (max-width: 800px) { .chg dl { grid-template-columns: minmax(0, 1fr); } }
+</style>

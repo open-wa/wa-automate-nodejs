@@ -1,0 +1,25 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import { legal, product, links } from "../../data/site";
+---
+<Base title="Legal: unofficial notice, ban risk, terms and licence | open-wa" description="open-wa is unofficial and not affiliated with WhatsApp or Meta. Automation can get an account banned. Terms of Service, the Hippocratic licence and the cryptography notice.">
+  <div class="wrap">
+    <PageHead title="Notices, terms and licence" />
+    <div class="legal">
+      <section id="unofficial"><h2>Unofficial software</h2><p>{legal.affiliation}</p><p>{product.unofficial}</p></section>
+      <section id="risk"><h2>Account ban risk</h2><p>{product.risk}</p><p>A licence key unlocks methods. It doesn't reduce that risk.</p></section>
+      <section id="terms"><h2>Terms of Service</h2><p>{product.terms}</p><p><a class="link" href={links.terms}>Read the Terms of Service</a></p></section>
+      <section id="licence"><h2>Software licence</h2><p>open-wa is released under the {product.softwareLicence} licence.</p><p><a class="link" href={links.licenceText}>Read the licence</a></p></section>
+      <section id="crypto"><h2>Cryptography notice</h2><p>{legal.crypto}</p></section>
+      <section><h2>Copyright</h2><p>{legal.copyright}. Maintained by {links.maintainer}.</p></section>
+    </div>
+  </div>
+</Base>
+<style>
+  .legal { border-top: 1px solid var(--color-ink); padding-bottom: 80px; }
+  .legal section { display: grid; grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr); gap: 8px 48px; padding: 28px 0; border-bottom: 1px solid var(--color-rule); scroll-margin-top: 80px; }
+  .legal h2 { font-size: 26px; grid-row: span 3; }
+  .legal p { max-width: 68ch; }
+  @media (max-width: 760px) { .legal section { grid-template-columns: minmax(0, 1fr); } .legal h2 { grid-row: auto; } }
+</style>
