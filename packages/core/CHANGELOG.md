@@ -17,7 +17,7 @@
   - ♻️ Own call media in scoped resources and finalize recordings on observed call end, media failure, disconnect and browser recovery.
 - [#3520](https://github.com/open-wa/wa-automate-nodejs/pull/3520)  *(minor)*
   - Add live session patch refresh and dashboard license activation through a shared page replacement coordinator, retaining the browser process and host session.
-  - Preserve portable persistence ownership, drain admitted operations, and report progress and bounded restoration through dedicated session controls.
+  - Preserve portable persistence ownership and report refresh progress; WhatsApp reloads without pausing or draining application operations.
   - Evaluate the existing license response during refresh and report rejected keys without blocking public functionality.
 - [#3518](https://github.com/open-wa/wa-automate-nodejs/pull/3518)  *(minor)*
   Add typed media options for view-once attachments, circular video notes, GIFs and documents. Media captions and quoted message IDs now belong in the options object. Add poll closing times, hidden voter names, voting, synced results and vote listeners, plus message pinning and unpinning.

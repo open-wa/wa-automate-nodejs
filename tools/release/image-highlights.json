@@ -4,7 +4,13 @@
     "summary": "Bring your own encryption key through config, an environment variable or a Docker secret. Compact auth comes built in.",
     "badge": "Custom session encryption",
     "notesFile": "v5.4-release-notes.md",
-    "packages": ["@open-wa/core", "@open-wa/config", "@open-wa/wa-automate", "@open-wa/client", "@open-wa/api"]
+    "packages": [
+      "@open-wa/core",
+      "@open-wa/config",
+      "@open-wa/wa-automate",
+      "@open-wa/client",
+      "@open-wa/api"
+    ]
   },
   "5.1.0": {
     "headline": "Buttons are back.",
@@ -40,6 +46,19 @@
       "@open-wa/session-sync",
       "@open-wa/config",
       "@open-wa/api"
+    ]
+  },
+  "5.5.0": {
+    "headline": "Events, live refresh and local stickers",
+    "summary": "Event cards and RSVPs, refresh controls for running sessions, and local WebP creation with resources loaded on demand.",
+    "badge": "OpenWA 5.5",
+    "notesFile": "v5.5-release-notes.md",
+    "packages": [
+      "@open-wa/client",
+      "@open-wa/core",
+      "@open-wa/stickers",
+      "@open-wa/schema",
+      "@open-wa/wa-automate"
     ]
   }
 }

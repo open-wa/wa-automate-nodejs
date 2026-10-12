@@ -21,7 +21,7 @@
   Lightpanda support remains experimental. Custom native Debug runs reached authenticated library READY and loaded chat/contact data, but subsequent reload recovery failed with session takeover and initialization errors. Automatic recovery, outbound delivery, long-session durability and full Chrome parity remain unconfirmed. The controlled 1,000-record DOM benchmark does not measure authenticated WhatsApp performance or sync speed. This bump prepares the next minor release; it does not publish it.
 - [#3520](https://github.com/open-wa/wa-automate-nodejs/pull/3520)  *(minor)*
   - Add live session patch refresh and dashboard license activation through a shared page replacement coordinator, retaining the browser process and host session.
-  - Preserve portable persistence ownership, drain admitted operations, and report progress and bounded restoration through dedicated session controls.
+  - Preserve portable persistence ownership and report refresh progress; WhatsApp reloads without pausing or draining application operations.
   - Evaluate the existing license response during refresh and report rejected keys without blocking public functionality.
 - [#3521](https://github.com/open-wa/wa-automate-nodejs/pull/3521)  *(patch)*
   Remove browser downloads during CLI installation, prefer installed Chrome, and prompt for Chrome, Chromium or Lightpanda when a browser is missing. Explicit browser flags provision on demand and reuse persistent per-user caches on subsequent runs.

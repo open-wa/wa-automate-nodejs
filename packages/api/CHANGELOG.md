@@ -14,7 +14,7 @@
   - ♻️ Own call media in scoped resources and finalize recordings on observed call end, media failure, disconnect and browser recovery.
 - [#3520](https://github.com/open-wa/wa-automate-nodejs/pull/3520)  *(minor)*
   - Add live session patch refresh and dashboard license activation through a shared page replacement coordinator, retaining the browser process and host session.
-  - Preserve portable persistence ownership, drain admitted operations, and report progress and bounded restoration through dedicated session controls.
+  - Preserve portable persistence ownership and report refresh progress; WhatsApp reloads without pausing or draining application operations.
   - Evaluate the existing license response during refresh and report rejected keys without blocking public functionality.
 - [#3521](https://github.com/open-wa/wa-automate-nodejs/pull/3521)  *(patch)*
   - ✨ Add experimental WhatsApp startup through Easy API `--lightpanda`, with a separately prepared cached Lightpanda 1.0.0 executable, worker/crypto bridges and compression streams. Custom native CryptoKey and IndexedDB request-lifetime source patches are retained separately; the stock downloaded executable has not been replaced.

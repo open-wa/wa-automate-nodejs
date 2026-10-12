@@ -1,0 +1,55 @@
+---
+title: "V5.5: Events, live refresh and local stickers"
+description: "Native events and RSVPs, session refresh controls, typed media options and local WebP rendering."
+release:
+  version: "5.5.0"
+  date: "2026-10-12T00:00:00Z"
+  headline: "Events, live refresh and local stickers"
+  audience: "Automation · Community workflows · Media"
+  image: "https://github.com/open-wa/wa-automate-nodejs/releases/download/v5.5.0/release.png"
+  highlights:
+    - "Create native event cards and handle RSVPs."
+    - "Refresh a running session or apply a licence from the dashboard."
+    - "Render WebP stickers locally with lazily loaded resources."
+---
+
+OpenWA 5.5 adds native event APIs, refresh controls for running sessions and a local sticker renderer. Upgrade with `npm install @open-wa/wa-automate@5.5.0`.
+
+## ✨ Events and attendance
+
+```ts
+const eventId = await client.sendEvent(chatId, {
+  name: 'Community meetup',
+  startTime: Math.floor(Date.now() / 1000) + 3600,
+});
+
+client.onEventResponse(response => {
+  console.log(response.eventId, response.response);
+});
+```
+
+Create, edit and cancel events, read paginated synced invitations and attendance, and respond with `going`, `notGoing` or `maybe`. Event and RSVP snapshots have Effect schemas and JSON serializers. Event times use Unix seconds; RSVP timestamps use milliseconds. See the [events guide](/docs/guides/whatsapp-events).
+
+## 🔄 Refresh a running session
+
+Use **Refresh patches** or **Apply license** in the dashboard, or call `client.refresh()`. The Node process, API host and client objects stay alive while WhatsApp reloads. Messages may be missed while the page is unavailable, and interrupted operations aren't replayed. Progress is available through the SDK and authenticated API. See [session refresh](/docs/operations/session-refresh).
+
+## 🎨 Local stickers
+
+Install `@open-wa/stickers@5.5.0` to render WebP files locally:
+
+```sh
+npx --package @open-wa/stickers@5.5.0 openwa-sticker photo.jpg --output sticker.webp --effects comic,sparkle
+```
+
+The SDK lazily loads the package. It selects the existing browser if that browser can complete the whole job; otherwise it selects standalone execution for the whole job. Effects preserve their specified order, and compositor, encoder and font resources download on demand. This first slice contains 62 recipes; the remaining historical effects and background removal are separate work. [Package usage and resource limits](https://github.com/open-wa/wa-automate-nodejs/blob/master/packages/stickers/README.md).
+
+Local rendering ships independently of sending. `client.sendSticker` requires the private donor finalizer, whose deployment remains separate from this public package release.
+
+## Media and message controls
+
+Media captions and quoted IDs now belong in the `sendFile`/`sendImage` options object. Add view-once attachments, prepared circular video notes, voice notes, looping videos and document presentation through typed options. See the [media guide](/docs/guides/media).
+
+Poll voting, synced results and vote listeners are available alongside message pinning and unpinning. Advanced poll closing and voter-name options depend on WhatsApp flags. Voluntary phone-number requests and sharing have SDK methods, but share replies failed on the test devices. Scheduled-call cards exposed RSVP/calendar controls; a Join control wasn't confirmed.
+
+Patch-backed file sending, URL downloads, message edits and reactions are restored, along with group contacts and participant listeners. Calling audio remains a licensed preview. Chrome, Chromium and Lightpanda provision on demand; Lightpanda remains experimental, with recovery and full media support unconfirmed.
