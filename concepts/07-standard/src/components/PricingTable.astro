@@ -67,7 +67,7 @@ const id = "bill";
         <ul class="pt-list pt-methods" aria-label={`Examples of methods ${t.name} adds`}>
           {methods[t.id].map((m) => <li><code>{m}</code></li>)}
         </ul>
-        <a class="btn btn--primary pt-cta" href={`${formHref}?tier=${t.id}#licence`} data-tier={t.id}>Get a {t.name} key</a>
+        <a class="btn btn--primary pt-cta" href={`${formHref}?tier=${t.id}#licence`} data-tier={t.id}>Get {/^[AEIOU]/i.test(t.name) ? "an" : "a"} {t.name} key</a>
       </article>
     ))}
   </div>
