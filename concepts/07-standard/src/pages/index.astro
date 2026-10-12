@@ -120,7 +120,7 @@ const latest = releases[0];
         <CapRow title="Send and receive messages" text="Text, replies, forwards, reactions and edits. Images, video, documents and voice notes with captions. Listen for incoming messages and answer them." code={snippets.socketClient} codeTitle="bot.mjs" methods={["sendText", "onMessage"]} />
         <CapRow flip title="Native event cards and RSVPs" text="Create, edit and cancel WhatsApp event cards and handle going, not going and maybe. New in 5.5." code={snippets.event} codeTitle="events.mjs" methods={["sendEvent", "onEventResponse"]} />
         <CapRow title="Several numbers side by side" text="Run named sessions on their own ports, each with isolated consumers. Session files are compact, encrypted with your own key, and move between containers." code={commands.namedSession} lang="bash" codeTitle="Terminal" methods={["--session-id"]} />
-        <CapRow flip title="Stickers rendered on your machine" text="Turn a photo into a WebP sticker locally with @open-wa/stickers: 62 recipes in the first release." code={commands.stickerCli} lang="bash" codeTitle="Terminal" note="Sending stickers from the client needs a private finalizer; local rendering is open to everyone." />
+        <CapRow flip title="Stickers rendered on your machine" text="Turn a photo into a WebP sticker locally with @open-wa/stickers and its 62 recipes." code={commands.stickerCli} lang="bash" codeTitle="Terminal" note="Sending stickers from the client needs a private finalizer; local rendering is open to everyone." />
       </div>
       <p class="more"><a class="link" href={`${base}features/`}>See every capability</a></p>
     </div>

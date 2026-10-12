@@ -76,21 +76,21 @@ const onMessage = snippets.socketClient.split("\n").slice(4).join("\n");
   <div class="qs-stage">
     <!-- Step 1: the run -->
     <div class="qs-panel qs-term" data-panel="1" data-tabs="npx">
-      <p class="qs-tline"><span class="p">$</span> {commands.easyApi}</p>
-      <p class="qs-tline dim">Easy API listening on http://localhost:8080</p>
-      <p class="qs-tline dim">Waiting for WhatsApp login. Scan the QR code below.</p>
-      <p class="qs-cap">Starts an Easy API instance on the port you choose.</p>
+      <div class="qs-tline"><span class="p">$</span> {commands.easyApi}</div>
+      <div class="qs-tline dim">Easy API listening on http://localhost:8080</div>
+      <div class="qs-tline dim">Waiting for WhatsApp login. Scan the QR code below.</div>
+      <div class="qs-cap">Starts an Easy API instance on the port you choose.</div>
     </div>
     <div class="qs-panel qs-term" data-panel="1" data-tabs="docker" hidden>
-      <p class="qs-tline"><span class="p">$</span> {commands.docker}</p>
-      <p class="qs-tline dim">Easy API listening on http://localhost:8080</p>
-      <p class="qs-tline dim">Waiting for WhatsApp login. Scan the QR code below.</p>
-      <p class="qs-cap">The same Easy API, in a container, on port 8080.</p>
+      <div class="qs-tline"><span class="p">$</span> {commands.docker}</div>
+      <div class="qs-tline dim">Easy API listening on http://localhost:8080</div>
+      <div class="qs-tline dim">Waiting for WhatsApp login. Scan the QR code below.</div>
+      <div class="qs-cap">The same Easy API, in a container, on port 8080.</div>
     </div>
     <div class="qs-panel qs-term" data-panel="1" data-tabs="npm" hidden>
-      <p class="qs-tline"><span class="p">$</span> {commands.embeddedInstall}</p>
-      <p class="qs-tline dim">// then call createClient() in your own Node.js app</p>
-      <p class="qs-cap">The embedded runtime: your app owns the browser and its lifecycle.</p>
+      <div class="qs-tline"><span class="p">$</span> {commands.embeddedInstall}</div>
+      <div class="qs-tline dim">// then call createClient() in your own Node.js app</div>
+      <div class="qs-cap">The embedded runtime: your app owns the browser and its lifecycle.</div>
     </div>
 
     <!-- Step 2: link the phone -->
@@ -101,9 +101,9 @@ const onMessage = snippets.socketClient.split("\n").slice(4).join("\n");
         <path class="qs-qr-dots" d={d} fill="#1e2a38" />
       </svg>
       <div class="qs-linktext">
-        <p><strong>In WhatsApp on your phone:</strong> Linked devices, then Link a device, then scan.</p>
-        <p class="qs-or">Or log in with a link code: <span class="qs-code">K7QD-2MXP</span></p>
-        <p class="qs-cap">Example code. Yours is printed when you start.</p>
+        <div><strong>In WhatsApp on your phone:</strong> Linked devices, then Link a device, then scan.</div>
+        <div class="qs-or">Or log in with a link code: <span class="qs-code">K7QD-2MXP</span></div>
+        <div class="qs-cap">Example code. Yours is printed when you start.</div>
       </div>
     </div>
 
@@ -115,7 +115,7 @@ const onMessage = snippets.socketClient.split("\n").slice(4).join("\n");
         <li><span class="verb get">GET</span><span>/api/session/getConnectionState</span></li>
         <li><span class="verb get">GET</span><span>/health</span></li>
       </ul>
-      <p class="qs-cap">Interactive docs for the live session, plus Swagger and Postman files.</p>
+      <div class="qs-cap">Interactive docs for the live session, plus Swagger and Postman files.</div>
     </div>
     <div class="qs-panel qs-term" data-panel="3" data-tabs="npm" hidden>
       <pre class="qs-snip">{onMessage}</pre>
