@@ -1180,7 +1180,24 @@ window.WAPI.addOrRemoveLabels = async function (label, objectId, type) {
  * @returns {boolean}
  */
 window.WAPI.onAck = function (callback) {
-    Store.Msg.on("change:ack", m => callback(WAPI.quickClean(m)));
+    Store.Msg.on("change:ack", m => {
+        // Snapshot the message now: looking it up later can observe a newer ack.
+        // Keep empty bodies and all raw fields. Enrich nested objects without
+        // requiring a fully loaded chat or sender in the store.
+        const message = { ...(typeof m.toJSON === 'function' ? m.toJSON() : m) };
+        for (const key of ['id', 'from', 'to', 'chatId', 'author', 'senderId']) {
+            if (message[key] && typeof message[key]._serialized === 'string') {
+                message[key] = message[key]._serialized;
+            }
+        }
+        if (message.fromMe === undefined) message.fromMe = m.id.fromMe;
+        if (message.chatId === undefined) message.chatId = m.id.remote && (m.id.remote._serialized || m.id.remote);
+        if (m.senderObj) message.sender = WAPI._serializeContactObj(m.senderObj);
+        if (m.chat) message.chat = WAPI._serializeChatObj(m.chat);
+        if (message.timestamp === undefined) message.timestamp = message.t;
+        if (message.content === undefined) message.content = message.body;
+        callback(JSON.parse(JSON.stringify(message)));
+    });
     return true;
 }
 

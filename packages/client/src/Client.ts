@@ -1,3 +1,4 @@
+import { disposeClientStickers } from './stickers';
 import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
 import type {
@@ -7,9 +8,13 @@ import type {
   SessionManager,
   PluginHost,
   STATE,
+  SessionRefreshOptions,
+  SessionRefreshResult,
+  SessionRefreshSnapshot,
 } from '@open-wa/core';
 import type {
   ChatId,
+  GroupId,
   ContactId,
   MessageId,
   Message,
@@ -17,7 +22,11 @@ import type {
   Contact,
   InteractiveResponse,
   FormResponse,
+  WhatsAppEvent,
+  EventResponse,
+  ParticipantChange,
 } from '@open-wa/schema';
+import { groupIdParam } from '@open-wa/schema';
 import {
   MessageCollector,
   MessageCollectorEvents,
@@ -29,15 +38,20 @@ import {
 } from '@open-wa/domain';
 import { ListenerManager, type ListenerHandle } from './events/index';
 import { throwUnsupportedListener } from './runtimeSurface';
+import { hydrateCall } from './calls';
+import { normalizeCallMedia } from '@open-wa/schema';
+import type { Call, CallActionResult, CallCapabilities, CallIdentity, CallMediaOptions, AudioInput, AudioOutput, VideoInput } from '@open-wa/schema';
 import type { QueueOptions } from '@open-wa/schema';
 
 import { interactiveMethods, type InteractiveMethods } from './methods/interactive';
 import { messagingMethods, type MessagingMethods } from './methods/messaging';
 import { mediaMethods, type MediaMethods } from './methods/media';
+import { statusMethods, type StatusMethods } from './methods/status';
 import { groupMethods, type GroupMethods } from './methods/groups';
 import { chatMethods, type ChatMethods } from './methods/chats';
 import { contactMethods, type ContactMethods } from './methods/contacts';
 import { utilitiesMethods, type UtilitiesMethods } from './methods/utilities';
+import { whatsappEventMethods, type WhatsAppEventMethods } from './methods/whatsapp-events';
 
 /**
  * Configuration for creating a WhatsApp Client.
@@ -88,7 +102,7 @@ export type EvaluateFn = <Arg, Ret>(
  * client.onMessage(msg => console.log(msg));
  * ```
  */
-export class Client implements InteractiveMethods, MessagingMethods, MediaMethods, GroupMethods, ChatMethods, ContactMethods, UtilitiesMethods {
+export class Client implements InteractiveMethods, MessagingMethods, MediaMethods, StatusMethods, GroupMethods, ChatMethods, ContactMethods, UtilitiesMethods, WhatsAppEventMethods {
   private readonly _client: OpenWAClient;
   private readonly _transport: Transport;
   private readonly _listenerManager: ListenerManager;
@@ -112,10 +126,12 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
     this._bindMethods(messagingMethods, this);
     this._bindMethods(interactiveMethods, this);
     this._bindMethods(mediaMethods, this);
+    this._bindMethods(statusMethods, this);
     this._bindMethods(groupMethods, this);
     this._bindMethods(chatMethods, this);
     this._bindMethods(contactMethods, this);
     this._bindMethods(utilitiesMethods, this);
+    this._bindMethods(whatsappEventMethods, this);
 
     this._client.registerFinalizationHook(() => this.loaded());
   }
@@ -177,11 +193,18 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   async start(): Promise<void> {
     return this._client.start();
   }
+
+  /** Rebuild public and licensed patches. Warning: messages may be missed during the page reload. */
+  refresh(options?: SessionRefreshOptions): Promise<SessionRefreshResult> { return this._client.refresh(options); }
+  /** Start a background refresh. Warning: messages may be missed during the page reload. */
+  requestRefresh(options?: SessionRefreshOptions): { operationId: string } { return this._client.requestRefresh(options); }
+  getRefreshStatus(): Promise<SessionRefreshSnapshot> { return this._client.getRefreshStatus(); }
   
   /**
    * Stop the client gracefully.
    */
   async stop(reason?: string): Promise<void> {
+    await disposeClientStickers(this).catch(() => {});
     await this._listenerManager.dispose();
     return this._client.stop(reason);
   }
@@ -319,6 +342,19 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
     return this._listenerManager.on('formResponse', callback, options);
   }
 
+  /** Decrypted votes from the synced store; history hydration can emit votes too. */
+  onPollVote(callback: (vote: import('@open-wa/schema').PollVote) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
+    return this._listenerManager.on('pollVote', callback, options);
+  }
+
+  onEvent(callback: (event: WhatsAppEvent) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
+    return this._listenerManager.on('event', callback, options);
+  }
+
+  onEventResponse(callback: (response: EventResponse) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
+    return this._listenerManager.on('eventResponse', callback, options);
+  }
+
   /** Counts only; never exposes the encrypted session's contents or keys. */
   getPortableSessionStatus() { return this._transport.getPortableSessionStatus(); }
 
@@ -335,9 +371,9 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   /**
    * Listen for message acknowledgements (sent, delivered, read).
    */
-  onAck(callback: (ack: { messageId: MessageId; ack: number }) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
+  onAck(callback: (message: Message) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
     return this._listenerManager.on('ack', async (payload) => {
-      await callback({ messageId: payload.id, ack: payload.ack });
+      await callback(payload);
     }, options);
   }
   
@@ -353,6 +389,28 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   onAnyMessage(callback: (message: Message) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
     return this._listenerManager.on('anyMessage', async (payload) => {
       await callback(payload);
+    }, options);
+  }
+
+  /** Listen to the existing participant-change patch for one group. */
+  onParticipantsChanged(
+    groupId: GroupId,
+    callback: (change: ParticipantChange) => void | boolean | Promise<void | boolean>,
+    options?: QueueOptions,
+  ): ListenerHandle {
+    const id = groupIdParam.parse(groupId);
+    return this._listenerManager.on('participantsChanged', async change => {
+      if (change.groupId === id) await callback(change);
+    }, options);
+  }
+
+  /** Listen to participant changes across the session's groups. */
+  onGlobalParticipantsChanged(
+    callback: (change: ParticipantChange) => void | boolean | Promise<void | boolean>,
+    options?: QueueOptions,
+  ): ListenerHandle {
+    return this._listenerManager.on('participantsChanged', async change => {
+      await callback(change);
     }, options);
   }
 
@@ -372,6 +430,35 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   // Private helpers
   // ─────────────────────────────────────────────────────────────────
   
+  getCallCapabilities(): Promise<CallCapabilities> { return this._transport.calling.capabilities(); }
+  /** Access selected by the accepted licence payload; no capability preflight is required. */
+  async getLicenseFeatures(): Promise<import('@open-wa/schema').LicenseFeatures> { return this._transport.getLicenseFeatures(); }
+  /** Used by the bundled API's authenticated binary media route. */
+  getCallingService() { return this._transport.calling; }
+  async getActiveCall(): Promise<Call | null> {
+    const snapshot = await this._transport.calling.getActive();
+    return snapshot ? hydrateCall(snapshot, this) : null;
+  }
+  onIncomingCall(callback: (call: Call) => unknown, options?: QueueOptions): ListenerHandle {
+    this._transport.calling.logListenerAvailability();
+    return this._listenerManager.on('incomingCall', async snapshot => { await callback(hydrateCall(snapshot, this)); }, options);
+  }
+  onCallState(callback: (call: Call) => unknown, options?: QueueOptions): ListenerHandle {
+    this._transport.calling.logListenerAvailability();
+    return this._listenerManager.on('callState', async snapshot => { await callback(hydrateCall(snapshot, this)); }, options);
+  }
+  acceptCall(call: CallIdentity, media?: CallMediaOptions): Promise<CallActionResult> { return this._transport.calling.accept(call, media); }
+  startCall(to: string, microphone?: AudioInput | CallMediaOptions, speaker?: AudioOutput, camera?: VideoInput): Promise<CallActionResult> {
+    return this._transport.calling.start(to, normalizeCallMedia(microphone, speaker, camera));
+  }
+  rejectCall(call: CallIdentity): Promise<CallActionResult> { return this._transport.calling.control('reject', call); }
+  endCall(call: CallIdentity): Promise<CallActionResult> { return this._transport.calling.control('end', call); }
+  muteCall(call: CallIdentity, muted: boolean): Promise<CallActionResult> { return this._transport.calling.control('mute', call, muted); }
+  clearCallAudio(call: CallIdentity): Promise<CallActionResult> { return this._transport.calling.control('clear', call); }
+  setCallMedia(call: CallIdentity, media: CallMediaOptions): Promise<CallActionResult> { return this._transport.calling.replace(call, media); }
+  observeCallAudio(call: CallIdentity, speaker: AudioOutput): Promise<CallActionResult & { observerId?: string }> { return this._transport.calling.observeAudio(call, speaker); }
+  stopCallAudioObserver(call: CallIdentity, observerId: string): Promise<CallActionResult> { return this._transport.calling.stopObserver(call, observerId); }
+
   private _bindMethods<T extends object>(
     methods: (client: Client) => T,
     target: Client
@@ -483,10 +570,21 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   declare sendInteractive: InteractiveMethods['sendInteractive'];
   declare sendRawMessage: InteractiveMethods['sendRawMessage'];
   declare sendText: MessagingMethods['sendText'];
+  declare sendAlbum: MessagingMethods['sendAlbum'];
   declare sendImage: MessagingMethods['sendImage'];
   declare sendFile: MessagingMethods['sendFile'];
+  declare sendAudio: MessagingMethods['sendAudio'];
+  declare sendPtt: MessagingMethods['sendPtt'];
+  declare sendVideoAsGif: MessagingMethods['sendVideoAsGif'];
+  declare sendPoll: MessagingMethods['sendPoll'];
+  declare voteOnPoll: MessagingMethods['voteOnPoll'];
+  declare getPollResults: MessagingMethods['getPollResults'];
+  declare pinMessage: MessagingMethods['pinMessage'];
+  declare unpinMessage: MessagingMethods['unpinMessage'];
   declare sendLocation: MessagingMethods['sendLocation'];
   declare sendContact: MessagingMethods['sendContact'];
+  declare sendMultipleContacts: MessagingMethods['sendMultipleContacts'];
+  declare sendVCard: MessagingMethods['sendVCard'];
   declare sendSticker: MessagingMethods['sendSticker'];
   declare reply: MessagingMethods['reply'];
   declare forwardMessages: MessagingMethods['forwardMessages'];
@@ -495,9 +593,20 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   declare react: MessagingMethods['react'];
   declare sendSeen: MessagingMethods['sendSeen'];
   declare getMessageById: MessagingMethods['getMessageById'];
+  declare sendEvent: WhatsAppEventMethods['sendEvent'];
+  declare getEvent: WhatsAppEventMethods['getEvent'];
+  declare getEvents: WhatsAppEventMethods['getEvents'];
+  declare getEventResponses: WhatsAppEventMethods['getEventResponses'];
+  declare editEvent: WhatsAppEventMethods['editEvent'];
+  declare cancelEvent: WhatsAppEventMethods['cancelEvent'];
+  declare respondToEvent: WhatsAppEventMethods['respondToEvent'];
+  declare getAlbumMessages: MessagingMethods['getAlbumMessages'];
   declare sendFileFromUrl: MediaMethods['sendFileFromUrl'];
   declare decryptMedia: MediaMethods['decryptMedia'];
   declare downloadMedia: MediaMethods['downloadMedia'];
+  declare postTextStatus: StatusMethods['postTextStatus'];
+  declare postImageStatus: StatusMethods['postImageStatus'];
+  declare postVideoStatus: StatusMethods['postVideoStatus'];
   
   // Group methods
   declare createGroup: GroupMethods['createGroup'];
@@ -510,6 +619,7 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   declare setGroupIcon: GroupMethods['setGroupIcon'];
   declare getGroupInfo: GroupMethods['getGroupInfo'];
   declare getGroupMembers: GroupMethods['getGroupMembers'];
+  declare getGroupMembersId: GroupMethods['getGroupMembersId'];
   declare getGroupInviteLink: GroupMethods['getGroupInviteLink'];
   declare revokeGroupInviteLink: GroupMethods['revokeGroupInviteLink'];
   declare joinGroupViaLink: GroupMethods['joinGroupViaLink'];
@@ -533,6 +643,8 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   
   // Contact methods
   declare getContact: ContactMethods['getContact'];
+  declare requestPhoneNumber: ContactMethods['requestPhoneNumber'];
+  declare sharePhoneNumber: ContactMethods['sharePhoneNumber'];
   declare getAllContacts: ContactMethods['getAllContacts'];
   declare getContactById: ContactMethods['getContactById'];
   declare checkNumberStatus: ContactMethods['checkNumberStatus'];

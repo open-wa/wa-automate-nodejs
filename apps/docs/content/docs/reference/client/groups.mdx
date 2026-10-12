@@ -561,20 +561,13 @@ Opaque WhatsApp contact identifier. Preserve the exact value returned by the API
 
 ## `getGroupInfo`
 
-Get group metadata
+Get the group title and description through the installed private patch
 
-**Signature** `client.getGroupInfo(groupId: string): Promise<GroupMetadata \| null>`
+**Signature** `client.getGroupInfo(groupId: string): Promise<{ title: string; description?: string \| null } \| string \| null>`
 
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getGroupInfo("447123456789-1445627445@g.us");
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -601,10 +594,7 @@ Example response envelope:
 {
   "success": true,
   "data": {
-    "id": "447123456789-1445627445@g.us",
-    "subject": "example",
-    "creation": 0,
-    "participants": []
+    "title": "example"
   }
 }
 ```
@@ -620,12 +610,11 @@ Example response envelope:
 
 | Prop | Value |
 | --- | --- |
-| Return type | `Promise<GroupMetadata \| null>` |
-| GroupMetadata | [View fields](/docs/reference/client/return-types#groupmetadata) |
+| Return type | `Promise<{ title: string; description?: string \| null } \| string \| null>` |
 
-Resolves to `GroupMetadata \| null`. A rejected Promise indicates input validation or dispatch failure.
+Resolves to `{ title: string; description?: string \| null } \| string \| null`. A rejected Promise indicates input validation or dispatch failure.
 
-In-process Client resolves to `Promise<GroupMetadata \| null>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -804,7 +793,7 @@ Example response envelope:
 
 Resolves to `Contact[]`. A rejected Promise indicates input validation or dispatch failure.
 
-In-process Client resolves to `Promise<ContactId[]>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+In-process Client resolves to `Promise<Contact[]>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -842,6 +831,13 @@ Get group member IDs
 ### Usage
 
 <InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.getGroupMembersId("447123456789-1445627445@g.us");
+```
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -887,7 +883,7 @@ Example response envelope:
 
 Resolves to `ContactId[]`. A rejected Promise indicates input validation or dispatch failure.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+In-process Client resolves to `Promise<ContactId[]>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 Opaque WhatsApp contact identifier. Preserve the exact value returned by the API.
 
 <details>
@@ -1571,13 +1567,6 @@ Set group description
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.setGroupDescription("447123456789-1445627445@g.us", "description");
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -1627,7 +1616,7 @@ Example response envelope:
 
 Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
 <details>
 <summary>Advanced method metadata</summary>
@@ -1847,13 +1836,6 @@ Set group title
 ### Usage
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.setGroupTitle("447123456789-1445627445@g.us", "title");
-```
-
-  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 ```ts
@@ -1903,7 +1885,7 @@ Example response envelope:
 
 Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
 
-In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 
 <details>
 <summary>Advanced method metadata</summary>

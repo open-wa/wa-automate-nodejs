@@ -6,6 +6,16 @@
  */
 import { z } from 'zod';
 
+const CallingDescriptorSchema = z.union([z.string(), z.object({
+  kind: z.enum(['file', 'url', 'device', 'remote']), path: z.string().optional(), url: z.string().optional(), deviceId: z.string().optional(),
+  raw: z.object({ encoding: z.enum(['pcm16le', 'float32le']), sampleRate: z.number().min(8000).max(192000), channels: z.union([z.literal(1), z.literal(2)]) }).optional(),
+  headers: z.record(z.string(), z.string()).optional(), overwrite: z.boolean().optional(), loop: z.boolean().optional(),
+}), z.null()]);
+export const CallingOptionsSchema = z.object({
+  defaults: z.object({ microphone: CallingDescriptorSchema.optional(), speaker: CallingDescriptorSchema.optional(), camera: CallingDescriptorSchema.optional(), onMediaFailure: z.enum(['end', 'keep-open']).optional() }).optional(),
+  preparationTimeoutMs: z.number().positive().optional(),
+});
+
 // ============================================================================
 // Enums
 // ============================================================================
@@ -132,6 +142,10 @@ export const LightpandaOptionsSchema = z.object({
     .boolean()
     .default(false)
     .describe('Disable Lightpanda telemetry for deterministic startup.'),
+  experimentalWhatsApp: z
+    .boolean()
+    .default(true)
+    .describe('Enable the experimental WhatsApp worker and crypto setup used by Lightpanda mode.'),
 });
 
 export const S3SyncSchema = z.object({
@@ -191,6 +205,8 @@ export const ChatSandboxConfigSchema = z.object({
 // ============================================================================
 
 export const ConfigSchema = z.object({
+  calling: CallingOptionsSchema.optional().describe('Calling media defaults. Calling actions use the existing licensed patch flow automatically.'),
+  licenseConfig: z.object({ url: z.string().url().optional(), offlineLicenseMode: z.boolean().optional() }).optional().describe('Licensed implementation delivery endpoint.'),
   // Session & Authentication
   sessionData: z
     .union([SessionDataSchema, z.string()])
@@ -261,12 +277,15 @@ export const ConfigSchema = z.object({
   executablePath: z.string().optional().describe('Path to chrome instance.'),
 
   browser: z.object({
+    kind: z.enum(['chrome', 'chromium']).optional().describe('Managed browser to download and reuse when no executable path is supplied.'),
     download: z.enum(['auto', 'never']).optional().describe('Automatically provision a missing browser, or require a cached browser for offline deployments.'),
     cacheDirectory: z.string().optional().describe('Browser cache directory. Defaults to Puppeteer configuration and PUPPETEER_CACHE_DIR.'),
     downloadBaseUrl: z.string().url().optional().describe('Optional Chrome for Testing download mirror. Downloads honor HTTP_PROXY, HTTPS_PROXY and NO_PROXY.'),
   }).optional().describe('Puppeteer browser provisioning policy.'),
 
-  useChrome: z.boolean().default(false).describe('Automatically detect chrome instance.'),
+  useChrome: z.boolean().default(false).describe('Use installed Google Chrome, or download Chrome for Testing when missing. The CLI prefers installed Chrome by default.'),
+
+  useChromium: z.boolean().default(false).describe('Use installed Chromium, or download it when missing. Proprietary video/audio codecs may be unavailable.'),
 
   useLightpanda: z.boolean().default(false).describe('Enable Lightpanda local browser mode.'),
 

@@ -1,18 +1,37 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { useState, useEffect, useMemo } from "react"
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@/components/boardui/table"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { useState, useEffect, useMemo, useRef } from "react"
 import {
   Search,
   LayoutGrid,
   List,
   Building2,
   UserCheck,
-  Globe,
+  Users,
+  Copy,
+  MessageSquare,
+  ArrowUpRight,
 } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
 import { useDemo } from "@/lib/demo/use-demo"
 import { usePrivacy } from "@/lib/hooks/use-privacy"
 import { useHealth } from "@/lib/hooks/use-health"
 import { demoContacts } from "@/lib/demo/demo-data"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Chip } from "@/components/boardui/chip"
+import { PageHeader } from "@/components/application/page-header"
+import {
+  DetailSheet,
+  DetailSheetClose,
+} from "@/components/application/detail-sheet"
 import { toast } from "sonner"
 
 export const Route = createFileRoute("/contacts")({ component: ContactsPage })
@@ -36,321 +55,418 @@ function ContactsPage() {
   const { privacyMode, redactName, redact } = usePrivacy()
   const [contacts, setContacts] = useState<Contact[]>([])
   const [search, setSearch] = useState("")
-  const [view, setView] = useState<"grid" | "list">("grid")
+  const [view, setView] = useState<"grid" | "list">("list")
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [refresh, setRefresh] = useState(0)
   const [filterBusiness, setFilterBusiness] = useState(false)
   const [filterMyContacts, setFilterMyContacts] = useState(false)
+  const [selected, setSelected] = useState<Contact | null>(null)
+  const [open, setOpen] = useState(false)
+  const returnFocus = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
+    let active = true
+    setError(null)
     if (isDemo) {
       setContacts(demoContacts as Contact[])
+      setLoading(false)
       return
     }
-    if (!connected || !canInvokeRuntime) return
+    if (!connected || !canInvokeRuntime) {
+      setContacts([])
+      setLoading(false)
+      return
+    }
     setLoading(true)
     ask<Contact[]>("getAllContacts")
       .then((data) => {
-        // Deduplicate by ID — API can return the same contact twice
+        if (!active) return
         const seen = new Map<string, Contact>()
         for (const c of data || []) {
-          const idStr =
-            (typeof c.id === "object" && c.id
-              ? (c.id as any)._serialized
-              : c.id) || (c as any)._serialized
-          if (!idStr || seen.has(idStr)) continue
-          seen.set(idStr, {
-            id: idStr,
-            name: c.name || c.formattedName || c.pushname || idStr,
+          const id =
+            typeof c.id === "object" && c.id
+              ? (c.id as { _serialized?: string })._serialized
+              : c.id
+          if (!id || seen.has(id)) continue
+          seen.set(id, {
+            ...c,
+            id,
+            name: c.name || c.formattedName || c.pushname || id,
             pushname: c.pushname || "",
-            shortName: c.shortName || "",
-            formattedName: c.formattedName || "",
-            isBusiness: c.isBusiness || false,
-            isMyContact: c.isMyContact || false,
-            isWAContact: c.isWAContact || false,
-            type: c.type || "",
           })
         }
-        const list = Array.from(seen.values())
         setContacts(
-          list.sort((a: Contact, b: Contact) => a.name.localeCompare(b.name))
+          Array.from(seen.values()).sort((a, b) => a.name.localeCompare(b.name))
         )
       })
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [connected, canInvokeRuntime, ask, isDemo])
-
-  const filtered = useMemo(() => {
-    let result = contacts
-    if (search) {
-      const q = search.toLowerCase()
-      result = result.filter(
-        (c) =>
-          c.name.toLowerCase().includes(q) ||
-          c.pushname.toLowerCase().includes(q) ||
-          c.id.includes(q)
-      )
+      .catch(() => {
+        if (active) {
+          setContacts([])
+          setError(
+            "Contacts couldn't be loaded. Check the session connection and try again."
+          )
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+    return () => {
+      active = false
     }
-    if (filterBusiness) result = result.filter((c) => c.isBusiness)
-    if (filterMyContacts) result = result.filter((c) => c.isMyContact)
-    return result
-  }, [contacts, search, filterBusiness, filterMyContacts])
+  }, [connected, canInvokeRuntime, ask, isDemo, refresh])
 
-  const handleContactClick = (contact: Contact) => {
-    if (privacyMode) {
-      navigator.clipboard
-        .writeText(contact.id)
-        .then(() => {
-          toast.success("Chat ID copied to clipboard")
-        })
-        .catch(() => {
-          toast.error("Failed to copy")
-        })
+  useEffect(() => {
+    setOpen(false)
+    setSelected(null)
+  }, [isDemo])
+
+  const filtered = useMemo(
+    () =>
+      contacts.filter((c) => {
+        const query = search.toLocaleLowerCase().trim()
+        return (
+          (!query ||
+            `${c.name} ${c.pushname} ${c.id}`
+              .toLocaleLowerCase()
+              .includes(query)) &&
+          (!filterBusiness || c.isBusiness) &&
+          (!filterMyContacts || c.isMyContact)
+        )
+      }),
+    [contacts, search, filterBusiness, filterMyContacts]
+  )
+
+  const copyId = async () => {
+    if (!selected) return
+    try {
+      await navigator.clipboard.writeText(selected.id)
+      toast.success("Chat ID copied")
+    } catch {
+      toast.error("Clipboard unavailable. Select the ID to copy it.")
     }
+  }
+  const openContact = (contact: Contact, trigger: HTMLElement) => {
+    returnFocus.current = trigger
+    setSelected(contact)
+    setOpen(true)
+  }
+  const name = (contact: Contact) => redactName(contact.name, contact.id)
+  const resetFilters = () => {
+    setSearch("")
+    setFilterBusiness(false)
+    setFilterMyContacts(false)
   }
 
   return (
-    <div className="space-y-5 p-6">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold tracking-tight">Contacts</h1>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground tabular-nums">
-            {filtered.length}
-          </span>
-          {isDemo && (
-            <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
-              Demo
-            </span>
-          )}
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Browse and search your WhatsApp contacts
-        </p>
-      </div>
-
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative min-w-[200px] flex-1">
-          <Search
-            size={16}
-            className="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
-          />
-          <input
-            type="text"
-            placeholder="Search contacts..."
+    <div className="dashboard-page space-y-6">
+      <PageHeader
+        title="Contacts"
+        description="Find a contact, review their details, and open a conversation."
+        badge={
+          <Chip variant="caption">
+            {loading
+              ? "Loading…"
+              : error || (!isDemo && (!connected || !canInvokeRuntime))
+                ? "Unavailable"
+                : `${contacts.length} contacts`}
+          </Chip>
+        }
+      />
+      <div className="flex flex-wrap items-center gap-2.5">
+        <div className="relative min-w-48 flex-1">
+          <Search className="pointer-events-none absolute start-3 top-2.5 size-4 text-text-tertiary" />
+          <Input
+            type="search"
+            aria-label="Search contacts"
+            placeholder="Search by name or chat ID…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="h-9 w-full rounded-lg border bg-background pr-3 pl-9 text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-ring focus:outline-none"
+            onChange={(event) => setSearch(event.target.value)}
+            className="ps-9"
           />
         </div>
-
-        {/* Filters */}
-        <button
+        <Button
+          variant={filterBusiness ? "secondary" : "ghost"}
+          aria-pressed={filterBusiness}
           onClick={() => setFilterBusiness(!filterBusiness)}
-          className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-            filterBusiness
-              ? "border-primary bg-primary/10 text-primary"
-              : "text-muted-foreground hover:bg-muted"
-          }`}
         >
-          <Building2 size={13} />
+          <Building2 />
           Business
-        </button>
-        <button
+        </Button>
+        <Button
+          variant={filterMyContacts ? "secondary" : "ghost"}
+          aria-pressed={filterMyContacts}
           onClick={() => setFilterMyContacts(!filterMyContacts)}
-          className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-            filterMyContacts
-              ? "border-primary bg-primary/10 text-primary"
-              : "text-muted-foreground hover:bg-muted"
-          }`}
         >
-          <UserCheck size={13} />
-          My Contacts
-        </button>
-
-        {/* View Toggle */}
-        <div className="flex overflow-hidden rounded-lg border">
-          <button
-            onClick={() => setView("grid")}
-            className={`p-1.5 transition-colors ${view === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
-          >
-            <LayoutGrid size={16} />
-          </button>
-          <button
+          <UserCheck />
+          Saved contacts
+        </Button>
+        <div
+          className="flex gap-1 rounded-xl border bg-muted/50 p-1"
+          role="group"
+          aria-label="Contact layout"
+        >
+          <Button
+            variant={view === "list" ? "secondary" : "ghost"}
+            size="icon-sm"
+            aria-label="List view"
+            aria-pressed={view === "list"}
             onClick={() => setView("list")}
-            className={`p-1.5 transition-colors ${view === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}
           >
-            <List size={16} />
-          </button>
+            <List />
+          </Button>
+          <Button
+            variant={view === "grid" ? "secondary" : "ghost"}
+            size="icon-sm"
+            aria-label="Grid view"
+            aria-pressed={view === "grid"}
+            onClick={() => setView("grid")}
+          >
+            <LayoutGrid />
+          </Button>
         </div>
       </div>
-
-      {/* Content */}
       {loading ? (
-        <div className="flex h-48 items-center justify-center">
-          <div className="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="flex h-48 flex-col items-center justify-center gap-2 text-muted-foreground">
-          <Globe size={40} className="opacity-30" />
-          <p className="text-sm">
-            {(connected && canInvokeRuntime) || isDemo
-              ? "No contacts match your filters"
-              : "Connect to see contacts"}
-          </p>
-        </div>
-      ) : view === "grid" ? (
-        <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {filtered.map((contact) => (
-            <ContactCard
-              key={contact.id}
-              contact={contact}
-              privacyMode={privacyMode}
-              redactName={redactName}
-              redact={redact}
-              onClick={handleContactClick}
-            />
+        <div role="status" aria-label="Loading contacts" className="space-y-3">
+          {Array.from({ length: 6 }, (_, i) => (
+            <div key={i} className="h-16 animate-pulse rounded-xl bg-muted" />
           ))}
         </div>
+      ) : error ? (
+        <div role="alert" className="rounded-2xl border p-6">
+          <p className="mb-4 text-body-regular text-text-secondary">{error}</p>
+          <Button
+            variant="outline"
+            onClick={() => setRefresh((value) => value + 1)}
+          >
+            Try again
+          </Button>
+        </div>
+      ) : !filtered.length ? (
+        <div className="flex min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed p-6 text-center">
+          <Users className="size-8 text-text-tertiary" />
+          <h2 className="text-body-medium">
+            {!isDemo && (!connected || !canInvokeRuntime)
+              ? "Connect your session"
+              : "No contacts found"}
+          </h2>
+          <p className="max-w-sm text-body-regular text-text-secondary">
+            {!isDemo && (!connected || !canInvokeRuntime)
+              ? "Contacts become available when WhatsApp is ready."
+              : "Try another search or remove the filters."}
+          </p>
+          {(search || filterBusiness || filterMyContacts) && (
+            <Button variant="outline" onClick={resetFilters}>
+              Clear filters
+            </Button>
+          )}
+        </div>
+      ) : view === "list" ? (
+        <div className="overflow-hidden rounded-2xl border border-border-button-default">
+          <div className="overflow-x-auto">
+            <Table
+              aria-label="WhatsApp contacts"
+              selectionMode="none"
+              size="sm"
+            >
+              <TableHeader>
+                <TableColumn id="name" isRowHeader>
+                  Contact
+                </TableColumn>
+                <TableColumn id="id" className="hidden sm:table-cell">
+                  Chat ID
+                </TableColumn>
+                <TableColumn id="details" className="hidden md:table-cell">
+                  Details
+                </TableColumn>
+                <TableColumn id="actions" textValue="Review">
+                  <span className="sr-only">Review</span>
+                </TableColumn>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((contact) => (
+                  <TableRow
+                    key={contact.id}
+                    id={contact.id}
+                    textValue={name(contact)}
+                  >
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar contact={contact} privateMode={privacyMode} />
+                        <span className="min-w-0 truncate font-medium">
+                          {name(contact)}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden font-mono text-xs text-text-secondary sm:table-cell">
+                      {redact(contact.id)}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <ContactChips contact={contact} />
+                    </TableCell>
+                    <TableCell className="text-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(event) =>
+                          openContact(contact, event.currentTarget)
+                        }
+                        aria-label={`Review ${name(contact)}`}
+                      >
+                        Review
+                        <ArrowUpRight />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       ) : (
-        <div className="divide-y rounded-xl border bg-card">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((contact) => (
-            <ContactRow
+            <Button
               key={contact.id}
-              contact={contact}
-              privacyMode={privacyMode}
-              redactName={redactName}
-              redact={redact}
-              onClick={handleContactClick}
-            />
+              variant="ghost"
+              onClick={(event) => openContact(contact, event.currentTarget)}
+              className="h-auto flex-col items-start gap-4 rounded-2xl border border-border-button-default bg-card p-5 text-start whitespace-normal hover:border-border-button-hover"
+              aria-label={`Review ${name(contact)}`}
+            >
+              <Avatar contact={contact} privateMode={privacyMode} />
+              <span className="max-w-full truncate text-body-medium">
+                {name(contact)}
+              </span>
+              <ContactChips contact={contact} />
+            </Button>
           ))}
         </div>
       )}
-    </div>
-  )
-}
-
-// ─── Grid Card ───────────────────────────────────────────────────
-function ContactCard({
-  contact,
-  privacyMode,
-  redactName,
-  redact: _redact,
-  onClick,
-}: {
-  contact: Contact
-  privacyMode: boolean
-  redactName: (name: string, id?: string) => string
-  redact: (value: string) => string
-  onClick: (contact: Contact) => void
-}) {
-  const displayName = redactName(contact.name, contact.id)
-  const displayPushname = redactName(contact.pushname, contact.id)
-  const initials = privacyMode ? "••" : getInitials(contact.name)
-  const color = getAvatarColor(contact.name)
-
-  return (
-    <div
-      className={`group rounded-xl border bg-card p-4 transition-all hover:border-primary/20 hover:shadow-md ${privacyMode ? "cursor-pointer" : ""}`}
-      onClick={() => onClick(contact)}
-    >
-      <div className="flex flex-col items-center text-center">
-        <div
-          className="mb-3 flex size-14 items-center justify-center rounded-full text-lg font-bold text-white shadow-sm transition-transform group-hover:scale-105"
-          style={{ backgroundColor: privacyMode ? "hsl(0, 0%, 45%)" : color }}
-        >
-          {initials}
-        </div>
-        <h3 className="max-w-full truncate text-sm leading-tight font-semibold">
-          {displayName}
-        </h3>
-        {contact.pushname && contact.pushname !== contact.name && (
-          <p className="mt-0.5 max-w-full truncate text-xs text-muted-foreground">
-            ~{displayPushname}
-          </p>
-        )}
-        <div className="mt-2 flex items-center gap-1.5">
-          {contact.isBusiness && (
-            <span className="rounded bg-blue-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400">
-              Business
-            </span>
-          )}
-          {contact.isMyContact && (
-            <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-              Saved
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─── List Row ────────────────────────────────────────────────────
-function ContactRow({
-  contact,
-  privacyMode,
-  redactName,
-  redact,
-  onClick,
-}: {
-  contact: Contact
-  privacyMode: boolean
-  redactName: (name: string, id?: string) => string
-  redact: (value: string) => string
-  onClick: (contact: Contact) => void
-}) {
-  const displayName = redactName(contact.name, contact.id)
-  const displayPushname = redactName(contact.pushname, contact.id)
-  const displayId = redact(contact.id.replace("@c.us", ""))
-  const initials = privacyMode ? "••" : getInitials(contact.name)
-  const color = getAvatarColor(contact.name)
-
-  return (
-    <div
-      className={`flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/30 ${privacyMode ? "cursor-pointer" : ""}`}
-      onClick={() => onClick(contact)}
-    >
-      <div
-        className="flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
-        style={{ backgroundColor: privacyMode ? "hsl(0, 0%, 45%)" : color }}
+      {!!filtered.length && (
+        <p className="text-caption-1-regular text-text-secondary">
+          Showing {filtered.length} of {contacts.length} contacts
+        </p>
+      )}
+      <DetailSheet
+        title={selected ? name(selected) : "Contact details"}
+        description="Contact details from the selected WhatsApp session."
+        open={open}
+        onOpenChange={setOpen}
+        onClosed={() => setSelected(null)}
+        finalFocus={returnFocus}
+        footer={
+          <>
+            <DetailSheetClose render={<Button variant="outline" />}>
+              Close
+            </DetailSheetClose>
+            <Button
+              variant="outline"
+              onClick={() => void copyId()}
+              disabled={!selected}
+            >
+              <Copy />
+              Copy chat ID
+            </Button>
+            {selected && (
+              <Link
+                to="/chat"
+                search={(previous) => ({ ...previous, chatId: selected.id })}
+                className={buttonVariants()}
+              >
+                <MessageSquare />
+                Open chat
+              </Link>
+            )}
+          </>
+        }
       >
-        {initials}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium">{displayName}</span>
-          {contact.isBusiness && (
-            <span className="rounded bg-blue-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400">
-              Business
-            </span>
-          )}
-        </div>
-        {contact.pushname && contact.pushname !== contact.name && (
-          <p className="text-xs text-muted-foreground">~{displayPushname}</p>
+        {selected && (
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <Avatar contact={selected} privateMode={privacyMode} />
+              <div>
+                <p className="text-title-3-medium">{name(selected)}</p>
+                <ContactChips contact={selected} />
+              </div>
+            </div>
+            <dl className="space-y-4 rounded-2xl border bg-muted/30 p-5">
+              {[
+                ["Chat ID", redact(selected.id)],
+                [
+                  "Display name",
+                  redactName(selected.pushname) || "Not provided",
+                ],
+                [
+                  "Saved name",
+                  selected.isMyContact
+                    ? name(selected)
+                    : "Not saved in your contacts",
+                ],
+                [
+                  "Account type",
+                  selected.isBusiness ? "Business account" : "Personal account",
+                ],
+              ].map(([label, value]) => (
+                <div key={label} className="space-y-1">
+                  <dt className="text-caption-1-regular text-text-secondary">
+                    {label}
+                  </dt>
+                  <dd className="text-body-medium break-all select-text">
+                    {value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            {privacyMode && (
+              <p className="text-caption-1-regular text-text-secondary">
+                Names and identifiers are hidden. Copy chat ID copies the
+                original identifier for your use.
+              </p>
+            )}
+          </div>
         )}
-      </div>
-      <span className="shrink-0 font-mono text-xs text-muted-foreground">
-        {displayId}
-      </span>
+      </DetailSheet>
     </div>
   )
 }
 
-// ─── Utilities ───────────────────────────────────────────────────
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() || "")
-    .join("")
+function ContactChips({ contact }: { contact: Contact }) {
+  return (
+    <span className="flex flex-wrap gap-1.5">
+      {contact.isBusiness && (
+        <Chip color="blue" variant="caption">
+          Business
+        </Chip>
+      )}
+      {contact.isMyContact && (
+        <Chip color="neutral" variant="caption">
+          Saved contact
+        </Chip>
+      )}
+    </span>
+  )
 }
 
-function getAvatarColor(name: string): string {
-  let hash = 0
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  const hue = ((hash % 360) + 360) % 360
-  return `hsl(${hue}, 55%, 50%)`
+function Avatar({
+  contact,
+  privateMode,
+}: {
+  contact: Contact
+  privateMode: boolean
+}) {
+  return (
+    <span
+      aria-hidden
+      className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-background-tertiary-default text-body-medium text-text-secondary"
+    >
+      {privateMode
+        ? "••"
+        : contact.name
+            .split(/\s+/)
+            .slice(0, 2)
+            .map((part) => part.charAt(0))
+            .join("")
+            .toUpperCase()}
+    </span>
+  )
 }

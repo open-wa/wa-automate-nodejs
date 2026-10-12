@@ -41,7 +41,7 @@ Docker Hub currently uses a moving `latest` tag, so the commands use the immutab
 
 ## Environment variables and secrets
 
-The runtime configuration loader consumes `WA_*` names. `WA_API_KEY` configures the Easy API key, `WA_SESSION_ID` names the session, and `WA_USER_DATA_DIR` selects the profile; see [Configuration and CLI](/docs/guides/configuration-and-cli) for supported settings. `OPENWA_API_KEY`, `PORT`, and `SESSION_ID` are not automatic aliases.
+The runtime configuration loader consumes `WA_*` names. `WA_API_KEY` configures the Easy API key, `WA_SESSION_ID` names the session, and `WA_USER_DATA_DIR` selects the profile; see [Configuration and CLI](/docs/guides/configuration-and-cli) for supported settings. Use these prefixed names when you configure the runtime.
 
 For a local `.env` file, keep it outside version control and load it explicitly with Docker:
 

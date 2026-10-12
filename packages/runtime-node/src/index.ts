@@ -21,3 +21,4 @@ export const NodeRuntimeLayer = Layer.mergeAll(
 export { NodeRuntime } from '@effect/platform-node';
 export * from './execution-sandbox';
 export * from './memory-observability';
+export { makeNodeCallMediaHost, CallMediaError } from './calling/NodeCallMediaHost';

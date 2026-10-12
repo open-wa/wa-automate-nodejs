@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiDocsRouteImport } from './routes/api-docs'
 import { Route as AppsRouteImport } from './routes/apps'
+import { Route as CallsRouteImport } from './routes/calls'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ContactsRouteImport } from './routes/contacts'
 import { Route as DebugRouteImport } from './routes/debug'
@@ -36,6 +37,11 @@ const ApiDocsRoute = ApiDocsRouteImport.update({
 const AppsRoute = AppsRouteImport.update({
   id: '/apps',
   path: '/apps',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CallsRoute = CallsRouteImport.update({
+  id: '/calls',
+  path: '/calls',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api-docs': typeof ApiDocsRoute
   '/apps': typeof AppsRoute
+  '/calls': typeof CallsRoute
   '/chat': typeof ChatRoute
   '/contacts': typeof ContactsRoute
   '/debug': typeof DebugRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api-docs': typeof ApiDocsRoute
   '/apps': typeof AppsRoute
+  '/calls': typeof CallsRoute
   '/chat': typeof ChatRoute
   '/contacts': typeof ContactsRoute
   '/debug': typeof DebugRoute
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/api-docs': typeof ApiDocsRoute
   '/apps': typeof AppsRoute
+  '/calls': typeof CallsRoute
   '/chat': typeof ChatRoute
   '/contacts': typeof ContactsRoute
   '/debug': typeof DebugRoute
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-docs'
     | '/apps'
+    | '/calls'
     | '/chat'
     | '/contacts'
     | '/debug'
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-docs'
     | '/apps'
+    | '/calls'
     | '/chat'
     | '/contacts'
     | '/debug'
@@ -171,6 +182,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-docs'
     | '/apps'
+    | '/calls'
     | '/chat'
     | '/contacts'
     | '/debug'
@@ -187,6 +199,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiDocsRoute: typeof ApiDocsRoute
   AppsRoute: typeof AppsRoute
+  CallsRoute: typeof CallsRoute
   ChatRoute: typeof ChatRoute
   ContactsRoute: typeof ContactsRoute
   DebugRoute: typeof DebugRoute
@@ -220,6 +233,13 @@ declare module '@tanstack/react-router' {
       path: '/apps'
       fullPath: '/apps'
       preLoaderRoute: typeof AppsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calls': {
+      id: '/calls'
+      path: '/calls'
+      fullPath: '/calls'
+      preLoaderRoute: typeof CallsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -299,6 +319,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiDocsRoute: ApiDocsRoute,
   AppsRoute: AppsRoute,
+  CallsRoute: CallsRoute,
   ChatRoute: ChatRoute,
   ContactsRoute: ContactsRoute,
   DebugRoute: DebugRoute,

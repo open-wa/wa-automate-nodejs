@@ -113,6 +113,8 @@ export interface IPage {
 
     setViewport(viewport: { width: number; height: number }): Promise<void>;
     setUserAgent(ua: string): Promise<void>;
+    /** Grant device capture to a verified calling document's origin. */
+    grantMediaPermissions?(origin: string): Promise<void>;
     setRequestInterception(enabled: boolean): Promise<void>;
 
     waitForSelector(selector: string, options?: { timeoutMs?: number }): Promise<IElementHandle | null>;

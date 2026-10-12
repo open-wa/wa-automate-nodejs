@@ -3,11 +3,17 @@ import type {
   ChatId,
   GroupId,
   ContactId,
-  GroupMetadata,
+  Contact,
+  GroupInfo,
   Chat,
   DataURL,
 } from '@open-wa/schema';
-import { createUnsupportedMethodStub } from '../runtimeSurface';
+import {
+  implementMethod,
+  setGroupTitle as setGroupTitleSchema,
+  setGroupDescription as setGroupDescriptionSchema,
+  getGroupInfo as getGroupInfoSchema,
+} from '@open-wa/schema';
 
 declare const WAPI: {
   createGroup: (groupName: string, contactId: string | string[]) => Promise<any>;
@@ -18,8 +24,9 @@ declare const WAPI: {
   setGroupTitle: (groupId: string, title: string) => Promise<boolean>;
   setGroupDescription: (groupId: string, description: string) => Promise<boolean>;
   setGroupIcon: (groupId: string, imgData: string) => Promise<boolean>;
-  getGroupInfo: (groupId: string) => Promise<GroupMetadata>;
+  getGroupInfo: (groupId: string) => Promise<GroupInfo | string | null>;
   getGroupParticipantIDs: (groupId: string) => Promise<string[]>;
+  getContact: (contactId: string) => Contact | null | Promise<Contact | null>;
   getGroupInviteLink: (groupId: string) => Promise<string>;
   revokeGroupInviteLink: (groupId: string) => Promise<string | boolean>;
   joinGroupViaLink: (link: string, returnChatObj?: boolean) => Promise<string | boolean | number | Chat>;
@@ -32,11 +39,12 @@ export interface GroupMethods {
   removeParticipant(groupId: GroupId, participant: ContactId): Promise<boolean>;
   promoteParticipant(groupId: GroupId, participant: ContactId): Promise<boolean>;
   demoteParticipant(groupId: GroupId, participant: ContactId): Promise<boolean>;
-  setGroupTitle(groupId: GroupId, title: string): Promise<boolean>;
-  setGroupDescription(groupId: GroupId, description: string): Promise<boolean>;
+  setGroupTitle: ReturnType<typeof implementMethod<typeof setGroupTitleSchema>>;
+  setGroupDescription: ReturnType<typeof implementMethod<typeof setGroupDescriptionSchema>>;
   setGroupIcon(groupId: GroupId, image: DataURL): Promise<boolean>;
-  getGroupInfo(groupId: GroupId): Promise<GroupMetadata | null>;
-  getGroupMembers(groupId: GroupId): Promise<ContactId[]>;
+  getGroupInfo: ReturnType<typeof implementMethod<typeof getGroupInfoSchema>>;
+  getGroupMembers(groupId: GroupId): Promise<Contact[]>;
+  getGroupMembersId(groupId: GroupId): Promise<ContactId[]>;
   getGroupInviteLink(groupId: GroupId): Promise<string>;
   revokeGroupInviteLink(groupId: GroupId): Promise<string | boolean>;
   joinGroupViaLink(inviteLink: string): Promise<GroupId | boolean | number>;
@@ -45,9 +53,6 @@ export interface GroupMethods {
 
 export function groupMethods(client: Client): GroupMethods {
   const evaluate = client.evaluate.bind(client);
-  const unsupportedSetGroupTitle = createUnsupportedMethodStub<GroupMethods['setGroupTitle']>('setGroupTitle');
-  const unsupportedSetGroupDescription = createUnsupportedMethodStub<GroupMethods['setGroupDescription']>('setGroupDescription');
-  const unsupportedGetGroupInfo = createUnsupportedMethodStub<GroupMethods['getGroupInfo']>('getGroupInfo');
   
   return {
     async createGroup(name: string, participants: ContactId | ContactId[]): Promise<{ gid: GroupId } | null> {
@@ -89,13 +94,17 @@ export function groupMethods(client: Client): GroupMethods {
       return result === true;
     },
     
-    async setGroupTitle(groupId: GroupId, title: string): Promise<boolean> {
-      return unsupportedSetGroupTitle(groupId, title);
-    },
-    
-    async setGroupDescription(groupId: GroupId, description: string): Promise<boolean> {
-      return unsupportedSetGroupDescription(groupId, description);
-    },
+    setGroupTitle: implementMethod(setGroupTitleSchema, ({ groupId, title }) =>
+      evaluate(
+        ({ groupId, title }) => WAPI.setGroupTitle(groupId, title),
+        { groupId, title }
+      )),
+
+    setGroupDescription: implementMethod(setGroupDescriptionSchema, ({ groupId, description }) =>
+      evaluate(
+        ({ groupId, description }) => WAPI.setGroupDescription(groupId, description),
+        { groupId, description }
+      )),
     
     async setGroupIcon(groupId: GroupId, image: DataURL): Promise<boolean> {
       return evaluate(
@@ -104,11 +113,24 @@ export function groupMethods(client: Client): GroupMethods {
       );
     },
     
-    async getGroupInfo(groupId: GroupId): Promise<GroupMetadata | null> {
-      return unsupportedGetGroupInfo(groupId);
-    },
+    getGroupInfo: implementMethod(getGroupInfoSchema, ({ groupId }) =>
+      evaluate(({ groupId }) => WAPI.getGroupInfo(groupId), { groupId })),
     
-    async getGroupMembers(groupId: GroupId): Promise<ContactId[]> {
+    async getGroupMembers(groupId: GroupId): Promise<Contact[]> {
+      // Resolve in the browser so a group needs one transport round trip,
+      // rather than a separate evaluate call for every participant.
+      return evaluate(async ({ groupId }) => {
+        const ids = await WAPI.getGroupParticipantIDs(groupId);
+        if (!Array.isArray(ids)) throw new Error(`Could not load members of group ${groupId}`);
+        return Promise.all(ids.map(async (id) => {
+          const contact = await WAPI.getContact(id);
+          if (!contact) throw new Error(`Could not load contact ${id} in group ${groupId}`);
+          return contact;
+        }));
+      }, { groupId });
+    },
+
+    async getGroupMembersId(groupId: GroupId): Promise<ContactId[]> {
       return evaluate(
         ({ groupId }) => WAPI.getGroupParticipantIDs(groupId),
         { groupId }

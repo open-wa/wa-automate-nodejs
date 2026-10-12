@@ -110,7 +110,7 @@ For an Easy API command with a body, include the local API key too when the sess
 curl -i -X POST \
   "${OPENWA_PROXY_HOST}/sessions/sales/api/sendText" \
   -H "Authorization: Bearer $OPENWA_PROXY_CONSUMER_TOKEN" \
-  -H "X-API-Key: $OPENWA_API_KEY" \
+  -H "X-API-Key: $WA_API_KEY" \
   -H 'Content-Type: application/json' \
   -d '{"args":["1234567890@c.us","Hello through Cloudflare"]}'
 ```

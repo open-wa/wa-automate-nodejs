@@ -12,7 +12,7 @@ import {
     type PageEventHandler,
     type WaitForFunctionOptions,
 } from '@open-wa/driver-interface';
-import type { ConsoleMessage, Frame, HTTPRequest, Page, CDPSession } from 'puppeteer';
+import type { ConsoleMessage, Frame, HTTPRequest, Page, CDPSession } from 'puppeteer-core';
 import { PuppeteerElementHandle } from './PuppeteerElementHandle';
 
 type ListenerWrapper = (...args: any[]) => void | Promise<void>;
@@ -312,6 +312,10 @@ export class PuppeteerPage implements IPage {
     async screenshot(options?: { type?: 'png' | 'jpeg'; fullPage?: boolean }): Promise<Uint8Array> {
         const buffer = await this.page.screenshot(options);
         return new Uint8Array(buffer);
+    }
+
+    async grantMediaPermissions(origin: string): Promise<void> {
+        await this.page.browserContext().overridePermissions(origin, ['microphone', 'camera']);
     }
 
     async exposeFunction(name: string, fn: (...args: any[]) => any): Promise<void> {

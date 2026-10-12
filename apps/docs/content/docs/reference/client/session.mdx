@@ -6,7 +6,7 @@ icon: "BookOpen"
 
 # Session Client API
 
-This page documents 16 schema-registry client methods in the `session` namespace.
+This page documents 17 schema-registry client methods in the `session` namespace.
 
 
 ## `getBatteryLevel`
@@ -359,6 +359,99 @@ In-process Client resolves to `Promise<string>`. The contract above is for the r
 | --- | --- | --- | --- | --- |
 | Primary | `GET` | `/api/session/getHostNumber` | `getHostNumber` | Active |
 | Alias | `GET` | `/api/getHostNumber` | `getHostNumber` | Active |
+
+</details>
+
+
+## `getLicenseFeatures`
+
+Get enabled and disabled licensed features from the accepted licence patch. This reports licence access; actions check runtime availability automatically.
+
+**Signature** `client.getLicenseFeatures(): Promise<{ status: "valid" \| "missing" \| "invalid" \| "expired" \| "metadata_only"; keyType: string \| null; expiresAt: number \| "Infinity" \| "-Infinity" \| "NaN" \| null; features: Record<string, boolean> }>`
+
+### Usage
+
+<InterfaceTabs>
+  <InterfaceTab value="Embedded">
+
+```ts
+const result = await client.getLicenseFeatures();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getLicenseFeatures();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="Easy API">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getLicenseFeatures" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+Example response envelope:
+
+```json
+{
+  "success": true,
+  "data": {
+    "status": "valid",
+    "keyType": "example",
+    "expiresAt": 0,
+    "features": {}
+  }
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters
+
+This method does not define input parameters.
+
+### Returns
+
+| Prop | Value |
+| --- | --- |
+| Return type | `Promise<{ status: "valid" \| "missing" \| "invalid" \| "expired" \| "metadata_only"; keyType: string \| null; expiresAt: number \| "Infinity" \| "-Infinity" \| "NaN" \| null; features: Record<string, boolean> }>` |
+
+Resolves to `{ status: "valid" \| "missing" \| "invalid" \| "expired" \| "metadata_only"; keyType: string \| null; expiresAt: number \| "Infinity" \| "-Infinity" \| "NaN" \| null; features: Record<string, boolean> }`. A rejected Promise indicates input validation or dispatch failure.
+
+In-process Client resolves to `Promise<LicenseFeatures>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+
+<details>
+<summary>Advanced method metadata</summary>
+
+### Overview
+
+| Prop | Value |
+| --- | --- |
+| Namespace | `session` |
+| Action | `read` |
+| Functionality | `both` |
+| Positional parameter order | - |
+| Aliases | `session.getLicenseFeatures` |
+| Deprecated aliases | - |
+| License | `none` |
+| WAPI override | - |
+| Deprecated | No |
+
+### Routes
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getLicenseFeatures` | `getLicenseFeatures` | Active |
+| Alias | `GET` | `/api/getLicenseFeatures` | `getLicenseFeatures` | Active |
 
 </details>
 

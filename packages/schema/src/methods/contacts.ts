@@ -2,7 +2,16 @@ import { ContactIdSchema, ContactSchema } from '../common-types';
 import { CommonGroupSchema, NumberCheckSchema, NumberProfileSchema } from '../return-types';
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
-import { chatIdParam, contactIdParam } from '../parameters';
+import { chatIdParam, contactIdParam, toParam, messageIdParam } from '../parameters';
+
+export const requestPhoneNumber = defineMethodV2('requestPhoneNumber', {
+    meta: { description: 'Ask a direct LID chat to voluntarily share their phone number. A submitted request does not confirm sharing.', action: 'send', namespace: 'contacts', license: 'none', functionality: 'both', httpMethod: 'POST' },
+    input: z.object({ to: toParam }), parameterOrder: ['to'], output: messageIdParam,
+});
+export const sharePhoneNumber = defineMethodV2('sharePhoneNumber', {
+    meta: { description: 'Share the signed-in account’s own phone number with a direct LID chat using WhatsApp’s native protocol. No arbitrary phone number is accepted.', action: 'send', namespace: 'contacts', license: 'none', functionality: 'both', httpMethod: 'POST' },
+    input: z.object({ to: toParam }), parameterOrder: ['to'], output: messageIdParam,
+});
 
 export const getAllContacts = defineMethodV2('getAllContacts', {
     meta: {

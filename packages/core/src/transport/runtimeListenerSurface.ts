@@ -2,7 +2,7 @@ import type { OpenWAEventMap } from '../events/eventMap';
 
 type RuntimeBridgeEvent = Extract<
   keyof OpenWAEventMap,
-  'message.received' | 'message.any' | 'interactive.response' | 'ack.changed' | 'session.state.changed' | 'group.addedToGroup'
+  'message.received' | 'message.any' | 'interactive.response' | 'event.changed' | 'event.response' | 'poll.vote' | 'ack.changed' | 'session.state.changed' | 'group.addedToGroup' | 'group.participants.changed.global'
 >;
 
 type RuntimeNavigationEvent = Extract<keyof OpenWAEventMap, 'session.logout'>;
@@ -26,6 +26,9 @@ export type RuntimeListenerSurfaceEntry =
   | RuntimeNavigationListenerSurfaceEntry;
 
 export const runtimeListenerSurface = {
+  'poll.vote': { kind: 'wapi', event: 'poll.vote', bindingName: 'OpenWA_RuntimePollVote', wapiMethod: 'onPollVote', required: false },
+  'event.changed': { kind: 'wapi', event: 'event.changed', bindingName: 'OpenWA_RuntimeEvent', wapiMethod: 'onEvent', required: false },
+  'event.response': { kind: 'wapi', event: 'event.response', bindingName: 'OpenWA_RuntimeEventResponse', wapiMethod: 'onEventResponse', required: false },
   'interactive.response': {
     kind: 'wapi', event: 'interactive.response', bindingName: 'OpenWA_RuntimeInteractiveResponse',
     wapiMethod: 'onInteractiveResponse', required: false,
@@ -63,6 +66,13 @@ export const runtimeListenerSurface = {
     event: 'group.addedToGroup',
     bindingName: 'OpenWA_RuntimeAddedToGroup',
     wapiMethod: 'onAddedToGroup',
+    required: false,
+  },
+  'group.participants.changed.global': {
+    kind: 'wapi',
+    event: 'group.participants.changed.global',
+    bindingName: 'OpenWA_RuntimeParticipantsChanged',
+    wapiMethod: 'onGlobalParticipantsChanged',
     required: false,
   },
   'session.logout': {

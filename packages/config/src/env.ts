@@ -23,6 +23,7 @@ const ENV_ALIASES: Record<string, string> = {
   BYPASS_CSP: 'bypassCSP', // Acronym casing: CSP not Csp
   USE_LIGHTPANDA: 'useLightpanda',
   BROWSER_DOWNLOAD: 'browser.download',
+  BROWSER_KIND: 'browser.kind',
   BROWSER_CACHE_DIRECTORY: 'browser.cacheDirectory',
   BROWSER_DOWNLOAD_BASE_URL: 'browser.downloadBaseUrl',
   LIGHTPANDA_EXECUTABLE_PATH: 'lightpanda.executablePath',

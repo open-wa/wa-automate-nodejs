@@ -1,10 +1,31 @@
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@/components/boardui/table"
 import { createFileRoute } from "@tanstack/react-router"
-import { useState, useEffect } from "react"
-import { FlaskConical } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { FlaskConical, Search, Play, Copy, Loader2 } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
+import { useHealth } from "@/lib/hooks/use-health"
+import { useDemo } from "@/lib/demo/use-demo"
 import { getApiUrl } from "@/lib/api-client"
+import { PageHeader } from "@/components/application/page-header"
+import {
+  DetailSheet,
+  DetailSheetClose,
+} from "@/components/application/detail-sheet"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Chip } from "@/components/boardui/chip"
+import { toast } from "sonner"
 
-export const Route = createFileRoute("/playground")({ component: PlaygroundPage })
+export const Route = createFileRoute("/playground")({
+  component: PlaygroundPage,
+})
 
 type MethodDef = {
   functionName: string
@@ -15,194 +36,323 @@ type MethodDef = {
 
 function PlaygroundPage() {
   const { ask, connected } = useSocket()
+  const { canInvokeRuntime } = useHealth()
+  const { isDemo } = useDemo()
   const [methods, setMethods] = useState<MethodDef[]>([])
   const [selectedMethod, setSelectedMethod] = useState<MethodDef | null>(null)
   const [params, setParams] = useState<Record<string, string>>({})
-  const [result, setResult] = useState<unknown | null>(null)
+  const [result, setResult] = useState<unknown>(undefined)
+  const [hasResult, setHasResult] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [catalogueLoading, setCatalogueLoading] = useState(false)
+  const [catalogueError, setCatalogueError] = useState(false)
+  const [refresh, setRefresh] = useState(0)
   const [search, setSearch] = useState("")
+  const [open, setOpen] = useState(false)
+  const returnFocus = useRef<HTMLElement | null>(null)
 
-  // Fetch available methods
   useEffect(() => {
+    let active = true
     if (!connected) return
+    setCatalogueLoading(true)
+    setCatalogueError(false)
     fetch(`${getApiUrl()}/meta/swagger.json`)
-      .then((r) => r.json())
+      .then((response) => {
+        if (!response.ok) throw new Error("Method catalogue unavailable")
+        return response.json()
+      })
       .then((spec: any) => {
-        const defs: MethodDef[] = Object.entries(spec.paths || {}).map(([path, methods]: [string, any]) => {
-          const post = methods.post || methods.get
-          const fnName = path.split("/").pop() || path
-          return {
-            functionName: fnName,
-            description: post?.summary || "",
-            namespace: post?.tags?.[0] || "general",
-            parameterOrder: Object.keys(post?.requestBody?.content?.["application/json"]?.schema?.properties || {}),
+        if (!active) return
+        const defs: MethodDef[] = Object.entries(spec.paths || {}).map(
+          ([path, methods]: [string, any]) => {
+            const post = methods.post || methods.get
+            return {
+              functionName: path.split("/").pop() || path,
+              description: post?.summary || "",
+              namespace: post?.tags?.[0] || "general",
+              parameterOrder: Object.keys(
+                post?.requestBody?.content?.["application/json"]?.schema
+                  ?.properties || {}
+              ),
+            }
           }
-        })
-        setMethods(defs.sort((a, b) => a.functionName.localeCompare(b.functionName)))
+        )
+        setMethods(
+          defs.sort((a, b) => a.functionName.localeCompare(b.functionName))
+        )
       })
       .catch(() => {
-        // Fallback: empty for now
+        if (active) setCatalogueError(true)
       })
-  }, [connected])
+      .finally(() => {
+        if (active) setCatalogueLoading(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [connected, refresh])
 
-  const filteredMethods = search
-    ? methods.filter(
-        (m) =>
-          m.functionName.toLowerCase().includes(search.toLowerCase()) ||
-          m.description.toLowerCase().includes(search.toLowerCase()),
+  const filtered = methods.filter((method) =>
+    `${method.functionName} ${method.description} ${method.namespace}`
+      .toLocaleLowerCase()
+      .includes(search.toLocaleLowerCase().trim())
+  )
+  const selectMethod = (method: MethodDef, trigger: HTMLElement) => {
+    if (selectedMethod?.functionName !== method.functionName) {
+      setParams(
+        Object.fromEntries(method.parameterOrder.map((param) => [param, ""]))
       )
-    : methods
-
-  const selectMethod = (method: MethodDef) => {
+      setResult(undefined)
+      setHasResult(false)
+      setError(null)
+    }
+    returnFocus.current = trigger
     setSelectedMethod(method)
-    setParams(Object.fromEntries(method.parameterOrder.map((p) => [p, ""])))
-    setResult(null)
-    setError(null)
+    setOpen(true)
   }
-
   const execute = async () => {
-    if (!selectedMethod) return
+    if (!selectedMethod || loading || (!canInvokeRuntime && !isDemo)) return
     setLoading(true)
     setError(null)
-    setResult(null)
-
+    setHasResult(false)
     try {
-      // Parse params — try JSON for each value, fall back to string
-      const parsedParams: Record<string, unknown> = {}
-      for (const [key, val] of Object.entries(params)) {
-        if (!val) continue
+      const parsed: Record<string, unknown> = {}
+      for (const [key, value] of Object.entries(params)) {
+        if (!value) continue
         try {
-          parsedParams[key] = JSON.parse(val)
+          parsed[key] = JSON.parse(value)
         } catch {
-          parsedParams[key] = val
+          parsed[key] = value
         }
       }
-
-      const res = await ask(selectedMethod.functionName, parsedParams)
-      setResult(res)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err))
+      setResult(await ask(selectedMethod.functionName, parsed))
+      setHasResult(true)
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : String(failure))
     } finally {
       setLoading(false)
     }
   }
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        JSON.stringify(error || result, null, 2) ?? String(result)
+      )
+      toast.success("Response copied")
+    } catch {
+      toast.error("Clipboard unavailable. Select the response to copy it.")
+    }
+  }
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)]">
-      {/* Method List */}
-      <div className="flex w-72 flex-col border-e">
-        <div className="border-b p-3">
-          <input
-            type="text"
-            placeholder="Search methods..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="h-8 w-full rounded-md border bg-background px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-          />
-        </div>
-        <div className="flex-1 overflow-auto">
-          {filteredMethods.map((method) => (
-            <button
-              key={method.functionName}
-              onClick={() => selectMethod(method)}
-              className={`w-full border-b px-3 py-2 text-start transition-colors hover:bg-muted/50 ${
-                selectedMethod?.functionName === method.functionName ? "bg-primary/10 text-primary" : ""
-              }`}
-            >
-              <div className="truncate font-mono text-xs font-medium">{method.functionName}</div>
-              {method.description && (
-                <div className="mt-0.5 truncate text-[10px] text-muted-foreground">{method.description}</div>
-              )}
-            </button>
-          ))}
-          {filteredMethods.length === 0 && (
-            <div className="p-4 text-center text-sm text-muted-foreground">
-              {connected ? "No methods found" : "Connect to see methods"}
-            </div>
-          )}
-        </div>
+    <div className="dashboard-page space-y-6">
+      <PageHeader
+        title="API playground"
+        description="Find a method, review its parameters, and execute it against the selected session."
+        badge={<Chip variant="caption">{methods.length} methods</Chip>}
+      />
+      <div className="relative max-w-lg">
+        <Search className="pointer-events-none absolute start-3 top-2.5 size-4 text-text-tertiary" />
+        <Input
+          type="search"
+          aria-label="Search API methods"
+          placeholder="Search methods, descriptions or categories…"
+          className="ps-9"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
       </div>
-
-      {/* Execution Area */}
-      <div className="flex flex-1 flex-col">
-        {selectedMethod ? (
-          <>
-            {/* Method Header */}
-            <div className="border-b p-4">
-              <h2 className="font-mono text-lg font-semibold">{selectedMethod.functionName}</h2>
-              {selectedMethod.description && (
-                <p className="mt-1 text-sm text-muted-foreground">{selectedMethod.description}</p>
-              )}
-              <span className="mt-2 inline-block rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                {selectedMethod.namespace}
-              </span>
-            </div>
-
-            {/* Parameters */}
-            <div className="flex-1 overflow-auto p-4">
-              {selectedMethod.parameterOrder.length > 0 ? (
-                <div className="space-y-3">
-                  <h3 className="text-sm font-medium">Parameters</h3>
-                  {selectedMethod.parameterOrder.map((param) => (
-                    <div key={param}>
-                      <label className="mb-1 block font-mono text-xs text-muted-foreground">{param}</label>
-                      <input
-                        type="text"
-                        value={params[param] || ""}
-                        onChange={(e) => setParams((prev) => ({ ...prev, [param]: e.target.value }))}
-                        placeholder={`Enter ${param}...`}
-                        className="h-9 w-full rounded-md border bg-background px-3 font-mono text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                      />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">No parameters required</p>
-              )}
-
-              <button
-                onClick={execute}
-                disabled={loading || !connected}
-                className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
-              >
-                {loading ? "Executing..." : "Execute →"}
-              </button>
-
-              {/* Result */}
-              {(result !== null || error) && (
-                <div className="mt-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium">{error ? "Error" : "Response"}</h3>
-                    <button
-                      onClick={() => navigator.clipboard.writeText(JSON.stringify(error || result, null, 2))}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      Copy
-                    </button>
-                  </div>
-                  <pre
-                    className={`mt-2 max-h-96 overflow-auto rounded-lg border p-4 font-mono text-xs ${
-                      error ? "border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300" : "bg-muted"
-                    }`}
-                  >
-                    {JSON.stringify(error || result, null, 2)}
-                  </pre>
-                </div>
-              )}
-            </div>
-          </>
+      <div className="overflow-hidden rounded-2xl border border-border-button-default">
+        {catalogueLoading ? (
+          <div
+            role="status"
+            className="p-6 text-body-regular text-text-secondary"
+          >
+            Loading available methods…
+          </div>
+        ) : catalogueError ? (
+          <div role="alert" className="space-y-4 p-6">
+            <p className="text-body-regular">
+              The method catalogue couldn't be loaded from the API server.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => setRefresh((value) => value + 1)}
+            >
+              Try again
+            </Button>
+          </div>
+        ) : !filtered.length ? (
+          <div className="flex min-h-64 flex-col items-center justify-center gap-3 p-6 text-center">
+            <FlaskConical className="size-8 text-text-tertiary" />
+            <p className="text-body-medium">
+              {connected ? "No matching methods" : "Connect to the API server"}
+            </p>
+            <p className="text-body-regular text-text-secondary">
+              {connected
+                ? "Try a different search. The catalogue comes from your running API."
+                : "Available methods appear when the server is connected."}
+            </p>
+          </div>
         ) : (
-          <div className="flex flex-1 items-center justify-center text-muted-foreground">
-            <div className="text-center">
-              <div className="flex justify-center mb-2 opacity-50">
-                <FlaskConical size={48} />
-              </div>
-              <p className="mt-2 text-sm">Select a method to get started</p>
-            </div>
+          <div className="overflow-x-auto">
+            <Table aria-label="API methods" selectionMode="none" size="sm">
+              <TableHeader>
+                <TableColumn id="method" isRowHeader>
+                  Method
+                </TableColumn>
+                <TableColumn id="category" className="hidden sm:table-cell">
+                  Category
+                </TableColumn>
+                <TableColumn id="description" className="hidden lg:table-cell">
+                  Description
+                </TableColumn>
+                <TableColumn id="actions" textValue="Open method">
+                  <span className="sr-only">Open method</span>
+                </TableColumn>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((method) => (
+                  <TableRow
+                    key={`${method.namespace}-${method.functionName}`}
+                    id={`${method.namespace}-${method.functionName}`}
+                    textValue={method.functionName}
+                  >
+                    <TableCell>
+                      <code className="text-xs">{method.functionName}</code>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      <Chip variant="caption">{method.namespace}</Chip>
+                    </TableCell>
+                    <TableCell className="hidden max-w-lg text-text-secondary lg:table-cell">
+                      {method.description || "No description provided"}
+                    </TableCell>
+                    <TableCell className="text-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(event) =>
+                          selectMethod(method, event.currentTarget)
+                        }
+                        aria-label={`Open ${method.functionName}`}
+                      >
+                        Open
+                        <Play />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         )}
       </div>
+      <DetailSheet
+        title={selectedMethod?.functionName || "API method"}
+        description={
+          selectedMethod?.description ||
+          "Review the parameters and execute this method."
+        }
+        open={open}
+        onOpenChange={(visible, details) => {
+          if (loading && !visible) {
+            details.cancel()
+            return
+          }
+          setOpen(visible)
+        }}
+        finalFocus={returnFocus}
+        size="wide"
+        footer={
+          <>
+            <DetailSheetClose
+              render={<Button variant="outline" disabled={loading} />}
+            >
+              Close
+            </DetailSheetClose>
+            <Button
+              onClick={() => void execute()}
+              disabled={loading || (!canInvokeRuntime && !isDemo)}
+            >
+              {loading ? <Loader2 className="animate-spin" /> : <Play />}
+              {loading
+                ? "Executing…"
+                : isDemo
+                  ? "Execute in demo"
+                  : "Execute method"}
+            </Button>
+          </>
+        }
+      >
+        {selectedMethod && (
+          <div className="space-y-6">
+            <Chip variant="caption" color="blue">
+              {selectedMethod.namespace}
+            </Chip>
+            <section className="space-y-4">
+              <h2 className="text-body-medium">Parameters</h2>
+              {selectedMethod.parameterOrder.length ? (
+                selectedMethod.parameterOrder.map((param) => (
+                  <div key={param} className="space-y-1.5">
+                    <label
+                      htmlFor={`method-param-${param}`}
+                      className="font-mono text-xs text-text-secondary"
+                    >
+                      {param}
+                    </label>
+                    <Input
+                      id={`method-param-${param}`}
+                      value={params[param] || ""}
+                      disabled={loading}
+                      onChange={(event) =>
+                        setParams((previous) => ({
+                          ...previous,
+                          [param]: event.target.value,
+                        }))
+                      }
+                      placeholder={`Enter ${param}…`}
+                      className="font-mono"
+                    />
+                  </div>
+                ))
+              ) : (
+                <p className="text-body-regular text-text-secondary">
+                  No parameters required.
+                </p>
+              )}
+              <p className="text-caption-1-regular text-text-tertiary">
+                Use JSON for objects, arrays, booleans and numbers. Other values
+                are sent as text.
+              </p>
+            </section>
+            {!canInvokeRuntime && !isDemo && (
+              <p className="text-body-regular text-status-orange-text">
+                Wait for WhatsApp to become ready before executing this method.
+              </p>
+            )}
+            {(hasResult || error) && (
+              <section className="space-y-3" aria-live="polite">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="text-body-medium">
+                    {error ? "Method failed" : "Response"}
+                  </h2>
+                  <Button variant="ghost" size="sm" onClick={() => void copy()}>
+                    <Copy />
+                    Copy
+                  </Button>
+                </div>
+                <pre
+                  data-base-ui-swipe-ignore
+                  className="max-h-96 overflow-auto rounded-xl border bg-muted/50 p-4 font-mono text-xs leading-relaxed break-words whitespace-pre-wrap"
+                >
+                  {JSON.stringify(error || result, null, 2) ?? String(result)}
+                </pre>
+              </section>
+            )}
+          </div>
+        )}
+      </DetailSheet>
     </div>
   )
 }

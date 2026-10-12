@@ -1,0 +1,15 @@
+.git
+**/node_modules
+**/dist
+**/build
+**/.turbo
+**/.local
+.env
+.env.*
+**/*.data.json
+**/*.data.json.*
+/session
+/sessions
+/logs
+**/ChromeProfile
+**/.DS_Store

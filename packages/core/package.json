@@ -30,6 +30,7 @@
     "@open-wa/schema": "workspace:*",
     "@open-wa/session-sync": "workspace:*",
     "effect": "catalog:",
+    "eventemitter2": "^6.4.9",
     "hono": "catalog:",
     "uuid": "catalog:"
   },

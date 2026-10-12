@@ -209,13 +209,13 @@ is still authenticating:
 
 ```bash
 export OPENWA_API_URL="http://127.0.0.1:8080"
-export OPENWA_API_KEY="your-secure-key"
+export WA_API_KEY="your-secure-key"
 
 curl -sS -D - \
   "$OPENWA_API_URL/health"
 
 curl -sS -D - \
-  -H "X-API-Key: $OPENWA_API_KEY" \
+  -H "X-API-Key: $WA_API_KEY" \
   "$OPENWA_API_URL/meta/basic/commands"
 ```
 
@@ -223,14 +223,14 @@ Interpret the response before retrying a command:
 
 - `HTTP 200` from `/health` with `connected: true` and `session.ready: true` means the API and WhatsApp session are ready. A successful `/meta/basic/commands` response confirms that the same URL and configured key can load command metadata.
 - `HTTP 200` with `connected: false` or `session.ready: false` means the process is alive but authentication or runtime finalization is incomplete. Finish the QR or link-code flow, then inspect `session.pending` and `session.blockers` and check again.
-- `HTTP 401` from `/meta/basic/commands` means the key is absent or does not match the process configuration. `/health` does not return `401` for a missing or incorrect key. Compare the value passed as `--api-key` (or its config source) with `OPENWA_API_KEY`; do not keep retrying the same key.
+- `HTTP 401` from `/meta/basic/commands` means the key is absent or does not match the process configuration. `/health` does not return `401` for a missing or incorrect key. Compare the value passed as `--api-key` (or its config source) with `WA_API_KEY`; do not keep retrying the same key.
 - A connection-refused or timeout error means the host, port, process, or network boundary is wrong. Start Easy API or correct `OPENWA_API_URL` before investigating WhatsApp state.
 
 Once readiness is true, make one low-risk send request and keep the response headers while diagnosing delivery:
 
 ```bash
 curl -sS -D - -X POST \
-  -H "X-API-Key: $OPENWA_API_KEY" \
+  -H "X-API-Key: $WA_API_KEY" \
   -H "Content-Type: application/json" \
   "$OPENWA_API_URL/api/messages/sendText" \
   -d '{"to":"447123456789@c.us","content":"readiness check","options":{}}'

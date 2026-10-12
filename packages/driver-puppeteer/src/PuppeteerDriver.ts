@@ -29,13 +29,14 @@ export class PuppeteerDriver implements IDriver {
     async init(ctx?: IDriverContext): Promise<void> {
         this.ctx = ctx;
         
-        const pExtra = await import('puppeteer-extra');
-        this.puppeteer = pExtra.default ?? pExtra;
+        const { default: puppeteer } = await import('puppeteer-core');
+        const { addExtra } = await import('puppeteer-extra');
+        this.puppeteer = addExtra(puppeteer);
         
         try {
             const { createRequire } = await import('node:module');
             const _require = createRequire(__filename);
-            const pkg = _require('puppeteer/package.json');
+            const pkg = _require('puppeteer-core/package.json');
             this.version = pkg.version;
         } catch {}
         
@@ -52,7 +53,8 @@ export class PuppeteerDriver implements IDriver {
                 browser: 'chrome',
                 headless: options?.headless ?? true,
                 executablePath,
-                args: options?.args || [],
+                args: ['--autoplay-policy=no-user-gesture-required', ...(options?.args || [])],
+                ignoreDefaultArgs: ['--mute-audio'],
                 defaultViewport: options?.defaultViewport,
                 userDataDir: options?.userDataDir,
                 timeout: options?.timeoutMs,

@@ -13,6 +13,10 @@ import {
   demoLaunchLogs,
   demoPostScanLogs,
 } from "@/lib/demo/demo-data"
+import { StatCards } from "@/components/boardui/stat-cards"
+import { PageHeader } from "@/components/application/page-header"
+import { EventSheet } from "@/components/application/event-sheet"
+import { Button } from "@/components/ui/button"
 import { LaunchConsole, type LogLine } from "@/components/launch-console"
 import {
   Zap,
@@ -99,11 +103,6 @@ function PreLaunchView({
   )
   const demoTimeoutIds = useRef<ReturnType<typeof setTimeout>[]>([])
 
-  console.log({
-    phase,
-    qr,
-    isDemo,
-  })
   if (qr) phase = "qr"
   // In demo mode, drip-feed log lines to simulate a real launch
   useEffect(() => {
@@ -205,11 +204,13 @@ function PreLaunchView({
   )
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="dashboard-page space-y-6">
       {/* Header */}
       <div>
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold tracking-tight">Session Setup</h1>
+          <h1 className="text-title-1-medium text-text-primary">
+            Session Setup
+          </h1>
           {isDemo && (
             <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
               Demo
@@ -256,7 +257,7 @@ function PreLaunchView({
       <div className={`grid gap-6 ${showQr ? "lg:grid-cols-2" : ""}`}>
         {/* QR Code Panel */}
         {showQr && (
-          <div className="flex flex-col items-center justify-center gap-6 rounded-xl border bg-card p-8">
+          <div className="flex flex-col items-center justify-center gap-6 rounded-2xl border border-border-button-default bg-card p-8">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <QrCode size={16} />
               <span>Scan QR Code</span>
@@ -469,6 +470,13 @@ function SessionPage() {
   const { isDemo } = useDemo()
   const { redact } = usePrivacy()
   const { events } = useEvents()
+  const eventCache = useRef(events)
+  eventCache.current = events
+  const [selectedEvent, setSelectedEvent] = useState<EventLog | null>(null)
+  const [eventOpen, setEventOpen] = useState(false)
+  const eventTrigger = useRef<HTMLElement | null>(null)
+  const [statsLoaded, setStatsLoaded] = useState(false)
+  const [statsError, setStatsError] = useState(false)
   const h = useHealth()
   const {
     connected: healthConnected,
@@ -529,6 +537,8 @@ function SessionPage() {
 
         if (!mounted) return
 
+        if (chats.status !== "fulfilled" || !Array.isArray(chats.value))
+          throw new Error("Chat stats unavailable")
         let tChats = 0
         let aChats = 0
         let tContacts = 0
@@ -555,7 +565,7 @@ function SessionPage() {
         // Count messages today from the rolling event cache
         let inbound = 0
         let outbound = 0
-        for (const evt of events) {
+        for (const evt of eventCache.current) {
           if (!evt.name.includes("message")) continue
           // Count inbound vs outbound
           const payload = evt.args?.[0] as Record<string, unknown> | undefined
@@ -566,6 +576,8 @@ function SessionPage() {
           }
         }
 
+        setStatsLoaded(true)
+        setStatsError(false)
         setLiveStats({
           activeChats: aChats,
           totalContacts: tContacts,
@@ -573,8 +585,8 @@ function SessionPage() {
           unreadTotal: unreadCount,
           messagesToday: { inbound, outbound },
         })
-      } catch (err) {
-        console.error("Failed to load live stats:", err)
+      } catch {
+        if (mounted) setStatsError(true)
       }
     }
 
@@ -588,7 +600,7 @@ function SessionPage() {
       clearTimeout(delay)
       clearInterval(refreshInterval)
     }
-  }, [isDemo, canInvokeRuntime, events])
+  }, [isDemo, canInvokeRuntime])
 
   const stats = useMemo(() => {
     if (isDemo) return demoStats
@@ -626,65 +638,62 @@ function SessionPage() {
 
   // ─── Connected Dashboard ─────────────────────────────────────
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold tracking-tight">
-            Session Overview
-          </h1>
-          {isDemo && (
-            <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
-              Demo Mode
-            </span>
-          )}
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Monitor your WhatsApp session in real-time
-        </p>
-      </div>
-
-      {/* Row 1 — Key Metrics */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Status"
-          value={session.connected ? "Connected" : "Disconnected"}
-          icon={Zap}
-          variant={session.connected ? "success" : "destructive"}
-        />
-        <StatCard
-          title="Messages Today"
-          value={String(stats.messagesToday)}
-          icon={MessageSquare}
-          subtitle={
-            isDemo
-              ? `${stats.unreadTotal} unread`
-              : `↓${(stats as any).messagesIn || 0} ↑${(stats as any).messagesOut || 0}`
-          }
-        />
-        <StatCard
-          title="Active Chats"
-          value={String(isDemo ? stats.activeChats : stats.activeChats || "—")}
-          icon={Users}
-          subtitle={isDemo ? undefined : "messages in past hour"}
-        />
-        <StatCard
-          title="Uptime"
-          value={formatUptime(session.uptime)}
-          icon={Clock}
-          subtitle={session.connected ? "running" : "stopped"}
-        />
-      </div>
+    <div className="dashboard-page space-y-6">
+      <PageHeader
+        title="Session overview"
+        description="Follow WhatsApp readiness, recent activity, and the current session."
+      />
+      <StatCards
+        variant="footer"
+        stats={[
+          {
+            label: "WhatsApp",
+            value: session.connected ? "Connected" : "Disconnected",
+            icon: Zap,
+            tone: session.connected ? "emerald" : "orange",
+            caption: "WhatsApp session connection",
+          },
+          {
+            label: isDemo ? "Messages today" : "Captured message events",
+            value: isDemo || statsLoaded ? String(stats.messagesToday) : "—",
+            icon: MessageSquare,
+            caption: isDemo
+              ? `${stats.unreadTotal} unread · sample data`
+              : "From the bounded activity feed",
+            hint: "The live feed captures up to 500 events. Multiple event types can describe one message; this isn't a daily message total.",
+          },
+          {
+            label: "Active chats",
+            value: isDemo || statsLoaded ? String(stats.activeChats) : "—",
+            icon: Users,
+            tone: "purple",
+            caption: statsError
+              ? "Couldn't refresh · check connection"
+              : !isDemo && !statsLoaded
+                ? "Loading chat activity…"
+                : "Activity within the past hour",
+          },
+          {
+            label: "Uptime",
+            value: formatUptime(session.uptime),
+            icon: Clock,
+            tone: "sky",
+            caption: session.connected
+              ? "Session is running"
+              : "Session is stopped",
+          },
+        ]}
+      />
 
       {/* Row 2 — Charts */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border bg-card p-5">
+        <div className="rounded-2xl border border-border-button-default bg-card p-5">
           <h3 className="mb-4 text-sm font-semibold text-muted-foreground">
             Message Volume — Last 7 Days
           </h3>
           <MessageVolumeChart data={isDemo ? demoMessageVolume : []} />
         </div>
-        <div className="rounded-xl border bg-card p-5">
+        <div className="rounded-2xl border border-border-button-default bg-card p-5">
           <h3 className="mb-4 text-sm font-semibold text-muted-foreground">
             Message Types Breakdown
           </h3>
@@ -695,7 +704,7 @@ function SessionPage() {
       {/* Row 3 — Activity Feed + Session Details */}
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <div className="rounded-xl border bg-card">
+          <div className="rounded-2xl border border-border-button-default bg-card">
             <div className="flex items-center justify-between border-b px-5 py-3">
               <h3 className="text-sm font-semibold text-muted-foreground">
                 Recent Activity
@@ -706,7 +715,15 @@ function SessionPage() {
             </div>
             <div className="max-h-[360px] overflow-auto">
               {events.slice(0, 15).map((evt) => (
-                <ActivityRow key={evt.id} event={evt} />
+                <ActivityRow
+                  key={evt.id}
+                  event={evt}
+                  onInspect={(event, trigger) => {
+                    eventTrigger.current = trigger
+                    setSelectedEvent(event)
+                    setEventOpen(true)
+                  }}
+                />
               ))}
               {events.length === 0 && (
                 <div className="flex h-32 items-center justify-center text-sm text-muted-foreground">
@@ -717,7 +734,7 @@ function SessionPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card p-5">
+        <div className="rounded-2xl border border-border-button-default bg-card p-5">
           <h3 className="mb-4 text-sm font-semibold text-muted-foreground">
             Session Details
           </h3>
@@ -765,59 +782,26 @@ function SessionPage() {
           </div>
         </div>
       </div>
-    </div>
-  )
-}
-
-// ─── Stat Card ───────────────────────────────────────────────────
-function StatCard({
-  title,
-  value,
-  icon: Icon,
-  variant,
-  subtitle,
-}: {
-  title: string
-  value: string
-  icon: LucideIcon
-  variant?: "success" | "destructive"
-  subtitle?: string
-}) {
-  return (
-    <div className="group rounded-xl border bg-card p-4 shadow-sm transition-all hover:border-primary/20 hover:shadow-md">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-muted-foreground">
-          {title}
-        </span>
-        <div className="flex size-9 items-center justify-center rounded-lg bg-muted/60 transition-colors group-hover:bg-primary/10">
-          <Icon
-            size={18}
-            className="text-muted-foreground transition-colors group-hover:text-primary"
-          />
-        </div>
-      </div>
-      <div className="mt-2">
-        <span
-          className={`text-xl font-bold tabular-nums ${
-            variant === "success"
-              ? "text-emerald-600 dark:text-emerald-400"
-              : variant === "destructive"
-                ? "text-red-600 dark:text-red-400"
-                : ""
-          }`}
-        >
-          {value}
-        </span>
-        {subtitle && (
-          <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
-        )}
-      </div>
+      <EventSheet
+        event={selectedEvent}
+        open={eventOpen}
+        onOpenChange={setEventOpen}
+        onClosed={() => setSelectedEvent(null)}
+        finalFocus={eventTrigger}
+      />
     </div>
   )
 }
 
 // ─── Activity Row ────────────────────────────────────────────────
-function ActivityRow({ event }: { event: EventLog }) {
+function ActivityRow({
+  event,
+  onInspect,
+}: {
+  event: EventLog
+  onInspect: (event: EventLog, trigger: HTMLElement) => void
+}) {
+  const { privacyMode } = usePrivacy()
   const { color, letter } = getEventIcon(event.name)
   const payload = event.args?.[0]
   const summary =
@@ -829,7 +813,12 @@ function ActivityRow({ event }: { event: EventLog }) {
       : ""
 
   return (
-    <div className="group flex items-center gap-3 border-b border-border/50 px-5 py-2.5 transition-colors last:border-0 hover:bg-muted/30">
+    <Button
+      variant="ghost"
+      onClick={(click) => onInspect(event, click.currentTarget)}
+      aria-label={`Inspect ${event.name}`}
+      className="group h-auto w-full justify-start gap-3 rounded-none border-b border-border/50 px-5 py-3 text-start last:border-0"
+    >
       <div
         className="flex size-7 shrink-0 items-center justify-center rounded-md text-[11px] font-bold text-white"
         style={{ backgroundColor: color }}
@@ -839,7 +828,7 @@ function ActivityRow({ event }: { event: EventLog }) {
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <code className="text-xs font-semibold">{event.name}</code>
-          {summary && (
+          {summary && !privacyMode && (
             <span className="truncate text-xs text-muted-foreground">
               — {summary}
             </span>
@@ -853,7 +842,7 @@ function ActivityRow({ event }: { event: EventLog }) {
         size={14}
         className="shrink-0 text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100"
       />
-    </div>
+    </Button>
   )
 }
 

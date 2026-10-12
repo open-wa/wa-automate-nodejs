@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { WhatsAppEventRegistrySchema } from './whatsapp-event-registry';
 
 // Aliases
 export const ContactIdSchema = z.string().brand('ContactId').describe('Opaque WhatsApp contact identifier. Preserve the exact value returned by the API.');
@@ -54,6 +55,9 @@ export enum MessageTypes {
     VOICE = 'ptt',
     IMAGE = 'image',
     VIDEO = 'video',
+    ALBUM = 'album',
+    EVENT_CREATION = 'event_creation',
+    EVENT_RESPONSE = 'event_response',
     DOCUMENT = 'document',
     STICKER = 'sticker',
     LOCATION = 'location',
@@ -79,6 +83,8 @@ export enum MessageAck {
  * An enum of all the "simple listeners". A simple listener is a listener that just takes one parameter which is the callback function to handle the event.
  */
 export enum SimpleListener {
+    Event = 'onEvent',
+    EventResponse = 'onEventResponse',
     /**
      * Represents [[onMessage]]
      */
@@ -180,6 +186,16 @@ const MessageSchemaBase = z.object({
     labels: z.array(z.string()).optional(),
     mentionedJidList: z.array(ContactIdSchema).optional(),
     caption: z.string().optional(),
+    event: WhatsAppEventRegistrySchema.optional(),
+    expectedImageCount: z.number().int().nonnegative().nullable().optional()
+        .describe('Number of image messages declared by an album container; not a received-media count.'),
+    expectedVideoCount: z.number().int().nonnegative().nullable().optional()
+        .describe('Number of video messages declared by an album container, including GIF videos.'),
+    parentMsgKey: MessageIdSchema.nullable().optional()
+        .describe('Serialized parent message ID for associated media.'),
+    associationType: z.string().nullable().optional()
+        .describe('WhatsApp association type. Album media uses MEDIA_ALBUM.'),
+    isGif: z.boolean().optional(),
     sender: z.any(), // Circular reference handled later/lazy
     timestamp: z.number(),
     content: z.string(),

@@ -6,7 +6,7 @@ icon: "BookOpen"
 
 # Licensed methods
 
-The method registry marks **19** methods as licensed. The tables group them by required tier; check each method’s reference for runtime and account requirements.
+The method registry marks **29** methods as licensed. The tables group them by required tier; check each method’s reference for runtime and account requirements.
 
 <LicensedMethodSection tier="insiders">
 
@@ -36,11 +36,21 @@ The method registry marks **19** methods as licensed. The tables group them by r
 
 <LicensedMethodSection tier="restricted">
 
-## `restricted` (2)
+## `restricted` (12)
 
 | Method | Namespace | Description |
 | --- | --- | --- |
+| [`acceptCall`](/docs/reference/client/client#acceptcall) | `calls` | Prepare media and accept this incoming call. |
+| [`clearCallAudio`](/docs/reference/client/client#clearcallaudio) | `calls` | Discard queued outgoing audio. |
 | [`createGroup`](/docs/reference/client/client#creategroup) | `groups` | Create new group |
+| [`endCall`](/docs/reference/client/client#endcall) | `calls` | Request hangup for this call. |
+| [`getActiveCall`](/docs/reference/client/client#getactivecall) | `calls` | Get the current call snapshot. SDK clients hydrate its bound methods. |
 | [`joinGroupViaLink`](/docs/reference/client/client#joingroupvialink) | `groups` | Join group via invite link |
+| [`muteCall`](/docs/reference/client/client#mutecall) | `calls` | Mute or unmute the microphone without ending reception. |
+| [`observeCallAudio`](/docs/reference/client/client#observecallaudio) | `calls` | Attach an isolated receive-only audio sink. Its failure does not interrupt the call owner. |
+| [`rejectCall`](/docs/reference/client/client#rejectcall) | `calls` | Reject this call with native state confirmation. |
+| [`setCallMedia`](/docs/reference/client/client#setcallmedia) | `calls` | Prepare a replacement before releasing the working media. |
+| [`startCall`](/docs/reference/client/client#startcall) | `calls` | Prepare media and place an outgoing audio or video call. |
+| [`stopCallAudioObserver`](/docs/reference/client/client#stopcallaudioobserver) | `calls` | Stop an audio observer and finalize its sink. |
 
 </LicensedMethodSection>

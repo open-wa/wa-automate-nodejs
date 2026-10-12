@@ -18,6 +18,7 @@ export type EventStatus = 'stable' | 'beta' | 'deprecated' | 'experimental';
 export interface EventMetadata {
     eventName: string;
     legacyName: string;
+    aliases?: string[];
     description?: string;
     namespace?: string;
     status?: EventStatus;
@@ -56,7 +57,7 @@ export const eventRegistry = {
     
     getByLegacyName(legacyName: string): EventDefinition | undefined {
         for (const def of eventsByName.values()) {
-            if (def.meta.legacyName === legacyName) return def;
+            if (def.meta.legacyName === legacyName || def.meta.aliases?.includes(legacyName)) return def;
         }
         return undefined;
     },

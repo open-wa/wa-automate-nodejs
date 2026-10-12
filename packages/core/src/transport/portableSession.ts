@@ -30,6 +30,8 @@ export interface PortableSessionStatus {
   undecrypted: number;
   unidentified: number;
   paused: boolean;
+  phase: string;
+  inFlightNativeWrites: number;
 }
 
 /** Host-only opaque persistence and acknowledged delivery. No storage adapter lives here. */

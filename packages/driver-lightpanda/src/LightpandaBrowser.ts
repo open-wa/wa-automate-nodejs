@@ -6,6 +6,8 @@ import {
     IPage,
 } from '@open-wa/driver-interface';
 import { LightpandaPage } from './LightpandaPage';
+import { installTransferablePorts } from './transferablePorts';
+import { compressionPrelude } from './compressionStreams';
 
 export class LightpandaBrowser implements IBrowser {
     readonly name = 'lightpanda' as const;
@@ -15,11 +17,25 @@ export class LightpandaBrowser implements IBrowser {
         private readonly capabilities: DriverCapabilities,
         private readonly browser?: any,
         private readonly processManager?: { stop(): Promise<void>; getProcessId?(): number | undefined },
+        private readonly experimentalWhatsApp = false,
     ) { }
 
     async newPage(options?: { clearFirstPage?: boolean }): Promise<IPage> {
         const browser = this.requireBrowser();
         const page = await browser.newPage();
+        if (this.experimentalWhatsApp) {
+            // Prefer real browser-owned keys whenever the executable can clone
+            // them. The opaque worker bridge cannot persist across navigation.
+            const nativeKeyCloning = await page.evaluate(async () => {
+                try {
+                    const key = await crypto.subtle.importKey('raw', crypto.getRandomValues(new Uint8Array(32)), 'HKDF', false, ['deriveBits']);
+                    const clone = structuredClone(key);
+                    return clone instanceof CryptoKey && clone.extractable === false && clone.algorithm.name === 'HKDF';
+                } catch { return false; }
+            });
+            await page.evaluateOnNewDocument(await compressionPrelude());
+            await page.evaluateOnNewDocument(installTransferablePorts, false, nativeKeyCloning);
+        }
 
         if (options?.clearFirstPage) {
             const pages = await browser.pages();

@@ -3,7 +3,7 @@ import {
   runtimeCapabilitiesLayer,
 } from '@open-wa/runtime-core';
 import { Layer } from 'effect';
-import * as FetchHttpClient from 'effect/unstable/http/FetchHttpClient';
+import { FetchHttpClient } from 'effect/http';
 
 export const EdgeRuntimeLayer = Layer.mergeAll(
   FetchHttpClient.layer,

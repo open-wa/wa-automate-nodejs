@@ -1,5 +1,15 @@
 # Repository Instructions
 
+## Immutable browser asset
+
+`packages/core/src/transport/assets/wapi.js` is **IMMUTABLE**. Never edit it.
+All new or changed injected WhatsApp runtime code belongs in the patches in
+`/Users/Mohammed/projects/self/idkuno/smashahdotdev/functions/`, including bug
+fixes and new WAPI methods. SDK client bindings, schemas and documentation can
+change in this repository; the injected implementations must arrive through
+the patch pipeline before WAPI is locked. Generate patch bundles from their
+source files rather than editing generated bundles by hand.
+
 ## Backward compatibility
 
 Backward compatibility is out of scope unless Mohammed explicitly requests or authorizes it for the task. Do not investigate, propose, implement, or preserve compatibility shims, legacy fallbacks, old-format readers, key-rotation contingencies, or migration paths solely to support previous behaviour without that instruction. Do not routinely raise compatibility concerns or ask whether compatibility is needed; assume the answer is no and implement the current design. A general request to implement, fix, or release is not authorization for compatibility work. This applies even when a project has existing users. Preserve unrelated work and data.

@@ -1,4 +1,5 @@
 import type { CliOutputEntry, CliOutputSink, CliQrPayload, CliStatusUpdate } from '@open-wa/wa-automate';
+import { createConsoleOutputSink } from '@open-wa/wa-automate';
 import type { OutputBroker } from './output-broker';
 import { createOutputBroker } from './output-broker';
 import type { EventProjectionStore } from '../state/event-projection-store';
@@ -13,8 +14,11 @@ export interface InteractiveCliSession {
   cleanup: (options?: { clearPresenter?: boolean }) => void;
 }
 
-function createBrokeredSink(broker: OutputBroker, store: EventProjectionStore): CliOutputSink {
+function createBrokeredSink(broker: OutputBroker, store: EventProjectionStore, presenter: InteractiveTerminalPresenter): CliOutputSink {
   return {
+    promptChoice(question, choices) {
+      return presenter.withPrompt(() => createConsoleOutputSink().promptChoice!(question, choices));
+    },
     write(entry: CliOutputEntry) {
       broker.write(entry.level, entry.message);
     },
@@ -54,7 +58,7 @@ export async function createInteractiveCliSession(): Promise<InteractiveCliSessi
     broker,
     store,
     presenter,
-    sink: createBrokeredSink(broker, store),
+    sink: createBrokeredSink(broker, store, presenter),
     cleanup: (options = {}) => {
       detachLogs();
       presenter.stop({ clear: options.clearPresenter ?? true });

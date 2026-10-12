@@ -12,10 +12,12 @@ bun add @open-wa/driver-puppeteer
 
 ## Browser setup
 
-Startup reuses the Chrome version matched to the installed Puppeteer package,
-or downloads it with progress when it is missing. Downloads go into Puppeteer's
-configured cache, including `PUPPETEER_CACHE_DIR`. Concurrent open-wa starts share
-one installation; an interrupted download is retried on the next start.
+Installing the driver installs `puppeteer-core` without downloading a browser.
+Startup reuses cached Chrome, or downloads the Puppeteer-matched Chrome for
+Testing with progress when it is missing. Set `browser.kind: 'chromium'` to
+download and reuse Chromium instead. Downloads use `PUPPETEER_CACHE_DIR` or
+`~/.cache/puppeteer`. Concurrent open-wa starts share one installation; an
+interrupted download is retried on the next start.
 
 Use the same resolver to pre-provision a deployment cache:
 
@@ -31,9 +33,8 @@ console.log(executablePath);
 Provision on the same operating system and architecture as the deployment.
 Then pass `browser: { cacheDirectory: '/app/browser-cache', download: 'never' }`
 to `create()` or the driver's `launch()` to forbid downloads at runtime. An
-explicit `download` option takes precedence over Puppeteer's skip-download
-configuration; otherwise `PUPPETEER_SKIP_DOWNLOAD` and Chrome's skip-download
-setting are respected.
+explicit `download` option takes precedence over `PUPPETEER_SKIP_DOWNLOAD` and
+`PUPPETEER_CHROME_SKIP_DOWNLOAD`; otherwise those environment settings are respected.
 
 `executablePath` overrides managed Chrome. A missing or non-executable path
 produces an error, so a typo cannot silently select a different browser.

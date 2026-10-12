@@ -147,7 +147,25 @@ export class LightpandaPage implements IPage {
     }
 
     async setUserAgent(ua: string): Promise<void> {
-        await this.requirePage().setUserAgent(ua);
+        const page = this.requirePage();
+        await page.setUserAgent(ua);
+        const actual = await page.evaluate(() => navigator.userAgent);
+        if (actual !== ua) {
+            throw new Error('Lightpanda ignored the requested user agent. Use managed Easy API --lightpanda mode, or configure a custom executable that supports the Chrome user agent override.');
+        }
+        const chrome = /Chrome\/(\d+)\.(\d+)\.(\d+)\.(\d+)/.exec(ua);
+        if (!chrome) return;
+        const platform = /Macintosh/.test(ua) ? 'macOS' : /Windows/.test(ua) ? 'Windows' : 'Linux';
+        await page.setExtraHTTPHeaders({
+            'User-Agent': ua,
+            'Sec-CH-UA': `"Chromium";v="${chrome[1]}", "Google Chrome";v="${chrome[1]}", "Not_A Brand";v="99"`,
+            'Sec-CH-UA-Platform': `"${platform}"`,
+            'Sec-CH-UA-Mobile': /Mobile/.test(ua) ? '?1' : '?0',
+        });
+        await page.evaluateOnNewDocument((agent: string, os: string) => {
+            Object.defineProperty(navigator, 'appVersion', { get: () => agent.slice(8), configurable: true });
+            Object.defineProperty(navigator, 'platform', { get: () => os === 'macOS' ? 'MacIntel' : os === 'Windows' ? 'Win32' : 'Linux x86_64', configurable: true });
+        }, ua, platform);
     }
 
     async setRequestInterception(enabled: boolean): Promise<void> {
@@ -166,19 +184,28 @@ export class LightpandaPage implements IPage {
         argOrOptions?: Arg | WaitForFunctionOptions,
         maybeOptions?: WaitForFunctionOptions,
     ): Promise<void> {
-        if (typeof fnOrScript === 'string') {
-            const options = argOrOptions as WaitForFunctionOptions | undefined;
-            await this.requirePage().waitForFunction(fnOrScript, {
-                timeout: options?.timeoutMs,
-                polling: options?.polling,
-            });
-            return;
+        const page = this.requirePage();
+        const options = typeof fnOrScript === 'string'
+            ? argOrOptions as WaitForFunctionOptions | undefined
+            : maybeOptions;
+        const timeoutMs = options?.timeoutMs ?? 30_000;
+        const intervalMs = typeof options?.polling === 'number' ? options.polling : 100;
+        const started = Date.now();
+        // Keep each CDP evaluation short. A pending browser-side poller otherwise
+        // hits Puppeteer's protocol timeout even when timeoutMs is zero.
+        while (!page.isClosed()) {
+            const ready = typeof fnOrScript === 'string'
+                ? await page.evaluate(fnOrScript)
+                : await page.evaluate(fnOrScript, argOrOptions);
+            if (ready) return;
+            const elapsedMs = Date.now() - started;
+            if (timeoutMs !== 0 && elapsedMs >= timeoutMs) {
+                throw new Error(`Waiting for function timed out after ${timeoutMs}ms`);
+            }
+            await new Promise(resolve => setTimeout(resolve,
+                timeoutMs === 0 ? intervalMs : Math.min(intervalMs, timeoutMs - elapsedMs)));
         }
-
-        await this.requirePage().waitForFunction(fnOrScript as any, {
-            timeout: maybeOptions?.timeoutMs,
-            polling: maybeOptions?.polling,
-        }, argOrOptions as Arg);
+        throw new Error('Lightpanda page closed while waiting for function');
     }
 
     async $(selector: string): Promise<IElementHandle | null> {

@@ -9,6 +9,7 @@ export interface SseEventEnvelope {
 interface EventSubscriber {
   topics: Set<string> | null;
   push: (chunk: string) => void;
+  close: () => void;
 }
 
 export interface EventStreamOptions {
@@ -40,6 +41,10 @@ export class EventBroadcaster {
 
   constructor(sessionId?: string) {
     this.sessionId = sessionId ?? '';
+  }
+
+  public close(): void {
+    for (const subscriber of this.subscribers.values()) subscriber.close();
   }
 
   public broadcast(event: string, payload: unknown): SseEventEnvelope {
@@ -109,6 +114,7 @@ export class EventBroadcaster {
         this.subscribers.set(subscriberId, {
           topics,
           push,
+          close: () => { cleanup(); controller.close(); },
         });
 
         options.signal?.addEventListener('abort', cleanup, { once: true });

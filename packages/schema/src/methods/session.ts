@@ -2,6 +2,8 @@ import { FeatureFlagsSchema, HealthCheckSchema, HostAccountSchema, LicenseTypeSc
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
 import { chatIdParam, imageDataParam, nameParam, statusTextParam, userAgentParam } from '../parameters';
+import { LicenseFeaturesSchema } from '../license';
+import { projectEffectSchema } from '../effect-projection';
 
 export const getMe = defineMethodV2('getMe', {
     meta: {
@@ -120,6 +122,14 @@ export const getLicenseType = defineMethodV2('getLicenseType', {
     input: z.object({}),
     parameterOrder: [],
     output: LicenseTypeSchema.or(z.literal(false)),
+});
+
+export const getLicenseFeatures = defineMethodV2('getLicenseFeatures', {
+    meta: {
+        description: 'Get enabled and disabled licensed features from the accepted licence patch. This reports licence access; actions check runtime availability automatically.',
+        action: 'read', namespace: 'session', license: 'none', functionality: 'both', httpMethod: 'GET',
+    },
+    input: z.object({}), parameterOrder: [], output: projectEffectSchema(LicenseFeaturesSchema),
 });
 
 export const getUserAgent = defineMethodV2('getUserAgent', {

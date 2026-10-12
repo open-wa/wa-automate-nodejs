@@ -1,21 +1,13 @@
 import axios from 'axios';
 import { decryptMedia as decryptMediaBuffer } from '@open-wa/decrypt';
 import type { Client } from '../Client';
-import type { ChatId, DataURL, Message, MessageId } from '@open-wa/schema';
-import { createUnsupportedMethodStub } from '../runtimeSurface';
-
-type DownloadHeaders = Record<string, string>;
+import type { DataURL, Message, MessageId } from '@open-wa/schema';
+import { implementMethod, sendFileFromUrl as sendFileFromUrlSchema } from '@open-wa/schema';
 
 export interface MediaMethods {
   decryptMedia(message: Message | MessageId): Promise<DataURL>;
   downloadMedia(message: Message | MessageId, path: string): Promise<string>;
-  sendFileFromUrl(
-    to: ChatId,
-    url: string,
-    filename: string,
-    caption?: string,
-    headers?: DownloadHeaders
-  ): Promise<MessageId | boolean>;
+  sendFileFromUrl: ReturnType<typeof implementMethod<typeof sendFileFromUrlSchema>>;
 }
 
 type DecryptableMessage = Message & {
@@ -32,8 +24,6 @@ function isMessageId(message: Message | MessageId): message is MessageId {
 }
 
 export function mediaMethods(client: Client): MediaMethods {
-  const unsupportedSendFileFromUrl = createUnsupportedMethodStub<MediaMethods['sendFileFromUrl']>('sendFileFromUrl');
-
   return {
     async decryptMedia(message: Message | MessageId): Promise<DataURL> {
       const resolvedMessage = (isMessageId(message)
@@ -60,21 +50,11 @@ export function mediaMethods(client: Client): MediaMethods {
       return path;
     },
 
-    async sendFileFromUrl(
-      to: ChatId,
-      url: string,
-      filename: string,
-      caption = '',
-      headers?: DownloadHeaders
-    ): Promise<MessageId | boolean> {
-      void axios;
-      void client;
-      void to;
-      void url;
-      void filename;
-      void caption;
-      void headers;
-      return unsupportedSendFileFromUrl(to, url, filename, caption, headers);
-    },
+    sendFileFromUrl: implementMethod(sendFileFromUrlSchema, async ({ to, url, filename, options, headers }) => {
+      const response = await axios.get<ArrayBuffer>(url, { headers, responseType: 'arrayBuffer' });
+      const mime = response.headers.get('content-type') || 'application/octet-stream';
+      const dataUrl = `data:${mime};base64,${Buffer.from(response.data).toString('base64')}`;
+      return client.sendFile(to, dataUrl, filename, options);
+    }),
   };
 }

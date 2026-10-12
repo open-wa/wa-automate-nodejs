@@ -1,16 +1,22 @@
+import { CheckCircle2, Unplug } from "lucide-react"
 import { useSocket } from "@/lib/hooks/use-socket"
+import { Chip } from "@/components/boardui/chip"
 
 export function SessionStatusBadge() {
   const { connected } = useSocket()
-
   return (
-    <div className="flex items-center gap-2 rounded-md border px-2.5 py-1 text-xs font-medium">
-      <span
-        className={`size-2 rounded-full ${connected ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]" : "bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.6)]"}`}
-      />
-      <span className={connected ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}>
-        {connected ? "Connected" : "Disconnected"}
-      </span>
-    </div>
+    <Chip
+      color={connected ? "lime" : "rose"}
+      variant="caption"
+      className="justify-start gap-2"
+      title="Connection to the Easy API server. WhatsApp readiness is shown on the overview."
+    >
+      {connected ? (
+        <CheckCircle2 className="size-3.5" />
+      ) : (
+        <Unplug className="size-3.5" />
+      )}
+      {connected ? "API connected" : "API disconnected"}
+    </Chip>
   )
 }

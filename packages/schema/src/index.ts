@@ -44,3 +44,13 @@ export {
 export * from './parameters';
 export * from './http-manifest';
 export * from './interactive';
+export * from './calling';
+export * from './calling-media';
+
+export * from './calling-wire';
+export * from './license';
+export * from './whatsapp-events';
+
+export * from './media-options';
+export * from './polls';
+export * from './session-refresh';

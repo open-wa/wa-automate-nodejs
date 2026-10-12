@@ -14,6 +14,8 @@ import { createApiMiddleware } from './createApiMiddleware';
 import { createHonoMcpAdapter } from '@open-wa/mcp';
 import { registerMetaRoutes } from './routes/meta';
 import { registerDebugRoutes } from './routes/debug';
+import { registerCallingRoutes } from './routes/calls';
+import { registerSessionRefreshRoutes } from './routes/session-refresh';
 import { registerAgentDiscoveryRoutes } from './routes/agent-discovery';
 import { type EventBridge } from './events/EventBridge';
 import { HealthStore } from './health/HealthStore';
@@ -53,6 +55,7 @@ export class ApiServer {
   private latestQR: string | null = null;
   private screencastManager: ScreencastManager;
   private server?: Server;
+  private dashboardDevServer?: { close(): Promise<void> };
   private isDashboardActive: boolean = false;
   private pluginHost?: PluginHost;
   private healthStore: HealthStore = new HealthStore();
@@ -97,6 +100,7 @@ export class ApiServer {
     }
 
     this.setupMiddleware();
+    registerCallingRoutes(this.app, { config: this.config, upgrade: upgradeWebSocket, getService: () => this.client?.getCallingService?.() });
     this.registerRoutes();
 
     // Register screencast WebSocket route
@@ -149,6 +153,10 @@ export class ApiServer {
    * Call this once the browser page is ready.
    */
   public async setPage(page: IScreencastPage): Promise<void> {
+    if (this.config.useLightpanda) {
+      await this.screencastManager.clearPage();
+      return;
+    }
     await this.screencastManager.setPage(page);
   }
 
@@ -159,7 +167,7 @@ export class ApiServer {
     await this.screencastManager.clearPage();
   }
 
-  public setQR(qr: string) {
+  public setQR(qr: string | null) {
     this.latestQR = qr;
   }
 
@@ -188,6 +196,7 @@ export class ApiServer {
     let viteDevServer: any = null;
     if (this.config.dashboard) {
       viteDevServer = await setupViteDevServer();
+      this.dashboardDevServer = viteDevServer ?? undefined;
       if (!viteDevServer) {
         this.isDashboardActive = await mountDashboardProduction(this.app);
       } else {
@@ -234,14 +243,20 @@ export class ApiServer {
   }
 
   public async stop() {
+    await this.dashboardDevServer?.close();
+    this.dashboardDevServer = undefined;
     const server = this.server;
     this.server = undefined;
+    await this.screencastManager.destroy();
+    this.eventBroadcaster.close();
     if (server?.listening) {
       await new Promise<void>((resolve, reject) => {
         server.close((error) => (error ? reject(error) : resolve()));
+        // Dashboard SSE responses remain open by design. Once admission has
+        // stopped, close them so shutdown can release the listening socket.
+        server.closeAllConnections();
       });
     }
-    await this.screencastManager.destroy();
     if (this.elasticEmitter) {
       await this.elasticEmitter.stop();
     }
@@ -307,6 +322,7 @@ export class ApiServer {
   }
 
   private registerRoutes() {
+    registerSessionRefreshRoutes(this.app, this.config, () => this.client);
     const methodDefinitions = getHttpMethodDefinitions();
     registerAgentDiscoveryRoutes(this.app, {
       config: this.config,
@@ -337,6 +353,10 @@ export class ApiServer {
           },
         },
         capabilities: {
+          livePortalAvailable: !this.config.useLightpanda,
+          livePortalUnavailableReason: this.config.useLightpanda
+            ? 'Lightpanda does not render a visual feed. Use Chrome or Chromium for Live Portal.'
+            : undefined,
           apiKeyConfigured: Boolean(this.config.apiKey),
           mcpEnabled: Boolean(this.config.mcp?.enabled),
           mcpAvailable: Boolean(this.config.apiKey && this.config.mcp?.enabled),

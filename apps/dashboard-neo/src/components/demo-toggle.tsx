@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button"
 import { FlaskConical } from "lucide-react"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 
@@ -14,12 +15,18 @@ export function DemoToggle() {
   const toggle = () => {
     navigate({
       to: window.location.pathname.replace(/^\/dashboard/, "") || "/",
-      search: isDemo ? { demo: false } : { demo: true },
+      search: (previous: Record<string, unknown>) => ({
+        ...previous,
+        demo: !isDemo,
+      }),
     } as any)
   }
 
   return (
-    <button
+    <Button
+      variant="outline"
+      size="sm"
+      aria-pressed={isDemo}
       onClick={toggle}
       className={`inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium shadow-sm transition-all ${
         isDemo
@@ -30,6 +37,6 @@ export function DemoToggle() {
     >
       <FlaskConical className="size-3.5" />
       <span>Demo</span>
-    </button>
+    </Button>
   )
 }

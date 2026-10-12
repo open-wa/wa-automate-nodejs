@@ -77,7 +77,7 @@ http://localhost:8080/mcp
 
 If you set `mcp.path` to another value, use that path in the MCP client URL. The dashboard is served separately at `/dashboard/mcp` when the dashboard is enabled.
 
-Enable MCP in the [configuration file](/docs/guides/configuration-and-cli); the CLI does not have a `--mcp` flag.
+Enable MCP in the [configuration file](/docs/guides/configuration-and-cli); the CLI does not parse `--mcp`.
 
 ### Expected enabled state
 
@@ -275,8 +275,8 @@ export default {
 - **`mcp.exposeToolsMeta`**, whether to expose tool metadata in the dashboard (default: `true`)
 
 The environment adapter accepts the complete MCP object as JSON through
-`WA_MCP`. It does not expose separate `WA_MCP_ENABLED`, `WA_MCP_PATH`, or
-`--mcp` adapters, so use the config file when you want readable nested fields:
+`WA_MCP`. It does not expose separate `WA_MCP_ENABLED` or `WA_MCP_PATH` settings.
+The CLI does not parse `--mcp`, so use the config file when you want readable nested fields:
 
 ```bash
 WA_MCP='{"enabled":true,"path":"/mcp","exposeToolsMeta":true}'

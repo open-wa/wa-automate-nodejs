@@ -11,11 +11,18 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
+    },
+    "./calling-platform": {
+      "browser": "./dist/calling-platform.browser.mjs",
+      "bun": "./src/calling-platform.ts",
+      "types": "./dist/calling-platform.d.mts",
+      "import": "./dist/calling-platform.mjs",
+      "require": "./dist/calling-platform.cjs"
     }
   },
   "scripts": {
-    "build": "tsdown src/index.ts --format cjs,esm",
-    "dev": "tsdown src/index.ts --format cjs,esm --watch",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
     "lint": "oxlint src test",
     "test": "vitest run --passWithNoTests",
     "test:integration": "vitest run test/SocketClient.test.ts"
@@ -39,6 +46,12 @@
         "import": "./dist/index.mjs",
         "require": "./dist/index.cjs",
         "default": "./dist/index.cjs"
+      },
+      "./calling-platform": {
+        "browser": "./dist/calling-platform.browser.mjs",
+        "types": "./dist/calling-platform.d.mts",
+        "import": "./dist/calling-platform.mjs",
+        "require": "./dist/calling-platform.cjs"
       }
     }
   },
@@ -53,7 +66,11 @@
     "eventemitter2": "^6.4.9",
     "eventsource": "^5.1.2",
     "isomorphic-ws": "^5.0.0",
-    "ws": "^8.22.0"
+    "ws": "^8.22.0",
+    "@open-wa/schema": "workspace:*",
+    "@open-wa/runtime-node": "workspace:*",
+    "@open-wa/runtime-core": "workspace:*",
+    "hls.js": "^1.7.3"
   },
   "devDependencies": {
     "typescript": "catalog:",

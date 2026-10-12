@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button"
 /**
  * LaunchConsole
  *
@@ -79,17 +80,21 @@ export function LaunchConsole({
   }, [])
 
   const copyAll = useCallback(async () => {
-    const text = lines.map((l) => {
-      const prefix = l.timestamp ? `[${l.timestamp}] ` : ""
-      return `${prefix}${l.text}`
-    }).join("\n")
+    const text = lines
+      .map((l) => {
+        const prefix = l.timestamp ? `[${l.timestamp}] ` : ""
+        return `${prefix}${l.text}`
+      })
+      .join("\n")
     await navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }, [lines])
 
   return (
-    <div className={`flex flex-col overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 ${className}`}>
+    <div
+      className={`flex flex-col overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 ${className}`}
+    >
       {/* Title bar — macOS-style */}
       <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-2.5">
         <div className="flex items-center gap-3">
@@ -107,21 +112,23 @@ export function LaunchConsole({
 
         {showControls && (
           <div className="flex items-center gap-1">
-            <button
+            <Button
+              variant="ghost"
               onClick={copyAll}
               className="flex size-7 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-300"
               title="Copy all"
             >
               {copied ? <Check size={13} /> : <Copy size={13} />}
-            </button>
+            </Button>
             {onClear && (
-              <button
+              <Button
+                variant="ghost"
                 onClick={onClear}
                 className="flex size-7 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-300"
                 title="Clear"
               >
                 <Trash2 size={13} />
-              </button>
+              </Button>
             )}
           </div>
         )}
@@ -131,10 +138,10 @@ export function LaunchConsole({
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="relative min-h-[120px] max-h-[340px] overflow-auto p-3 font-mono text-[13px] leading-relaxed"
+        className="relative max-h-[340px] min-h-[120px] overflow-auto p-3 font-mono text-[13px] leading-relaxed"
       >
         {displayLines.length === 0 && (
-          <div className="flex h-20 items-center justify-center text-zinc-600 text-xs">
+          <div className="flex h-20 items-center justify-center text-xs text-zinc-600">
             Waiting for launch events…
           </div>
         )}
@@ -145,14 +152,14 @@ export function LaunchConsole({
           return (
             <div
               key={idx}
-              className="flex gap-2 py-px hover:bg-zinc-900/50 transition-colors"
+              className="flex gap-2 py-px transition-colors hover:bg-zinc-900/50"
             >
               {showTimestamps && line.timestamp && (
                 <span className="shrink-0 text-zinc-600 tabular-nums select-none">
                   {line.timestamp}
                 </span>
               )}
-              <span className={`shrink-0 w-3 text-center ${typeClass}`}>
+              <span className={`w-3 shrink-0 text-center ${typeClass}`}>
                 {prefix}
               </span>
               <span className={typeClass}>{line.text}</span>
@@ -171,12 +178,13 @@ export function LaunchConsole({
 
       {/* Scroll-to-bottom indicator */}
       {!isAtBottom && (
-        <button
+        <Button
+          variant="ghost"
           onClick={scrollToBottom}
-          className="absolute bottom-12 right-4 flex size-8 items-center justify-center rounded-full border border-zinc-700 bg-zinc-800 text-zinc-400 shadow-lg transition-all hover:bg-zinc-700 hover:text-zinc-200"
+          className="absolute right-4 bottom-12 flex size-8 items-center justify-center rounded-full border border-zinc-700 bg-zinc-800 text-zinc-400 shadow-lg transition-all hover:bg-zinc-700 hover:text-zinc-200"
         >
           <ChevronDown size={16} />
-        </button>
+        </Button>
       )}
     </div>
   )
