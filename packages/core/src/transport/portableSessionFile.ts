@@ -76,11 +76,14 @@ export function acquirePortableSessionFile(path: string): Promise<PortableSessio
           if (handle === null) return null;
           const stat = yield* io(() => handle.stat());
           if (!stat.isFile() || stat.size > 64 * 1024 * 1024) {
-            return yield* Effect.fail(portableFailure('PORTABLE_SESSION_PAYLOAD_INVALID'));
+            return null;
           }
           const payload = yield* io(() => handle.readFile('utf8'));
           if (payload === 'LOGGED OUT') return null;
-          return yield* normalizePortablePayload(payload);
+          return yield* normalizePortablePayload(payload).pipe(Effect.match({
+            onFailure: () => null,
+            onSuccess: value => value,
+          }));
         }),
         handle => handle === null ? Effect.void : io(() => handle.close()),
       )),

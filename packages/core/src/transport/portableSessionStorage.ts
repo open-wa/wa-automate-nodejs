@@ -1,5 +1,5 @@
 import { lstat } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import { homedir } from 'node:os';
 import { Effect, Exit, Scope, Semaphore } from 'effect';
 import type { PortableSessionLease } from './portableSession';
@@ -46,19 +46,10 @@ const pathFor = (sessionId: string, sessionDataPath = '') => Effect.gen(function
     : sessionDataPath.startsWith('~/') ? resolve(homedir(), sessionDataPath.slice(2)) : sessionDataPath;
   const candidate = (base: string) => configured.includes('.data.json')
     ? resolve(base, configured) : resolve(base, configured, filename);
-  const primary = candidate(process.cwd());
-  if (yield* exists(primary)) return primary;
-  // process.argv also works in ESM, where require.main is unavailable.
-  const main = typeof require !== 'undefined' ? require.main?.path : undefined;
-  const entryDirectory = main ?? (process.argv[1] ? dirname(resolve(process.argv[1])) : undefined);
-  if (entryDirectory) {
-    const alternate = candidate(entryDirectory);
-    if (alternate !== primary && (yield* exists(alternate))) return alternate;
-  }
-  return primary;
+  return candidate(process.cwd());
 });
 
-/** Resolve once, then read and write the same location, including the v4 entry-script fallback. */
+/** Resolve once, then read and write the configured location in the working directory. */
 export function resolvePortableSessionPath(sessionId = 'session', sessionDataPath = ''): Promise<string> {
   return runPortable(pathFor(sessionId, sessionDataPath));
 }
