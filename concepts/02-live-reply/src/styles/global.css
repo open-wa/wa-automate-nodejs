@@ -13,7 +13,7 @@ img, video { max-width: 100%; height: auto; }
 h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.08; margin: 0; letter-spacing: -0.025em; font-weight: 650; }
 p { margin: 0; }
 a { color: inherit; }
-code, kbd, pre { font-family: var(--font-mono); }
+code, kbd, pre, .mono { font-family: var(--font-mono); font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
 ::selection { background: var(--blue); color: var(--white); }
 
 .skip {

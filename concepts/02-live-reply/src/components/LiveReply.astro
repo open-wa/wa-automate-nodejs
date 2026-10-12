@@ -44,10 +44,10 @@ const foldEnd = handlerLine; // lines before the handler (import, connect) fold 
       {lines.slice(foldEnd).map((l, j) => {
         const i = j + foldEnd;
         if (i === triggerLine) return (
-          <span class="ln is-hit" data-n={i + 1} data-badge="true" data-line={i}><Fragment set:html={highlight(tPre)} /><span class="tk-string">'</span><label class="lr-field tk-string" data-value={TRIGGER}><span class="sr-only">Trigger word</span><input id="lr-trigger" value={TRIGGER} maxlength="24" spellcheck="false" autocomplete="off" autocapitalize="off" /></label><span class="tk-string">'</span><Fragment set:html={highlight(tPost)} /></span>
+          <span class="ln is-hit" data-n={i + 1} data-badge="true" data-line={i}><Fragment set:html={highlight(tPre)} /><span class="tk-string">'</span><label class="lr-field tk-string" data-value={TRIGGER}><span class="sr-only">Trigger word</span><input id="lr-trigger" size="1" value={TRIGGER} maxlength="24" spellcheck="false" autocomplete="off" autocapitalize="off" /></label><span class="tk-string">'</span><Fragment set:html={highlight(tPost)} /></span>
         );
         if (i === replyLine) return (
-          <span class="ln is-hit" data-n={i + 1} data-line={i}><Fragment set:html={highlight(rPre)} /><span class="tk-string">'</span><label class="lr-field tk-string" data-value={REPLY}><span class="sr-only">Reply text</span><input id="lr-reply" value={REPLY} maxlength="80" spellcheck="false" autocomplete="off" /></label><span class="tk-string">'</span><Fragment set:html={highlight(rPost)} /></span>
+          <span class="ln is-hit" data-n={i + 1} data-line={i}><Fragment set:html={highlight(rPre)} /><span class="tk-string">'</span><label class="lr-field tk-string" data-value={REPLY}><span class="sr-only">Reply text</span><input id="lr-reply" size="1" value={REPLY} maxlength="80" spellcheck="false" autocomplete="off" /></label><span class="tk-string">'</span><Fragment set:html={highlight(rPost)} /></span>
         );
         return <span class="ln" data-n={i + 1} data-line={i} set:html={highlight(l) || " "} />;
       })}
@@ -114,10 +114,10 @@ const foldEnd = handlerLine; // lines before the handler (import, connect) fold 
   .lr-pre .ln.is-miss[data-badge]::after { background: var(--grey-4); }
   .lr-fold { display: none; }
   .lr-folded { display: block; }
-  .lr-field { display: inline-grid; vertical-align: baseline; }
-  .lr-field::after { content: attr(data-value) " "; visibility: hidden; white-space: pre; grid-area: 1 / 1; font: inherit; padding: 0 2px; }
+  .lr-field { display: inline-grid; vertical-align: baseline; max-width: calc(100% - 2ch); grid-template-columns: minmax(0, auto); }
+  .lr-field::after { content: attr(data-value) " "; visibility: hidden; white-space: pre; grid-area: 1 / 1; font: inherit; padding: 0 2px; overflow: hidden; }
   .lr-field input {
-    grid-area: 1 / 1; width: 100%; min-width: 2ch; font: inherit; color: var(--tk-string); background: transparent;
+    grid-area: 1 / 1; width: 100%; min-width: 0; font: inherit; color: var(--tk-string); background: transparent;
     border: 0; padding: 0 2px; margin: 0; border-radius: 3px; outline: none;
     background-image: linear-gradient(var(--blue), var(--blue)); background-size: 100% 1.5px; background-position: 0 92%; background-repeat: no-repeat;
     background-color: color-mix(in srgb, var(--blue) 7%, transparent);
@@ -185,7 +185,14 @@ const foldEnd = handlerLine; // lines before the handler (import, connect) fold 
 
   @media (max-width: 960px) {
     .lr { grid-template-columns: minmax(0, 1fr); padding: 8px; border-radius: 22px; gap: 12px; }
-    .lr-phone { height: 440px; margin: 7px auto; width: calc(100% - 14px); max-width: 400px; }
+    .lr-phone { height: 392px; margin: 7px auto; width: calc(100% - 14px); max-width: 400px; border-radius: 28px; }
+    .lr-phone-top { padding: 10px 12px; }
+    .lr-chat { padding: 12px; gap: 8px; }
+    .lr-compose { grid-template-columns: auto minmax(0, 1fr); align-items: center; padding: 8px; }
+    .lr-log { padding: 10px 14px 12px; gap: 4px; }
+    .lr-log-list { min-height: 0; }
+    .lr-log-list li:not(:last-child) { display: none; }
+    .lr-caption { font-size: 14px; }
     .lr-fold { display: flex; align-items: center; gap: 8px; width: calc(100% - 16px); margin: 0 0 6px 8px; min-height: 44px; padding: 0 12px; border: 1px dashed var(--grey-2); border-radius: 8px; background: var(--paper); font: 14px var(--font-mono); color: var(--grey-4); cursor: pointer; text-align: left; }
     .lr-fold::before { content: "+"; color: var(--blue); }
     .lr-fold[aria-expanded="true"]::before { content: "−"; }
