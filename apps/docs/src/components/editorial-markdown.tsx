@@ -7,6 +7,7 @@ import {
   CodeBlockTabs, CodeBlockTabsList, CodeBlockTabsTrigger, CodeBlockTab,
 } from 'fumadocs-ui/components/codeblock';
 import { parseEditorialMarkdown } from '@/lib/editorial-markdown';
+import type { Root } from 'hast';
 
 const languageNames: Record<string, string> = {
   ts: 'TypeScript', typescript: 'TypeScript', js: 'JavaScript', javascript: 'JavaScript',
@@ -33,7 +34,7 @@ const components = {
 };
 
 // CMS content is Markdown data, never executable MDX. Raw HTML is discarded.
-export function EditorialMarkdown({body}: {body: string}) {
-  const content = useMemo(() => toJsxRuntime(parseEditorialMarkdown(body), {Fragment, jsx, jsxs, components}), [body]);
+export function EditorialMarkdown({body, tree}: {body: string; tree?: Root}) {
+  const content = useMemo(() => toJsxRuntime(tree ?? parseEditorialMarkdown(body), {Fragment, jsx, jsxs, components}), [body, tree]);
   return <DocsBody className="release-prose">{content}</DocsBody>;
 }

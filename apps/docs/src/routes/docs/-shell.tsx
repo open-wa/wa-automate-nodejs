@@ -26,6 +26,7 @@ export function DocsShell({
     <>
       <DocsLayout
         {...layoutOptions}
+        containerProps={{ className: 'docs-site' }}
         nav={{ ...layoutOptions.nav, mode: 'top', component: <DocsTopBar /> }}
         sidebar={{ defaultOpenLevel: 0 }}
         tree={pageTree}
