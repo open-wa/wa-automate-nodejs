@@ -5,6 +5,7 @@ import { visit } from 'unist-util-visit';
 import { remarkCodeTab } from 'fumadocs-core/mdx-plugins/remark-code-tab';
 import { parseCodeBlockAttributes } from 'fumadocs-core/mdx-plugins/codeblock-utils';
 import type { Element } from 'hast';
+import type { Root, RootContent } from 'hast';
 
 const tabElements: Record<string, string> = {
   CodeBlockTabs: 'editorial-code-tabs',
@@ -69,11 +70,34 @@ export function publicEditorialImageUrl(value: unknown) {
 // Both rendering and media access use resolved Markdown, including reference images.
 export function parseEditorialMarkdown(body: string) {
   const tree = markdown.runSync(markdown.parse(body));
+  const headingIds = new Set<string>();
   visit(tree, 'element', node => {
     if (node.properties.href) node.properties.href = safeUrl(node.properties.href, false);
     if (node.properties.src) node.properties.src = publicEditorialImageUrl(node.properties.src);
+    if (/^h[1-6]$/.test(node.tagName)) {
+      const base = elementText(node).toLowerCase().trim().replace(/[^\p{L}\p{N}\s-]/gu, '').replace(/\s+/g, '-') || 'section';
+      let id = base;
+      let suffix = 1;
+      while (headingIds.has(id)) id = `${base}-${suffix++}`;
+      headingIds.add(id);
+      node.properties.id = id;
+    }
   });
   return tree;
+}
+
+function elementText(node: RootContent): string {
+  if (node.type === 'text') return node.value;
+  return 'children' in node ? node.children.map(elementText).join('') : '';
+}
+
+export function editorialHeadings(tree: Root) {
+  const headings: { id: string; title: string; depth: number }[] = [];
+  visit(tree, 'element', node => {
+    if (!['h2', 'h3'].includes(node.tagName) || typeof node.properties.id !== 'string') return;
+    headings.push({ id: node.properties.id, title: elementText(node), depth: Number(node.tagName[1]) });
+  });
+  return headings;
 }
 
 export function referencedEditorialMedia(body: string, cover: string | null) {

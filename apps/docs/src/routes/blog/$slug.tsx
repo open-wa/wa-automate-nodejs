@@ -1,7 +1,6 @@
 import { createFileRoute, notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
-import { ChangelogLayout, ReleaseDate } from '@/components/changelog';
-import { EditorialMarkdown } from '@/components/editorial-markdown';
+import { BlogArticle, BlogLayout } from '@/components/blog';
 import { publicEditorialImageUrl } from '@/lib/editorial-markdown';
 import { getAbsoluteDocsUrl, getDocsSocialMeta, getPageImage } from '@/lib/og';
 
@@ -27,9 +26,9 @@ export const Route = createFileRoute('/blog/$slug')({
     links:[{rel:'canonical',href:articleCanonical(article.seo.canonical, article.url)}],
   }) : {},
   component: Article,
-  notFoundComponent: () => <ChangelogLayout><h1>Article not found</h1><a href="/blog">Browse the blog →</a></ChangelogLayout>,
+  notFoundComponent: () => <BlogLayout><h1>Article not found</h1><a href="/blog">Browse the blog →</a></BlogLayout>,
 });
 function Article() {
   const article = Route.useLoaderData();
-  return <ChangelogLayout><a className="release-back" href="/blog">← All articles</a><article className="release-article"><header className="release-article-header"><div className="release-article-meta"><span>open-wa</span>{article.publishedAt && <ReleaseDate date={article.publishedAt} />}</div><h1>{article.title}</h1><p className="release-description">{article.description}</p>{article.image && <img src={article.image} alt="" className="release-cover" />}</header><EditorialMarkdown body={article.bodyMarkdown} /></article></ChangelogLayout>;
+  return <BlogLayout><BlogArticle key={article.slug} article={{ ...article, image: article.image ?? null }} /></BlogLayout>;
 }
