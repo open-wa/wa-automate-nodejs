@@ -297,8 +297,11 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
   const detachGlobalEvents = attachGlobalEvents(events, sessionId, options.eventMode ?? true,
     error => logger.error('global_event_error', { error }));
   // Registered first, so Effect closes the bridge after the owned resources.
-  await resourceScope.addFinalizer('global-events.detach', () => {
-    try { events.emit('core.stopped', {}); } finally { detachGlobalEvents(); }
+  await resourceScope.addFinalizer('global-events.detach', async () => {
+    try { events.emit('core.stopped', {}); } finally {
+      await detachGlobalEvents();
+      await Effect.runPromise(events.close());
+    }
   });
   await resourceScope.addFinalizer('transport.close', () => transport.close());
   await resourceScope.addFinalizer('plugins.dispose', () => pluginHost.dispose());

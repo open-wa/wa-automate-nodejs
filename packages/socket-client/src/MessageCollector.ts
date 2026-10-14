@@ -1,4 +1,5 @@
-import { EventEmitter2 } from 'eventemitter2';
+import type { EventEmitter } from '@open-wa/hyperemitter';
+import { Effect, Exit, Scope } from 'effect';
 import type { SimpleListener, Chat, ChatId, Message, MessageId  } from '@open-wa/wa-automate-types-only';
 import { Collector, CollectorOptions } from './Collector';
 /**
@@ -17,7 +18,8 @@ export class MessageCollector extends Collector {
     received: number;
     sessionId: string;
     instanceId: string;
-    ev: EventEmitter2
+    ev: EventEmitter;
+    private readonly subscriptionScope = Scope.makeUnsafe();
 
   /**
    * @param {string} sessionId The id of the session
@@ -25,10 +27,10 @@ export class MessageCollector extends Collector {
    * @param {ChatId} chatId The chat
    * @param {CollectorFilter} filter The filter to be applied to this collector
    * @param {MessageCollectorOptions} options The options to be applied to this collector
-   * @param {EventEmitter2} openWaEventEmitter The EventEmitter2 that fires all open-wa events. In local instances of the library, this is the global `ev` object.
+   * @param {EventEmitter} openWaEventEmitter The EventEmitter that fires open-wa events.
    * @emits MessageCollector#Message
    */
-  constructor(sessionId: string, instanceId: string, chat : ChatId, filter: (...args: any[]) => boolean | Promise<boolean>, options : CollectorOptions = {}, openWaEventEmitter : EventEmitter2) {
+  constructor(sessionId: string, instanceId: string, chat : ChatId, filter: (...args: any[]) => boolean | Promise<boolean>, options : CollectorOptions = {}, openWaEventEmitter : EventEmitter) {
     super(filter, options);
 
     this.ev = openWaEventEmitter;
@@ -55,21 +57,22 @@ export class MessageCollector extends Collector {
     const deleteHandler = this.wrapHandler(this._handleChatDeletion)
     const groupRemovalHandler = this.wrapHandler(this._handleGroupRemoval)
 
-    this.incrementMaxListeners();
-    this.ev.on(this.eventSignature('onMessage'), collectHandler);
-    this.ev.on(this.eventSignature('onMessageDeleted'),disposeHandler);
-    this.ev.on(this.eventSignature('onChatDeleted'), deleteHandler);
-    this.ev.on(this.eventSignature('onRemovedFromGroup'), groupRemovalHandler);
-    // this.ev.on(Events.GUILD_DELETE, this._handleGuildDeletion);
+    const collector = this;
+    Effect.runSync(Effect.gen(function* () {
+      yield* collector.ev.onScoped(collector.eventSignature('onMessage'), collectHandler);
+      yield* collector.ev.onScoped(collector.eventSignature('onMessageDeleted'), disposeHandler);
+      yield* collector.ev.onScoped(collector.eventSignature('onChatDeleted'), deleteHandler);
+      yield* collector.ev.onScoped(collector.eventSignature('onRemovedFromGroup'), groupRemovalHandler);
+    }).pipe(Scope.provide(this.subscriptionScope)));
 
     this.once('end', () => {
-      this.ev.removeListener(this.eventSignature('onMessage'), collectHandler);
-      this.ev.removeListener(this.eventSignature('onMessageDeleted'), disposeHandler);
-      this.ev.removeListener(this.eventSignature('onChatDeleted'), deleteHandler);
-      this.ev.removeListener(this.eventSignature('onRemovedFromGroup'), groupRemovalHandler);
-      // this.ev.removeListener(Events.GUILD_DELETE, this._handleGuildDeletion);
-      this.decrementMaxListeners();
+      void Effect.runPromise(Scope.close(this.subscriptionScope, Exit.void));
     });
+  }
+
+  override destroy(): void {
+    void Effect.runPromise(Scope.close(this.subscriptionScope, Exit.void));
+    super.destroy();
   }
 
   /**
@@ -156,6 +159,6 @@ export class MessageCollector extends Collector {
   }
 
   wrapHandler (handler: (data:any) => any ) : ({ data }: { data: any; }) => any {
-    return ({data}) => handler(data)
+    return ({data}) => handler.call(this, data)
   }
 }

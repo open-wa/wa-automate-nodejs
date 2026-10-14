@@ -1,44 +1,34 @@
 import { randomUUID } from 'node:crypto';
-import { EventEmitter2 } from 'eventemitter2';
-import { Effect } from 'effect';
-import type { HyperEmitter } from '@open-wa/hyperemitter';
+import { Effect, Exit, Scope } from 'effect';
+import { EventEmitter, HyperEmitter, type EventCallback, type EventName } from '@open-wa/hyperemitter';
 import type { OpenWAEventMap } from './eventMap';
 import { eventRegistry } from '@open-wa/schema';
 
-type GlobalListener = Parameters<EventEmitter2['on']>[1];
-type SessionBridge = { hasMessageListeners: () => boolean; detach: () => void };
+type SessionBridge = { hasMessageListeners: () => boolean; detach: () => Promise<void> };
 type GlobalEvents = {
-  emitter: EventEmitter2;
+  emitter: EventEmitter;
   bridges: WeakMap<HyperEmitter<OpenWAEventMap>, SessionBridge>;
 };
 
 // ESM and CommonJS entry points must share the same emitter. Do not tie the
 // singleton to a session scope: consumers use it between modules before create().
-const globalKey = Symbol.for('@open-wa/core/global-events/v5');
+const globalKey = Symbol.for('@open-wa/core/global-events/effect-hyperemitter');
 const globals = globalThis as typeof globalThis & { [globalKey]?: GlobalEvents };
 const shared: GlobalEvents = globals[globalKey] ??= {
-  emitter: new EventEmitter2({ wildcard: true, delimiter: '.', ignoreErrors: true }),
+  emitter: new EventEmitter({ delimiter: '.', ignoreErrors: true }),
   bridges: new WeakMap<HyperEmitter<OpenWAEventMap>, SessionBridge>(),
 };
 
-/** Shared, synchronous event helper with v4 wildcard and variadic-argument support. */
+/** Shared synchronous, variadic event helper with star namespace wildcards and Effect ownership. */
 export const ev = shared.emitter;
 
 /** Register a listener for the lifetime of the calling Effect scope. */
-export const onGlobalEvent = (event: string, listener: GlobalListener) =>
-  Effect.acquireRelease(
-    Effect.sync(() => {
-      // Own this registration even if the same callback was registered elsewhere.
-      const owned: GlobalListener = function (this: EventEmitter2, ...args) { return listener.apply(this, args); };
-      ev.on(event, owned);
-      return owned;
-    }),
-    owned => Effect.sync(() => { ev.off(event, owned); }),
-  ).pipe(Effect.asVoid);
+export const onGlobalEvent = (event: EventName, listener: EventCallback) =>
+  ev.onScoped(event, listener);
 
-/** @internal Allow global onMessage consumers to activate portable delivery. */
+/** @internal Allow queued and global consumers to activate portable delivery. */
 export const hasGlobalMessageListeners = (events: HyperEmitter<OpenWAEventMap>): boolean =>
-  shared.bridges.get(events)?.hasMessageListeners() ?? false;
+  events.hasPubSub || (shared.bridges.get(events)?.hasMessageListeners() ?? false);
 
 /** @internal The caller owns detach through its Effect session scope. */
 export function attachGlobalEvents(
@@ -46,13 +36,13 @@ export function attachGlobalEvents(
   sessionId: string,
   eventMode: boolean,
   onError: (error: unknown) => void,
-): () => void {
+): () => Promise<void> {
   const existing = shared.bridges.get(events);
   if (existing) return existing.detach;
 
   const instanceId = randomUUID();
   const signature = (listener: string) => `${listener}.${sessionId}.${instanceId}`;
-  const interested = (event: string) => ev.hasListeners(event) || ev.listenersAny().length > 0;
+  const interested = (event: string) => ev.hasPubSub || ev.hasListeners(event) || ev.listenersAny().length > 0;
   const emit = (event: string, data: unknown, namespace: string) => {
     // Global application callbacks must not interrupt authentication or cleanup.
     try { ev.emit(event, data, sessionId, namespace); } catch (error) { onError(error); }
@@ -65,7 +55,6 @@ export function attachGlobalEvents(
   };
 
   const forward = (event: string, payload: any) => {
-    // Native v5 names remain available, with the originating session as arg 2.
     if (interested(event)) emit(event, payload, event);
     switch (event as keyof OpenWAEventMap) {
       case 'launch.auth.qr.generated':
@@ -107,17 +96,18 @@ export function attachGlobalEvents(
   };
 
   let attached = true;
-  const detach = () => {
+  const scope = Scope.makeUnsafe();
+  const detach = async () => {
     if (!attached) return;
     attached = false;
-    events.offAny(forward);
     shared.bridges.delete(events);
+    await Effect.runPromise(Scope.close(scope, Exit.void));
   };
   shared.bridges.set(events, {
     hasMessageListeners: () => interested('message.received')
       || (eventMode && interested(signature('onMessage'))),
     detach,
   });
-  events.onAny(forward);
+  Effect.runSync(events.onAnyScoped(forward).pipe(Scope.provide(scope)));
   return detach;
 }
