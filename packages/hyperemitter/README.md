@@ -38,7 +38,7 @@ await Effect.runPromise(Effect.scoped(Effect.gen(function* () {
 
 Each event carries one payload. `+` matches one name segment; a trailing `#` matches the rest, including an empty suffix. Set `captureRejections: true` to report listener failures through `onError` or the emitter's logger while continuing delivery.
 
-The [Effect benchmark](./benchmarks/README.md) compares callback dispatch, Effect dispatch, asynchronous listeners, and scope cleanup on completed deliveries. Its results are measurements from that runner, not a performance guarantee.
+The [Effect benchmark](https://github.com/open-wa/wa-automate-nodejs/blob/master/packages/hyperemitter/benchmarks/README.md) compares callback dispatch, Effect dispatch, asynchronous listeners, and scope cleanup on completed deliveries. Its results are measurements from that runner, not a performance guarantee.
 
 ## License
 
@@ -53,7 +53,7 @@ removal, `emitAsync` result arrays, `waitFor`, and `listenTo`. It adapts that
 surface to the same tuned HyperEmitter rather than creating a second runtime.
 `onScoped`, `onAnyScoped`, `emitEffect`, and `close` add Effect ownership.
 
-The [PubSub comparison](./benchmarks/results/pubsub-node-2026-10-14.json)
+The [PubSub comparison](https://github.com/open-wa/wa-automate-nodejs/blob/master/packages/hyperemitter/benchmarks/results/pubsub-node-2026-10-14.json)
 measures completed deliveries with both per-event acknowledgements and batches
 of 256, including consumers that drain queued messages in batches. PubSub is
 a useful asynchronous stream option, but publishing does not guarantee immediate
@@ -123,7 +123,7 @@ replay is disabled. The global `ev` feed forwards native events and enabled
 session aliases even when no callback is registered. Session shutdown detaches
 its bridge without closing the shared global hub.
 
-See the [source-backed architecture review](../../docs/research/2026-10-14-effect-event-system-designs.md)
+See the [source-backed architecture review](https://github.com/open-wa/wa-automate-nodejs/blob/master/docs/research/2026-10-14-effect-event-system-designs.md)
 for the responsibilities of PubSub, Queue, Stream, SubscriptionRef, services,
 and scoped fibers.
 
