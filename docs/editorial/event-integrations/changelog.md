@@ -1,6 +1,6 @@
-# Event contracts and ChatGPT subscriptions
+# Upcoming: Event contracts and ChatGPT subscriptions
 
-Draft release entry for the upcoming OpenWA minor. The package version and publication date are still pending.
+Preview of the upcoming OpenWA minor. The package version and release date are still pending; these changes are not in the published packages yet.
 
 ## Event payloads have a generated reference
 
