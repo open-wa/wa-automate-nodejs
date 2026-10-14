@@ -1,6 +1,12 @@
 # Changelog
 
 
+
+## 5.6.0
+<sub>2026-10-14</sub>
+
+- *(minor)* Version bump from group with `@open-wa/api` v5.6.0, `@open-wa/config` v5.6.0, `@open-wa/core` v5.6.0, `@open-wa/hyperemitter` v5.6.0, `@open-wa/mcp` v5.6.0, `@open-wa/schema` v5.6.0, `@open-wa/socket-client` v5.6.0
+
 ## 5.5.1
 <sub>2026-10-12</sub>
 

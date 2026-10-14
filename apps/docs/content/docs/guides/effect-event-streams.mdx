@@ -9,17 +9,15 @@ Use ordinary listeners for immediate application reactions. Add an Effect
 subscription when a separate consumer needs sequential work, batching, or
 automatic cleanup. Each PubSub subscriber receives the feed independently.
 
-These APIs are prepared for the next SDK release; the published 5.5.1 packages
-don't include them yet. The examples use Effect 4, matching OpenWA's pinned
-`effect@4.0.2`, and can be run against the prepared workspace build.
+These APIs are available from OpenWA 5.6.0. The examples use Effect 4, matching
+OpenWA's pinned `effect@4.0.2`.
 
 ## Run a callback and a queued consumer
 
-Once the SDK release is published, install the standalone emitter and matching
-Effect version:
+Install the standalone emitter and matching Effect version:
 
 ```sh
-npm install @open-wa/hyperemitter effect@4.0.2
+npm install @open-wa/hyperemitter@5.6.0 effect@4.0.2
 ```
 
 Save this as `events.mjs`. It doesn't require a WhatsApp session:
