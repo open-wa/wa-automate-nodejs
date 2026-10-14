@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-14T06:57:20.205Z",
+  "scope": "Local release tarballs for four candidates, built transitive workspaces and installed third-party dependencies; no registry install or live WhatsApp session",
+  "packs": [
+    {
+      "name": "@open-wa/hyperemitter",
+      "tarball": "open-wa-hyperemitter-5.5.1.tgz",
+      "sha256": "6e13b6ff3d4b08f5c2bd10d3d2949830621b96fe7719577f4c1f65a8d5bf7268"
+    },
+    {
+      "name": "@open-wa/core",
+      "tarball": "open-wa-core-5.5.1.tgz",
+      "sha256": "90372a2259a96b3534cff8238e371a8bdef9d0c7f0f5d9d1821d450b5004d862"
+    },
+    {
+      "name": "@open-wa/socket-client",
+      "tarball": "open-wa-socket-client-5.5.1.tgz",
+      "sha256": "a6bc747c2ccee193ad17aa99b1f2c133b6c146657024b1244cefc1f80ad39269"
+    },
+    {
+      "name": "@open-wa/wa-automate",
+      "tarball": "open-wa-wa-automate-5.5.1.tgz",
+      "sha256": "867e1d9605f02b5f9b0f55ff2a1aa53149cfc9c7ca1e97de0cb7b581579ca9cd"
+    }
+  ],
+  "transitiveWorkspaces": 19,
+  "runtime": {
+    "node": "v24.21.0",
+    "importAndRequire": 4,
+    "sharedEv": true,
+    "synchronousAndQueued": true,
+    "socketEmitter": true
+  },
+  "documentation": {
+    "callbackOutput": "Callback: daily-summary\nQueued: app.job.finished daily-summary",
+    "streamOutput": "Stream: daily-summary",
+    "streamTypes": true,
+    "mdxCompiled": [
+      "guides/effect-event-streams",
+      "guides/session-events",
+      "reference/hyperemitter",
+      "reference/events",
+      "reference/workspaces/packages/hyperemitter"
+    ]
+  }
+}
