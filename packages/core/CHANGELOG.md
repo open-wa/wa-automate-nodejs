@@ -7,6 +7,13 @@
 
 
 
+
+## 5.6.1
+<sub>2026-10-14</sub>
+
+- [#3545](https://github.com/open-wa/wa-automate-nodejs/pull/3545)  *(patch)*
+  Fix CommonJS `create(configObject)` startup under Node when its dynamically imported ESM core resolves packaged browser assets. Convert stack-frame file URLs to filesystem paths before resolving `wapi.js` and the other runtime assets.
+
 ## 5.6.0
 <sub>2026-10-14</sub>
 
