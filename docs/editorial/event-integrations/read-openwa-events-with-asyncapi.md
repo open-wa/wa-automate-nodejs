@@ -2,14 +2,14 @@
 
 An event name only tells you part of what a consumer receives. OpenWA's listener callback `onMessage` receives a message, while its runtime event `message.received` carries `{ ctx, message }`. SSE and webhooks then wrap that payload differently.
 
-The upcoming AsyncAPI integration describes those wire contracts in one downloadable document and renders them as a Fumadocs reference. This guide covers PR #3539; the release containing it is still pending.
+OpenWA 5.6.0 describes those wire contracts in one downloadable AsyncAPI document and renders them as a Fumadocs reference. The implementation is in PR #3539.
 
 ## Start a linked Easy API session
 
-Use Node.js 22.21.1 or later. Replace the version placeholder with the release containing AsyncAPI, set a private API key and start the server:
+Use Node.js 22.21.1 or later, set a private API key and start the server:
 
 ```bash
-export OPENWA_VERSION='REPLACE_WITH_RELEASE_VERSION'
+export OPENWA_VERSION='5.6.0'
 export OPENWA_API_URL='http://127.0.0.1:8080'
 export WA_API_KEY='REPLACE_WITH_YOUR_PRIVATE_API_KEY'
 

@@ -3,17 +3,18 @@ title: "OpenWA events: familiar callbacks, optional Effect streams"
 description: "Why we're replacing EventEmitter2, keeping the shared ev API, and adding scoped event work and native PubSub access."
 slug: effect-hyperemitter
 author: open-wa
-status: draft
+status: published
+release: 5.6.0
 audience: SDK and SocketClient developers
 ---
 
-OpenWA's next SDK release replaces EventEmitter2 with an Effect-backed
+OpenWA 5.6 replaces EventEmitter2 with an Effect-backed
 HyperEmitter. Your existing `ev.on()` and `ev.emit()` calls keep their callback
 behavior, and applications that need a queued consumer can opt into a native
 Effect PubSub on the same emitter.
 
-This article describes the prepared release. The published 5.5.1 packages don't
-contain these changes yet; we'll publish the announcement with the SDK release.
+Upgrade with `npm install @open-wa/wa-automate@5.6.0` and the matching browser
+driver, or install `@open-wa/hyperemitter@5.6.0` to use the standalone emitter.
 
 ## Fix the package boundary first
 

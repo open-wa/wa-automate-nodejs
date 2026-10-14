@@ -1,8 +1,8 @@
 # OpenWA event contracts and ChatGPT subscriptions
 
-The next OpenWA minor release is being prepared with two useful additions: a generated reference for event payloads, and subscriptions that let ChatGPT Work react to WhatsApp updates.
+OpenWA 5.6.0 ships two useful additions: a generated reference for event payloads, and subscriptions that let ChatGPT Work react to WhatsApp updates.
 
-You can read exactly what your SSE consumer or webhook receiver gets, or ask ChatGPT to watch a customer conversation and draft a reply when a quote request arrives. The implementation is in PR #3539; these features aren't in the published packages yet.
+You can read exactly what your SSE consumer or webhook receiver gets, or ask ChatGPT to watch a customer conversation and draft a reply when a quote request arrives. These features ship in OpenWA 5.6.0; the implementation is in PR #3539.
 
 ## Know what arrives
 
@@ -38,7 +38,7 @@ Message summaries contain up to 4,000 characters and report truncation. This giv
 
 ## What ships together
 
-The feature PR includes the event catalog, AsyncAPI endpoint and download, generated reference pages, MCP subscriptions, configuration, and minor Bumpy intent for the affected packages. It also updates the setup documentation.
+OpenWA 5.6.0 includes the event catalog, AsyncAPI endpoint and download, generated reference pages, MCP subscriptions, configuration, and setup documentation. The release also adds familiar callback dispatch with optional Effect PubSub observation; read the [HyperEmitter article](https://openwa.dev/blog/effect-hyperemitter) for that interface.
 
 The OpenAI MCP Extensions SDK was considered. Its sidebar views, mentions, files and forms are useful for a future plugin interface; this event workflow uses the native MCP protocol and doesn't require those UI resources.
 

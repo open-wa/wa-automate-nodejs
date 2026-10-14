@@ -1,8 +1,8 @@
 # Let ChatGPT watch a WhatsApp conversation
 
-The upcoming OpenWA event integration lets ChatGPT Work react when a WhatsApp message arrives. You can ask it to watch a customer conversation and draft answers using a price list, or watch delivery acknowledgements for a message you're waiting on.
+OpenWA 5.6's event integration lets ChatGPT Work react when a WhatsApp message arrives. You can ask it to watch a customer conversation and draft answers using a price list, or watch delivery acknowledgements for a message you're waiting on.
 
-This guide covers the implementation prepared in PR #3539. It isn't available in the published packages yet. Use the release version that includes MCP Events when it ships.
+This guide covers MCP Events in OpenWA 5.6.0, implemented in PR #3539.
 
 ## Start Easy API and pair WhatsApp
 
@@ -18,11 +18,11 @@ export default {
 };
 ```
 
-Set a private API key, replace the version placeholder with the release that includes this feature, then start Easy API:
+Set a private API key, then start Easy API:
 
 ```bash
 export WA_API_KEY='REPLACE_WITH_YOUR_PRIVATE_API_KEY'
-export OPENWA_VERSION='REPLACE_WITH_RELEASE_VERSION'
+export OPENWA_VERSION='5.6.0'
 export OPENWA_API_URL='http://127.0.0.1:8080'
 
 npx "@open-wa/wa-automate@$OPENWA_VERSION" --config ./wa.config.mjs
