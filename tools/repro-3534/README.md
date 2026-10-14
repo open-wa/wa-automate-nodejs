@@ -35,6 +35,13 @@ drivers. It prints `CREATE_FAILED` on rejection and `CREATE_RESOLVED` only
 after pairing and messaging readiness. Reaching the QR proves browser and
 authentication startup, while the create promise still awaits pairing.
 
+Set `OPENWA_REPRO_CHECK_QR=true` to also observe the public shared `ev`
+before starting the client. It records the native
+`launch.auth.qr.generated` event and both `qr.bug-repro` and `qr.**`
+listeners, including the session/namespace arguments and whether each
+alias received the native QR string. These metadata lines do not print the
+pairing string; the SDK's ordinary terminal renderer prints the QR itself.
+
 The published 5.6.0 run found a second failure after the EventEmitter2 fix:
 the ESM core treated its `file://` stack-frame URL as a filesystem path, so
 runtime assets could not be resolved. A candidate build with the path

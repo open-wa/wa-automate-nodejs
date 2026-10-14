@@ -26,6 +26,23 @@ console.log({
 });
 console.log("Starting WhatsApp. Pairing is required before create() resolves.");
 
+if (process.env.OPENWA_REPRO_CHECK_QR === "true") {
+  const { ev } = require("@open-wa/wa-automate");
+  let nativeQr: string | undefined;
+  ev.on("launch.auth.qr.generated", function (event: any, sessionId: string, namespace: string) {
+    nativeQr = event.details?.qr;
+    console.log("GLOBAL_NATIVE_QR", JSON.stringify({ sessionId, namespace, qrLength: nativeQr?.length }));
+  });
+  for (const pattern of ["qr.bug-repro", "qr.**"]) {
+    ev.on(pattern, function (this: { event: string }, qr: string, sessionId: string, namespace: string) {
+      console.log("GLOBAL_ALIAS_QR", JSON.stringify({
+        pattern, event: this.event, sessionId, namespace,
+        qrLength: qr?.length, matchesNative: qr === nativeQr,
+      }));
+    });
+  }
+}
+
 create(configObject)
   .then((client: any) => {
     console.log("CREATE_RESOLVED: WhatsApp is ready.");
