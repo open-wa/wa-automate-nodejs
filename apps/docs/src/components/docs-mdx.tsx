@@ -28,6 +28,13 @@ import {
   InterfaceTab,
 } from '@/components/interface-tabs';
 import { ClientReference, TypeDisplay } from '@/components/client-reference';
+import type { AsyncAPIPageProps_Preloaded } from '@fumadocs/asyncapi/ui';
+
+const EventReference = React.lazy(() => import('@/components/asyncapi-page').then(module => ({ default: module.AsyncAPIPage })));
+
+function AsyncAPIPage(props: Omit<AsyncAPIPageProps_Preloaded, 'preloaded'>) {
+  return <React.Suspense fallback={<p>Loading event reference…</p>}><EventReference {...props} /></React.Suspense>;
+}
 
 function flattenText(node: React.ReactNode): string {
   if (node === null || node === undefined || typeof node === 'boolean') return '';
@@ -184,4 +191,5 @@ export const docsMdxComponents = {
   InterfaceTab,
   ClientReference,
   TypeDisplay,
+  AsyncAPIPage,
 };

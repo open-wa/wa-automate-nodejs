@@ -60,5 +60,20 @@
       "@open-wa/schema",
       "@open-wa/wa-automate"
     ]
+  },
+  "5.6.0": {
+    "headline": "Events you can build on",
+    "summary": "Generated event contracts, signed MCP subscriptions, and familiar callbacks with optional Effect streams.",
+    "badge": "OpenWA 5.6",
+    "notesFile": "v5.6-release-notes.md",
+    "packages": [
+      "@open-wa/hyperemitter",
+      "@open-wa/core",
+      "@open-wa/mcp",
+      "@open-wa/schema",
+      "@open-wa/api",
+      "@open-wa/socket-client",
+      "@open-wa/wa-automate"
+    ]
   }
 }

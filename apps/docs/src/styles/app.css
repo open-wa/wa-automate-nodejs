@@ -2,6 +2,7 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
+@import '@fumadocs/asyncapi/css/preset.css';
 @import '@open-wa/ui-components/theme.css';
 @import './landing.css';
 @import './licensed-methods.css';
@@ -548,7 +549,6 @@
 .reference-caveat { color: var(--muted-foreground); font-size: 13px; line-height: 18px; margin: 8px 0; }
 .reference-code { margin-top: 10px; border: 1px solid #273b64; background: #111d39; color: #ddeaff; border-radius: 9px; overflow: hidden; }
 .reference-code figure { margin: 0!important; border: 0!important; border-radius: 0!important; box-shadow: none!important; background: transparent!important; }
-.reference-code .shiki, .reference-code .shiki span { color: var(--shiki-dark, #ddeaff)!important; background-color: transparent!important; }
 .reference-code button { color: #bed0f5; background: #202f50; }
 .reference-code pre { padding: 14px!important; font-size: 14px!important; line-height: 21px!important; }
 .method-explorer { position: sticky; top: calc(var(--fd-banner-height, 0px) + var(--ow-docs-header-height) + 12px); height: fit-content; max-height: calc(100dvh - 110px); display: flex; flex-direction: column; min-height: 0; border-left: 1px solid var(--border); padding-left: 20px; }
@@ -583,9 +583,6 @@
 .reference-controls button { line-height: 18px; }
 .method-explorer nav a { line-height: 18px; padding-block: 6px; }
 .method-explorer input, .method-explorer select { line-height: 18px; }
-.docs-guide-page figure.shiki { background: #111d39; border-color: #273b64; color: #ddeaff; box-shadow: none; }
-.docs-guide-page figure.shiki .shiki, .docs-guide-page figure.shiki span { color: var(--shiki-dark, #ddeaff)!important; }
-.docs-guide-page figure.shiki button { color: #bed0f5; }
 .docs-guide-page .prose h2 { margin-top: 32px; }
 @media (min-width: 768px) { #nd-notebook-layout { --fd-sidebar-width: 240px; } }
 

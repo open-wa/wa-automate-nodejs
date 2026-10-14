@@ -62,8 +62,9 @@
   "homepage": "https://github.com/open-wa/wa-automate-socket-client-nodejs#readme",
   "dependencies": {
     "@open-wa/wa-automate-types-only": "workspace:*",
+    "@open-wa/hyperemitter": "workspace:*",
     "debug": "^4.4.3",
-    "eventemitter2": "^6.4.9",
+    "effect": "catalog:",
     "eventsource": "^5.1.2",
     "isomorphic-ws": "^5.0.0",
     "ws": "^8.22.0",

@@ -185,6 +185,12 @@ export const McpConfigSchema = z.object({
     .boolean()
     .default(true)
     .describe('Expose /meta/mcp-tools.json for dashboard and debugging.'),
+  events: z.object({
+    enabled: z.boolean().default(true).describe('Advertise webhook MCP Events alongside tools.'),
+    storePath: z.string().optional().describe('Private SQLite subscription and delivery journal; defaults to an instance-specific file under .open-wa.'),
+    lifetimeMs: z.number().int().positive().max(7 * 24 * 60 * 60_000).default(24 * 60 * 60_000)
+      .describe('Maximum granted subscription lifetime in milliseconds. ChatGPT refreshes before expiration.'),
+  }).optional().describe('Durable MCP Events delivery configuration.'),
 });
 
 export const ChatSandboxConfigSchema = z.object({

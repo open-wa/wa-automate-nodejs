@@ -1,5 +1,6 @@
 import type { Config, HttpMethodDefinition } from '@open-wa/schema';
-import { eventRegistry } from '@open-wa/schema';
+import { eventRegistry, createAsyncApiDocument } from '@open-wa/schema';
+import { API_VERSION } from '../version';
 import { getMcpToolDefinitions } from '@open-wa/mcp';
 import { deprecatedJson, applyDeprecationHeaders } from '../compat/deprecation';
 import { createOpenApiDocument } from '../docs/openapi';
@@ -51,6 +52,7 @@ function renderExplorerHtml(config: Config, methodDefinitions: HttpMethodDefinit
     .join('');
 
   const swaggerPath = joinPath(externalBase, 'meta/swagger.json');
+  const asyncapiPath = joinPath(externalBase, 'meta/asyncapi.json');
   const postmanPath = joinPath(externalBase, 'meta/postman.json');
   const commandsPath = joinPath(externalBase, 'meta/basic/commands');
   const listenersPath = joinPath(externalBase, 'meta/basic/listeners');
@@ -335,6 +337,7 @@ function renderExplorerHtml(config: Config, methodDefinitions: HttpMethodDefinit
           </div>
           <div class="quick-links">
             <a href="${swaggerPath}">📋 Swagger JSON</a>
+            <a href="${asyncapiPath}">📡 AsyncAPI JSON</a>
             <a href="${postmanPath}">📮 Postman Collection</a>
             <a href="${commandsPath}">⚡ Commands JSON</a>
             <a href="${listenersPath}">📡 Listeners JSON</a>
@@ -394,6 +397,14 @@ export function registerMetaRoutes(
     const basePath = joinPath(getExternalBase(c), 'api');
     return c.json(createOpenApiDocument(options.methodDefinitions, { origin, basePath }));
   });
+
+  app.get('/meta/asyncapi.json', (c: any) => c.json(createAsyncApiDocument({
+    origin: new URL(c.req.url).origin,
+    basePath: getExternalBase(c),
+    version: API_VERSION,
+    mcpPath: options.config.mcp?.path,
+    mcpEnabled: Boolean(options.config.mcp?.enabled && options.config.mcp?.events?.enabled !== false),
+  })));
 
   app.get('/meta/postman.json', (c: any) => {
     const origin = new URL(c.req.url).origin;

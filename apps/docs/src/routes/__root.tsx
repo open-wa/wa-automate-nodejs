@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router';
 import * as React from 'react';
 import appCss from '@/styles/app.css?url';
+import readingCss from '@/styles/reading.css?url';
 import { RootProvider } from 'fumadocs-ui/provider/tanstack';
 import SearchDialog from '@/components/search';
 import { SITE_NAME } from '@/lib/site';
@@ -38,6 +39,7 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: 'stylesheet', href: appCss },
+      { rel: 'stylesheet', href: readingCss },
       { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
       { rel: 'apple-touch-icon', href: '/wally.png' },
     ],

@@ -1,0 +1,169 @@
+---
+title: Consume events with Effect
+description: Keep immediate callbacks and add scoped, queued event consumers with HyperEmitter.
+---
+
+# Consume events with Effect
+
+Use ordinary listeners for immediate application reactions. Add an Effect
+subscription when a separate consumer needs sequential work, batching, or
+automatic cleanup. Each PubSub subscriber receives the feed independently.
+
+These APIs are prepared for the next SDK release; the published 5.5.1 packages
+don't include them yet. The examples use Effect 4, matching OpenWA's pinned
+`effect@4.0.2`, and can be run against the prepared workspace build.
+
+## Run a callback and a queued consumer
+
+Once the SDK release is published, install the standalone emitter and matching
+Effect version:
+
+```sh
+npm install @open-wa/hyperemitter effect@4.0.2
+```
+
+Save this as `events.mjs`. It doesn't require a WhatsApp session:
+
+```js
+import { EventEmitter } from '@open-wa/hyperemitter';
+import { Effect, PubSub } from 'effect';
+
+const events = new EventEmitter();
+
+await Effect.runPromise(
+  Effect.scoped(Effect.gen(function* () {
+    yield* events.onScoped('app.job.finished', ({ jobId }) => {
+      console.log('Callback:', jobId);
+    });
+
+    const subscription = yield* events.subscribe();
+    events.emit('app.job.finished', { jobId: 'daily-summary' });
+
+    const { event, args } = yield* PubSub.take(subscription);
+    console.log('Queued:', event, args[0].jobId);
+  })).pipe(Effect.ensuring(events.close())),
+);
+```
+
+Run `node events.mjs`. It prints:
+
+```text
+Callback: daily-summary
+Queued: app.job.finished daily-summary
+```
+
+The callback runs inside `emit()`. The queued reader sees the same payload
+object through `args[0]`. Closing the consumer scope removes its subscription
+and scoped callback; the finalizer closes this application-owned emitter.
+
+## Use OpenWA's shared feed
+
+Replace the standalone emitter with `ev` from `@open-wa/wa-automate` when
+observing sessions or sharing events across files. Acquire the subscription
+before starting `create()` if you need authentication events, because the
+default feed has no replay. Inside your application's Effect scope:
+
+```ts
+import { ev } from '@open-wa/wa-automate';
+import { Effect, PubSub } from 'effect';
+
+const observeReady = Effect.gen(function* () {
+  const subscription = yield* ev.subscribe();
+  while (true) {
+    const frame = yield* PubSub.take(subscription);
+    if (frame.event !== 'client.ready') continue;
+    const [payload, sessionId, namespace] = frame.args;
+    console.log('Ready:', sessionId, namespace, payload);
+  }
+});
+```
+
+Run this consumer as part of the scope that owns your application work. Global
+native frames carry all three callback arguments. Enabled session aliases are
+also forwarded, so filtering one naming scheme avoids processing a native event
+and its alias as two messages. The feed can include pairing and session data;
+select the fields your consumer actually needs.
+
+A subscription owns queued retention while active. End its scope when its
+consumer stops. Stopping one WhatsApp client detaches only that client's
+forwarding connection; don't close the shared `ev` as a consumer finalizer.
+
+## Consume a typed stream
+
+`client.events` has typed `{ event, payload }` frames. The standalone
+`HyperEmitter<TMap>` uses the same interface, so this complete example can run
+without connecting a session. Save it as `typed-events.ts`:
+
+```ts
+import { HyperEmitter } from '@open-wa/hyperemitter';
+import { Effect, Stream } from 'effect';
+
+type Events = {
+  'app.job.finished': { jobId: string };
+  'app.status': { state: string };
+};
+
+const events = new HyperEmitter<Events>();
+events.pubsub({ strategy: 'sliding', capacity: 16, replay: 2 });
+events.emit('app.status', { state: 'ready' });
+events.emit('app.job.finished', { jobId: 'daily-summary' });
+
+await Effect.runPromise(
+  events.stream().pipe(
+    Stream.filter(frame => frame.event === 'app.job.finished'),
+    Stream.take(1),
+    Stream.runForEach(frame =>
+      Effect.sync(() => console.log('Stream:', frame.payload.jobId)),
+    ),
+    Effect.ensuring(events.close()),
+  ),
+);
+```
+
+Run it with your TypeScript runner, for example `bun run typed-events.ts`. It
+prints `Stream: daily-summary`. The two replay slots deliberately retain both
+emissions made before stream consumption. Without replay, a stream only sees
+emissions after its subscription begins. `Stream.runForEach()` processes the
+selected frames sequentially; add batching or concurrency explicitly when your
+consumer needs it.
+
+## Choose retention for your consumer
+
+Configure the shared hub once, before other modules subscribe:
+
+```ts
+ev.pubsub({ strategy: 'sliding', capacity: 256 });
+```
+
+Use sliding for a monitor that prefers current observations over an old backlog.
+Use dropping when already-queued observations should take priority over new
+ones. Both policies can lose events. The unbounded default avoids capacity
+rejections but lets a slow active consumer retain a growing backlog.
+
+`ev.pubsubStatus` reports accepted and rejected emitter publications. An accepted
+frame hasn't necessarily been processed; sliding evictions aren't counted as
+rejections. Define acknowledgement in your own consumer when completion matters.
+An in-memory feed doesn't provide durable delivery across process restarts.
+
+## Wait for callback work when needed
+
+For an application operation that should await its direct listeners, use
+`emitAsync()` or `emitEffect()` rather than treating publication as completion:
+
+```ts
+await ev.emitAsync('app.job.finished', { jobId: 'daily-summary' });
+// Or, inside an Effect generator:
+// yield* ev.emitEffect('app.job.finished', { jobId: 'daily-summary' });
+```
+
+These methods wait for direct callback work, including returned Promises or
+Effects. They don't wait for queued consumers. Register an Effect listener with
+`onScoped()` when its work should be interrupted as that scope closes; an
+external Promise operation needs its own cancellation support.
+
+Native access is available through `ev.pubsub()`. Publishing directly with
+`PubSub.publish()` reaches queued readers only. Use the emitter's dispatch
+methods when both callbacks and queued consumers should receive the event.
+
+See the [HyperEmitter reference](/docs/reference/hyperemitter) for exact method
+returns, buffer options, counters, and shutdown behavior.

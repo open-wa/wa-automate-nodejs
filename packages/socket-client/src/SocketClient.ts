@@ -1,4 +1,5 @@
-import { EventEmitter2 } from 'eventemitter2';
+import { EventEmitter } from '@open-wa/hyperemitter';
+import { Effect } from 'effect';
 import { EventSource as EventSourcePolyfill } from 'eventsource';
 import type { SimpleListener, Chat, ChatId, Message } from "@open-wa/wa-automate-types-only";
 import type { BaseClient as _Client } from "@open-wa/wa-automate-types-only";
@@ -84,8 +85,7 @@ class SocketCompat {
     public connected = false;
     public id = `sse-${uuidv4()}`;
 
-    private emitter = new EventEmitter2();
-    private anyListeners = new Set<(event: string, ...args: any[]) => void>();
+    private emitter = new EventEmitter();
 
     constructor(private readonly client: SocketClient) { }
 
@@ -101,12 +101,12 @@ class SocketCompat {
     }
 
     public onAny(listener: (event: string, ...args: any[]) => void) {
-        this.anyListeners.add(listener);
+        this.emitter.onAny(listener);
         return this;
     }
 
     public offAny(listener: (event: string, ...args: any[]) => void) {
-        this.anyListeners.delete(listener);
+        this.emitter.offAny(listener);
         return this;
     }
 
@@ -146,9 +146,14 @@ class SocketCompat {
 
     public emitLocal(event: string, ...args: any[]) {
         this.emitter.emit(event, ...args);
-        for (const listener of this.anyListeners) {
-            listener(event, ...args);
-        }
+    }
+
+    public closeEvents() {
+        void Effect.runPromise(this.emitter.close());
+    }
+
+    public openEvents() {
+        if (this.emitter.isClosed) this.emitter = new EventEmitter();
     }
 }
 
@@ -211,11 +216,9 @@ export class SocketClient {
     socket: SocketCompat;
     flushListenersOnDisconnect: boolean = true;
     /**
-     * A local version of the `ev` EventEmitter2
+     * A local HyperEmitter for remote events and Effect-scoped subscriptions.
      */
-    ev: EventEmitter2 = new EventEmitter2({
-        wildcard: true
-    })
+    ev: EventEmitter = new EventEmitter();
     listeners: {
         [listener in SimpleListener]?: {
             [id: string]: (data: any) => any
@@ -262,9 +265,6 @@ export class SocketClient {
 
     private async _connected() {
         debug("_connected", this.socket.id)
-        if (!this.ev) this.ev = new EventEmitter2({
-            wildcard: true
-        })
         if (!this.hasSignalHandler && typeof process !== 'undefined' && process.on) {
             process.on('SIGINT', () => {
                 this.close()
@@ -289,6 +289,8 @@ export class SocketClient {
     public close(): void {
         void this.calls.close();
         this.closeStream('client close');
+        void Effect.runPromise(this.ev.close());
+        this.socket.closeEvents();
     }
 
     /**
@@ -303,6 +305,8 @@ export class SocketClient {
      * Reconnect the socket
      */
     public async reconnect(): Promise<void> {
+        if (this.ev.isClosed) this.ev = new EventEmitter();
+        this.socket.openEvents();
         this.closeStream('manual reconnect', false);
         await this.openStream();
     }

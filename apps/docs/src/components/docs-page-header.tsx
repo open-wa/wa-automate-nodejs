@@ -20,7 +20,7 @@ export function DocsPageHeader({
   return (
     <header className="docs-page-header">
       <div className="docs-page-meta">
-        <span><a href="/docs">Docs</a><span aria-hidden="true"> / </span>{reference ? 'API reference' : title}</span>
+        <span><a href="/docs">Docs</a><span aria-hidden="true"> / </span>{reference ? 'API reference' : 'Guides'}</span>
         <PageActions pagePath={pagePath} />
       </div>
       <div className="docs-page-heading">
