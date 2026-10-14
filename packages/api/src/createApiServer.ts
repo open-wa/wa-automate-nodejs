@@ -61,6 +61,7 @@ export class ApiServer {
   private healthStore: HealthStore = new HealthStore();
   private diagnosticStore: DiagnosticStore = new DiagnosticStore();
   private eventBroadcaster: EventBroadcaster;
+  private mcpAdapter?: ReturnType<typeof createHonoMcpAdapter>;
   private eventBridge?: EventBridge;
   private eventBridgeListener?: (event: string, payload: any) => void;
   private readinessProvider?: () =>
@@ -124,6 +125,7 @@ export class ApiServer {
       this.healthStore.processEvent(event, payload);
       this.diagnosticStore.capture(event, payload);
       this.eventBroadcaster.broadcast(event, payload);
+      this.mcpAdapter?.publishEvent(event, payload);
     };
 
     // Also wire events into the HealthStore so /health returns accumulated data
@@ -243,6 +245,9 @@ export class ApiServer {
   }
 
   public async stop() {
+    if (this.eventBridge && this.eventBridgeListener) this.eventBridge.offAny(this.eventBridgeListener);
+    await this.mcpAdapter?.close();
+    this.mcpAdapter = undefined;
     await this.dashboardDevServer?.close();
     this.dashboardDevServer = undefined;
     const server = this.server;
@@ -475,14 +480,14 @@ export class ApiServer {
     );
 
     if (this.config.mcp?.enabled) {
-      const mcpAdapter = createHonoMcpAdapter({
+      this.mcpAdapter = createHonoMcpAdapter({
         config: this.config,
         clientSource: () => this.client,
         elasticEmitter: this.elasticEmitter,
         basePath: '/api',
         isSessionConnected: () => this.isSessionConnected(),
       });
-      mcpAdapter.mount(this.app, this.config.mcp.path || '/mcp');
+      this.mcpAdapter.mount(this.app, this.config.mcp.path || '/mcp');
     }
   }
 }
