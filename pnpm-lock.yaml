@@ -860,9 +860,6 @@ importers:
       effect:
         specifier: 'catalog:'
         version: 4.0.2
-      eventemitter2:
-        specifier: ^6.4.9
-        version: 6.4.9
       hono:
         specifier: 'catalog:'
         version: 4.13.9
@@ -1018,13 +1015,13 @@ importers:
       '@open-wa/logger':
         specifier: workspace:*
         version: link:../logger
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.2
     devDependencies:
       emittery:
         specifier: ^2.1.0
         version: 2.1.0
-      eventemitter2:
-        specifier: ^6.4.9
-        version: 6.4.9
       eventemitter3:
         specifier: ^5.0.4
         version: 5.0.4
@@ -1330,6 +1327,9 @@ importers:
 
   packages/socket-client:
     dependencies:
+      '@open-wa/hyperemitter':
+        specifier: workspace:*
+        version: link:../hyperemitter
       '@open-wa/runtime-core':
         specifier: workspace:*
         version: link:../runtime-core
@@ -1345,9 +1345,9 @@ importers:
       debug:
         specifier: ^4.4.3
         version: 4.4.3(supports-color@10.2.2)
-      eventemitter2:
-        specifier: ^6.4.9
-        version: 6.4.9
+      effect:
+        specifier: 'catalog:'
+        version: 4.0.2
       eventsource:
         specifier: ^5.1.2
         version: 5.1.2
