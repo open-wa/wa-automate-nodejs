@@ -1,0 +1,114 @@
+---
+title: HyperEmitter and Effect
+description: Callback dispatch, Effect scope ownership, and optional PubSub observation.
+---
+
+# HyperEmitter and Effect
+
+The Effect hybrid and optional PubSub APIs on this page are prepared for the next
+SDK release. They aren't included in the published 5.5.1 packages.
+
+`@open-wa/hyperemitter` exports two emitters. OpenWA's shared `ev` uses the
+`EventEmitter` facade; `client.events` uses the typed `HyperEmitter`.
+
+| Interface | `EventEmitter` / `ev` | `HyperEmitter<TMap>` / `client.events` |
+| --- | --- | --- |
+| Callback arguments | `(...args)`; native global events pass `(payload, sessionId, namespace)` | One typed payload |
+| Default wildcards | `*` matches one segment; `**` matches zero or more segments, anywhere | `+` matches one segment; trailing `#` matches zero or more segments |
+| Queued frame | `{ event, args }` | `{ event, payload }`, with the event and payload types linked |
+| Await listener work | `emitAsync()` or `emitEffect()` | `emitEffect()` |
+
+For a runnable example, read [Consume events with Effect](/docs/guides/effect-event-streams).
+For WhatsApp payloads and session aliases, read [Event Reference](/docs/reference/events)
+and [Session events](/docs/guides/session-events).
+
+## Dispatch and listener ownership
+
+| Method | Behavior |
+| --- | --- |
+| `on(event, listener, options?)` | Registers a callback immediately. Ordinary callbacks run synchronously during `emit()`. |
+| `once(event, listener, options?)` | Removes the registration before its first invocation, including recursive emissions. |
+| `off(event, listener)` | Removes a registration using the original callback reference. |
+| `onScoped(event, listener, options?)` | Returns an Effect requiring `Scope`. Running it registers the listener; closing the scope removes it and interrupts its in-flight work. |
+| `onAnyScoped(listener, options?)` | Owns a catch-all listener in the same way. Its callback receives `(event, ...args)` on `ev`, or `(event, payload)` on `HyperEmitter`. |
+| `emit(event, ...args)` / `emit(event, payload)` | Publishes one observation if the hub exists, then invokes matching callbacks. Returns whether callback listeners were found, even if the queued hub accepted the event. |
+| `emitEffect(event, ...args)` / `emitEffect(event, payload)` | Returns a lazy Effect that dispatches and awaits direct listener work. No event is emitted until the Effect runs. |
+| `close()` | Returns an Effect that closes the emitter, removes listeners, interrupts its owned work, and shuts down its PubSub. It doesn't promise to drain queued events. |
+| `isClosed` | Reports whether the owning emitter has closed. A closed emitter rejects new registrations. |
+
+Listeners may return a Promise or an Effect. `emit()` starts that work in fibers
+owned by the emitter or scoped registration; it returns before asynchronous
+completion. `emitEffect()` waits and exposes uncaptured listener failures through
+its error channel. Cancelling an Effect cannot undo an external side effect
+already started by a Promise; the operation must support cancellation itself.
+
+The public facade also keeps the established callback methods: `addListener`,
+`prependListener`, `prependOnceListener`, `many`, `prependMany`, `onAny`,
+`prependAny`, `offAny`, `removeListener`, `removeAllListeners`, `listeners`,
+`listenersAny`, `listenerCount`, `hasListeners`, `eventNames`, `setMaxListeners`,
+`getMaxListeners`, `waitFor`, `listenTo`, and `stopListeningTo`. Event names can
+be strings, symbols, or namespace arrays. Ordinary functions receive the emitter
+as `this`, with the current name in `this.event`.
+
+`await ev.emitAsync(event, ...args)` returns direct callback results in listener
+order. Neither `emitAsync()` nor `emitEffect()` waits for PubSub consumers.
+Those consumers must define their own acknowledgement, timeout, and retry policy.
+
+`onGlobalEvent(event, listener)` from `@open-wa/wa-automate` is the shared
+`ev.onScoped()` convenience helper. Stopping a client closes its local emitter
+and detaches its global forwarding connection. It leaves the process-level `ev`
+and other sessions' subscriptions open. Close `ev` only when your application
+owns the lifetime of the entire process-level feed.
+
+## PubSub methods
+
+Both emitters expose these methods:
+
+| Method | Return value and behavior |
+| --- | --- |
+| `pubsub(options?)` | A native `PubSub.PubSub<Frame>`. Creates the hub synchronously on first access; later calls return the same hub. |
+| `subscribe(options?)` | `Effect<PubSub.Subscription<Frame>, never, Scope>`. Creates the hub and subscription when run; the subscription is released when its scope closes. |
+| `stream(options?)` | `Stream<Frame>`. Subscribes when consumed, and releases its subscription when consumption ends. |
+| `hasPubSub` | True while the hub exists and is active. Reading it doesn't create a hub. |
+| `pubsubStatus` | `{ enabled, shutdown, strategy, accepted, rejected }`. Reading it doesn't create a hub. |
+
+Queued envelopes and argument/namespace arrays are frozen. Payload objects keep
+their original identity and aren't deep-frozen or cloned. An observation is
+published before callback invocation, so recursive emissions keep their original
+queued order. The frame records an emission, including one whose callbacks fail.
+
+`PubSub.publish(ev.pubsub(), frame)` publishes directly to queued readers. It
+doesn't invoke callbacks or update the emitter's counters. Use `emit()`,
+`emitAsync()`, or `emitEffect()` to deliver through both interfaces.
+
+The owner shuts down the hub on `close()`, which interrupts waiting readers.
+Calling native `PubSub.shutdown(hub)` yourself also ends queued observation;
+ordinary callback dispatch continues while the emitter remains open. Keep hub
+shutdown with its owner when sharing it between modules.
+
+## PubSub options
+
+Choose options before the first `pubsub()`, running `subscribe()`, or consuming
+`stream()`. Conflicting options after configuration throw an error; the hub is
+never silently replaced.
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `strategy` | `'unbounded'` | `'unbounded'`, `'dropping'`, or `'sliding'`. All keep synchronous producers from waiting for queued readers. |
+| `capacity` | None | Required positive integer for dropping or sliding. It is invalid for unbounded. |
+| `replay` | `0` | Non-negative integer number of recent frames retained for later subscribers, independently of the active-subscriber capacity policy. |
+
+Unbounded queues retain pending frames for active subscribers without a memory
+cap. Dropping rejects a new observation when full. Sliding evicts older pending
+observations to accept newer ones. Replay adds retention even without an active
+subscriber, so size it deliberately.
+
+`pubsubStatus.accepted` and `.rejected` count publications made through emitter
+methods. Acceptance isn't delivery completion. Sliding evictions don't increment
+`rejected`, and raw native publications aren't counted. After shutdown, `enabled`
+still records that a hub was created; use `shutdown` or `hasPubSub` for its active
+state.
+
+Finite lossless backpressure requires an effectful producer that can suspend.
+Use an integration-owned PubSub or Queue for that workflow; it isn't an option
+beneath synchronous `emit()`.
