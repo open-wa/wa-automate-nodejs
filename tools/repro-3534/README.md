@@ -1,0 +1,69 @@
+# Issue #3534: CommonJS create startup
+
+`create-repro.ts` uses the report's `require("node:path")` and
+`require("@open-wa/wa-automate")` imports and its configuration. Run it with
+Node **24.21.0**. The fixture installs the released SDK and Puppeteer driver
+at **5.6.0** from npm, independently of this repository's workspaces.
+
+```sh
+cd tools/repro-3534
+npm ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+node create-repro.ts
+```
+
+The default configuration matches the Linux report, including
+`/usr/bin/google-chrome-stable`, `headless: true`, unlimited authentication
+and QR timeouts, and the report's Chromium arguments. Install Chrome
+**145.0.7632.159** to match its browser version.
+
+For visual inspection, run the same script with a visible browser:
+
+```sh
+OPENWA_REPRO_HEADLESS=false node create-repro.ts
+```
+
+On macOS, override only the executable path as well:
+
+```sh
+OPENWA_REPRO_HEADLESS=false \
+OPENWA_REPRO_CHROME='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' \
+node create-repro.ts
+```
+
+The script calls the real `create(configObject)` without mocks or injected
+drivers. It prints `CREATE_FAILED` on rejection and `CREATE_RESOLVED` only
+after pairing and messaging readiness. Reaching the QR proves browser and
+authentication startup, while the create promise still awaits pairing.
+
+Set `OPENWA_REPRO_CHECK_QR=true` to also observe the public shared `ev`
+before starting the client. It records the native
+`launch.auth.qr.generated` event and both `qr.bug-repro` and `qr.**`
+listeners, including the session/namespace arguments and whether each
+alias received the native QR string. These metadata lines do not print the
+pairing string; the SDK's ordinary terminal renderer prints the QR itself.
+
+The published 5.6.0 run found a second failure after the EventEmitter2 fix:
+the ESM core treated its `file://` stack-frame URL as a filesystem path, so
+runtime assets could not be resolved. A candidate build with the path
+conversion reached QR pairing on macOS with Node 24.21.0 and Chrome for
+Testing 145.0.7632.117. The visible run changed `headless` to `false` and
+overrode the executable path. Ubuntu/PM2, the exact Linux Chrome
+145.0.7632.159 binary, and completion after pairing have not been confirmed
+by that candidate run. The fix does not modify the browser assets.
+
+## Render the public ev QR in JavaScript
+
+The fixture's 5.6.0 pins retain the failing release as the baseline. To run
+the published correction, install the matching patch packages, then use
+the plain CommonJS JavaScript entry:
+
+```sh
+npm install --save-exact @open-wa/wa-automate@5.6.1 @open-wa/driver-puppeteer@5.6.1
+node create-repro.js
+```
+
+`create-repro.js` calls `qrcode-terminal` inside the `ev.on('qr.**')`
+callback. The QR between `[ev QR BEGIN]` and `[ev QR END]` is rendered from
+the event payload, independently of the SDK's normal terminal renderer.
+The script selects installed Chrome's macOS path on macOS and the report's
+Linux path elsewhere; `OPENWA_REPRO_CHROME` can override that path.

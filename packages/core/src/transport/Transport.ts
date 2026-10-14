@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile, stat } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type {
   DisposableHandle,
   IConsoleMessage,
@@ -2787,7 +2788,7 @@ export class Transport {
         throw new Error('Unable to determine current module path for launch.js resolution');
       }
 
-      return dirname(fileName);
+      return dirname(fileName.startsWith('file:') ? fileURLToPath(fileName) : fileName);
     } finally {
       Error.prepareStackTrace = originalPrepareStackTrace;
     }

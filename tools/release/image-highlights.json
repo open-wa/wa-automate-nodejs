@@ -61,6 +61,13 @@
       "@open-wa/wa-automate"
     ]
   },
+  "5.6.1": {
+    "headline": "Node startup, fixed",
+    "summary": "CommonJS create() now resolves the packaged runtime assets through the ESM core and reaches QR pairing.",
+    "badge": "OpenWA 5.6.1 patch",
+    "notesFile": "v5.6.1-release-notes.md",
+    "packages": ["@open-wa/core", "@open-wa/wa-automate", "@open-wa/driver-puppeteer"]
+  },
   "5.6.0": {
     "headline": "Events you can build on",
     "summary": "Generated event contracts, signed MCP subscriptions, and familiar callbacks with optional Effect streams.",
