@@ -1,0 +1,14 @@
+{
+  "name": "openwa-issue-3534-repro",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node create-repro.ts",
+    "visual": "OPENWA_REPRO_HEADLESS=false node create-repro.ts"
+  },
+  "dependencies": {
+    "@open-wa/wa-automate": "5.6.0",
+    "@open-wa/driver-puppeteer": "5.6.0",
+    "qrcode-terminal": "0.12.0"
+  }
+}
