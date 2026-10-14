@@ -1,0 +1,58 @@
+---
+title: Watch WhatsApp from ChatGPT
+description: Subscribe to WhatsApp updates and let ChatGPT respond to your instructions.
+---
+
+MCP Events lets ChatGPT Work watch a WhatsApp conversation and act when an update arrives. For example: “Watch this customer conversation. When they ask for a quote, draft a reply using our price list.”
+
+## Enable the endpoint
+
+Run Easy API with an API key and MCP enabled:
+
+```json
+{
+  "apiKey": "your-private-api-key",
+  "mcp": { "enabled": true }
+}
+```
+
+Connect its publicly reachable HTTPS MCP endpoint to your ChatGPT plugin using the Easy API key. The endpoint serves MCP 2.0, protocol revision `2026-07-28`. Event subscriptions are available in ChatGPT Work web chats, desktop Work chats with Cloud selected, and dots.
+
+OpenWA advertises these events alongside its tools:
+
+| Event | When it arrives | Subscription filter |
+| --- | --- | --- |
+| `message.received` | A new incoming message, excluding this account's sends | Optional exact `chatId` |
+| `ack.changed` | A message acknowledgement changes | Optional exact `chatId`; snapshots without that field won't match |
+| `session.state.changed` | The linked session changes state | No arguments |
+
+Use the conversation ID returned by OpenWA. Ask ChatGPT what to monitor and what it should do; ChatGPT manages `events/subscribe`, refresh and `events/unsubscribe`.
+
+## Payloads and delivery
+
+Message updates contain `sessionId`, `messageId`, optional `chatId`, `from` and `body`, plus `truncated`. Message text is capped at 4,000 characters. ChatGPT can use `messages.get` with `messageId` to read the full available message. Acknowledgements contain the message ID, acknowledgement value and available conversation ID. State updates contain the current and available previous state.
+
+OpenWA verifies the callback before sending WhatsApp data. It signs each request using the secret supplied by ChatGPT, validates public HTTPS destinations for each connection and rejects redirects. A successful HTTP response acknowledges receipt; ChatGPT processes the event asynchronously. Transient failures receive bounded retries, with the same event ID. `410` and `413` responses aren't retried. Deliveries can repeat or arrive out of order.
+
+Subscriptions and pending deliveries persist in a private SQLite file under `.open-wa/`. Keep that directory on persistent storage when running in a container. Events missed while OpenWA is offline aren't replayed: `cursor` is always `null`.
+
+## Subscription settings
+
+```json
+{
+  "mcp": {
+    "enabled": true,
+    "events": {
+      "enabled": true,
+      "storePath": ".open-wa/mcp-events.sqlite",
+      "lifetimeMs": 86400000
+    }
+  }
+}
+```
+
+The default granted lifetime is one day. OpenWA returns `refreshBefore` so ChatGPT can renew it. A shorter requested lifetime is honored. A request for no expiration still receives a finite lifetime. Set `mcp.events.enabled` to `false` to expose tools without subscriptions.
+
+[Read the generated event contracts](/docs/reference/event-contracts) or [download AsyncAPI](/asyncapi.json).
+
+The OpenAI MCP Extensions SDK provides sidebar views, file handlers, mentions and forms. This integration uses the standard event subscription methods and doesn't require that UI SDK. [OpenAI MCP Events requirements](https://developers.openai.com/plugins/build/mcp-events), [OpenAI MCP Extensions](https://github.com/openai/mcp-extensions).
