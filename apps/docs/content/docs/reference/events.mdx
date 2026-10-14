@@ -10,12 +10,15 @@ description: API reference for all events emitted by the Open-WA Client.
 
 Each open-wa client has its own `HyperEmitter` event stream. The shared `ev`
 helper forwards native events from those clients and supports v4 wildcard
-subscriptions through EventEmitter2. Effect owns each forwarding connection
-and removes it when the session closes.
+subscriptions through the Effect-backed HyperEmitter hybrid. Effect owns each
+forwarding connection and removes it when the session closes.
 
-The shared helper is restored in the next package release after 5.4.0.
-See [session events](/docs/guides/session-events) for aliases, payloads,
-custom application events, and scoped subscriptions.
+The Effect hybrid and optional PubSub APIs are prepared for the next SDK
+release; the published 5.5.1 packages don't include them yet.
+See [session events](/docs/guides/session-events) for aliases and payloads,
+the [HyperEmitter reference](/docs/reference/hyperemitter) for emitter methods,
+and [Consume events with Effect](/docs/guides/effect-event-streams) for a
+complete callback-and-queue example.
 
 ## Listener examples
 
@@ -52,7 +55,7 @@ Use client-level helpers, such as `client.onMessage`, for normal bot behavior af
 The shared emitter supports wildcard listeners. This is useful for debugging or for carefully redacted audit sinks. Some compatibility and session-level emitters also pass session data through wildcard segments:
 
 ```ts
-ev.on('**.**', (payload, sessionId, namespace) => {
+ev.on('**', (payload, sessionId, namespace) => {
   auditEvent({
     namespace,
     sessionId,

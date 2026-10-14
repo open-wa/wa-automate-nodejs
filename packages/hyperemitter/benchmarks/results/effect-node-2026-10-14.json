@@ -1,0 +1,1383 @@
+{
+  "benchmark": "hyperemitter-effect-dispatch",
+  "recordedAt": "2026-10-14T04:10:24.729Z",
+  "node": "v26.10.0",
+  "effect": "4.0.2",
+  "platform": "darwin-arm64",
+  "cpu": "Apple M1 Pro",
+  "baselineCommit": "edf0e755da222b162d88980ba39dc0b1bc0e7419",
+  "rounds": 7,
+  "warmupBatches": 2,
+  "gcExposed": true,
+  "implementations": [
+    {
+      "name": "node-eventemitter",
+      "sourceSha256": null
+    },
+    {
+      "name": "callback-baseline",
+      "sourceSha256": "a81e06cbf34d7672085911fcdbf6bb8528dd6d5c5843e174be4fd14f78eafa5e"
+    },
+    {
+      "name": "effect-aware-snapshot",
+      "sourceSha256": "b3769345f1cf89a44513e48c5fcafa8e9d5cdde07f845b26ef5191f7df7a3c7f"
+    },
+    {
+      "name": "effect-dispatcher",
+      "sourceSha256": "9b3e6ed3cbe3ae96a9740cdfbec840edd1cb777ebc8ee24ca7c90b3eddbc3bab"
+    }
+  ],
+  "notes": [
+    "Current source and frozen baseline sources are bundled to temporary ESM files and executed by plain Node.",
+    "Dependencies are external: all HyperEmitter variants use the same installed Effect and logger packages.",
+    "Creation, registration, delivery-count/checksum checks, GC, and teardown are outside timing, except the scoped churn scenario.",
+    "Async scenarios wait for completed listener work; scoped churn verifies zero remaining registrations.",
+    "Effect await scenarios use one root Effect runtime per batch; sync scenarios enter the runtime per emit.",
+    "Numbers are per-event batch medians, not per-callback or application end-to-end latency.",
+    "Unsupported features are omitted rather than approximated with compatibility wrappers."
+  ],
+  "results": [
+    {
+      "name": "sync-empty",
+      "mode": "sync",
+      "listeners": 0,
+      "iterations": 100000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": true,
+          "medianMs": 2.8398749999996653,
+          "minMs": 1.9422910000012052,
+          "maxMs": 7.442457999999533,
+          "operationsPerSecond": 35212817,
+          "nanosecondsPerOperation": 28.398749999996653,
+          "samplesMs": [
+            1.9422910000012052,
+            2.087499999999636,
+            2.1171659999999974,
+            2.8398749999996653,
+            3.0362910000003467,
+            3.0928749999984575,
+            7.442457999999533
+          ],
+          "medianCpuMs": 7.014,
+          "samples": [
+            {
+              "durationMs": 2.087499999999636,
+              "cpuMs": 6.487
+            },
+            {
+              "durationMs": 2.1171659999999974,
+              "cpuMs": 6.549
+            },
+            {
+              "durationMs": 2.8398749999996653,
+              "cpuMs": 7.721
+            },
+            {
+              "durationMs": 3.0928749999984575,
+              "cpuMs": 7.014
+            },
+            {
+              "durationMs": 1.9422910000012052,
+              "cpuMs": 5.309
+            },
+            {
+              "durationMs": 3.0362910000003467,
+              "cpuMs": 7.143
+            },
+            {
+              "durationMs": 7.442457999999533,
+              "cpuMs": 7.681
+            }
+          ]
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": true,
+          "medianMs": 3.712459000000308,
+          "minMs": 2.5563750000001164,
+          "maxMs": 4.913916999999856,
+          "operationsPerSecond": 26936324,
+          "nanosecondsPerOperation": 37.12459000000308,
+          "samplesMs": [
+            2.5563750000001164,
+            2.7325000000000728,
+            3.3760419999998703,
+            3.712459000000308,
+            3.717458999999508,
+            4.495667000001049,
+            4.913916999999856
+          ],
+          "medianCpuMs": 9.774,
+          "samples": [
+            {
+              "durationMs": 2.5563750000001164,
+              "cpuMs": 8.071
+            },
+            {
+              "durationMs": 2.7325000000000728,
+              "cpuMs": 7.687
+            },
+            {
+              "durationMs": 4.913916999999856,
+              "cpuMs": 12.363
+            },
+            {
+              "durationMs": 3.712459000000308,
+              "cpuMs": 11.615
+            },
+            {
+              "durationMs": 3.3760419999998703,
+              "cpuMs": 12.272
+            },
+            {
+              "durationMs": 3.717458999999508,
+              "cpuMs": 9.774
+            },
+            {
+              "durationMs": 4.495667000001049,
+              "cpuMs": 9.524
+            }
+          ]
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 15.725875000000087,
+          "minMs": 12.790791999999783,
+          "maxMs": 21.59912499999882,
+          "operationsPerSecond": 6358947,
+          "nanosecondsPerOperation": 157.25875000000087,
+          "samplesMs": [
+            12.790791999999783,
+            13.608374999999796,
+            14.996500000001106,
+            15.725875000000087,
+            16.369542000000365,
+            17.2221669999999,
+            21.59912499999882
+          ],
+          "medianCpuMs": 25.051,
+          "samples": [
+            {
+              "durationMs": 15.725875000000087,
+              "cpuMs": 27.84
+            },
+            {
+              "durationMs": 12.790791999999783,
+              "cpuMs": 21.421
+            },
+            {
+              "durationMs": 13.608374999999796,
+              "cpuMs": 22.174
+            },
+            {
+              "durationMs": 14.996500000001106,
+              "cpuMs": 25.051
+            },
+            {
+              "durationMs": 16.369542000000365,
+              "cpuMs": 26.866
+            },
+            {
+              "durationMs": 17.2221669999999,
+              "cpuMs": 24.27
+            },
+            {
+              "durationMs": 21.59912499999882,
+              "cpuMs": 29.638
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 85.86908399999993,
+          "minMs": 72.24358299999949,
+          "maxMs": 161.07329200000095,
+          "operationsPerSecond": 1164563,
+          "nanosecondsPerOperation": 858.6908399999993,
+          "samplesMs": [
+            72.24358299999949,
+            74.43462499999987,
+            75.90712499999972,
+            85.86908399999993,
+            95.70470800000112,
+            96.37908300000163,
+            161.07329200000095
+          ],
+          "medianCpuMs": 108.215,
+          "samples": [
+            {
+              "durationMs": 74.43462499999987,
+              "cpuMs": 101.497
+            },
+            {
+              "durationMs": 72.24358299999949,
+              "cpuMs": 102.011
+            },
+            {
+              "durationMs": 75.90712499999972,
+              "cpuMs": 98.915
+            },
+            {
+              "durationMs": 85.86908399999993,
+              "cpuMs": 114.466
+            },
+            {
+              "durationMs": 96.37908300000163,
+              "cpuMs": 119.341
+            },
+            {
+              "durationMs": 95.70470800000112,
+              "cpuMs": 108.215
+            },
+            {
+              "durationMs": 161.07329200000095,
+              "cpuMs": 116.131
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sync-exact-1",
+      "mode": "sync",
+      "listeners": 1,
+      "iterations": 100000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": true,
+          "medianMs": 4.364125000000058,
+          "minMs": 3.0411669999994047,
+          "maxMs": 35.33204099999966,
+          "operationsPerSecond": 22914101,
+          "nanosecondsPerOperation": 43.64125000000058,
+          "samplesMs": [
+            3.0411669999994047,
+            3.3848330000000715,
+            4.257832999999664,
+            4.364125000000058,
+            4.749041999999463,
+            4.769625000000815,
+            35.33204099999966
+          ],
+          "medianCpuMs": 8.923,
+          "samples": [
+            {
+              "durationMs": 35.33204099999966,
+              "cpuMs": 7.071
+            },
+            {
+              "durationMs": 4.364125000000058,
+              "cpuMs": 8.977
+            },
+            {
+              "durationMs": 3.3848330000000715,
+              "cpuMs": 8.994
+            },
+            {
+              "durationMs": 4.257832999999664,
+              "cpuMs": 8.923
+            },
+            {
+              "durationMs": 4.749041999999463,
+              "cpuMs": 8.535
+            },
+            {
+              "durationMs": 3.0411669999994047,
+              "cpuMs": 8.294
+            },
+            {
+              "durationMs": 4.769625000000815,
+              "cpuMs": 9.358
+            }
+          ]
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": true,
+          "medianMs": 10.549709000000803,
+          "minMs": 6.826208000000406,
+          "maxMs": 66.26458400000047,
+          "operationsPerSecond": 9478934,
+          "nanosecondsPerOperation": 105.49709000000803,
+          "samplesMs": [
+            6.826208000000406,
+            9.739874999999302,
+            10.076042000000598,
+            10.549709000000803,
+            15.505666000000929,
+            24.05254199999945,
+            66.26458400000047
+          ],
+          "medianCpuMs": 19.33,
+          "samples": [
+            {
+              "durationMs": 24.05254199999945,
+              "cpuMs": 21.457
+            },
+            {
+              "durationMs": 6.826208000000406,
+              "cpuMs": 13.442
+            },
+            {
+              "durationMs": 10.549709000000803,
+              "cpuMs": 19.098
+            },
+            {
+              "durationMs": 9.739874999999302,
+              "cpuMs": 14.483
+            },
+            {
+              "durationMs": 10.076042000000598,
+              "cpuMs": 19.73
+            },
+            {
+              "durationMs": 66.26458400000047,
+              "cpuMs": 20.62
+            },
+            {
+              "durationMs": 15.505666000000929,
+              "cpuMs": 19.33
+            }
+          ]
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 24.296082999997452,
+          "minMs": 15.917832999999519,
+          "maxMs": 48.33270799999991,
+          "operationsPerSecond": 4115890,
+          "nanosecondsPerOperation": 242.96082999997452,
+          "samplesMs": [
+            15.917832999999519,
+            21.70283399999971,
+            21.85808300000099,
+            24.296082999997452,
+            24.48241599999892,
+            28.09466699999757,
+            48.33270799999991
+          ],
+          "medianCpuMs": 31.404,
+          "samples": [
+            {
+              "durationMs": 48.33270799999991,
+              "cpuMs": 32.585
+            },
+            {
+              "durationMs": 21.85808300000099,
+              "cpuMs": 29.928
+            },
+            {
+              "durationMs": 24.48241599999892,
+              "cpuMs": 33.131
+            },
+            {
+              "durationMs": 28.09466699999757,
+              "cpuMs": 31.404
+            },
+            {
+              "durationMs": 21.70283399999971,
+              "cpuMs": 29.598
+            },
+            {
+              "durationMs": 24.296082999997452,
+              "cpuMs": 37.112
+            },
+            {
+              "durationMs": 15.917832999999519,
+              "cpuMs": 27.64
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 145.46283399999993,
+          "minMs": 109.51383300000089,
+          "maxMs": 196.23704100000032,
+          "operationsPerSecond": 687461,
+          "nanosecondsPerOperation": 1454.6283399999993,
+          "samplesMs": [
+            109.51383300000089,
+            137.35920799999803,
+            144.60350000000108,
+            145.46283399999993,
+            152.27170800000022,
+            187.45479200000045,
+            196.23704100000032
+          ],
+          "medianCpuMs": 145.949,
+          "samples": [
+            {
+              "durationMs": 187.45479200000045,
+              "cpuMs": 145.949
+            },
+            {
+              "durationMs": 196.23704100000032,
+              "cpuMs": 144.662
+            },
+            {
+              "durationMs": 145.46283399999993,
+              "cpuMs": 148.586
+            },
+            {
+              "durationMs": 137.35920799999803,
+              "cpuMs": 145.261
+            },
+            {
+              "durationMs": 144.60350000000108,
+              "cpuMs": 153.389
+            },
+            {
+              "durationMs": 152.27170800000022,
+              "cpuMs": 148.59
+            },
+            {
+              "durationMs": 109.51383300000089,
+              "cpuMs": 137.461
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sync-wildcard-1",
+      "mode": "sync",
+      "listeners": 1,
+      "wildcard": true,
+      "iterations": 100000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": false
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": true,
+          "medianMs": 16.513458000001265,
+          "minMs": 13.921958000002633,
+          "maxMs": 21.98474999999962,
+          "operationsPerSecond": 6055667,
+          "nanosecondsPerOperation": 165.13458000001265,
+          "samplesMs": [
+            13.921958000002633,
+            14.701499999999214,
+            15.041708000000654,
+            16.513458000001265,
+            18.036541000001307,
+            21.646375000000262,
+            21.98474999999962
+          ],
+          "medianCpuMs": 27.701,
+          "samples": [
+            {
+              "durationMs": 21.646375000000262,
+              "cpuMs": 27.701
+            },
+            {
+              "durationMs": 16.513458000001265,
+              "cpuMs": 30.895
+            },
+            {
+              "durationMs": 15.041708000000654,
+              "cpuMs": 23.545
+            },
+            {
+              "durationMs": 13.921958000002633,
+              "cpuMs": 24.571
+            },
+            {
+              "durationMs": 14.701499999999214,
+              "cpuMs": 25.686
+            },
+            {
+              "durationMs": 18.036541000001307,
+              "cpuMs": 33.416
+            },
+            {
+              "durationMs": 21.98474999999962,
+              "cpuMs": 28.829
+            }
+          ]
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 30.35516700000153,
+          "minMs": 27.348708000001352,
+          "maxMs": 56.32170899999983,
+          "operationsPerSecond": 3294332,
+          "nanosecondsPerOperation": 303.5516700000153,
+          "samplesMs": [
+            27.348708000001352,
+            28.584541000000172,
+            29.909999999999854,
+            30.35516700000153,
+            35.46162499999991,
+            37.56550000000061,
+            56.32170899999983
+          ],
+          "medianCpuMs": 46.61,
+          "samples": [
+            {
+              "durationMs": 37.56550000000061,
+              "cpuMs": 53.998
+            },
+            {
+              "durationMs": 29.909999999999854,
+              "cpuMs": 47.666
+            },
+            {
+              "durationMs": 30.35516700000153,
+              "cpuMs": 47.072
+            },
+            {
+              "durationMs": 27.348708000001352,
+              "cpuMs": 46.134
+            },
+            {
+              "durationMs": 28.584541000000172,
+              "cpuMs": 46.61
+            },
+            {
+              "durationMs": 35.46162499999991,
+              "cpuMs": 46.316
+            },
+            {
+              "durationMs": 56.32170899999983,
+              "cpuMs": 42.407
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 143.98991699999897,
+          "minMs": 112.74216700000034,
+          "maxMs": 259.63087500000256,
+          "operationsPerSecond": 694493,
+          "nanosecondsPerOperation": 1439.8991699999897,
+          "samplesMs": [
+            112.74216700000034,
+            134.4017500000009,
+            141.4078750000008,
+            143.98991699999897,
+            159.9008329999997,
+            203.28350000000137,
+            259.63087500000256
+          ],
+          "medianCpuMs": 164.541,
+          "samples": [
+            {
+              "durationMs": 134.4017500000009,
+              "cpuMs": 162.553
+            },
+            {
+              "durationMs": 159.9008329999997,
+              "cpuMs": 164.541
+            },
+            {
+              "durationMs": 141.4078750000008,
+              "cpuMs": 172.958
+            },
+            {
+              "durationMs": 112.74216700000034,
+              "cpuMs": 150.686
+            },
+            {
+              "durationMs": 143.98991699999897,
+              "cpuMs": 158.776
+            },
+            {
+              "durationMs": 203.28350000000137,
+              "cpuMs": 166.074
+            },
+            {
+              "durationMs": 259.63087500000256,
+              "cpuMs": 166.646
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sync-fanout-16",
+      "mode": "sync",
+      "listeners": 16,
+      "iterations": 10000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": true,
+          "medianMs": 7.271499999998923,
+          "minMs": 3.0258749999993597,
+          "maxMs": 15.765083999998751,
+          "operationsPerSecond": 1375232,
+          "nanosecondsPerOperation": 727.1499999998923,
+          "samplesMs": [
+            3.0258749999993597,
+            3.580915999998979,
+            4.363084000000526,
+            7.271499999998923,
+            9.469084000000294,
+            11.520582999997714,
+            15.765083999998751
+          ],
+          "medianCpuMs": 7.321,
+          "samples": [
+            {
+              "durationMs": 3.0258749999993597,
+              "cpuMs": 6.998
+            },
+            {
+              "durationMs": 4.363084000000526,
+              "cpuMs": 8.065
+            },
+            {
+              "durationMs": 9.469084000000294,
+              "cpuMs": 4.633
+            },
+            {
+              "durationMs": 15.765083999998751,
+              "cpuMs": 8.06
+            },
+            {
+              "durationMs": 11.520582999997714,
+              "cpuMs": 8.429
+            },
+            {
+              "durationMs": 7.271499999998923,
+              "cpuMs": 7.12
+            },
+            {
+              "durationMs": 3.580915999998979,
+              "cpuMs": 7.321
+            }
+          ]
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": true,
+          "medianMs": 10.919792000000598,
+          "minMs": 5.463875000001281,
+          "maxMs": 17.152792000000773,
+          "operationsPerSecond": 915768,
+          "nanosecondsPerOperation": 1091.9792000000598,
+          "samplesMs": [
+            5.463875000001281,
+            8.168792000000394,
+            8.691875000000437,
+            10.919792000000598,
+            11.016332999999577,
+            12.777874999999767,
+            17.152792000000773
+          ],
+          "medianCpuMs": 14.387,
+          "samples": [
+            {
+              "durationMs": 8.168792000000394,
+              "cpuMs": 15.08
+            },
+            {
+              "durationMs": 10.919792000000598,
+              "cpuMs": 11.87
+            },
+            {
+              "durationMs": 11.016332999999577,
+              "cpuMs": 13.556
+            },
+            {
+              "durationMs": 17.152792000000773,
+              "cpuMs": 16.589
+            },
+            {
+              "durationMs": 12.777874999999767,
+              "cpuMs": 18.46
+            },
+            {
+              "durationMs": 8.691875000000437,
+              "cpuMs": 12.2
+            },
+            {
+              "durationMs": 5.463875000001281,
+              "cpuMs": 14.387
+            }
+          ]
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 15.632458000000042,
+          "minMs": 12.413708999996743,
+          "maxMs": 39.26837499999965,
+          "operationsPerSecond": 639695,
+          "nanosecondsPerOperation": 1563.2458000000042,
+          "samplesMs": [
+            12.413708999996743,
+            14.110250000001543,
+            15.444250000000466,
+            15.632458000000042,
+            18.006583000002138,
+            18.179667000000336,
+            39.26837499999965
+          ],
+          "medianCpuMs": 23.687,
+          "samples": [
+            {
+              "durationMs": 14.110250000001543,
+              "cpuMs": 22.877
+            },
+            {
+              "durationMs": 18.179667000000336,
+              "cpuMs": 21.024
+            },
+            {
+              "durationMs": 15.632458000000042,
+              "cpuMs": 28.752
+            },
+            {
+              "durationMs": 39.26837499999965,
+              "cpuMs": 23.687
+            },
+            {
+              "durationMs": 12.413708999996743,
+              "cpuMs": 17.971
+            },
+            {
+              "durationMs": 18.006583000002138,
+              "cpuMs": 25.57
+            },
+            {
+              "durationMs": 15.444250000000466,
+              "cpuMs": 23.938
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 102.1115839999984,
+          "minMs": 82.0612910000018,
+          "maxMs": 469.5280410000014,
+          "operationsPerSecond": 97932,
+          "nanosecondsPerOperation": 10211.15839999984,
+          "samplesMs": [
+            82.0612910000018,
+            85.07054199999766,
+            95.64845799999966,
+            102.1115839999984,
+            123.81891700000051,
+            145.12874999999985,
+            469.5280410000014
+          ],
+          "medianCpuMs": 87.378,
+          "samples": [
+            {
+              "durationMs": 123.81891700000051,
+              "cpuMs": 80.073
+            },
+            {
+              "durationMs": 82.0612910000018,
+              "cpuMs": 88.678
+            },
+            {
+              "durationMs": 469.5280410000014,
+              "cpuMs": 87.773
+            },
+            {
+              "durationMs": 145.12874999999985,
+              "cpuMs": 87.378
+            },
+            {
+              "durationMs": 102.1115839999984,
+              "cpuMs": 88.867
+            },
+            {
+              "durationMs": 95.64845799999966,
+              "cpuMs": 84.725
+            },
+            {
+              "durationMs": 85.07054199999766,
+              "cpuMs": 86.616
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sync-effect-listener-1",
+      "mode": "fork",
+      "listeners": 1,
+      "iterations": 10000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": false
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": false
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 19.066500000000815,
+          "minMs": 13.085416999998415,
+          "maxMs": 31.57666700000118,
+          "operationsPerSecond": 524480,
+          "nanosecondsPerOperation": 1906.6500000000815,
+          "samplesMs": [
+            13.085416999998415,
+            15.142250000000786,
+            18.442000000002736,
+            19.066500000000815,
+            19.104416999998648,
+            22.2009169999983,
+            31.57666700000118
+          ],
+          "medianCpuMs": 25.892,
+          "samples": [
+            {
+              "durationMs": 31.57666700000118,
+              "cpuMs": 27.771
+            },
+            {
+              "durationMs": 19.066500000000815,
+              "cpuMs": 25.892
+            },
+            {
+              "durationMs": 13.085416999998415,
+              "cpuMs": 23.608
+            },
+            {
+              "durationMs": 15.142250000000786,
+              "cpuMs": 30.025
+            },
+            {
+              "durationMs": 18.442000000002736,
+              "cpuMs": 23.591
+            },
+            {
+              "durationMs": 22.2009169999983,
+              "cpuMs": 26.719
+            },
+            {
+              "durationMs": 19.104416999998648,
+              "cpuMs": 24.484
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 40.82533300000068,
+          "minMs": 29.36199999999735,
+          "maxMs": 45.57574999999997,
+          "operationsPerSecond": 244946,
+          "nanosecondsPerOperation": 4082.5333000000683,
+          "samplesMs": [
+            29.36199999999735,
+            36.131875000002765,
+            40.55500000000029,
+            40.82533300000068,
+            41.46387500000128,
+            41.779209000000264,
+            45.57574999999997
+          ],
+          "medianCpuMs": 48.324,
+          "samples": [
+            {
+              "durationMs": 40.82533300000068,
+              "cpuMs": 45.349
+            },
+            {
+              "durationMs": 41.779209000000264,
+              "cpuMs": 48.238
+            },
+            {
+              "durationMs": 40.55500000000029,
+              "cpuMs": 49.279
+            },
+            {
+              "durationMs": 29.36199999999735,
+              "cpuMs": 45.592
+            },
+            {
+              "durationMs": 45.57574999999997,
+              "cpuMs": 55.601
+            },
+            {
+              "durationMs": 36.131875000002765,
+              "cpuMs": 48.324
+            },
+            {
+              "durationMs": 41.46387500000128,
+              "cpuMs": 49.799
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "effect-callback-1",
+      "mode": "await-callback",
+      "listeners": 1,
+      "iterations": 10000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": false
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": false
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 39.06620800000019,
+          "minMs": 32.60508299999856,
+          "maxMs": 167.3926250000004,
+          "operationsPerSecond": 255976,
+          "nanosecondsPerOperation": 3906.620800000019,
+          "samplesMs": [
+            32.60508299999856,
+            33.096291000001656,
+            37.21429100000023,
+            39.06620800000019,
+            50.67604199999914,
+            55.3929169999974,
+            167.3926250000004
+          ],
+          "medianCpuMs": 55.161,
+          "samples": [
+            {
+              "durationMs": 33.096291000001656,
+              "cpuMs": 55.161
+            },
+            {
+              "durationMs": 32.60508299999856,
+              "cpuMs": 48.985
+            },
+            {
+              "durationMs": 50.67604199999914,
+              "cpuMs": 53.359
+            },
+            {
+              "durationMs": 37.21429100000023,
+              "cpuMs": 53.642
+            },
+            {
+              "durationMs": 55.3929169999974,
+              "cpuMs": 59.921
+            },
+            {
+              "durationMs": 167.3926250000004,
+              "cpuMs": 61.881
+            },
+            {
+              "durationMs": 39.06620800000019,
+              "cpuMs": 59.466
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 21.650499999999738,
+          "minMs": 17.509041999997862,
+          "maxMs": 35.927583000000595,
+          "operationsPerSecond": 461883,
+          "nanosecondsPerOperation": 2165.049999999974,
+          "samplesMs": [
+            17.509041999997862,
+            17.832457999997132,
+            21.301625000000058,
+            21.650499999999738,
+            22.58312499999738,
+            23.578333000001294,
+            35.927583000000595
+          ],
+          "medianCpuMs": 30.55,
+          "samples": [
+            {
+              "durationMs": 21.650499999999738,
+              "cpuMs": 36.337
+            },
+            {
+              "durationMs": 17.832457999997132,
+              "cpuMs": 30.55
+            },
+            {
+              "durationMs": 17.509041999997862,
+              "cpuMs": 29.21
+            },
+            {
+              "durationMs": 21.301625000000058,
+              "cpuMs": 34.785
+            },
+            {
+              "durationMs": 35.927583000000595,
+              "cpuMs": 34.654
+            },
+            {
+              "durationMs": 23.578333000001294,
+              "cpuMs": 27.308
+            },
+            {
+              "durationMs": 22.58312499999738,
+              "cpuMs": 29.834
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "effect-listener-1",
+      "mode": "await-effect",
+      "listeners": 1,
+      "iterations": 10000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": false
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": false
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 44.05145800000173,
+          "minMs": 32.31187499999942,
+          "maxMs": 64.87525000000096,
+          "operationsPerSecond": 227007,
+          "nanosecondsPerOperation": 4405.145800000173,
+          "samplesMs": [
+            32.31187499999942,
+            35.92874999999913,
+            41.50587499999892,
+            44.05145800000173,
+            46.32895799999824,
+            57.52679100000023,
+            64.87525000000096
+          ],
+          "medianCpuMs": 53.551,
+          "samples": [
+            {
+              "durationMs": 32.31187499999942,
+              "cpuMs": 52.123
+            },
+            {
+              "durationMs": 35.92874999999913,
+              "cpuMs": 53.551
+            },
+            {
+              "durationMs": 44.05145800000173,
+              "cpuMs": 61.395
+            },
+            {
+              "durationMs": 57.52679100000023,
+              "cpuMs": 44.32
+            },
+            {
+              "durationMs": 41.50587499999892,
+              "cpuMs": 55.456
+            },
+            {
+              "durationMs": 46.32895799999824,
+              "cpuMs": 51.618
+            },
+            {
+              "durationMs": 64.87525000000096,
+              "cpuMs": 61.888
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 45.85124999999971,
+          "minMs": 32.65545899999779,
+          "maxMs": 61.48912500000006,
+          "operationsPerSecond": 218097,
+          "nanosecondsPerOperation": 4585.124999999971,
+          "samplesMs": [
+            32.65545899999779,
+            34.87879199999952,
+            40.22004199999719,
+            45.85124999999971,
+            48.54624999999942,
+            55.77899999999863,
+            61.48912500000006
+          ],
+          "medianCpuMs": 60.149,
+          "samples": [
+            {
+              "durationMs": 32.65545899999779,
+              "cpuMs": 44.109
+            },
+            {
+              "durationMs": 34.87879199999952,
+              "cpuMs": 47.845
+            },
+            {
+              "durationMs": 48.54624999999942,
+              "cpuMs": 58.88
+            },
+            {
+              "durationMs": 40.22004199999719,
+              "cpuMs": 60.149
+            },
+            {
+              "durationMs": 45.85124999999971,
+              "cpuMs": 62.578
+            },
+            {
+              "durationMs": 61.48912500000006,
+              "cpuMs": 65.626
+            },
+            {
+              "durationMs": 55.77899999999863,
+              "cpuMs": 61.46
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "effect-promise-listener-1",
+      "mode": "await-promise",
+      "listeners": 1,
+      "iterations": 2000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": false
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": false
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 25.167583999998897,
+          "minMs": 17.328874999999243,
+          "maxMs": 31.434958000001643,
+          "operationsPerSecond": 79467,
+          "nanosecondsPerOperation": 12583.791999999448,
+          "samplesMs": [
+            17.328874999999243,
+            19.14429200000086,
+            24.8248330000024,
+            25.167583999998897,
+            28.17504199999894,
+            29.096291999998357,
+            31.434958000001643
+          ],
+          "medianCpuMs": 29.728,
+          "samples": [
+            {
+              "durationMs": 29.096291999998357,
+              "cpuMs": 29.872
+            },
+            {
+              "durationMs": 25.167583999998897,
+              "cpuMs": 30.031
+            },
+            {
+              "durationMs": 19.14429200000086,
+              "cpuMs": 28.895
+            },
+            {
+              "durationMs": 31.434958000001643,
+              "cpuMs": 23.915
+            },
+            {
+              "durationMs": 24.8248330000024,
+              "cpuMs": 29.728
+            },
+            {
+              "durationMs": 17.328874999999243,
+              "cpuMs": 26.465
+            },
+            {
+              "durationMs": 28.17504199999894,
+              "cpuMs": 30.331
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 20.146625000001222,
+          "minMs": 13.242999999998574,
+          "maxMs": 49.02662500000224,
+          "operationsPerSecond": 99272,
+          "nanosecondsPerOperation": 10073.312500000611,
+          "samplesMs": [
+            13.242999999998574,
+            17.776042000001326,
+            18.95495799999844,
+            20.146625000001222,
+            25.772832999999082,
+            26.610875000002125,
+            49.02662500000224
+          ],
+          "medianCpuMs": 26.286,
+          "samples": [
+            {
+              "durationMs": 13.242999999998574,
+              "cpuMs": 25.034
+            },
+            {
+              "durationMs": 17.776042000001326,
+              "cpuMs": 25.93
+            },
+            {
+              "durationMs": 20.146625000001222,
+              "cpuMs": 27.816
+            },
+            {
+              "durationMs": 25.772832999999082,
+              "cpuMs": 30.999
+            },
+            {
+              "durationMs": 18.95495799999844,
+              "cpuMs": 30.078
+            },
+            {
+              "durationMs": 26.610875000002125,
+              "cpuMs": 26.286
+            },
+            {
+              "durationMs": 49.02662500000224,
+              "cpuMs": 24.958
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "scoped-subscribe-emit-close",
+      "mode": "scope",
+      "listeners": 1,
+      "iterations": 1000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": false
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": false
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 16.0936249999977,
+          "minMs": 9.292417000000569,
+          "maxMs": 35.63666699999885,
+          "operationsPerSecond": 62136,
+          "nanosecondsPerOperation": 16093.6249999977,
+          "samplesMs": [
+            9.292417000000569,
+            14.046707999998034,
+            14.244915999999648,
+            16.0936249999977,
+            17.296792000001005,
+            18.786458999999013,
+            35.63666699999885
+          ],
+          "medianCpuMs": 14.847,
+          "samples": [
+            {
+              "durationMs": 16.0936249999977,
+              "cpuMs": 20.735
+            },
+            {
+              "durationMs": 14.046707999998034,
+              "cpuMs": 14.847
+            },
+            {
+              "durationMs": 9.292417000000569,
+              "cpuMs": 12.531
+            },
+            {
+              "durationMs": 14.244915999999648,
+              "cpuMs": 13.736
+            },
+            {
+              "durationMs": 17.296792000001005,
+              "cpuMs": 14.376
+            },
+            {
+              "durationMs": 35.63666699999885,
+              "cpuMs": 15.029
+            },
+            {
+              "durationMs": 18.786458999999013,
+              "cpuMs": 24.459
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 16.882666000001336,
+          "minMs": 12.25383299999885,
+          "maxMs": 41.67079100000046,
+          "operationsPerSecond": 59232,
+          "nanosecondsPerOperation": 16882.666000001336,
+          "samplesMs": [
+            12.25383299999885,
+            12.40320900000006,
+            13.059832999999344,
+            16.882666000001336,
+            18.57495899999776,
+            22.47820900000079,
+            41.67079100000046
+          ],
+          "medianCpuMs": 21.064,
+          "samples": [
+            {
+              "durationMs": 12.40320900000006,
+              "cpuMs": 21.064
+            },
+            {
+              "durationMs": 13.059832999999344,
+              "cpuMs": 21.432
+            },
+            {
+              "durationMs": 12.25383299999885,
+              "cpuMs": 19.832
+            },
+            {
+              "durationMs": 18.57495899999776,
+              "cpuMs": 19.816
+            },
+            {
+              "durationMs": 16.882666000001336,
+              "cpuMs": 20.485
+            },
+            {
+              "durationMs": 41.67079100000046,
+              "cpuMs": 23.951
+            },
+            {
+              "durationMs": 22.47820900000079,
+              "cpuMs": 26.516
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

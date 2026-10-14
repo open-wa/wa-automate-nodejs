@@ -10,8 +10,8 @@ observe authentication before `create()` returns. Every import shares the
 same emitter in the current process. Use `client.events` when you want the
 native events from one client.
 
-The shared helper and aliases on this page are restored in the next package
-release after 5.4.0. They are not available from the 5.4.0 package.
+The Effect hybrid and optional PubSub APIs described below are prepared for the
+next SDK release; they aren't included in the published 5.5.1 packages.
 
 ## Observe startup events
 
@@ -86,7 +86,8 @@ ev.on('onMessage.support.**', ({ data: message }) => {
 
 The envelope contains `{ ts, sessionId, id, event, data }`. Its `id` identifies
 the event; `data.id` identifies the message. Aliases are provided for
-`onMessage`, `onAnyMessage`, `onAck`, `onStateChanged`, `onLogout`,
+`onMessage`, `onAnyMessage`, `onAck`, `onPollVote`, `onEvent`,
+`onEventResponse`, `onStateChanged`, `onLogout`,
 `onInteractiveResponse`, and `onFormResponse`. An alias does not add a missing
 WhatsApp capability; consult the [migration guide](/docs/getting-started/migrating-to-v5#known-gaps)
 for unsupported listeners.
@@ -162,3 +163,51 @@ fiber per message. Session forwarding is also owned by the runtime's Effect
 scope and is removed after shutdown or failed startup. See
 [Effect scopes](https://effect.website/docs/resource-management/scope/) for
 the resource-lifetime model.
+
+### Await Effect listeners
+
+Listeners can return a Promise or an Effect. `emit()` still calls ordinary
+listeners synchronously; Effect and Promise work belongs to the emitter's
+scope. `emitAsync()` waits for listener work and returns the results in listener
+order. Use `yield* ev.emitEffect(name, ...args)` inside Effect to wait without
+starting another root runtime. `ev.onScoped()` and `ev.onAnyScoped()` also
+interrupt in-flight listener work when their scope closes.
+
+### Observe through PubSub
+
+`ev.pubsub()` exposes a native Effect PubSub for queued observers.
+`ev.subscribe()` provides a scoped subscription, and `ev.stream()` provides
+a Stream for filtering, batching, or sequential processing. Ordinary callbacks
+retain their synchronous behavior.
+
+```ts
+import { Effect, PubSub } from 'effect';
+import { ev } from '@open-wa/wa-automate';
+
+await Effect.runPromise(Effect.scoped(Effect.gen(function* () {
+  const subscription = yield* ev.subscribe();
+  ev.emit('app.job.finished', { jobId: 'daily-summary' });
+  const { event, args } = yield* PubSub.take(subscription);
+  console.log(event, args[0]);
+})));
+```
+
+Queued packets contain `{ event, args }`, preserving every callback argument,
+including session metadata. The default hub is created on first use, has no
+replay, and retains pending events for active subscribers without a memory cap.
+Choose an explicit finite policy on first access, for example
+`ev.pubsub({ strategy: 'sliding', capacity: 256 })`, if retaining the newest
+observations is preferable to keeping a backlog. Dropping and sliding can lose
+observations; `pubsubStatus` reports rejected emitter publications.
+
+Emitter methods reach callbacks and queued observers. Publishing directly with
+`PubSub.publish(ev.pubsub(), packet)` reaches only queued observers.
+`emitAsync()` waits for callback results, so queued consumers control their
+own completion and retry policies. A subscription ends with its Effect scope;
+stopping one client detaches its forwarding without closing other sessions'
+global subscriptions.
+
+For complete standalone examples and consumer cleanup, read
+[Consume events with Effect](/docs/guides/effect-event-streams). Exact methods,
+buffer options, and counters are in the
+[HyperEmitter reference](/docs/reference/hyperemitter).

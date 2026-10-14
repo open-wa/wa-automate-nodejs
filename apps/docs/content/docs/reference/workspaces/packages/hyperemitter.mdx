@@ -8,7 +8,7 @@ description: "HyperEmitter: high-performance, schema-driven event emitter for th
 
 # @open-wa/hyperemitter
 
-`@open-wa/hyperemitter` is a typed event emitter used by Open-WA packages. It supports exact event names, `+` and `#` wildcard subscriptions, one-time listeners, catch-all listeners, and listener cleanup with an `AbortSignal`.
+`@open-wa/hyperemitter` is a typed event emitter with direct synchronous dispatch and Effect-owned asynchronous work. It supports exact event names, `+` and trailing `#` wildcard subscriptions, one-time listeners, catch-all listeners, and listener cleanup with an `AbortSignal` or an Effect scope. Listeners can return a Promise or an Effect.
 
 ## Use
 
@@ -29,8 +29,114 @@ events.on('message.received', (message) => {
 events.emit('message.received', { id: 'message-id', body: 'Hello' });
 ```
 
-The repository also contains a benchmark runner for comparing other emitter libraries. Its results are measurements from that runner, not a performance guarantee.
+`emit` invokes ordinary callbacks directly, entering Effect only for asynchronous listener work in fibers owned by the emitter. Callback-only use creates no PubSub. `emitEffect` batches callbacks in a lazy Effect, awaits every listener, and exposes uncaptured failures in the Effect error channel:
+
+```typescript
+import { Effect } from 'effect';
+
+await Effect.runPromise(Effect.scoped(Effect.gen(function* () {
+  yield* events.onScoped('message.received', (message) =>
+    Effect.sync(() => console.log(message.body)),
+  );
+  yield* events.emitEffect('message.received', { id: 'message-id', body: 'Hello' });
+})));
+```
+
+`onScoped` and `onAnyScoped` remove their registrations and interrupt their listener fibers when the caller's scope closes. `Effect.runPromise(events.close())` removes all registrations and interrupts work owned by the emitter. A closed emitter cannot accept new subscriptions.
+
+Each event carries one payload. `+` matches one name segment; a trailing `#` matches the rest, including an empty suffix. Set `captureRejections: true` to report listener failures through `onError` or the emitter's logger while continuing delivery.
+
+The [Effect benchmark](./benchmarks/README.md) compares callback dispatch, Effect dispatch, asynchronous listeners, and scope cleanup on completed deliveries. Its results are measurements from that runner, not a performance guarantee.
 
 ## License
 
 Apache-2.0
+
+## Shared OpenWA emitter
+
+The exported `EventEmitter` backs OpenWA's global `ev` and the socket clients'
+`ev` properties. It preserves the callback API: variadic arguments, synchronous
+`emit`, `*` and `**` namespace wildcards, `this.event`, listener ordering and
+removal, `emitAsync` result arrays, `waitFor`, and `listenTo`. It adapts that
+surface to the same tuned HyperEmitter rather than creating a second runtime.
+`onScoped`, `onAnyScoped`, `emitEffect`, and `close` add Effect ownership.
+
+The [PubSub comparison](./benchmarks/results/pubsub-node-2026-10-14.json)
+measures completed deliveries with both per-event acknowledgements and batches
+of 256, including consumers that drain queued messages in batches. PubSub is
+a useful asynchronous stream option, but publishing does not guarantee immediate
+callback invocation. A busy subscriber queues later events, which differs
+from the shared emitter's dispatch contract.
+
+## Optional PubSub and Streams
+
+Both `HyperEmitter` and the shared `EventEmitter` facade own a lazy native
+Effect PubSub. Calling `pubsub()`, running `subscribe()`, or consuming `stream()`
+enables queued observation. Ordinary callback users create no PubSub or
+persistent consumer fibers.
+
+```ts
+import { Effect, PubSub } from 'effect';
+import { ev } from '@open-wa/wa-automate';
+
+await Effect.runPromise(Effect.scoped(Effect.gen(function* () {
+  // Direct native access; ev.subscribe() is the equivalent convenience API.
+  const subscription = yield* PubSub.subscribe(ev.pubsub());
+  ev.emit('app.job.finished', { jobId: 'daily-summary' });
+  const { event, args } = yield* PubSub.take(subscription);
+  console.log(event, args[0]);
+})));
+```
+
+The public facade publishes `{ event, args }`; typed `HyperEmitter<TMap>`
+publishes `{ event, payload }`, preserving the relationship between event names
+and payload types. Envelopes and argument arrays are immutable; payload objects
+keep their original identity. Observations are published before callbacks, so
+a recursive emission preserves the original queued order. They describe
+emissions, including ones whose callbacks later fail.
+
+`emit`, `emitEffect`, and `emitAsync` deliver through both interfaces once.
+`emit` still returns whether callback listeners ran. `emitAsync` returns those
+callbacks' results and does not wait for arbitrary PubSub consumers. Raw
+`PubSub.publish(emitter.pubsub(), frame)` addresses the queued feed directly;
+use emitter methods when callbacks should also run. The owning emitter shuts
+the hub down on `close()`, interrupting queued readers. Consumer scopes remove
+their own subscriptions. Closing does not promise to drain buffered work.
+
+The default is unbounded with replay disabled. A slow active observer can retain
+a growing backlog. Choose options on first access for an explicit finite loss
+policy, or retain recent emissions for later subscribers:
+
+```ts
+import { EventEmitter } from '@open-wa/hyperemitter';
+
+const emitter = new EventEmitter();
+const hub = emitter.pubsub({ strategy: 'sliding', capacity: 256, replay: 1 });
+// Later calls return the same hub; options cannot silently replace it.
+```
+
+`dropping` rejects new observations when full; `sliding` removes older ones.
+`pubsubStatus` counts accepted and rejected emitter publications separately from
+callback results; raw publication bypasses these counters. Sliding accepts the
+new publication, so its rejected count does not count evicted older frames.
+Lossless bounded backpressure cannot sit transparently beneath synchronous
+`emit`, so observation options offer only non-blocking strategies. Use an
+integration-owned Queue and effectful producer when producer suspension is
+part of that integration's design.
+
+`stream()` supplies the same observations through `Stream.fromPubSub`, with
+normal Effect filtering, batching, and consumer concurrency controls. Each
+stream starts its subscription when consumed; subscribe before emitting when
+replay is disabled. The global `ev` feed forwards native events and enabled
+session aliases even when no callback is registered. Session shutdown detaches
+its bridge without closing the shared global hub.
+
+See the [source-backed architecture review](../../docs/research/2026-10-14-effect-event-system-designs.md)
+for the responsibilities of PubSub, Queue, Stream, SubscriptionRef, services,
+and scoped fibers.
+
+The [Effect event guide](https://openwa.dev/docs/guides/effect-event-streams)
+includes complete examples; the
+[HyperEmitter reference](https://openwa.dev/docs/reference/hyperemitter)
+documents method returns and lifecycle semantics. These pages describe the
+prepared next SDK release until it is published.

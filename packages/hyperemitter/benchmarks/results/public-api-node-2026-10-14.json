@@ -1,0 +1,41 @@
+{
+  "checkedAt": "2026-10-14T06:22:16.335Z",
+  "node": "v26.10.0",
+  "effect": "4.0.2",
+  "reference": "eventemitter2@6.4.9",
+  "bundleHashes": {
+    "hyper-esm": "d6e250a9a68473546ce6d3a696ee90e7a0eb7bc1ab4b748f2ca67341652adb87",
+    "global-esm": "9008ca22b5d6841fe0dec196ad296102e2056b0b8d54ebf762e8001392ecd33c",
+    "global-cjs": "6aaeeef8ab084d333553f609c8aa2ae76c6a77ea06be236aac0145931492807d"
+  },
+  "scope": "Focused current-source ESM/CJS bundles, not a published registry package or a live WhatsApp session",
+  "checks": [
+    "public method names",
+    "synchronous variadic delivery, context, return values, fluent API",
+    "wildcards: single, leading, middle, trailing, zero segments",
+    "any listeners run first, preserve duplicates, prepend and removal",
+    "once and many remove before recursive dispatch",
+    "listener order and identity, eventNames, max listener configuration",
+    "emitAsync waits, returns resolved results in listener order",
+    "emit and emitAsync expose callback failures; error event is ignored by ev",
+    "namespace arrays and symbol identities",
+    "objectified subscriptions and scheduled promisified callbacks",
+    "waitFor filter, arguments, cancellation and timeout remove registrations",
+    "listenTo mappings, reducers, stopListeningTo",
+    "wildcard queries and removeAllListeners preserve onAny registrations",
+    "Effect results, lazy emission, scoped cancellation and duplicate ownership",
+    "Effect failure cancels sibling listener work; close cancels owned work and waits",
+    "plain Node ESM/CJS global exports share the same process emitter",
+    "session bridge preserves native payload identity and alias argument shapes",
+    "session forwarding isolates detach, eventMode and callback failures",
+    "optional native PubSub is lazy, preserves payload identity and observes emissions without callbacks",
+    "queued facade packets preserve variadic arguments and reentrant FIFO without result collectors",
+    "raw PubSub operations address queued observers; emitter ingress reaches both interfaces once",
+    "explicit dropping and sliding buffers cap backlog without changing callback delivery",
+    "optional replay and scoped Stream consumption use the native hub",
+    "closing the emitter interrupts queued readers and rejects registrations from finalizers",
+    "queued global subscriptions activate native/alias forwarding and retain ESM/CJS identity",
+    "TypeScript consumer API: variadic callbacks, fluent helpers and scoped Effects",
+    "Full EventEmitter2 instance interface remains structurally assignable in TypeScript"
+  ]
+}

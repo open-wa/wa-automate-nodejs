@@ -1,4 +1,5 @@
-import { EventEmitter2 } from 'eventemitter2';
+import { EventEmitter } from '@open-wa/hyperemitter';
+import { Effect } from 'effect';
 import type { SimpleListener } from "@open-wa/wa-automate-types-only";
 import type { BaseClient as _Client } from "@open-wa/wa-automate-types-only";
 import makeDebug from 'debug';
@@ -22,7 +23,7 @@ export class TunnelSocketClient {
     public url: string;
     public apiKey?: string; // Kept for interface compatibility
     public flushListenersOnDisconnect: boolean = true;
-    public ev: EventEmitter2 = new EventEmitter2({ wildcard: true });
+    public ev: EventEmitter = new EventEmitter();
     
     public listeners: {
         [listener in SimpleListener]?: {
@@ -120,7 +121,7 @@ export class TunnelSocketClient {
                     this.rpcPromises.delete(msg.id);
                 }
             } else if (msg.type === "event") {
-                // Backward compatibility mapping from WebSocket push to eventemitter & listeners
+                // Deliver the remote event through HyperEmitter and registered callbacks.
                 this.ev.emit(msg.event, msg.data);
                 
                 const callbacks = this.listeners[msg.event as SimpleListener];
@@ -163,6 +164,7 @@ export class TunnelSocketClient {
             this.ws.close();
             this.ws = null;
         }
+        void Effect.runPromise(this.ev.close());
     }
 
     public async killSession(): Promise<void> {
@@ -191,6 +193,7 @@ export class TunnelSocketClient {
 
     public async reconnect(): Promise<void> {
         this.isDestroyed = false;
+        if (this.ev.isClosed) this.ev = new EventEmitter();
         if (this.ws) this.ws.close();
         await this._initConnect();
     }

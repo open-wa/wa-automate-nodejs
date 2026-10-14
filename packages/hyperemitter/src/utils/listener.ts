@@ -1,15 +1,20 @@
-import { ListenerOptions } from '../types/index';
+import type { ListenerOptions } from '../types/index';
+import type { Scope } from 'effect';
 
 export type ListenerFn = (...args: any[]) => any;
 
 export interface ListenerRecord<T extends ListenerFn> {
   fn: T;
+  original?: T;
   once: boolean;
+  any: boolean;
+  fired?: boolean;
   signal?: AbortSignal;
   abortHandler?: () => void;
   weakRef?: WeakRef<object>;
   finalizerToken?: object;
   captureRejections?: boolean;
+  scope?: Scope.Closeable;
 }
 
 export function createRecord<T extends ListenerFn>(
@@ -20,6 +25,7 @@ export function createRecord<T extends ListenerFn>(
   const record: ListenerRecord<T> = {
     fn,
     once: false,
+    any: false,
     signal: opts.signal,
     captureRejections: opts.captureRejections
   };
