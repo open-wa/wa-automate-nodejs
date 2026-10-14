@@ -50,3 +50,20 @@ Testing 145.0.7632.117. The visible run changed `headless` to `false` and
 overrode the executable path. Ubuntu/PM2, the exact Linux Chrome
 145.0.7632.159 binary, and completion after pairing have not been confirmed
 by that candidate run. The fix does not modify the browser assets.
+
+## Render the public ev QR in JavaScript
+
+The fixture's 5.6.0 pins retain the failing release as the baseline. To run
+the published correction, install the matching patch packages, then use
+the plain CommonJS JavaScript entry:
+
+```sh
+npm install --save-exact @open-wa/wa-automate@5.6.1 @open-wa/driver-puppeteer@5.6.1
+node create-repro.js
+```
+
+`create-repro.js` calls `qrcode-terminal` inside the `ev.on('qr.**')`
+callback. The QR between `[ev QR BEGIN]` and `[ev QR END]` is rendered from
+the event payload, independently of the SDK's normal terminal renderer.
+The script selects installed Chrome's macOS path on macOS and the report's
+Linux path elsewhere; `OPENWA_REPRO_CHROME` can override that path.

@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@open-wa/wa-automate": "5.6.0",
-    "@open-wa/driver-puppeteer": "5.6.0"
+    "@open-wa/driver-puppeteer": "5.6.0",
+    "qrcode-terminal": "0.12.0"
   }
 }
