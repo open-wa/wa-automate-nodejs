@@ -6,6 +6,15 @@
 
 
 
+
+## 5.6.0
+<sub>2026-10-14</sub>
+
+- [#3540](https://github.com/open-wa/wa-automate-nodejs/pull/3540)  *(minor)*
+  - ♻️ Replace runtime EventEmitter2 imports with the tuned Effect-backed HyperEmitter hybrid, removing the CommonJS named import behind [#3534](https://github.com/open-wa/wa-automate-nodejs/issues/3534). Ordinary callbacks remain synchronous; Promise and Effect listener work has scoped ownership.
+  - 🏷️ Preserve the shared `ev` API: `*` and `**` wildcards, variadic arguments, listener context, `emitAsync()` results, QR and session-data alias payloads, and session metadata. Add `onScoped`, `onAnyScoped`, and `emitEffect` for Effect applications.
+  - ✨ Expose optional native PubSub observations and scoped Stream/subscription helpers through HyperEmitter and shared `ev`, with lazy creation, explicit buffer policies, and emitter-owned shutdown.
+
 ## 5.5.1
 <sub>2026-10-12</sub>
 
