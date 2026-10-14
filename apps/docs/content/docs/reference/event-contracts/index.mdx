@@ -1,0 +1,20 @@
+---
+title: Event contracts
+description: Discover the payloads sent by SSE, webhooks and MCP Events.
+---
+
+[Download the AsyncAPI 3.1 contract](/asyncapi.json), or read the generated pages below. A running Easy API instance also serves `/meta/asyncapi.json` with its own origin and external base path.
+
+The contract covers `message.received`, `message.any`, `ack.changed`, `session.state.changed`, `group.addedToGroup` and `session.logout`. Optional runtime listeners depend on the available WhatsApp runtime. This is the initial public coverage; internal lifecycle events aren't included.
+
+Listener names such as `onMessage` identify SDK callbacks. The corresponding wire event is `message.received`, whose payload contains `{ ctx, message }`. The generated reference describes the wire payload rather than treating those names as interchangeable.
+
+## Choose a delivery surface
+
+- **SSE:** open `/api/events?topics=message.received,ack.changed` with your Easy API key. Each frame has an ID, event name and JSON data containing `{ id, event, payload, ts, sessionId }`. Keepalive comments arrive every 20 seconds. The reconnect hint is three seconds; reconnecting doesn't replay earlier events.
+- **Webhooks:** configure the webhook integration's destination and event filter. It sends `{ webhookId, sessionId, event, payload, timestamp }`. The optional delivery journal retries pending requests after a restart and adds an `Idempotency-Key` header. Delivery can repeat or arrive out of order.
+- **MCP Events:** let ChatGPT Work subscribe to received messages, acknowledgements or session state changes. OpenWA sends compact summaries to a verified HTTPS callback using Standard Webhooks signatures. [Configure MCP Events](/docs/client-and-integrations/mcp-events).
+
+SSE uses the supplied event bridge. The webhook plugin filters internal and sensitive events through its event gateway. MCP only exposes the three explicitly registered subscription events. The transports don't share an identical event inventory or policy.
+
+Timestamps inside SSE and ordinary webhook envelopes are Unix milliseconds. MCP event timestamps are ISO 8601 strings describing when the runtime event occurred. MCP callbacks use a separate signing timestamp.

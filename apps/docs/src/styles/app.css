@@ -2,6 +2,7 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
+@import '@fumadocs/asyncapi/css/preset.css';
 @import '@open-wa/ui-components/theme.css';
 @import './landing.css';
 @import './licensed-methods.css';

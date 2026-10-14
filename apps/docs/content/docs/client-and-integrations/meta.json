@@ -6,6 +6,7 @@
     "webhook-payloads",
     "proxying-a-session",
     "cf-proxy",
-    "chatwoot"
+    "chatwoot",
+    "mcp-events"
   ]
 }
