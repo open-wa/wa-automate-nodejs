@@ -535,7 +535,7 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         sink.write({ level: 'warn', message: executableResolution.warning });
     }
 
-    const server = new WAServer(config);
+    const server = new WAServer(config, verbose);
     sink.status({ phase: 'server.starting', sessionId: config.sessionId });
 
     await server.start();
