@@ -7,7 +7,7 @@ import { resolveSessionEncryption, type SessionEncryptionOptions, type SessionEn
 /** Opaque, encrypted values. Only the baked pre-init patch interprets them. */
 export interface PortableSessionPayload { auth: string; data: string }
 
-/** An exclusive writer lease, held until the browser has closed. */
+/** A session storage handle, held until the browser has closed. */
 export interface PortableSessionLease {
   read(): Promise<string | null>;
   /** Resolve only after durable storage accepts the entire replacement. */
@@ -19,7 +19,7 @@ export interface PortableSessionLease {
 
 interface SessionPersistence {
   onError?(error: unknown): void;
-  /** Acquire exclusive ownership; remote stores must fence expired owners. */
+  /** Open session storage without excluding other processes using the same session. */
   acquire(sessionId: string): Promise<PortableSessionLease>;
 }
 
@@ -150,7 +150,7 @@ export class PortableSessionController {
     if (this.page) await this.page.evaluateScript(`globalThis.OpenWA_PortableSession.beginPairing(${revision})`);
   }
 
-  /** Fence the old document immediately, retaining storage ownership and listeners. */
+  /** Fence the old document immediately, retaining the storage handle and listeners. */
   preparePairing(): Promise<void> {
     this.invalidated = true;
     return this.serial(Effect.gen({ self: this }, function* () {
