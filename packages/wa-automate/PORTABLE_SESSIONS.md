@@ -34,7 +34,7 @@ The example writes `./sessions/sales.data.json` and `_sessionData/sales.data.jso
 | `SALES_DATA_JSON` | Session-specific environment seed, with the same formats; takes precedence over `sessionData`. |
 | `sessionData: 'NUKE'` | Explicitly invalidate the selected stores and start fresh. Remove this setting after resetting. A session-specific environment seed takes precedence. |
 | `sessionDataBucketAuth` | Accept the v4 base64-encoded PicoS3 configuration. Explicit `s3Sync` fields override matching fields. |
-| `skipSessionSave: true` | Use S3 without a local payload/lock. Requires S3 configuration. |
+| `skipSessionSave: true` | Use S3 without a local payload. Requires S3 configuration. |
 
 For v4 compatibility, any configured path containing `.data.json` is treated as a filename, including names with a suffix after that extension.
 
@@ -57,15 +57,15 @@ There is one key and one payload format, with no previous-key list, key IDs, mig
 
 The file remains `{ auth, data }`. Session decoding, encryption and restoration happen inside the private pre-init patch. Debug responses redact key settings; verbose environment loading prints variable names only.
 
-## S3 ownership and recovery
+## Shared storage and recovery
 
-The provider extends `@open-wa/session-sync` and uses its existing `pico-s3` transport. It supports PicoS3 provider names, custom endpoints, a configurable directory prefix, temporary credentials, and storage encryption headers. It does not set a public ACL. The endpoint must provide strongly consistent reads and enforce conditional PUT with `If-Match` and `If-None-Match`; unsupported conditions are errors, never retried as unconditional writes.
+The provider extends `@open-wa/session-sync` and uses its existing `pico-s3` transport. It supports PicoS3 provider names, custom endpoints, a configurable directory prefix, temporary credentials, and storage encryption headers. It does not set a public ACL.
 
-A companion `sales.data.json.lock` object holds ownership. Its body changes on acquire/release, and conditional writes prevent two cooperating clients from acquiring the same session. It has no expiry and is never stolen automatically. Clean shutdown releases it only after browser closure. A crash or ambiguous network write can leave it locked; an operator must establish that the old process/browser and any in-flight requests have stopped before removing that lock. Do not apply bucket lifecycle expiration to lock objects or edit session objects while a client owns them.
+Local and S3 storage allow multiple processes to open the same session. They do not create or acquire companion lock files or objects. Each save replaces the complete checkpoint, and the last completed write wins. Storage does not coordinate WhatsApp activity between those processes.
 
-An existing remote checkpoint is authoritative, including over local files and supplied seeds. Only a missing remote object permits importing a local file or seed. Corrupt payloads return to fresh QR pairing. Storage failures are reported separately from WhatsApp connection state. Writes replace the complete object using its current ETag, then refresh the local copy. No archive is created.
+An existing remote checkpoint is authoritative, including over local files and supplied seeds. Only a missing remote object permits importing a local file or seed. Corrupt payloads return to fresh QR pairing. Storage failures are reported separately from WhatsApp connection state. S3 writes replace the complete object unconditionally, then refresh the local copy. No archive is created.
 
-Logout writes credential-free invalidation markers so older local files or configured seeds cannot silently restore the session. The markers are not usable session payloads. Valid checkpoints always retain exactly the two encrypted `auth` and `data` values. Local storage uses an atomic mode-0600 replacement and an exclusive lock; local locks also require deliberate recovery after a crash.
+Logout writes credential-free invalidation markers so older local files or configured seeds cannot silently restore the session. The markers are not usable session payloads. Valid checkpoints always retain exactly the two encrypted `auth` and `data` values. Local storage uses an atomic mode-0600 replacement, with writes serialized within each storage handle.
 
 ## Login and incoming messages
 
@@ -77,4 +77,4 @@ Encrypted session snapshots are saved in the background. A failed save does not 
 
 Session files are bound to their session ID; keep that ID when moving a file between hosts. Key handling runs inside the obfuscated patch, with no supported decryption API. Obfuscation cannot prevent an operator who controls the runtime from inspecting or invoking it. Customer keys protect files when the key remains separate; the shared baked default is an obfuscation boundary. Protect session files as credentials.
 
-The integrated browser and S3 paths have not received a live runtime acceptance run. Receipt coverage, concurrent native state changes, and abrupt crashes during outbound sends remain acceptance boundaries; successful graceful saves do not establish crash safety for every native operation. S3 durability also depends on the endpoint enforcing its conditional-request semantics.
+The integrated browser and S3 paths have not received a live runtime acceptance run. Receipt coverage, concurrent native state changes, and abrupt crashes during outbound sends remain acceptance boundaries; successful graceful saves do not establish crash safety for every native operation. S3 durability depends on the configured provider's object-storage guarantees.
