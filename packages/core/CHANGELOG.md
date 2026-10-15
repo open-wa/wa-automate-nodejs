@@ -8,6 +8,20 @@
 
 
 
+
+## 5.6.2
+<sub>2026-10-15</sub>
+
+- [#3552](https://github.com/open-wa/wa-automate-nodejs/pull/3552)  *(patch)*
+  - 🐛 Recover invalid, undecryptable, or logged-out sessions through fresh QR pairing in the same process, retaining the client and its message listeners and replacing the unusable checkpoint after pairing.
+  - 🐛 Recover corrupt session files and credential paths automatically, replacing unusable data after fresh pairing.
+  - 🐛 Handle logout-cleanup failures without an unhandled rejection and rerun client finalization after pairing.
+- [#3552](https://github.com/open-wa/wa-automate-nodejs/pull/3552)  *(patch)*
+  - 🐛 Restore authentication based on WhatsApp's QR and chat-list screens, keep the existing QR page during logout recovery, and remove startup validation, repair, unread-audit and readiness blockers.
+  - 🐛 Deliver incoming messages through ordinary WAPI events and save encrypted sessions in the background. Remove native message-write and delivery-receipt interception and the custom callback acknowledgement/replay API.
+- [#3552](https://github.com/open-wa/wa-automate-nodejs/pull/3552)  *(patch)*
+  - ♻️ Remove exclusive local and S3 session locks so another process can open the same session immediately. Keep atomic local checkpoint replacement and use unconditional, last-write-wins S3 saves.
+
 ## 5.6.1
 <sub>2026-10-14</sub>
 

@@ -8,6 +8,13 @@
 
 
 
+
+## 5.6.2
+<sub>2026-10-15</sub>
+
+- [#3552](https://github.com/open-wa/wa-automate-nodejs/pull/3552)  *(patch)*
+  - 🐛 Provide a browser logger entry point with identifier redaction so dashboard event helpers do not import Node logging transports or cryptography.
+
 ## 5.6.1
 <sub>2026-10-14</sub>
 

@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/plugin-sdk",
-  "version": "5.6.1",
+  "version": "5.6.2",
   "description": "SDK for building open-wa plugins \u2014 types, helpers, and the createPlugin() factory",
   "type": "module",
   "exports": {

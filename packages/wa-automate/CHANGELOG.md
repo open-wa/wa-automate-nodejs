@@ -8,6 +8,16 @@
 
 
 
+
+## 5.6.2
+<sub>2026-10-15</sub>
+
+- [#3552](https://github.com/open-wa/wa-automate-nodejs/pull/3552)  *(patch)*
+  - 🐛 Restore authentication based on WhatsApp's QR and chat-list screens, keep the existing QR page during logout recovery, and remove startup validation, repair, unread-audit and readiness blockers.
+  - 🐛 Deliver incoming messages through ordinary WAPI events and save encrypted sessions in the background. Remove native message-write and delivery-receipt interception and the custom callback acknowledgement/replay API.
+- [#3552](https://github.com/open-wa/wa-automate-nodejs/pull/3552)  *(patch)*
+  - 🐛 Keep per-request HTTP logs off during normal Easy API operation. Enable them through verbose CLI output or debug logging.
+
 ## 5.6.1
 <sub>2026-10-14</sub>
 
