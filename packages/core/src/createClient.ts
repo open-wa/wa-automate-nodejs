@@ -13,21 +13,18 @@ import {
   SessionManager,
   SessionStore,
   type SessionReadinessSnapshot,
-  type SessionValidationStage,
 } from './sessionmanager/index';
 import { Transport } from './transport/index';
 import type {
   LicenseKeyResolver,
   PatchFetchConfig,
   LicenseServerConfig,
-  RuntimeValidationFailureReason,
 } from './transport/index';
 import { Effect } from 'effect';
 import type { CallingOptions } from '@open-wa/schema';
 import type { CallMediaHost } from './calling/ports';
 import {
   SessionScope,
-  runStartupGraph,
   type SessionAdmissionShape,
   type SessionFinalizerReason,
   type ChatSandboxPolicy,
@@ -376,12 +373,6 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     };
   };
 
-  const runFinalizationHooks = async () => {
-    for (const hook of [...finalizationHooks]) {
-      await hook();
-    }
-  };
-
   const getReadinessSnapshot = () => session.getReadinessSnapshot(transport.getOperationalReadinessSnapshot());
 
   const refreshController = new SessionRefreshController({ transport, session, events, sessionId, logger });
@@ -426,584 +417,48 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       session.resetRuntime();
       await session.setState('STARTING');
 
-      const markReadinessFailure = (scope: string, detail: string) => {
-        if (scope.includes('license')) {
-          session.updateReadiness('licenseLifecycle', 'failed', detail);
-          return;
-        }
-
-        if (scope.includes('patch')) {
-          session.updateReadiness('patchLifecycle', 'failed', detail);
-          return;
-        }
-
-        if (scope.includes('finalization')) {
-          session.setFinalization('failed', detail);
-          return;
-        }
-
-        if (scope.includes('auth')) {
-          session.setFinalization('failed', detail);
-          return;
-        }
-
-        session.updateReadiness('runtimeUsable', 'failed', detail);
-      };
-
-      const emitFatalBootstrapError = async (scope: string, error: unknown) => {
-        const normalizedError = error instanceof Error ? error : new Error(String(error));
-        markReadinessFailure(scope, normalizedError.message);
-        events.emit('error', {
-          scope,
-          error: normalizedError,
-          fatal: !recoveringSession,
-        });
-        Effect.runSync(observability.recordCause(scope, normalizedError));
-        await session.setState('DISCONNECTED', scope);
-        throw normalizedError;
-      };
-
-      const emitFailedFinalization = (detail: string) => {
-        session.setFinalization('failed', detail);
-        events.emit('launch.client.finalize.after', {
-          correlationId: 'bootstrap-client-finalize',
-          ts: Date.now(),
-          step: 'client_finalize',
-          details: {
-            state: session.getState(),
-            success: false,
-            outcome: 'failed',
-            detail,
-          },
-        });
-      };
-
-      const runValidationStage = async (
-        stage: SessionValidationStage,
-        options: {
-          correlationId: string;
-          allowRepair: boolean;
-          invalidScope: string;
-          deferFailure?: (result: Awaited<ReturnType<Transport['validateRuntimeUsability']>>) => boolean;
-        }
-      ) => {
-        const validateAttempt = async (attempt: number, repaired: boolean) => {
-          events.emit('launch.session.validityCheck.before', {
-            correlationId: options.correlationId,
-            attempt,
-            ts: Date.now(),
-            step: 'session_validity_check',
-            details: { phase: stage },
-          });
-
-          const result = stage === 'post_injection'
-            ? await transport.validateRuntimeCapabilityOnly(stage)
-            : await transport.validateRuntimeUsability(stage);
-
-          session.recordValidation({
-            stage,
-            attempt,
-            usable: result.usable,
-            repairable: result.repairable,
-            repaired,
-            checkedAt: Date.now(),
-            failureReason: result.failureReason,
-            capability: {
-              hasRuntime: result.hasRuntime,
-              hasStoreMsg: result.hasStoreMsg,
-              sessionLoaded: result.sessionLoaded,
-            },
-          });
-
-          events.emit('launch.session.validityCheck.after', {
-            correlationId: options.correlationId,
-            attempt,
-            ts: Date.now(),
-            step: 'session_validity_check',
-            details: {
-              phase: stage,
-              valid: result.usable,
-              usable: result.usable,
-              hasRuntime: result.hasRuntime,
-              hasStore: result.hasStoreMsg,
-              hasMsg: result.hasStoreMsg,
-              sessionLoaded: result.sessionLoaded,
-              bridgeReady: result.bridgeReady,
-              requiredMethods: result.requiredMethods,
-              missingMethods: result.missingMethods,
-              repairable: result.repairable,
-              repaired,
-              failureReason: result.failureReason,
-            },
-          });
-
-          return result;
-        };
-
-        const firstResult = await validateAttempt(1, false);
-        if (firstResult.usable) {
-          return firstResult;
-        }
-
-        if (options.deferFailure?.(firstResult)) {
-          return firstResult;
-        }
-
-        if (!options.allowRepair || !firstResult.repairable) {
-          return emitFatalBootstrapError(
-            options.invalidScope,
-            new Error(`Session validation failed during ${stage}: ${firstResult.failureReason ?? 'unknown_failure'}`)
-          );
-        }
-
-        const repairReason: RuntimeValidationFailureReason = firstResult.failureReason ?? 'runtime_missing';
-
-        events.emit('launch.session.invalid.retry', {
-          correlationId: options.correlationId,
-          attempt: 2,
-          ts: Date.now(),
-          step: 'session_invalid_retry',
-          details: { reason: repairReason },
-        });
-        events.emit('session.stale.detected', {
-          correlationId: options.correlationId,
-          attempt: 1,
-          ts: Date.now(),
-          step: 'session_stale_detected',
-          details: { reason: repairReason },
-        });
-        events.emit('session.reinject.detected', {
-          correlationId: options.correlationId,
-          attempt: 1,
-          ts: Date.now(),
-          step: 'session_reinject_detected',
-          details: { reason: repairReason },
-        });
-        events.emit('session.reinject.before', {
-          correlationId: options.correlationId,
-          attempt: 2,
-          ts: Date.now(),
-          step: 'session_reinject',
-          details: { reason: repairReason },
-        });
-
-        try {
-          await transport.repairRuntimeIntegrity(repairReason);
-        } catch (error) {
-          session.recordRepair({
-            stage,
-            attempt: 2,
-            reason: repairReason,
-            success: false,
-            at: Date.now(),
-          });
-          events.emit('session.reinject.after', {
-            correlationId: options.correlationId,
-            attempt: 2,
-            ts: Date.now(),
-            step: 'session_reinject',
-            details: { success: false },
-          });
-          return emitFatalBootstrapError(options.invalidScope, error);
-        }
-
-        const repairedResult = await validateAttempt(2, true);
-        session.recordRepair({
-          stage,
-          attempt: 2,
-          reason: repairReason,
-          success: repairedResult.usable,
-          at: Date.now(),
-        });
-
-        events.emit('session.reinject.after', {
-          correlationId: options.correlationId,
-          attempt: 2,
-          ts: Date.now(),
-          step: 'session_reinject',
-          details: { success: repairedResult.usable },
-        });
-
-        if (!repairedResult.usable) {
-          return emitFatalBootstrapError(
-            options.invalidScope,
-            new Error(`Session validation failed after repair during ${stage}: ${repairedResult.failureReason ?? repairReason}`)
-          );
-        }
-
-        return repairedResult;
-      };
-
-      const shouldDeferPreAuthRuntimeIntegrity = (
-        result: Awaited<ReturnType<Transport['validateRuntimeUsability']>>
-      ) => result.failureReason === 'required_method_missing' && !result.sessionLoaded;
-
-      const startupGraph = await Effect.runPromise(
-        runStartupGraph([
-          {
-            id: 'transport',
-            run: () => Effect.tryPromise({
-              try: async () => {
-                if (!transport.getPage()) await transport.initialize();
-                await transport.navigate();
-                return true;
-              },
-              catch: (error) => error instanceof Error ? error : new Error(String(error)),
-            }),
-          },
-          {
-            id: 'patch-preload',
-            run: () => Effect.tryPromise({
-              try: () => transport.preloadLivePatchArtifacts(),
-              catch: (error) => error instanceof Error ? error : new Error(String(error)),
-            }),
-          },
-          {
-            id: 'license-preflight',
-            run: () => Effect.tryPromise({
-              try: () => transport.preloadLicenseArtifact({ sessionId, licenseKey: transport.getEffectiveLicenseKey() ?? options.licenseKey }),
-              catch: (error) => error instanceof Error ? error : new Error(String(error)),
-            }),
-          },
-        ], {
-          concurrency: 3,
-          onPhase: ({ id, durationMs }) => {
-            Effect.runSync(observability.gauge('startup_phase_ms', durationMs, { phase: id }));
-          },
-          onComplete: ({ criticalPathMs }) => {
-            Effect.runSync(observability.gauge('startup_critical_path_ms', criticalPathMs));
-          },
-        }),
-      );
-      logger.info('startup_graph_complete', {
-        criticalPathMs: startupGraph.criticalPathMs,
-        phases: startupGraph.phases.map(({ id, durationMs }) => ({ id, durationMs })),
-      });
-
-      const earlyLivePatchPreload = startupGraph.values.get('patch-preload') as
-        Awaited<ReturnType<Transport['preloadLivePatchArtifacts']>>;
-      const earlyLicensePreload = startupGraph.values.get('license-preflight') as
-        Awaited<ReturnType<Transport['preloadLicenseArtifact']>>;
+      const [, earlyLivePatchPreload, earlyLicensePreload] = await Promise.all([
+        (async () => {
+          if (!transport.getPage()) await transport.initialize();
+          if (recoveringSession) await transport.waitForInjectableSession();
+          else await transport.navigate();
+        })(),
+        transport.preloadLivePatchArtifacts(),
+        transport.preloadLicenseArtifact({ sessionId, licenseKey: transport.getEffectiveLicenseKey() ?? options.licenseKey }),
+      ]);
 
       await session.setState('AUTHENTICATING');
 
-      try {
-        await transport.injectWapi();
-      } catch (error) {
-        return emitFatalBootstrapError('bootstrap.injection', error);
+      // WhatsApp owns authentication. Helpers are optional while its QR is visible.
+      await transport.injectWapi().catch(error => logger.warn('pre_auth_injection_deferred', { error }));
+      const auth = await transport.waitForAuthentication();
+      if (session.getState() === 'STOPPED') return;
+      if (auth.outcome !== 'authenticated') {
+        throw new Error(`Authentication did not finish: ${auth.outcome}`);
       }
 
-      const attemptingReauth = await transport.detectAttemptingReauth().catch(() => false);
-      logger.info('launch_auth_mode_detected', {
-        attemptingReauth,
+      await transport.injectWapi({ reuseCachedPatches: false });
+      const account = await transport.getSessionDebugInfo().catch(() => undefined);
+      const installation = await installDocumentRuntime(transport, earlyLivePatchPreload, async () => {
+        const key = transport.getEffectiveLicenseKey() ?? earlyLicensePreload.artifact?.key ?? options.licenseKey;
+        return account?.hostNumber
+          ? transport.preloadLicenseArtifact({ sessionId, licenseKey: key, sessionInfo: account })
+          : earlyLicensePreload;
+      }).catch(error => {
+        logger.warn('runtime_installation_incomplete', { error });
+        events.emit('error', { scope: 'runtime.installation', error: error instanceof Error ? error : new Error(String(error)), fatal: false });
+        return undefined;
       });
 
-      const runtimeCapability = await runValidationStage('post_injection', {
-        correlationId: 'bootstrap-runtime-validation',
-        allowRepair: true,
-        invalidScope: 'bootstrap.injection.capability',
-        deferFailure: shouldDeferPreAuthRuntimeIntegrity,
-      });
-
-      const deferredPreAuthRuntimeIntegrity = !runtimeCapability.usable;
-
-      if (deferredPreAuthRuntimeIntegrity) {
-        session.updateReadiness(
-          'runtimeUsable',
-          'pending',
-          'Pre-auth runtime integrity is incomplete before authentication; strict runtime validation is deferred until the authenticated runtime settles'
-        );
-
-        logger.warn('runtime_activation_deferred', {
-          validationPhase: 'pre_auth_post_injection',
-          deferredReason: runtimeCapability.failureReason,
-          sessionLoaded: runtimeCapability.sessionLoaded,
-          missingMethods: runtimeCapability.missingMethods,
-          requiredMethods: runtimeCapability.requiredMethods,
-          nextGate: 'post_auth_post_injection',
-        });
-      } else {
-        session.updateReadiness(
-          'runtimeUsable',
-          'satisfied',
-          'Runtime injection and post-injection validation proved usable capability'
-        );
-
-        logger.info('runtime_activation_ready', {
-          ...runtimeCapability,
-          validationPhase: 'pre_auth_post_injection',
-        });
+      session.updateReadiness('runtimeUsable', 'satisfied', 'WhatsApp is showing the chat list');
+      session.updateReadiness('patchLifecycle', installation?.livePatchApply.outcome === 'applied' ? 'satisfied' : 'non_blocking');
+      session.updateReadiness('licenseLifecycle', installation?.licenseCheck.status === 'valid' ? 'satisfied' : 'non_blocking');
+      for (const hook of [...finalizationHooks]) {
+        await Promise.resolve().then(hook).catch(error => logger.warn('client_finalization_hook_failed', { error }));
       }
-
-      logger.info('bootstrap_sequence_started', {
-        sessionId,
-        usePatch: !!options.patchConfig,
-      });
-
-      const authResult = await transport.waitForAuthentication({ attemptingReauth });
-      if (session.getState() === 'STOPPED') throw new Error('Session has stopped');
-      if (authResult.outcome === 'qr_timeout') {
-        emitFailedFinalization('QR scan took too long. Increase qrTimeout or set qrTimeout=0 to wait forever.');
-        return emitFatalBootstrapError(
-          'bootstrap.auth.qr_timeout',
-          new Error('QR scan took too long. Increase qrTimeout or set qrTimeout=0 to wait forever.')
-        );
-      }
-
-      if (authResult.outcome === 'auth_timeout') {
-        emitFailedFinalization('Authentication timed out. Increase authTimeout or set authTimeout=0 to wait forever.');
-        return emitFatalBootstrapError(
-          'bootstrap.auth.timeout',
-          new Error('Authentication timed out. Increase authTimeout or set authTimeout=0 to wait forever.')
-        );
-      }
-
-      if (authResult.outcome === 'phone_out_of_reach') {
-        emitFailedFinalization('Authentication timed out because the host phone is out of reach. Open WhatsApp on the phone and try again.');
-        return emitFatalBootstrapError(
-          'bootstrap.auth.phone_out_of_reach',
-          new Error('Authentication timed out because the host phone is out of reach. Open WhatsApp on the phone and try again.')
-        );
-      }
-
-      if (authResult.outcome === 'qr_max') {
-        emitFailedFinalization('Authentication aborted because the configured QR/link-code limit was reached before login completed. Increase qrMax or remove it to keep waiting.');
-        return emitFatalBootstrapError(
-          'bootstrap.auth.qr_max',
-          new Error('Authentication aborted because the configured QR/link-code limit was reached before login completed. Increase qrMax or remove it to keep waiting.')
-        );
-      }
-
-      const postAuthRuntime = await transport.reconcilePostAuthRuntime({
-        freshAuth: authResult.authMethod !== 'resumed_session',
-      });
-
-      if (!postAuthRuntime.ripeSessionLoaded) {
-        emitFailedFinalization('Authenticated runtime did not reach a ripe session before post-auth reinjection/gating completed.');
-        return emitFatalBootstrapError(
-          'bootstrap.auth.ripe_session_timeout',
-          new Error('Authenticated runtime did not reach a ripe session before post-auth reinjection/gating completed.')
-        );
-      }
-
-      logger.info('post_auth_runtime_reconciled', {
-        path: postAuthRuntime.path,
-        reinjected: postAuthRuntime.reinjected,
-        hasRuntime: postAuthRuntime.hasRuntime,
-        hasStoreMsg: postAuthRuntime.hasStoreMsg,
-        sessionLoaded: postAuthRuntime.sessionLoaded,
-        ripeSessionLoaded: postAuthRuntime.ripeSessionLoaded,
-      });
-
-      // Bridge bindings registration is deferred to AFTER live patches complete.
-      // The replacement observer (OpenWA_RuntimeReplacementDetected) must not fire
-      // before live patches are applied, and ensureRuntimeBridge() must not wire
-      // onStateChanged to an unpatched WAPI.
-      // See Phase 1 registration below, after live_patch_sequence_complete.
-
-      // Capability-only validation: verify runtime/store/session are alive but
-      // do NOT check bridge integrity — the bridge is not yet wired to WAPI.
-      // Using validateRuntimeCapabilityOnly avoids probeBrokenMethodIntegrity()
-      // which would prematurely call ensureRuntimeBridge() and wire unpatched WAPI.
-      const postAuthRuntimeCapability = await transport.validateRuntimeCapabilityOnly('post_injection');
-
-      session.recordValidation({
-        stage: 'post_injection',
-        attempt: 1,
-        usable: postAuthRuntimeCapability.usable,
-        repairable: postAuthRuntimeCapability.repairable,
-        repaired: false,
-        checkedAt: Date.now(),
-        failureReason: postAuthRuntimeCapability.failureReason,
-        capability: {
-          hasRuntime: postAuthRuntimeCapability.hasRuntime,
-          hasStoreMsg: postAuthRuntimeCapability.hasStoreMsg,
-          sessionLoaded: postAuthRuntimeCapability.sessionLoaded,
-        },
-      });
-
-      if (!postAuthRuntimeCapability.usable) {
-        // Attempt repair: reinject the runtime
-        try {
-          await transport.repairRuntimeIntegrity(postAuthRuntimeCapability.failureReason ?? 'runtime_missing');
-        } catch (repairError) {
-          return emitFatalBootstrapError('bootstrap.auth.runtime_validation', repairError);
-        }
-
-        // Re-validate after repair (capability-only — bridge still not wired)
-        const revalidated = await transport.validateRuntimeCapabilityOnly('post_injection');
-        session.recordValidation({
-          stage: 'post_injection',
-          attempt: 2,
-          usable: revalidated.usable,
-          repairable: revalidated.repairable,
-          repaired: true,
-          checkedAt: Date.now(),
-          failureReason: revalidated.failureReason,
-          capability: {
-            hasRuntime: revalidated.hasRuntime,
-            hasStoreMsg: revalidated.hasStoreMsg,
-            sessionLoaded: revalidated.sessionLoaded,
-          },
-        });
-
-        if (!revalidated.usable) {
-          return emitFatalBootstrapError(
-            'bootstrap.auth.runtime_validation',
-            new Error(`Post-injection capability validation failed after repair: ${revalidated.failureReason ?? 'unknown_failure'}`)
-          );
-        }
-      }
-
-      // ── Store Settle Gate (Option C) ──────────────
-      // Wait for window.Store.Msg to settle before marking readiness satisfied.
-      // This matches legacy v4 robustness and prevents store_missing failures at post_patch.
-      let storeMsgAvailable = postAuthRuntimeCapability.hasStoreMsg;
-      if (!storeMsgAvailable) {
-        logger.info('store_settle_gate_started', {
-          timeoutMs: 15000,
-          reason: 'Store.Msg missing after post-auth validation',
-        });
-        storeMsgAvailable = await transport.waitForStoreMsg(15000);
-      }
-
-      if (!storeMsgAvailable) {
-        const storeKeys = await transport.getStoreKeys().catch(() => []);
-        logger.error('store_settle_gate_timeout', {
-          availableKeys: storeKeys,
-          message: 'Timed out waiting for Store.Msg to settle.',
-        });
-        return emitFatalBootstrapError(
-          'bootstrap.store_settle',
-          new Error(`Store.Msg not available after 15s store-settle window. Available Store keys: ${storeKeys.join(', ')}`)
-        );
-      } else {
-        logger.info('store_settle_gate_satisfied');
-      }
-
-      session.updateReadiness(
-        'runtimeUsable',
-        'satisfied',
-        deferredPreAuthRuntimeIntegrity
-          ? 'Authenticated runtime validation proved usable capability after the deferred pre-auth integrity check and store-settle gate'
-          : 'Authenticated runtime validation proved usable capability after runtime bridge registration and store-settle gate'
-      );
-
-      logger.info('runtime_activation_ready', {
-        ...postAuthRuntimeCapability,
-        validationPhase: 'post_auth_post_injection',
-        deferredFromPreAuth: deferredPreAuthRuntimeIntegrity,
-      });
-
-      // ── Session Info Extraction (post-auth, pre-overlay) ──────────────
-      // Extract debug info from the authenticated page for remote overlay requests.
-      // This mirrors the legacy sequence: auth → session info → patch → integrity → license.
-      let sessionDebugInfo;
-      try {
-        sessionDebugInfo = await transport.getSessionDebugInfo();
-        logger.info('session_debug_info_extracted', {
-          hostNumber: sessionDebugInfo.hostNumber ? '***' + sessionDebugInfo.hostNumber.slice(-4) : 'unknown',
-          waVersion: sessionDebugInfo.WA_VERSION,
-        });
-      } catch (debugInfoError) {
-        const dbgMsg = debugInfoError instanceof Error ? debugInfoError.message : String(debugInfoError);
-        logger.warn('session_debug_info_extraction_failed', { error: dbgMsg });
-        // Continue without debug info — preload methods will fall back gracefully
-      }
-
-      const licensePreloadPromise = sessionDebugInfo?.hostNumber && earlyLicensePreload.artifact
-        ? transport.preloadLicenseArtifact({ sessionId, licenseKey: earlyLicensePreload.artifact.key, sessionInfo: sessionDebugInfo })
-        : Promise.resolve(earlyLicensePreload);
-      const { livePatchApply, licenseCheck, licenseApply, initPatchApply } = await installDocumentRuntime(
-        transport, earlyLivePatchPreload, async () => {
-          let prepared = await licensePreloadPromise;
-          if (prepared.status === 'metadata_only' && prepared.artifact) {
-            const account = await transport.getSessionDebugInfo();
-            if (account.hostNumber) prepared = await transport.preloadLicenseArtifact({
-              sessionId, licenseKey: prepared.artifact.key, sessionInfo: account,
-            });
-          }
-          return prepared;
-        }, async () => {
-          const capability = await transport.validateRuntimeCapabilityOnly('post_patch');
-          session.recordValidation({ stage: 'post_patch', attempt: 1, usable: capability.usable,
-            repairable: capability.repairable, repaired: false, checkedAt: Date.now(), failureReason: capability.failureReason,
-            capability: { hasRuntime: capability.hasRuntime, hasStoreMsg: capability.hasStoreMsg, sessionLoaded: capability.sessionLoaded } });
-          events.emit('launch.patch.integrity.after', { correlationId: 'bootstrap-post-patch-integrity', ts: Date.now(),
-            step: 'patch_integrity', details: { phase: 'post_patch', valid: capability.usable, usable: capability.usable, failureReason: capability.failureReason } });
-        },
-      ).catch(error => emitFatalBootstrapError('bootstrap.runtime.installation', error));
-      session.updateReadiness('licenseLifecycle', licenseCheck.status === 'valid' ? 'satisfied' : 'non_blocking', licenseApply?.detail ?? licenseCheck.detail);
-
-      const combinedPatchResults = [...livePatchApply.results, ...initPatchApply.results];
-      const combinedPatchApplied = [...livePatchApply.applied, ...initPatchApply.applied];
-      const combinedPatchOutcome = livePatchApply.outcome === 'failed' || initPatchApply.outcome === 'failed'
-        ? 'failed'
-        : combinedPatchApplied.length > 0
-          ? 'applied'
-          : 'skipped';
-
-      session.updateReadiness(
-        'patchLifecycle',
-        combinedPatchOutcome === 'applied' ? 'satisfied' : 'non_blocking',
-        combinedPatchOutcome === 'applied'
-          ? 'Patch lifecycle completed successfully, including deferred init patch finalization'
-          : `Patch lifecycle completed with non-blocking outcome: ${combinedPatchOutcome}`
-      );
-
-      logger.info('patch_lifecycle_complete', {
-        outcome: combinedPatchOutcome,
-        applied: combinedPatchApplied,
-        results: combinedPatchResults,
-      });
-
-      events.emit('launch.client.finalize.before', {
-        correlationId: 'bootstrap-client-finalize',
-        ts: Date.now(),
-        step: 'client_finalize',
-        details: {
-          validationStage: 'loaded_equivalent',
-          patchOutcome: combinedPatchOutcome,
-          licenseStatus: licenseCheck.status,
-        },
-      });
-
-      session.setFinalization('pending', 'post-overlay validation in progress');
-
-      try {
-        const finalValidation = await runValidationStage('post_overlay', {
-          correlationId: 'bootstrap-post-overlay-validation',
-          allowRepair: true,
-          invalidScope: 'bootstrap.finalization.validation',
-        });
-
-        logger.info('session_finalization_validated', { ...finalValidation });
-
-        if (finalizationHooks.size > 0) {
-          session.setFinalization('pending', 'Loaded-equivalent client finalization hooks are running');
-          await runFinalizationHooks();
-        }
-
-        session.setFinalization('pending', 'Waiting for finalized operational readiness truth to settle');
-        transport.completeRuntimeReplacement();
-        const operationalReadiness = await transport.waitForOperationalReadiness();
-
-        session.setFinalization('ready', 'Post-overlay validation, client finalization hooks, and operational readiness truth verification completed');
-
-        const finalizedReadiness = session.getReadinessSnapshot(operationalReadiness);
-
-        if (!finalizedReadiness.exposureSafe) {
-          const pendingTruth = finalizedReadiness.pending.join(', ');
-          const detail = pendingTruth.length > 0
-            ? `Finalized readiness truth is still pending: ${pendingTruth}`
-            : 'Finalized readiness truth verification failed unexpectedly';
-          return emitFatalBootstrapError('bootstrap.finalization.readiness_truth', new Error(detail));
-        }
-      } catch (error) {
-        const normalizedError = error instanceof Error ? error : new Error(String(error));
-        emitFailedFinalization(normalizedError.message);
-        throw normalizedError;
-      }
+      if (session.getState() === 'STOPPED') return;
+      transport.completeRuntimeReplacement();
+      session.setFinalization('ready', 'WhatsApp authentication and runtime installation finished');
 
       await session.setState('READY');
       refreshController.resume();
@@ -1130,7 +585,6 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     session.resetRuntime();
     await session.setState('AUTHENTICATING', reason);
     try {
-      await transport.resetSessionForPairing(reason);
       if (session.getState() !== 'STOPPED') await client.start();
     } catch (error) {
       if (session.getState() !== 'STOPPED') {

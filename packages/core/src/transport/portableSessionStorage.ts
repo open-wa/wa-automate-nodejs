@@ -71,7 +71,6 @@ export function acquirePortableSessionStorage(
     let remote: PortableSessionRemoteLease | undefined;
     let payload: string | null = null;
     let closed = false;
-    let failed = false;
     let closeResult: Exit.Exit<void, never> | undefined;
     const localPath = options.skipSessionSave ? undefined : yield* pathFor(sessionId, options.sessionDataPath);
 
@@ -120,21 +119,18 @@ export function acquirePortableSessionStorage(
     yield* provision.pipe(Effect.onExit(exit => Exit.isFailure(exit) ? Scope.close(scope, exit) : Effect.void));
 
     const owned = <A>(effect: Effect.Effect<A, PortableSessionFailure>) => runPortable(
-      operations.withPermit(Effect.uninterruptible(Effect.suspend(() => closed || failed
+      operations.withPermit(Effect.uninterruptible(Effect.suspend(() => closed
         ? Effect.fail(portableFailure('PORTABLE_SESSION_STORE_CLOSED')) : effect))),
     );
-    const mutation = (effect: Effect.Effect<void, PortableSessionFailure>) => owned(effect.pipe(
-      Effect.tapError(() => Effect.sync(() => { failed = true; })),
-    ));
     return {
       read: () => owned(Effect.sync(() => payload)),
-      write: next => mutation(Effect.gen(function* () {
+      write: next => owned(Effect.gen(function* () {
         yield* validatePortablePayload(next);
         if (remote) yield* io(() => remote!.write(next));
         if (local) yield* io(() => local!.write(next));
         payload = next;
       })),
-      remove: () => mutation(Effect.gen(function* () {
+      remove: () => owned(Effect.gen(function* () {
         if (remote) yield* io(() => remote!.remove());
         if (local) yield* io(() => local!.remove());
         payload = null;
