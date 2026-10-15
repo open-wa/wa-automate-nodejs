@@ -1,0 +1,84 @@
+---
+/** "Tell us what you need": the consulting lead form for businesses. */
+---
+
+<div class="nf" data-need>
+  <form class="nf-form" novalidate data-nf-form>
+    <div class="nf-field" data-field="name">
+      <label for="nf-name">Your name</label>
+      <input id="nf-name" name="name" type="text" autocomplete="name" required aria-describedby="nf-name-msg" />
+      <p class="nf-msg" id="nf-name-msg" aria-live="polite"></p>
+    </div>
+    <div class="nf-field" data-field="email">
+      <label for="nf-email">Email</label>
+      <input id="nf-email" name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="nf-email-msg" />
+      <p class="nf-msg" id="nf-email-msg" aria-live="polite"></p>
+    </div>
+    <div class="nf-field" data-field="need">
+      <label for="nf-need">What do you want built?</label>
+      <textarea id="nf-need" name="need" rows="4" required placeholder="e.g. Send booking reminders from our salon's WhatsApp number" aria-describedby="nf-need-msg"></textarea>
+      <p class="nf-msg" id="nf-need-msg" aria-live="polite"></p>
+    </div>
+    <button class="btn btn-primary" type="submit">Send the details</button>
+  </form>
+  <div class="nf-done" data-nf-done hidden tabindex="-1">
+    <span class="label">Received</span>
+    <h3>Thanks, <span data-out="name"></span>.</h3>
+    <p>Next: a reply to <span data-out="email"></span> about scope, and whether paid support or consulting fits.</p>
+    <p class="muted">Demo: nothing was sent. Details stay in this browser tab.</p>
+  </div>
+</div>
+
+<script>
+  import { submitLead } from "../lib/leads";
+  const rules: Record<string, (v: string) => string> = {
+    name: (v) => (v.trim() ? "" : "Enter your name."),
+    email: (v) => (!v.trim() ? "Enter your email." : /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? "" : "Check the email address, for example name@company.com."),
+    need: (v) => (v.trim().length >= 10 ? "" : "A sentence or two about what you need, please."),
+  };
+  document.querySelectorAll<HTMLElement>("[data-need]").forEach((root) => {
+    const form = root.querySelector<HTMLFormElement>("[data-nf-form]")!;
+    const done = root.querySelector<HTMLElement>("[data-nf-done]")!;
+    let submitted = false;
+    const check = (name: string, loud: boolean) => {
+      const field = form.querySelector<HTMLElement>(`[data-field="${name}"]`)!;
+      const input = field.querySelector<HTMLInputElement>("input, textarea")!;
+      const err = rules[name](input.value);
+      const show = loud || submitted;
+      field.dataset.state = err ? (show ? "error" : "") : "ok";
+      input.setAttribute("aria-invalid", String(!!err && show));
+      field.querySelector(".nf-msg")!.textContent = err && show ? err : "";
+      return !err;
+    };
+    Object.keys(rules).forEach((n) => form.querySelector(`[name="${n}"]`)!.addEventListener("input", () => check(n, false)));
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      submitted = true;
+      const bad = Object.keys(rules).filter((n) => !check(n, true));
+      if (bad.length) { form.querySelector<HTMLElement>(`[name="${bad[0]}"]`)?.focus(); return; }
+      const d = new FormData(form);
+      await submitLead("consulting", { name: String(d.get("name")).trim(), email: String(d.get("email")).trim(), need: String(d.get("need")).trim() });
+      root.querySelector('[data-out="name"]')!.textContent = String(d.get("name")).trim().split(" ")[0];
+      root.querySelector('[data-out="email"]')!.textContent = String(d.get("email")).trim();
+      form.hidden = true; done.hidden = false; done.focus();
+    });
+  });
+</script>
+
+<style>
+  .nf { background: var(--paper); border: 1px solid var(--line-strong); border-radius: var(--radius-l); padding: clamp(20px, 3vw, 32px); }
+  .nf-form, .nf-done { display: grid; gap: 18px; }
+  .nf-done:focus { outline: none; }
+  .nf-field label { display: block; font-weight: 600; margin-bottom: 8px; }
+  .nf-field input, .nf-field textarea {
+    width: 100%; min-height: 52px; padding: 13px 14px; border: 1.5px solid var(--line-strong); border-radius: var(--radius);
+    background: #fffdf8; font: 400 17px/1.4 var(--font-text); color: var(--ink);
+  }
+  .nf-field textarea { resize: vertical; }
+  .nf-field input:focus, .nf-field textarea:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px rgba(110, 20, 35, 0.15); }
+  .nf-field[data-state="error"] :is(input, textarea) { border-color: var(--oxblood); }
+  .nf-field[data-state="ok"] :is(input, textarea) { border-color: var(--lichen); }
+  .nf-msg { margin-top: 6px; color: var(--oxblood); font-weight: 500; font-size: 15px; }
+  .nf-msg:empty { display: none; }
+  .nf .btn { justify-self: start; min-height: 52px; }
+</style>

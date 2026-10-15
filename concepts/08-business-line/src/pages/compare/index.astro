@@ -1,0 +1,47 @@
+---
+import Page from "../../layouts/Page.astro";
+import PageHead from "../../components/PageHead.astro";
+import { product, tier, priceNote } from "../../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const rows = [
+  ["Getting started", "Run one command on your machine and scan a QR code with the phone.", "Set up a Meta business account and app before you send."],
+  ["Which number", "The WhatsApp number already on the business phone.", "A number registered to the platform."],
+  ["First messages to customers", "Free text to people who messaged you; first messages to new numbers need Restricted.", "Pre-approved message templates."],
+  ["Cost", `Free for most methods; keys from ${tier("insiders").prices.month} a month per number.`, "Per-message pricing set by Meta."],
+  ["Where it runs", "Your own machine or server, as a browser session it controls.", "Meta's cloud."],
+  ["Status", "Unofficial. Automation can get the number restricted or banned.", "Official, with Meta's own rules and review."],
+];
+---
+
+<Page title="open-wa or the WhatsApp Business Platform? | open-wa" description="How running open-wa on your own number compares with Meta's official WhatsApp Business Platform: setup, numbers, templates, cost and risk.">
+  <PageHead photo="hotel" eyebrow="Compare" title="open-wa or the official platform?" lede="Both send WhatsApp messages from code. They suit different jobs, and one of them is official." />
+  <section class="section">
+    <div class="wrap">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col"></th><th scope="col">open-wa on your number</th><th scope="col">WhatsApp Business Platform (Cloud API)</th></tr></thead>
+          <tbody>{rows.map(([a, b, c]) => <tr><th scope="row">{a}</th><td>{b}</td><td>{c}</td></tr>)}</tbody>
+        </table>
+      </div>
+      <p class="fine">{priceNote}</p>
+      <div class="pick">
+        <div><h2>Pick open-wa when</h2><p>A small business wants its own number to send bookings, reminders and replies today, you're happy to self-host, and the ban risk is acceptable for the job.</p><a class="btn btn-primary" href={`${base}quickstart/`}>Quick start</a></div>
+        <div><h2>Pick the official platform when</h2><p>You need Meta's approval and support, high volumes of messages to people who haven't contacted you, or losing the number would be unacceptable.</p></div>
+      </div>
+      <p class="fine">{product.unofficial}</p>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .table-wrap { overflow-x: auto; border: 1px solid var(--cream-3); border-radius: 18px; background: var(--paper); }
+  table { width: 100%; border-collapse: collapse; min-width: 680px; }
+  th, td { text-align: left; vertical-align: top; padding: 16px; border-bottom: 1px solid var(--cream-3); }
+  thead th { font: 600 15px/1.3 var(--font-display); }
+  tbody th { font-weight: 700; width: 22%; }
+  .pick { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 40px 0 24px; }
+  .pick > div { background: var(--paper); border: 1px solid var(--cream-3); border-radius: var(--radius-lg); padding: 24px; display: grid; gap: 8px; justify-items: start; align-content: start; }
+  .pick > div:first-child { background: var(--plum); color: var(--cream); }
+  .pick h2 { font-size: 22px; }
+  @media (max-width: 760px) { .pick { grid-template-columns: minmax(0, 1fr); } }
+</style>

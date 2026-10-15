@@ -1,0 +1,74 @@
+---
+import Base from "../../layouts/Base.astro";
+import PriceTable from "../../components/PriceTable.astro";
+import LicenceForm from "../../components/LicenceForm.astro";
+import { licences, product, commands, links, href } from "../../data/site";
+const faq = [
+  ["Do I need a key to start?", "No. Most methods need no key, including reading chats, sending to existing contacts, media, polls, events, webhooks and MCP for those methods. Method metadata marks each method none, insiders or restricted."],
+  ["What does \"per number\" mean?", "A key is bought for one WhatsApp number: the account your session runs. Two numbers need two keys."],
+  ["How do I use the key?", `Pass it at launch with ${commands.licenceFlag}, or set licenseKey in code. On 5.5 you can also apply a licence from the dashboard or with client.refresh() without restarting the Node process.`],
+  ["Does a key lower the risk of a ban?", "No. " + product.risk],
+  ["Which tier do I need for createGroup?", "Restricted. It covers creating groups, joining groups by invite link and starting conversations with numbers that are not already contacts."],
+  ["Can someone set it up for us?", "Yes. Paid support and consulting are on the support page."],
+];
+---
+<Base title="Pricing: free for most methods, keys per number | open-wa" description="open-wa is free for most methods. Insiders from £5 a month and Restricted from £15 a month, per WhatsApp number, with the methods each one covers.">
+  <div class="wrap">
+    <header class="page-head">
+      <h1>Free for most methods. A key per number for the rest.</h1>
+      <p class="lede">{licences.summary}</p>
+    </header>
+
+    <section aria-labelledby="tiers-title" class="block">
+      <h2 id="tiers-title" class="visually-hidden">Tiers and prices</h2>
+      <PriceTable full />
+    </section>
+
+    <section class="block two" aria-labelledby="buy-title">
+      <div class="before">
+        <h2 id="buy-title">Before you buy</h2>
+        <ol class="checks">{licences.beforeYouBuy.map((b) => <li>{b}</li>)}</ol>
+        <div class="risk">
+          <p><strong>Ban risk.</strong> {product.risk} A licence key gives you access to more methods; it doesn't change that risk.</p>
+          <p class="small muted">{product.unofficial}</p>
+        </div>
+      </div>
+      <div id="licence" class="form-col">
+        <h2>Configure your licence</h2>
+        <p class="muted">Four fields, no account. Then a prefilled Gumroad checkout.</p>
+        <LicenceForm />
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="faq-title">
+      <h2 id="faq-title">Questions</h2>
+      <div class="faq">
+        {faq.map(([q, a]) => (
+          <details>
+            <summary>{q}</summary>
+            <p>{a}</p>
+          </details>
+        ))}
+      </div>
+      <p class="muted small">More in the <a class="link" href={links.licensingDocs}>licensing docs</a> or ask on <a class="link" href={links.discord}>Discord</a>. Need it built for you? <a class="link" href={href("support/")}>Support and consulting</a>.</p>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .page-head { padding: clamp(36px, 6vw, 80px) 0 clamp(28px, 4vw, 48px); display: grid; gap: 18px; max-width: 820px; }
+  .block { padding: clamp(28px, 4vw, 56px) 0; }
+  .two { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(28px, 5vw, 72px); align-items: start; border-top: 1px solid var(--color-rule); }
+  .before { display: grid; gap: 18px; position: sticky; top: 96px; }
+  .checks { margin: 0; padding-left: 22px; display: grid; gap: 10px; }
+  .checks li::marker { color: var(--color-coral-ink); font-weight: 600; }
+  .risk { border-left: 3px solid var(--color-coral); padding: 4px 0 4px 16px; display: grid; gap: 8px; }
+  .form-col { display: grid; gap: 12px; scroll-margin-top: 90px; }
+  .faq { display: grid; border-top: 1px solid var(--color-rule); margin: 22px 0; }
+  .faq details { border-bottom: 1px solid var(--color-rule); }
+  .faq summary { cursor: pointer; min-height: 56px; display: flex; align-items: center; font-weight: 600; font-size: 18px; list-style: none; }
+  .faq summary::after { content: "+"; margin-left: auto; font: 400 24px/1 var(--font-display); color: var(--color-coral-ink); }
+  .faq details[open] summary::after { content: "−"; }
+  .faq details p { padding: 0 0 18px; color: var(--color-muted); max-width: 70ch; }
+  @media (max-width: 900px) { .two { grid-template-columns: minmax(0, 1fr); } .before { position: static; } }
+</style>

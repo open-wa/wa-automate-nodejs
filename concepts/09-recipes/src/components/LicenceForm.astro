@@ -1,0 +1,157 @@
+---
+/**
+ * The licence form (the lead seam): tier, GitHub username, WhatsApp number and
+ * use case, validated as people type and on submit (never on blur), sent
+ * through submitLead("licence"), then a confirmation naming the tier and the
+ * next step: a prefilled Gumroad checkout.
+ */
+import { licences } from "../data/site";
+const fields = Object.fromEntries(licences.checkoutFields.map((f) => [f.name, f]));
+const tiers = licences.tiers;
+---
+
+<div class="lf" id="licence">
+  <form class="lf-form" novalidate data-lf>
+    <fieldset class="lf-tiers">
+      <legend class="lf-label">{fields.tier!.label}</legend>
+      <div class="lf-tier-row">
+        {tiers.map((t, i) => (
+          <label class="lf-tier" style={`--sw: var(--${i === 0 ? "saffron" : "tomato"})`}>
+            <input type="radio" name="tier" value={t.id} checked={t.id === "restricted"} />
+            <span class="lf-tier-name">{t.name}</span>
+            <span class="lf-tier-price">{t.prices.month} a month</span>
+            <span class="lf-tier-for">{t.id === "restricted" ? "OTP, first messages to new numbers, groups" : "Buttons, lists, number checks, status"}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+
+    <div class="lf-field">
+      <label class="lf-label" for="lf-github">{fields.github!.label}</label>
+      <input id="lf-github" name="github" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="lf-github-err" />
+      <p class="lf-err" id="lf-github-err" aria-live="polite"></p>
+    </div>
+
+    <div class="lf-field">
+      <label class="lf-label" for="lf-phone">{fields.phone!.label}</label>
+      <input id="lf-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+44 7700 900123" aria-describedby="lf-phone-help lf-phone-err" />
+      <p class="lf-help" id="lf-phone-help">{fields.phone!.help}</p>
+      <p class="lf-err" id="lf-phone-err" aria-live="polite"></p>
+    </div>
+
+    <div class="lf-field">
+      <label class="lf-label" for="lf-use">{fields.useCase!.label}</label>
+      <textarea id="lf-use" name="useCase" rows="3" placeholder={fields.useCase!.placeholder} aria-describedby="lf-use-err"></textarea>
+      <p class="lf-err" id="lf-use-err" aria-live="polite"></p>
+    </div>
+
+    <button class="btn btn-ink lf-submit" type="submit">Continue to checkout</button>
+    <p class="lf-small">No account needed. Next you review the price and terms on Gumroad and pay there. {licences.pricesCheckedOn}</p>
+  </form>
+
+  <div class="lf-done" hidden tabindex="-1" data-lf-done>
+    <p class="lf-done-k">Licence request saved</p>
+    <h3 class="lf-done-h">Your <span data-lf-tier>Restricted</span> key for <span data-lf-num></span></h3>
+    <p>Next step: a Gumroad checkout prefilled with your tier, GitHub username and number. Review the price and terms there and pay. Then pass your key at launch with <code>--license-key</code> or <code>licenseKey</code>.</p>
+    <a class="btn btn-ink" href="#" data-lf-checkout>Open the prefilled checkout</a>
+    <button class="btn btn-line" type="button" data-lf-edit>Change details</button>
+    <p class="lf-small">Demo: this concept doesn't charge anything. The button goes to openwa.dev's checkout link for the tier.</p>
+  </div>
+</div>
+
+<script>
+  import { submitLead } from "../lib/leads";
+  const form = document.querySelector<HTMLFormElement>("[data-lf]");
+  const done = document.querySelector<HTMLElement>("[data-lf-done]");
+  if (form && done) {
+    const names: Record<string, string> = { insiders: "Insiders", restricted: "Restricted" };
+    const preset = new URLSearchParams(location.search).get("tier");
+    if (preset && names[preset]) (form.querySelector(`input[value="${preset}"]`) as HTMLInputElement).checked = true;
+
+    const digits = (s: string) => s
+      .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+      .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06F0));
+    const rules: Record<string, (v: string) => string> = {
+      github: (v) => !v.trim() ? "Enter your GitHub username." : /^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$/.test(v.trim().replace(/^@/, "")) ? "" : "GitHub usernames use letters, numbers and single hyphens.",
+      phone: (v) => {
+        const n = digits(v);
+        if (!n.trim()) return "Enter the WhatsApp number you want to license.";
+        if (/[^\d\s()+\-.]/.test(n)) return "Use digits, spaces, brackets and a leading +.";
+        const d = n.replace(/\D/g, "");
+        if (d.length < 8 || d.length > 15) return "Include the country code, for example +44 7700 900123.";
+        return "";
+      },
+      useCase: (v) => v.trim().length < 6 ? "Tell us in a few words what you'll build." : "",
+    };
+    const check = (name: string, show: boolean) => {
+      const el = form.elements.namedItem(name) as HTMLInputElement;
+      const msg = rules[name]!(el.value);
+      const err = document.getElementById(`${el.id}-err`)!;
+      if (show) { err.textContent = msg; el.setAttribute("aria-invalid", String(!!msg)); }
+      return !msg;
+    };
+    Object.keys(rules).forEach((name) => {
+      const el = form.elements.namedItem(name) as HTMLInputElement;
+      el.addEventListener("input", () => {
+        // As people type: clear an error once fixed, and flag characters a number can't contain.
+        const showing = el.getAttribute("aria-invalid") === "true";
+        const msg = rules[name]!(el.value);
+        if (showing || !msg) check(name, true);
+        else if (name === "phone" && /[^\d\s()+\-.]/.test(digits(el.value))) check(name, true);
+      });
+    });
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const ok = Object.keys(rules).map((n) => check(n, true));
+      const first = Object.keys(rules).find((_, i) => !ok[i]);
+      if (first) { (form.elements.namedItem(first) as HTMLElement).focus(); return; }
+      const data = new FormData(form);
+      const tier = String(data.get("tier"));
+      const phone = digits(String(data.get("phone"))).trim();
+      const btn = form.querySelector<HTMLButtonElement>(".lf-submit")!;
+      btn.disabled = true; btn.textContent = "Saving";
+      await submitLead("licence", { tier, github: String(data.get("github")).trim().replace(/^@/, ""), phone, useCase: String(data.get("useCase")).trim() });
+      btn.disabled = false; btn.textContent = "Continue to checkout";
+      done.querySelector("[data-lf-tier]")!.textContent = names[tier] ?? tier;
+      done.querySelector("[data-lf-num]")!.textContent = phone;
+      done.querySelector<HTMLAnchorElement>("[data-lf-checkout]")!.href = `https://openwa.dev/checkout?tier=${tier}`;
+      form.hidden = true; done.hidden = false; done.focus();
+    });
+    done.querySelector("[data-lf-edit]")!.addEventListener("click", () => { done.hidden = true; form.hidden = false; (form.elements.namedItem("github") as HTMLElement).focus(); });
+  }
+</script>
+
+<style>
+  .lf { background: var(--card); border-radius: 22px; box-shadow: inset 0 0 0 1px var(--line); padding: clamp(18px, 3vw, 32px); max-width: 640px; }
+  .lf-form { display: grid; gap: 18px; }
+  .lf-tiers { border: 0; padding: 0; margin: 0; min-width: 0; }
+  .lf-label { display: block; font-weight: 600; font-size: 1rem; margin-bottom: 8px; padding: 0; }
+  .lf-tier-row { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+  .lf-tier {
+    position: relative; display: grid; gap: 2px; padding: 14px 16px 14px 46px; border-radius: 14px; cursor: pointer;
+    box-shadow: inset 0 0 0 1.5px var(--line-2); background: var(--paper);
+  }
+  .lf-tier input { position: absolute; left: 16px; top: 17px; width: 20px; height: 20px; margin: 0; accent-color: var(--ink); }
+  .lf-tier:has(input:checked) { box-shadow: inset 0 0 0 2px var(--ink); background: var(--card); }
+  .lf-tier:has(input:checked)::after { content: ""; position: absolute; right: 0; top: 0; width: 26px; height: 26px; border-top-right-radius: 14px; background: linear-gradient(225deg, var(--paper) 50%, var(--sw) 50%); }
+  .lf-tier:has(input:focus-visible) { outline: 2px solid var(--sky-ink); outline-offset: 3px; }
+  .lf-tier-name { font: 400 1.5rem/1.1 var(--font-display); }
+  .lf-tier-price { font: 600 0.9375rem/1.3 var(--font-mono); }
+  .lf-tier-for { font-size: 0.9375rem; color: var(--ink-2); }
+  .lf-field input, .lf-field textarea {
+    width: 100%; min-height: 48px; padding: 12px 14px; border-radius: 12px; border: 0; background: var(--paper);
+    box-shadow: inset 0 0 0 1.5px var(--line-2); font: 400 1rem/1.4 var(--font-text); color: var(--ink);
+  }
+  .lf-field input:focus, .lf-field textarea:focus { outline: none; box-shadow: inset 0 0 0 2px var(--ink); background: var(--card); }
+  .lf-field [aria-invalid="true"] { box-shadow: inset 0 0 0 2px var(--tomato-ink); }
+  .lf-help { margin: 6px 0 0; font-size: 0.9375rem; color: var(--ink-2); }
+  .lf-err { margin: 6px 0 0; font-size: 0.9375rem; color: var(--tomato-ink); font-weight: 500; }
+  .lf-err:empty { display: none; }
+  .lf-submit { justify-self: start; min-height: 50px; padding: 0 24px; font-size: 1.0625rem; }
+  .lf-small { font-size: 0.9375rem; color: var(--ink-2); margin: 0; }
+  .lf-done { display: grid; gap: 12px; justify-items: start; }
+  .lf-done:focus { outline: none; }
+  .lf-done-k { margin: 0; font: 600 0.8125rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--tomato-ink); }
+  .lf-done-h { font: 400 clamp(1.75rem, 4vw, 2.25rem)/1.1 var(--font-display); margin: 0; }
+  .lf-done p { margin: 0; }
+</style>

@@ -1,0 +1,33 @@
+---
+import Page from "../layouts/Page.astro";
+import PageHead from "../components/PageHead.astro";
+import { releases, support, product, stats } from "../data/site";
+---
+<Page title="Changelog: 5.5 and 5.4 | open-wa" description="open-wa 5.5.0 (12 Oct 2026): event cards, live refresh and local stickers. 5.4.0 (30 Sep 2026): your own session key.">
+  <div class="wrap">
+    <PageHead kicker="changelog" title="What's new" lede={`Current version ${product.currentVersion} (${product.currentVersionNote}). ${stats.publishedVersions} versions published on npm.`} />
+    <ol class="rel">
+      {releases.map((r) => (
+        <li>
+          <div class="rel-meta"><span class="rel-v">{r.version}</span><time>{r.date}</time></div>
+          <div class="rel-body">
+            <h2>{r.headline}</h2>
+            <ul>{r.highlights.map((h) => <li>{h}</li>)}</ul>
+          </div>
+        </li>
+      ))}
+    </ol>
+    <p class="rel-more"><a class="btn" href={support.releases}>GitHub releases <span class="ext" aria-hidden="true">↗</span></a> <a class="btn" href={support.changelog}>Full changelog <span class="ext" aria-hidden="true">↗</span></a></p>
+  </div>
+</Page>
+<style>
+  .rel { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .rel > li { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px; padding: 32px 0; border-bottom: 1px solid var(--line); }
+  .rel-meta { display: grid; gap: 4px; align-content: start; }
+  .rel-v { font-family: var(--font-display); font-size: 33px; color: var(--amber); line-height: 1; }
+  .rel-meta time { color: var(--grey); }
+  .rel-body { display: grid; gap: 12px; }
+  .rel-body ul { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+  .rel-more { padding: 32px 0 80px; display: flex; flex-wrap: wrap; gap: 10px; }
+  @media (max-width: 700px) { .rel > li { grid-template-columns: 1fr; gap: 10px; } }
+</style>

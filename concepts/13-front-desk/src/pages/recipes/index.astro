@@ -1,0 +1,60 @@
+---
+import { Image } from "astro:assets";
+import Page from "../../layouts/Page.astro";
+import CopyCommand from "../../components/CopyCommand.astro";
+import key from "../../assets/generated/key.webp";
+import { jobs, jobCard, jobLicence, commands } from "../../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const chipClass = { free: "chip--free", insiders: "chip--insiders", restricted: "chip--restricted", preview: "chip--preview" } as const;
+---
+
+<Page title="Recipes: WhatsApp bookings, notifications, OTP, calls and stickers | open-wa" description="Nine jobs people build on their own WhatsApp number with open-wa, each with the flow, the code and the licence it needs.">
+  <section class="page-head wrap">
+    <p class="kicker">Recipes</p>
+    <h1>Pick the job. Copy the recipe.</h1>
+    <p class="lead">Each recipe shows the conversation on the customer's phone, the code that sends it, the methods it uses and whether it needs a key. All of them start from the same command.</p>
+    <div class="cmd-wrap"><CopyCommand command={commands.easyApi} /></div>
+  </section>
+  <section class="wrap list">
+    <ol class="rows" role="list">
+      {jobs.map((j, i) => {
+        const lic = jobLicence[j.id];
+        return (
+          <li class="row">
+            <span class="row-n" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+            <div class="row-main">
+              <h2><a href={`${base}recipes/${j.id}/`}>{j.name}</a></h2>
+              <p>{jobCard[j.id].line}</p>
+              <p class="row-methods">{j.methods.map((m) => <code>{m}</code>)}</p>
+            </div>
+            <span class:list={["chip", chipClass[lic.kind]]}>{lic.short}</span>
+          </li>
+        );
+      })}
+    </ol>
+    <aside class="aside">
+      <Image src={key} alt="Illustration: a brass room key on an oak desk" widths={[400, 800]} sizes="(max-width: 900px) 100vw, 360px" />
+      <p>The hotel recipe runs the front desk on the home page. <a href={`${base}#desk`}>See it working</a>.</p>
+    </aside>
+  </section>
+</Page>
+
+<style>
+  .cmd-wrap { margin-top: 24px; max-width: 620px; }
+  .list { display: grid; grid-template-columns: 1fr 360px; gap: 48px; align-items: start; padding-bottom: clamp(56px, 8vw, 96px); }
+  .rows { list-style: none; border-top: 1px solid var(--color-line); }
+  .row { position: relative; display: grid; grid-template-columns: 56px 1fr auto; gap: 16px; align-items: start; padding: 22px 8px; border-bottom: 1px solid var(--color-line); border-radius: 12px; transition: background var(--speed) var(--ease); }
+  .row:hover { background: var(--sand-50); }
+  .row-n { font: 400 1.6rem/1 var(--font-display); color: var(--terracotta-ink); }
+  .row h2 { font-size: 1.5rem; margin-bottom: 6px; }
+  .row h2 a { text-decoration: none; }
+  .row h2 a::after { content: ""; position: absolute; inset: 0; }
+  .row:has(a:focus-visible) { outline: 2px solid var(--terracotta-ink); outline-offset: 2px; }
+  .row h2 a:focus-visible { outline: none; }
+  .row p { color: var(--color-muted); }
+  .row-methods { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .aside { position: sticky; top: calc(var(--header-h) + 24px); display: grid; gap: 12px; }
+  .aside img { border-radius: var(--radius-lg); }
+  .aside a { color: var(--terracotta-ink); font-weight: 600; }
+  @media (max-width: 900px) { .list { grid-template-columns: 1fr; } .aside { position: static; } .row { grid-template-columns: 40px 1fr; } .row > .chip { grid-column: 2; justify-self: start; } }
+</style>

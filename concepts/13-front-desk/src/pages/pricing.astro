@@ -1,0 +1,100 @@
+---
+import Page from "../layouts/Page.astro";
+import LicenceForm from "../components/LicenceForm.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { licences, insiders, restricted, periods, priceNote, commands, support, product } from "../data/facts";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const tiers = [
+  { t: null, name: "No key", price: "Free", per: "", lead: "Replying to people who write to you.", jobs: ["Hotel replies: directions, wifi codes, questions", "Salon and clinic bookings when the customer writes first", "Photos, voice notes, PDFs and video", "Polls, event cards, webhooks and MCP for these methods"], cta: { href: `${base}quickstart/`, label: "Start free" } },
+  { t: insiders, name: insiders.name, price: insiders.prices.month, per: "a month per number", lead: "Interactive messages and number checks.", jobs: ["Buttons, lists and other interactive messages", "Number profile and status checks (checkNumberStatus)", "Posting and reading status", "Orders, starred messages, raw payloads"], cta: { href: `${base}pricing/?tier=insiders#licence`, label: "Choose Insiders" } },
+  { t: restricted, name: restricted.name, price: restricted.prices.month, per: "a month per number", lead: "Writing first to numbers that haven't messaged you.", jobs: ["OTP and verification codes", "Check-in details to guests who haven't written yet", "Starting order and delivery chats", "Creating and joining groups (createGroup, joinGroupViaLink)", "Everything in Insiders"], cta: { href: `${base}pricing/?tier=restricted#licence`, label: "Choose Restricted" }, featured: true },
+];
+
+const faqs = [
+  { q: "Is the key per number or per account?", a: "Per WhatsApp number. Buy one key for each number that runs a licensed method, and pass it at launch with --license-key or licenseKey." },
+  { q: "Do I need a key to reply to guests?", a: "No. Replying to people who messaged the number uses methods marked none. Writing first to a number that hasn't messaged you needs Restricted." },
+  { q: "How do I get calling?", a: "Calling is a licensed preview and needs a calling-enabled licence key. It's audio only; camera calls are in development. Ask on Discord or by email which key covers your number." },
+  { q: "Can I apply a key without restarting?", a: "Yes, from 5.5: apply a licence from the dashboard or with client.refresh() without restarting the Node process." },
+  { q: "Will a key stop my number being banned?", a: "No. A key turns on methods. It doesn't change the risk: automation tools can cause a WhatsApp account to be restricted or banned." },
+];
+---
+
+<Page title="Pricing: free, Insiders and Restricted licence keys | open-wa" description="Most of open-wa is free. Insiders and Restricted keys, per WhatsApp number, cover buttons, number checks, OTP and first messages to new numbers.">
+  <section class="page-head wrap">
+    <p class="kicker">Pricing</p>
+    <h1>Free to reply. A key when you write first.</h1>
+    <p class="lead">The library is free and open source, and most jobs need no key. Keys are per WhatsApp number, sold through Gumroad, and cover the methods marked Insiders or Restricted.</p>
+  </section>
+
+  <section class="wrap tiers-wrap">
+    <div class="tiers">
+      {tiers.map((x) => (
+        <article class:list={["tier", { "tier--featured": x.featured }]}>
+          <h2>{x.name}</h2>
+          <p class="tier-price"><span>{x.price}</span> {x.per && <small>{x.per}</small>}</p>
+          {x.t && (
+            <ul class="tier-periods" aria-label={`${x.name} billing periods`}>
+              {periods.map((p) => <li><span>{p.label}</span><strong>{(x.t!.prices as Record<string, string>)[p.id]}</strong></li>)}
+            </ul>
+          )}
+          <p class="tier-lead">{x.lead}</p>
+          <ul class="tier-jobs">{x.jobs.map((j) => <li>{j}</li>)}</ul>
+          <a class:list={["btn", x.featured ? "btn--primary" : "btn--ghost"]} href={x.cta.href} data-tier={x.t?.id}>{x.cta.label}</a>
+        </article>
+      ))}
+    </div>
+    <p class="small muted note">{priceNote} <span id="calls">Calling is a licensed preview that needs a calling-enabled key; ask on <a href={support.discord}>Discord</a> or at <a href={`mailto:${support.consultingEmail}`}>{support.consultingEmail}</a>.</span></p>
+    <p class="risk-note"><strong>Ban risk:</strong> {product.risk} A key doesn't change that.</p>
+  </section>
+
+  <section class="section section--paper" id="licence">
+    <div class="wrap buy">
+      <div>
+        <p class="kicker">Get a key</p>
+        <h2>Four details, then checkout.</h2>
+        <p class="lead">Tell us the tier, your GitHub username, the WhatsApp number the key is for and what you'll build. Next, a prefilled Gumroad checkout opens where you review the price and pay.</p>
+        <h3 class="before">Before you buy</h3>
+        <ol class="before-list">{licences.beforeYouBuy.map((b) => <li>{b}</li>)}</ol>
+        <CodeBlock code={`${commands.easyApi} ${commands.licenceFlag}`} lang="bash" title="Start with the key" wrap />
+      </div>
+      <LicenceForm />
+    </div>
+  </section>
+
+  <section class="section wrap narrow">
+    <h2>Questions about keys</h2>
+    <div class="faq">
+      {faqs.map((f) => <details><summary>{f.q}</summary><p>{f.a}</p></details>)}
+    </div>
+  </section>
+</Page>
+
+<style>
+  .tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: stretch; }
+  .tier { background: var(--paper); border: 1px solid var(--color-line); border-radius: var(--radius-lg); padding: 26px; display: grid; gap: 14px; align-content: start; grid-template-rows: auto auto auto auto 1fr auto; }
+  .tier--featured { border: 2px solid var(--terracotta); box-shadow: var(--shadow-card); }
+  .tier h2 { font-size: 1.6rem; }
+  .tier-price span { font: 400 2.6rem/1 var(--font-display); }
+  .tier-price small { font-size: 1rem; color: var(--color-muted); }
+  .tier-periods { list-style: none; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--color-line); border: 1px solid var(--color-line); border-radius: 12px; overflow: hidden; }
+  .tier-periods li { background: var(--sand-50); padding: 8px 12px; display: flex; justify-content: space-between; gap: 8px; font-size: 0.9375rem; }
+  .tier-lead { font-weight: 600; }
+  .tier-jobs { list-style: none; display: grid; gap: 8px; }
+  .tier-jobs li { padding-left: 22px; position: relative; color: var(--ocean-700); }
+  .tier-jobs li::before { content: ""; position: absolute; left: 2px; top: 0.6em; width: 10px; height: 6px; border-left: 2px solid var(--terracotta); border-bottom: 2px solid var(--terracotta); transform: rotate(-45deg); }
+  .tier .btn { width: 100%; }
+  .note { margin-top: 18px; }
+  .note a { color: var(--terracotta-ink); }
+  .risk-note { margin-top: 10px; padding: 14px 16px; border-radius: 12px; background: var(--terracotta-soft); color: var(--ocean); }
+  .tiers-wrap { padding-bottom: clamp(56px, 8vw, 96px); }
+  .buy { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 64px); align-items: start; }
+  .buy > div:first-child { display: grid; gap: 16px; min-width: 0; }
+  .before { margin-top: 8px; font-size: 1.25rem; }
+  .before-list { padding-left: 22px; display: grid; gap: 6px; }
+  .faq { margin-top: 24px; border-top: 1px solid var(--color-line); }
+  .faq details { border-bottom: 1px solid var(--color-line); }
+  .faq summary { cursor: pointer; min-height: 56px; display: flex; align-items: center; font-weight: 600; font-size: 1.0625rem; list-style-position: inside; }
+  .faq details p { padding: 0 0 18px; color: var(--color-muted); }
+  @media (max-width: 1000px) { .tiers, .buy { grid-template-columns: 1fr; } }
+</style>

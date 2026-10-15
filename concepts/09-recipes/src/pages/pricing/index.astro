@@ -1,0 +1,126 @@
+---
+import Page from "../../layouts/Page.astro";
+import LicenceForm from "../../components/LicenceForm.astro";
+import { jobs, licences, tiers, priceNote, product, base, support } from "../../data/site";
+const periods: [keyof typeof tiers.insiders.prices, string][] = [["month", "1 month"], ["threeMonths", "3 months"], ["sixMonths", "6 months"], ["year", "1 year"]];
+const faqs = [
+  { q: "Is a key per number or per account?", a: "Per WhatsApp number. Each number that runs a licensed method needs its own key, passed at launch with --license-key or licenseKey in code." },
+  { q: "Which tier does OTP need?", a: "Restricted. One-time codes go to numbers that haven't messaged you, and starting a conversation with a number that isn't already a contact is a Restricted method. checkNumberStatus needs Insiders, which Restricted includes." },
+  { q: "Do I need a key to reply to customers?", a: "No. Replying to people who messaged your number, media, polls, events, webhooks and MCP for those methods need no key." },
+  { q: "What about WhatsApp calls?", a: "Calling is a licensed preview and needs a calling-enabled licence key. It's audio only. Ask on Discord or by email before buying so the key matches your use." },
+  { q: "Can I apply a key without restarting?", a: "Yes, since 5.5 you can apply a licence from the dashboard or with client.refresh() without restarting the Node process." },
+  { q: "Does a key reduce ban risk?", a: "No. A key enables methods; it doesn't change how WhatsApp treats the account. " + product.risk },
+];
+---
+
+<Page title="Pricing: free recipes and licence keys per number | open-wa" description="open-wa is free to use. Insiders (£5 a month) and Restricted (£15 a month) keys enable specific methods per WhatsApp number. See which recipe needs which.">
+  <div class="wrap page-head">
+    <h1 class="h-display">Free to cook. A key for some recipes.</h1>
+    <p class="lede">{licences.summary}</p>
+  </div>
+
+  <div class="wrap doc">
+    <section aria-labelledby="tiers-h">
+      <h2 id="tiers-h" class="sr">Tiers and prices</h2>
+      <div class="tiers">
+        <article class="tier" style="--sw: var(--line-2)">
+          <h3>No key</h3>
+          <p class="tier-price">£0</p>
+          <p>{licences.free.covers}</p>
+          <p class="tier-jobs">Recipes: salon bookings when the customer messages first, media, stickers (relies on the sticker patch), order updates to existing customers, support inbox.</p>
+          <a class="btn btn-line" href={`${base}quickstart/`}>Quick start</a>
+        </article>
+        {[tiers.insiders, tiers.restricted].map((t) => (
+          <article class="tier" style={`--sw: var(--${t.id === "insiders" ? "saffron" : "tomato"})`}>
+            <h3>{t.name}</h3>
+            <p class="tier-price">{t.prices.month}<span> a month</span></p>
+            <ul class="tier-periods">{periods.map(([k, l]) => <li><span>{l}</span><span>{t.prices[k]}</span></li>)}</ul>
+            <p>{t.unlocks}</p>
+            <p class="tier-jobs">{t.id === "restricted" ? "Recipes: OTP codes, hotel notifications to new guests, first messages from salons and shops." : "Recipes: buttons and lists, number checks before sending."}</p>
+            <a class="btn btn-ink" href={`?tier=${t.id}#licence`} data-pick={t.id}>Get {t.name}</a>
+          </article>
+        ))}
+      </div>
+      <p class="price-note">{priceNote} Calling needs a separate calling-enabled key (licensed preview); ask on <a href={support.discord}>Discord</a> or at <a href={`mailto:${support.consultingEmail}`}>{support.consultingEmail}</a>.</p>
+    </section>
+
+    <section aria-labelledby="byjob-h">
+      <h2 id="byjob-h">By recipe</h2>
+      <div class="t-scroll">
+        <table class="t">
+          <thead><tr><th scope="col">Recipe</th><th scope="col">Needs</th><th scope="col">Methods</th></tr></thead>
+          <tbody>
+            {jobs.map((j) => (
+              <tr>
+                <th scope="row" class="row-h"><a href={`${base}recipes/${j.id}/`}>{j.name}</a></th>
+                <td>{j.licence}</td>
+                <td><code>{j.methods.join(", ")}</code></td>
+              </tr>
+            ))}
+            <tr><th scope="row" class="row-h">Buttons, lists and interactive messages</th><td>Insiders ({tiers.insiders.prices.month} a month)</td><td><code>sendInteractive, sendButtons, sendListMessage</code></td></tr>
+            <tr><th scope="row" class="row-h">Groups</th><td>Restricted to create or join by link</td><td><code>createGroup, joinGroupViaLink, joinGroup</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="buy-h" class="buy">
+      <div class="buy-copy">
+        <h2 id="buy-h">Get a licence key</h2>
+        <p>Four fields, no account. Then a Gumroad checkout prefilled with your details, where you review the price and pay.</p>
+        <h3>Before you buy</h3>
+        <ul>{licences.beforeYouBuy.map((b) => <li>{b}</li>)}</ul>
+        <div class="note"><p><strong>Ban risk.</strong> {product.risk}</p></div>
+      </div>
+      <LicenceForm />
+    </section>
+
+    <section aria-labelledby="faq-h">
+      <h2 id="faq-h">Questions</h2>
+      <div class="faq">
+        {faqs.map((f) => (
+          <details>
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  </div>
+</Page>
+
+<script>
+  document.querySelectorAll<HTMLAnchorElement>("[data-pick]").forEach((a) => a.addEventListener("click", (e) => {
+    const input = document.querySelector<HTMLInputElement>(`input[name="tier"][value="${a.dataset.pick}"]`);
+    if (!input) return;
+    e.preventDefault();
+    input.checked = true;
+    document.getElementById("licence")?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    history.replaceState(null, "", `?tier=${a.dataset.pick}#licence`);
+    window.setTimeout(() => (document.getElementById("lf-github") as HTMLInputElement | null)?.focus({ preventScroll: true }), 400);
+  }));
+</script>
+
+<style>
+  .tiers { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  .tier { position: relative; background: var(--card); border-radius: 22px; padding: 26px; box-shadow: inset 0 0 0 1px var(--line); display: grid; gap: 12px; align-content: start; }
+  .tier::before { content: ""; position: absolute; top: 0; right: 0; width: 44px; height: 44px; border-top-right-radius: 22px; background: linear-gradient(225deg, var(--paper) 50%, var(--sw) 50%); }
+  .tier h3 { font: 400 2rem/1 var(--font-display); margin: 0; }
+  .tier p { margin: 0; font-size: 1rem; }
+  .tier-price { font: 400 3.25rem/1 var(--font-display) !important; }
+  .tier-price span { font: 400 1rem/1 var(--font-text); color: var(--ink-2); }
+  .tier-periods { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .tier-periods li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 0.9375rem; }
+  .tier-jobs { color: var(--ink-2); }
+  .tier .btn { justify-self: start; margin-top: 6px; }
+  .price-note { color: var(--ink-2); font-size: 0.9375rem; margin-top: 16px; }
+  .row-h { font: 600 1rem/1.35 var(--font-text) !important; text-transform: none !important; letter-spacing: 0 !important; color: var(--ink) !important; min-width: 180px; }
+  .row-h a { color: var(--ink); }
+  .buy { display: grid; gap: 32px; margin-top: 24px; }
+  @media (min-width: 980px) { .buy { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); align-items: start; } }
+  .buy .note { margin-top: 20px; }
+  .faq { display: grid; gap: 10px; max-width: 820px; }
+  .faq details { background: var(--card); border-radius: 14px; box-shadow: inset 0 0 0 1px var(--line); }
+  .faq summary { cursor: pointer; padding: 16px 18px; font-weight: 600; min-height: 44px; }
+  .faq details p { margin: 0; padding: 0 18px 18px; }
+</style>

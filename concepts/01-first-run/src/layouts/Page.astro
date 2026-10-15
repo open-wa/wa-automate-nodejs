@@ -1,0 +1,15 @@
+---
+import Base from "./Base.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+interface Props { title: string; description: string; wide?: boolean }
+const { title, description } = Astro.props;
+---
+<Base title={title} description={description}>
+  <Header />
+  <main id="main">
+    <slot />
+  </main>
+  <Footer />
+  <script>import "../lib/copy"; import "../lib/tabs";</script>
+</Base>

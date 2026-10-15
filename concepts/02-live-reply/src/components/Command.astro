@@ -1,0 +1,31 @@
+---
+/** The run command as a single copyable line. */
+import CopyButton from "./CopyButton.astro";
+interface Props { cmd: string; size?: "l" | "m" }
+const { cmd, size = "m" } = Astro.props;
+const [bin, ...rest] = cmd.split(" ");
+---
+<div class={`cmd cmd-${size}`}>
+  <span class="cmd-prompt" aria-hidden="true">$</span>
+  <code class="cmd-text"><span class="tk-fn">{bin}</span> {rest.map((w) => w.startsWith("--") ? <span class="tk-flag">{w} </span> : <span>{w} </span>)}</code>
+  <CopyButton text={cmd} label="Copy the command" />
+</div>
+<style>
+  .cmd {
+    display: flex; align-items: center; gap: 10px; min-width: 0;
+    background: var(--white); border: 1px solid var(--grey-2); border-radius: 14px; padding: 4px 4px 4px 16px;
+    box-shadow: var(--shadow);
+  }
+  .cmd-prompt { font-family: var(--font-mono); color: var(--grey-3); flex: none; }
+  .cmd-text {
+    flex: 1; min-width: 0; font-size: 16px; white-space: nowrap; overflow-x: auto; scrollbar-width: none; padding: 10px 0;
+  }
+  .cmd-text::-webkit-scrollbar { display: none; }
+  .cmd-l .cmd-text { font-size: 17px; }
+  @media (max-width: 640px) {
+    .cmd { padding-left: 12px; }
+    .cmd-text, .cmd-l .cmd-text { font-size: 15px; white-space: normal; overflow-wrap: normal; word-break: normal; }
+    .cmd :global(.copy-txt) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .cmd :global(.copy) { width: 48px; height: 48px; justify-content: center; padding: 0; background: var(--grey-1); color: var(--ink); }
+  }
+</style>

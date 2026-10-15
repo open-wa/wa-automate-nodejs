@@ -1,0 +1,8 @@
+---
+interface Props { text?: string; target?: string; label?: string; describe?: string }
+const { text, target, label = "Copy", describe } = Astro.props;
+---
+<button type="button" class="copy" data-copy={text} data-copy-target={target} aria-label={describe ? `Copy ${describe}` : undefined}>
+  <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5.5" y="5.5" width="8" height="8" rx="1.6"/><path d="M10.5 3.2V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v6.5a1 1 0 0 0 1 1h.3"/></svg>
+  <span data-copy-label={label}>{label}</span>
+</button>

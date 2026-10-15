@@ -1,0 +1,34 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import { releases, product, links } from "../../data/site";
+---
+<Base title="Changelog: 5.5 and 5.4 | open-wa" description="What's new in open-wa: 5.5 brings event cards, live refresh and local stickers; 5.4 lets you supply your own session encryption key.">
+  <div class="wrap">
+    <PageHead title="Changelog" lede={`The latest npm version is ${product.currentVersion} (${product.currentVersionNote.replace("Latest npm tag on ", "")}). Every release is on GitHub.`} />
+    <ol class="rel">
+      {releases.map((r) => (
+        <li>
+          <div class="rel-meta"><span class="v mono">{r.version}</span><time>{r.date}</time></div>
+          <div class="rel-body">
+            <h2>{r.headline}</h2>
+            <ul>{r.highlights.map((h) => <li>{h}</li>)}</ul>
+          </div>
+        </li>
+      ))}
+    </ol>
+    <p class="end"><a class="btn btn-primary" href={links.releases}>All releases on GitHub</a> <a class="btn btn-ghost" href={links.changelog}>Docs changelog</a></p>
+  </div>
+</Base>
+<style>
+  .rel { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-ink); }
+  .rel > li { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; padding: 32px 0; border-bottom: 1px solid var(--color-rule); }
+  .rel-meta { display: grid; gap: 8px; align-content: start; }
+  .v { justify-self: start; background: var(--color-ink); color: var(--color-bg); padding: 6px 10px; border-radius: 999px; font-size: 13px; }
+  time { color: var(--color-muted); }
+  .rel h2 { font-size: 32px; margin-bottom: 14px; }
+  .rel-body ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+  .rel-body li::marker { color: var(--color-coral-ink); }
+  .end { padding: 40px 0 80px; display: flex; gap: 10px; flex-wrap: wrap; }
+  @media (max-width: 700px) { .rel > li { grid-template-columns: minmax(0, 1fr); gap: 14px; } }
+</style>

@@ -1,0 +1,46 @@
+---
+import Page from "../layouts/Page.astro";
+import { useCases, useCaseDetail, href } from "../data/site";
+const links: Record<string, string> = {
+  "support-inbox": "integrations/#chatwoot",
+  notifications: "quickstart/#easy-api",
+  bots: "quickstart/#socket-client",
+  webhooks: "integrations/#webhooks",
+  "multi-session": "features/#multi",
+  "ai-agents": "ai-agents/",
+};
+---
+
+<Page title="Use cases | open-wa" description="Support inboxes, order and delivery notifications, bots, webhook bridges, multi-session automations and AI-agent workflows, with the path and methods each uses.">
+  <section class="page-hero wrap">
+    <span class="label">Use cases</span>
+    <h1>What developers build on their own number</h1>
+    <p class="lede">Six patterns, each with the path it runs on and the methods or packages it leans on.</p>
+  </section>
+  <section class="wrap uc">
+    {useCases.map((u, i) => (
+      <article class="uc-row" id={useCaseDetail[i].slug}>
+        <span class="uc-n" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+        <h2>{u}</h2>
+        <div class="uc-meta">
+          <p><span class="label">Path</span> {useCaseDetail[i].path}</p>
+          <p class="uc-methods">{useCaseDetail[i].methods.map((m) => <code>{m}</code>)}</p>
+          <a class="textlink" href={href(links[useCaseDetail[i].slug])}>How to set it up</a>
+        </div>
+      </article>
+    ))}
+  </section>
+  <section class="wrap section"><p class="muted">These are patterns, not customer stories. If you've built one, tell us on <a class="textlink" href={href("community/")}>Discord</a>.</p></section>
+</Page>
+
+<style>
+  .uc { border-top: 1px solid var(--line-strong); }
+  .uc-row { display: grid; grid-template-columns: 56px minmax(0, 6fr) minmax(0, 5fr); gap: 16px 32px; padding: 30px 0; border-bottom: 1px solid var(--line-strong); }
+  .uc-n { font: 500 14px/2.2 var(--font-mono); color: var(--oxblood); }
+  .uc-row h2 { font-size: clamp(24px, 2.6vw, 32px); }
+  .uc-meta { display: grid; gap: 10px; align-content: start; }
+  .uc-meta .label { margin-right: 8px; }
+  .uc-methods { display: flex; flex-wrap: wrap; gap: 6px; }
+  .uc-meta a { justify-self: start; min-height: 44px; display: inline-flex; align-items: center; }
+  @media (max-width: 760px) { .uc-row { grid-template-columns: minmax(0, 1fr); } }
+</style>

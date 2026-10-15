@@ -1,0 +1,41 @@
+---
+import Page from "../../layouts/Page.astro";
+import PageHead from "../../components/PageHead.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { integrations, snippets } from "../../data/facts";
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const code: Record<string, { code: string; lang: string; label: string }> = {
+  "Cloudflare Session Proxy": { code: snippets.cfProxyConsumer, lang: "js", label: "JavaScript" },
+  MCP: { code: snippets.mcpConfig, lang: "js", label: "wa.config.mjs" },
+  "Plugin SDK": { code: snippets.plugins, lang: "js", label: "Config" },
+};
+---
+
+<Page title="Integrations: webhooks, Chatwoot, Node-RED, S3, MCP | open-wa" description="Push WhatsApp events to your service, answer from Chatwoot, automate in Node-RED, store media in S3, reach a session through Cloudflare, or give an AI agent the tools.">
+  <PageHead photo="switchboard" eyebrow="Integrations" title="Send WhatsApp where your team already works." lede="Plugins load from your config with plugins and pluginConfig. Build your own with the Plugin SDK." />
+  <section class="section">
+    <div class="wrap list">
+      {integrations.map((x) => (
+        <article id={slug(x.name)}>
+          <div class="meta">
+            <h2>{x.name}</h2>
+            <code>{x.package}</code>
+          </div>
+          <div class="body">
+            <p>{x.what}</p>
+            {code[x.name] && <CodeBlock code={code[x.name].code} lang={code[x.name].lang} label={code[x.name].label} />}
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</Page>
+
+<style>
+  .list { display: grid; gap: 0; }
+  article { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 32px; padding: 32px 0; border-top: 1px solid var(--cream-3); scroll-margin-top: 90px; }
+  .meta h2 { font-size: 24px; margin-bottom: 8px; }
+  .body { display: grid; gap: 12px; min-width: 0; }
+  .body p { font-size: 18px; margin: 0; }
+  @media (max-width: 760px) { article { grid-template-columns: minmax(0, 1fr); gap: 8px; } }
+</style>

@@ -1,0 +1,93 @@
+---
+import Base from "../../layouts/Base.astro";
+import MiniChat from "../../components/MiniChat.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import CopyCommand from "../../components/CopyCommand.astro";
+import { miniChats } from "../../data/minichats";
+import { jobs, href, jobBadge, jobSnippet, support, http, product, commands, tier } from "../../data/site";
+
+export function getStaticPaths() {
+  return jobs.map((j) => ({ params: { id: j.id } }));
+}
+const { id } = Astro.params;
+const job = jobs.find((j) => j.id === id)!;
+const chat = miniChats[job.id];
+const badge = jobBadge[job.id];
+const others = jobs.filter((j) => j.id !== job.id).slice(0, 4);
+const restricted = tier("restricted");
+const needsRestricted = /Restricted/.test(job.licence);
+const audio = (job as { audio?: string }).audio;
+const cli = (job as { cli?: string }).cli;
+---
+
+<Base title={`${job.name} on WhatsApp: recipe | open-wa`} description={`${job.flow.split(". ")[0]}. The code, the methods and the licence it needs.`}>
+  <section class="page-hero">
+    <div class="wrap rhero">
+      <div>
+        <p class="eyebrow"><a href={href("/recipes/")}>Recipes</a> / {job.name}</p>
+        <h1>{job.name}</h1>
+        <p class="lede">{job.flow}</p>
+        <p><span class={`badge badge-${badge.tone}`}>{badge.label}</span></p>
+      </div>
+      <MiniChat who={chat.who} lines={chat.lines} />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap rbody">
+      <div class="rmain">
+        <h2>What you'll build</h2>
+        <p>For {job.who.charAt(0).toLowerCase() + job.who.slice(1)}. Run the Easy API on the business's number, then add the code below.</p>
+        <CopyCommand size="md" />
+        <h2>The code</h2>
+        <CodeBlock code={jobSnippet(job)} lang="js" title={`${job.id}.js`} />
+        {cli && (<><p>Or make the sticker file without sending it:</p><CodeBlock code={cli} lang="bash" title="CLI" /></>)}
+        {audio && <p class="note"><strong>Audio format:</strong> {audio}</p>}
+        <h2>From another language</h2>
+        <p>{http.note}</p>
+        <CodeBlock code={http.sendTextCurl} lang="bash" title="curl" label="Only sendText's route is shown; every route is at /api-docs/" />
+      </div>
+      <aside class="rside">
+        <div class="card">
+          <h3>Methods</h3>
+          <ul class="rmethods">{job.methods.map((m) => <li><code>{m}</code></li>)}</ul>
+        </div>
+        <div class="card rlic">
+          <h3>Licence</h3>
+          <p>{job.licence}</p>
+          {needsRestricted && <p><strong>Restricted: {restricted.prices.month} a month</strong> or {restricted.prices.year} a year, checked 12 Oct 2026. Checkout shows the current price.</p>}
+          <a class="btn btn-yellow btn-sm" href={href("/pricing/")}>Pricing by job</a>
+        </div>
+        <div class="card">
+          <h3>Before you ship</h3>
+          <p>{product.risk}</p>
+          <a class="btn-link" href={support.docs} rel="external">Read the docs</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section section-lilac">
+    <div class="wrap">
+      <h2>More recipes</h2>
+      <ul class="rmore">
+        {others.map((o) => <li><a class="btn" href={href(`/recipes/${o.id}/`)}>{o.name}</a></li>)}
+        <li><a class="btn btn-yellow" href={href("/recipes/")}>All recipes</a></li>
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .rhero { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: 40px; align-items: center; }
+  .rhero .eyebrow a { text-decoration: none; }
+  .rbody { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .rmain h2 { font-size: 2rem; margin-top: 1.2em; }
+  .rmain h2:first-child { margin-top: 0; }
+  .rmain .codeblock, .rmain .cmd { margin: 14px 0; }
+  .rside { display: grid; gap: 20px; position: sticky; top: 92px; }
+  .rmethods { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .rlic { background: var(--yellow); }
+  .rmore { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 14px; }
+  @media (max-width: 900px) { .rhero, .rbody { grid-template-columns: 1fr; } .rside { position: static; } }
+</style>

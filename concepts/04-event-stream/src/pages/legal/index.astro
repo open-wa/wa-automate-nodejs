@@ -1,0 +1,25 @@
+---
+import Page from "../../layouts/Page.astro";
+import { legal, product, support } from "../../data/site";
+---
+
+<Page title="Legal: unofficial notice, ban risk, terms and licence | open-wa" description="open-wa is unofficial and not affiliated with WhatsApp or Meta. Automation can get an account banned. Terms of Service, software licence and cryptography notice.">
+  <div class="wrap prose">
+    <header class="page-hero">
+      <span class="label">Legal</span>
+      <h1>Unofficial notice, risk, terms and licence</h1>
+    </header>
+    <h2 id="unofficial">Unofficial software</h2>
+    <p>{legal.affiliation}</p>
+    <p>{product.unofficial}</p>
+    <h2 id="risk">Ban risk</h2>
+    <p class="note-risk">{product.risk}</p>
+    <h2 id="terms">Terms of Service</h2>
+    <p>{product.terms} <a href={support.terms}>Read the Terms of Service</a>.</p>
+    <h2 id="licence">Software licence</h2>
+    <p>open-wa is released under the {product.softwareLicence}. <a href={support.licenceText}>Read the licence</a>.</p>
+    <h2 id="crypto">Cryptography notice</h2>
+    <p>{legal.crypto}</p>
+    <p class="muted">{legal.copyright}.</p>
+  </div>
+</Page>

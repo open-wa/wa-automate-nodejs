@@ -8,7 +8,7 @@ export interface SessionPersistenceConfig extends Omit<PortableSessionStorageOpt
 }
 
 /** The public runtime persists opaque envelopes; native restore and cryptography belong to pre-init. */
-export const acquireSessionPersistence = (config: SessionPersistenceConfig) => acquirePortableSessionStorage({
+export const acquireSessionPersistence = (config: SessionPersistenceConfig, onRecovery?: (reason: string) => void) => acquirePortableSessionStorage({
   sessionId: config.sessionId,
   sessionDataPath: config.sessionDataPath,
   sessionData: config.sessionData,
@@ -23,4 +23,4 @@ export const acquireSessionPersistence = (config: SessionPersistenceConfig) => a
       return new S3SyncManager({ ...legacy, ...config.s3Sync } as S3Config).acquireSessionFile(filename);
     },
   } : {}),
-});
+}, onRecovery);

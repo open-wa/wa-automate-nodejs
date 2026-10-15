@@ -1,0 +1,23 @@
+---
+import Page from "../../layouts/Page.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { migration, support, snippets } from "../../data/site";
+---
+
+<Page title="Migrate from v4 to v5 | open-wa" description="Version 5 is the current release line. Pin v4 while you migrate, then move your bot to v5 with the migration guide.">
+  <div class="wrap page-head">
+    <h1 class="h-display">Moving a v4 bot to v5</h1>
+    <p class="lede">{migration.summary}</p>
+  </div>
+  <div class="wrap doc">
+    <h2>1. Pin v4 so nothing breaks today</h2>
+    <CodeBlock code={migration.v4Pin} lang="bash" />
+    <h2>2. Follow the migration guide</h2>
+    <p>The guide covers what changed between v4 and v5, method by method. <a href={support.migrationDocs}>Read the v5 migration guide</a>.</p>
+    <h2>3. Try the v5 client shape</h2>
+    <p>In v5 you create the client with a driver and keep your handlers.</p>
+    <CodeBlock code={snippets.embedded} lang="js" title="app.js" />
+    <h2>Stuck?</h2>
+    <p>Ask in <a href={support.discord}>Discord</a> or open an <a href={support.issues}>issue on GitHub</a>.</p>
+  </div>
+</Page>

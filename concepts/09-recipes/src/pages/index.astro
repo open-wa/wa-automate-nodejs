@@ -1,0 +1,185 @@
+---
+import Page from "../layouts/Page.astro";
+import CommandBar from "../components/CommandBar.astro";
+import RecipeWall from "../components/RecipeWall.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { jobs, http, stats, product, releases, support, base, tiers, priceNote, licences } from "../data/site";
+const latest = releases[0]!;
+const k = (n: number) => `${Math.floor(n / 1000)}k`;
+---
+
+<Page
+  title="open-wa: recipes for your own WhatsApp number"
+  description="Run one command and your WhatsApp number becomes an HTTP API. Copy a recipe for salon bookings, hotel notifications, OTP codes, PBX calls, stickers and media."
+>
+  <section class="top wrap">
+    <CommandBar />
+    <div class="hero">
+      <h1 class="h-display">Recipes for your own <em>WhatsApp&nbsp;number</em></h1>
+      <div class="hero-side">
+        <p class="promise">Run the command, scan the QR code, and call your number from any language. Then copy the recipe for your job.</p>
+        <p class="hero-meta"><a href="#risk">Unofficial, with a ban risk</a><span class="hm-docs"> · <a href={support.docs}>Docs</a></span></p>
+      </div>
+    </div>
+    <h2 class="sr">Recipes</h2>
+    <RecipeWall />
+  </section>
+
+  <section class="how wrap" id="how" aria-labelledby="how-h">
+    <div class="sec-head">
+      <h2 class="h-section" id="how-h">How every recipe starts</h2>
+      <p class="lede">Three steps, then any language that can make an HTTP request can send from your number: PHP, Python, Go, n8n's HTTP node or a PBX script.</p>
+    </div>
+    <ol class="how-steps">
+      <li class="how-step" style="--sw: var(--tomato)">
+        <span class="how-n">1</span>
+        <h3>Run it</h3>
+        <p>Starts the Easy API on port 8080 on your machine or server. Node.js {">="}22.</p>
+        <CodeBlock code="npx @open-wa/wa-automate@latest --port 8080" lang="bash" wrap />
+      </li>
+      <li class="how-step" style="--sw: var(--saffron)">
+        <span class="how-n">2</span>
+        <h3>Scan the QR code</h3>
+        <p>Scan the code it prints with WhatsApp on the phone, or use link-code login. Then open <code>localhost:8080/api-docs/</code> for the live API docs.</p>
+        <div class="qr" aria-hidden="true">{Array.from({ length: 81 }, (_, i) => <i class:list={{ on: [0,1,2,6,7,8,9,11,15,17,18,19,20,24,25,26,30,31,33,36,40,41,44,46,48,49,52,54,55,56,58,60,62,63,64,65,69,72,73,74,78,79,80,4,22,38,67].includes(i) }}></i>)}</div>
+      </li>
+      <li class="how-step how-step-wide" style="--sw: var(--sky)">
+        <span class="how-n">3</span>
+        <h3>Call it</h3>
+        <p>Every method is an endpoint, listed at <code>/api-docs/</code>. Here is sendText from curl; the recipes show the rest in JavaScript.</p>
+        <CodeBlock code={http.sendTextCurl} lang="bash" title="curl" />
+        <p class="how-small">{http.chatId}</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="pantry wrap" id="licences" aria-labelledby="pantry-h">
+    <div class="sec-head">
+      <h2 class="h-section" id="pantry-h">What each recipe needs</h2>
+      <p class="lede">Replying to people who message you is free. A key is per WhatsApp number and only some methods need one. OTP and first messages to new numbers need Restricted; buttons and lists need Insiders; calls need a calling-enabled key.</p>
+    </div>
+    <div class="t-scroll">
+      <table class="t pantry-t">
+        <thead><tr><th scope="col">Recipe</th><th scope="col">Needs</th><th scope="col">Details</th></tr></thead>
+        <tbody>
+          {jobs.map((j) => (
+            <tr style={`--sw: var(--${j.swatch})`}>
+              <th scope="row"><a href={`${base}recipes/${j.id}/`}><i class="swatch-dot"></i>{j.name}</a></th>
+              <td><span class:list={["need", `need-${j.badgeTier}`]}>{j.badge}</span></td>
+              <td>{j.priceLine}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <div class="tier-strip">
+      <p><strong>Insiders</strong> {tiers.insiders.prices.month} a month or {tiers.insiders.prices.year} a year</p>
+      <p><strong>Restricted</strong> {tiers.restricted.prices.month} a month or {tiers.restricted.prices.year} a year, includes Insiders</p>
+      <p class="tier-note">{priceNote}</p>
+      <a class="btn btn-ink" href={`${base}pricing/`}>See pricing and get a key</a>
+    </div>
+  </section>
+
+  <section class="risk wrap" id="risk" aria-labelledby="risk-h">
+    <div class="risk-card">
+      <h2 class="h-section" id="risk-h">Before you cook: risk and status</h2>
+      <div class="risk-grid">
+        <div>
+          <h3>Unofficial</h3>
+          <p>{product.unofficial} open-wa drives WhatsApp Web in a browser it controls; it doesn't use Meta's Cloud API.</p>
+        </div>
+        <div>
+          <h3>Ban risk</h3>
+          <p>{product.risk} Use the business's own number, message people who expect it, and don't send bulk messages to strangers.</p>
+        </div>
+        <div>
+          <h3>Maintained since 2019</h3>
+          <p>By {support.maintainer}. Version {product.currentVersion} is the latest on npm ({product.currentVersionNote.replace("Latest npm tag on ", "")}); {latest.version} on {latest.date}: {latest.headline.toLowerCase()}. <a href={`${base}changelog/`}>Changelog</a></p>
+        </div>
+      </div>
+      <dl class="signals">
+        <div><dt>GitHub stars</dt><dd>{stats.githubStars.toLocaleString("en-GB")}</dd></div>
+        <div><dt>npm downloads, last 12 months</dt><dd>{k(stats.npmDownloadsLast12Months)}</dd></div>
+        <div><dt>Docker pulls</dt><dd>{k(stats.dockerPulls)}</dd></div>
+        <div><dt>Discord members</dt><dd>{stats.discordMembers.toLocaleString("en-GB")}</dd></div>
+        <div><dt>Published versions</dt><dd>{stats.publishedVersions}</dd></div>
+      </dl>
+      <p class="signals-note">Checked {stats.checkedOn} from GitHub, npm ({stats.npmDownloadsWindow}), Docker Hub and Discord.</p>
+    </div>
+  </section>
+
+  <section class="close wrap" aria-labelledby="close-h">
+    <h2 class="h-section" id="close-h">Start with one command</h2>
+    <p class="lede">Scan the QR code, open the API docs and send your first message. Questions go to Discord, with {stats.discordMembers.toLocaleString("en-GB")} members on {stats.checkedOn}.</p>
+    <CommandBar variant="close" />
+    <div class="close-links">
+      <a class="btn btn-line" href={support.discord}>Join the Discord</a>
+      <a class="btn btn-line" href={support.github}>Star on GitHub</a>
+      <a class="btn btn-line" href={`${base}recipes/`}>All recipes</a>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .top { padding-top: 16px; }
+  .hero { display: grid; gap: 12px; margin: 22px 0 18px; }
+  .hero h1 em { font-style: italic; }
+  .promise { margin: 0; font-size: 1.125rem; line-height: 1.5; color: var(--ink); max-width: 46ch; }
+  .hero-meta { margin: 8px 0 0; font-size: 0.9375rem; color: var(--ink-2); }
+  .hero-meta a { color: var(--ink-2); }
+  .hm-docs { display: none; }
+  @media (min-width: 720px) { .hm-docs { display: inline; } }
+  @media (min-width: 900px) {
+    .top { padding-top: 24px; }
+    .hero { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: end; gap: 48px; margin: 44px 0 30px; }
+    .h-display { font-size: clamp(3.5rem, 6.4vw, 5.5rem); }
+  }
+
+  section.how, section.pantry, section.risk, section.close { padding-top: 96px; }
+  .sec-head { margin-bottom: 28px; }
+  .how-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+  .how-step { position: relative; background: var(--card); border-radius: 20px; padding: 22px; box-shadow: inset 0 0 0 1px var(--line); min-width: 0; display: grid; gap: 10px; align-content: start; }
+  .how-step h3 { font: 400 1.75rem/1.1 var(--font-display); margin: 0; }
+  .how-step p { margin: 0; color: var(--ink-2); font-size: 1rem; }
+  .how-n { width: 34px; height: 34px; border-radius: 50%; background: var(--sw); display: grid; place-items: center; font: 600 0.9375rem/1 var(--font-mono); }
+  .how-small { font-size: 0.9375rem !important; }
+  .qr { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; width: 126px; padding: 10px; background: #fff; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--line); margin-top: 6px; }
+  .qr i { aspect-ratio: 1; border-radius: 2px; background: transparent; }
+  .qr i.on { background: var(--ink); }
+  @media (min-width: 900px) {
+    .how-steps { grid-template-columns: 1fr 1fr; }
+    .how-step-wide { grid-column: 1 / -1; }
+  }
+  @media (min-width: 1180px) {
+    .how-steps { grid-template-columns: 0.9fr 0.8fr 1.6fr; }
+    .how-step-wide { grid-column: auto; }
+  }
+
+  .pantry-t th[scope="row"] { font: 600 1rem/1.35 var(--font-text); text-transform: none; letter-spacing: 0; color: var(--ink); min-width: 190px; }
+  .pantry-t th[scope="row"] a { color: var(--ink); text-decoration: none; display: inline-flex; gap: 10px; align-items: baseline; }
+  .pantry-t th[scope="row"] a:hover { text-decoration: underline; }
+  .pantry-t .swatch-dot { background: var(--sw); }
+  .pantry-t td { color: var(--ink-2); }
+  .need { display: inline-block; white-space: nowrap; font: 600 0.875rem/1 var(--font-text); padding: 6px 9px; border-radius: 999px; background: var(--paper-2); color: var(--ink); }
+  .need-restricted { background: var(--ink); color: var(--paper); }
+  .need-calling { background: var(--sky-tint); color: var(--sky-ink); }
+  .tier-strip { display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: center; margin-top: 24px; padding: 18px 20px; background: var(--card); border-radius: 16px; box-shadow: inset 0 0 0 1px var(--line); }
+  .tier-strip p { margin: 0; }
+  .tier-strip .tier-note { flex-basis: 100%; color: var(--ink-2); font-size: 0.9375rem; order: 3; }
+  .tier-strip .btn { margin-left: auto; }
+
+  .risk-card { background: var(--ink); color: var(--paper); border-radius: 28px; padding: clamp(24px, 5vw, 56px); }
+  .risk-card h3 { font: 600 0.8125rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--saffron); margin: 0 0 10px; }
+  .risk-card p { margin: 0; font-size: 1rem; color: #E4E4DC; }
+  .risk-card a { color: var(--paper); }
+  .risk-grid { display: grid; gap: 28px; margin-top: 32px; }
+  @media (min-width: 900px) { .risk-grid { grid-template-columns: repeat(3, 1fr); } }
+  .signals { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin: 40px 0 0; padding-top: 28px; border-top: 1px solid #3A3A36; }
+  .signals dt { font-size: 0.9375rem; color: #BDBDB3; }
+  .signals dd { margin: 4px 0 0; font: 400 2.5rem/1 var(--font-display); }
+  .signals-note { margin-top: 18px !important; color: #BDBDB3 !important; font-size: 0.9375rem !important; }
+
+  .close { padding-bottom: 96px; text-align: left; }
+  .close .lede { margin-bottom: 24px; }
+  .close-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+</style>

@@ -1,0 +1,144 @@
+---
+import Mark from "./Mark.astro";
+import { DOCS, stats, support, kDown, checked } from "../data/facts";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const here = Astro.url.pathname.replace(/\/?$/u, "/");
+const nav = [
+  { href: `${base}features/`, label: "Features" },
+  { href: `${base}integrations/`, label: "Integrations" },
+  { href: `${base}ai-agents/`, label: "AI agents" },
+  { href: `${base}use-cases/`, label: "Use cases" },
+  { href: `${base}pricing/`, label: "Pricing" },
+];
+const more = [
+  { href: `${base}compare/`, label: "Official API or open-wa?" },
+  { href: `${base}migrate/`, label: "Migrate from v4" },
+  { href: `${base}changelog/`, label: "Changelog" },
+  { href: `${base}support/`, label: "Support and consulting" },
+  { href: `${base}community/`, label: "Community" },
+];
+const stars = kDown(stats.githubStars);
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="mark-host brand" href={base} aria-label="open-wa home">
+      <Mark size={34} label="" />
+      <span class="word">open-wa</span>
+    </a>
+
+    <nav class="primary" aria-label="Main">
+      <ul>
+        {nav.map((n) => (
+          <li><a href={n.href} aria-current={here === n.href ? "page" : undefined}>{n.label}</a></li>
+        ))}
+        <li><a href={DOCS}>Docs <span class="ext" aria-hidden="true">↗</span></a></li>
+      </ul>
+    </nav>
+
+    <div class="tools">
+      <a class="gh" href={support.github} title={`GitHub stars, checked ${checked}`}>
+        <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        <span>GitHub</span><span class="count"><span aria-hidden="true">★ </span>{stars}<span class="sr-only"> stars</span></span>
+      </a>
+      <a class="discord" href={support.discord}>Discord</a>
+      <a class="btn btn--primary cta" href={`${base}quickstart/`}>Quick start</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu-sheet">
+        <span class="burger" aria-hidden="true"><i></i><i></i></span>
+        <span>Menu</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="sheet" id="menu-sheet" hidden>
+    <div class="wrap sheet-inner">
+      <ul class="sheet-main">
+        {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+        <li><a href={DOCS}>Docs <span aria-hidden="true">↗</span></a></li>
+      </ul>
+      <ul class="sheet-more">
+        {more.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+        <li><a href={support.github}>GitHub, {stars} stars</a></li>
+        <li><a href={support.discord}>Discord</a></li>
+      </ul>
+      <a class="btn btn--primary sheet-cta" href={`${base}quickstart/`}>Quick start</a>
+    </div>
+  </div>
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>(".menu-btn");
+  const sheet = document.getElementById("menu-sheet");
+  if (btn && sheet) {
+    const set = (open: boolean) => {
+      btn.setAttribute("aria-expanded", String(open));
+      sheet.hidden = !open;
+      document.documentElement.classList.toggle("menu-open", open);
+    };
+    btn.addEventListener("click", () => set(btn.getAttribute("aria-expanded") !== "true"));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && btn.getAttribute("aria-expanded") === "true") { set(false); btn.focus(); }
+    });
+    window.matchMedia("(min-width: 1080px)").addEventListener("change", (m) => { if (m.matches) set(false); });
+  }
+</script>
+
+<style>
+  .site-header {
+    position: sticky; top: 0; z-index: 50; background: var(--white);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .bar { display: flex; align-items: center; gap: 20px; height: var(--header-h); }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--slate); min-height: 44px; }
+  .word { font: 760 1.25rem/1 var(--font-display); letter-spacing: -0.03em; }
+
+  .primary { margin-left: 12px; }
+  .primary ul { display: flex; gap: 2px; list-style: none; margin: 0; padding: 0; }
+  .primary a {
+    display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 12px; border-radius: 8px;
+    color: var(--slate-700); text-decoration: none; font-weight: 560; font-size: 1rem;
+  }
+  .primary a:hover { color: var(--slate); background: var(--slate-50); }
+  .primary a[aria-current="page"] { color: var(--slate); box-shadow: inset 0 -2px 0 var(--sun-strong); border-radius: 0; }
+  .ext { font-size: 0.8em; color: var(--slate-500); }
+
+  .tools { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .gh, .discord {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px; border-radius: 10px;
+    color: var(--slate); text-decoration: none; font-weight: 600; font-size: 1rem;
+  }
+  .gh { border: 1px solid var(--slate-200); }
+  .gh:hover, .discord:hover { background: var(--slate-50); }
+  .count { padding-left: 8px; border-left: 1px solid var(--slate-200); font-family: var(--font-mono); font-size: 0.9375rem; color: var(--slate-700); }
+  .cta { min-height: 44px; padding: 0 18px; font-size: 1rem; }
+
+  .menu-btn {
+    display: none; align-items: center; gap: 10px; min-height: 44px; padding: 0 14px; border-radius: 10px;
+    border: 1px solid var(--slate-200); background: var(--white); color: var(--slate); font: 650 1rem/1 var(--font-text); cursor: pointer;
+  }
+  .burger { display: grid; gap: 5px; width: 18px; }
+  .burger i { display: block; height: 2px; background: currentColor; border-radius: 2px; transition: transform var(--speed) var(--ease); }
+  .menu-btn[aria-expanded="true"] .burger i:first-child { transform: translateY(3.5px) rotate(45deg); }
+  .menu-btn[aria-expanded="true"] .burger i:last-child { transform: translateY(-3.5px) rotate(-45deg); }
+
+  .sheet {
+    position: absolute; inset: var(--header-h) 0 auto 0; background: var(--white); border-bottom: 1px solid var(--color-line);
+    box-shadow: 0 24px 48px -24px rgba(30, 42, 56, 0.4); max-height: calc(100dvh - var(--header-h)); overflow-y: auto;
+  }
+  .sheet-inner { padding-block: 12px 24px; display: grid; gap: 8px; }
+  .sheet ul { list-style: none; margin: 0; padding: 0; }
+  .sheet a:not(.btn) { display: flex; align-items: center; min-height: 48px; color: var(--slate); text-decoration: none; border-bottom: 1px solid var(--slate-100); }
+  .sheet-main a:not(.btn) { font: 700 1.25rem/1.2 var(--font-display); }
+  .sheet-more a:not(.btn) { font-size: 1.0625rem; color: var(--slate-700); }
+  .sheet-cta { margin-top: 12px; width: 100%; }
+
+  @media (max-width: 1079px) {
+    .primary, .discord { display: none; }
+    .menu-btn { display: inline-flex; }
+  }
+  @media (max-width: 640px) {
+    .gh, .cta { display: none; }
+    .bar { gap: 12px; }
+  }
+</style>

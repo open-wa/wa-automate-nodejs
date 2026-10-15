@@ -1,0 +1,39 @@
+---
+import Base from "../../layouts/Base.astro";
+import { product, href, tier } from "../../data/site";
+const res = tier("restricted");
+const rows = [
+  ["What you connect", "Your existing WhatsApp number, through WhatsApp Web in a browser open-wa controls", "A business number registered on Meta's platform"],
+  ["Getting started", "One npx command and a QR scan", "A Meta business account and setup on Meta's side"],
+  ["Messages to people who haven't messaged you", "Needs a Restricted key (" + res.prices.month + " a month per number, checked 12 Oct 2026)", "Approved message templates"],
+  ["Pricing", "Free for most methods; keys per number for some", "Per-message pricing set by Meta"],
+  ["Status", "Unofficial, not affiliated with WhatsApp or Meta", "Official"],
+  ["Account risk", product.risk, "Follows Meta's policies for the platform"],
+  ["Where it runs", "Your machine, container or server", "Meta's cloud"],
+];
+---
+
+<Base title="open-wa vs the WhatsApp Business Platform | open-wa" description="How open-wa compares with Meta's official WhatsApp Business Platform: setup, templates, pricing, status and account risk.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="eyebrow">Compare</p>
+      <h1>open-wa or the official platform?</h1>
+      <p class="lede">If you need Meta's approval, templates and an official route, use the WhatsApp Business Platform. If you want your own number answering from code today and accept the risk, open-wa is quicker to start.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col"></th><th scope="col">open-wa</th><th scope="col">WhatsApp Business Platform (Cloud API)</th></tr></thead>
+          <tbody>{rows.map(([a, b, c]) => <tr><th scope="row">{a}</th><td>{b}</td><td>{c}</td></tr>)}</tbody>
+        </table>
+      </div>
+      <p class="fine">We don't compare other WhatsApp libraries here. Try the <a href={href("/quickstart/")}>quick start</a> and judge for yourself.</p>
+    </div>
+  </section>
+</Base>
+<style>
+  tbody th { text-transform: none; letter-spacing: 0; font-size: 1rem; background: var(--lilac-wash); width: 22%; }
+  .fine { margin-top: 18px; color: var(--ink-soft); }
+</style>

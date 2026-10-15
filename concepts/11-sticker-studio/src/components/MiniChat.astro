@@ -1,0 +1,56 @@
+---
+import type { Line } from "../data/minichats";
+interface Props { who: string; lines: Line[] }
+const { who, lines } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+
+<div class="mini" aria-label={`Example conversation with ${who}`} role="img">
+  <div class="mini-bar"><span class="mini-av" aria-hidden="true">{who[0]}</span>{who}<span class="example-tag">Example</span></div>
+  <div class="mini-thread">
+    {lines.map((l) => {
+      if (l.kind === "in" || l.kind === "out") return <p class={`bub bub-${l.kind}`}>{l.text}<time>{l.time}</time></p>;
+      if (l.kind === "poll") return (
+        <div class="bub bub-out mini-poll"><strong>{l.title}</strong>{l.options.map((o, i) => <span class={i === 1 ? "is-picked" : ""}><i></i>{o}</span>)}<time>{l.time}</time></div>
+      );
+      if (l.kind === "event") return <div class="bub bub-out mini-card"><span class="mini-ico mini-cal" aria-hidden="true"></span><span><strong>{l.title}</strong><small>Going · Maybe · Not going</small></span><time>{l.time}</time></div>;
+      if (l.kind === "pin") return <div class="bub bub-out mini-card"><span class="mini-ico mini-pin" aria-hidden="true"></span><span><strong>{l.title}</strong><small>{l.sub}</small></span><time>{l.time}</time></div>;
+      if (l.kind === "doc") return <div class="bub bub-out mini-card"><span class="mini-ico mini-doc" aria-hidden="true">PDF</span><span><strong>{l.title}</strong><small>{l.sub}</small></span><time>{l.time}</time></div>;
+      if (l.kind === "call") return <div class="bub bub-in mini-card mini-callcard"><span class="mini-ico mini-call" aria-hidden="true"></span><span><strong>{l.title}</strong><small>{l.sub}</small></span><time>{l.time}</time></div>;
+      if (l.kind === "sticker") return <div class="mini-sticker"><img src={`${base}${l.src}`} alt={l.alt} width="512" height="512" loading="lazy" decoding="async" /><time>{l.time}</time></div>;
+      if (l.kind === "voice") return <div class="bub bub-out mini-voice"><span class="mini-play" aria-hidden="true"></span><span class="mini-wave" aria-hidden="true"></span><small>{l.length}</small><time>{l.time}</time></div>;
+      return <div class="mini-tool"><strong>{l.title}</strong> <small>{l.sub}</small></div>;
+    })}
+  </div>
+</div>
+
+<style>
+  .mini { border: 2px solid var(--ink); border-radius: 16px; overflow: hidden; background: var(--lilac-wash); }
+  .mini-bar { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--lilac); border-bottom: 2px solid var(--ink); font-weight: 700; font-size: 0.9rem; }
+  .mini-bar .example-tag { margin-left: auto; }
+  .mini-av { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--ink); background: var(--yellow); font: 400 0.8rem/1 var(--font-display); }
+  .mini-thread { display: flex; flex-direction: column; gap: 6px; padding: 10px; background-image: radial-gradient(#d8cdfc 1.1px, transparent 1.2px); background-size: 12px 12px; }
+  .mini .bub { font-size: 0.9rem; max-width: 92%; }
+  .mini-poll { display: grid; gap: 4px; min-width: 70%; }
+  .mini-poll span { display: flex; align-items: center; gap: 8px; font-size: 0.875rem; }
+  .mini-poll i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper); }
+  .mini-poll .is-picked i { background: var(--ink); box-shadow: inset 0 0 0 2px var(--paper); }
+  .mini-card { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; align-items: center; }
+  .mini-card time { grid-column: 1 / -1; }
+  .mini-card strong { display: block; font-size: 0.9rem; }
+  .mini-card small { display: block; font-size: 0.8rem; color: var(--ink-soft); }
+  .mini-ico { width: 36px; height: 36px; border: 2px solid var(--ink); border-radius: 10px; display: grid; place-items: center; font: 800 0.65rem/1 var(--font-text); }
+  .mini-cal { background: linear-gradient(var(--rose) 0 35%, var(--paper) 35%); }
+  .mini-pin { background: radial-gradient(circle at 50% 42%, var(--ink) 0 4px, var(--yellow) 5px); border-radius: 50% 50% 50% 4px; transform: rotate(-45deg) scale(0.85); }
+  .mini-doc { background: var(--paper); color: #b0174f; }
+  .mini-call { background: radial-gradient(circle, var(--ink) 0 5px, #8ff0c9 6px); border-radius: 50%; }
+  .mini-sticker { align-self: flex-end; display: grid; justify-items: end; gap: 2px; }
+  .mini-sticker img { width: 130px; rotate: 3deg; filter: drop-shadow(3px 0 0 var(--paper)) drop-shadow(-3px 0 0 var(--paper)) drop-shadow(0 3px 0 var(--paper)) drop-shadow(0 -3px 0 var(--paper)) drop-shadow(2px 4px 0 rgba(17,17,17,.28)); }
+  .mini-sticker time { font-size: 0.75rem; color: var(--ink-soft); }
+  .mini-voice { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; min-width: 70%; }
+  .mini-voice time { grid-column: 1 / -1; }
+  .mini-play { width: 0; height: 0; border-left: 11px solid var(--ink); border-block: 7px solid transparent; }
+  .mini-wave { height: 18px; background: repeating-linear-gradient(90deg, var(--ink) 0 3px, transparent 3px 6px); mask: linear-gradient(90deg, #000 0 100%); clip-path: polygon(0 40%, 10% 10%, 20% 50%, 30% 0, 40% 60%, 50% 20%, 60% 40%, 70% 5%, 80% 55%, 90% 25%, 100% 45%, 100% 100%, 0 100%); }
+  .mini-tool { align-self: center; font: 600 0.8rem/1.3 var(--font-mono); padding: 6px 10px; border: 2px dashed var(--ink); border-radius: 10px; background: var(--paper); }
+  .mini-tool small { color: var(--ink-soft); }
+</style>

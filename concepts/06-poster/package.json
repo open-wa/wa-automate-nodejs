@@ -1,0 +1,15 @@
+{
+  "name": "concept-06-poster",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "astro dev --port 4406 --host 127.0.0.1",
+    "build": "astro build",
+    "preview": "astro preview --port 4406 --host 127.0.0.1"
+  },
+  "dependencies": {
+    "astro": "^7.3.8",
+    "cookie": "2.0.1"
+  }
+}

@@ -1,0 +1,343 @@
+---
+/**
+ * The signature moment: Harbour House's front-desk inbox (an example hotel).
+ * Flip an automation switch and Sam's phone shows what arrives while the code
+ * that sends it opens beside the switch. Desktop: conversation list, the
+ * guest's phone, the switches. Phone: the guest's phone, then the switches as
+ * chips with the code below. Reduced motion or ?still: instant changes.
+ */
+import Mark from "./Mark.astro";
+import CodeBlock from "./CodeBlock.astro";
+import { harbour, guests, rules, licenceChip, licenceShort } from "../data/desk";
+
+const bubbles = rules.flatMap((r) => r.bubbles.map((b, i) => ({ ...b, rule: r.id, i })));
+const initial = rules.filter((r) => r.on).map((r) => r.id);
+---
+
+<div class="desk" data-desk data-initial={initial.join(" ")}>
+  <div class="desk-bar">
+    <span class="desk-id"><Mark size={26} label="" /> <strong>{harbour.name}</strong> <span class="desk-sep" aria-hidden="true">/</span> Front desk</span>
+    <span class="example-tag">Example</span>
+    <span class="desk-session"><i aria-hidden="true"></i> Session <code>{harbour.session}</code> on {harbour.number}</span>
+  </div>
+
+  <div class="desk-body">
+    <aside class="desk-list" aria-label="Conversations (example)">
+      <p class="desk-col-title">Conversations</p>
+      <ul>
+        {guests.map((g) => (
+          <li class:list={["guest", { "is-active": g.active }]} data-guest={g.id}>
+            <span class="guest-avatar" aria-hidden="true">{g.name.startsWith("+") ? "#" : g.name[0]}</span>
+            <span class="guest-main">
+              <span class="guest-name">{g.name}</span>
+              <span class="guest-meta">{g.meta}</span>
+              <span class="guest-last" data-last>{g.last || "Booking HH2291 made"}</span>
+            </span>
+            {g.unread > 0 && <span class="guest-unread" aria-label={`${g.unread} unread`}>{g.unread}</span>}
+          </li>
+        ))}
+      </ul>
+    </aside>
+
+    <div class="desk-stage">
+      <div class="phone" role="group" aria-label="Sam's phone, example conversation with Harbour House">
+        <div class="phone-status" aria-hidden="true"><span>9:41</span><span class="phone-notch"></span><span class="phone-icons"><i></i><i></i><i></i></span></div>
+        <div class="phone-head">
+          <span class="phone-avatar" aria-hidden="true"><Mark size={22} label="" tone="sand" /></span>
+          <span class="phone-who"><strong>{harbour.name}</strong><span>{harbour.number}</span></span>
+        </div>
+        <ol class="thread" data-thread aria-live="polite">
+          <li class="thread-day" aria-hidden="true">Today</li>
+          <li class="thread-hint" data-hint hidden={initial.length > 0}>Flip a switch to see what Sam receives.</li>
+          {bubbles.map((b) => (
+            <li class:list={["b", `b--${b.from}`, `b--${b.kind}`, { "is-in": initial.includes(b.rule) }]} data-rule={b.rule} data-step={b.i} hidden={!initial.includes(b.rule)}>
+              {b.kind === "text" && <p>{b.text}</p>}
+              {b.kind === "location" && (
+                <div class="b-loc">
+                  <svg class="b-map" viewBox="0 0 240 110" aria-hidden="true">
+                    <rect width="240" height="110" fill="#d9e5ec" />
+                    <path d="M0 64c30-6 52 4 80-6s44-26 76-22 58 12 84 2V110H0z" fill="#efe7da" />
+                    <path d="M0 80c40-6 70 6 110-2s80-10 130 0" stroke="#fffdf8" stroke-width="5" fill="none" />
+                    <path d="M120 110V52" stroke="#fffdf8" stroke-width="4" />
+                    <path d="M150 44l40 14" stroke="#fffdf8" stroke-width="3" />
+                    <g transform="translate(120 52)"><path d="M0-30c-9 0-15 7-15 15 0 11 15 25 15 25s15-14 15-25c0-8-6-15-15-15z" fill="#c8553d" /><circle cy="-15" r="5.5" fill="#fffdf8" /></g>
+                  </svg>
+                  <span class="b-loc-text"><strong>{b.title}</strong><span>{b.address}</span></span>
+                </div>
+              )}
+              {b.kind === "file" && (
+                <div class="b-file">
+                  <span class="b-file-icon" aria-hidden="true">PDF</span>
+                  <span class="b-file-text"><strong>{b.name}</strong><span>{b.caption}</span></span>
+                </div>
+              )}
+              {b.kind === "call" && (
+                <div class="b-call">
+                  <span class="b-call-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z" /></svg></span>
+                  <span class="b-call-text"><strong>{b.title}</strong><span>{b.detail}</span></span>
+                </div>
+              )}
+            </li>
+          ))}
+        </ol>
+        <div class="phone-compose" aria-hidden="true"><span>Message</span></div>
+      </div>
+    </div>
+
+    <div class="desk-rules">
+      <div class="rules-head">
+        <p class="desk-col-title">Automations</p>
+        <p class="rules-sub">Each switch is a few lines of your code.</p>
+      </div>
+      <ul class="rules" role="list">
+        {rules.map((r) => (
+          <li class="rule" data-rule-row={r.id}>
+            <button class="rule-switch" type="button" role="switch" aria-checked={r.on ? "true" : "false"} aria-controls={`rule-code-${r.id}`} data-rule-switch={r.id}>
+              <span class="rule-text">
+                <span class="rule-label">{r.label}</span>
+                <span class="rule-when">{r.when}</span>
+              </span>
+              <span class="toggle" aria-hidden="true"><i></i></span>
+            </button>
+            <div class="rule-code" id={`rule-code-${r.id}`} data-rule-code={r.id} hidden={!r.on}>
+              <p class="rule-licence"><span class:list={["chip", licenceChip[r.licence.kind]]}>{licenceShort[r.licence.kind]}</span> {r.licence.text}</p>
+              <CodeBlock code={r.code} lang="js" title={r.methods.join(" · ")} />
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { shouldAnimate } from "../lib/runtime";
+
+  document.querySelectorAll<HTMLElement>("[data-desk]").forEach((desk) => {
+    const thread = desk.querySelector<HTMLOListElement>("[data-thread]")!;
+    const hint = desk.querySelector<HTMLElement>("[data-hint]")!;
+    const samLast = desk.querySelector<HTMLElement>('[data-guest="sam"] [data-last]');
+    const lines: Record<string, string> = {
+      checkin: "Check-in details sent",
+      where: "Sent the map pin",
+      calls: "Call answered, recording saved",
+      wifi: "Wifi code sent",
+    };
+    const timers: number[] = [];
+    let order: string[] = (desk.dataset.initial || "").split(" ").filter(Boolean);
+
+    const scrollEnd = (smooth: boolean) => {
+      thread.scrollTo({ top: thread.scrollHeight, behavior: smooth ? "smooth" : "auto" });
+    };
+
+    // On phones the chips sit under the phone: bring the phone back into view
+    // so the result is seen (instant under reduced motion or ?still).
+    const phone = desk.querySelector<HTMLElement>(".phone")!;
+    const narrow = window.matchMedia("(max-width: 760px)");
+    const revealPhone = (animate: boolean) => {
+      if (!narrow.matches) return;
+      const headerH = document.querySelector<HTMLElement>(".hd")?.offsetHeight ?? 0;
+      const r = phone.getBoundingClientRect();
+      if (r.top >= headerH && r.bottom <= window.innerHeight) return;
+      window.scrollTo({ top: window.scrollY + r.top - headerH - 8, behavior: animate ? "smooth" : "auto" });
+    };
+
+    const bubblesOf = (id: string) => Array.from(thread.querySelectorAll<HTMLElement>(`[data-rule="${id}"]`));
+
+    const show = (id: string, animate: boolean) => {
+      const items = bubblesOf(id);
+      items.forEach((el) => { thread.append(el); el.classList.remove("is-in"); });
+      items.forEach((el, i) => {
+        // A guest message arrives, then the hotel's reply follows a beat later.
+        const delay = animate ? (items[0].classList.contains("b--guest") ? i * 700 : i * 380) : 0;
+        const reveal = () => {
+          el.hidden = false;
+          if (animate) requestAnimationFrame(() => el.classList.add("is-in"));
+          else el.classList.add("is-in");
+          scrollEnd(animate);
+        };
+        if (delay) timers.push(window.setTimeout(reveal, delay)); else reveal();
+      });
+    };
+
+    const hide = (id: string) => bubblesOf(id).forEach((el) => { el.hidden = true; el.classList.remove("is-in"); });
+
+    const sync = () => {
+      hint.hidden = order.length > 0;
+      if (samLast) samLast.textContent = order.length ? `${lines[order[order.length - 1]]} · now` : "Booking HH2291 made";
+    };
+
+    const focusCode = (id: string | null) => {
+      desk.querySelectorAll<HTMLElement>("[data-rule-code]").forEach((c) => { c.hidden = c.dataset.ruleCode !== id; });
+      desk.querySelectorAll<HTMLElement>("[data-rule-row]").forEach((r) => r.classList.toggle("is-focus", r.dataset.ruleRow === id));
+    };
+
+    // First paint: the default switches are already rendered on.
+    scrollEnd(false);
+    focusCode(order[order.length - 1] ?? null);
+    sync();
+
+    desk.querySelectorAll<HTMLButtonElement>("[data-rule-switch]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.ruleSwitch!;
+        const on = btn.getAttribute("aria-checked") !== "true";
+        btn.setAttribute("aria-checked", String(on));
+        const animate = shouldAnimate();
+        if (on) {
+          order = order.filter((x) => x !== id).concat(id);
+          show(id, animate);
+          focusCode(id);
+          revealPhone(animate);
+        } else {
+          order = order.filter((x) => x !== id);
+          hide(id);
+          focusCode(order[order.length - 1] ?? null);
+        }
+        sync();
+      });
+    });
+  });
+</script>
+
+<style>
+  .desk {
+    --frame: var(--paper);
+    background: var(--frame); border: 1px solid var(--color-line); border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lift); overflow: hidden; color: var(--ocean); text-align: left;
+  }
+  .desk-bar {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; min-height: 56px; padding: 10px 20px;
+    border-bottom: 1px solid var(--color-line); background: var(--sand-50);
+  }
+  .desk-id { display: inline-flex; align-items: center; gap: 10px; font-size: 1rem; }
+  .desk-id strong { font: 400 1.15rem/1 var(--font-display); }
+  .desk-sep { color: var(--sand-300); }
+  .desk-session { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9375rem; color: var(--color-muted); }
+  .desk-session i { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+  .desk-session code { font-size: 1rem; }
+
+  .desk-body { display: grid; grid-template-columns: 250px minmax(320px, 1fr) minmax(0, 440px); min-height: 600px; }
+  .desk-col-title { font: 600 0.875rem/1.2 var(--font-text); letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-muted); }
+
+  /* Conversation list */
+  .desk-list { border-right: 1px solid var(--color-line); padding: 18px 10px; background: var(--sand-50); }
+  .desk-list .desk-col-title { padding: 0 10px 10px; }
+  .desk-list ul { list-style: none; display: grid; gap: 2px; }
+  .guest { display: grid; grid-template-columns: 36px 1fr auto; gap: 10px; align-items: start; padding: 10px; border-radius: 12px; }
+  .guest.is-active { background: var(--paper); box-shadow: inset 0 0 0 1px var(--color-line), 0 4px 14px -10px rgba(15,59,87,.4); }
+  .guest-avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--ocean-50); color: var(--ocean); font: 400 1.05rem/1 var(--font-display); }
+  .guest.is-active .guest-avatar { background: var(--terracotta-soft); color: var(--terracotta-ink); }
+  .guest-main { display: grid; min-width: 0; line-height: 1.35; }
+  .guest-name { font-weight: 600; font-size: 1rem; }
+  .guest-meta { font-size: 0.875rem; color: var(--color-muted); }
+  .guest-last { font-size: 0.9375rem; color: var(--ocean-700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+  .guest.is-active .guest-last { color: var(--terracotta-ink); font-weight: 500; }
+  .guest-unread { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--terracotta); color: #fff; font: 600 0.8125rem/22px var(--font-text); text-align: center; }
+
+  /* Stage and phone */
+  .desk-stage {
+    position: relative; display: grid; place-items: center; padding: 28px 20px;
+    background:
+      radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,.55), transparent 60%),
+      repeating-linear-gradient(90deg, transparent 0 46px, rgba(15,59,87,.035) 46px 47px),
+      var(--sand);
+  }
+  .phone {
+    width: min(100%, 330px); height: 560px; display: grid; grid-template-rows: auto auto 1fr auto;
+    background: var(--sand-50); border-radius: 40px; border: 10px solid var(--ocean); overflow: hidden;
+    box-shadow: 0 30px 50px -30px rgba(15,59,87,.6), 0 0 0 1px rgba(15,59,87,.2);
+  }
+  .phone-status { display: flex; justify-content: space-between; align-items: center; padding: 8px 18px 4px; font: 600 0.8125rem/1 var(--font-text); background: var(--paper); }
+  .phone-notch { width: 70px; height: 18px; border-radius: 999px; background: var(--ocean); }
+  .phone-icons { display: inline-flex; gap: 3px; }
+  .phone-icons i { width: 4px; height: 9px; border-radius: 1px; background: var(--ocean); }
+  .phone-icons i:nth-child(2) { height: 11px; } .phone-icons i:nth-child(3) { height: 13px; }
+  .phone-head { display: flex; align-items: center; gap: 10px; padding: 8px 14px 12px; background: var(--paper); border-bottom: 1px solid var(--sand-200); }
+  .phone-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--ocean); display: grid; place-items: center; }
+  .phone-who { display: grid; line-height: 1.25; }
+  .phone-who strong { font-weight: 600; font-size: 1rem; }
+  .phone-who span { font-size: 0.8125rem; color: var(--color-muted); }
+
+  .thread { list-style: none; display: flex; flex-direction: column; gap: 8px; padding: 14px 12px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+  .thread > * { flex-shrink: 0; }
+  .thread-day { align-self: center; font: 600 0.75rem/1 var(--font-text); letter-spacing: .06em; text-transform: uppercase; color: var(--color-muted); background: var(--sand-100); padding: 5px 10px; border-radius: 999px; }
+  .thread-hint { align-self: center; margin-top: 30%; max-width: 22ch; text-align: center; color: var(--color-muted); font-size: 0.9375rem; }
+  .b { max-width: 84%; font-size: 0.9375rem; line-height: 1.4; transition: opacity 360ms var(--ease), transform 420ms var(--ease); }
+  .b:not(.is-in) { opacity: 0; transform: translateY(10px) scale(.98); }
+  .b--hotel { align-self: flex-start; background: var(--paper); border: 1px solid var(--sand-200); border-radius: 4px 16px 16px 16px; }
+  .b--guest { align-self: flex-end; background: var(--ocean); color: var(--sand-50); border-radius: 16px 4px 16px 16px; }
+  .b--text p { padding: 8px 12px; }
+  .b-loc, .b-file, .b-call { display: grid; }
+  .b--location { width: 84%; overflow: hidden; }
+  .b-map { display: block; width: 100%; height: auto; }
+  .b-loc-text, .b-file-text, .b-call-text { display: grid; padding: 8px 12px; line-height: 1.3; }
+  .b-loc-text span, .b-file-text span, .b-call-text span { font-size: 0.8125rem; color: var(--color-muted); }
+  .b-file { grid-template-columns: auto 1fr; align-items: center; gap: 2px; padding-left: 10px; }
+  .b-file-icon { width: 36px; height: 44px; border-radius: 6px; background: var(--terracotta); color: #fff; display: grid; place-items: end center; padding-bottom: 6px; font: 700 0.6875rem/1 var(--font-mono); letter-spacing: .04em; clip-path: polygon(0 0, 70% 0, 100% 24%, 100% 100%, 0 100%); }
+  .b-file-text strong { font-family: var(--font-mono); font-weight: 700; font-size: 0.9375rem; }
+  .b--call { align-self: center; max-width: 92%; border-radius: 14px; background: var(--sand-100); }
+  .b-call { grid-template-columns: auto 1fr; align-items: center; padding-left: 10px; }
+  .b-call-icon { width: 36px; height: 36px; border-radius: 50%; background: var(--ok); color: #fff; display: grid; place-items: center; }
+  .b-call-text span { font-family: var(--font-mono); font-size: 0.875rem; }
+  .phone-compose { padding: 8px 12px 14px; background: var(--paper); border-top: 1px solid var(--sand-200); }
+  .phone-compose span { display: block; padding: 8px 14px; border-radius: 999px; background: var(--sand-100); color: var(--color-muted); font-size: 0.875rem; }
+
+  /* Automations */
+  .desk-rules { border-left: 1px solid var(--color-line); padding: 18px 18px 22px; display: grid; align-content: start; gap: 14px; min-width: 0; }
+  .rules-sub { color: var(--color-muted); font-size: 1rem; margin-top: 4px; }
+  .rules { list-style: none; display: grid; gap: 8px; min-width: 0; }
+  .rule { border: 1px solid var(--color-line); border-radius: 16px; background: var(--paper); min-width: 0; transition: border-color var(--speed) var(--ease), box-shadow var(--speed) var(--ease); }
+  .rule.is-focus { border-color: var(--ocean-300); box-shadow: 0 10px 24px -18px rgba(15,59,87,.55); }
+  .rule-switch {
+    width: 100%; display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 10px 14px 10px 16px;
+    background: none; border: 0; border-radius: 16px; color: inherit; font: inherit; text-align: left; cursor: pointer;
+  }
+  .rule-switch:hover .toggle { box-shadow: 0 0 0 4px rgba(200,85,61,.14); }
+  .rule-text { flex: 1; display: grid; line-height: 1.3; min-width: 0; }
+  .rule-label { font-weight: 600; font-size: 1.0625rem; }
+  .rule-when { font-size: 0.9375rem; color: var(--color-muted); }
+  .toggle { position: relative; flex: none; width: 48px; height: 28px; border-radius: 999px; background: var(--sand-300); transition: background 240ms var(--ease), box-shadow var(--speed) var(--ease); }
+  .toggle i { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(15,59,87,.35); transition: transform 280ms var(--ease); }
+  [aria-checked="true"] .toggle { background: var(--terracotta); }
+  [aria-checked="true"] .toggle i { transform: translateX(20px); }
+  .rule-code { padding: 0 12px 12px; display: grid; gap: 10px; min-width: 0; animation: code-in 360ms var(--ease) both; }
+  .rule-licence { font-size: 0.9375rem; color: var(--color-muted); line-height: 1.45; }
+  .rule-licence .chip { margin-right: 4px; }
+  .rule-code :global(.code) { min-width: 0; max-width: 100%; }
+  .rule-code :global(.code-body) { overflow-x: auto; min-width: 0; }
+  .rule-code :global(.code-body pre) { font-size: 0.9375rem; padding: 12px 14px 14px; white-space: pre; overflow-x: auto; }
+  .rule-code :global(.code-title) { font-size: 0.9375rem; }
+  @keyframes code-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+  @media (max-width: 1180px) {
+    .desk-body { grid-template-columns: minmax(300px, 1fr) minmax(340px, 1.15fr); }
+    .desk-list { display: none; }
+  }
+
+  /* Phone: the guest's phone, then switches as chips, code below */
+  @media (max-width: 760px) {
+    .desk { border-radius: var(--radius-lg); }
+    .desk-bar { padding: 10px 14px; min-height: 0; }
+    .desk-session { display: none; }
+    .desk-body { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+    .desk-stage { padding: 18px 14px; }
+    .phone { height: 440px; border-width: 8px; border-radius: 34px; width: min(100%, 340px); }
+    .desk-rules { border-left: 0; border-top: 1px solid var(--color-line); padding: 14px; }
+    .rules-head { display: none; }
+    .rules { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .rule { display: contents; }
+    .rule-switch {
+      min-height: 52px; padding: 8px 10px 8px 12px; gap: 8px; border: 1px solid var(--color-line); border-radius: 14px; background: var(--paper);
+    }
+    .rule-switch[aria-checked="true"] { border-color: var(--terracotta); background: #fdf3ef; }
+    .rule-label { font-size: 0.9375rem; line-height: 1.25; }
+    .rule-when { display: none; }
+    .toggle { width: 34px; height: 20px; }
+    .toggle i { width: 14px; height: 14px; }
+    [aria-checked="true"] .toggle i { transform: translateX(14px); }
+    .rule-code { grid-column: 1 / -1; order: 10; padding: 6px 0 0; min-width: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .b, .rule-code { transition: none; animation: none; }
+  }
+</style>

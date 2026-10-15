@@ -1,0 +1,54 @@
+---
+import Site from "../layouts/Site.astro";
+import PageHead from "../components/PageHead.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { capabilities, snippets, commands } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const feats = [
+  { id: "messages", name: "Messages", text: capabilities.messages, methods: ["sendText", "onMessage"] },
+  { id: "media", name: "Media", text: capabilities.media },
+  { id: "groups", name: "Groups", text: capabilities.groups, methods: ["createGroup", "joinGroupViaLink", "joinGroup"], tag: "Create and join: Restricted" },
+  { id: "polls", name: "Polls", text: capabilities.polls },
+  { id: "events", name: "Events", text: capabilities.events, code: snippets.event, file: "events.mjs", tag: "New in 5.5" },
+  { id: "stickers", name: "Stickers", text: `${capabilities.stickers} Sending stickers with client.sendSticker needs a private finalizer; local rendering with the CLI is open to everyone.`, code: commands.stickerCli, lang: "bash", file: "Terminal" },
+  { id: "multi-session", name: "Multi-session", text: capabilities.multiSession, code: commands.namedSession, lang: "bash", file: "Terminal" },
+  { id: "sessions", name: "Sessions and keys", text: capabilities.sessions, code: snippets.sessionKey, file: "session.mjs", tag: "5.4" },
+  { id: "refresh", name: "Live refresh", text: capabilities.refresh, tag: "5.5" },
+  { id: "drivers", name: "Drivers", text: `${capabilities.drivers} Lightpanda is experimental.` },
+  { id: "docs", name: "Generated API docs", text: capabilities.docs, methods: [commands.proofOfLife, "/meta/swagger.json", "/meta/postman.json"] },
+];
+---
+<Site title="Features: messages, media, groups, events and more | open-wa" description="What open-wa does with your WhatsApp number: messages, media, groups, polls, events, stickers, multi-session, encrypted sessions, live refresh, drivers and generated API docs.">
+  <PageHead eyebrow="Features" title="Everything your number can do, from code." lede="Each capability below is a method on the client and an endpoint on the Easy API." />
+  <nav class="wrap fx-nav" aria-label="Features on this page">
+    {feats.map((f) => <a href={`#${f.id}`}>{f.name}</a>)}
+  </nav>
+  <section class="fx">
+    <div class="wrap">
+      {feats.map((f) => (
+        <article class="fx-row" id={f.id}>
+          <div class="fx-copy">
+            <h2>{f.name} {f.tag && <span class="tag tag-blue">{f.tag}</span>}</h2>
+            <p>{f.text}</p>
+            {f.methods && <ul class="methods">{f.methods.map((m) => <li>{m}</li>)}</ul>}
+          </div>
+          {f.code && <CodeBlock code={f.code} lang={f.lang ?? "js"} file={f.file} />}
+        </article>
+      ))}
+      <p class="fx-more"><a class="link-arrow" href={`${base}pricing/`}>Which methods need a licence</a></p>
+    </div>
+  </section>
+</Site>
+<style>
+  .fx-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 40px; }
+  .fx-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border: 1px solid var(--grey-2); border-radius: 999px; text-decoration: none; background: var(--white); font-size: 16px; }
+  .fx-nav a:hover { border-color: var(--blue); color: var(--blue); }
+  .fx { padding-bottom: 96px; }
+  .fx-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 40px; padding: 40px 0; border-top: 1px solid var(--grey-2); align-items: start; }
+  .fx-row:not(:has(.code)) { grid-template-columns: minmax(0, 760px); }
+  .fx-copy { display: grid; gap: 14px; }
+  .fx-copy h2 { font-size: 30px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .fx-copy p { color: var(--grey-5); max-width: 60ch; }
+  .fx-more { padding-top: 24px; border-top: 1px solid var(--grey-2); }
+  @media (max-width: 860px) { .fx-row { grid-template-columns: minmax(0, 1fr); gap: 20px; } }
+</style>

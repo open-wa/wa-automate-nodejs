@@ -1,0 +1,76 @@
+---
+import Mark from "./Mark.astro";
+import { support, product, legal, jobs, jobShort, stats } from "../data/facts";
+void product.unofficial;
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const cols = [
+  { h: "Jobs", links: jobs.map((j) => ({ href: `${base}recipes/${j.id}/`, label: jobShort[j.id] })) },
+  { h: "Product", links: [
+    { href: `${base}features/`, label: "Features" },
+    { href: `${base}recipes/`, label: "Recipes" },
+    { href: `${base}integrations/`, label: "Integrations" },
+    { href: `${base}pricing/`, label: "Pricing" },
+    { href: `${base}compare/`, label: "Compare" },
+  ] },
+  { h: "Developers", links: [
+    { href: `${base}quickstart/`, label: "Quick start" },
+    { href: support.docs, label: "Docs" },
+    { href: support.apiExplorer, label: "API explorer" },
+    { href: `${base}changelog/`, label: "Changelog" },
+    { href: `${base}migrate/`, label: "Migrate from v4" },
+    { href: support.github, label: "GitHub" },
+    { href: support.npm, label: "npm" },
+    { href: support.dockerHub, label: "Docker Hub" },
+  ] },
+  { h: "Community", links: [
+    { href: support.discord, label: "Discord" },
+    { href: `${base}community/#contributing`, label: "Contributing" },
+    { href: `${base}integrations/#plugin-sdk`, label: "Plugin SDK" },
+    { href: `${base}support/`, label: "Support" },
+  ] },
+  { h: "Legal", links: [
+    { href: `${base}legal/#terms`, label: "Terms" },
+    { href: `${base}legal/#licence`, label: "Licence" },
+    { href: `${base}legal/#unofficial`, label: "Unofficial notice" },
+  ] },
+];
+---
+
+<footer class="site-footer on-plum">
+  <div class="wrap">
+    <div class="foot-top">
+      <a class="mark-host foot-brand" href={base} aria-label="open-wa home"><Mark label="" size={44} /><span>open-wa</span></a>
+      <p class="foot-line">Your business's WhatsApp number, called from your own code. Maintained by {support.maintainer} since 2019.</p>
+    </div>
+    <div class="foot-cols">
+      {cols.map((c) => (
+        <nav aria-label={c.h}>
+          <h2>{c.h}</h2>
+          <ul>{c.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+        </nav>
+      ))}
+    </div>
+    <div class="foot-legal">
+      <p class="unofficial"><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> open-wa isn't authorised, maintained, sponsored or endorsed by WhatsApp, Meta or their affiliates.</p>
+      <p>{product.risk}</p>
+      <p>{legal.copyright}. Software licence: {product.softwareLicence}. Stats checked {stats.checkedOn}.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer { padding: 72px 0 40px; background: var(--plum-deep); }
+  .foot-top { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 40px; justify-content: space-between; padding-bottom: 40px; border-bottom: 1px solid rgba(255, 244, 230, 0.1); }
+  .foot-brand { display: inline-flex; align-items: center; gap: 12px; color: var(--cream); text-decoration: none; font: 700 26px/1 var(--font-display); letter-spacing: -0.03em; }
+  .foot-line { margin: 0; color: var(--muted-plum); max-width: 46ch; }
+  .foot-cols { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); gap: 32px; padding: 40px 0; }
+  .foot-cols h2 { font: 600 13px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--tangerine-soft); margin: 0 0 14px; }
+  .foot-cols ul { list-style: none; margin: 0; padding: 0; }
+  .foot-cols a { color: var(--cream); text-decoration: none; display: inline-flex; min-height: 36px; align-items: center; font-size: 16px; }
+  .foot-cols a:hover { color: var(--tangerine); text-decoration: underline; }
+  .foot-legal { border-top: 1px solid rgba(255, 244, 230, 0.1); padding-top: 28px; font-size: 15px; color: var(--muted-plum); }
+  .foot-legal p { max-width: 90ch; margin-bottom: 8px; }
+  .unofficial strong { color: var(--cream); }
+  @media (max-width: 900px) { .foot-cols { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 900px) { .foot-cols a { min-height: 44px; } }
+</style>

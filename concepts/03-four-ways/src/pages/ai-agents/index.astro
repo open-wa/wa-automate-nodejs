@@ -1,0 +1,45 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import Command from "../../components/Command.astro";
+import { snippets, commands, paths, licences, product, href, links } from "../../data/site";
+const mcp = paths.find((p) => p.id === "mcp")!;
+---
+<Base title="AI agents: give Claude a WhatsApp number over MCP | open-wa" description="open-wa's built-in MCP server exposes each Easy API method as a tool that Claude, Cursor and Windsurf can call. Config, start command and Claude Desktop setup.">
+  <div class="wrap">
+    <PageHead title="Give your AI agent a WhatsApp number" lede={mcp.what} />
+
+    <ol class="mcp-steps">
+      <li>
+        <div class="t"><h2>Turn on the MCP server</h2><p>Add an <code>mcp</code> block to your config. The endpoint is served by the same Easy API instance.</p></div>
+        <CodeBlock code={snippets.mcpConfig} title="wa.config.mjs" />
+      </li>
+      <li>
+        <div class="t"><h2>Start open-wa with that config</h2><p>Then link your phone with the QR code or a link code, as in the quick start.</p></div>
+        <Command cmd={snippets.mcpStart} id="mcp-start" />
+      </li>
+      <li>
+        <div class="t"><h2>Point your agent at the endpoint</h2><p>For Claude Desktop, add the server to its config with your API key. Cursor and Windsurf take the same URL: <code>{commands.mcpEndpoint}</code></p></div>
+        <CodeBlock code={snippets.claudeDesktop} lang="json" title="claude_desktop_config.json" />
+      </li>
+    </ol>
+
+    <section class="rules" aria-labelledby="rules-title">
+      <h2 id="rules-title">Which methods become tools</h2>
+      <p>Each Easy API method is exposed as a tool. The licence follows the method: a tool for a method marked insiders or restricted needs that key on the session, exactly as it would over HTTP. Methods marked none, which is most of them, need no key.</p>
+      <p class="muted">{licences.free.covers}</p>
+      <p class="muted">An agent sending messages from your number carries the same risk as any automation. {product.risk}</p>
+      <p><a class="link" href={href("pricing/")}>What Insiders and Restricted cover</a> · <a class="link" href={links.docs}>MCP in the docs</a></p>
+    </section>
+  </div>
+</Base>
+<style>
+  .mcp-steps { list-style: none; margin: 0; padding: 0; counter-reset: m; border-top: 1px solid var(--color-ink); }
+  .mcp-steps li { counter-increment: m; display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(20px, 4vw, 56px); padding: 32px 0; border-bottom: 1px solid var(--color-rule); align-items: start; }
+  .t { display: grid; gap: 10px; }
+  .t::before { content: counter(m, decimal-leading-zero); font: 500 13px/1 var(--font-mono); color: var(--color-coral-ink); }
+  .t h2 { font-size: 30px; }
+  .rules { padding: 48px 0 80px; display: grid; gap: 14px; max-width: 760px; }
+  @media (max-width: 900px) { .mcp-steps li { grid-template-columns: minmax(0, 1fr); } }
+</style>

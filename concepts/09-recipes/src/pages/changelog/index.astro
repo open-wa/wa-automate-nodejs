@@ -1,0 +1,30 @@
+---
+import Page from "../../layouts/Page.astro";
+import { releases, support, product } from "../../data/site";
+---
+
+<Page title="Changelog: what's new in open-wa | open-wa" description="Recent open-wa releases: event cards, live refresh, local stickers and your own session encryption key.">
+  <div class="wrap page-head">
+    <h1 class="h-display">Changelog</h1>
+    <p class="lede">Latest on npm: {product.currentVersion} ({product.currentVersionNote}). Full history on <a href={support.releases}>GitHub releases</a> and the <a href={support.changelog}>docs changelog</a>.</p>
+  </div>
+  <div class="wrap doc">
+    <ol class="rel">
+      {releases.map((r) => (
+        <li>
+          <p class="rel-meta"><span>{r.version}</span> <time>{r.date}</time></p>
+          <h2>{r.headline}</h2>
+          <ul>{r.highlights.map((h) => <li>{h}</li>)}</ul>
+        </li>
+      ))}
+    </ol>
+  </div>
+</Page>
+
+<style>
+  .rel { list-style: none; padding: 0; margin: 0; display: grid; gap: 16px; max-width: 760px; }
+  .rel > li { background: var(--card); border-radius: 18px; padding: 24px; box-shadow: inset 0 0 0 1px var(--line); }
+  .rel-meta { margin: 0; display: flex; gap: 12px; font: 400 0.9375rem/1 var(--font-mono); color: var(--ink-2); }
+  .rel-meta span { background: var(--ink); color: var(--paper); padding: 4px 8px; border-radius: 6px; }
+  .rel h2 { margin: 14px 0 8px !important; }
+</style>

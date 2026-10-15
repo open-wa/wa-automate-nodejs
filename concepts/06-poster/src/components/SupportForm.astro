@@ -1,0 +1,95 @@
+---
+/** "Tell us what you need": name, email, what to build, through submitLead("consulting", ...). */
+import { support } from "../data/facts";
+---
+
+<div class="sf" data-support>
+  <form class="lf" novalidate>
+    <div class="lf-field">
+      <label class="lf-label" for="sf-name">Your name</label>
+      <input id="sf-name" name="name" type="text" autocomplete="name" aria-describedby="sf-name-err" />
+      <p class="lf-err" id="sf-name-err" hidden></p>
+    </div>
+    <div class="lf-field">
+      <label class="lf-label" for="sf-email">Email</label>
+      <input id="sf-email" name="email" type="email" autocomplete="email" inputmode="email" aria-describedby="sf-email-err" />
+      <p class="lf-err" id="sf-email-err" hidden></p>
+    </div>
+    <div class="lf-field">
+      <label class="lf-label" for="sf-what">What do you want built?</label>
+      <textarea id="sf-what" name="what" rows="4" placeholder="e.g. Our bakery wants order confirmations sent to customers on WhatsApp" aria-describedby="sf-what-err"></textarea>
+      <p class="lf-err" id="sf-what-err" hidden></p>
+    </div>
+    <button class="btn btn-ink lf-submit" type="submit">Send request</button>
+    <p class="lf-small">Or email <a href={`mailto:${support.consultingEmail}`}>{support.consultingEmail}</a> directly.</p>
+  </form>
+  <div class="lf-done" hidden tabindex="-1">
+    <p class="lf-done-stamp" aria-hidden="true">Received</p>
+    <h3 class="lf-done-title">Thanks, <span data-sf-name></span></h3>
+    <p>Your request is noted. The maintainer replies to <strong data-sf-email></strong> about scope and cost. For anything urgent, book time through per-minute consulting.</p>
+    <p class="lf-small">Concept demo: nothing left this browser tab.</p>
+  </div>
+</div>
+
+<style>
+  .sf { border: 2.5px solid var(--ink); border-radius: var(--radius); background: var(--paper); padding: clamp(18px, 3vw, 32px); box-shadow: 8px 8px 0 var(--pink); }
+  .lf { display: grid; gap: 20px; }
+  .lf-field { display: grid; gap: 6px; }
+  .lf-label { display: block; font-family: var(--font-display); font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; font-size: 1.3rem; }
+  .lf input, .lf textarea { width: 100%; min-height: 50px; padding: 10px 14px; border: 2.5px solid var(--ink); border-radius: var(--radius); background: #FBF9F3; color: var(--ink); font: inherit; font-size: 1.05rem; }
+  .lf [aria-invalid="true"] { border-color: var(--pink-text); box-shadow: 4px 4px 0 var(--pink); }
+  .lf-err { margin: 0; font-size: 0.95rem; color: var(--pink-text); font-weight: 600; }
+  .lf-submit { justify-self: start; }
+  .lf-small { margin: 0; font-size: 0.92rem; color: var(--ink-soft); }
+  .lf-done { display: grid; gap: 12px; }
+  .lf-done:focus { outline: none; }
+  .lf-done p { margin: 0; }
+  .lf-done-stamp { justify-self: start; font-family: var(--font-display); font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; font-size: 2rem; color: var(--pink-text); border: 4px double var(--pink-text); padding: 2px 14px; transform: rotate(-4deg); }
+  .lf-done-title { font-size: clamp(2rem, 4vw, 2.8rem); color: var(--blue-text); margin: 0; }
+</style>
+
+<script>
+  import { submitLead } from "../lib/leads";
+  const root = document.querySelector<HTMLElement>("[data-support]");
+  const form = root?.querySelector("form");
+  const done = root?.querySelector<HTMLElement>(".lf-done");
+  if (root && form && done) {
+    const touched = new Set<string>();
+    const checks: Record<string, (v: string) => string> = {
+      name: (v) => (v.trim() ? "" : "Tell us what to call you."),
+      email: (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? "" : "Enter an email address we can reply to."),
+      what: (v) => (v.trim().length >= 10 ? "" : "A sentence or two about what you need helps us reply with a real answer."),
+    };
+    const show = (name: string, force = false) => {
+      const input = form.elements.namedItem(name) as HTMLInputElement;
+      const err = root.querySelector<HTMLElement>(`#${input.id}-err`)!;
+      const msg = checks[name](input.value);
+      if (!force && !touched.has(name)) return !msg;
+      input.setAttribute("aria-invalid", msg ? "true" : "false");
+      err.textContent = msg;
+      err.hidden = !msg;
+      return !msg;
+    };
+    form.addEventListener("input", (e) => {
+      const t = e.target as HTMLInputElement;
+      if (!(t.name in checks)) return;
+      if (t.value.trim()) touched.add(t.name);
+      show(t.name);
+    });
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const names = Object.keys(checks);
+      names.forEach((n) => touched.add(n));
+      const ok = names.map((n) => show(n, true));
+      const bad = names.find((_, i) => !ok[i]);
+      if (bad) { (form.elements.namedItem(bad) as HTMLElement).focus(); return; }
+      const d = new FormData(form);
+      await submitLead("consulting", { name: String(d.get("name")).trim(), email: String(d.get("email")).trim(), what: String(d.get("what")).trim() });
+      root.querySelector("[data-sf-name]")!.textContent = String(d.get("name")).trim();
+      root.querySelector("[data-sf-email]")!.textContent = String(d.get("email")).trim();
+      form.hidden = true;
+      done.hidden = false;
+      done.focus({ preventScroll: true });
+    });
+  }
+</script>

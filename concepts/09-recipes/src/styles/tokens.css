@@ -1,0 +1,82 @@
+/* 09 Recipes: brand tokens. A bright catalogue: off-white paper, charcoal ink,
+   and one swatch per job family. Every colour, font, radius and easing lives here. */
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("../fonts/instrument-serif-latin-400-normal.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("../fonts/instrument-serif-latin-400-italic.woff2") format("woff2");
+  font-weight: 400; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("../fonts/instrument-sans-latin-wght-normal.woff2") format("woff2");
+  font-weight: 400 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Commit Mono";
+  src: url("../fonts/commit-mono-latin-400-normal.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Commit Mono";
+  src: url("../fonts/commit-mono-latin-600-normal.woff2") format("woff2");
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+
+:root {
+  --paper: #F7F7F2;
+  --paper-2: #EFEFE7;
+  --card: #FFFFFF;
+  --ink: #1C1C1C;
+  --ink-2: #4A4A45;        /* secondary text, 8.6:1 on paper */
+  --line: #DCDCD2;
+  --line-2: #C9C9BD;
+
+  /* Job family swatches */
+  --tomato: #E8553B;
+  --saffron: #F2A93B;
+  --sky: #3A8DDE;
+  --lilac: #9B7BE0;
+  /* Darker partners for text on paper (AA) */
+  --tomato-ink: #B33A22;
+  --saffron-ink: #8A5A0F;
+  --sky-ink: #1F65AD;
+  --lilac-ink: #6A4CB8;
+  /* Tints for card fills */
+  --tomato-tint: #FBE3DD;
+  --saffron-tint: #FCEFD8;
+  --sky-tint: #DFECFA;
+  --lilac-tint: #ECE5FA;
+
+  /* The drawn phone (never WhatsApp's UI) */
+  --phone-body: #1C1C1C;
+  --phone-screen: #FBFBF7;
+  --bubble-in: #FFFFFF;
+  --bubble-out: #1C1C1C;
+  --bubble-out-ink: #F7F7F2;
+
+  /* Code panels */
+  --code-bg: #1C1C1C;
+  --code-bar: #262624;
+  --code-ink: #EDEDE6;
+  --code-dim: #A8A89E;
+
+  --color-bg: var(--paper);
+  --color-ink: var(--ink);
+
+  --font-display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --font-text: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Commit Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --text-mono: 0.875rem;
+  --radius: 14px;
+  --radius-s: 8px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --speed: 220ms;
+  --wrap: 1240px;
+  --gutter: clamp(16px, 4vw, 40px);
+}

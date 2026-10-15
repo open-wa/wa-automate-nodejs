@@ -1,0 +1,38 @@
+---
+import Base from "./Base.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+interface Props { title: string; description: string }
+const { title, description } = Astro.props;
+---
+
+<Base title={title} description={description} themeColor="#F7F7F2">
+  <Header />
+  <main id="main"><slot /></main>
+  <Footer />
+  <div class="sr" aria-live="polite" id="live"></div>
+</Base>
+
+<script>
+  // One handler for every Copy button on the page ([data-copy]).
+  const live = document.getElementById("live");
+  document.addEventListener("click", async (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-copy]");
+    if (!btn) return;
+    const text = btn.dataset.copy ?? "";
+    let ok = true;
+    try { await navigator.clipboard.writeText(text); }
+    catch {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.append(ta); ta.select();
+      try { ok = document.execCommand("copy"); } catch { ok = false; }
+      ta.remove();
+    }
+    const label = btn.querySelector(".copy-label");
+    btn.classList.toggle("is-copied", ok);
+    if (label) label.textContent = ok ? "Copied" : "Press Ctrl+C";
+    if (live) live.textContent = ok ? "Copied to clipboard" : "Copy failed, select the text and copy it";
+    window.setTimeout(() => { btn.classList.remove("is-copied"); if (label) label.textContent = "Copy"; }, 1800);
+  });
+</script>

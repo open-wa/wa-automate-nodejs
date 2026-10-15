@@ -1,0 +1,12 @@
+{
+  "slug": "07-standard",
+  "name": "Category standard",
+  "tagline": "The WhatsApp API that runs on your own number, laid out the way the category's most complete sites do it, with honest risk and free-vs-licensed by method.",
+  "archetype": "developer",
+  "audience": "Node.js developers who want WhatsApp in their app (indie, agency, in-house, AI-agent builders)",
+  "flow": "Copy and run the command from the hero's quick-start card, then the Quick start page; licence buyers go Pricing, billing toggle, four-field form, prefilled Gumroad checkout",
+  "benchmark": "Whapi.Cloud (whapi.cloud) and WAHA (waha.devlike.pro)",
+  "floor": ["/", "/quickstart/", "/features/", "/integrations/", "/ai-agents/", "/use-cases/", "/pricing/", "/compare/", "/migrate/", "/support/", "/community/", "/changelog/", "/legal/", "/404"],
+  "fonts": ["Figtree (OFL)", "Source Code Pro (OFL)"],
+  "libraries": ["astro", "Shiki via astro:components <Code> (build time)"]
+}

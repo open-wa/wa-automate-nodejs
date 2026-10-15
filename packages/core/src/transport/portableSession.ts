@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto';
 import { Effect, Exit, Scope, Semaphore } from 'effect';
-import { toPublicError } from '../effect/errors';
 import { portableFailure, portableIO, runPortable, validatePortablePayload, type PortableSessionFailure } from './portableSessionEffects';
 import type { IPage } from '@open-wa/driver-interface';
 import { resolveSessionEncryption, type SessionEncryptionOptions, type SessionEncryptionCredentials } from './sessionEncryption';
@@ -8,7 +7,7 @@ import { resolveSessionEncryption, type SessionEncryptionOptions, type SessionEn
 /** Opaque, encrypted values. Only the baked pre-init patch interprets them. */
 export interface PortableSessionPayload { auth: string; data: string }
 
-/** An exclusive writer lease, held until the browser has closed. */
+/** A session storage handle, held until the browser has closed. */
 export interface PortableSessionLease {
   read(): Promise<string | null>;
   /** Resolve only after durable storage accepts the entire replacement. */
@@ -19,22 +18,12 @@ export interface PortableSessionLease {
 }
 
 interface SessionPersistence {
-  /** Acquire exclusive ownership; remote stores must fence expired owners. */
+  onError?(error: unknown): void;
+  /** Open session storage without excluding other processes using the same session. */
   acquire(sessionId: string): Promise<PortableSessionLease>;
 }
 
-export interface PortableSessionStatus {
-  ready: boolean;
-  pending: number;
-  missing: number;
-  undecrypted: number;
-  unidentified: number;
-  paused: boolean;
-  phase: string;
-  inFlightNativeWrites: number;
-}
-
-/** Host-only opaque persistence and acknowledged delivery. No storage adapter lives here. */
+/** Host-only opaque persistence. WhatsApp owns message delivery. */
 export class PortableSessionController {
   private readonly leaseScope = Scope.makeUnsafe();
   private readonly writes = Semaphore.makeUnsafe(1);
@@ -42,10 +31,7 @@ export class PortableSessionController {
   private payload: string | null = null;
   private revision = 0;
   private documentId = '';
-  private handler?: (message: unknown) => Promise<boolean>;
-  private listening: () => boolean = () => false;
   private invalidated = false;
-  private active = false;
   private flushing = false;
   private releasing = false;
   private leaseCloseResult?: Exit.Exit<void, never>;
@@ -53,15 +39,10 @@ export class PortableSessionController {
   private page?: IPage;
   #encryption?: SessionEncryptionCredentials;
 
+  get hasCheckpoint(): boolean { return this.payload !== null; }
+
   constructor(private readonly persistence: SessionPersistence, private readonly sessionId: string,
     private readonly encryptionOptions: SessionEncryptionOptions = {}) {}
-
-  setMessageHandler(handler: (message: unknown) => Promise<boolean>, listening: () => boolean): () => void {
-    if (this.handler) throw toPublicError(portableFailure('PORTABLE_SESSION_HANDLER_ALREADY_BOUND'));
-    this.handler = handler;
-    this.listening = listening;
-    return () => { if (this.handler === handler) { this.handler = undefined; this.listening = () => false; } };
-  }
 
   private serial<A>(effect: Effect.Effect<A, PortableSessionFailure>): Promise<A> {
     // These providers have a Promise contract, not cancellation support. Never free
@@ -89,12 +70,13 @@ export class PortableSessionController {
   private installEffect(page: IPage, origin: string, script: string): Effect.Effect<void, PortableSessionFailure> {
     return Effect.gen({ self: this }, function* () {
       this.#encryption = yield* resolveSessionEncryption(this.encryptionOptions);
-      const lease = yield* Effect.acquireRelease(
+      const lease = this.lease ?? (yield* Effect.acquireRelease(
         portableIO('PORTABLE_SESSION_PROVISION_FAILED', () => this.persistence.acquire(this.sessionId)),
         lease => portableIO('PORTABLE_SESSION_RELEASE_FAILED', () => lease.release()).pipe(Effect.orDie),
-      ).pipe(Scope.provide(this.leaseScope));
+      ).pipe(Scope.provide(this.leaseScope)));
       this.lease = lease;
       this.payload = yield* portableIO('PORTABLE_SESSION_PROVISION_FAILED', () => lease.read());
+      this.invalidated = false;
       if (this.payload !== null) yield* validatePortablePayload(this.payload);
       if (typeof script !== 'string' || !script.trim()) return yield* Effect.fail(portableFailure('PORTABLE_SESSION_PATCH_REQUIRED'));
       const capability = randomUUID();
@@ -108,7 +90,6 @@ export class PortableSessionController {
           yield* authorize(token);
           if (this.flushing) return yield* Effect.fail(portableFailure('PORTABLE_SESSION_FENCED'));
           this.documentId = randomUUID();
-          this.active = false;
           yield* authorize(token);
           if (this.flushing) return yield* Effect.fail(portableFailure('PORTABLE_SESSION_FENCED'));
           return { sessionId: this.sessionId, documentId: this.documentId, revision: this.revision,
@@ -121,24 +102,10 @@ export class PortableSessionController {
             yield* authorize(token, documentId);
             if (expected !== this.revision) return yield* Effect.fail(portableFailure('PORTABLE_SESSION_REVISION_CONFLICT'));
             yield* validatePortablePayload(payload);
-            yield* portableIO('PORTABLE_SESSION_SAVE_FAILED', () => lease.write(payload)).pipe(
-              Effect.tapError(() => Effect.sync(() => { this.invalidated = true; this.active = false; })),
-            );
+            yield* portableIO('PORTABLE_SESSION_SAVE_FAILED', () => lease.write(payload));
             this.payload = payload;
             return ++this.revision;
           }))));
-      yield* portableIO('PORTABLE_SESSION_PROVISION_FAILED', () => page.exposeFunction('OpenWA_PortableDeliver',
-        (token: unknown, documentId: unknown, message: unknown) => runPortable(Effect.gen({ self: this }, function* () {
-          yield* authorize(token, documentId);
-          const handler = this.handler;
-          if (!this.active || !handler) return false;
-          return yield* portableIO('PORTABLE_SESSION_HANDLER_FAILED', () => handler(message));
-        }))));
-      yield* portableIO('PORTABLE_SESSION_PROVISION_FAILED', () => page.exposeFunction('OpenWA_PortableListening',
-        (token: unknown, documentId: unknown) => runPortable(Effect.gen({ self: this }, function* () {
-          yield* authorize(token, documentId);
-          return this.active && this.listening();
-        }))));
       // Credentials are provisioned only to the intended top-level origin. The
       // private artifact receives keys through the lexical bridge, never on window.
       yield* portableIO('PORTABLE_SESSION_PROVISION_FAILED', () => page.addInitScript(`(() => {
@@ -146,9 +113,7 @@ export class PortableSessionController {
         const token = ${JSON.stringify(capability)};
         const bridge = Object.freeze({
           bootstrap: () => globalThis.OpenWA_PortableBootstrap(token),
-          commit: (documentId, revision, payload) => globalThis.OpenWA_PortableCommit(token, documentId, revision, payload),
-          deliver: (documentId, message) => globalThis.OpenWA_PortableDeliver(token, documentId, message),
-          hasListener: documentId => globalThis.OpenWA_PortableListening(token, documentId)
+          commit: (documentId, revision, payload) => globalThis.OpenWA_PortableCommit(token, documentId, revision, payload)
         });
         ${script}
       })();`));
@@ -173,32 +138,33 @@ export class PortableSessionController {
       if (this.invalidated || this.flushing || this.releasing || documentId !== this.documentId) {
         return yield* Effect.fail(portableFailure('PORTABLE_SESSION_FENCED'));
       }
-      this.active = true;
     }));
   }
 
-  status(): Promise<PortableSessionStatus> {
-    return runPortable(Effect.flatMap(this.currentPage(), page => portableIO('PORTABLE_SESSION_STATUS_FAILED', () =>
-      page.evaluateScript<PortableSessionStatus>('globalThis.OpenWA_PortableSession.status()'))));
-  }
-
-  replay(): Promise<void> {
-    return runPortable(Effect.flatMap(this.currentPage(), page => portableIO('PORTABLE_SESSION_REPLAY_FAILED', () =>
-      page.evaluateScript('globalThis.OpenWA_PortableSession.replay()'))).pipe(Effect.asVoid));
-  }
-
-  invalidate(): Promise<void> {
-    this.invalidated = true;
-    this.active = false;
-    return this.serial(Effect.gen({ self: this }, function* () {
-      if (this.lease) yield* portableIO('PORTABLE_SESSION_REMOVE_FAILED', () => this.lease!.remove());
+  async beginPairing(): Promise<void> {
+    const revision = await this.serial(Effect.gen({ self: this }, function* () {
+      if (this.lease) yield* portableIO('PORTABLE_SESSION_REMOVE_FAILED', () => this.lease!.remove().catch(error => { this.persistence.onError?.(error); }));
       this.payload = null;
-      this.#encryption = undefined;
+      return ++this.revision;
+    }));
+    if (this.page) await this.page.evaluateScript(`globalThis.OpenWA_PortableSession.beginPairing(${revision})`);
+  }
+
+  /** Fence the old document immediately, retaining the storage handle and listeners. */
+  preparePairing(): Promise<void> {
+    this.invalidated = true;
+    return this.serial(Effect.gen({ self: this }, function* () {
+      if (this.releasing) return yield* Effect.fail(portableFailure('PORTABLE_SESSION_FENCED'));
+      if (this.lease) yield* portableIO('PORTABLE_SESSION_REMOVE_FAILED', () => this.lease!.remove().catch(error => { this.persistence.onError?.(error); }));
+      this.payload = null;
+      this.documentId = '';
+      this.revision++;
+      this.installAttempted = false;
+      this.page = undefined;
     }));
   }
 
   flush(): Promise<void> {
-    this.active = false;
     this.flushing = true;
     return runPortable(Effect.gen({ self: this }, function* () {
       if (this.page && this.documentId && !this.invalidated && !this.releasing) {
@@ -210,7 +176,6 @@ export class PortableSessionController {
 
   /** Called only after the transport has confirmed browser closure. */
   release(): Promise<void> {
-    this.active = false;
     this.invalidated = true;
     this.releasing = true;
     return this.serial(this.closeLeaseScope(Exit.void));
@@ -227,8 +192,6 @@ export class PortableSessionController {
       this.page = undefined;
       this.payload = null;
       this.#encryption = undefined;
-      this.handler = undefined;
-      this.listening = () => false;
     })));
   }
 }

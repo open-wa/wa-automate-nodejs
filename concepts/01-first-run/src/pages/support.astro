@@ -1,0 +1,45 @@
+---
+import Page from "../layouts/Page.astro";
+import PageHead from "../components/PageHead.astro";
+import ConsultForm from "../components/ConsultForm.astro";
+import { support, stats, href } from "../data/site";
+const routes = [
+  { name: "Discord", what: `Questions, set-up help and show-and-tell, with about ${stats.discordMembers.toLocaleString("en-GB")} members (${stats.checkedOn}).`, href: support.discord, cta: "Join Discord" },
+  { name: "GitHub issues", what: "Bugs and feature requests, with your version, driver and the method you called.", href: support.issues, cta: "Open an issue" },
+  { name: "Docs", what: "Guides, the API reference and the licensing details.", href: support.docs, cta: "Read the docs" },
+  { name: "Per-minute consulting", what: "Book the maintainer by the minute for a specific problem.", href: support.perMinuteConsulting, cta: "Book time" },
+  { name: "Email", what: "Paid support, consulting and custom builds.", href: `mailto:${support.consultingEmail}`, cta: support.consultingEmail },
+];
+---
+<Page title="Support and consulting | open-wa" description="Get help with open-wa on Discord or GitHub, book per-minute consulting, or tell us what you want built.">
+  <div class="wrap">
+    <PageHead kicker="support" title="Get help, or have it built for you" lede="Community help is free. Paid support and consulting come from the maintainer." />
+    <div class="sup">
+      <ul class="sup-list">
+        {routes.map((r) => (
+          <li>
+            <div><h2>{r.name}</h2><p class="muted">{r.what}</p></div>
+            <a class="btn" href={r.href}>{r.cta}</a>
+          </li>
+        ))}
+      </ul>
+      <section aria-labelledby="need-h" class="sup-form">
+        <h2 id="need-h">Tell us what you need</h2>
+        <p class="muted">For businesses that want WhatsApp automation set up for them. Three fields, no call needed.</p>
+        <ConsultForm />
+      </section>
+    </div>
+    <p class="sup-dev muted">Developer? Start with the <a href={href("quickstart/")}>quick start</a>.</p>
+  </div>
+</Page>
+<style>
+  .sup { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 40px; align-items: start; }
+  .sup-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .sup-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--line); }
+  .sup-list h2 { font-size: 22px; margin-bottom: 4px; }
+  .sup-form { display: grid; gap: 12px; }
+  .sup-dev { padding: 40px 0 80px; }
+  .sup-dev a { color: var(--amber); }
+  @media (max-width: 900px) { .sup { grid-template-columns: 1fr; } }
+  @media (max-width: 520px) { .sup-list li { grid-template-columns: 1fr; } .sup-list .btn { justify-self: start; } }
+</style>

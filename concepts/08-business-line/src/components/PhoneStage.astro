@@ -1,0 +1,294 @@
+---
+/**
+ * Signature moment: jobs arrive on a customer's phone one after another. Every
+ * business message is a button; hover, focus or tap it and the exact call that
+ * sent it slides out beside the phone. Reduced motion or ?still: every message
+ * is shown and tapping still reveals the code.
+ */
+import CodeBlock from "./CodeBlock.astro";
+import BubbleBody from "./BubbleBody.astro";
+import { calls, scenes } from "../data/stage";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const methodOf = (i: number) => calls[i].methods[calls[i].methods.length > 1 && calls[i].methods[0] === "onMessage" ? 1 : 0];
+let step = 0;
+---
+
+<div class="stage" data-stage>
+  <div class="phone-col">
+    <p class="stage-label"><span class="tag tag-example">Example</span> What your customers see</p>
+    <div class="phone">
+      <div class="phone-top" aria-hidden="true"><span class="cam"></span></div>
+      <div class="screen" data-screen tabindex="0" role="region" aria-label="Example chat feed: messages sent by business code">
+        <div class="status" aria-hidden="true"><span>9:41</span><span class="sig"><i></i><i></i><i></i></span></div>
+        {scenes.map((s) => (
+          <section class="scene" aria-label={`Example business: ${s.biz}`}>
+            <header class="thread" data-step={step++}>
+              <span class="avatar" aria-hidden="true">{s.initial}</span>
+              <span class="thread-name">{s.biz}</span>
+              <span class="thread-tag">Example</span>
+            </header>
+            {s.bubbles.map((b) => b.kind === "them" ? (
+              <p class="msg msg-them" data-step={step++}><span>{b.text}</span></p>
+            ) : (
+              <button type="button" class={`msg msg-biz t-${b.type}`} data-step={step++} data-call={b.call} aria-controls="call-panel" aria-pressed="false" aria-label={`Show the call that sent this ${b.type === "text" ? "message" : b.type}`}>
+                <BubbleBody type={b.type} text={b.text} />
+                <span class="via" aria-hidden="true"><span class="via-code">&lt;/&gt;</span> {methodOf(b.call)}</span>
+              </button>
+            ))}
+          </section>
+        ))}
+        <p class="feed-end" data-step={step++}>Every message above came from a business's code.</p>
+      </div>
+      <div class="phone-bar" aria-hidden="true"></div>
+    </div>
+    <div class="stage-controls">
+      <button type="button" class="ctl" data-toggle>Pause</button>
+      <button type="button" class="ctl" data-replay>Replay</button>
+      <span class="hint">Tap a message to see its code</span>
+    </div>
+  </div>
+
+  <aside class="call-panel" id="call-panel" aria-live="polite" data-panel>
+    <button type="button" class="panel-close" data-close aria-label="Close the code panel">Close</button>
+    {calls.map((c, i) => (
+      <div class="call" data-call-panel={i} hidden={i !== 1}>
+        <p class="call-head"><span class="call-kicker">The call that sent it</span>
+          <span class={`tag tag-${c.needKind === "depends" ? "example" : c.needKind}`}>{c.need}</span></p>
+        <CodeBlock code={c.code} lang={c.lang} label={c.label} />
+        <p class="call-methods">{c.methods.map((m) => <code>{m}</code>)}</p>
+        <p class="call-note">{c.note}</p>
+        <a class="call-link" href={`${base}recipes/${c.recipe}/`}>Full recipe <span aria-hidden="true">&rarr;</span></a>
+      </div>
+    ))}
+  </aside>
+</div>
+
+<script>
+  import { shouldAnimate } from "../lib/runtime";
+
+  for (const stage of document.querySelectorAll<HTMLElement>("[data-stage]")) {
+    const screen = stage.querySelector<HTMLElement>("[data-screen]")!;
+    const panel = stage.querySelector<HTMLElement>("[data-panel]")!;
+    const steps = [...stage.querySelectorAll<HTMLElement>("[data-step]")];
+    const bizzes = [...stage.querySelectorAll<HTMLButtonElement>("[data-call]")];
+    const toggle = stage.querySelector<HTMLButtonElement>("[data-toggle]")!;
+    const replay = stage.querySelector<HTMLButtonElement>("[data-replay]")!;
+    const animate = shouldAnimate();
+    const narrow = () => !window.matchMedia("(min-width: 1280px)").matches;
+    let taken = false;
+    let timer = 0;
+    let i = 0;
+    let playing = false;
+    let current: HTMLButtonElement | null = null;
+
+    const phone = stage.querySelector<HTMLElement>(".phone")!;
+    const place = (btn: HTMLElement) => {
+      if (narrow()) {
+        // Phone: the code sheet opens over the phone, right under the message.
+        const s = stage.getBoundingClientRect();
+        const b = btn.getBoundingClientRect();
+        const p = phone.getBoundingClientRect();
+        const top = b.bottom - s.top + 12;
+        panel.style.setProperty("--ny", `${top}px`);
+        panel.style.setProperty("--nh", `${Math.max(240, p.bottom - s.top - top + 40)}px`);
+        return;
+      }
+      const s = stage.getBoundingClientRect();
+      const b = btn.getBoundingClientRect();
+      const h = panel.offsetHeight;
+      const centre = b.top - s.top + b.height / 2;
+      const y = Math.max(0, Math.min(s.height - h, centre - 60));
+      panel.style.setProperty("--y", `${y}px`);
+      panel.style.setProperty("--arrow", `${Math.max(24, Math.min(h - 24, centre - y))}px`);
+    };
+
+    const select = (btn: HTMLButtonElement, open = true) => {
+      const n = btn.dataset.call;
+      for (const p of panel.querySelectorAll<HTMLElement>("[data-call-panel]")) p.hidden = p.dataset.callPanel !== n;
+      for (const b of bizzes) b.setAttribute("aria-pressed", String(b === btn));
+      current = btn;
+      panel.classList.remove("is-waiting");
+      if (open) panel.classList.add("is-open");
+      panel.classList.remove("swap");
+      void panel.offsetWidth;
+      panel.classList.add("swap");
+      requestAnimationFrame(() => place(btn));
+    };
+
+    const showAll = () => { for (const s of steps) s.classList.remove("pending"); };
+    const reveal = () => {
+      if (!playing) return;
+      const el = steps[i];
+      if (!el) { stop(); return; }
+      el.classList.remove("pending");
+      el.classList.add("arrive");
+      screen.scrollTo({ top: screen.scrollHeight, behavior: "smooth" });
+      if (!taken && el.dataset.call !== undefined && !narrow()) select(el as HTMLButtonElement);
+      i++;
+      const delay = el.classList.contains("thread") ? 650 : el.classList.contains("msg-them") ? 1100 : 2300;
+      timer = window.setTimeout(reveal, delay);
+    };
+    const stop = () => { playing = false; window.clearTimeout(timer); toggle.textContent = i >= steps.length ? "Done" : "Play"; toggle.disabled = i >= steps.length; };
+    const play = () => { playing = true; toggle.textContent = "Pause"; toggle.disabled = false; reveal(); };
+    const restart = () => {
+      window.clearTimeout(timer);
+      i = 0; taken = false;
+      for (const s of steps) { s.classList.add("pending"); s.classList.remove("arrive"); }
+      if (!narrow()) panel.classList.add("is-waiting");
+      screen.scrollTop = 0;
+      play();
+    };
+
+    if (animate) {
+      panel.classList.add("is-waiting");
+      // The first thread and the customer's question are there from the start,
+      // so the phone is never empty; the replies arrive once it's on screen.
+      steps.forEach((s, n) => { if (n >= 2) s.classList.add("pending"); });
+      i = 2;
+      const io = new IntersectionObserver(([e]) => { if (e?.isIntersecting) { io.disconnect(); timer = window.setTimeout(play, 500); } }, { threshold: 0.15 });
+      io.observe(screen);
+    } else {
+      stage.classList.add("is-still");
+      toggle.hidden = true; replay.hidden = true;
+      if (!narrow()) select(bizzes[1]);
+    }
+
+    toggle.addEventListener("click", () => {
+      if (playing) stop();
+      else if (i >= steps.length) restart();
+      else play();
+    });
+    replay.addEventListener("click", restart);
+
+    for (const b of bizzes) {
+      const take = () => { taken = true; select(b); };
+      b.addEventListener("click", () => {
+        if (narrow() && current === b && panel.classList.contains("is-open")) { panel.classList.remove("is-open"); return; }
+        take();
+        if (narrow()) {
+          if (playing) { stop(); showAll(); i = steps.length; toggle.textContent = "Done"; }
+          // Bring the tapped message near the top of the screen, then open the sheet under it.
+          screen.scrollTop += b.getBoundingClientRect().top - screen.getBoundingClientRect().top - 96;
+          place(b);
+          panel.querySelector<HTMLElement>("[data-close]")?.focus({ preventScroll: true });
+          const r = phone.getBoundingClientRect();
+          if (r.top < 60 || r.bottom > window.innerHeight) phone.scrollIntoView({ block: "center", behavior: animate ? "smooth" : "auto" });
+        }
+      });
+      b.addEventListener("mouseenter", () => { if (!narrow()) take(); });
+      b.addEventListener("focus", () => { if (!narrow()) take(); });
+    }
+    panel.querySelector("[data-close]")?.addEventListener("click", () => {
+      panel.classList.remove("is-open");
+      current?.focus({ preventScroll: true });
+    });
+    screen.addEventListener("scroll", () => { if (current && !narrow()) place(current); }, { passive: true });
+    window.addEventListener("resize", () => { if (current) place(current); });
+  }
+</script>
+
+<style>
+  .stage { position: relative; display: grid; grid-template-columns: 340px 380px; gap: 28px; align-items: start; }
+  .phone-col { display: grid; justify-items: center; gap: 12px; }
+  .stage-label { margin: 0; display: flex; align-items: center; gap: 8px; font: 500 14px/1.2 var(--font-mono); color: var(--cream); }
+  .stage-label .tag { color: var(--cream); }
+
+  .phone {
+    position: relative; width: 340px; height: 690px; padding: 12px; border-radius: 52px;
+    background: linear-gradient(160deg, #4A1E50, var(--plum-deep) 45%, #12040F);
+    box-shadow: 0 0 0 2px #5A2A61, 0 0 0 9px #1C0820, 0 50px 90px -30px rgba(10, 2, 10, 0.85), inset 0 1px 0 rgba(255, 244, 230, 0.15);
+  }
+  .phone-top { position: absolute; top: 22px; left: 50%; translate: -50% 0; width: 96px; height: 28px; border-radius: 20px; background: #0C030B; z-index: 3; }
+  .phone-bar { position: absolute; bottom: 20px; left: 50%; translate: -50% 0; width: 110px; height: 5px; border-radius: 4px; background: rgba(42, 14, 46, 0.35); z-index: 3; }
+  .screen {
+    height: 100%; border-radius: 41px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(255, 122, 26, 0.08), transparent 40%),
+      repeating-linear-gradient(135deg, transparent 0 14px, rgba(42, 14, 46, 0.025) 14px 15px),
+      var(--cream);
+    padding: 48px 12px 40px; color: var(--plum);
+  }
+  .screen::-webkit-scrollbar { display: none; }
+  .status { position: absolute; top: 12px; left: 12px; right: 12px; height: 46px; padding: 15px 34px 0; border-radius: 41px 41px 0 0; background: linear-gradient(var(--cream) 72%, rgba(255, 244, 230, 0)); display: flex; justify-content: space-between; font: 600 13px/1 var(--font-text); color: var(--plum); z-index: 2; pointer-events: none; }
+  .sig { display: flex; gap: 2px; align-items: end; }
+  .sig i { width: 3px; background: var(--plum); border-radius: 1px; }
+  .sig i:nth-child(1) { height: 5px; } .sig i:nth-child(2) { height: 8px; } .sig i:nth-child(3) { height: 11px; }
+
+  .scene { display: grid; gap: 8px; margin-bottom: 18px; }
+  .thread { display: flex; align-items: center; gap: 8px; padding: 10px 2px 2px; border-top: 1px dashed var(--cream-3); }
+  .scene:first-of-type .thread { border-top: 0; }
+  .avatar { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--plum); color: var(--tangerine); font: 700 12px/1 var(--font-display); }
+  .thread-name { font: 700 14px/1.2 var(--font-text); }
+  .thread-tag { margin-left: auto; font: 500 11px/1 var(--font-mono); color: var(--muted-cream); border: 1px dashed currentColor; border-radius: 6px; padding: 3px 5px; }
+
+  .msg { max-width: 86%; margin: 0; font: 400 15px/1.4 var(--font-text); }
+  .msg-them { justify-self: end; background: var(--plum); color: var(--cream); padding: 9px 13px; border-radius: 18px 18px 6px 18px; }
+  .msg-biz {
+    justify-self: start; text-align: left; color: var(--plum); cursor: pointer; display: grid; gap: 6px;
+    background: var(--paper); border: 1px solid var(--cream-3); padding: 9px 11px 7px; border-radius: 18px 18px 18px 6px;
+    box-shadow: 0 1px 0 rgba(42, 14, 46, 0.06); transition: box-shadow var(--speed) var(--ease), transform var(--speed) var(--ease), border-color var(--speed);
+  }
+  .msg-biz:hover, .msg-biz[aria-pressed="true"] { border-color: var(--tangerine); box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.25); }
+  .msg-biz[aria-pressed="true"] { transform: translateX(3px); }
+  .via { font: 500 11.5px/1 var(--font-mono); color: var(--tangerine-ink); display: inline-flex; gap: 6px; align-items: center; }
+  .via-code { background: #FFE2C7; border-radius: 4px; padding: 2px 4px; }
+  .t-sticker { background: transparent; border-color: transparent; box-shadow: none; }
+  .feed-end { font: 500 12px/1.4 var(--font-mono); color: var(--muted-cream); text-align: center; margin: 4px 0 0; }
+
+  .pending { display: none !important; }
+  .arrive { animation: arrive 520ms var(--ease-spring) both; }
+  .msg-them.arrive { transform-origin: 100% 100%; }
+  .msg-biz.arrive { transform-origin: 0 100%; }
+  @keyframes arrive { from { opacity: 0; transform: translateY(14px) scale(0.92); } to { opacity: 1; transform: none; } }
+
+  .stage-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .ctl { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid rgba(255, 244, 230, 0.4); background: rgba(28, 8, 32, 0.6); color: var(--cream); font: 600 15px var(--font-text); cursor: pointer; }
+  .ctl:hover { border-color: var(--tangerine); }
+  .ctl:disabled { opacity: 0.6; cursor: default; }
+  .hint { font: 500 14px/1.2 var(--font-mono); color: var(--cream); }
+
+  .call-panel {
+    position: relative; transform: translateY(var(--y, 120px)); transition: transform 420ms var(--ease);
+    background: var(--plum); color: var(--cream); border-radius: 22px; padding: 16px; box-shadow: 0 0 0 1px var(--plum-3), 0 40px 80px -30px rgba(10, 2, 10, 0.8);
+  }
+  .call-panel::before {
+    content: ""; position: absolute; left: -9px; top: var(--arrow, 60px); width: 18px; height: 18px; translate: 0 -50%; rotate: 45deg;
+    background: var(--plum); box-shadow: -1px 1px 0 var(--plum-3); transition: top 420ms var(--ease);
+  }
+  .call-panel.swap .call:not([hidden]) { animation: slide 380ms var(--ease) both; }
+  @keyframes slide { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: none; } }
+  .panel-close { display: none; }
+  .call { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+  .call-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin: 0; }
+  .call-kicker { font: 600 13px/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--tangerine-soft); }
+  .call .tag-example { color: var(--cream); }
+  .call-methods { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+  .call-methods code { background: var(--plum-2) !important; color: var(--cream); padding: 4px 8px !important; border-radius: 6px; }
+  .call-note { margin: 0; font-size: 15px; color: var(--muted-plum); line-height: 1.45; }
+  .call-link { color: var(--tangerine); font-weight: 700; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+  .call-link:hover { text-decoration: underline; }
+  .call :global(.codeblock pre) { max-height: 320px; font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+  /* Laptops: the phone sits beside the copy and the code opens as a sheet over it. */
+  @media (max-width: 1279px) and (min-width: 960px) {
+    .stage { grid-template-columns: 310px; gap: 12px; }
+    .phone { width: 310px; height: min(600px, calc(100vh - 150px)); min-height: 520px; }
+  }
+  .call-panel.is-waiting { opacity: 0; }
+  .call-panel { transition: transform 420ms var(--ease), opacity 300ms var(--ease); }
+  @media (max-width: 959px) {
+    .stage { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .phone { width: min(340px, 100%); height: 600px; }
+  }
+  @media (max-width: 1279px) {
+    .call-panel { transform: none; display: none; position: absolute; z-index: 5; left: 6px; right: 6px; top: var(--ny, 200px); max-height: var(--nh, 360px); overflow-y: auto; overscroll-behavior: contain; padding: 14px; }
+    .call-panel.is-open { display: block; animation: slide-up 360ms var(--ease) both; }
+    .call-panel::before { display: none; }
+    .call-head { padding-right: 84px; min-height: 44px; }
+    .call-head .tag { white-space: normal; line-height: 1.25; }
+    .panel-close { position: absolute; top: 12px; right: 12px; z-index: 1; }
+    .call :global(.codeblock pre) { max-height: none; }
+    .panel-close { display: inline-flex; float: right; min-height: 44px; padding: 0 14px; border-radius: 12px; background: var(--plum-2); color: var(--cream); border: 0; font: 600 15px var(--font-text); align-items: center; cursor: pointer; }
+    @keyframes slide-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  }
+</style>

@@ -1,0 +1,41 @@
+{
+  "slug": "08-business-line",
+  "name": "Business line",
+  "tagline": "Your business's own WhatsApp number, sending bookings, codes and call replies from your code",
+  "archetype": "developer",
+  "audience": "Developers building a WhatsApp job for a business (salon bookings, hotel notifications, OTP, PBX calls, stickers, media), in any language via the Easy API",
+  "flow": "Copy and run the Easy API command, then Quick start; secondary: licence form to prefilled Gumroad checkout",
+  "benchmark": "Twilio WhatsApp and messaging pages",
+  "floor": [
+    "/",
+    "/recipes/",
+    "/recipes/salon-bookings/",
+    "/recipes/hotel-notifications/",
+    "/recipes/otp/",
+    "/recipes/pbx-calls/",
+    "/recipes/stickers/",
+    "/recipes/media/",
+    "/recipes/order-updates/",
+    "/recipes/support-inbox/",
+    "/recipes/ai-agent/",
+    "/quickstart/",
+    "/features/",
+    "/integrations/",
+    "/pricing/",
+    "/compare/",
+    "/migrate/",
+    "/support/",
+    "/community/",
+    "/changelog/",
+    "/legal/",
+    "/404"
+  ],
+  "fonts": [
+    "Unbounded (OFL)",
+    "Hanken Grotesk (OFL)",
+    "JetBrains Mono (OFL)"
+  ],
+  "libraries": [
+    "astro"
+  ]
+}

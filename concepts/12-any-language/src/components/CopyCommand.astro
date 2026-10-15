@@ -1,0 +1,25 @@
+---
+// A shell command with a Copy button. The button works on first paint via the
+// shared copy script in Site.astro (data-copy).
+interface Props { cmd: string; label?: string; size?: "lg" | "md"; tone?: "dark" | "paper" }
+const { cmd, label = "Copy", size = "md", tone = "dark" } = Astro.props;
+---
+<div class:list={["cmd", `cmd-${size}`, `cmd-${tone}`]}>
+  <code class="cmd-text"><span class="cmd-prompt" aria-hidden="true">$</span>{cmd}</code>
+  <button type="button" class="copy-btn" data-copy={cmd} aria-label={`Copy command: ${cmd}`}>
+    <span class="copy-idle">{label}</span><span class="copy-done" aria-hidden="true">Copied</span>
+  </button>
+</div>
+<style>
+  .cmd {
+    display: flex; align-items: stretch; gap: 0; border-radius: var(--radius);
+    border: 1px solid var(--line); background: #070b18; max-width: 100%;
+  }
+  .cmd-paper { background: var(--navy); border-color: var(--navy); }
+  .cmd-text {
+    flex: 1; min-width: 0; padding: 14px 16px; font-family: var(--font-mono); font-size: 15px;
+    line-height: 1.5; color: var(--paper); overflow-wrap: anywhere; white-space: pre-wrap;
+  }
+  .cmd-lg .cmd-text { font-size: 16px; padding: 16px 18px; }
+  .cmd-prompt { color: var(--red); margin-right: .6em; user-select: none; }
+</style>

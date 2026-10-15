@@ -1,0 +1,47 @@
+---
+import Page from "../../layouts/Page.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { capabilities, snippets, base } from "../../data/site";
+const items: [string, string, string][] = [
+  ["Messages", capabilities.messages, "tomato"],
+  ["Media", capabilities.media, "lilac"],
+  ["Stickers", capabilities.stickers + " Sending with sendSticker relies on the current sticker patch.", "lilac"],
+  ["Polls", capabilities.polls, "tomato"],
+  ["Event cards", capabilities.events, "tomato"],
+  ["Calls", "Answer, reject and start WhatsApp calls and stream audio. A licensed preview that needs a calling-enabled key; audio only.", "sky"],
+  ["Groups", capabilities.groups, "saffron"],
+  ["Several numbers", capabilities.multiSession, "saffron"],
+  ["Session files", capabilities.sessions, "sky"],
+  ["Live refresh", capabilities.refresh, "sky"],
+  ["Browsers", capabilities.drivers, "saffron"],
+  ["Generated API docs", capabilities.docs, "lilac"],
+];
+---
+
+<Page title="Features: everything your WhatsApp number can do from code | open-wa" description="Send and receive messages, media, stickers, polls and event cards; answer calls; run several numbers; move encrypted session files; generated API docs.">
+  <div class="wrap page-head">
+    <h1 class="h-display">What it can send, receive and do</h1>
+    <p class="lede">Everything below runs on your own number after the one command. Some methods need a licence key; <a href={`${base}pricing/`}>pricing</a> lists which.</p>
+  </div>
+  <div class="wrap doc">
+    <ul class="feat">
+      {items.map(([t, d, sw]) => (
+        <li style={`--sw: var(--${sw})`}><h2>{t}</h2><p>{d}</p></li>
+      ))}
+    </ul>
+    <h2>Event cards, new in 5.5</h2>
+    <p>Create a native event card and handle RSVPs. The salon recipe uses it for appointments.</p>
+    <CodeBlock code={snippets.event} lang="js" title="event.js" />
+    <h2>Your session, your key</h2>
+    <CodeBlock code={snippets.sessionKey} lang="js" title="session.js" />
+  </div>
+</Page>
+
+<style>
+  .feat { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+  .feat li { position: relative; background: var(--card); border-radius: 18px; padding: 22px; box-shadow: inset 0 0 0 1px var(--line); }
+  .feat li::before { content: ""; position: absolute; top: 0; right: 0; width: 30px; height: 30px; border-top-right-radius: 18px; background: linear-gradient(225deg, var(--paper) 50%, var(--sw) 50%); }
+  .feat h2 { font: 400 1.75rem/1.1 var(--font-display) !important; margin: 0 0 8px !important; }
+  .feat p { margin: 0; color: var(--ink-2); }
+  .doc :global(.cb) { margin: 12px 0; }
+</style>

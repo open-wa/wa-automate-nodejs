@@ -1,0 +1,62 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import JobBubble from "../../components/JobBubble.astro";
+import chairImg from "../../assets/generated/salon-chair.webp";
+import { jobs, jobKey, jobPlace } from "../../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const salon = jobs[0];
+const rest = jobs.slice(1);
+---
+<Base title="Recipes: WhatsApp bookings, notifications, OTP, calls and stickers | open-wa" description="Nine jobs people build on their own WhatsApp number with open-wa, each with the conversation, the code, the methods and the licence it needs.">
+  <PageHead title="Recipes for the jobs <em>people actually build</em>" lead="Each recipe shows the conversation on the customer's phone, the code that sends it, the methods it uses and whether it needs a key. Every one runs on the Easy API, so the HTTP calls work from any language." />
+  <section class="wrap rx">
+    <a class="rx-feature" href={`${base}recipes/${salon.id}/`}>
+      <img src={chairImg.src} width={chairImg.width} height={chairImg.height} alt="Illustration: a single leather salon chair in front of a round brass mirror." loading="lazy" />
+      <div>
+        <p class="rx-place">For {jobPlace[salon.id]}</p>
+        <h2>{salon.name}</h2>
+        <p>{salon.flow}</p>
+        <p class="rx-methods">{salon.methods.join(" · ")}</p>
+        <span class="rx-key tone-free">{jobKey[salon.id].label}</span>
+      </div>
+    </a>
+    <ul class="rx-grid">
+      {rest.map((j) => (
+        <li>
+          <a class="rx-card" href={`${base}recipes/${j.id}/`}>
+            <JobBubble id={j.id} />
+            <span class="rx-place">For {jobPlace[j.id]}</span>
+            <span class="rx-name">{j.name}</span>
+            <span class="rx-who">{j.who}</span>
+            <span class="rx-methods">{j.methods.join(" · ")}</span>
+            <span class:list={["rx-key", `tone-${jobKey[j.id].tone}`]}>{jobKey[j.id].label}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+</Base>
+<style>
+  .rx { padding-block: 56px 96px; display: grid; gap: 24px; }
+  .rx a { text-decoration: none; }
+  .rx-feature { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 36px; align-items: center; padding: 16px; border-radius: 26px; background: var(--blush); }
+  .rx-feature img { border-radius: 200px 200px 16px 16px; aspect-ratio: 4 / 4.6; object-fit: cover; width: 100%; }
+  .rx-feature h2 { font-size: clamp(30px, 4vw, 48px); margin: 8px 0 14px; }
+  .rx-feature p { max-width: 56ch; }
+  .rx-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .rx-card { display: grid; gap: 8px; align-content: start; height: 100%; padding: 10px 10px 18px; background: #fff; border: 1px solid var(--line); border-radius: 22px; transition: transform var(--speed) var(--ease), border-color var(--speed); }
+  .rx-card:hover { transform: translateY(-3px); border-color: var(--line-strong); }
+  .rx-card > span { padding-inline: 8px; }
+  .rx-place { font: 500 13px/1.3 var(--font-mono); color: var(--brass-ink); margin-top: 6px; }
+  .rx-name { font: 500 22px/1.2 var(--font-display); }
+  .rx-who { color: var(--muted); font-size: 15.5px; line-height: 1.45; }
+  .rx-methods { font: 400 13px/1.5 var(--font-mono); color: var(--muted); margin-top: 8px; }
+  .rx-key { justify-self: start; display: inline-block; margin: 6px 8px 0; padding: 5px 10px !important; border-radius: 99px; font-size: 13.5px; font-weight: 600; }
+  .rx-feature .rx-key { margin: 12px 0 0; }
+  .tone-free { background: #e4efe7; color: var(--ok); }
+  .tone-key { background: var(--blush); color: var(--espresso); }
+  .tone-preview { background: var(--espresso); color: var(--blush); }
+  .tone-note { background: var(--blush-soft); color: var(--muted); border: 1px solid var(--line); }
+  @media (max-width: 760px) { .rx-feature { grid-template-columns: 1fr; } }
+</style>

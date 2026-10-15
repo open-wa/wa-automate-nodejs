@@ -384,7 +384,7 @@ export function registerMetaRoutes(
   app: any,
   options: { config: Config; methodDefinitions: HttpMethodDefinition[] }
 ) {
-  app.get('/', (c: any) => c.redirect('/api-docs/'));
+  app.get('/', (c: any) => c.redirect(options.config.dashboard ? '/dashboard/' : '/api-docs/'));
   app.get('/api-docs', (c: any) => c.redirect('/api-docs/'));
   app.get('/api-docs/', (c: any) => {
     const origin = new URL(c.req.url).origin;

@@ -1,0 +1,12 @@
+{
+  "slug": "10-salon-story",
+  "name": "Salon story",
+  "tagline": "Build a salon's WhatsApp bookings on its own number: follow one booking at an example salon, scene by scene, with the code that sent each message.",
+  "archetype": "developer",
+  "audience": "Developers building a WhatsApp job for a business (salon and clinic bookings first), in any language over the Easy API",
+  "flow": "Copy and run the Easy API command (pinned throughout), then the quick start; secondary: licence form to a prefilled Gumroad checkout",
+  "benchmark": "Cal.com",
+  "floor": ["/", "/recipes/", "/recipes/salon-bookings/", "/recipes/hotel-notifications/", "/recipes/otp/", "/recipes/pbx-calls/", "/recipes/stickers/", "/recipes/media/", "/recipes/order-updates/", "/recipes/support-inbox/", "/recipes/ai-agent/", "/quickstart/", "/features/", "/integrations/", "/pricing/", "/compare/", "/migrate/", "/support/", "/community/", "/changelog/", "/legal/", "/404"],
+  "fonts": ["Fraunces (OFL)", "Karla (OFL)", "IBM Plex Mono (OFL)"],
+  "libraries": ["astro"]
+}

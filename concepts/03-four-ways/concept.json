@@ -1,0 +1,12 @@
+{
+  "slug": "03-four-ways",
+  "name": "Four ways in",
+  "tagline": "Pick how your WhatsApp number plugs into your Node.js app; the system diagram re-routes and the real code follows.",
+  "archetype": "developer",
+  "audience": "Node.js developers who want WhatsApp in their app (indie, agency, in-house, AI-agent builders)",
+  "flow": "Copy and run the command, then pick one of four paths (Easy API, SocketClient, embedded runtime, MCP) with its real snippet and three-step start",
+  "benchmark": "Stripe (stripe.com and docs.stripe.com)",
+  "floor": ["/", "/quickstart/", "/features/", "/integrations/", "/ai-agents/", "/use-cases/", "/pricing/", "/compare/", "/migrate/", "/support/", "/community/", "/changelog/", "/legal/", "/404"],
+  "fonts": ["Newsreader (display, OFL)", "Public Sans (text, OFL)", "Martian Mono (code, OFL)"],
+  "libraries": ["astro", "shiki (via astro:components Code, build time only)"]
+}

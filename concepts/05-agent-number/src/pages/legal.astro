@@ -1,0 +1,25 @@
+---
+import Page from "../layouts/Page.astro";
+import { product, legal, support } from "../data/site";
+---
+
+<Page title="Legal | open-wa" description="Unofficial notice, ban-risk notice, Terms of Service, software licence and cryptography notice for open-wa.">
+  <section class="page-hero wrap">
+    <span class="label">Legal</span>
+    <h1>Notices</h1>
+  </section>
+  <section class="wrap doc">
+    <h2 id="unofficial">Unofficial</h2>
+    <p>{legal.affiliation}</p>
+    <h2 id="risk">Ban risk</h2>
+    <p>{product.risk}</p>
+    <h2 id="terms">Terms of Service</h2>
+    <p>{product.terms} <a class="textlink" href={support.terms}>Read the Terms of Service</a>.</p>
+    <h2 id="licence">Software licence</h2>
+    <p>open-wa is released under the {product.softwareLicence}. <a class="textlink" href={support.licenceText}>Read the licence</a>.</p>
+    <h2 id="crypto">Cryptography notice</h2>
+    <p>{legal.crypto}</p>
+    <p class="muted" style="margin-top:40px">{legal.copyright}</p>
+  </section>
+  <div class="section"></div>
+</Page>

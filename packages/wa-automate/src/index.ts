@@ -12,7 +12,7 @@ export { createApiServer, createApiMiddleware } from '@open-wa/api';
 export * from '@open-wa/client';
 export { createClient } from '@open-wa/core';
 export { ev, onGlobalEvent } from '@open-wa/core';
-export type { CreateClientOptions, OpenWAClient, PortableSessionStatus } from '@open-wa/core';
+export type { CreateClientOptions, OpenWAClient } from '@open-wa/core';
 export { create } from './runtime-client';
 export type { CreateOptions } from './runtime-client';
 export async function ensureBrowser(...args: Parameters<typeof import('@open-wa/driver-puppeteer').ensureBrowser>): Promise<string> {

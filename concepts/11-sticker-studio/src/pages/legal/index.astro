@@ -1,0 +1,27 @@
+---
+import Base from "../../layouts/Base.astro";
+import { legal, product, support } from "../../data/site";
+---
+
+<Base title="Legal: unofficial notice, terms and licence | open-wa" description="open-wa is unofficial and not affiliated with WhatsApp or Meta. Terms of Service, software licence, risk and cryptography notice.">
+  <section class="page-hero">
+    <div class="wrap"><p class="eyebrow">Legal</p><h1>The small print, in plain words.</h1></div>
+  </section>
+  <section class="section">
+    <div class="wrap prose">
+      <h2 id="unofficial">Unofficial notice</h2>
+      <p>{legal.affiliation}</p>
+      <h2 id="risk">Account risk</h2>
+      <p>{product.risk}</p>
+      <h2 id="terms">Terms of Service</h2>
+      <p>{product.terms} Read the <a href={support.terms} rel="external">Terms of Service</a>.</p>
+      <h2 id="licence">Software licence</h2>
+      <p>open-wa is released under the {product.softwareLicence}. Read the <a href={support.licenceText} rel="external">licence text</a>.</p>
+      <h2 id="crypto">Cryptography</h2>
+      <p>{legal.crypto}</p>
+      <h2>Sample images</h2>
+      <p>Sample photos and stickers on this site are generated illustrations. Businesses, names and numbers in example chats are invented.</p>
+      <p>{legal.copyright}.</p>
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,51 @@
+---
+// The Easy API command, pinned once the hero's command scrolls away. A slim
+// bar on phones, a floating pill on desktop. Hidden again at the closing CTA.
+import { commands } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+<div class="sbar" data-show="false">
+  <div class="sbar-in">
+    <code class="sbar-cmd"><span aria-hidden="true">$</span> {commands.easyApi}</code>
+    <button class="sbar-copy" type="button" data-copy={commands.easyApi} data-label="Copy" aria-label="Copy the Easy API command">
+      <span class="copy-label">Copy</span>
+    </button>
+    <a class="sbar-qs" href={`${base}quickstart/`}>Quick start</a>
+  </div>
+</div>
+<script>
+  const bar = document.querySelector<HTMLElement>(".sbar");
+  const hero = document.getElementById("hero-cmd");
+  const close = document.getElementById("close-cmd");
+  if (bar && hero) {
+    const state = { hero: true, close: false };
+    const sync = () => {
+      const show = !state.hero && !state.close;
+      bar.dataset.show = String(show);
+      bar.toggleAttribute("inert", !show);
+      document.documentElement.classList.toggle("has-sbar", show);
+    };
+    new IntersectionObserver(([e]) => { state.hero = e.isIntersecting || e.boundingClientRect.top > 0; sync(); }).observe(hero);
+    if (close) new IntersectionObserver(([e]) => { state.close = e.isIntersecting || e.boundingClientRect.top < 0; sync(); }).observe(close);
+    sync();
+  }
+</script>
+<style>
+  .sbar { position: fixed; z-index: 30; left: 50%; bottom: 16px; transform: translate(-50%, 0); transition: transform 380ms var(--ease), opacity 260ms var(--ease); width: max-content; max-width: calc(100% - 32px); }
+  .sbar[data-show="false"] { transform: translate(-50%, 140%); opacity: 0; pointer-events: none; }
+  .sbar-in { display: flex; align-items: center; gap: 4px; background: var(--espresso); color: var(--cream-on-dark); border-radius: 999px; padding: 6px 6px 6px 20px; box-shadow: 0 16px 40px -14px rgba(43, 27, 23, 0.55); }
+  .sbar-cmd { font: 500 14.5px/1 var(--font-mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; margin-right: 8px; }
+  .sbar-cmd span { color: var(--brass-light); }
+  .sbar-copy, .sbar-qs { min-height: 44px; display: inline-flex; align-items: center; padding: 0 16px; border-radius: 999px; font: 700 15px/1 var(--font-text); border: 0; cursor: pointer; text-decoration: none; flex: none; }
+  .sbar-copy { background: var(--brass); color: var(--espresso); }
+  .sbar-copy[data-copied] { background: var(--blush); }
+  .sbar-qs { color: var(--blush); }
+  .sbar-qs:hover { text-decoration: underline; }
+  @media (max-width: 700px) {
+    .sbar { left: 0; right: 0; bottom: 0; width: auto; max-width: none; transform: none; }
+    .sbar[data-show="false"] { transform: translateY(110%); }
+    .sbar-in { border-radius: 0; padding: 6px 8px 6px 16px; height: var(--bar-h); padding-bottom: max(6px, env(safe-area-inset-bottom)); }
+    .sbar-cmd { font-size: 13px; flex: 1; }
+    .sbar-qs { padding: 0 10px; }
+  }
+</style>

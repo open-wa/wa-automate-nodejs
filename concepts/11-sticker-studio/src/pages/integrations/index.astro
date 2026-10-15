@@ -1,0 +1,43 @@
+---
+import Base from "../../layouts/Base.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { integrations, snippets, support } from "../../data/site";
+const ids: Record<string, string> = { "Plugin SDK": "plugin-sdk", MCP: "mcp" };
+---
+
+<Base title="Integrations: webhooks, Chatwoot, Node-RED, S3 and MCP | open-wa" description="Push WhatsApp events to webhooks, answer from Chatwoot, automate in Node-RED, store media in S3, reach a session through Cloudflare and give agents MCP tools.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="eyebrow">Integrations</p>
+      <h1>Plug your number into the tools you already use.</h1>
+      <p class="lede">Integrations are plugins you list in your config. Write your own with the Plugin SDK.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap">
+      <ul class="ints">
+        {integrations.map((i) => (
+          <li id={ids[i.name]}>
+            <h2>{i.name}</h2>
+            <p>{i.what}</p>
+            <code>{i.package}</code>
+          </li>
+        ))}
+      </ul>
+      <div class="grid-2 int-code">
+        <CodeBlock code={snippets.plugins} lang="js" title="wa.config.mjs: plugins" />
+        <CodeBlock code={snippets.claudeDesktop} lang="json" title="Claude Desktop: MCP" />
+      </div>
+      <p>Details for each plugin are in the <a href={support.docs} rel="external">docs</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .ints { list-style: none; padding: 0; margin: 0 0 40px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+  .ints li { background: var(--paper); border: var(--line); border-radius: 18px; padding: 20px; box-shadow: var(--pop); display: grid; gap: 8px; align-content: start; }
+  .ints h2 { font-size: 1.5rem; margin: 0; }
+  .ints p { margin: 0; }
+  .ints code { justify-self: start; font-size: 0.85rem; background: var(--lilac-soft); padding: 3px 8px; border-radius: 6px; }
+  .int-code { margin-bottom: 24px; }
+</style>

@@ -1,0 +1,15 @@
+---
+import Base from "./Base.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import CopyScript from "../components/CopyScript.astro";
+interface Props { title: string; description: string }
+const { title, description } = Astro.props;
+---
+
+<Base title={title} description={description} themeColor="#121417">
+  <Header />
+  <main id="main"><slot /></main>
+  <Footer />
+  <CopyScript />
+</Base>

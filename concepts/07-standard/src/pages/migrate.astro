@@ -1,0 +1,45 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { migration, support, commands, snippets } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+
+<Page title="Migrate from v4 to v5 | open-wa" description="Version 5 is the current line and unqualified installs get it. Pin v4 while you migrate, then follow the full migration guide.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="crumbs"><a href={base}>Home</a> / Migrate from v4</p>
+      <h1>Moving a v4 bot to v5</h1>
+      <p>{migration.summary}</p>
+      <div class="btn-row"><a class="btn btn--dark" href={support.migrationDocs}>Read the full migration guide <span class="arrow" aria-hidden="true">→</span></a></div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap mg">
+      <article>
+        <h2><span class="n">1</span> Pin v4 first</h2>
+        <p>Keep your running bot on v4 so the next install doesn't pull v5 by surprise.</p>
+        <CodeBlock code={migration.v4Pin} lang="bash" />
+      </article>
+      <article>
+        <h2><span class="n">2</span> Try v5 beside it</h2>
+        <p>Start a v5 Easy API on another port and session to test your flows without touching the v4 one.</p>
+        <CodeBlock code={commands.namedSession} lang="bash" />
+      </article>
+      <article>
+        <h2><span class="n">3</span> Move your code</h2>
+        <p>In v5 your app either connects to a running instance with SocketClient or owns the runtime with <code>createClient</code> and a driver package.</p>
+        <CodeBlock code={snippets.embedded} lang="js" title="app.mjs" />
+      </article>
+      <p class="note note--plain"><span>Stuck on a breaking change? Ask in <a class="link" href={support.discord}>Discord</a> or open an issue on <a class="link" href={support.issues}>GitHub</a>.</span></p>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .mg { display: grid; gap: 48px; max-width: 860px; }
+  .mg article { display: grid; gap: 14px; min-width: 0; }
+  .mg h2 { display: flex; align-items: center; gap: 14px; font-size: 1.625rem; }
+  .mg p { color: var(--slate-700); }
+  .n { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 11px; background: var(--sun); font: 800 1.125rem/1 var(--font-mono); }
+</style>

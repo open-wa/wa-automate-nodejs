@@ -1,0 +1,290 @@
+---
+import Page from "../layouts/Page.astro";
+import AgentWindow from "../components/AgentWindow.astro";
+import Paths from "../components/Paths.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import {
+  commands, firstRun, useCases, useCaseDetail, integrations, licences, product, stats, support, latest, href, short,
+} from "../data/site";
+
+const [insiders, restricted] = licences.tiers;
+---
+
+<Page
+  title="open-wa: give your AI agent a WhatsApp number"
+  description="open-wa turns your own WhatsApp account into a local HTTP API for Node.js, with a built-in MCP server for Claude, Cursor and Windsurf. Free for most methods."
+>
+  <section class="hero wrap" aria-labelledby="hero-title">
+    <div class="hero-copy">
+      <h1 id="hero-title">Give your agent a WhatsApp number</h1>
+      <p class="hero-sub">
+        open-wa runs your own WhatsApp account as a local API. Your Node.js code calls it over HTTP, and Claude or Cursor call the same methods over MCP. Free for most methods.
+      </p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href={href("quickstart/")}>Quick start <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn-ghost" href={support.docs}>Docs</a>
+      </div>
+      <p class="hero-facts">
+        <span>v{product.currentVersion}</span>
+        <span>{short(stats.githubStars)} GitHub stars</span>
+        <span>{short(stats.npmDownloadsLast12Months)} npm downloads a year</span>
+        <span class="hero-date">checked {stats.checkedOn}</span>
+      </p>
+    </div>
+    <div class="hero-window">
+      <AgentWindow />
+      <p class="hero-licence">
+        Licence rules follow the method the tool calls. <code>getAllChats</code> and <code>sendText</code> to existing chats need no key; messaging a number that isn't a contact needs a <a class="textlink" href={href("pricing/")}>Restricted key</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="section paths" id="paths" aria-labelledby="paths-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="paths-title">Your number, four ways in</h2>
+        <p>
+          The official WhatsApp Business Platform asks for a Meta business account, approved templates and per-message pricing. open-wa runs WhatsApp Web for the number you already have, then hands it to whichever caller you pick: a terminal, your Node.js app or your agent.
+        </p>
+      </div>
+      <Paths />
+      <p class="paths-compare"><a class="textlink" href={href("compare/")}>Official API or open-wa? The honest trade-offs</a></p>
+    </div>
+  </section>
+
+  <section class="section first" aria-labelledby="first-title">
+    <div class="wrap first-in">
+      <div class="section-head">
+        <h2 id="first-title">From command to first message</h2>
+        <p>Three steps, all on your machine. No account to create.</p>
+      </div>
+      <ol class="steps">
+        {firstRun.map((s, i) => (
+          <li class="step">
+            <span class="step-n" aria-hidden="true">{i + 1}</span>
+            <p>{s}</p>
+          </li>
+        ))}
+      </ol>
+      <div class="first-code">
+        <CodeBlock code={commands.easyApi} lang="bash" title="1. Run" />
+        <CodeBlock
+          code={`curl -X POST http://localhost:8080/api/messages/sendText \\\n  -H "Content-Type: application/json" \\\n  -d '{"to": "447700900123@c.us", "content": "Your order has shipped."}'`}
+          lang="bash"
+          title="3. Send a message from the API"
+          label="Example"
+        />
+      </div>
+      <aside class="risk-inline">
+        <strong>Before you scan:</strong> {product.risk} Start with a number you can afford to lose while you test.
+      </aside>
+    </div>
+  </section>
+
+  <section class="section build" aria-labelledby="build-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="build-title">What people build with it</h2>
+        <p>Each one runs on a path above. The methods named are the ones it leans on.</p>
+      </div>
+      <ul class="uses">
+        {useCases.map((u, i) => (
+          <li class="use">
+            <h3>{u}</h3>
+            <p class="use-path">{useCaseDetail[i].path}</p>
+            <p class="use-methods">{useCaseDetail[i].methods.map((m) => <code>{m}</code>)}</p>
+          </li>
+        ))}
+      </ul>
+      <p class="more"><a class="textlink" href={href("use-cases/")}>All use cases</a> · <a class="textlink" href={href("features/")}>Every capability</a></p>
+    </div>
+  </section>
+
+  <section class="section integ" aria-labelledby="integ-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="integ-title">Plug it into what you already run</h2>
+        <p>Load integrations as plugins next to the API. Each is an npm package you can read.</p>
+      </div>
+      <ul class="integ-grid">
+        {integrations.map((it) => (
+          <li class="integ-item">
+            <h3>{it.name}</h3>
+            <p>{it.what}</p>
+            <code class="integ-pkg">{it.package}</code>
+          </li>
+        ))}
+        <li class="integ-item integ-own">
+          <h3>Your own plugin</h3>
+          <p>Load a local folder next to the packages, with its own settings in <code>pluginConfig</code>.</p>
+          <code class="integ-pkg">./my-local-plugin</code>
+        </li>
+      </ul>
+      <p class="more"><a class="textlink" href={href("integrations/")}>Integration set-up</a></p>
+    </div>
+  </section>
+
+  <section class="section price" aria-labelledby="price-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="price-title">Free for most methods. A key for the rest.</h2>
+        <p>{licences.summary}</p>
+      </div>
+      <div class="tiers">
+        <article class="tier">
+          <h3>No key</h3>
+          <p class="tier-price">£0</p>
+          <p>{licences.free.covers}</p>
+        </article>
+        <article class="tier">
+          <h3>{insiders.name}</h3>
+          <p class="tier-price">{insiders.prices.month}<span> a month</span></p>
+          <p>{insiders.unlocks}</p>
+        </article>
+        <article class="tier tier-strong">
+          <h3>{restricted.name}</h3>
+          <p class="tier-price">{restricted.prices.month}<span> a month</span></p>
+          <p>{restricted.unlocks}</p>
+        </article>
+      </div>
+      <p class="price-note">Prices in GBP per WhatsApp number, checked {stats.checkedOn}. Checkout shows the current price. <a class="textlink" href={href("pricing/")}>All periods and the licence form</a></p>
+    </div>
+  </section>
+
+  <section class="section status" aria-labelledby="status-title">
+    <div class="wrap status-in">
+      <div>
+        <h2 id="status-title">Plain about the risk</h2>
+        <ul class="status-list">
+          <li><strong>Unofficial.</strong> {product.unofficial}</li>
+          <li><strong>Ban risk.</strong> {product.risk}</li>
+          <li><strong>Licence.</strong> The code is under {product.softwareLicence}. {product.terms}</li>
+        </ul>
+        <p class="more"><a class="textlink" href={href("legal/")}>Legal notices</a></p>
+      </div>
+      <div class="signals">
+        <h3 class="label">Maintenance, checked {stats.checkedOn}</h3>
+        <dl>
+          <div><dt>Current npm version</dt><dd>{product.currentVersion}</dd></div>
+          <div><dt>Latest release notes</dt><dd><a class="textlink" href={href("changelog/")}>{latest.version}</a>, {latest.date}</dd></div>
+          <div><dt>GitHub stars</dt><dd>{stats.githubStars.toLocaleString("en-GB")}</dd></div>
+          <div><dt>npm downloads, 12 months</dt><dd>{stats.npmDownloadsLast12Months.toLocaleString("en-GB")}</dd></div>
+          <div><dt>Docker pulls</dt><dd>{stats.dockerPulls.toLocaleString("en-GB")}</dd></div>
+          <div><dt>Discord members</dt><dd>{stats.discordMembers.toLocaleString("en-GB")}</dd></div>
+          <div><dt>Maintained since</dt><dd>2019, by {support.maintainer}</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="section close" aria-labelledby="close-title">
+    <div class="wrap close-in">
+      <h2 id="close-title">Run it, scan it, hand it to your agent</h2>
+      <div class="close-cmd">
+        <CodeBlock code={commands.easyApi} lang="bash" title="Terminal" />
+      </div>
+      <div class="close-links">
+        <a class="btn btn-primary" href={href("quickstart/")}>Quick start <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn-ghost" href={support.discord}>Join the Discord</a>
+        <a class="btn btn-ghost" href={support.github}>Star on GitHub</a>
+      </div>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .hero {
+    display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 4vw, 64px);
+    align-items: start; padding-block: clamp(40px, 6vw, 88px) clamp(40px, 6vw, 72px);
+  }
+  .hero-copy { padding-top: clamp(0px, 3vw, 40px); position: sticky; top: 100px; }
+  .hero h1 { font-size: clamp(42px, 5.4vw, 74px); line-height: 1.0; letter-spacing: -0.02em; }
+  .hero-sub { margin-top: 22px; font-size: clamp(17px, 1.5vw, 20px); color: var(--ink-soft); max-width: 34ch; }
+  .hero-ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+  .hero-facts {
+    display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 28px; font: 400 14px/1.4 var(--font-mono); color: var(--ink-faint);
+  }
+  .hero-facts span:not(:last-child)::after { content: "·"; margin-left: 14px; }
+  .hero-licence { margin-top: 14px; font-size: 16px; color: var(--ink-soft); padding-left: 16px; border-left: 2px solid var(--lichen); }
+
+  .paths { border-top: 1px solid var(--line); }
+  .paths-compare { margin-top: 28px; }
+
+  .first { background: var(--paper); border-block: 1px solid var(--line); }
+  .first-in { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 24px 56px; }
+  .first-in .section-head { grid-column: 1 / -1; margin-bottom: 8px; }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 22px; align-content: start; }
+  .step { display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: start; }
+  .step-n {
+    display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
+    border: 1.5px solid var(--ink); font: 400 20px/1 var(--font-display);
+  }
+  .step p { padding-top: 6px; }
+  .first-code { display: grid; gap: 12px; min-width: 0; }
+  .risk-inline { grid-column: 1 / -1; padding: 16px 18px; border-radius: var(--radius); background: var(--oxblood-wash); color: var(--oxblood-deep); }
+
+  .uses { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line-strong); }
+  .use { padding: 24px 24px 28px 0; border-bottom: 1px solid var(--line-strong); display: grid; gap: 10px; align-content: start; }
+  .use:not(:nth-child(3n + 1)) { padding-left: 24px; border-left: 1px solid var(--line); }
+  .use h3 { font-size: 23px; }
+  .use-path { font-weight: 600; color: var(--oxblood); font-size: 16px; }
+  .use-methods { display: flex; flex-wrap: wrap; gap: 6px; }
+  .more { margin-top: 24px; }
+
+  .integ { background: var(--ink); color: var(--bone); }
+  .integ .section-head p { color: #c9bfae; }
+  .integ-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1px; background: #3a352e; border: 1px solid #3a352e; border-radius: var(--radius); overflow: hidden; }
+  .integ-item { background: var(--ink); padding: 22px; display: grid; gap: 8px; align-content: start; }
+  .integ-item p { color: #d6ccbb; }
+  .integ-own { background: #24211d; }
+  .integ-own p code { background: #2c2925; color: var(--code-fg); }
+  .integ-pkg { justify-self: start; background: #2c2925 !important; color: var(--code-str); }
+  .integ .textlink { color: #f0b9bf; }
+
+  .tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .tier { padding: 24px; border-radius: var(--radius-l); background: var(--paper); border: 1px solid var(--line-strong); display: grid; gap: 10px; align-content: start; }
+  .tier-strong { border-color: var(--oxblood); }
+  .tier-price { font: 400 44px/1 var(--font-display); }
+  .tier-price span { font: 400 16px var(--font-text); color: var(--ink-soft); }
+  .price-note { margin-top: 18px; color: var(--ink-soft); }
+
+  .status { border-top: 1px solid var(--line); }
+  .status-in { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 56px; }
+  .status-list { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 16px; }
+  .status-list strong { color: var(--oxblood); }
+  .signals { padding: 24px; border: 1px solid var(--line-strong); border-radius: var(--radius-l); background: var(--paper); }
+  .signals .label { margin-bottom: 12px; font-family: var(--font-mono); }
+  .signals dl { margin: 0; display: grid; }
+  .signals dl div { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .signals dt { color: var(--ink-soft); }
+  .signals dd { margin: 0; font-family: var(--font-mono); text-align: right; }
+
+  .close { background: var(--oxblood); color: #fff3ea; }
+  .close-in { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; justify-items: start; }
+  .close-in > * { max-width: 100%; }
+  .close h2 { max-width: 18ch; font-size: clamp(36px, 5vw, 64px); }
+  .close-cmd { width: min(100%, 620px); }
+  .close-links { display: flex; flex-wrap: wrap; gap: 10px; }
+  .close .btn-primary { background: var(--bone); color: var(--oxblood); }
+  .close .btn-primary:hover { background: #fff; }
+  .close .btn-ghost { color: #fff3ea; border-color: rgba(255, 243, 234, 0.45); }
+  .close .btn-ghost:hover { background: rgba(255, 255, 255, 0.08); }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: minmax(0, 1fr); padding-top: 22px; gap: 18px; }
+    .hero-copy { position: static; padding-top: 0; }
+    .hero h1 { font-size: clamp(38px, 10.4vw, 56px); }
+    .hero-sub { margin-top: 12px; font-size: 16.5px; line-height: 1.5; }
+    .hero-ctas { margin-top: 16px; }
+    .hero-facts { display: none; }
+    .first-in, .status-in { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .uses { grid-template-columns: minmax(0, 1fr); }
+    .use, .use:not(:nth-child(3n + 1)) { padding-left: 0; border-left: 0; }
+    .tiers { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .uses { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .use:not(:nth-child(3n + 1)) { padding-left: 0; border-left: 0; }
+    .use:nth-child(2n) { padding-left: 24px; border-left: 1px solid var(--line); }
+  }
+</style>

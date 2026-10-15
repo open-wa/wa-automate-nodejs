@@ -1,0 +1,91 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import { support } from "../../data/site";
+---
+<Base title="Support and consulting | open-wa" description="Get help with open-wa: Discord, GitHub issues, per-minute consulting, or tell us what you need built.">
+  <PageHead title="Help with your build, <em>or the whole build</em>" lead="Community help is free on Discord and GitHub. If a business wants it set up for them, tell us what you need." />
+  <div class="wrap sp">
+    <ul class="sp-ways">
+      <li><h2>Discord</h2><p>Questions, set-up help and what other people are building.</p><a class="btn btn-line" href={support.discord} rel="noopener">Join Discord</a></li>
+      <li><h2>GitHub issues</h2><p>Bugs and feature requests, with the version and the method.</p><a class="btn btn-line" href={support.issues} rel="noopener">Open an issue</a></li>
+      <li><h2>Per-minute consulting</h2><p>A call with the maintainer, paid by the minute.</p><a class="btn btn-line" href={support.perMinuteConsulting} rel="noopener">Book time</a></li>
+    </ul>
+    <section class="sp-form-wrap" aria-labelledby="need-h">
+      <div>
+        <h2 id="need-h">Tell us what you need</h2>
+        <p>Bookings for a chain of salons, a hotel's notifications, calls into a phone system: describe the job and we'll reply by email. Or write to <a href={`mailto:${support.consultingEmail}`}>{support.consultingEmail}</a>.</p>
+      </div>
+      <div class="sp-card" id="consult">
+        <form class="sp-form" novalidate>
+          <div class="f"><label for="c-name">Your name</label><input id="c-name" name="name" autocomplete="name" aria-describedby="c-name-err" /><p class="err" id="c-name-err"></p></div>
+          <div class="f"><label for="c-email">Email</label><input id="c-email" name="email" type="email" autocomplete="email" inputmode="email" aria-describedby="c-email-err" /><p class="err" id="c-email-err"></p></div>
+          <div class="f"><label for="c-need">What do you need?</label><textarea id="c-need" name="need" rows="4" placeholder="e.g. WhatsApp bookings and reminders for three salons, on their own numbers" aria-describedby="c-need-err"></textarea><p class="err" id="c-need-err"></p></div>
+          <button class="btn btn-dark" type="submit">Send</button>
+        </form>
+        <div class="sp-done" hidden tabindex="-1">
+          <span class="label-ex">Demo</span>
+          <h3>Thanks, we've got it.</h3>
+          <p>We reply to <strong class="sp-done-email"></strong> by email.</p>
+          <p class="sp-small">Demo: this concept doesn't send your details anywhere.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</Base>
+<script>
+  import { submitLead } from "../../lib/leads";
+  const card = document.getElementById("consult")!;
+  const form = card.querySelector<HTMLFormElement>(".sp-form")!;
+  const done = card.querySelector<HTMLElement>(".sp-done")!;
+  const rules: Record<string, (v: string) => string> = {
+    name: (v) => (v.trim() ? "" : "Tell us your name."),
+    email: (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? "" : "Enter an email address we can reply to."),
+    need: (v) => (v.trim().length >= 10 ? "" : "A sentence or two about the job helps."),
+  };
+  const check = (n: string) => {
+    const el = form.elements.namedItem(n) as HTMLInputElement;
+    const msg = rules[n](el.value);
+    card.querySelector(`#${el.id}-err`)!.textContent = msg;
+    el.setAttribute("aria-invalid", msg ? "true" : "false");
+    return !msg;
+  };
+  for (const n of Object.keys(rules)) (form.elements.namedItem(n) as HTMLElement).addEventListener("input", () => check(n));
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const names = Object.keys(rules);
+    const ok = names.map(check);
+    const bad = names.find((_, i) => !ok[i]);
+    if (bad) return (form.elements.namedItem(bad) as HTMLElement).focus();
+    const d = new FormData(form);
+    await submitLead("consulting", { name: String(d.get("name")), email: String(d.get("email")), need: String(d.get("need")) });
+    card.querySelector(".sp-done-email")!.textContent = String(d.get("email"));
+    form.hidden = true;
+    done.hidden = false;
+    done.focus();
+  });
+</script>
+<style>
+  .sp { padding-block: 48px 96px; display: grid; gap: 56px; }
+  .sp-ways { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .sp-ways li { padding: 24px; border: 1px solid var(--line); border-radius: 20px; background: #fff; display: grid; gap: 10px; align-content: start; }
+  .sp-ways h2 { font-size: 26px; }
+  .sp-ways .btn { justify-self: start; }
+  .sp-form-wrap { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 40px; }
+  .sp-form-wrap h2 { font-size: clamp(28px, 3.6vw, 40px); margin-bottom: 12px; }
+  .sp-form-wrap a { color: var(--brass-ink); }
+  .sp-card { background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: clamp(20px, 4vw, 32px); }
+  .sp-form { display: grid; gap: 18px; }
+  .f { display: grid; gap: 6px; }
+  .f label { font-weight: 700; }
+  .f input, .f textarea { width: 100%; min-height: 50px; padding: 12px 14px; font: 400 17px/1.4 var(--font-text); background: var(--paper); border: 1.5px solid var(--line-strong); border-radius: 12px; color: var(--espresso); }
+  .f input:focus, .f textarea:focus { outline: none; border-color: var(--espresso); box-shadow: 0 0 0 3px var(--blush); }
+  .f [aria-invalid="true"] { border-color: var(--error); }
+  .err { color: var(--error); font-size: 15px; }
+  .err:empty { display: none; }
+  .sp-form .btn { justify-self: start; min-width: 160px; }
+  .sp-done { display: grid; gap: 12px; justify-items: start; }
+  .sp-done h3 { font-size: 30px; }
+  .sp-small { color: var(--muted); font-size: 14.5px; }
+  @media (max-width: 860px) { .sp-ways, .sp-form-wrap { grid-template-columns: minmax(0, 1fr); } }
+</style>

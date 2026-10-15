@@ -1,0 +1,66 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { snippets, commands, paths, product, DOCS } from "../data/facts";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const mcp = paths.find((p) => p.id === "mcp")!;
+---
+
+<Page title="AI agents: WhatsApp tools for Claude, Cursor and Windsurf over MCP | open-wa" description="open-wa's built-in MCP server exposes each Easy API method as a tool. Turn it on in your config, start the API and point Claude Desktop at /mcp.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="crumbs"><a href={base}>Home</a> / AI agents</p>
+      <h1>Give your AI agent a WhatsApp number</h1>
+      <p>{mcp.what}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap steps3">
+      <article>
+        <h2><span class="n">1</span> Turn on MCP</h2>
+        <p>Enable the server in your config and choose the path it answers on.</p>
+        <CodeBlock code={snippets.mcpConfig} lang="js" title="wa.config.mjs" />
+      </article>
+      <article>
+        <h2><span class="n">2</span> Start the API</h2>
+        <p>Start open-wa with that config and an API key, then link your phone as usual. The endpoint is <code>{commands.mcpEndpoint}</code>.</p>
+        <CodeBlock code={snippets.mcpStart} lang="bash" />
+      </article>
+      <article>
+        <h2><span class="n">3</span> Connect your agent</h2>
+        <p>Point Claude Desktop, or any agent that takes an MCP URL, at the endpoint with the same key.</p>
+        <CodeBlock code={snippets.claudeDesktop} lang="json" title="Claude Desktop config" />
+      </article>
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="wrap two">
+      <div class="card">
+        <h2>Which methods become tools</h2>
+        <p>Each Easy API method is exposed as a tool, for example <code>sendText</code> and <code>getConnectionState</code>. The tool runs the same method your HTTP calls do, on the same session.</p>
+      </div>
+      <div class="card">
+        <h2>Licence rules follow the method</h2>
+        <p>A tool needs the same key its method needs. Methods marked free are free tools; Insiders and Restricted methods need a key for that WhatsApp number. <a class="link" href={`${base}pricing/`}>See what each tier covers</a>.</p>
+      </div>
+      <p class="note span2"><span><strong>An agent sends as you.</strong> Messages go out from your own number. {product.risk}</span></p>
+    </div>
+    <div class="wrap"><p class="more">MCP reference: <a class="link" href={DOCS}>the docs</a>.</p></div>
+  </section>
+</Page>
+
+<style>
+  .steps3 { display: grid; gap: 40px; }
+  .steps3 article { display: grid; gap: 14px; min-width: 0; }
+  .steps3 h2 { display: flex; align-items: center; gap: 14px; font-size: 1.625rem; }
+  .steps3 p, .two p { color: var(--slate-700); }
+  .n { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 11px; background: var(--sun); font: 800 1.125rem/1 var(--font-mono); }
+  .two { display: grid; gap: 20px; }
+  @media (min-width: 860px) { .two { grid-template-columns: repeat(2, minmax(0, 1fr)); } .span2 { grid-column: 1 / -1; } }
+  .two .card { display: grid; gap: 12px; align-content: start; }
+  .two h2 { font-size: 1.5rem; }
+  .more { margin-top: 24px; }
+</style>

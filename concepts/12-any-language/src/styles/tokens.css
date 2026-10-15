@@ -1,0 +1,34 @@
+/* 12 Any language: navy, signal red, paper. Sora, Manrope, Fira Code. */
+:root {
+  --navy: #0B1020;
+  --navy-2: #121a33;
+  --navy-3: #1a2444;
+  --line: #2a3558;
+  --red: #FF4D3D;
+  --red-ink: #B3261E;      /* red for text on paper */
+  --paper: #F5F2EB;
+  --paper-2: #ebe6da;
+  --ink: #0B1020;
+  --muted: #A9B0C6;        /* on navy, 8:1 */
+  --muted-paper: #4a5068;  /* on paper */
+  --ok: #7FE0B0;           /* response status, not WhatsApp green */
+  --peach: #F7C6A3;
+  --sky: #9DBBFF;
+
+  --color-bg: var(--navy);
+  --color-ink: var(--paper);
+  --color-accent: var(--red);
+  --color-muted: var(--muted);
+  --color-surface: var(--navy-2);
+
+  --font-display: "Sora", system-ui, sans-serif;
+  --font-text: "Manrope", system-ui, sans-serif;
+  --font-mono: "Fira Code", ui-monospace, monospace;
+
+  --radius: 10px;
+  --radius-lg: 18px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-plug: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --speed: 220ms;
+  --wrap: 1180px;
+}

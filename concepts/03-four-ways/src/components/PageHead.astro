@@ -1,0 +1,15 @@
+---
+interface Props { title: string; lede?: string; kicker?: string }
+const { title, lede, kicker } = Astro.props;
+---
+<header class="ph">
+  {kicker && <p class="ph-k">{kicker}</p>}
+  <h1>{title}</h1>
+  {lede && <p class="lede">{lede}</p>}
+  <slot />
+</header>
+<style>
+  .ph { padding: clamp(36px, 6vw, 84px) 0 clamp(28px, 4vw, 48px); display: grid; gap: 18px; max-width: 860px; }
+  .ph h1 { font-size: clamp(36px, 5vw, 64px); }
+  .ph-k { font: 500 13px/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-coral-ink); }
+</style>

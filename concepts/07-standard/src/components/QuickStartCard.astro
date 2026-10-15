@@ -1,0 +1,337 @@
+---
+/**
+ * 07's signature moment: the quick-start card. Tabs pick npx, Docker or npm;
+ * the command copies; a three-step rail (run, link your phone, open the API
+ * docs) walks itself once while the card is on screen, each step drawn in
+ * place. Hover or focus pauses it, a click on a step takes over. Reduced
+ * motion or ?still: no auto-walk and no transitions; the steps still work on
+ * click. Copying the command restarts the walk at step one.
+ */
+import { commands, snippets, product } from "../data/facts";
+
+interface Props { id?: string; compact?: boolean }
+const { id = "qs", compact = false } = Astro.props;
+
+const tabs = [
+  { id: "npx", label: "npx", cmd: commands.easyApi },
+  { id: "docker", label: "Docker", cmd: commands.docker },
+  { id: "npm", label: "npm", cmd: commands.embeddedInstall },
+];
+
+// A drawn QR-style code: three finder squares and seeded modules. It is an
+// illustration and does not decode.
+const N = 25;
+let seed = 7;
+const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+const inFinder = (x: number, y: number) =>
+  (x < 8 && y < 8) || (x >= N - 8 && y < 8) || (x < 8 && y >= N - 8);
+let d = "";
+for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+  if (inFinder(x, y)) continue;
+  if (rnd() > 0.52) d += `M${x} ${y}h1v1h-1z`;
+}
+const finder = (fx: number, fy: number) =>
+  `M${fx} ${fy}h7v7h-7zM${fx + 1} ${fy + 1}v5h5v-5zM${fx + 2} ${fy + 2}h3v3h-3z`;
+const finders = finder(0, 0) + finder(N - 7, 0) + finder(0, N - 7);
+const onMessage = snippets.socketClient.split("\n").slice(4).join("\n");
+---
+
+<div class:list={["qs", { "qs--compact": compact }]} data-qs id={id}>
+  <div class="qs-head">
+    <div class="qs-tabs" role="tablist" aria-label="How to run open-wa">
+      {tabs.map((t, i) => (
+        <button
+          class="qs-tab" role="tab" type="button" id={`${id}-tab-${t.id}`}
+          aria-selected={i === 0 ? "true" : "false"} aria-controls={`${id}-cmd`}
+          tabindex={i === 0 ? 0 : -1} data-tab={t.id} data-cmd={t.cmd}
+        >{t.label}</button>
+      ))}
+    </div>
+    <span class="qs-node">Node.js {product.node.replace(">=", "")}+</span>
+  </div>
+
+  <div class="qs-cmd" id={`${id}-cmd`} role="tabpanel" aria-labelledby={`${id}-tab-npx`}>
+    <code class="qs-line"><span class="qs-prompt" aria-hidden="true">$</span><span class="qs-text" data-cmd-text>{tabs[0].cmd.split(" ").map((w, i) => <>{i > 0 && " "}<span class="tok">{w}</span></>)}</span></code>
+    <button class="copy copy--solid qs-copy" type="button" data-copy={tabs[0].cmd} aria-label="Copy the command">
+      <span class="copy-label">Copy</span>
+    </button>
+  </div>
+
+  <ol class="qs-rail" aria-label="First run">
+    {[1, 2, 3].map((n) => (
+      <li>
+        <button class="qs-step" type="button" data-step={n} aria-current={n === 1 ? "step" : undefined}>
+          <span class="qs-num" aria-hidden="true">{n}</span>
+          <span class="qs-label">
+            {n === 1 && <><span data-tabs="npx docker">Run it</span><span data-tabs="npm" hidden>Install</span></>}
+            {n === 2 && <span>Link your phone</span>}
+            {n === 3 && <><span data-tabs="npx docker">Open API docs</span><span data-tabs="npm" hidden>Handle messages</span></>}
+          </span>
+          <span class="qs-bar" aria-hidden="true"><i></i></span>
+        </button>
+      </li>
+    ))}
+  </ol>
+
+  <div class="qs-stage">
+    <!-- Step 1: the run -->
+    <div class="qs-panel qs-term" data-panel="1" data-tabs="npx">
+      <div class="qs-tline"><span class="p">$</span> {commands.easyApi}</div>
+      <div class="qs-tline dim">Easy API listening on http://localhost:8080</div>
+      <div class="qs-tline dim">Waiting for WhatsApp login. Scan the QR code below.</div>
+      <div class="qs-cap">Starts an Easy API instance on the port you choose.</div>
+    </div>
+    <div class="qs-panel qs-term" data-panel="1" data-tabs="docker" hidden>
+      <div class="qs-tline"><span class="p">$</span> {commands.docker}</div>
+      <div class="qs-tline dim">Easy API listening on http://localhost:8080</div>
+      <div class="qs-tline dim">Waiting for WhatsApp login. Scan the QR code below.</div>
+      <div class="qs-cap">The same Easy API, in a container, on port 8080.</div>
+    </div>
+    <div class="qs-panel qs-term" data-panel="1" data-tabs="npm" hidden>
+      <div class="qs-tline"><span class="p">$</span> {commands.embeddedInstall}</div>
+      <div class="qs-tline dim">// then call createClient() in your own Node.js app</div>
+      <div class="qs-cap">The embedded runtime: your app owns the browser and its lifecycle.</div>
+    </div>
+
+    <!-- Step 2: link the phone -->
+    <div class="qs-panel qs-link" data-panel="2" hidden>
+      <svg class="qs-qr" viewBox={`-2 -2 ${N + 4} ${N + 4}`} role="img" aria-label="Example QR code (illustration)">
+        <rect x="-2" y="-2" width={N + 4} height={N + 4} rx="2" fill="#fff" />
+        <path d={finders} fill="#1e2a38" fill-rule="evenodd" />
+        <path class="qs-qr-dots" d={d} fill="#1e2a38" />
+      </svg>
+      <div class="qs-linktext">
+        <div><strong>In WhatsApp on your phone:</strong> Linked devices, then Link a device, then scan.</div>
+        <div class="qs-or">Or log in with a link code: <span class="qs-code">K7QD-2MXP</span></div>
+        <div class="qs-cap">Example code. Yours is printed when you start.</div>
+      </div>
+    </div>
+
+    <!-- Step 3: API docs (Easy API) or your handler (embedded) -->
+    <div class="qs-panel qs-docs" data-panel="3" data-tabs="npx docker" hidden>
+      <div class="qs-url"><span class="dot" aria-hidden="true"></span>localhost:8080/api-docs/</div>
+      <ul class="qs-routes">
+        <li><span class="verb post">POST</span><span>/api/messages/sendText</span></li>
+        <li><span class="verb get">GET</span><span>/api/session/getConnectionState</span></li>
+        <li><span class="verb get">GET</span><span>/health</span></li>
+      </ul>
+      <div class="qs-cap">Interactive docs for the live session, plus Swagger and Postman files.</div>
+    </div>
+    <div class="qs-panel qs-term" data-panel="3" data-tabs="npm" hidden>
+      <pre class="qs-snip">{onMessage}</pre>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { shouldAnimate } from "../lib/runtime";
+
+  const STEP_MS = 3400;
+  document.querySelectorAll<HTMLElement>("[data-qs]").forEach((card) => {
+    const tabs = [...card.querySelectorAll<HTMLButtonElement>(".qs-tab")];
+    const steps = [...card.querySelectorAll<HTMLButtonElement>(".qs-step")];
+    const panels = [...card.querySelectorAll<HTMLElement>(".qs-panel")];
+    const text = card.querySelector<HTMLElement>("[data-cmd-text]")!;
+    const copy = card.querySelector<HTMLButtonElement>(".qs-copy")!;
+    const cmdPanel = card.querySelector<HTMLElement>(".qs-cmd")!;
+    const animate = shouldAnimate();
+    card.style.setProperty("--step-ms", `${STEP_MS}ms`);
+    if (!animate) card.classList.add("qs--still");
+
+    let tab = "npx";
+    let step = 1;
+    let auto = animate;
+    let seen = false;
+
+    const matches = (el: HTMLElement) => {
+      const t = el.dataset.tabs;
+      return !t || t.split(" ").includes(tab);
+    };
+
+    const render = () => {
+      card.querySelectorAll<HTMLElement>(".qs-label [data-tabs]").forEach((s) => (s.hidden = !matches(s)));
+      panels.forEach((p) => {
+        const on = Number(p.dataset.panel) === step && matches(p);
+        p.hidden = !on;
+        if (on && animate) { p.classList.remove("is-in"); void p.offsetWidth; p.classList.add("is-in"); }
+      });
+      steps.forEach((s) => {
+        const n = Number(s.dataset.step);
+        s.classList.toggle("is-done", n < step);
+        s.classList.toggle("is-active", n === step);
+        s.classList.toggle("is-running", auto && n === step);
+        if (n === step) s.setAttribute("aria-current", "step"); else s.removeAttribute("aria-current");
+      });
+    };
+
+    const go = (n: number, keepAuto: boolean) => {
+      if (!keepAuto) auto = false;
+      step = n;
+      // restart the fill animation for the new step
+      const bar = steps[n - 1]?.querySelector("i");
+      if (bar) { bar.style.animation = "none"; void (bar as HTMLElement).offsetWidth; bar.style.animation = ""; }
+      render();
+    };
+
+    steps.forEach((s) => {
+      s.querySelector("i")?.addEventListener("animationend", () => {
+        if (!auto) return;
+        const n = Number(s.dataset.step);
+        if (n < 3) go(n + 1, true);
+        else { auto = false; step = 3; steps.forEach((x) => x.classList.add("is-done")); render(); steps[2].classList.add("is-done"); }
+      });
+      s.addEventListener("click", () => go(Number(s.dataset.step), false));
+    });
+
+    const selectTab = (t: HTMLButtonElement, focus = false) => {
+      tabs.forEach((x) => {
+        const on = x === t;
+        x.setAttribute("aria-selected", String(on));
+        x.tabIndex = on ? 0 : -1;
+      });
+      tab = t.dataset.tab!;
+      text.replaceChildren(...t.dataset.cmd!.split(" ").flatMap((w, i) => {
+        const tok = document.createElement("span");
+        tok.className = "tok"; tok.textContent = w;
+        return i > 0 ? [document.createTextNode(" "), tok] : [tok];
+      }));
+      copy.dataset.copy = t.dataset.cmd!;
+      cmdPanel.setAttribute("aria-labelledby", t.id);
+      if (focus) t.focus();
+      go(1, auto);
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => selectTab(t));
+      t.addEventListener("keydown", (e) => {
+        const k = e.key;
+        let j = -1;
+        if (k === "ArrowRight") j = (i + 1) % tabs.length;
+        if (k === "ArrowLeft") j = (i - 1 + tabs.length) % tabs.length;
+        if (k === "Home") j = 0;
+        if (k === "End") j = tabs.length - 1;
+        if (j >= 0) { e.preventDefault(); selectTab(tabs[j], true); }
+      });
+    });
+
+    copy.addEventListener("copied", () => { if (animate) { auto = true; go(1, true); } });
+
+    // Pause while the reader is pointing at or working in the card.
+    const pause = (on: boolean) => card.classList.toggle("is-paused", on);
+    card.addEventListener("pointerenter", () => pause(true));
+    card.addEventListener("pointerleave", () => pause(false));
+    card.addEventListener("focusin", () => pause(true));
+    card.addEventListener("focusout", (e) => { if (!card.contains(e.relatedTarget as Node)) pause(false); });
+
+    render();
+    if (animate) {
+      card.classList.add("is-waiting");
+      const io = new IntersectionObserver(([entry]) => {
+        if (entry?.isIntersecting && !seen) {
+          seen = true;
+          card.classList.remove("is-waiting");
+          go(1, true);
+          io.disconnect();
+        }
+      }, { threshold: 0.4 });
+      io.observe(card);
+    }
+  });
+</script>
+
+<style>
+  .qs {
+    position: relative; background: var(--slate); color: var(--white); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lift); border: 1px solid var(--slate-800); min-width: 0;
+  }
+  .qs-head { display: flex; align-items: center; gap: 8px; padding: 8px 8px 0 8px; }
+  .qs-tabs { display: flex; gap: 4px; padding: 4px; background: var(--slate-950); border-radius: 12px; }
+  .qs-tab {
+    min-height: 40px; min-width: 64px; padding: 0 14px; border: 0; border-radius: 9px; background: transparent;
+    color: var(--slate-300); font: 650 1rem/1 var(--font-text); cursor: pointer;
+    transition: background var(--speed) var(--ease), color var(--speed) var(--ease);
+  }
+  .qs-tab:hover { color: var(--white); }
+  .qs-tab[aria-selected="true"] { background: var(--slate-700); color: var(--white); box-shadow: inset 0 -2px 0 var(--sun); }
+  .qs-node { margin-left: auto; padding-right: 10px; font: 500 0.875rem/1 var(--font-mono); color: var(--slate-300); white-space: nowrap; }
+
+  .qs-cmd { display: flex; align-items: center; gap: 12px; margin: 10px 8px 0; padding: 10px 10px 10px 16px; background: var(--slate-950); border-radius: 12px; }
+  .qs-line { flex: 1; min-width: 0; display: flex; gap: 10px; font: 500 1rem/1.5 var(--font-mono); color: var(--white); background: none; border: 0; padding: 0; }
+  .qs-prompt { color: var(--sun); user-select: none; }
+  .qs-text { white-space: normal; }
+  .qs-text :global(.tok) { white-space: nowrap; }
+  .qs-copy { flex: none; }
+
+  .qs-rail { list-style: none; margin: 0; padding: 14px 12px 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .qs-step {
+    width: 100%; min-height: 48px; display: grid; grid-template-columns: auto 1fr; grid-template-rows: 1fr auto; column-gap: 8px; row-gap: 8px;
+    align-items: center; padding: 6px 4px 0; border: 0; background: none; color: var(--slate-300); text-align: left; cursor: pointer;
+    font: 600 0.9375rem/1.2 var(--font-text); border-radius: 8px;
+  }
+  .qs-step:hover { color: var(--white); }
+  .qs-num {
+    display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--slate-600);
+    font: 700 0.8125rem/1 var(--font-mono); transition: background var(--speed) var(--ease), border-color var(--speed) var(--ease), color var(--speed) var(--ease);
+  }
+  .qs-step.is-active { color: var(--white); }
+  .qs-step.is-active .qs-num { border-color: var(--sun); color: var(--sun); }
+  .qs-step.is-done .qs-num { background: var(--sun); border-color: var(--sun); color: var(--slate); }
+  .qs-bar { grid-column: 1 / -1; height: 3px; border-radius: 3px; background: var(--slate-700); overflow: hidden; }
+  .qs-bar i { display: block; height: 100%; width: 100%; background: var(--sun); transform-origin: left; transform: scaleX(0); }
+  .qs-step.is-done .qs-bar i, .qs-step.is-active .qs-bar i { transform: scaleX(1); }
+  .qs-step.is-running .qs-bar i { animation: qs-fill var(--step-ms, 3400ms) linear both; }
+  .qs.is-paused .qs-step.is-running .qs-bar i { animation-play-state: paused; }
+  .qs.is-waiting .qs-bar i { animation: none !important; transform: scaleX(0) !important; }
+  @keyframes qs-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  .qs-stage { position: relative; margin: 12px 8px 8px; height: 188px; background: var(--slate-850); border-radius: 12px; overflow: hidden; }
+  .qs-panel { position: absolute; inset: 0; padding: 16px 18px; }
+  .qs-panel.is-in { animation: qs-in 320ms var(--ease) both; }
+  @keyframes qs-in { from { opacity: 0.35; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .qs--still .qs-panel.is-in { animation: none; }
+  .qs-cap { position: absolute; left: 18px; right: 18px; bottom: 14px; font-size: 0.875rem; color: var(--slate-300); font-family: var(--font-text); }
+
+  .qs-term { font: 450 0.875rem/1.7 var(--font-mono); color: var(--white); }
+  .qs-tline { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .qs-tline .p { color: var(--sun); }
+  .qs-tline.dim { color: var(--code-dim); }
+  .qs-snip { margin: 0; font: 450 0.8125rem/1.6 var(--font-mono); color: var(--code-ink); white-space: pre; overflow: hidden; }
+
+  .qs-link { display: grid; grid-template-columns: 116px 1fr; gap: 16px; align-items: start; }
+  .qs-qr { width: 116px; height: 116px; display: block; border-radius: 6px; }
+  .qs-linktext { font-size: 0.9375rem; line-height: 1.45; color: var(--slate-200); }
+  .qs-linktext strong { color: var(--white); font-weight: 650; }
+  .qs-or { margin-top: 8px; }
+  .qs-code { font: 600 0.9375rem/1 var(--font-mono); color: var(--slate); background: var(--sun); padding: 2px 6px; border-radius: 4px; letter-spacing: 0.04em; white-space: nowrap; }
+  .qs-link .qs-cap { left: 150px; }
+
+  .qs-url {
+    display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; background: var(--slate-950);
+    font: 500 0.875rem/1 var(--font-mono); color: var(--slate-200);
+  }
+  .qs-url .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sun); }
+  .qs-routes { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; font: 500 0.8125rem/1 var(--font-mono); }
+  .qs-routes li { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 6px; background: var(--slate-800); white-space: nowrap; overflow: hidden; }
+  .verb { display: inline-block; min-width: 44px; text-align: center; padding: 3px 0; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
+  .verb.post { background: var(--sun); color: var(--slate); }
+  .verb.get { background: var(--slate-600); color: var(--white); }
+
+  @media (max-width: 520px) {
+    .qs-node { display: none; }
+    .qs-tab { min-width: 0; flex: 1; padding: 0 8px; }
+    .qs-tabs { flex: 1; margin-right: 96px; }
+    .qs-copy { position: absolute; top: 10px; right: 8px; min-height: 48px; }
+    .qs-cmd { padding: 10px 12px; margin-inline: 6px; }
+    .qs-line { font-size: 0.875rem; gap: 8px; min-height: 2.9em; align-items: flex-start; }
+    .qs-rail { padding-top: 10px; }
+    .qs-stage { height: 140px; margin-top: 8px; }
+    .qs-term .qs-cap, .qs-docs .qs-cap, .qs-routes li:nth-child(3) { display: none; }
+    .qs-routes li { font-size: 0.75rem; }
+    .qs-step { font-size: 0.875rem; }
+    .qs-link { grid-template-columns: 92px 1fr; gap: 12px; }
+    .qs-qr { width: 92px; height: 92px; }
+    .qs-link .qs-cap { display: none; }
+    .qs-panel { padding: 14px; }
+    .qs-cap { left: 14px; right: 14px; }
+  }
+  @media (max-width: 380px) { .qs-step .qs-label { font-size: 0.8125rem; } }
+</style>

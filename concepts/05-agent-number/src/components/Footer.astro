@@ -1,0 +1,55 @@
+---
+import Mark from "./Mark.astro";
+import { footer, base, product, legal, support, latest, href } from "../data/site";
+---
+
+<footer class="ft">
+  <div class="wrap ft-in">
+    <div class="ft-brand">
+      <a class="mark-host ft-logo" href={base} aria-label="open-wa home">
+        <Mark size={30} decorative />
+        <span>open-wa</span>
+      </a>
+      <p class="ft-one">WhatsApp for your Node.js app and your AI agent, on the number you already have.</p>
+      <p class="ft-rel">
+        <a class="textlink" href={href("changelog/")}>v{product.currentVersion} on npm, {latest.headline.toLowerCase()} in {latest.version}</a>
+      </p>
+    </div>
+    {footer.map((g) => (
+      <nav class="ft-col" aria-label={g.title}>
+        <h2 class="ft-h">{g.title}</h2>
+        <ul>
+          {g.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        </ul>
+      </nav>
+    ))}
+  </div>
+  <div class="wrap ft-base">
+    <p class="ft-unofficial"><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> {product.risk}</p>
+    <p class="ft-meta">
+      {legal.copyright}. Maintained by {support.maintainer}. Software licence: {product.softwareLicence}.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .ft { margin-top: 0; border-top: 1px solid var(--line); background: var(--bone-deep); }
+  .ft-in {
+    display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); gap: 32px;
+    padding-block: 64px 40px;
+  }
+  .ft-logo { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font: 400 28px/1 var(--font-display); min-height: 44px; }
+  .ft-one { margin-top: 14px; color: var(--ink-soft); max-width: 30ch; }
+  .ft-rel { margin-top: 14px; font-size: 15px; }
+  .ft-h { font: 500 13px/1.3 var(--font-mono); letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 12px; }
+  .ft-col ul { list-style: none; margin: 0; padding: 0; display: grid; }
+  .ft-col a { display: inline-flex; align-items: center; min-height: 36px; color: var(--ink); text-decoration: none; font-size: 16px; }
+  .ft-col a:hover { color: var(--oxblood); text-decoration: underline; text-underline-offset: 3px; }
+  .ft-base { border-top: 1px solid var(--line-strong); padding-block: 22px 40px; display: grid; gap: 8px; font-size: 15px; color: var(--ink-soft); }
+  .ft-unofficial strong { color: var(--ink); font-weight: 600; }
+  @media (max-width: 900px) {
+    .ft-in { grid-template-columns: 1fr 1fr; }
+    .ft-brand { grid-column: 1 / -1; }
+    .ft-col a { min-height: 44px; }
+  }
+</style>

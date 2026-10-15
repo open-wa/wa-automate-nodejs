@@ -1,0 +1,34 @@
+---
+import Page from "../../layouts/Page.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { snippets, commands, paths, href } from "../../data/site";
+const mcp = paths.find((p) => p.id === "mcp")!;
+---
+
+<Page title="AI agents: WhatsApp tools for Claude through MCP | open-wa" description="open-wa's built-in MCP server exposes each Easy API method as a tool that Claude, Cursor and Windsurf can call. Config, start command and Claude Desktop set-up.">
+  <div class="wrap prose">
+    <header class="page-hero">
+      <span class="label">AI agents</span>
+      <h1>Give your agent a WhatsApp number</h1>
+      <p>{mcp.what}</p>
+    </header>
+    <div class="steps-ai">
+      <section><span class="mono n">01</span><h2>Turn MCP on</h2><p>Add an <code>mcp</code> block to your config. The endpoint is served by the same Easy API process.</p><CodeBlock code={snippets.mcpConfig} lang="js" file="wa.config.mjs" /></section>
+      <section><span class="mono n">02</span><h2>Start it with a key</h2><p>The API key protects the endpoint. Scan the QR code on first run as usual.</p><CodeBlock code={snippets.mcpStart} lang="bash" file="terminal" /></section>
+      <section><span class="mono n">03</span><h2>Point your client at it</h2><p>Claude Desktop, Cursor and Windsurf connect to <code>{commands.mcpEndpoint}</code>.</p><CodeBlock code={snippets.claudeDesktop} lang="json" file="claude_desktop_config.json" /></section>
+    </div>
+    <h2>Which methods become tools</h2>
+    <p>Each Easy API method is exposed as a tool, with its schema from the method metadata (<code>exposeToolsMeta</code>). The agent can read chats, send messages, handle polls and events, and anything else the session can do.</p>
+    <h2>Licence rules follow the method</h2>
+    <p>A tool for a free method is free. A tool for an Insiders or Restricted method needs the same key on that number. <a href={href("pricing/")}>See which methods need a key</a>.</p>
+    <p class="note-risk"><strong>An agent sends real messages from your number.</strong> Keep a human check on anything that messages people at volume. Automation can get an account restricted or banned.</p>
+  </div>
+</Page>
+
+<style>
+  .steps-ai { display: grid; gap: 16px; margin-top: 40px; }
+  .steps-ai section { padding: 24px; background: var(--graphite-2); border: 1px solid var(--line); border-radius: var(--radius-lg); display: grid; gap: 10px; }
+  .steps-ai h2 { margin: 0 !important; font-size: 24px !important; }
+  .steps-ai p { margin: 0; }
+  .n { color: var(--cyan); font-size: 14px; }
+</style>

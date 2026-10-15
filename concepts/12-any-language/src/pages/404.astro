@@ -1,0 +1,17 @@
+---
+import Site from "../layouts/Site.astro";
+import CopyCommand from "../components/CopyCommand.astro";
+import { f, href } from "../data/facts";
+---
+<Site title="Page not found | open-wa" description="This page doesn't exist. Head back to the request builder, the recipes or the quick start.">
+  <section class="page-hero nf">
+    <div class="wrap">
+      <p class="kicker mono">404 Not Found</p>
+      <h1>No route here</h1>
+      <p class="lead">This page doesn't exist. These do:</p>
+      <div class="btn-row" style="margin:24px 0"><a class="btn btn-red" href={href()}>Home</a><a class="btn btn-ghost" href={href("recipes/")}>Recipes</a><a class="btn btn-ghost" href={href("quickstart/")}>Quick start</a></div>
+      <CopyCommand cmd={f.commands.easyApi} />
+    </div>
+  </section>
+</Site>
+<style>.nf { min-height: 60vh; } .nf :global(.cmd) { max-width: 640px; }</style>

@@ -1,0 +1,67 @@
+---
+/**
+ * The mark: "ow" written in one continuous pen stroke. The o closes, the pen
+ * climbs out of it and writes the w without lifting. On hover or keyboard
+ * focus of the wrapping .mark-host the pen lifts the ink off ahead of itself
+ * and writes the word again, a nib riding the stroke as it goes. Still under
+ * reduced motion.
+ */
+interface Props { size?: number; label?: string; decorative?: boolean }
+const { size = 34, label = "open-wa", decorative = false } = Astro.props;
+const d = "M16.6 12.4 A8 8 0 1 0 19 18.2 C19.4 14.6 20.6 11.6 22.6 10.4 L27 25.4 L31.6 13.2 L36.2 25.4 L41.8 8.6";
+---
+
+<svg
+  class="mark"
+  viewBox="0 0 48 32"
+  width={size * 1.5}
+  height={size}
+  role={decorative ? undefined : "img"}
+  aria-label={decorative ? undefined : label}
+  aria-hidden={decorative ? "true" : undefined}
+>
+  <path class="mark-ghost" d={d} />
+  <path class="mark-ink" d={d} pathLength="1" />
+  <circle class="mark-nib" r="1.9" style={`offset-path: path("${d}")`} />
+</svg>
+
+<style>
+  .mark { display: block; overflow: visible; flex: none; }
+  .mark path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .mark-ghost { stroke: currentColor; stroke-width: 3.2; opacity: 0; }
+  .mark-ink {
+    stroke: currentColor; stroke-width: 3.2;
+    stroke-dasharray: 1 1; stroke-dashoffset: 0;
+  }
+  .mark-nib { fill: var(--oxblood); opacity: 0; offset-distance: 0%; offset-rotate: 0deg; }
+
+  :global(.mark-host:hover) .mark-ink,
+  :global(.mark-host:focus-visible) .mark-ink { animation: mark-rewrite 1150ms var(--ease-pen) both; }
+  :global(.mark-host:hover) .mark-ghost,
+  :global(.mark-host:focus-visible) .mark-ghost { animation: mark-ghost 1150ms linear both; }
+  :global(.mark-host:hover) .mark-nib,
+  :global(.mark-host:focus-visible) .mark-nib { animation: mark-nib 1150ms var(--ease-pen) both; }
+
+  /* Lift the ink forwards (0 to 40%), pause, then write it again. */
+  @keyframes mark-rewrite {
+    0% { stroke-dashoffset: 0; }
+    38% { stroke-dashoffset: -1; }
+    46% { stroke-dashoffset: 1; }
+    100% { stroke-dashoffset: 0; }
+  }
+  @keyframes mark-ghost {
+    0%, 100% { opacity: 0; }
+    30%, 60% { opacity: 0.14; }
+  }
+  @keyframes mark-nib {
+    0%, 44% { opacity: 0; offset-distance: 0%; }
+    48% { opacity: 1; offset-distance: 0%; }
+    96% { opacity: 1; offset-distance: 100%; }
+    100% { opacity: 0; offset-distance: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.mark-host:hover) .mark-ink, :global(.mark-host:focus-visible) .mark-ink,
+    :global(.mark-host:hover) .mark-nib, :global(.mark-host:focus-visible) .mark-nib,
+    :global(.mark-host:hover) .mark-ghost, :global(.mark-host:focus-visible) .mark-ghost { animation: none; }
+  }
+</style>

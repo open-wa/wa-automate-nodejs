@@ -1,0 +1,32 @@
+---
+import Site from "../layouts/Site.astro";
+import Mark from "../components/Mark.astro";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+<Site title="Page not found | open-wa" description="This page doesn't exist. Head to the quick start or the docs." cta={false}>
+  <section class="nf">
+    <div class="wrap nf-in">
+      <div class="nf-chat" aria-hidden="true">
+        <span class="nf-in-b">GET this page</span>
+        <span class="nf-out-b">404: no handler matched.</span>
+      </div>
+      <h1>No handler for this page.</h1>
+      <p class="lede">The link may be old, or the page moved. These will get you going again.</p>
+      <div class="nf-do">
+        <a class="btn btn-ink" href={`${base}quickstart/`}>Quick start</a>
+        <a class="btn btn-line" href={base}>Home</a>
+        <a class="btn btn-line" href="https://openwa.dev/docs">Docs</a>
+      </div>
+    </div>
+  </section>
+</Site>
+<style>
+  .nf { padding: 96px 0 120px; }
+  .nf-in { display: grid; gap: 20px; justify-items: start; }
+  .nf h1 { font-size: clamp(40px, 6vw, 72px); }
+  .nf-chat { display: grid; gap: 10px; width: min(360px, 100%); margin-bottom: 16px; }
+  .nf-in-b, .nf-out-b { padding: 10px 14px; font-size: 16px; max-width: 80%; }
+  .nf-in-b { justify-self: end; background: var(--ink); color: var(--white); border-radius: 18px 18px 5px 18px; }
+  .nf-out-b { justify-self: start; background: var(--blue); color: var(--white); border-radius: 18px 18px 18px 5px; }
+  .nf-do { display: flex; flex-wrap: wrap; gap: 10px; }
+</style>

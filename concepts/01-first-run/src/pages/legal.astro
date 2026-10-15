@@ -1,0 +1,24 @@
+---
+import Page from "../layouts/Page.astro";
+import PageHead from "../components/PageHead.astro";
+import { legal, product, support } from "../data/site";
+---
+<Page title="Legal: unofficial notice, ban risk and licence | open-wa" description="open-wa is unofficial and not affiliated with WhatsApp or Meta. Automation can get an account restricted or banned. Software licence, terms and cryptography notice.">
+  <div class="wrap">
+    <PageHead kicker="legal" title="Legal and risk notices" />
+    <div class="prose legal">
+      <section id="unofficial"><h2>Unofficial notice</h2><p>{legal.affiliation}</p></section>
+      <section id="risk"><h2>Ban risk</h2><p>{product.risk} Use a number you can afford to lose while you test, and follow WhatsApp's terms.</p></section>
+      <section id="terms"><h2>Terms of Service</h2><p>{product.terms} <a href={support.terms}>Read the Terms of Service</a>.</p></section>
+      <section id="licence"><h2>Software licence</h2><p>open-wa is released under the {product.softwareLicence} licence. <a href={support.licenceText}>Read the licence</a>.</p></section>
+      <section id="crypto"><h2>Cryptography notice</h2><p>{legal.crypto}</p></section>
+      <section><h2>Copyright</h2><p>{legal.copyright}. Maintained by {support.maintainer}.</p></section>
+    </div>
+  </div>
+</Page>
+<style>
+  .legal { padding-bottom: 80px; }
+  .legal section { display: grid; gap: 10px; padding: 20px 0; border-top: 1px solid var(--line); scroll-margin-top: 80px; }
+  .legal h2 { font-size: 27.5px; margin: 0; }
+  .legal a { color: var(--amber); }
+</style>

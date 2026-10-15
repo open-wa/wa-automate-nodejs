@@ -1,0 +1,34 @@
+---
+/**
+ * The junction: three lines (your phone, the runtime, your app) meet at one
+ * node. On hover or keyboard focus of the wrapping .mark-host, the lines draw
+ * in one after another and the node pulses once. Still under reduced motion.
+ */
+interface Props { size?: number; label?: string }
+const { size = 30, label = "open-wa" } = Astro.props;
+---
+<svg class="mark" viewBox="0 0 32 32" width={size} height={size} role="img" aria-label={label}>
+  <path class="l l1" d="M3 7.5C10 7.5 11.5 16 16.2 16" pathLength="1" />
+  <path class="l l2" d="M3 24.5C10 24.5 11.5 16 16.2 16" pathLength="1" />
+  <path class="l l3" d="M23.8 16H29.5" pathLength="1" />
+  <circle class="ring" cx="20" cy="16" r="3.8" />
+  <circle class="node" cx="20" cy="16" r="3.8" />
+</svg>
+
+<style>
+  .mark { overflow: visible; flex: none; }
+  .mark .l { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+  .mark .node { fill: var(--color-coral); stroke: currentColor; stroke-width: 2.2; transform-box: fill-box; transform-origin: center; }
+  .mark .ring { fill: none; stroke: var(--color-coral); stroke-width: 1.6; opacity: 0; transform-box: fill-box; transform-origin: center; }
+  :global(.mark-host:hover) .mark .l, :global(.mark-host:focus-visible) .mark .l { animation: mk-draw 520ms var(--ease-draw) both; }
+  :global(.mark-host:hover) .mark .l2, :global(.mark-host:focus-visible) .mark .l2 { animation-delay: 90ms; }
+  :global(.mark-host:hover) .mark .l3, :global(.mark-host:focus-visible) .mark .l3 { animation-delay: 380ms; }
+  :global(.mark-host:hover) .mark .node, :global(.mark-host:focus-visible) .mark .node { animation: mk-node 420ms 300ms var(--ease) both; }
+  :global(.mark-host:hover) .mark .ring, :global(.mark-host:focus-visible) .mark .ring { animation: mk-ring 700ms 330ms ease-out both; }
+  @keyframes mk-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  @keyframes mk-node { 0% { transform: scale(1); } 45% { transform: scale(1.32); } 100% { transform: scale(1); } }
+  @keyframes mk-ring { from { opacity: 0.9; transform: scale(1); } to { opacity: 0; transform: scale(2.6); } }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.mark-host) .mark * { animation: none !important; }
+  }
+</style>

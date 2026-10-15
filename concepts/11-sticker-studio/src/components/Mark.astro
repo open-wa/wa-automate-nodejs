@@ -1,0 +1,49 @@
+---
+/**
+ * The mark: a die-cut sticker shaped like a speech bubble. Its top-right corner
+ * is already lifting; hover or focus the link around it (.mark-host) and the
+ * corner peels further back, showing the yellow backing, then settles.
+ */
+interface Props { size?: number; label?: string }
+const { size = 34, label = "open-wa" } = Astro.props;
+---
+
+<svg class="mark" viewBox="0 0 40 40" width={size} height={size} role="img" aria-label={label}>
+  <g class="mark-body">
+    <path class="mark-shadow" d="M14 6 H38 V24 Q38 32 30 32 H19 L11 39 L12 32 Q6 32 6 24 V14 Q6 6 14 6 Z" />
+    <path class="mark-bubble" d="M12 4 H36 V22 Q36 30 28 30 H17 L9 37 L10 30 Q4 30 4 22 V12 Q4 4 12 4 Z" />
+    <circle class="mark-dot" cx="13.5" cy="17.5" r="2.4" />
+    <circle class="mark-dot" cx="20" cy="17.5" r="2.4" />
+    <circle class="mark-dot" cx="26.5" cy="17.5" r="2.4" />
+  </g>
+  <path class="mark-flap" d="M-1 0 L0 1 L-1 1 Z" />
+</svg>
+
+<style>
+  .mark { display: block; overflow: visible; flex: none; }
+  .mark-body {
+    clip-path: polygon(0 0, 25px 0, 40px 15px, 40px 40px, 0 40px);
+    transition: clip-path 420ms var(--ease-spring);
+  }
+  .mark-shadow { fill: var(--ink); }
+  .mark-bubble { fill: var(--paper); stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
+  .mark-dot { fill: var(--ink); }
+  .mark-dot:nth-of-type(2) { fill: var(--lilac); stroke: var(--ink); stroke-width: 1.4; }
+  .mark-flap {
+    fill: var(--yellow); stroke: var(--ink); stroke-width: 2.2; stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    transform: translate(36px, 4px) scale(7);
+    transition: transform 420ms var(--ease-spring);
+  }
+  :global(.mark-host:hover) .mark-body,
+  :global(.mark-host:focus-visible) .mark-body {
+    clip-path: polygon(0 0, 18px 0, 40px 22px, 40px 40px, 0 40px);
+  }
+  :global(.mark-host:hover) .mark-flap,
+  :global(.mark-host:focus-visible) .mark-flap {
+    transform: translate(36px, 4px) scale(14) rotate(-4deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mark-body, .mark-flap { transition: none; }
+  }
+</style>

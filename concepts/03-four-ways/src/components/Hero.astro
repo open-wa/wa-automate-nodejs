@@ -1,0 +1,55 @@
+---
+// The hero copy: what it is, the command with Copy, Quick start and Docs.
+// It sits in the PathSelector's slot, beside the system diagram.
+import CopyButton from "./CopyButton.astro";
+import { commands, links, latest, href } from "../data/site";
+---
+<div class="hero">
+  <a class="release" href={href("changelog/")}><span class="mono">v{latest.version.replace(/\.0$/, "")}</span> {latest.headline} <span aria-hidden="true">→</span></a>
+  <h1 id="hero-title">Plug your own WhatsApp number into your Node.js&nbsp;app.</h1>
+  <p class="sub">open-wa runs WhatsApp Web for you and hands your code the account's chats, messages and events, as an HTTP API, a client, an embedded runtime or an MCP server. Free for most methods.</p>
+  <div class="cmd" role="group" aria-label="Run command">
+    <span class="prompt" aria-hidden="true">$</span>
+    <code id="hero-cmd">{commands.easyApi.split(" ").map((t, i) => <>{i > 0 && " "}<span class="tok">{t}</span></>)}</code>
+    <CopyButton target="hero-cmd" describe="the run command" />
+  </div>
+  <div class="ctas">
+    <a class="btn btn-primary" href={href("quickstart/")}>Quick start <span class="arrow" aria-hidden="true">→</span></a>
+    <a class="btn btn-ghost" href={links.docs}>Read the docs</a>
+  </div>
+  <p class="note small muted">Needs Node.js 22.21.1 or later. Unofficial and not affiliated with WhatsApp; automation can get an account banned. <a class="link" href={href("legal/#risk")}>Risk note</a></p>
+</div>
+
+<style>
+  .hero { display: grid; gap: 20px; }
+  .release { justify-self: start; display: inline-flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 14px 0 5px; border: 1px solid var(--color-rule); border-radius: 999px; text-decoration: none; font-size: 14.5px; color: var(--color-ink); background: var(--color-paper-3); }
+  .release .mono { font-size: 12px; background: var(--color-ink); color: var(--color-bg); padding: 5px 9px; border-radius: 999px; }
+  .release:hover { border-color: var(--color-ink); }
+  h1 { font-size: clamp(38px, 4.7vw, 66px); font-weight: 450; max-width: 13ch; }
+  .sub { font-size: clamp(17px, 1.45vw, 19px); color: var(--color-muted); max-width: 52ch; }
+  .cmd { display: flex; align-items: center; gap: 10px; background: var(--color-ink); color: var(--color-on-navy); border-radius: 14px; padding: 7px 7px 7px 16px; min-width: 0; box-shadow: 0 18px 40px -26px rgba(20, 33, 61, 0.7); margin-top: 6px; }
+  .prompt { font-family: var(--font-mono); color: var(--color-coral); font-size: 13.5px; }
+  .cmd code { background: none; padding: 0; color: inherit; font-size: 13px; white-space: nowrap; overflow-x: auto; flex: 1; min-width: 0; scrollbar-width: none; }
+  .cmd code::-webkit-scrollbar { display: none; }
+  .cmd :global(.copy) { background: var(--color-coral); color: var(--color-ink); border-color: var(--color-coral); }
+  .cmd :global(.copy:hover) { background: #ff8466; }
+  .cmd :global(.copy[data-copied]) { background: var(--color-on-navy); border-color: var(--color-on-navy) !important; }
+  .ctas { display: flex; gap: 10px; flex-wrap: wrap; }
+  .note { max-width: 50ch; }
+  @media (max-width: 1360px) and (min-width: 961px) {
+    .cmd code { font-size: 12px; }
+    .cmd :global(.copy) { padding: 0 12px; }
+  }
+  @media (max-width: 560px) {
+    .hero { gap: 14px; }
+    .release, .note { display: none; }
+    h1 { font-size: 36px; line-height: 1.06; }
+    .sub { font-size: 16.5px; line-height: 1.5; }
+    .cmd { padding-left: 12px; gap: 6px; margin-top: 2px; }
+    .cmd code { font-size: 12px; white-space: normal; line-height: 1.55; }
+    .cmd .tok { white-space: nowrap; }
+    .cmd :global(.copy) { padding: 0; width: 46px; justify-content: center; }
+    .cmd :global(.copy [data-copy-label]) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .ctas .btn { flex: 1; padding: 0 14px; }
+  }
+</style>

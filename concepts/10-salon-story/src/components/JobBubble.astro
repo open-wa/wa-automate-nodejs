@@ -1,0 +1,45 @@
+---
+// A small example message per job, drawn in the salon style.
+interface Props { id: string }
+const { id } = Astro.props;
+---
+<div class="jb" aria-hidden="true">
+  {id === "hotel-notifications" && (<>
+    <p class="jb-m">Hi Sam, your room at Harbour House is booked for 14 to 16 November.</p>
+    <p class="jb-chip"><span class="jb-pin"></span>Harbour House, 12 Quay Road</p>
+    <p class="jb-chip"><span class="jb-doc">PDF</span>booking-HH2291.pdf</p>
+  </>)}
+  {id === "otp" && <p class="jb-m">Your Acme code is <b class="jb-code">204731</b>. It expires in 10 minutes.</p>}
+  {id === "pbx-calls" && (
+    <p class="jb-call"><span class="jb-ring"></span><span><b>Incoming call</b><br />Answered with greeting.wav</span></p>
+  )}
+  {id === "stickers" && (<div class="jb-sticker"><span>Rosa</span></div>)}
+  {id === "media" && (<>
+    <p class="jb-voice"><span class="jb-play"></span><span class="jb-wave"></span><span>0:07</span></p>
+    <p class="jb-chip"><span class="jb-doc">PDF</span>invoice-1042.pdf</p>
+  </>)}
+  {id === "order-updates" && <p class="jb-m">Order 1042 is on its way.</p>}
+  {id === "support-inbox" && <p class="jb-m jb-me">Do you have Saturday slots?</p><p class="jb-note">Opened in Chatwoot</p>}
+  {id === "ai-agent" && <p class="jb-tool"><span>tool</span> sendText</p>}
+  {id === "salon-bookings" && <p class="jb-m">Friday: pick a time · 10:00 · 13:30 · 16:00</p>}
+</div>
+<style is:global>
+  .jb { display: grid; gap: 6px; justify-items: start; padding: 14px; border-radius: 16px; background:
+    radial-gradient(circle at 15% 0%, rgba(246, 217, 211, 0.9), transparent 60%), var(--paper); min-height: 112px; align-content: center; }
+  .jb-m { background: #fff; border: 1px solid var(--line); border-radius: 14px 14px 14px 4px; padding: 8px 11px; font-size: 14.5px; line-height: 1.35; max-width: 95%; }
+  .jb-me { justify-self: end; background: var(--espresso); color: var(--cream-on-dark); border-radius: 14px 14px 4px 14px; border: 0; }
+  .jb-note { font: 500 12.5px/1 var(--font-mono); color: var(--muted); justify-self: end; }
+  .jb-code { font-family: var(--font-mono); letter-spacing: 0.12em; }
+  .jb-chip { display: inline-flex; align-items: center; gap: 8px; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; font-size: 13.5px; }
+  .jb-doc { font: 700 10px/1 var(--font-mono); background: var(--brass); color: var(--espresso); padding: 4px 5px; border-radius: 4px; }
+  .jb-pin { width: 12px; height: 12px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: var(--error); }
+  .jb-call { display: flex; gap: 12px; align-items: center; background: var(--espresso); color: var(--cream-on-dark); padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.35; }
+  .jb-ring { width: 30px; height: 30px; border-radius: 50%; background: var(--brass); box-shadow: 0 0 0 5px rgba(184, 138, 68, 0.3); flex: none; }
+  .jb-sticker { width: 92px; height: 92px; border-radius: 50%; background: var(--blush); border: 4px solid #fff; outline: 2px solid var(--espresso); display: grid; place-items: center; transform: rotate(-8deg); box-shadow: 4px 4px 0 var(--brass); }
+  .jb-sticker span { font: italic 600 22px/1 var(--font-display); }
+  .jb-voice { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 8px 12px; font: 500 12px/1 var(--font-mono); }
+  .jb-play { width: 0; height: 0; border-left: 10px solid var(--espresso); border-top: 6px solid transparent; border-bottom: 6px solid transparent; }
+  .jb-wave { width: 90px; height: 16px; background: repeating-linear-gradient(90deg, var(--brass) 0 2px, transparent 2px 5px); mask: linear-gradient(90deg, #000 0 0) , radial-gradient(#000, transparent); -webkit-mask: radial-gradient(ellipse at center, #000 40%, transparent 72%); }
+  .jb-tool { font: 500 14px/1 var(--font-mono); background: var(--espresso); color: var(--blush); padding: 10px 12px; border-radius: 10px; }
+  .jb-tool span { color: var(--brass-light); margin-right: 6px; }
+</style>

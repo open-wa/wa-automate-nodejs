@@ -1,0 +1,64 @@
+---
+// "Tell us what you need": name, email, what you want built, through
+// submitLead("consulting", ...). Validates as people type and on submit.
+---
+<div class="cf" data-consult>
+  <form novalidate data-cform class="cf-form">
+    <div class="cf-f"><label for="cf-name">Your name</label><input id="cf-name" name="name" type="text" autocomplete="name" required aria-describedby="cf-name-err" /><p class="cf-err" id="cf-name-err" hidden></p></div>
+    <div class="cf-f"><label for="cf-email">Email</label><input id="cf-email" name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="cf-email-err" /><p class="cf-err" id="cf-email-err" hidden></p></div>
+    <div class="cf-f"><label for="cf-need">What do you want built?</label><textarea id="cf-need" name="need" rows="4" placeholder="e.g. Answer customer questions on our shop's WhatsApp number and log them in our helpdesk" required aria-describedby="cf-need-err"></textarea><p class="cf-err" id="cf-need-err" hidden></p></div>
+    <button class="btn btn-primary" type="submit">Send</button>
+  </form>
+  <div class="cf-done" hidden tabindex="-1" data-cdone>
+    <h3>Thanks, <span data-cname></span>.</h3>
+    <p>We've got your request. The next step is a reply from Mohammed by email to <strong data-cemail></strong>.</p>
+    <p class="small muted">Demo: this concept keeps the request in this tab only.</p>
+  </div>
+</div>
+<script>
+  import { submitLead } from "../lib/leads";
+  const root = document.querySelector<HTMLElement>("[data-consult]")!;
+  const form = root.querySelector<HTMLFormElement>("[data-cform]")!;
+  const rules: Record<string, (v: string) => string> = {
+    name: (v) => (v.trim() ? "" : "Enter your name."),
+    email: (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? "" : "Enter an email address we can reply to."),
+    need: (v) => (v.trim().length >= 10 ? "" : "Tell us a little more, a sentence is enough."),
+  };
+  const show = (n: string, force: boolean) => {
+    const el = form.elements.namedItem(n) as HTMLInputElement;
+    const msg = rules[n](el.value);
+    const err = root.querySelector<HTMLElement>(`#${el.id}-err`)!;
+    if (force || !msg) { err.textContent = msg; err.hidden = !msg; el.toggleAttribute("aria-invalid", !!msg); }
+    return !msg;
+  };
+  for (const n of Object.keys(rules)) {
+    const el = form.elements.namedItem(n) as HTMLInputElement;
+    el.addEventListener("input", () => show(n, el.value.trim().length > 2));
+  }
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const bad = Object.keys(rules).filter((n) => !show(n, true));
+    if (bad.length) { (form.elements.namedItem(bad[0]) as HTMLElement).focus(); return; }
+    const d = Object.fromEntries(new FormData(form)) as Record<string, string>;
+    await submitLead("consulting", d);
+    root.querySelector("[data-cname]")!.textContent = d.name.trim().split(/\s+/)[0];
+    root.querySelector("[data-cemail]")!.textContent = d.email.trim();
+    form.hidden = true;
+    const done = root.querySelector<HTMLElement>("[data-cdone]")!;
+    done.hidden = false;
+    done.focus();
+  });
+</script>
+<style>
+  .cf { background: var(--color-paper-3); border: 1px solid var(--color-rule); border-radius: 16px; padding: clamp(20px, 3vw, 32px); }
+  .cf-form { display: grid; gap: 18px; }
+  .cf-f { display: grid; gap: 6px; }
+  label { font-weight: 600; }
+  input, textarea { width: 100%; min-height: 48px; padding: 12px 14px; border: 1.5px solid var(--color-rule); border-radius: 10px; background: var(--color-bg); color: var(--color-ink); font: 400 17px/1.4 var(--font-text); }
+  input:focus, textarea:focus { outline: none; border-color: var(--color-ink); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-coral) 35%, transparent); }
+  [aria-invalid] { border-color: var(--color-coral-ink); }
+  .cf-err { color: var(--color-coral-ink); font-weight: 600; font-size: 15px; }
+  .cf-form .btn { justify-self: start; }
+  .cf-done { display: grid; gap: 12px; outline: none; }
+  .cf-done h3 { font-size: 28px; }
+</style>

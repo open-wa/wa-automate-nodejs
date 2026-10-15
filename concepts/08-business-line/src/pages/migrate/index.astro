@@ -1,0 +1,30 @@
+---
+import Page from "../../layouts/Page.astro";
+import PageHead from "../../components/PageHead.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { migration, support, commands } from "../../data/facts";
+---
+
+<Page title="Migrate from v4 to v5 | open-wa" description={migration.summary}>
+  <PageHead eyebrow="Migrate from v4" title="Keep your v4 bot running while you move." lede={migration.summary} />
+  <section class="section">
+    <div class="wrap narrow">
+      <ol class="steps">
+        <li><h2>Pin v4 today</h2><p>Unqualified installs now get v5, so pin your running bot first.</p><CodeBlock code={migration.v4Pin} lang="bash" label="Terminal" /></li>
+        <li><h2>Try v5 beside it</h2><p>Start a v5 session on another port and a test number, and point a copy of your bot at it.</p><CodeBlock code={commands.namedSession} lang="bash" label="Terminal" /></li>
+        <li><h2>Follow the guide</h2><p>The migration guide lists what changed and how to update your code.</p><a class="btn btn-primary" href={support.migrationDocs}>Read the migration guide</a></li>
+      </ol>
+      <p class="fine">Questions about your setup? <a href={support.discord}>Ask in Discord</a>.</p>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .narrow { max-width: 820px; }
+  .steps { padding-left: 24px; display: grid; gap: 36px; }
+  .steps li { display: grid; gap: 10px; }
+  .steps li::marker { font: 600 22px var(--font-display); color: var(--tangerine-ink); }
+  .steps h2 { font-size: 24px; margin: 0; }
+  .steps p { margin: 0; }
+  .steps .btn { justify-self: start; }
+</style>

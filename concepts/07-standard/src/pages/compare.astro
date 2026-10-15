@@ -1,0 +1,71 @@
+---
+import Page from "../layouts/Page.astro";
+import { product } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const rows = [
+  ["Number", "A number registered on the platform through a Meta business account", "The WhatsApp account you already have on your phone"],
+  ["Set-up", "Meta business account and verification", "One command, then link your phone"],
+  ["Starting conversations", "Approved message templates", "Send to existing contacts; new numbers need a Restricted key"],
+  ["Cost", "Per-message pricing", "Free for most methods; licence keys per number for the rest"],
+  ["Status", "Official and supported by Meta", "Unofficial, not affiliated with WhatsApp or Meta"],
+  ["Account risk", "Run under Meta's policies", "Automation can get the account restricted or banned"],
+  ["Where it runs", "Meta's cloud", "Your machine, server or container"],
+];
+---
+
+<Page title="Official API or open-wa? An honest comparison | open-wa" description="Meta's WhatsApp Business Platform is official, with templates and per-message pricing. open-wa runs on your own number, free for most methods, unofficial with ban risk.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="crumbs"><a href={base}>Home</a> / Compare</p>
+      <h1>Official API or open-wa?</h1>
+      <p>Both put WhatsApp in your code. They make different trade-offs, and the right one depends on the number you'll use and how much risk you can take.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap">
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <caption class="sr-only">WhatsApp Business Platform compared with open-wa</caption>
+          <thead><tr><th scope="col"></th><th scope="col">WhatsApp Business Platform (Cloud API)</th><th scope="col">open-wa</th></tr></thead>
+          <tbody>
+            {rows.map(([k, a, b]) => <tr><th scope="row">{k}</th><td>{a}</td><td>{b}</td></tr>)}
+          </tbody>
+        </table>
+      </div>
+      <div class="pick">
+        <div class="card">
+          <h2>Choose the official platform when</h2>
+          <ul class="ticks">
+            <li>You need official support and can't risk the number.</li>
+            <li>You message at volume with approved templates.</li>
+            <li>A Meta business account and per-message pricing suit you.</li>
+          </ul>
+        </div>
+        <div class="card card--us">
+          <h2>Choose open-wa when</h2>
+          <ul class="ticks">
+            <li>Your shop or team's own number should answer from your code.</li>
+            <li>You want to start today, locally, without approvals.</li>
+            <li>You accept the risk. {product.risk}</li>
+          </ul>
+          <a class="btn btn--dark" href={`${base}quickstart/`}>Try the quick start</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .tbl-wrap { position: relative; overflow-x: auto; border: 1px solid var(--color-line); border-radius: var(--radius-lg); }
+  .tbl { width: 100%; min-width: 640px; border-collapse: collapse; }
+  .tbl th, .tbl td { text-align: left; padding: 16px 20px; border-bottom: 1px solid var(--color-line); vertical-align: top; }
+  .tbl thead th { background: var(--slate-50); font-weight: 700; }
+  .tbl thead th:last-child { background: var(--slate); color: var(--white); box-shadow: inset 0 -3px 0 var(--sun); }
+  .tbl tbody th { font-weight: 650; width: 22%; }
+  .tbl tbody tr:last-child > * { border-bottom: 0; }
+  .pick { display: grid; gap: 20px; margin-top: 40px; }
+  @media (min-width: 860px) { .pick { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .pick .card { display: grid; gap: 16px; align-content: start; justify-items: start; }
+  .pick h2 { font-size: 1.5rem; }
+  .card--us { border-color: var(--slate); }
+</style>

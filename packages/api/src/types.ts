@@ -23,6 +23,7 @@ export interface RuntimeExplorerOptions {
 
 export interface ApiServerOptions {
   config: Config;
+  verbose?: boolean;
 }
 
 export interface ApiServerLike {

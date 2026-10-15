@@ -1,0 +1,122 @@
+---
+import Mark from "./Mark.astro";
+import { href, support, starsLabel, stats } from "../data/site";
+const nav = [
+  { label: "Features", url: href("features/") },
+  { label: "Integrations", url: href("integrations/") },
+  { label: "AI agents", url: href("ai-agents/") },
+  { label: "Pricing", url: href("pricing/") },
+];
+const current = Astro.url.pathname;
+---
+
+<header class="hdr">
+  <div class="hdr-in">
+    <a class="mark-host brand" href={href()} aria-label="open-wa home">
+      <Mark size={30} decorative />
+      <span class="brand-name">open-wa</span>
+    </a>
+    <nav class="hdr-nav" aria-label="Main">
+      <a href={support.docs} class="ext">Docs</a>
+      {nav.map((n) => (
+        <a href={n.url} aria-current={current === n.url ? "page" : undefined}>{n.label}</a>
+      ))}
+    </nav>
+    <div class="hdr-end">
+      <a class="hdr-pill" href={support.github} aria-label={`GitHub, ${stats.githubStars} stars on ${stats.checkedOn}`}>
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.05-.49.05-.49.8.06 1.23.83 1.23.83.72 1.22 1.88.87 2.34.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.66 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 8 0Z"/></svg>
+        <span class="mono">{starsLabel}</span>
+      </a>
+      <a class="hdr-pill hide-sm" href={support.discord}>Discord</a>
+      <a class="btn btn-cyan hdr-cta hide-sm" href={href("quickstart/")}>Quick start</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu-sheet">
+        <span class="sr">Menu</span>
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 8h18M3 16h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="sheet" id="menu-sheet" hidden>
+    <nav aria-label="Menu">
+      <a href={href("quickstart/")} class="btn btn-cyan sheet-cta">Quick start</a>
+      <a href={support.docs}>Docs</a>
+      {nav.map((n) => <a href={n.url}>{n.label}</a>)}
+      <a href={href("use-cases/")}>Use cases</a>
+      <a href={href("compare/")}>Official API or open-wa?</a>
+      <a href={href("changelog/")}>Changelog</a>
+      <a href={href("migrate/")}>Migrate from v4</a>
+      <a href={href("support/")}>Support and consulting</a>
+      <a href={support.github}>GitHub <span class="mono muted">{starsLabel} stars</span></a>
+      <a href={support.discord}>Discord</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>(".menu-btn");
+  const sheet = document.getElementById("menu-sheet");
+  if (btn && sheet) {
+    const set = (open: boolean) => {
+      btn.setAttribute("aria-expanded", String(open));
+      sheet.hidden = !open;
+      document.documentElement.classList.toggle("menu-open", open);
+      if (open) sheet.querySelector<HTMLElement>("a")?.focus();
+    };
+    btn.addEventListener("click", () => set(btn.getAttribute("aria-expanded") !== "true"));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !sheet.hidden) { set(false); btn.focus(); }
+    });
+    matchMedia("(min-width: 1080px)").addEventListener("change", (e) => { if (e.matches) set(false); });
+  }
+</script>
+
+<style>
+  .hdr {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--graphite);
+    border-bottom: 1px solid var(--line);
+  }
+  .hdr-in {
+    max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter);
+    height: 60px; display: flex; align-items: center; gap: 28px;
+  }
+  .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--warm); text-decoration: none; min-height: 44px; }
+  .brand-name { font-family: var(--font-display); font-weight: 600; font-size: 20px; letter-spacing: 0.01em; }
+  .hdr-nav { display: flex; gap: 4px; flex: 1; }
+  .hdr-nav a {
+    color: var(--muted); text-decoration: none; font-size: 15px; padding: 10px 10px;
+    border-radius: var(--radius); min-height: 44px; display: inline-flex; align-items: center;
+  }
+  .hdr-nav a:hover, .hdr-nav a[aria-current="page"] { color: var(--warm); background: var(--graphite-3); }
+  .ext::after { content: "\2197"; font-size: 12px; margin-left: 3px; color: var(--faint); }
+  .hdr-end { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .hdr-pill {
+    display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 12px;
+    border: 1px solid var(--line); border-radius: var(--radius); color: var(--warm);
+    text-decoration: none; font-size: 14px;
+  }
+  .hdr-pill:hover { border-color: var(--cyan-dim); }
+  .hdr-cta { min-height: 40px; }
+  .menu-btn {
+    display: none; width: 44px; height: 44px; border-radius: var(--radius);
+    border: 1px solid var(--line); background: transparent; color: var(--warm); cursor: pointer;
+    align-items: center; justify-content: center;
+  }
+  .sheet {
+    border-top: 1px solid var(--line); background: var(--graphite);
+    max-height: calc(100dvh - 60px); overflow-y: auto;
+  }
+  .sheet nav { display: flex; flex-direction: column; padding: 12px var(--gutter) 24px; gap: 2px; }
+  .sheet a:not(.btn) {
+    color: var(--warm); text-decoration: none; padding: 12px 4px; min-height: 48px;
+    display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--graphite-4);
+    font-size: 17px;
+  }
+  .sheet-cta { margin-bottom: 8px; justify-content: center; }
+  @media (max-width: 1079px) {
+    .hdr-nav { display: none; }
+    .menu-btn { display: inline-flex; }
+  }
+  @media (max-width: 640px) {
+    .hide-sm { display: none; }
+  }
+</style>

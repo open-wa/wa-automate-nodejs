@@ -1,0 +1,47 @@
+---
+/** The four ways to use open-wa, as tabs with each path's real snippet. */
+import CodeBlock from "./CodeBlock.astro";
+import { paths, pathSnippet, pathInstall } from "../data/site";
+const { id = "paths" } = Astro.props as { id?: string };
+---
+<div class="pt">
+  <div class="pt-list" role="tablist" aria-label="Ways to use open-wa">
+    {paths.map((p, i) => (
+      <button type="button" role="tab" id={`${id}-tab-${p.id}`} aria-controls={`${id}-panel-${p.id}`} aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1} class="pt-tab">
+        <span class="pt-n mono">0{i + 1}</span>
+        <span class="pt-name">{p.name}</span>
+        <span class="pt-for">{p.for}</span>
+      </button>
+    ))}
+  </div>
+  {paths.map((p, i) => {
+    const s = pathSnippet[p.id];
+    const install = pathInstall[p.id];
+    return (
+      <div class="pt-panel" role="tabpanel" id={`${id}-panel-${p.id}`} aria-labelledby={`${id}-tab-${p.id}`} hidden={i !== 0} tabindex="0">
+        <p class="pt-what">{p.what}</p>
+        {install && <CodeBlock code={install} lang="bash" file={p.id === "mcp" ? "Start with MCP on" : "Install"} />}
+        <CodeBlock code={s.code} lang={s.lang} file={s.file} />
+      </div>
+    );
+  })}
+</div>
+<style>
+  .pt { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 24px; align-items: start; }
+  .pt-list { display: grid; gap: 8px; }
+  .pt-tab {
+    display: grid; grid-template-columns: auto 1fr; column-gap: 12px; row-gap: 4px; text-align: left; padding: 16px 18px; min-height: 44px;
+    border: 1px solid var(--grey-2); border-radius: var(--radius); background: var(--white); cursor: pointer; font: inherit; color: var(--ink);
+    transition: border-color var(--speed) var(--ease), background var(--speed) var(--ease);
+  }
+  .pt-tab:hover { border-color: var(--grey-3); }
+  .pt-tab[aria-selected="true"] { border-color: var(--blue); box-shadow: inset 3px 0 var(--blue); background: var(--blue-wash); }
+  .pt-n { grid-row: span 2; color: var(--grey-4); font-size: 14px; padding-top: 4px; }
+  .pt-tab[aria-selected="true"] .pt-n { color: var(--blue); }
+  .pt-name { font-weight: 650; font-size: 19px; letter-spacing: -0.01em; }
+  .pt-for { color: var(--grey-4); font-size: 16px; line-height: 1.4; }
+  .pt-panel { display: grid; gap: 14px; min-width: 0; }
+  .pt-panel:focus-visible { outline-offset: 6px; }
+  .pt-what { font-size: 18px; color: var(--grey-5); max-width: 60ch; }
+  @media (max-width: 860px) { .pt { grid-template-columns: minmax(0, 1fr); } }
+</style>

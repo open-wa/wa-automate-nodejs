@@ -1,0 +1,56 @@
+---
+/**
+ * The mark: a pulse tick on a baseline, one event arriving on a quiet line.
+ * Hover or keyboard focus on the wrapping .mark-host sends the tick along the
+ * line and back in from the left. Still under reduced motion.
+ */
+interface Props { size?: number; label?: string; decorative?: boolean }
+const { size = 28, label = "open-wa", decorative = false } = Astro.props;
+const id = `mk${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<svg
+  class="mark"
+  viewBox="0 0 32 32"
+  width={size}
+  height={size}
+  role={decorative ? undefined : "img"}
+  aria-label={decorative ? undefined : label}
+  aria-hidden={decorative ? "true" : undefined}
+>
+  <defs>
+    <clipPath id={id}><rect x="2" y="2" width="28" height="28" /></clipPath>
+  </defs>
+  <line class="mark-base" x1="3" y1="21" x2="29" y2="21" />
+  <g clip-path={`url(#${id})`}>
+    <g class="mark-tick">
+      <rect class="mark-gap" x="11.4" y="19.4" width="9.2" height="3.2" />
+      <polyline points="10.5,21 13,21 15,7 17.6,26 19.2,21 21.5,21" />
+    </g>
+  </g>
+</svg>
+
+<style>
+  .mark { display: block; overflow: visible; flex: none; }
+  .mark-base { stroke: var(--warm); stroke-width: 2.2; stroke-linecap: round; }
+  .mark-gap { fill: var(--mark-bg, var(--graphite)); }
+  .mark-tick polyline {
+    fill: none; stroke: var(--cyan); stroke-width: 2.6;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  .mark-tick { transform-box: view-box; }
+  :global(.mark-host:hover) .mark-tick,
+  :global(.mark-host:focus-visible) .mark-tick {
+    animation: mark-travel 1100ms var(--ease-io) both;
+  }
+  @keyframes mark-travel {
+    0% { transform: translateX(0); }
+    46% { transform: translateX(15px); }
+    46.01% { transform: translateX(-15px); }
+    100% { transform: translateX(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.mark-host:hover) .mark-tick,
+    :global(.mark-host:focus-visible) .mark-tick { animation: none; }
+  }
+</style>

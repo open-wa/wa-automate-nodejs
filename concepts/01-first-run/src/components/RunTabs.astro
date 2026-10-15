@@ -1,0 +1,60 @@
+---
+/** The hero object: a terminal window holding the run command, with tabs for
+ * npx, Docker and npm and a Copy button that works on first paint. */
+import CopyButton from "./CopyButton.astro";
+import { runTabs } from "../data/site";
+interface Props { id?: string }
+const { id = "run" } = Astro.props;
+---
+<div class="term" data-tabs>
+  <div class="term-top">
+    <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+    <div class="tabs" role="tablist" aria-label="How to run it">
+      {runTabs.map((t, k) => (
+        <button type="button" role="tab" id={`${id}-tab-${t.id}`} aria-controls={`${id}-panel-${t.id}`} aria-selected={k === 0 ? "true" : "false"} tabindex={k === 0 ? 0 : -1}>{t.label}</button>
+      ))}
+    </div>
+  </div>
+  {runTabs.map((t, k) => (
+    <div class="term-panel" role="tabpanel" id={`${id}-panel-${t.id}`} aria-labelledby={`${id}-tab-${t.id}`} hidden={k !== 0}>
+      <div class="term-line">
+        <span class="cmd-prompt" aria-hidden="true">$</span>
+        <code class="cmd-text">{t.cmd}</code>
+        <CopyButton text={t.cmd} class="copy-hero" what={`${t.label} command`} />
+      </div>
+      <p class="term-note">{t.note}</p>
+    </div>
+  ))}
+</div>
+
+<style>
+  .term { border: 1px solid var(--line-2); border-radius: var(--radius-lg); background: var(--ink-2); min-width: 0; box-shadow: 0 0 0 1px #000, 0 30px 80px -40px rgba(255, 176, 0, 0.25); }
+  .term-top { display: flex; align-items: center; gap: 14px; padding: 0 8px 0 14px; border-bottom: 1px solid var(--line); min-height: 52px; }
+  .dots { display: inline-flex; gap: 6px; }
+  .dots i { width: 9px; height: 9px; background: var(--line-2); display: block; }
+  .dots i:first-child { background: var(--amber); }
+  .tabs { display: flex; gap: 2px; }
+  [role="tab"] {
+    font-family: var(--font-mono); font-size: 16.5px; color: var(--grey); background: none; border: 0;
+    min-height: 44px; min-width: 44px; padding: 0 12px; cursor: pointer; position: relative;
+  }
+  [role="tab"]:hover { color: var(--bone); }
+  [role="tab"][aria-selected="true"] { color: var(--amber); }
+  [role="tab"][aria-selected="true"]::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -5px; height: 2px; background: var(--amber); }
+  .term-panel { padding: 16px 12px 14px 18px; display: grid; gap: 10px; }
+  .term-line { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .term-line { align-items: flex-start; }
+  .term-line .cmd-text { font-size: 19.25px; white-space: pre-wrap; overflow-wrap: anywhere; overflow: visible; padding-block: 9px; line-height: 1.4; }
+  .term-line .cmd-prompt { font-size: 19.25px; padding-top: 9px; line-height: 1.4; }
+  .term-note { color: var(--grey); font-size: 16px; }
+  :global(.copy-hero) { background: var(--amber) !important; color: var(--ink) !important; border-color: var(--amber) !important; }
+  :global(.copy-hero:hover) { background: var(--amber-tint) !important; }
+  :global(.copy-hero[data-state="copied"]) { background: var(--lime) !important; border-color: var(--lime) !important; }
+  @media (max-width: 520px) {
+    .term-line .cmd-text { font-size: 16.5px; padding-block: 2px; }
+    .term-line .cmd-prompt { font-size: 16.5px; padding-top: 2px; }
+    .term-panel { padding: 12px 10px 12px 14px; gap: 6px; }
+    .term-top { min-height: 46px; }
+    .term-note { font-size: 16px; line-height: 1.4; }
+  }
+</style>

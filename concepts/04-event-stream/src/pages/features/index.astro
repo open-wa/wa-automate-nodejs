@@ -1,0 +1,50 @@
+---
+import Page from "../../layouts/Page.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { capabilities, snippets, commands, href } from "../../data/site";
+const items: { id: string; name: string; text: string; methods?: string[]; code?: { code: string; lang: string; file: string } }[] = [
+  { id: "messages", name: "Messages", text: capabilities.messages, methods: ["onMessage", "onAnyMessage", "onAck", "sendText"], code: { code: snippets.socketClient, lang: "ts", file: "bot.ts" } },
+  { id: "media", name: "Media", text: capabilities.media },
+  { id: "groups", name: "Groups", text: capabilities.groups, methods: ["onGlobalParticipantsChanged", "createGroup", "joinGroupViaLink", "joinGroup"] },
+  { id: "polls", name: "Polls", text: capabilities.polls, methods: ["onPollVote", "getPollResults"] },
+  { id: "events", name: "Event cards and RSVPs", text: capabilities.events, methods: ["sendEvent", "onEventResponse"], code: { code: snippets.event, lang: "ts", file: "meetup.ts" } },
+  { id: "stickers", name: "Stickers", text: `${capabilities.stickers} Sending stickers with client.sendSticker needs a private finalizer.`, code: { code: commands.stickerCli, lang: "bash", file: "terminal" } },
+  { id: "multi", name: "Multi-session", text: capabilities.multiSession, code: { code: commands.namedSession, lang: "bash", file: "terminal" } },
+  { id: "sessions", name: "Sessions and your own key", text: capabilities.sessions, code: { code: snippets.sessionKey, lang: "ts", file: "app.ts" } },
+  { id: "refresh", name: "Live refresh", text: capabilities.refresh, methods: ["client.refresh()"] },
+  { id: "drivers", name: "Drivers", text: `${capabilities.drivers} Lightpanda is experimental.` },
+  { id: "docs", name: "Generated API docs", text: capabilities.docs, methods: [commands.proofOfLife, commands.swagger, commands.postman] },
+];
+---
+
+<Page title="Features: messages, media, groups, polls, events and sessions | open-wa" description="What open-wa gives your Node.js code: messages, media, groups, polls, event cards and RSVPs, stickers, multi-session, encrypted sessions, live refresh and generated API docs.">
+  <div class="wrap">
+    <header class="page-hero">
+      <span class="label">Features</span>
+      <h1>Everything your number can do, as events and methods</h1>
+      <p>Each capability below works on the free tier unless a method is marked Insiders or Restricted. <a href={href("pricing/")}>See which methods need a key</a>.</p>
+    </header>
+    <div class="feats">
+      {items.map((it) => (
+        <section class="feat" id={it.id}>
+          <div class="feat-copy">
+            <h2>{it.name}</h2>
+            <p>{it.text}</p>
+            {it.methods && <p class="ms">{it.methods.map((m) => <span class="method">{m}</span>)}</p>}
+          </div>
+          {it.code && <CodeBlock {...it.code} />}
+        </section>
+      ))}
+    </div>
+  </div>
+</Page>
+
+<style>
+  .feats { margin-top: 40px; display: grid; gap: 0; border-top: 1px solid var(--line); }
+  .feat { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 32px; padding: 32px 0; border-bottom: 1px solid var(--line); align-items: start; }
+  .feat h2 { font-size: 26px; margin-bottom: 10px; }
+  .feat p { color: #d6d8da; }
+  .ms { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ms .method { white-space: normal; overflow-wrap: anywhere; }
+  @media (max-width: 860px) { .feat { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
+</style>

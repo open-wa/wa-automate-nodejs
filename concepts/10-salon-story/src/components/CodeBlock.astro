@@ -1,0 +1,36 @@
+---
+import { Code } from "astro:components";
+import { salonTheme } from "../lib/shiki-theme";
+interface Props { code: string; lang?: string; title?: string; hl?: number[]; class?: string; copy?: boolean }
+const { code, lang = "js", title, hl = [], class: cls = "", copy = true } = Astro.props;
+const transformers = [
+  {
+    line(node: any, line: number) {
+      if (hl.includes(line)) this.addClassToHast(node, "hl");
+    },
+  },
+];
+---
+<figure class:list={["cb", cls]}>
+  <figcaption class="cb-bar">
+    <span class="cb-title">{title ?? (lang === "bash" ? "Terminal" : lang === "json" ? "JSON" : "JavaScript")}</span>
+    {copy && (
+      <button class="cb-copy" type="button" data-copy={code} data-label="Copy">
+        <span class="copy-label">Copy</span><span class="sr-only"> code</span>
+      </button>
+    )}
+  </figcaption>
+  <Code code={code} lang={lang as any} theme={salonTheme as any} transformers={transformers as any} />
+</figure>
+<style is:global>
+  .cb { margin: 0; background: var(--espresso); color: var(--cream-on-dark); border-radius: var(--radius); overflow: hidden; min-width: 0; }
+  .cb-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 6px 4px 16px; border-bottom: 1px solid #47322b; }
+  .cb-title { font: 500 13px/1 var(--font-mono); color: var(--muted-on-dark); letter-spacing: 0.02em; }
+  .cb-copy { min-height: 40px; min-width: 64px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: var(--brass-light); font: 600 14px/1 var(--font-text); cursor: pointer; }
+  .cb-copy:hover { background: #3a2722; }
+  .cb-copy[data-copied] { color: var(--blush); }
+  .cb pre { position: relative; margin: 0; padding: 16px 18px 18px; overflow-x: auto; font: 400 14.5px/1.65 var(--font-mono); background: transparent !important; tab-size: 2; }
+  .cb pre code { display: block; min-width: max-content; }
+  .cb .line { display: inline-block; min-width: 100%; padding-inline: 18px; margin-inline: -18px; position: relative; }
+  .cb .line.hl { background: rgba(184, 138, 68, 0.18); box-shadow: inset 3px 0 0 var(--brass); }
+</style>

@@ -1,0 +1,43 @@
+---
+import Page from "../layouts/Page.astro";
+import ConsultForm from "../components/ConsultForm.astro";
+import { support, DOCS } from "../data/facts";
+const routes = [
+  { title: "Docs", text: "Guides, the API reference and licensing.", href: DOCS, cta: "Read the docs" },
+  { title: "Discord", text: "Community help, usually the quickest answer.", href: support.discord, cta: "Ask on Discord" },
+  { title: "GitHub issues", text: "Bugs with your version and the method you called.", href: support.issues, cta: "Open an issue" },
+  { title: "Per-minute consulting", text: "Book time with the maintainer for a specific problem.", href: support.perMinuteConsulting, cta: "Book a session" },
+];
+---
+
+<Page title="Support and consulting | open-wa" description="Get help with open-wa from the docs, Discord or GitHub, or ask the maintainer to build your WhatsApp job with you.">
+  <section class="page-head wrap">
+    <p class="kicker">Support</p>
+    <h1>Help when the desk gets busy.</h1>
+    <p class="lead">Most questions are answered in the docs or on Discord. If you'd rather have it built or reviewed, tell us what you need.</p>
+  </section>
+  <section class="wrap sup">
+    <div class="routes">
+      {routes.map((r) => <div class="route"><h2>{r.title}</h2><p>{r.text}</p><a class="link-arrow" href={r.href}>{r.cta} <span aria-hidden="true">→</span></a></div>)}
+      <p class="small muted">Or email <a href={`mailto:${support.consultingEmail}`}>{support.consultingEmail}</a>. Consulting is with {support.maintainer}.</p>
+    </div>
+    <div class="form-col">
+      <h2>Tell us what you need</h2>
+      <p class="muted">Setup, a recipe built for a client, a review of your session setup or a licence question. We reply by email.</p>
+      <ConsultForm />
+    </div>
+  </section>
+</Page>
+
+<style>
+  .sup { display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(32px, 5vw, 64px); align-items: start; padding-bottom: clamp(56px, 8vw, 96px); }
+  .routes { display: grid; gap: 0; border-top: 1px solid var(--color-line); }
+  .route { padding: 18px 0; border-bottom: 1px solid var(--color-line); display: grid; gap: 4px; }
+  .route h2 { font-size: 1.4rem; }
+  .route p { color: var(--color-muted); }
+  .routes > p { margin-top: 18px; }
+  .routes a:not(.link-arrow) { color: var(--terracotta-ink); }
+  .form-col { display: grid; gap: 12px; }
+  .form-col h2 { font-size: 1.75rem; }
+  @media (max-width: 900px) { .sup { grid-template-columns: 1fr; } }
+</style>

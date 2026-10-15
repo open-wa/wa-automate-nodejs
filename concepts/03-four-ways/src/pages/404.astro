@@ -1,0 +1,23 @@
+---
+import Base from "../layouts/Base.astro";
+import Command from "../components/Command.astro";
+import { commands, href, links } from "../data/site";
+---
+<Base title="Page not found | open-wa" description="This page doesn't exist. Start from the quick start, the docs or the home page.">
+  <div class="wrap nf">
+    <svg class="nf-art" viewBox="0 0 240 80" aria-hidden="true">
+      <path d="M8 40 H96" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" />
+      <circle cx="110" cy="40" r="12" fill="var(--color-coral)" stroke="currentColor" stroke-width="2.5" />
+      <path d="M124 40 H150" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-dasharray="2 8" />
+    </svg>
+    <h1>This line doesn't lead anywhere.</h1>
+    <p class="lede">The page you asked for isn't here. These do:</p>
+    <p class="row"><a class="btn btn-primary" href={href("quickstart/")}>Quick start</a> <a class="btn btn-ghost" href={href("")}>Home</a> <a class="btn btn-ghost" href={links.docs}>Docs</a></p>
+    <Command cmd={commands.easyApi} id="nf-cmd" />
+  </div>
+</Base>
+<style>
+  .nf { padding-top: clamp(48px, 8vw, 120px); padding-bottom: 120px; display: grid; gap: 20px; max-width: 760px; }
+  .nf-art { width: 240px; color: var(--color-ink); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+</style>

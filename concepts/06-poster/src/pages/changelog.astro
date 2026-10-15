@@ -1,0 +1,26 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import { releases, support, product } from "../data/facts";
+---
+
+<Base title="Changelog: what's new in open-wa 5.5 and 5.4 | open-wa" description="open-wa 5.5: native event cards, live refresh and local stickers. 5.4: bring your own session encryption key. Full history on GitHub releases.">
+  <PageHero title="Changelog" lede={`The current npm version is ${product.currentVersion} (${product.currentVersionNote.toLowerCase()}).`} />
+  <section class="doc wrap doc-grid">
+    {releases.map((r) => (
+      <article class="rel">
+        <p class="rel-meta"><span class="rel-v">{r.version}</span><time>{r.date}</time></p>
+        <h2>{r.headline}</h2>
+        <ul>{r.highlights.map((h) => <li>{h}</li>)}</ul>
+      </article>
+    ))}
+    <p>Every release, including patch versions: <a href={support.releases}>GitHub releases</a> and the <a href={support.changelog}>docs changelog</a>.</p>
+  </section>
+</Base>
+
+<style>
+  .rel { padding: 28px 0; border-top: 2px dashed rgba(28,26,46,.35); }
+  .rel h2 { margin-top: 6px; }
+  .rel-meta { display: flex; gap: 14px; align-items: center; margin: 0; font-family: var(--font-mono); font-weight: 600; }
+  .rel-v { background: var(--ink); color: var(--paper); padding: 2px 10px; border-radius: 3px; box-shadow: 3px 3px 0 var(--pink); }
+</style>

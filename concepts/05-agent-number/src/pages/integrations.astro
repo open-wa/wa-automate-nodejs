@@ -1,0 +1,44 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { integrations, snippets, href } from "../data/site";
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+---
+
+<Page title="Integrations | open-wa" description="Webhooks, Chatwoot, Node-RED, S3 media, the Cloudflare Session Proxy, MCP and the Plugin SDK, each a package you load next to the API.">
+  <section class="page-hero wrap">
+    <span class="label">Integrations</span>
+    <h1>Plugins for the tools you already run</h1>
+    <p class="lede">Integrations load as plugins next to Easy API. List them in your config and give each its own settings.</p>
+  </section>
+
+  <section class="wrap in-grid" aria-label="Integrations">
+    {integrations.map((it) => (
+      <article class="in-card" id={slug(it.name)}>
+        <h2>{it.name}</h2>
+        <p>{it.what}</p>
+        <code class="in-pkg">{it.package}</code>
+        {it.name === "MCP" && <a class="textlink" href={href("ai-agents/")}>Agent set-up</a>}
+      </article>
+    ))}
+  </section>
+
+  <section class="wrap section doc" aria-labelledby="load-title">
+    <h2 id="load-title">Loading plugins</h2>
+    <p>Add packages or local paths to <code>plugins</code>, and per-plugin settings to <code>pluginConfig</code>:</p>
+    <CodeBlock code={snippets.plugins} lang="js" title="wa.config.mjs (excerpt)" />
+    <h2 id="cf-proxy">Reach a local session from anywhere</h2>
+    <p>The Cloudflare Session Proxy runs in your own Worker. A SocketClient connects through it without opening public ports on the machine that runs WhatsApp:</p>
+    <CodeBlock code={snippets.cfProxyConsumer} lang="ts" title="consumer.ts" />
+    <h2>Build your own</h2>
+    <p>Package an integration with <code>@open-wa/plugin-sdk</code> and load it the same way. Share it on <a class="textlink" href={href("community/")}>Discord or GitHub</a>.</p>
+  </section>
+</Page>
+
+<style>
+  .in-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .in-card { padding: 24px; border-radius: var(--radius-l); background: var(--paper); border: 1px solid var(--line-strong); display: grid; gap: 10px; align-content: start; }
+  .in-card h2 { font-size: 28px; }
+  .in-pkg { justify-self: start; }
+  .doc :global(.cb) { margin-top: 12px; }
+</style>

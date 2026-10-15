@@ -1,0 +1,47 @@
+---
+import Page from "../layouts/Page.astro";
+import { product, href, support } from "../data/site";
+const rows = [
+  { k: "Which number", meta: "A number registered to the WhatsApp Business Platform through a Meta business account.", ow: "The WhatsApp account you already have, through WhatsApp Web." },
+  { k: "Starting conversations", meta: "Approved message templates for conversations you start.", ow: "Send as the account would. Messaging numbers that aren't contacts needs a Restricted key." },
+  { k: "Cost", meta: "Per-message pricing set by Meta.", ow: "Free for most methods. Insiders and Restricted keys per number, from £5 and £15 a month (checked 12 Oct 2026)." },
+  { k: "Status", meta: "Official and supported by Meta.", ow: "Unofficial. Not affiliated with WhatsApp or Meta." },
+  { k: "Account risk", meta: "Within Meta's rules for the platform.", ow: product.risk },
+  { k: "Where it runs", meta: "Meta hosts the API.", ow: "On your machine or server, in a browser open-wa controls." },
+  { k: "AI agents", meta: "Build your own tool layer.", ow: "Built-in MCP server: each method is a tool." },
+];
+---
+
+<Page title="Official API or open-wa? | open-wa" description="Honest trade-offs between Meta's WhatsApp Business Platform and open-wa: which number, templates, cost, official status and ban risk.">
+  <section class="page-hero wrap">
+    <span class="label">Compare</span>
+    <h1>Official API or open-wa?</h1>
+    <p class="lede">Both get WhatsApp into your code. They make different trade-offs, and the right one depends on your number, your volume and how much risk you can carry.</p>
+  </section>
+  <section class="wrap">
+    <div class="cmp-wrap">
+      <table class="cmp-t">
+        <thead><tr><th scope="col"><span class="sr-only">Question</span></th><th scope="col">WhatsApp Business Platform (Cloud API)</th><th scope="col">open-wa</th></tr></thead>
+        <tbody>{rows.map((r) => <tr><th scope="row">{r.k}</th><td>{r.meta}</td><td>{r.ow}</td></tr>)}</tbody>
+      </table>
+    </div>
+  </section>
+  <section class="wrap section doc">
+    <h2>Pick the official API if</h2>
+    <ul><li>You need official support and can't accept ban risk.</li><li>You're happy to get templates approved and pay per message.</li></ul>
+    <h2>Pick open-wa if</h2>
+    <ul><li>You want the number you already use, today, from Node.js.</li><li>You want an AI agent to use WhatsApp through MCP.</li><li>You accept that it's unofficial and that accounts can be restricted or banned.</li></ul>
+    <p><a class="btn btn-primary" href={href("quickstart/")}>Quick start</a> <a class="btn btn-ghost" href={support.docs}>Docs</a></p>
+  </section>
+</Page>
+
+<style>
+  .cmp-wrap { position: relative; overflow-x: auto; border: 1px solid var(--line-strong); border-radius: var(--radius-l); background: var(--paper); }
+  .cmp-t { width: 100%; min-width: 640px; border-collapse: collapse; }
+  .cmp-t th, .cmp-t td { text-align: left; vertical-align: top; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+  .cmp-t thead th { font: 400 22px/1.2 var(--font-display); }
+  .cmp-t tbody th { font-weight: 600; width: 22%; }
+  .cmp-t td:last-child { background: rgba(110, 20, 35, 0.04); }
+  .cmp-t tr:last-child > * { border-bottom: 0; }
+  .doc .btn { margin-top: 16px; margin-right: 8px; }
+</style>

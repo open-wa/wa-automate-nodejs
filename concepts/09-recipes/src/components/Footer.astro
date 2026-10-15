@@ -1,0 +1,49 @@
+---
+import Mark from "./Mark.astro";
+import { footer, product, legal, support, base, stats } from "../data/site";
+---
+
+<footer class="ft">
+  <div class="ft-in">
+    <div class="ft-brand">
+      <a class="mark-host ft-home" href={base} aria-label="open-wa home"><Mark size={34} label="" /><span>open-wa</span></a>
+      <p>Open-source WhatsApp automation for Node.js, with an HTTP API any language can call. Maintained by {support.maintainer} since 2019.</p>
+      <p class="ft-dim">{stats.githubStars.toLocaleString("en-GB")} GitHub stars and {stats.discordMembers.toLocaleString("en-GB")} Discord members on {stats.checkedOn}.</p>
+    </div>
+    {footer.map((col) => (
+      <nav class="ft-col" aria-label={col.title}>
+        <h2>{col.title}</h2>
+        <ul>{col.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+      </nav>
+    ))}
+  </div>
+  <div class="ft-legal">
+    <p class="ft-unofficial"><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> {product.risk}</p>
+    <p class="ft-dim">{legal.copyright}. Software licence: {product.softwareLicence}. {product.terms}</p>
+  </div>
+</footer>
+
+<style>
+  .ft { background: var(--ink); color: var(--paper); margin-top: 0; }
+  .ft-in {
+    max-width: var(--wrap); margin: 0 auto; padding: 64px var(--gutter) 32px;
+    display: grid; gap: 32px 24px; grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ft-brand { grid-column: 1 / -1; max-width: 42ch; }
+  .ft-home { display: inline-flex; align-items: center; gap: 10px; color: var(--paper); text-decoration: none; font: 400 1.75rem/1 var(--font-display); min-height: 44px; }
+  .ft-home :global(.mark-body) { fill: var(--paper); }
+  .ft-home :global(.mark-line) { stroke: var(--ink); }
+  .ft-brand p { font-size: 1rem; line-height: 1.55; margin: 12px 0 0; }
+  .ft-dim { color: #BDBDB3; }
+  .ft-col h2 { font: 600 0.8125rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; color: #BDBDB3; margin: 0 0 8px; }
+  .ft-col ul { list-style: none; margin: 0; padding: 0; }
+  .ft-col a { color: var(--paper); text-decoration: none; font-size: 1rem; min-height: 40px; display: inline-flex; align-items: center; }
+  .ft-col a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .ft-legal { max-width: var(--wrap); margin: 0 auto; padding: 24px var(--gutter) 40px; border-top: 1px solid #3A3A36; }
+  .ft-legal p { margin: 0 0 8px; font-size: 1rem; line-height: 1.55; }
+  .ft-unofficial strong { color: var(--saffron); font-weight: 600; }
+  @media (min-width: 900px) {
+    .ft-in { grid-template-columns: 1.6fr repeat(4, minmax(0, 1fr)); }
+    .ft-brand { grid-column: auto; }
+  }
+</style>

@@ -1,0 +1,39 @@
+---
+import Page from "../../layouts/Page.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { integrations, snippets, base } from "../../data/site";
+const sw = ["tomato", "saffron", "sky", "lilac"];
+---
+
+<Page title="Integrations: webhooks, Chatwoot, Node-RED, S3 and MCP | open-wa" description="Push WhatsApp events to webhooks, answer from Chatwoot, automate in Node-RED, store media in S3, reach a session through Cloudflare, or give an AI agent tools.">
+  <div class="wrap page-head">
+    <h1 class="h-display">Integrations</h1>
+    <p class="lede">Plug your number into the tools you already use. Each integration is a plugin you list in your config.</p>
+  </div>
+  <div class="wrap doc">
+    <ul class="ints">
+      {integrations.map((i, n) => (
+        <li id={i.name === "Plugin SDK" ? "plugin-sdk" : undefined} style={`--sw: var(--${sw[n % 4]})`}>
+          <h2>{i.name}</h2>
+          <p>{i.what}</p>
+          <code>{i.package}</code>
+        </li>
+      ))}
+    </ul>
+    <h2>Load plugins</h2>
+    <CodeBlock code={snippets.plugins} lang="js" title="wa.config.mjs" />
+    <h2>Reach a local session from anywhere</h2>
+    <CodeBlock code={snippets.cfProxyConsumer} lang="js" title="consumer.js" />
+    <p>See the <a href={`${base}recipes/support-inbox/`}>support inbox</a> and <a href={`${base}recipes/ai-agent/`}>AI agent</a> recipes for Chatwoot and MCP in use.</p>
+  </div>
+</Page>
+
+<style>
+  .ints { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); }
+  .ints li { position: relative; background: var(--card); border-radius: 18px; padding: 22px; box-shadow: inset 0 0 0 1px var(--line); display: grid; gap: 8px; align-content: start; }
+  .ints li::before { content: ""; position: absolute; top: 0; right: 0; width: 30px; height: 30px; border-top-right-radius: 18px; background: linear-gradient(225deg, var(--paper) 50%, var(--sw) 50%); }
+  .ints h2 { font: 400 1.75rem/1.1 var(--font-display) !important; margin: 0 !important; }
+  .ints p { margin: 0; color: var(--ink-2); }
+  .ints code { justify-self: start; background: var(--paper-2); padding: 3px 8px; border-radius: 6px; font-size: 0.875rem; }
+  .doc :global(.cb) { margin: 12px 0; }
+</style>

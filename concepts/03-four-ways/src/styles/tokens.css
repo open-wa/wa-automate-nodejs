@@ -1,0 +1,34 @@
+/* Four ways in: brand tokens. Editorial light, navy and coral, brass as the
+   muted secondary. Every colour, font, radius and easing lives here. */
+:root {
+  --color-bg: #F4F1EA;        /* warm white paper */
+  --color-paper-2: #EAE5DA;   /* recessed paper */
+  --color-paper-3: #FBF9F4;   /* raised card */
+  --color-rule: #D6CFC1;      /* hairlines */
+  --color-ink: #14213D;       /* navy */
+  --color-ink-2: #22335A;     /* lifted navy for panels */
+  --color-muted: #5B6478;     /* secondary text, 5.3:1 on paper */
+  --color-coral: #FF6B4A;     /* accent fills, flow lines, buttons */
+  --color-coral-ink: #B83F26; /* coral for text on paper, 4.9:1 */
+  --color-brass: #C8A15A;     /* muted secondary: idle lines, notes on navy */
+  --color-brass-ink: #7A5D26; /* brass for text on paper */
+  --color-on-navy: #F4F1EA;
+  --color-on-navy-muted: #A9B3C7;
+
+  /* aliases the scaffold expects */
+  --color-accent: var(--color-coral);
+  --color-surface: var(--color-paper-2);
+
+  --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-text: "Public Sans", system-ui, sans-serif;
+  --font-mono: "Martian Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --radius: 10px;
+  --radius-sm: 6px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-draw: cubic-bezier(0.65, 0, 0.35, 1);
+  --speed: 220ms;
+
+  --gutter: clamp(16px, 4vw, 40px);
+  --max: 1200px;
+}

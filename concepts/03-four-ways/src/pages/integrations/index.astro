@@ -1,0 +1,43 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import IntegrationMap from "../../components/IntegrationMap.astro";
+import { integrations, snippets, links, href } from "../../data/site";
+const anchor = (name: string) => (name === "Plugin SDK" ? "plugin-sdk" : name === "MCP" ? "mcp" : name.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+const extra: Record<string, { code: string; title: string }> = {
+  "Cloudflare Session Proxy": { code: snippets.cfProxyConsumer, title: "Connect through your Worker" },
+  "Plugin SDK": { code: snippets.plugins, title: "wa.config.mjs" },
+  Webhooks: { code: snippets.plugins, title: "Load plugins in your config" },
+};
+---
+<Base title="Integrations: webhooks, Chatwoot, Node-RED, S3, MCP | open-wa" description="open-wa integrations load as plugins: webhooks, a Chatwoot bridge, Node-RED, S3 media storage, the Cloudflare Session Proxy, the built-in MCP server and the Plugin SDK.">
+  <div class="wrap">
+    <PageHead title="Integrations" lede="Plugins load next to the runtime through plugins and pluginConfig in your config. Each one below lists its package." />
+    <div class="map"><IntegrationMap /></div>
+    <div class="ints">
+      {integrations.map((it) => (
+        <article class="it" id={anchor(it.name)}>
+          <div class="it-text">
+            <h2>{it.name}</h2>
+            <code class="pkg">{it.package}</code>
+            <p>{it.what}</p>
+            {it.name === "MCP" && <a class="link" href={href("ai-agents/")}>Set up the MCP server <span aria-hidden="true">→</span></a>}
+          </div>
+          {extra[it.name] && <CodeBlock code={extra[it.name].code} title={extra[it.name].title} />}
+        </article>
+      ))}
+    </div>
+    <p class="end">Built a plugin? Share it on <a class="link" href={links.discord}>Discord</a> or open a pull request on <a class="link" href={links.github}>GitHub</a>.</p>
+  </div>
+</Base>
+<style>
+  .map { margin-bottom: 56px; max-width: 860px; }
+  .ints { border-top: 1px solid var(--color-ink); }
+  .it { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(20px, 4vw, 56px); padding: 32px 0; border-bottom: 1px solid var(--color-rule); scroll-margin-top: 80px; }
+  .it-text { display: grid; gap: 10px; align-content: start; }
+  .it h2 { font-size: 30px; }
+  .pkg { justify-self: start; }
+  .end { padding: 36px 0 72px; }
+  @media (max-width: 900px) { .it { grid-template-columns: minmax(0, 1fr); } }
+</style>

@@ -1,0 +1,103 @@
+---
+/** The four ways in, as a vertical tab list beside the code for each. */
+import CodeBlock from "./CodeBlock.astro";
+import { paths, commands, snippets, href } from "../data/site";
+
+const code: Record<string, { code: string; lang: string; title: string; extra?: { code: string; lang: string; title: string } }> = {
+  "easy-api": { code: commands.easyApi, lang: "bash", title: "Terminal", extra: { code: `curl ${commands.proofOfLife}`, lang: "bash", title: "Then open the live API docs" } },
+  "socket-client": { code: snippets.socketClient, lang: "ts", title: "bot.ts", extra: { code: commands.socketClientInstall, lang: "bash", title: "Install" } },
+  embedded: { code: snippets.embedded, lang: "ts", title: "index.ts", extra: { code: commands.embeddedInstall, lang: "bash", title: "Install" } },
+  mcp: { code: snippets.mcpConfig, lang: "js", title: "wa.config.mjs", extra: { code: snippets.mcpStart, lang: "bash", title: "Start it" } },
+};
+const docs: Record<string, string> = { "easy-api": "quickstart/", "socket-client": "quickstart/#socket-client", embedded: "quickstart/#embedded", mcp: "ai-agents/" };
+---
+
+<div class="pp" data-paths>
+  <div class="pp-list" role="tablist" aria-label="Ways to use open-wa" aria-orientation="vertical">
+    {paths.map((p, i) => (
+      <button class="pp-tab" role="tab" type="button" id={`pp-t-${p.id}`} aria-controls={`pp-p-${p.id}`}
+        aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1}>
+        <span class="pp-n" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+        <span class="pp-text">
+          <span class="pp-name">{p.name}</span>
+          <span class="pp-for">{p.for}</span>
+        </span>
+      </button>
+    ))}
+  </div>
+  <div class="pp-panels">
+    {paths.map((p, i) => (
+      <div class="pp-panel" role="tabpanel" id={`pp-p-${p.id}`} aria-labelledby={`pp-t-${p.id}`} hidden={i !== 0}>
+        <p class="pp-what">{p.what}</p>
+        {code[p.id].extra && code[p.id].extra!.title === "Install" && (
+          <CodeBlock code={code[p.id].extra!.code} lang={code[p.id].extra!.lang} title={code[p.id].extra!.title} />
+        )}
+        <CodeBlock code={code[p.id].code} lang={code[p.id].lang} title={code[p.id].title} />
+        {code[p.id].extra && code[p.id].extra!.title !== "Install" && (
+          <CodeBlock code={code[p.id].extra!.code} lang={code[p.id].extra!.lang} title={code[p.id].extra!.title} />
+        )}
+        <a class="textlink pp-more" href={href(docs[p.id])}>Set up {p.name}</a>
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-paths]").forEach((root) => {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const select = (tab: HTMLButtonElement, focus = true) => {
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.setAttribute("aria-selected", String(on));
+        t.tabIndex = on ? 0 : -1;
+        const panel = document.getElementById(t.getAttribute("aria-controls") ?? "");
+        if (panel) panel.hidden = !on;
+      });
+      if (focus) tab.focus();
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener("click", () => select(tab));
+      tab.addEventListener("keydown", (e) => {
+        const n = tabs.length;
+        const next = ["ArrowDown", "ArrowRight"].includes(e.key) ? (i + 1) % n
+          : ["ArrowUp", "ArrowLeft"].includes(e.key) ? (i - 1 + n) % n
+          : e.key === "Home" ? 0 : e.key === "End" ? n - 1 : -1;
+        if (next < 0) return;
+        e.preventDefault();
+        select(tabs[next]);
+      });
+    });
+    const hash = location.hash.replace("#path-", "");
+    const fromHash = tabs.find((t) => t.id === `pp-t-${hash}`);
+    if (fromHash) select(fromHash, false);
+  });
+</script>
+
+<style>
+  .pp { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(20px, 3vw, 40px); align-items: start; }
+  .pp-list { display: grid; gap: 6px; }
+  .pp-tab {
+    display: flex; gap: 16px; align-items: flex-start; text-align: left; width: 100%;
+    padding: 18px 18px 18px 16px; border: 1px solid transparent; border-radius: var(--radius);
+    background: transparent; color: var(--ink); cursor: pointer; font: inherit;
+    transition: background var(--speed), border-color var(--speed);
+  }
+  .pp-tab:hover { background: var(--paper); }
+  .pp-tab[aria-selected="true"] { background: var(--paper); border-color: var(--line-strong); box-shadow: inset 3px 0 0 var(--oxblood); }
+  .pp-n { font: 500 13px/1.9 var(--font-mono); color: var(--ink-faint); }
+  .pp-tab[aria-selected="true"] .pp-n { color: var(--oxblood); }
+  .pp-text { display: grid; gap: 2px; }
+  .pp-name { font: 400 26px/1.15 var(--font-display); }
+  .pp-for { color: var(--ink-soft); font-size: 16px; }
+  .pp-panel { display: grid; gap: 12px; min-width: 0; }
+  .pp-what { font-size: 18px; }
+  .pp-more { justify-self: start; display: inline-flex; align-items: center; min-height: 44px; }
+  @media (max-width: 860px) {
+    .pp { grid-template-columns: minmax(0, 1fr); }
+    .pp-list { grid-template-columns: 1fr 1fr; }
+    .pp-tab { padding: 12px; gap: 10px; }
+    .pp-name { font-size: 21px; }
+    .pp-for { font-size: 14.5px; }
+    .pp-n { display: none; }
+  }
+</style>

@@ -1,0 +1,23 @@
+<div class="sr" aria-live="polite" id="copy-live"></div>
+<script>
+  const live = document.getElementById("copy-live");
+  const fallback = (text: string) => {
+    const t = document.createElement("textarea");
+    t.value = text; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0";
+    document.body.append(t); t.select();
+    try { document.execCommand("copy"); } finally { t.remove(); }
+  };
+  document.addEventListener("click", async (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>("button[data-copy]");
+    if (!btn) return;
+    const text = btn.dataset.copy ?? "";
+    try { await navigator.clipboard.writeText(text); } catch { fallback(text); }
+    const was = btn.dataset.label ?? btn.textContent ?? "Copy";
+    btn.dataset.label = was;
+    btn.dataset.state = "copied";
+    btn.textContent = "Copied";
+    if (live) live.textContent = "Copied to clipboard";
+    window.clearTimeout(Number(btn.dataset.t));
+    btn.dataset.t = String(window.setTimeout(() => { btn.dataset.state = ""; btn.textContent = was; }, 1800));
+  });
+</script>

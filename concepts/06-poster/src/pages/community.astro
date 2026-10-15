@@ -1,0 +1,33 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { support, stats, snippets, releases } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const fmt = (n: number) => n.toLocaleString("en-GB");
+---
+
+<Base title="Community: Discord, GitHub, plugins and releases | open-wa" description="Join the open-wa Discord, contribute on GitHub, package your own integration with the Plugin SDK and follow releases.">
+  <PageHero title="Built in the open" lede={`open-wa has been on GitHub since August 2019. As of ${stats.checkedOn}: ${fmt(stats.githubStars)} stars, ${fmt(stats.githubForks)} forks, ${fmt(stats.discordMembers)} Discord members and ${fmt(stats.dockerPulls)} Docker pulls.`} />
+  <section class="doc wrap doc-grid">
+    <h2>Talk to people using it</h2>
+    <p>The Discord is where questions get answered and plugins get shared.</p>
+    <p><a class="btn btn-ink" href={support.discord}>Join the Discord</a></p>
+
+    <h2 id="contribute">Contribute</h2>
+    <p>Issues, pull requests and documentation fixes are welcome on GitHub. Check open issues first, and include your version and a reproduction when you report a bug.</p>
+    <p><a class="btn" href={support.github}>Open the repository</a> <a class="btn" href={support.issues}>Browse issues</a></p>
+
+    <h2>Write a plugin</h2>
+    <p>Package your own integration with <code>@open-wa/plugin-sdk</code>, then load it like any other:</p>
+    <CodeBlock code={snippets.plugins} lang="js" label="wa.config.mjs" />
+    <p><a href={`${base}integrations/#plugin-sdk`}>Plugin SDK and integrations</a></p>
+
+    <h2>Releases</h2>
+    <p>Latest: {releases[0].version}, {releases[0].headline.toLowerCase()} ({releases[0].date}).</p>
+    <p><a href={support.releases}>GitHub releases</a> · <a href={`${base}changelog/`}>Changelog</a> · <a href={support.npm}>npm</a></p>
+
+    <h2>Say thanks</h2>
+    <p>Star the repository, or <a href={support.buyMeACoffee}>buy the maintainer a coffee</a>.</p>
+  </section>
+</Base>

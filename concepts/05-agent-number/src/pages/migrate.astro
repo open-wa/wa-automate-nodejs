@@ -1,0 +1,37 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { migration, commands, snippets, support, href } from "../data/site";
+---
+
+<Page title="Migrate from v4 | open-wa" description="Version 5 is the current release line. Pin v4 while you migrate, then move to Easy API, SocketClient or the embedded runtime.">
+  <section class="page-hero wrap">
+    <span class="label">Migrate from v4</span>
+    <h1>Move a v4 bot to v5 without breaking it</h1>
+    <p class="lede">{migration.summary}</p>
+  </section>
+  <section class="wrap doc">
+    <h2>First, pin v4</h2>
+    <p>Do this before anything else, so a fresh install doesn't pull v5 under a running bot:</p>
+    <CodeBlock code={migration.v4Pin} lang="bash" title="Terminal" />
+    <h2>What v5 looks like</h2>
+    <ul>
+      <li>Drivers are separate packages. The embedded runtime takes a driver, for example <code>@open-wa/driver-puppeteer</code>.</li>
+      <li><code>createClient</code> starts an embedded client inside your app.</li>
+      <li>Remote consumers use <code>@open-wa/socket-client</code> against a running Easy API.</li>
+      <li>The built-in MCP server and plugins are configured in <code>wa.config.mjs</code>.</li>
+      <li>Node.js 22.21.1 or newer.</li>
+    </ul>
+    <h2>The v5 embedded client</h2>
+    <CodeBlock code={commands.embeddedInstall} lang="bash" title="Install" />
+    <CodeBlock code={snippets.embedded} lang="ts" title="index.ts" />
+    <h2>The full guide</h2>
+    <p>Every renamed option and method is in the <a class="textlink" href={support.migrationDocs}>migration guide</a>. Stuck? Ask on <a class="textlink" href={support.discord}>Discord</a> or see <a class="textlink" href={href("support/")}>paid support</a>.</p>
+  </section>
+  <div class="section"></div>
+</Page>
+
+<style>
+  .doc :global(.cb) { margin-top: 12px; }
+  .doc h2:first-child { margin-top: 0; }
+</style>

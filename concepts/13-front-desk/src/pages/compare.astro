@@ -1,0 +1,44 @@
+---
+import Page from "../layouts/Page.astro";
+import { product } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const rows = [
+  ["Number", "The WhatsApp number the business already has, linked like WhatsApp Web", "A number registered to the platform through a Meta business account"],
+  ["Setup", "One command and a QR code scan", "Business verification, app setup and approved message templates"],
+  ["Writing first", "Free to reply; first messages to new numbers need a Restricted key (£15 a month, checked 12 Oct 2026)", "Conversations you start use approved templates"],
+  ["Cost", "Free for most methods; Insiders and Restricted keys per number", "Per-message pricing"],
+  ["Hosting", "Self-hosted: your laptop, server or Docker", "Hosted by Meta"],
+  ["Status", "Unofficial, with account-ban risk", "Official and supported by Meta"],
+];
+---
+
+<Page title="open-wa compared with the WhatsApp Business Platform | open-wa" description="How open-wa on your own number compares with Meta's official WhatsApp Business Platform and Cloud API: setup, cost, writing first and risk.">
+  <section class="page-head wrap">
+    <p class="kicker">Compare</p>
+    <h1>Your own number, or the official platform.</h1>
+    <p class="lead">Both put WhatsApp in your app. They suit different businesses, and the risk is different.</p>
+  </section>
+  <section class="wrap cmp">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col"></th><th scope="col">open-wa</th><th scope="col">WhatsApp Business Platform (Cloud API)</th></tr></thead>
+        <tbody>{rows.map((r) => <tr><th scope="row">{r[0]}</th><td>{r[1]}</td><td>{r[2]}</td></tr>)}</tbody>
+      </table>
+    </div>
+    <div class="grid grid-2 when">
+      <div class="card"><h2>open-wa suits</h2><p>A small business's own number answering its customers: a hotel's front desk, a salon's bookings, a shop's order questions, built by a developer in an afternoon.</p></div>
+      <div class="card"><h2>The official platform suits</h2><p>Businesses that need official support, can't accept the risk of a restricted number, or send at a volume where a ban would be costly.</p></div>
+    </div>
+    <p class="risk"><strong>Risk:</strong> {product.risk} {product.unofficial}</p>
+    <a class="btn btn--primary" href={`${base}quickstart/`}>Try open-wa <span class="arrow" aria-hidden="true">→</span></a>
+  </section>
+</Page>
+
+<style>
+  .cmp { display: grid; gap: 28px; padding-bottom: clamp(56px, 8vw, 96px); justify-items: start; }
+  .cmp > * { width: 100%; }
+  .cmp > .btn { width: auto; }
+  tbody th { font-weight: 600; }
+  .when h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .risk { padding: 14px 16px; border-radius: 12px; background: var(--terracotta-soft); }
+</style>

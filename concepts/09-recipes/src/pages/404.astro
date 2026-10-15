@@ -1,0 +1,17 @@
+---
+import Page from "../layouts/Page.astro";
+import { base } from "../data/site";
+---
+
+<Page title="Page not found | open-wa" description="This page isn't in the cookbook.">
+  <div class="wrap page-head nf">
+    <h1 class="h-display">This page isn't in the cookbook</h1>
+    <p class="lede">The link may be old. Try the recipes or the quick start.</p>
+    <p class="nf-links"><a class="btn btn-ink" href={`${base}recipes/`}>Browse recipes</a> <a class="btn btn-line" href={`${base}quickstart/`}>Quick start</a></p>
+  </div>
+</Page>
+
+<style>
+  .nf { padding-bottom: 120px; }
+  .nf-links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 24px; }
+</style>

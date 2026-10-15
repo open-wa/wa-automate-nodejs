@@ -1,0 +1,31 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { migration, support, commands } from "../data/facts";
+---
+
+<Page title="Migrate from v4 to v5 | open-wa" description="Version 5 is the current release line. Pin v4 while you migrate, then follow the migration guide.">
+  <section class="page-head wrap">
+    <p class="kicker">Migrate from v4</p>
+    <h1>Keep the v4 bot running while you move.</h1>
+    <p class="lead">{migration.summary}</p>
+  </section>
+  <section class="wrap narrow mig">
+    <ol class="mig-steps">
+      <li><h2>Pin v4 today</h2><p>Unqualified installs now get v5, so pin the version your bot runs.</p><CodeBlock code={migration.v4Pin} lang="bash" title="Pin v4" /></li>
+      <li><h2>Follow the guide</h2><p>The migration guide covers what changed between v4 and v5.</p><a class="btn btn--ocean" href={support.migrationDocs}>Read the migration guide <span class="arrow" aria-hidden="true">→</span></a></li>
+      <li><h2>Try v5 beside it</h2><p>Run v5 on a second port with a named session, test your jobs, then switch.</p><CodeBlock code={commands.namedSession} lang="bash" title="v5 on another port" wrap /></li>
+    </ol>
+    <p class="muted">Stuck? Ask on <a href={support.discord}>Discord</a> or open an <a href={support.issues}>issue</a>.</p>
+  </section>
+</Page>
+
+<style>
+  .mig { padding-bottom: clamp(56px, 8vw, 96px); display: grid; gap: 28px; }
+  .mig-steps { padding-left: 24px; display: grid; gap: 32px; }
+  .mig-steps li { display: grid; gap: 12px; }
+  .mig-steps li::marker { font: 400 1.4rem var(--font-display); color: var(--terracotta-ink); }
+  .mig-steps h2 { font-size: 1.6rem; }
+  .mig a:not(.btn) { color: var(--terracotta-ink); }
+  .mig .btn { width: fit-content; }
+</style>

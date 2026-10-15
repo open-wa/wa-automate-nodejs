@@ -1,0 +1,46 @@
+---
+import Site from "../../layouts/Site.astro";
+import { f, href } from "../../data/facts";
+import { recipeMeta } from "../../data/recipes";
+---
+<Site title="Recipes: WhatsApp jobs you can build with open-wa" description="Salon bookings, hotel notifications, OTP codes, PBX calls, stickers, media, order updates, a support inbox and an AI agent, each with the flow, code and licence it needs.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="kicker">Recipes</p>
+      <h1>Pick the job, copy the code</h1>
+      <p class="lead">Each recipe shows the conversation your customer sees, the calls that make it, and whether it needs a key.</p>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap">
+      <ul class="rl">
+        {f.jobs.map((j) => {
+          const m = recipeMeta[j.id];
+          return (
+            <li>
+              <a href={href(`recipes/${j.id}/`)} class="rl-a">
+                <span class="rl-k">{m.short}</span>
+                <h2>{j.name}</h2>
+                <p>{m.build}</p>
+                <span class="rl-m">{j.methods.map((x) => <code>{x}</code>)}</span>
+                <span class:list={["pill", m.paid ? "pill-red" : "pill-free"]}>{m.tag}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+</Site>
+<style>
+  .rl { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .rl-a { display: grid; gap: 10px; align-content: start; height: 100%; padding: 22px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--navy-2); color: var(--paper); text-decoration: none; transition: border-color var(--speed); }
+  .rl-a:hover { border-color: var(--red); }
+  .rl-k { font: 600 13px var(--font-mono); color: var(--red); text-transform: uppercase; letter-spacing: .08em; }
+  .rl-a h2 { font-size: 22px; }
+  .rl-a p { margin: 0; color: var(--muted); }
+  .rl-m { display: flex; flex-wrap: wrap; gap: 6px; }
+  .rl-m code { font-size: 13px; color: var(--sky); background: #0a1024; padding: 2px 7px; border-radius: 6px; }
+  .rl-a .pill { justify-self: start; }
+  @media (max-width: 960px) { .rl { grid-template-columns: 1fr; } }
+</style>

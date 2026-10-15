@@ -1,0 +1,40 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import { links, stats, fmt, latest, href, product } from "../../data/site";
+---
+<Base title="Community: Discord, GitHub, contributing and plugins | open-wa" description="Join open-wa's Discord, star and contribute on GitHub, build plugins with the Plugin SDK, and follow releases.">
+  <div class="wrap">
+    <PageHead title="Community" lede={`open-wa has been open source since ${product.since.split(";")[0].replace("GitHub repository created ", "")}, maintained by ${links.maintainer} with contributors.`} />
+    <dl class="nums">
+      <div><dt>GitHub stars</dt><dd>{fmt(stats.githubStars)}</dd></div>
+      <div><dt>Forks</dt><dd>{fmt(stats.githubForks)}</dd></div>
+      <div><dt>Discord members</dt><dd>{fmt(stats.discordMembers)}</dd></div>
+      <div><dt>Published versions</dt><dd>{fmt(stats.publishedVersions)}</dd></div>
+    </dl>
+    <p class="small muted dated">Checked {stats.checkedOn}.</p>
+    <div class="cards">
+      <section><h2>Discord</h2><p>Ask questions, get help with a session and share what you built.</p><a class="btn btn-primary" href={links.discord}>Join the Discord</a></section>
+      <section id="contributing"><h2>Contributing</h2><p>Bugs and ideas start as GitHub issues; fixes arrive as pull requests.</p><a class="btn btn-ghost" href={links.github}>Open the repository</a></section>
+      <section><h2>Plugin SDK</h2><p>Package your own integration with <code>@open-wa/plugin-sdk</code> and load it with <code>plugins</code> and <code>pluginConfig</code>.</p><a class="btn btn-ghost" href={href("integrations/#plugin-sdk")}>Plugin SDK</a></section>
+      <section><h2>Releases</h2><p>Latest: {latest.version} on {latest.date}, {latest.headline.toLowerCase()}.</p><a class="btn btn-ghost" href={links.releases}>GitHub releases</a></section>
+    </div>
+  </div>
+</Base>
+<style>
+  .nums { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; border-top: 1px solid var(--color-ink); }
+  .nums div { padding: 20px 0; border-bottom: 1px solid var(--color-rule); }
+  .nums div + div { padding-left: 20px; border-left: 1px solid var(--color-rule); }
+  .nums dt { font: 500 12.5px/1.3 var(--font-mono); text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-muted); }
+  .nums dd { margin: 8px 0 0; font: 450 44px/1 var(--font-display); }
+  .dated { margin: 12px 0 48px; }
+  .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; padding-bottom: 80px; }
+  .cards section { display: grid; gap: 12px; align-content: start; padding: 28px; border: 1px solid var(--color-rule); border-radius: 16px; background: var(--color-paper-3); scroll-margin-top: 80px; }
+  .cards h2 { font-size: 28px; }
+  .cards .btn { justify-self: start; }
+  @media (max-width: 800px) {
+    .nums { grid-template-columns: 1fr 1fr; }
+    .nums div:nth-child(3) { padding-left: 0; border-left: 0; }
+    .cards { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

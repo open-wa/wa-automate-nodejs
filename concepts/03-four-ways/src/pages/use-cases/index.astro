@@ -1,0 +1,41 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import { useCaseList } from "../../data/editorial";
+import { href } from "../../data/site";
+const detail = [
+  { how: "Run the Easy API and bridge conversations into Chatwoot with the Chatwoot integration, or read chats into your own tool over HTTP.", links: [["Chatwoot", "integrations/#chatwoot"], ["Easy API", "quickstart/#easy-api"]] },
+  { how: "Your internal system calls the Easy API, or a SocketClient worker sends the message when an order, booking or delivery changes.", links: [["Easy API", "quickstart/#easy-api"], ["SocketClient", "quickstart/#socket-client"]] },
+  { how: "Handle onMessage in a SocketClient worker or an embedded runtime, and react to group activity, participant changes, polls and event RSVPs.", links: [["SocketClient", "quickstart/#socket-client"], ["Embedded", "quickstart/#embedded"]] },
+  { how: "The webhook integration pushes WhatsApp events into your own service; Node-RED gives you visual flows on top of the Easy API.", links: [["Webhooks", "integrations/#webhooks"], ["Node-RED", "integrations/#node-red"]] },
+  { how: "Run several named sessions side by side, each with its own sessionId and port, and keep consumers isolated per account.", links: [["Multiple sessions", "features/#multiSession"]] },
+  { how: "Turn on the MCP server and let Claude, Cursor or Windsurf call Easy API methods as tools.", links: [["AI agents", "ai-agents/"]] },
+];
+---
+<Base title="Use cases: inboxes, notifications, bots, webhooks, AI agents | open-wa" description="What developers build with open-wa on their own WhatsApp number: support inboxes, order and delivery notifications, bots, webhook bridges, multi-session automations and AI-agent workflows.">
+  <div class="wrap">
+    <PageHead title="What people build with it" lede="Six patterns, each with the way in and the parts it uses." />
+    <ol class="uc">
+      {useCaseList.map((u, i) => (
+        <li>
+          <h2>{u.text}</h2>
+          <div class="uc-body">
+            <p>{detail[i].how}</p>
+            <p class="uc-links">{detail[i].links.map(([l, h]) => <a class="link" href={href(h)}>{l}</a>)}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+    <p class="end muted">Want it built for you? <a class="link" href={href("support/")}>Support and consulting</a>.</p>
+  </div>
+</Base>
+<style>
+  .uc { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-ink); }
+  .uc li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 56px); padding: 32px 0; border-bottom: 1px solid var(--color-rule); }
+  .uc h2 { font-size: clamp(24px, 2.6vw, 32px); }
+  .uc-body { display: grid; gap: 12px; align-content: start; }
+  .uc-links { display: flex; gap: 18px; flex-wrap: wrap; font-weight: 600; }
+  .uc-links a { min-height: 44px; display: inline-flex; align-items: center; }
+  .end { padding: 36px 0 80px; }
+  @media (max-width: 900px) { .uc li { grid-template-columns: minmax(0, 1fr); } }
+</style>

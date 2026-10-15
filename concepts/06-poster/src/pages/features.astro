@@ -1,0 +1,57 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { capabilities, commands, snippets } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+type F = { id: string; name: string; text: string; code?: string; lang?: string; label?: string; methods?: string[]; note?: string };
+const features: F[] = [
+  { id: "messages", name: "Messages", text: capabilities.messages, code: `client.onMessage(async (message) => {\n  if (message.body === 'Hi') {\n    await client.sendText(message.from, '👋 Hello!');\n  }\n});`, lang: "js", label: "Reply to a message" },
+  { id: "media", name: "Media", text: capabilities.media },
+  { id: "groups", name: "Groups", text: capabilities.groups, methods: ["createGroup", "joinGroupViaLink", "joinGroup"], note: "Creating and joining groups needs a Restricted licence key." },
+  { id: "polls", name: "Polls", text: capabilities.polls },
+  { id: "events", name: "Events", text: capabilities.events, code: snippets.event, lang: "js", label: "Create an event card" },
+  { id: "stickers", name: "Stickers", text: capabilities.stickers, code: commands.stickerCli, lang: "bash", label: "Render a sticker locally", note: "This is local rendering with the CLI. Sending stickers from the client needs a private finalizer." },
+  { id: "multi-session", name: "Multi-session", text: capabilities.multiSession, code: commands.namedSession, lang: "bash", label: "A second named session" },
+  { id: "sessions", name: "Sessions and keys", text: capabilities.sessions, code: snippets.sessionKey, lang: "js", label: "Bring your own session key" },
+  { id: "refresh", name: "Live refresh", text: capabilities.refresh, methods: ["client.refresh()"] },
+  { id: "drivers", name: "Drivers", text: capabilities.drivers, note: "Lightpanda is experimental." },
+  { id: "docs", name: "Generated API docs", text: capabilities.docs, code: `${commands.proofOfLife}\n${commands.swagger}\n${commands.postman}`, lang: "text", label: "On every running instance" },
+];
+---
+
+<Base title="Features: messages, media, groups, polls, events and more | open-wa" description="What open-wa can send and handle from Node.js: messages, media, groups, polls, events, stickers, multi-session, encrypted sessions, live refresh, drivers and generated API docs.">
+  <PageHero title="What it can do" lede="Everything below runs against your own WhatsApp account from Node.js. Most of it needs no licence key; where a key is needed, it says so." />
+  <section class="doc wrap">
+    <nav class="toc" aria-label="On this page">
+      {features.map((f) => <a href={`#${f.id}`}>{f.name}</a>)}
+    </nav>
+    <div class="feats">
+      {features.map((f) => (
+        <article class="feat" id={f.id}>
+          <div class="feat-text">
+            <h2>{f.name}</h2>
+            <p>{f.text}</p>
+            {f.methods && <p class="methods">{f.methods.map((m) => <code>{m}</code>)}</p>}
+            {f.note && <p class="feat-note">{f.note}</p>}
+          </div>
+          {f.code && <CodeBlock code={f.code} lang={f.lang} label={f.label} />}
+        </article>
+      ))}
+    </div>
+    <p><a class="btn btn-ink" href={`${base}quickstart/`}>Try it: quick start</a></p>
+  </section>
+</Base>
+
+<style>
+  .toc { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 40px; }
+  .toc a { display: inline-flex; align-items: center; min-height: 44px; padding: 4px 14px; border: 2px solid var(--ink); border-radius: 999px; text-decoration: none; color: var(--ink); font-weight: 600; background: var(--paper); }
+  .toc a:hover { background: var(--ink); color: var(--paper); }
+  .feats { display: grid; gap: 0; margin-bottom: 40px; }
+  .feat { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(20px, 4vw, 48px); padding: 32px 0; border-top: 2px dashed rgba(28,26,46,.35); align-items: start; scroll-margin-top: calc(var(--header-h) + 16px); }
+  .feat h2 { margin-top: 0; font-size: clamp(2rem, 4vw, 3rem); }
+  .feat:not(:has(.code)) { grid-template-columns: minmax(0, 1fr); max-width: 760px; }
+  .methods { display: flex; flex-wrap: wrap; gap: 8px; }
+  .feat-note { font-size: 0.98rem; color: var(--pink-text); font-weight: 600; }
+  @media (max-width: 860px) { .feat { grid-template-columns: minmax(0, 1fr); } }
+</style>

@@ -1,0 +1,46 @@
+---
+import Page from "../layouts/Page.astro";
+import PageHead from "../components/PageHead.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import Cmd from "../components/Cmd.astro";
+import { integrations, snippets, href } from "../data/site";
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+const extra: Record<string, { code: string; lang: string; title: string }> = {
+  "cloudflare-session-proxy": { code: snippets.cfProxyConsumer, lang: "js", title: "remote consumer" },
+  "plugin-sdk": { code: snippets.plugins, lang: "js", title: "wa.config.mjs" },
+  mcp: { code: snippets.mcpConfig, lang: "js", title: "wa.config.mjs" },
+};
+---
+<Page title="Integrations: webhooks, Chatwoot, Node-RED, S3, MCP | open-wa" description="Plugins that connect a WhatsApp session to webhooks, Chatwoot, Node-RED, S3 storage, a Cloudflare session proxy and AI agents through MCP, plus a Plugin SDK for your own.">
+  <div class="wrap">
+    <PageHead kicker="integrations" title="Send WhatsApp events where your work already happens" lede="Each integration is a package you add to plugins in your config, with its settings under pluginConfig. MCP is built in." />
+    <div class="ints-page">
+      {integrations.map((x) => {
+        const id = slug(x.name);
+        return (
+          <section class="ip" id={id} aria-labelledby={`${id}-h`}>
+            <div class="ip-text">
+              <h2 id={`${id}-h`}>{x.name}</h2>
+              <p>{x.what}</p>
+              <p class="tag">{x.package}</p>
+            </div>
+            <div class="ip-code">
+              {x.package.startsWith("@") && <Cmd cmd={`npm install ${x.package}`} what={`${x.name} install command`} />}
+              {extra[id] && <CodeBlock {...extra[id]} />}
+            </div>
+          </section>
+        );
+      })}
+    </div>
+    <p class="ip-more"><a class="btn btn-amber" href={href("quickstart/")}>Quick start <span class="arrow" aria-hidden="true">→</span></a> <a class="btn" href={href("ai-agents/")}>MCP set-up</a></p>
+  </div>
+</Page>
+<style>
+  .ints-page { border-top: 1px solid var(--line); }
+  .ip { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 32px; padding: 36px 0; border-bottom: 1px solid var(--line); scroll-margin-top: 80px; }
+  .ip-text { display: grid; gap: 10px; align-content: start; }
+  .ip-text h2 { font-size: 27.5px; color: var(--amber); }
+  .ip-code { display: grid; gap: 12px; align-content: start; min-width: 0; }
+  .ip-more { padding: 40px 0 80px; display: flex; flex-wrap: wrap; gap: 10px; }
+  @media (max-width: 860px) { .ip { grid-template-columns: minmax(0, 1fr); gap: 14px; } }
+</style>

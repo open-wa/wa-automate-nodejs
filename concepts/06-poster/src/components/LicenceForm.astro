@@ -1,0 +1,193 @@
+---
+/**
+ * The licence form (the lead seam): tier, GitHub username, WhatsApp number and
+ * use case, validated as people type and on submit (never on blur), handed to
+ * submitLead("licence", ...), then a confirmation naming the tier and the
+ * prefilled Gumroad checkout as the next step.
+ */
+import { licences } from "../data/facts";
+const fields = Object.fromEntries(licences.checkoutFields.map((f) => [f.name, f]));
+const tiers = licences.tiers.map((t) => ({ id: t.id, name: t.name, month: t.prices.month, year: t.prices.year, checkout: t.checkout }));
+---
+
+<div class="licence" data-licence>
+  <form class="lf" novalidate data-tiers={JSON.stringify(tiers)}>
+    <fieldset class="lf-tiers">
+      <legend class="lf-label">{fields.tier.label}</legend>
+      <div class="lf-tier-row">
+        {tiers.map((t, i) => (
+          <label class="lf-tier">
+            <input type="radio" name="tier" value={t.id} checked={i === 0} />
+            <span class="lf-tier-card">
+              <span class="lf-tier-name">{t.name}</span>
+              <span class="lf-tier-price">from {t.month} a month, {t.year} a year</span>
+            </span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+
+    <div class="lf-field">
+      <label class="lf-label" for="lf-github">{fields.github.label}</label>
+      <input id="lf-github" name="github" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" inputmode="text" aria-describedby="lf-github-help lf-github-err" />
+      <p class="lf-help" id="lf-github-help">So the maintainer can match your key to you on GitHub and Discord.</p>
+      <p class="lf-err" id="lf-github-err" hidden></p>
+    </div>
+
+    <div class="lf-field">
+      <label class="lf-label" for="lf-phone">{fields.phone.label}</label>
+      <input id="lf-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+44 7700 900123" aria-describedby="lf-phone-help lf-phone-err" />
+      <p class="lf-help" id="lf-phone-help">{fields.phone.help} Keys are per number.</p>
+      <p class="lf-err" id="lf-phone-err" hidden></p>
+    </div>
+
+    <div class="lf-field">
+      <label class="lf-label" for="lf-use">{fields.useCase.label}</label>
+      <textarea id="lf-use" name="useCase" rows="3" placeholder={fields.useCase.placeholder} aria-describedby="lf-use-err"></textarea>
+      <p class="lf-err" id="lf-use-err" hidden></p>
+    </div>
+
+    <button class="btn btn-ink lf-submit" type="submit">Continue to checkout</button>
+    <p class="lf-small">No account needed. Next you review the price and terms on Gumroad and pay there.</p>
+  </form>
+
+  <div class="lf-done" hidden tabindex="-1">
+    <p class="lf-done-stamp" aria-hidden="true">Received</p>
+    <h3 class="lf-done-title">Your <span data-done-tier></span> licence is ready to check out</h3>
+    <p>
+      We saved the <span data-done-tier></span> details for <strong data-done-phone></strong> (GitHub <strong data-done-gh></strong>).
+      Next: a Gumroad checkout prefilled with them opens, where you review the price and terms and pay.
+      Gumroad then issues your key; pass it at launch with <code>--license-key</code>.
+    </p>
+    <div class="lf-done-actions">
+      <a class="btn btn-ink" data-done-checkout href="#">Open the prefilled checkout</a>
+      <button class="btn" type="button" data-done-edit>Change details</button>
+    </div>
+    <p class="lf-small">Concept demo: nothing was charged and no details left this browser tab.</p>
+  </div>
+</div>
+
+<style>
+  .licence { border: 2.5px solid var(--ink); border-radius: var(--radius); background: var(--paper); padding: clamp(18px, 3vw, 32px); box-shadow: 8px 8px 0 var(--blue); }
+  .lf { display: grid; gap: 22px; }
+  .lf-tiers { border: 0; padding: 0; margin: 0; min-width: 0; }
+  .lf-label { display: block; font-family: var(--font-display); font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; font-size: 1.3rem; margin-bottom: 8px; padding: 0; }
+  .lf-tier-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .lf-tier { position: relative; cursor: pointer; }
+  .lf-tier input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .lf-tier-card { display: grid; gap: 2px; min-height: 64px; padding: 12px 14px; border: 2.5px solid var(--ink); border-radius: var(--radius); background: var(--paper); transition: box-shadow 140ms var(--ease), transform 140ms var(--ease); }
+  .lf-tier-name { font-family: var(--font-display); font-weight: 900; text-transform: uppercase; font-size: 1.6rem; line-height: 1; }
+  .lf-tier-price { font-size: 0.95rem; color: var(--ink-soft); }
+  .lf-tier input:checked + .lf-tier-card { background: var(--ink); color: var(--paper); box-shadow: 4px 4px 0 var(--pink); }
+  .lf-tier input:checked + .lf-tier-card .lf-tier-price { color: rgba(242,238,227,.85); }
+  .lf-tier input:focus-visible + .lf-tier-card { outline: 3px solid var(--blue); outline-offset: 3px; }
+  .lf-field { display: grid; gap: 6px; }
+  .lf-field .lf-label { margin-bottom: 0; }
+  .lf input[type="text"], .lf input[type="tel"], .lf textarea {
+    width: 100%; min-height: 50px; padding: 10px 14px; border: 2.5px solid var(--ink); border-radius: var(--radius); background: #FBF9F3; color: var(--ink);
+    font: inherit; font-size: 1.05rem;
+  }
+  .lf textarea { resize: vertical; min-height: 96px; }
+  .lf [aria-invalid="true"] { border-color: var(--pink-text); box-shadow: 4px 4px 0 var(--pink); }
+  .lf-help { margin: 0; font-size: 0.95rem; color: var(--ink-soft); }
+  .lf-err { margin: 0; font-size: 0.95rem; color: var(--pink-text); font-weight: 600; }
+  .lf-submit { justify-self: start; }
+  .lf-small { margin: 0; font-size: 0.92rem; color: var(--ink-soft); }
+  .lf-done { display: grid; gap: 12px; position: relative; }
+  .lf-done:focus { outline: none; }
+  .lf-done-stamp { justify-self: start; margin: 0; font-family: var(--font-display); font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; font-size: 2rem; color: var(--pink-text); border: 4px double var(--pink-text); padding: 2px 14px; transform: rotate(-4deg); }
+  .lf-done-title { font-size: clamp(2rem, 4vw, 2.8rem); color: var(--blue-text); margin: 0; }
+  .lf-done p { margin: 0; }
+  .lf-done-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+  @media (max-width: 480px) { .lf-tier-row { grid-template-columns: minmax(0, 1fr); } .lf-submit { width: 100%; } }
+</style>
+
+<script>
+  import { submitLead } from "../lib/leads";
+
+  // Arabic-Indic (U+0660-0669) and Persian (U+06F0-06F9) digits become 0-9.
+  const toLatinDigits = (s: string) =>
+    s.replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+     .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0));
+  const normalisePhone = (raw: string) => {
+    let s = toLatinDigits(raw).trim().replace(/[\s().\- ]/g, "");
+    if (s.startsWith("00")) s = `+${s.slice(2)}`;
+    return s;
+  };
+
+  const root = document.querySelector<HTMLElement>("[data-licence]");
+  const form = root?.querySelector<HTMLFormElement>("form");
+  const done = root?.querySelector<HTMLElement>(".lf-done");
+  if (root && form && done) {
+    const tiers: { id: string; name: string; checkout: string }[] = JSON.parse(form.dataset.tiers ?? "[]");
+    const touched = new Set<string>();
+    const checks: Record<string, (v: string) => string> = {
+      github: (v) => {
+        const s = v.trim().replace(/^@/, "");
+        if (!s) return "Enter your GitHub username.";
+        if (!/^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$/.test(s)) return "GitHub usernames use letters, numbers and single hyphens (up to 39 characters).";
+        return "";
+      },
+      phone: (v) => {
+        const s = normalisePhone(v);
+        if (!s) return "Enter the WhatsApp number you will run, with its country code.";
+        if (!s.startsWith("+")) return "Start with + and the country code, for example +44.";
+        if (!/^\+[1-9]\d{6,14}$/.test(s)) return "That doesn't look like a full international number. Check the digits after the country code.";
+        return "";
+      },
+      useCase: (v) => (v.trim().length < 3 ? "Tell us in a few words what you will use it for." : ""),
+    };
+    const show = (name: string, force = false) => {
+      const input = form.elements.namedItem(name) as HTMLInputElement | null;
+      const err = root.querySelector<HTMLElement>(`#${input?.id}-err`) ?? root.querySelector<HTMLElement>(`#lf-use-err`);
+      if (!input || !err) return true;
+      const msg = checks[name](input.value);
+      if (!force && !touched.has(name)) return !msg;
+      input.setAttribute("aria-invalid", msg ? "true" : "false");
+      err.textContent = msg;
+      err.hidden = !msg;
+      return !msg;
+    };
+    form.addEventListener("input", (e) => {
+      const t = e.target as HTMLInputElement;
+      if (!(t.name in checks)) return;
+      if (t.value.trim()) touched.add(t.name);
+      show(t.name);
+    });
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const names = Object.keys(checks);
+      names.forEach((n) => touched.add(n));
+      const results = names.map((n) => show(n, true));
+      if (results.includes(false)) {
+        const first = names.find((n, i) => !results[i]);
+        (form.elements.namedItem(first!) as HTMLElement | null)?.focus();
+        return;
+      }
+      const data = new FormData(form);
+      const tierId = String(data.get("tier"));
+      const tier = tiers.find((t) => t.id === tierId) ?? tiers[0];
+      const github = String(data.get("github")).trim().replace(/^@/, "");
+      const phone = normalisePhone(String(data.get("phone")));
+      const button = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+      button.disabled = true;
+      button.textContent = "Saving";
+      await submitLead("licence", { tier: tier.name, github, phone, useCase: String(data.get("useCase")).trim() });
+      button.disabled = false;
+      button.textContent = "Continue to checkout";
+      root.querySelectorAll("[data-done-tier]").forEach((n) => (n.textContent = tier.name));
+      root.querySelector("[data-done-phone]")!.textContent = phone;
+      root.querySelector("[data-done-gh]")!.textContent = github;
+      root.querySelector<HTMLAnchorElement>("[data-done-checkout]")!.href = tier.checkout;
+      form.hidden = true;
+      done.hidden = false;
+      done.focus({ preventScroll: true });
+      done.scrollIntoView({ block: "nearest" });
+    });
+    root.querySelector("[data-done-edit]")?.addEventListener("click", () => {
+      done.hidden = true;
+      form.hidden = false;
+      (form.elements.namedItem("github") as HTMLElement).focus();
+    });
+  }
+</script>

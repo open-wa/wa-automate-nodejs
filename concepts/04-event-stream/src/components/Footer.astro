@@ -1,0 +1,71 @@
+---
+import Mark from "./Mark.astro";
+import { href, support, product, legal, releases, stats, starsLabel } from "../data/site";
+const groups = [
+  { title: "Product", links: [
+    ["Features", href("features/")], ["Integrations", href("integrations/")], ["AI agents", href("ai-agents/")],
+    ["Use cases", href("use-cases/")], ["Pricing", href("pricing/")], ["Compare", href("compare/")],
+  ] },
+  { title: "Developers", links: [
+    ["Quick start", href("quickstart/")], ["Docs", support.docs], ["API explorer", support.apiExplorer],
+    ["Changelog", href("changelog/")], ["Migrate from v4", href("migrate/")], ["GitHub", support.github],
+    ["npm", support.npm], ["Docker Hub", support.dockerHub],
+  ] },
+  { title: "Community", links: [
+    ["Discord", support.discord], ["Contributing", href("community/")], ["Plugin SDK", href("integrations/#plugin-sdk")],
+    ["Support and consulting", href("support/")], ["Releases", support.releases],
+  ] },
+  { title: "Legal", links: [
+    ["Terms of Service", support.terms], ["Licence", support.licenceText], ["Unofficial notice", href("legal/")],
+    ["Ban-risk notice", href("legal/#risk")],
+  ] },
+];
+const latest = releases[0];
+---
+
+<footer class="ftr">
+  <div class="ftr-in">
+    <div class="ftr-top">
+      <div class="ftr-brand">
+        <a class="mark-host ftr-mark" href={href()} aria-label="open-wa home"><Mark size={34} decorative /><span>open-wa</span></a>
+        <p class="ftr-line">Your WhatsApp number, as events and an API, in Node.js.</p>
+        <p class="ftr-status mono">
+          <span class="dot" aria-hidden="true"></span>
+          v{latest.version} released {latest.date} &middot; {starsLabel} stars &middot; {stats.discordMembers.toLocaleString("en-GB")} on Discord <span class="muted">(checked {stats.checkedOn})</span>
+        </p>
+      </div>
+      {groups.map((g) => (
+        <div class="ftr-col">
+          <h2>{g.title}</h2>
+          <ul>{g.links.map(([l, u]) => <li><a href={u}>{l}</a></li>)}</ul>
+        </div>
+      ))}
+    </div>
+    <div class="ftr-legal">
+      <p class="ftr-unofficial"><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> {product.risk}</p>
+      <p>{legal.copyright}. Maintained by {support.maintainer}. Software licence: {product.softwareLicence}. {product.terms}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ftr { border-top: 1px solid var(--line); background: #0e1013; margin-top: 96px; }
+  .ftr-in { max-width: var(--wrap); margin: 0 auto; padding: 56px var(--gutter) 40px; }
+  .ftr-top { display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); gap: 32px; }
+  .ftr-mark { display: inline-flex; align-items: center; gap: 10px; color: var(--warm); text-decoration: none; font-family: var(--font-display); font-weight: 600; font-size: 22px; min-height: 44px; --mark-bg: #0e1013; }
+  .ftr-line { color: var(--muted); margin: 12px 0 16px; max-width: 30ch; }
+  .ftr-status { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); margin-right: 6px; vertical-align: 1px; }
+  .ftr-col h2 { font-family: var(--font-mono); font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); margin: 8px 0 12px; }
+  .ftr-col ul { list-style: none; margin: 0; padding: 0; }
+  .ftr-col a { color: var(--warm); text-decoration: none; font-size: 15px; display: inline-flex; min-height: 36px; align-items: center; }
+  .ftr-col a:hover { color: var(--cyan); }
+  .ftr-legal { border-top: 1px solid var(--line); margin-top: 40px; padding-top: 24px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+  .ftr-legal p { margin: 0 0 8px; max-width: 90ch; }
+  .ftr-unofficial strong { color: var(--warm); }
+  @media (max-width: 900px) {
+    .ftr-top { grid-template-columns: 1fr 1fr; }
+    .ftr-brand { grid-column: 1 / -1; }
+    .ftr-col a { min-height: 44px; }
+  }
+</style>

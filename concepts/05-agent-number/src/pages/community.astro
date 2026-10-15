@@ -1,0 +1,29 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { support, stats, latest, snippets, href } from "../data/site";
+---
+
+<Page title="Community | open-wa" description="Join the open-wa Discord, contribute on GitHub, build a plugin with the Plugin SDK and follow releases.">
+  <section class="page-hero wrap">
+    <span class="label">Community</span>
+    <h1>Built in the open since 2019</h1>
+    <p class="lede">{stats.discordMembers.toLocaleString("en-GB")} people on Discord and {stats.githubStars.toLocaleString("en-GB")} GitHub stars, checked {stats.checkedOn}. Bring a question, a fix or a plugin.</p>
+    <p class="cm-ctas"><a class="btn btn-primary" href={support.discord}>Join the Discord</a> <a class="btn btn-ghost" href={support.github}>Star on GitHub</a></p>
+  </section>
+  <section class="wrap doc">
+    <h2>Contributing</h2>
+    <p>Fixes, docs and plugins are welcome. Bugs with a reproduction go to <a class="textlink" href={support.issues}>GitHub issues</a>, and questions go to Discord.</p>
+    <h2 id="plugin-sdk">Write a plugin</h2>
+    <p>Package your integration with <code>@open-wa/plugin-sdk</code>, then load it by path or package name:</p>
+    <CodeBlock code={snippets.plugins} lang="js" title="wa.config.mjs (excerpt)" />
+    <h2>Releases</h2>
+    <p>The latest is <a class="textlink" href={href("changelog/")}>{latest.version}, {latest.date}</a>. Watch <a class="textlink" href={support.releases}>GitHub releases</a> for every version.</p>
+  </section>
+  <div class="section"></div>
+</Page>
+
+<style>
+  .cm-ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+  .doc :global(.cb) { margin-top: 12px; }
+</style>

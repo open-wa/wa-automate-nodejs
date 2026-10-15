@@ -1,0 +1,286 @@
+---
+import { Image } from "astro:assets";
+import Page from "../layouts/Page.astro";
+import CopyCommand from "../components/CopyCommand.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import FrontDesk from "../components/FrontDesk.astro";
+import reception from "../assets/generated/reception.webp";
+import room from "../assets/generated/room.webp";
+import { commands, http, jobs, jobCard, jobLicence, insiders, restricted, priceNote, stats, kDown, releases, support, product, capabilities, integrations, DOCS } from "../data/facts";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const latest = releases[0];
+const chipClass = { free: "chip--free", insiders: "chip--insiders", restricted: "chip--restricted", preview: "chip--preview" } as const;
+
+const steps = [
+  { n: "1", title: "Run the command", text: "It starts an Easy API instance on the port you choose, on your laptop, a server or in Docker." },
+  { n: "2", title: "Scan the QR code", text: "Scan the code it prints with the business's phone, or use link-code login. The number stays the one guests already have." },
+  { n: "3", title: "Call it from any language", text: "Every method is an HTTP endpoint, listed live at /api-docs/. PHP, Python, Go, n8n's HTTP node and PBX scripts work as well as Node.js." },
+];
+
+const byJob = [
+  { job: "Replying to guests and customers who wrote to you: bookings, directions, wifi codes, media, order questions", need: "No key", kind: "free", price: "Free" },
+  { job: "Buttons and lists, number checks (checkNumberStatus), status posts", need: insiders.name, kind: "insiders", price: `${insiders.prices.month} a month` },
+  { job: "First messages to new numbers: OTP codes, check-in details to guests who haven't written, new order chats, creating groups", need: restricted.name, kind: "restricted", price: `${restricted.prices.month} a month` },
+  { job: "Answering and making WhatsApp calls, audio to a PBX", need: "Calling-enabled key", kind: "preview", price: "Licensed preview" },
+  { job: "Stickers from photos", need: "No key", kind: "free", price: "Relies on the current sticker patch" },
+] as const;
+
+const extras = [
+  { title: "Polls and event cards", text: capabilities.events },
+  { title: "Media of every kind", text: capabilities.media },
+  { title: "Several numbers at once", text: capabilities.multiSession },
+  { title: "Live refresh", text: capabilities.refresh },
+];
+---
+
+<Page title="open-wa: your WhatsApp number as an API for bookings, codes and calls" description={product.oneLine}>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="kicker">Open-source WhatsApp automation</p>
+        <h1>Run the front desk from your own WhatsApp number.</h1>
+      </div>
+      <div class="hero-act">
+        <p class="hero-sub">One command turns the number into an HTTP API. Your code sends check-in details, map pins, booking PDFs and login codes, and answers calls, from Node.js, PHP, Python or a PBX script.</p>
+        <CopyCommand command={commands.easyApi} id="run" />
+        <div class="btn-row">
+          <a class="btn btn--primary" href={`${base}quickstart/`}>Quick start <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn btn--ghost" href={DOCS}>Docs</a>
+        </div>
+        <p class="hero-risk">Free and open source. Unofficial: automation can get a number banned. <a href="#risk">Read the risk</a>.</p>
+      </div>
+    </div>
+
+    <div class="stage" id="desk">
+      <div class="stage-photo" aria-hidden="true">
+        <Image src={reception} alt="" widths={[800, 1600]} sizes="100vw" loading="eager" />
+      </div>
+      <div class="wrap stage-in">
+        <FrontDesk />
+        <p class="stage-note">Harbour House is an example hotel; Sam, the numbers and the booking are invented. Background: illustration of a hotel reception.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section recipes" id="recipes">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="kicker">Recipes</p>
+        <h2>The same number runs every other job.</h2>
+        <p>The hotel is one recipe. Salons, clinics, shops, phone lines and bots use the same command and the same API. Each recipe has the flow, the code and the licence it needs.</p>
+      </div>
+      <ul class="job-grid" role="list">
+        {jobs.map((j) => {
+          const lic = jobLicence[j.id];
+          return (
+            <li class:list={["job", { "job--hotel": j.id === "hotel-notifications" }]}>
+              <div class="job-in">
+                <h3><a href={`${base}recipes/${j.id}/`}>{j.name}</a>{j.id === "hotel-notifications" && <span class="example-tag">Shown above</span>}</h3>
+                <p>{jobCard[j.id].line}</p>
+                <div class="job-foot">
+                  <span class="job-preview">{jobCard[j.id].preview}</span>
+                  <span class:list={["chip", chipClass[lic.kind]]}>{lic.short}</span>
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      <a class="link-arrow" href={`${base}recipes/`}>All recipes <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <section class="section section--paper how" id="how">
+    <div class="wrap how-grid">
+      <div>
+        <div class="section-head">
+          <p class="kicker">How it works</p>
+          <h2>Three steps, then it's plain HTTP.</h2>
+        </div>
+        <ol class="steps">
+          {steps.map((s) => (
+            <li><span class="step-n" aria-hidden="true">{s.n}</span><div><h3>{s.title}</h3><p>{s.text}</p></div></li>
+          ))}
+        </ol>
+      </div>
+      <div class="how-code">
+        <CodeBlock code={commands.easyApi} lang="bash" title="1. Run" />
+        <CodeBlock code={http.sendTextCurl} lang="bash" title="3. Send a message with curl" />
+        <p class="small muted">{http.chatId} Every other method is listed at <code>/api-docs/</code> on your running instance.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section licensing" id="licences">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="kicker">Free and licensed, by job</p>
+        <h2>Replying is free. Writing first needs a key.</h2>
+        <p>The library is free and most methods need no key. A key is bought per WhatsApp number and passed at launch with <code>--license-key</code>.</p>
+      </div>
+      <div class="table-wrap lic-table">
+        <table>
+          <thead><tr><th scope="col">The job</th><th scope="col">What it needs</th><th scope="col">Price</th></tr></thead>
+          <tbody>
+            {byJob.map((r) => (
+              <tr><td>{r.job}</td><td data-label="Needs"><span class:list={["chip", chipClass[r.kind]]}>{r.need}</span></td><td class="price" data-label="Price">{r.price}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="small muted lic-note">{priceNote} Calling is a licensed preview; audio only.</p>
+      <div class="btn-row"><a class="btn btn--ocean" href={`${base}pricing/`}>Prices and the licence form <span class="arrow" aria-hidden="true">→</span></a></div>
+    </div>
+  </section>
+
+  <section class="section section--paper extras">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="kicker">Also at the desk</p>
+        <h2>What else it sends, receives and plugs into.</h2>
+      </div>
+      <div class="grid grid-2 extras-grid">
+        {extras.map((x) => <div class="card"><h3>{x.title}</h3><p>{x.text}</p></div>)}
+      </div>
+      <ul class="int-row" role="list">
+        {integrations.map((i) => <li><strong>{i.name}</strong> <span>{i.what}</span></li>)}
+      </ul>
+      <div class="btn-row"><a class="link-arrow" href={`${base}features/`}>Every feature <span aria-hidden="true">→</span></a><a class="link-arrow" href={`${base}integrations/`}>Integrations <span aria-hidden="true">→</span></a></div>
+    </div>
+  </section>
+
+  <section class="section risk" id="risk">
+    <div class="wrap risk-grid">
+      <div>
+        <p class="kicker">Before you hand it the hotel's number</p>
+        <h2>Unofficial, with a real ban risk.</h2>
+        <div class="risk-text">
+          <p>{product.unofficial}</p>
+          <p>{product.risk}</p>
+          <p>If a business needs an officially supported route, compare it with the WhatsApp Business Platform: it needs a Meta business account, approved templates and per-message pricing. <a href={`${base}compare/`}>Read the comparison</a>.</p>
+        </div>
+      </div>
+      <div class="signals">
+        <p class="signals-title">Maintained by {support.maintainer} since 2019</p>
+        <dl>
+          <div><dt>GitHub stars</dt><dd>{kDown(stats.githubStars)}</dd></div>
+          <div><dt>npm downloads, 12 months</dt><dd>{kDown(stats.npmDownloadsLast12Months)}</dd></div>
+          <div><dt>Discord members</dt><dd>{kDown(stats.discordMembers)}</dd></div>
+          <div><dt>Published versions</dt><dd>{stats.publishedVersions}</dd></div>
+        </dl>
+        <p class="small muted">Checked {stats.checkedOn} on GitHub, npm and Discord.</p>
+        <a class="release" href={`${base}changelog/`}>
+          <span class="release-v">v{latest.version}</span>
+          <span><strong>{latest.headline}</strong><span class="muted"> · {latest.date}</span></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing on-ocean">
+    <div class="closing-photo" aria-hidden="true"><Image src={room} alt="" widths={[800, 1400]} sizes="100vw" /></div>
+    <div class="wrap"><div class="closing-in">
+      <h2>Open the desk on your number today.</h2>
+      <p>Run it, scan it, and send a check-in from curl.</p>
+      <CopyCommand command={commands.easyApi} tone="ocean" label="Run the Easy API" />
+      <div class="btn-row">
+        <a class="btn btn--primary" href={`${base}quickstart/`}>Quick start <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn--ghost" href={support.discord}>Join the Discord</a>
+        <a class="btn btn--ghost" href={support.github}>Star on GitHub</a>
+      </div>
+      <p class="closing-cap">Background: illustration of a guest room.</p>
+    </div></div>
+  </section>
+</Page>
+
+<style>
+  .hero { padding-top: clamp(28px, 5vw, 64px); }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 24px clamp(32px, 5vw, 72px); align-items: end; }
+  .hero h1 { max-width: 13ch; }
+  .hero-act { display: grid; gap: 18px; min-width: 0; }
+  .hero-sub { font-size: 1.1875rem; line-height: 1.55; color: var(--ocean-700); }
+  .hero-risk { font-size: 0.9375rem; color: var(--color-muted); }
+  .hero-risk a { color: var(--terracotta-ink); font-weight: 600; }
+
+  .stage { position: relative; margin-top: clamp(32px, 5vw, 56px); padding-bottom: clamp(40px, 6vw, 80px); }
+  .stage-photo { position: absolute; inset: clamp(80px, 10vw, 140px) 0 0; overflow: hidden; }
+  .stage-photo :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; filter: saturate(.85); }
+  .stage-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, var(--sand) 0%, rgba(239,231,218,.25) 30%, rgba(15,59,87,.18) 100%); }
+  .stage-in { position: relative; }
+  .stage-note { margin-top: 14px; font-size: 0.875rem; color: var(--paper); text-shadow: 0 1px 2px rgba(10,42,63,.7); }
+
+  .job-grid { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+  .job { position: relative; background: var(--paper); border: 1px solid var(--color-line); border-radius: var(--radius-lg); overflow: hidden; display: grid; transition: transform var(--speed) var(--ease), box-shadow var(--speed) var(--ease); }
+  .job:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+  .job--hotel { border-color: var(--terracotta); box-shadow: inset 0 3px 0 var(--terracotta); }
+  .job-in { display: grid; gap: 10px; padding: 22px; grid-template-rows: auto 1fr auto; height: 100%; }
+  .job-in h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+  .job h3 a { text-decoration: none; }
+  .job h3 a::after { content: ""; position: absolute; inset: 0; }
+  .job h3 a:focus-visible { outline: none; }
+  .job:has(a:focus-visible) { outline: 2px solid var(--terracotta-ink); outline-offset: 3px; }
+  .job p { color: var(--color-muted); }
+  .job-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-top: 6px; }
+  .job-preview { font: 400 1rem/1.3 var(--font-mono); color: var(--ocean-700); background: var(--sand-100); padding: 4px 8px; border-radius: 8px; overflow-wrap: anywhere; }
+
+  .how-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(32px, 5vw, 72px); align-items: start; }
+  .steps { list-style: none; display: grid; gap: 22px; }
+  .steps li { display: grid; grid-template-columns: 48px 1fr; gap: 16px; }
+  .step-n { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--ocean); color: var(--sand); font: 400 1.35rem/1 var(--font-display); }
+  .steps h3 { margin-bottom: 4px; }
+  .steps p { color: var(--color-muted); }
+  .how-code { display: grid; gap: 14px; min-width: 0; }
+
+  .price { white-space: nowrap; font-weight: 600; }
+  .lic-note { margin: 14px 0 22px; }
+
+  .extras-grid { margin-bottom: 28px; }
+  .int-row { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 0 24px; border-top: 1px solid var(--color-line); margin-bottom: 18px; }
+  .int-row li { padding: 14px 0; border-bottom: 1px solid var(--color-line); display: grid; }
+  .int-row span { color: var(--color-muted); font-size: 1rem; }
+
+  .risk-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: clamp(32px, 5vw, 72px); align-items: start; }
+  .risk h2 { margin-bottom: 20px; }
+  .risk-text { display: grid; gap: 14px; font-size: 1.0625rem; }
+  .risk-text a { color: var(--terracotta-ink); font-weight: 600; }
+  .signals { background: var(--paper); border: 1px solid var(--color-line); border-radius: var(--radius-lg); padding: 24px; display: grid; gap: 14px; }
+  .signals-title { font: 400 1.25rem/1.3 var(--font-display); }
+  .signals dl { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--color-line); border: 1px solid var(--color-line); border-radius: 12px; overflow: hidden; }
+  .signals dl div { background: var(--sand-50); padding: 12px 14px; display: grid; }
+  .signals dt { font-size: 0.875rem; color: var(--color-muted); }
+  .signals dd { margin: 0; font: 400 1.6rem/1.2 var(--font-display); }
+  .release { display: flex; align-items: center; gap: 12px; min-height: 48px; text-decoration: none; padding: 10px 12px; border-radius: 12px; background: var(--sand-100); }
+  .release-v { font: 700 1rem/1 var(--font-mono); background: var(--ocean); color: var(--sand); padding: 6px 8px; border-radius: 8px; }
+
+  .closing { position: relative; color: var(--sand-50); padding-block: clamp(80px, 11vw, 150px); overflow: hidden; background: var(--ocean); }
+  .closing-photo { position: absolute; inset: 0; }
+  .closing-photo :global(img) { width: 100%; height: 100%; object-fit: cover; opacity: .35; mix-blend-mode: luminosity; }
+  .closing-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(15,59,87,.96) 0%, rgba(15,59,87,.82) 55%, rgba(15,59,87,.55) 100%); }
+  .closing-in { position: relative; display: grid; gap: 20px; max-width: 760px; min-width: 0; }
+  .closing h2 { font-size: clamp(2.2rem, 1.5rem + 3vw, 3.6rem); }
+  .closing p { font-size: 1.1875rem; color: var(--ocean-100); }
+  .closing .closing-cap { font-size: 0.875rem; color: var(--ocean-300); }
+
+  @media (max-width: 1000px) {
+    .hero-grid, .how-grid, .risk-grid { grid-template-columns: 1fr; }
+    .job-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 2.3rem; }
+    .hero-grid { gap: 14px; }
+    .hero-act { gap: 14px; }
+    .hero-sub { font-size: 1.0625rem; }
+    .job-grid { grid-template-columns: 1fr; }
+    .signals dl { grid-template-columns: 1fr; }
+    .stage { margin-top: 24px; }
+    .lic-table { border: 0; background: none; overflow: visible; }
+    .lic-table table { min-width: 0; display: block; }
+    .lic-table thead { display: none; }
+    .lic-table tbody { display: grid; gap: 10px; }
+    .lic-table tr { display: grid; gap: 8px; padding: 16px; background: var(--paper); border: 1px solid var(--color-line); border-radius: 14px; }
+    .lic-table td { border: 0; padding: 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .lic-table td[data-label]::before { content: attr(data-label); color: var(--color-muted); font-size: 0.9375rem; }
+    .lic-table .price { white-space: normal; text-align: right; }
+  }
+</style>

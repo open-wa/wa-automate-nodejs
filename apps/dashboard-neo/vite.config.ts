@@ -19,6 +19,8 @@ const config = defineConfig({
       // The checkout can run the dashboard before workspace packages have been
       // built. Resolve browser-safe package entry points to their TypeScript
       // sources so Vite can transpile them in the dev server.
+      { find: /^@open-wa\/logger$/, replacement: resolve(repoRoot, "packages/logger/src/browser.ts") },
+      { find: /^@open-wa\/hyperemitter$/, replacement: resolve(repoRoot, "packages/hyperemitter/src/index.ts") },
       { find: /^@open-wa\/screencaster\/client$/, replacement: resolve(repoRoot, "packages/screencaster/src/client.ts") },
       { find: /^@open-wa\/socket-client\/calling-platform$/, replacement: resolve(repoRoot, 'packages/socket-client/src/calling-platform.browser.ts') },
       { find: /^@open-wa\/schema\/calling-media$/, replacement: resolve(repoRoot, 'packages/schema/src/calling-media.ts') },

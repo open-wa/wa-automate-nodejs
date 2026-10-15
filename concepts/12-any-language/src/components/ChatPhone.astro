@@ -1,0 +1,129 @@
+---
+// A drawn phone playing one recipe's example conversation. Messages pop in
+// when the phone scrolls into view; reduced motion or ?still shows them settled.
+import type { Convo } from "../data/conversations";
+interface Props { convo: Convo; label: string }
+const { convo, label } = Astro.props;
+---
+<div class="cp" data-cp role="img" aria-label={`Drawn phone, example conversation: ${label}`}>
+  <div class="cp-screen">
+    <div class="cp-status" aria-hidden="true"><span>09:41</span><span class="cp-island"></span><span>5G</span></div>
+    <div class="cp-head"><span class="cp-av">{convo.initials}</span><span><b>{convo.biz}</b><small>Example business</small></span></div>
+    <div class="cp-chat">
+      {convo.msgs.map((m, i) => {
+        const d = `--d:${i * 380}ms`;
+        if (m.t === "text") return <div class:list={["cm", m.from === "me" ? "cm-me" : "cm-biz"]} style={d}>{m.body}{m.time && <span class="cm-t">{m.time}</span>}</div>;
+        if (m.t === "note") return <p class="cm-note" style={d}>{m.body}</p>;
+        if (m.t === "poll") return (
+          <div class="cm cm-biz cm-poll" style={d}>
+            <b>{m.title}</b>
+            {m.options.map((o, j) => <span class:list={["po", j === m.picked && "po-on"]}><span class="po-box" aria-hidden="true"></span>{o}{j === m.picked && <em>1 vote</em>}</span>)}
+          </div>
+        );
+        if (m.t === "event") return (
+          <div class="cm cm-biz cm-event" style={d}>
+            <span class="ev-date" aria-hidden="true">FRI</span>
+            <span><b>{m.name}</b><small>Event · {m.when}</small></span>
+            <span class="ev-rsvp"><span class="on">Going</span><span>Maybe</span><span>Not going</span></span>
+          </div>
+        );
+        if (m.t === "location") return (
+          <div class="cm cm-biz cm-loc" style={d}>
+            <span class="loc-map" aria-hidden="true"><span class="loc-pin"></span></span>
+            <b>{m.name}</b><small>{m.address}</small>
+          </div>
+        );
+        if (m.t === "doc") return (
+          <div class="cm cm-biz" style={d}>
+            <span class="doc"><span class="doc-ic" aria-hidden="true">PDF</span><b>{m.file}</b></span>
+            {m.caption}
+          </div>
+        );
+        if (m.t === "image") return (
+          <div class="cm cm-biz cm-img" style={d}>
+            <span class="img" aria-hidden="true"><span>{m.label}</span></span>
+            {m.caption}
+          </div>
+        );
+        if (m.t === "voice") return (
+          <div class="cm cm-biz cm-voice" style={d}>
+            <span class="vplay" aria-hidden="true"></span>
+            <span class="vwave" aria-hidden="true">{Array.from({ length: 18 }).map((_, k) => <i style={`height:${4 + ((k * 5) % 16)}px`}></i>)}</span>
+            <small>{m.secs}</small>
+          </div>
+        );
+        if (m.t === "photo") return <div class="cm-photo" style={d}><span>{m.label}</span></div>;
+        if (m.t === "sticker") return (
+          <div class="cm-sticker" style={d} aria-hidden="true">
+            <svg viewBox="0 0 120 120" width="120" height="120"><circle cx="60" cy="60" r="50" fill="#fff" /><circle cx="60" cy="60" r="44" fill="#FF4D3D" /><circle cx="48" cy="54" r="5" fill="#0B1020" /><circle cx="72" cy="54" r="5" fill="#0B1020" /><path d="M44 72q16 14 32 0" stroke="#0B1020" stroke-width="5" fill="none" stroke-linecap="round" /><path d="M96 18l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#F5F2EB" stroke="#0B1020" stroke-width="2" /></svg>
+            <small>{m.pack}</small>
+          </div>
+        );
+        if (m.t === "call") return <div class="cm cm-me cm-call" style={d}><span class="call-ic" aria-hidden="true"></span>{m.state}<span class="cm-t">0:48</span></div>;
+      })}
+    </div>
+  </div>
+</div>
+<script>
+  import { shouldAnimate } from "../lib/runtime";
+  document.querySelectorAll<HTMLElement>("[data-cp]").forEach((el) => {
+    if (!shouldAnimate()) return;
+    el.classList.add("cp-wait");
+    const io = new IntersectionObserver(([e]) => { if (e?.isIntersecting) { el.classList.remove("cp-wait"); el.classList.add("cp-play"); io.disconnect(); } }, { threshold: 0.3 });
+    io.observe(el);
+  });
+</script>
+<style>
+  .cp { width: 290px; max-width: 100%; height: 580px; border-radius: 44px; padding: 9px; background: #1d2440; box-shadow: inset 0 0 0 1.5px #3a4570, 0 30px 60px -20px rgba(0,0,0,.7); }
+  .cp-screen { height: 100%; border-radius: 36px; overflow: hidden; background: var(--paper); color: var(--ink); display: flex; flex-direction: column; }
+  .cp-status { display: flex; justify-content: space-between; align-items: center; padding: 10px 22px 4px; font: 700 12px var(--font-text); }
+  .cp-island { width: 74px; height: 20px; border-radius: 12px; background: var(--navy); }
+  .cp-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid #ddd6c6; }
+  .cp-head b { display: block; font: 700 15px var(--font-display); }
+  .cp-head small { display: block; font-size: 12px; color: var(--muted-paper); }
+  .cp-av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--red); color: var(--navy); font: 800 12px var(--font-display); }
+  .cp-chat { flex: 1; overflow: hidden; padding: 12px; display: flex; flex-direction: column; gap: 8px; background-image: radial-gradient(#e2dccd 1px, transparent 1px); background-size: 14px 14px; }
+  .cm { max-width: 86%; padding: 9px 11px 18px; font-size: 13.5px; line-height: 1.4; position: relative; border-radius: 14px; }
+  .cm-me { align-self: flex-end; background: #fff; border: 1px solid #ddd6c6; border-bottom-right-radius: 4px; }
+  .cm-biz { align-self: flex-start; background: var(--navy); color: var(--paper); border-bottom-left-radius: 4px; }
+  .cm-t { position: absolute; right: 10px; bottom: 4px; font-size: 10.5px; opacity: .7; }
+  .cm-note { align-self: center; margin: 2px 0; font: 600 11px var(--font-text); color: var(--muted-paper); background: var(--paper-2); padding: 2px 8px; border-radius: 6px; text-align: center; }
+  .cm-poll { display: grid; gap: 6px; padding-bottom: 11px; min-width: 70%; }
+  .po { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .po em { margin-left: auto; font-style: normal; font-size: 11px; opacity: .7; }
+  .po-box { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--paper); flex: none; }
+  .po-on .po-box { background: var(--red); border-color: var(--red); }
+  .cm-event { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; padding-bottom: 11px; }
+  .cm-event b { display: block; font-size: 13px; }
+  .cm-event small { font-size: 11px; opacity: .75; }
+  .ev-date { width: 40px; height: 44px; border-radius: 8px; background: var(--paper); color: var(--ink); display: grid; place-items: center; font: 800 13px var(--font-display); line-height: 1; letter-spacing: .04em; color: var(--red-ink); }
+  .ev-date small { font-size: 9px; color: var(--red-ink); opacity: 1; }
+  .ev-rsvp { grid-column: 1 / -1; display: flex; gap: 4px; }
+  .ev-rsvp span { flex: 1; text-align: center; font-size: 11px; padding: 4px 2px; border-radius: 6px; border: 1px solid #3a4570; }
+  .ev-rsvp .on { background: var(--red); color: var(--navy); border-color: var(--red); font-weight: 700; }
+  .cm-loc { display: grid; padding: 6px 6px 18px; }
+  .cm-loc b, .cm-loc small { padding: 0 6px; }
+  .cm-loc small { font-size: 11.5px; opacity: .75; }
+  .loc-map { height: 86px; border-radius: 9px; margin-bottom: 6px; position: relative; background: linear-gradient(90deg, transparent 47%, #3a4a78 47% 53%, transparent 53%), linear-gradient(0deg, transparent 40%, #3a4a78 40% 46%, transparent 46%), linear-gradient(135deg, #1b2a52, #22335f); }
+  .loc-pin { position: absolute; left: 50%; top: 40%; width: 16px; height: 16px; border-radius: 50% 50% 50% 0; background: var(--red); transform: translate(-50%, -80%) rotate(-45deg); }
+  .doc { display: flex; gap: 8px; align-items: center; background: #19213f; border-radius: 9px; padding: 8px; margin-bottom: 6px; }
+  .doc b { font: 600 12px var(--font-mono); }
+  .doc-ic { width: 30px; height: 36px; border-radius: 5px; background: var(--red); color: var(--navy); display: grid; place-items: end center; font: 800 9px var(--font-mono); padding-bottom: 3px; flex: none; }
+  .cm-img { padding: 6px 6px 18px; }
+  .img { display: grid; place-items: center; height: 110px; border-radius: 9px; margin-bottom: 6px; background: repeating-linear-gradient(45deg, #26335e 0 10px, #1e2a52 10px 20px); font: 500 11px var(--font-mono); color: var(--muted); }
+  .cm-voice { display: flex; align-items: center; gap: 8px; padding-bottom: 11px; }
+  .vplay { width: 0; height: 0; border-left: 10px solid var(--paper); border-top: 6px solid transparent; border-bottom: 6px solid transparent; }
+  .vwave { display: flex; align-items: center; gap: 2px; height: 20px; }
+  .vwave i { width: 3px; border-radius: 2px; background: var(--paper); opacity: .8; }
+  .cm-voice small { font-size: 11px; opacity: .75; }
+  .cm-photo { align-self: flex-end; width: 150px; height: 120px; border-radius: 12px; display: grid; place-items: center; background: repeating-linear-gradient(-45deg, #e7e0cf 0 8px, #ddd5c2 8px 16px); border: 1px solid #d3cbb8; font: 500 11px var(--font-mono); color: var(--muted-paper); }
+  .cm-sticker { align-self: flex-start; display: grid; justify-items: center; gap: 2px; }
+  .cm-sticker svg { filter: drop-shadow(0 4px 6px rgba(11,16,32,.25)); }
+  .cm-sticker small { font-size: 10.5px; color: var(--muted-paper); }
+  .cm-call { display: flex; align-items: center; gap: 8px; }
+  .call-ic { width: 14px; height: 14px; border-radius: 3px 3px 8px 3px; background: var(--red); transform: rotate(-20deg); }
+
+  .cp-wait .cp-chat > * { opacity: 0; }
+  .cp-play .cp-chat > * { animation: cpPop 420ms var(--d, 0ms) var(--ease-plug) both; }
+  @keyframes cpPop { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: none; } }
+</style>

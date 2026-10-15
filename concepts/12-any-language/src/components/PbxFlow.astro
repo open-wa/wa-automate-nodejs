@@ -1,0 +1,99 @@
+---
+/**
+ * A WhatsApp call flowing from the caller, through open-wa, through a small
+ * adapter, into the business's phone system. Two audio lanes run in opposite
+ * directions; call-state events tick along the bottom. Reduced motion or
+ * ?still: settled, with arrowheads instead of moving pulses.
+ */
+import { job } from "../data/facts";
+const pbx = job("pbx-calls");
+---
+<figure class="pbx" data-pbx>
+  <div class="pbx-row">
+    <div class="node node-caller">
+      <span class="node-k">Caller</span>
+      <b>WhatsApp call</b>
+      <span class="node-s">to the business's own number</span>
+      <span class="node-ring" aria-hidden="true"></span>
+    </div>
+    <div class="wire" aria-hidden="true"><span class="lane lane-a"></span><span class="lane lane-b"></span></div>
+    <div class="node node-ow">
+      <span class="node-k">open-wa</span>
+      <b class="mono">onIncomingCall</b>
+      <span class="node-s mono">call.accept(fromPbx, toPbx)</span>
+    </div>
+    <div class="wire wire-fmt" aria-hidden="true"><span class="lane lane-a"></span><span class="lane lane-b"></span><span class="wire-label">PCM16 · 16 kHz · mono</span></div>
+    <div class="node node-adapter">
+      <span class="node-k">Your adapter</span>
+      <b>wss:// bridge</b>
+      <span class="node-s">most PBXs need a small one</span>
+    </div>
+    <div class="wire" aria-hidden="true"><span class="lane lane-a"></span><span class="lane lane-b"></span></div>
+    <div class="node node-pbx">
+      <span class="node-k">Your phone system</span>
+      <b>PBX, IVR or recorder</b>
+      <span class="node-s">in its own socket format</span>
+    </div>
+  </div>
+  <ol class="states" aria-label="Call state events from onCallState">
+    <li><span class="st-dot"></span><span class="mono">ringing</span></li>
+    <li><span class="st-dot"></span><span class="mono">connected</span></li>
+    <li><span class="st-dot"></span><span class="mono">ended</span></li>
+  </ol>
+  <figcaption class="pbx-cap">
+    Audio runs both ways as {pbx.audio.split(";")[0].replace("Streams are ", "")}. Illustration of the flow; the adapter is code you write or reuse.
+  </figcaption>
+</figure>
+
+<style>
+  .pbx { margin: 0; display: grid; gap: 22px; }
+  .pbx-row { display: grid; grid-template-columns: 1fr 70px 1.15fr 120px 1fr 70px 1fr; align-items: center; }
+  .node { position: relative; display: grid; gap: 4px; padding: 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--navy-2); min-height: 118px; align-content: center; }
+  .node b { font: 700 17px var(--font-display); }
+  .node b.mono { font: 600 16px var(--font-mono); color: var(--sky); }
+  .node-k { font: 600 12.5px var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--red); }
+  .node-s { font-size: 15px; color: var(--muted); overflow-wrap: anywhere; }
+  .node-s.mono { font-size: 13.5px; color: var(--peach); }
+  .node-ow { border-color: var(--red); box-shadow: 0 0 0 4px color-mix(in srgb, var(--red) 12%, transparent); }
+  .node-adapter { border-style: dashed; background: transparent; }
+  .node-ring { position: absolute; top: 12px; right: 12px; width: 10px; height: 10px; border-radius: 50%; background: var(--red); }
+  .wire { position: relative; height: 34px; display: grid; align-content: center; gap: 8px; }
+  .lane { display: block; height: 2px; background-image: linear-gradient(90deg, var(--paper) 0 6px, transparent 6px 14px); background-size: 14px 2px; opacity: .55; position: relative; }
+  .lane-b { background-image: linear-gradient(90deg, var(--red) 0 6px, transparent 6px 14px); opacity: .85; }
+  .lane-a::after, .lane-b::before { content: ""; position: absolute; top: -4px; border: 5px solid transparent; }
+  .lane-a::after { right: -2px; border-left-color: var(--paper); border-right: 0; }
+  .lane-b::before { left: -2px; border-right-color: var(--red); border-left: 0; }
+  .wire-label { position: absolute; left: 50%; top: -22px; transform: translateX(-50%); white-space: nowrap; font: 600 12.5px var(--font-mono); color: var(--paper); background: var(--navy); padding: 2px 6px; border: 1px solid var(--line); border-radius: 6px; }
+  .states { list-style: none; margin: 0; padding: 0; display: flex; gap: 0; border-top: 1px solid var(--line); padding-top: 16px; }
+  .states li { flex: 1; display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 15px; position: relative; }
+  .states li + li::before { content: ""; position: absolute; left: -12px; width: 8px; height: 1px; }
+  .st-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--red); }
+  .states li:nth-child(2) .st-dot { background: var(--red); }
+  .pbx-cap { font-size: 16px; color: var(--muted); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html:not(.still)) .pbx .lane-a { animation: flowR 900ms linear infinite; }
+    :global(html:not(.still)) .pbx .lane-b { animation: flowL 900ms linear infinite; }
+    :global(html:not(.still)) .pbx .node-ring { animation: ringDot 1.6s ease-out infinite; }
+    :global(html:not(.still)) .pbx .states li .st-dot { animation: stateOn 4.5s steps(1) infinite; }
+    :global(html:not(.still)) .pbx .states li:nth-child(2) .st-dot { animation-delay: 1.5s; }
+    :global(html:not(.still)) .pbx .states li:nth-child(3) .st-dot { animation-delay: 3s; }
+  }
+  @keyframes flowR { to { background-position: 14px 0; } }
+  @keyframes flowL { to { background-position: -14px 0; } }
+  @keyframes ringDot { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--red) 60%, transparent); } 100% { box-shadow: 0 0 0 12px transparent; } }
+  @keyframes stateOn { 0% { background: var(--red); } 33% { background: transparent; } }
+
+  @media (max-width: 900px) {
+    .pbx-row { grid-template-columns: 1fr; justify-items: stretch; }
+    .wire { height: 56px; width: 34px; justify-self: center; grid-auto-flow: column; align-content: stretch; justify-content: center; gap: 8px; }
+    .lane { width: 2px; height: 100%; background-image: linear-gradient(180deg, var(--paper) 0 6px, transparent 6px 14px); background-size: 2px 14px; }
+    .lane-b { background-image: linear-gradient(180deg, var(--red) 0 6px, transparent 6px 14px); }
+    .lane-a::after { right: auto; left: -4px; top: auto; bottom: -2px; border: 5px solid transparent; border-top-color: var(--paper); border-bottom: 0; }
+    .lane-b::before { left: -4px; top: -2px; border: 5px solid transparent; border-bottom-color: var(--red); border-top: 0; }
+    .wire-label { top: 50%; left: calc(100% + 10px); transform: translateY(-50%); }
+    .states { flex-direction: column; gap: 10px; }
+    @keyframes flowR { to { background-position: 0 14px; } }
+    @keyframes flowL { to { background-position: 0 -14px; } }
+  }
+</style>

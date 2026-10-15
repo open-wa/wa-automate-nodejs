@@ -1,0 +1,19 @@
+---
+import Base from "./Base.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+interface Props { title: string; description: string; cta?: boolean }
+const { title, description, cta = true } = Astro.props;
+---
+<Base title={title} description={description} themeColor="#FAFAF7">
+  <Header />
+  <main id="main"><slot /></main>
+  <Footer cta={cta} />
+  <div class="sr-only" aria-live="polite" id="announcer"></div>
+</Base>
+<style is:global>
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+<script>
+  import "../lib/ui";
+</script>

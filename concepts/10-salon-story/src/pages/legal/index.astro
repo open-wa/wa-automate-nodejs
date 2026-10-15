@@ -1,0 +1,25 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import { legal, product, support } from "../../data/site";
+---
+<Base title="Legal: unofficial notice, terms and licence | open-wa" description="open-wa is unofficial software not affiliated with WhatsApp or Meta. The ban-risk notice, Terms of Service, software licence and export notice.">
+  <PageHead title="Legal" lead="The short version: open-wa is unofficial, using it can get a number banned, and using it means you accept the Terms of Service." />
+  <div class="wrap prose lg">
+    <h2 id="unofficial">Unofficial notice</h2>
+    <p>{legal.affiliation}</p>
+    <p>{product.unofficial}</p>
+    <h2 id="risk">Ban risk</h2>
+    <p>{product.risk}</p>
+    <h2 id="terms">Terms of Service</h2>
+    <p>{product.terms} <a href={support.terms} rel="noopener">Read the Terms of Service</a>.</p>
+    <h2 id="licence">Software licence</h2>
+    <p>open-wa is released under the {product.softwareLicence}. <a href={support.licenceText} rel="noopener">Read the licence</a>.</p>
+    <h2 id="crypto">Cryptography notice</h2>
+    <p>{legal.crypto}</p>
+    <h2>Licence keys</h2>
+    <p>Keys are sold per WhatsApp number through Gumroad, which handles payment and receipts.</p>
+    <p>{legal.copyright}. Maintained by {support.maintainer}.</p>
+  </div>
+</Base>
+<style>.lg { padding-block: 24px 96px; max-width: 820px; }</style>

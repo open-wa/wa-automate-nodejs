@@ -1,0 +1,45 @@
+---
+import Mark from "./Mark.astro";
+import { f, href, S, stars, checked } from "../data/facts";
+const cols = [
+  { h: "Product", links: [["Features", href("features/")], ["Recipes", href("recipes/")], ["Integrations", href("integrations/")], ["Pricing", href("pricing/")], ["Compare", href("compare/")]] },
+  { h: "Developers", links: [["Quick start", href("quickstart/")], ["Docs", S.docs], ["API explorer", S.apiExplorer], ["Changelog", href("changelog/")], ["Migrate from v4", href("migrate/")], ["GitHub", S.github], ["npm", S.npm], ["Docker Hub", S.dockerHub]] },
+  { h: "Community", links: [["Discord", S.discord], ["Contributing", href("community/")], ["Plugin SDK", href("integrations/#plugin-sdk")], ["Support", href("support/")]] },
+  { h: "Legal", links: [["Terms of Service", S.terms], ["Software licence", S.licenceText], ["Unofficial notice", href("legal/")]] },
+];
+---
+<footer class="ftr">
+  <div class="ftr-in">
+    <div class="ftr-brand">
+      <a class="mark-host brand" href={href()} aria-label="open-wa home"><Mark size={34} label="open-wa" /><span>open-wa</span></a>
+      <p>Your own WhatsApp number as an HTTP API, from any language that can make a request.</p>
+      <p class="ftr-meta">v{f.product.currentVersion} on npm. {stars} GitHub stars and {f.stats.discordMembers.toLocaleString("en-GB")} Discord members, checked {checked}.</p>
+    </div>
+    {cols.map((c) => (
+      <nav class="ftr-col" aria-label={c.h}>
+        <h2>{c.h}</h2>
+        <ul>{c.links.map(([l, u]) => <li><a href={u}>{l}</a></li>)}</ul>
+      </nav>
+    ))}
+  </div>
+  <div class="ftr-legal">
+    <p><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> open-wa is independent software, not authorised, sponsored or endorsed by WhatsApp, Meta or their affiliates. {f.product.risk} <a href={href("legal/")}>Full notice</a>.</p>
+    <p>{f.legal.copyright}. Maintained by {S.maintainer}. Software licence: {f.product.softwareLicence}. {f.product.terms}</p>
+  </div>
+</footer>
+<style>
+  .ftr { border-top: 1px solid var(--line); background: #070b18; margin-top: 0; }
+  .ftr-in { max-width: var(--wrap); margin: 0 auto; padding: 56px 20px 32px; display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); gap: 32px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--paper); text-decoration: none; font: 700 21px var(--font-display); min-height: 44px; }
+  .ftr-brand p { color: var(--muted); max-width: 32ch; margin: 12px 0 0; }
+  .ftr-meta { font-size: 15px; }
+  .ftr-col h2 { font: 600 14px var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 8px 0 12px; }
+  .ftr-col ul { list-style: none; margin: 0; padding: 0; }
+  .ftr-col a { color: var(--paper); text-decoration: none; display: inline-flex; min-height: 40px; align-items: center; font-size: 16px; }
+  .ftr-col a:hover { color: var(--red); }
+  .ftr-legal { max-width: var(--wrap); margin: 0 auto; padding: 20px 20px 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: 16px; }
+  .ftr-legal p { margin: 8px 0; max-width: 100ch; }
+  .ftr-legal strong { color: var(--paper); }
+  .ftr-legal a { color: var(--paper); }
+  @media (max-width: 900px) { .ftr-in { grid-template-columns: 1fr 1fr; } .ftr-brand { grid-column: 1 / -1; } }
+</style>

@@ -1,0 +1,34 @@
+{
+  "slug": "01-first-run",
+  "name": "First run",
+  "tagline": "One command turns your WhatsApp number into an API: the terminal plays the first run.",
+  "archetype": "developer",
+  "audience": "Node.js developers who want WhatsApp in their app (indie, agency, in-house, AI-agent builders)",
+  "flow": "copy and run the command first; quick start second; licence form on /pricing/",
+  "benchmark": "Bun (bun.sh)",
+  "floor": [
+    "/",
+    "/quickstart/",
+    "/features/",
+    "/integrations/",
+    "/ai-agents/",
+    "/use-cases/",
+    "/pricing/",
+    "/compare/",
+    "/migrate/",
+    "/support/",
+    "/community/",
+    "/changelog/",
+    "/legal/",
+    "/404"
+  ],
+  "fonts": [
+    "Departure Mono (OFL, display and code)",
+    "Atkinson Hyperlegible Next (OFL, text)"
+  ],
+  "libraries": [
+    "astro",
+    "qrcode (build time only)",
+    "shiki via astro:components (build time only)"
+  ]
+}

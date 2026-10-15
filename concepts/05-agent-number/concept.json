@@ -1,0 +1,12 @@
+{
+  "slug": "05-agent-number",
+  "name": "Agent number",
+  "tagline": "Give your AI agent a WhatsApp number, with the plain API behind it for everything else.",
+  "archetype": "developer",
+  "audience": "Node.js developers who want WhatsApp in their app (indie, agency, in-house, AI-agent builders)",
+  "flow": "Copy the run command from the composer, run it, scan; or switch the composer to the MCP config and hand the endpoint to an agent",
+  "benchmark": "Vercel AI SDK (ai-sdk.dev)",
+  "floor": ["/", "/quickstart/", "/features/", "/integrations/", "/ai-agents/", "/use-cases/", "/pricing/", "/compare/", "/migrate/", "/support/", "/community/", "/changelog/", "/legal/", "/404"],
+  "fonts": ["Gloock (display, OFL)", "Onest (text, OFL)", "Spline Sans Mono (code, OFL)"],
+  "libraries": ["astro", "shiki (via astro:components Code, build time)"]
+}

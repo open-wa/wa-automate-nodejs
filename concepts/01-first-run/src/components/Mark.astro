@@ -1,0 +1,42 @@
+---
+/**
+ * The mark: a block cursor blinking inside a speech-bubble outline, drawn on a
+ * pixel grid. Hovering or focusing the link that wraps it (.mark-host) makes
+ * the bubble type "hi"; leaving backspaces it. Under reduced motion the cursor
+ * holds still and the letters appear without stepping.
+ */
+interface Props { size?: number; label?: string }
+const { size = 32, label = "open-wa" } = Astro.props;
+---
+
+<svg class="mark" viewBox="0 0 32 32" width={size} height={size} role="img" aria-label={label} shape-rendering="crispEdges">
+  <path class="mark-bubble" d="M5 5H27L29 7V21L27 23H14L9 28V23H5L3 21V7Z" />
+  <g class="mark-h"><rect x="8" y="9" width="2" height="10" /><rect x="10" y="13" width="4" height="2" /><rect x="12" y="15" width="2" height="4" /></g>
+  <g class="mark-i"><rect x="16" y="9" width="2" height="2" /><rect x="16" y="13" width="2" height="6" /></g>
+  <rect class="mark-cursor" x="8" y="9" width="4" height="10" />
+</svg>
+
+<style>
+  .mark { display: block; flex: none; overflow: visible; }
+  .mark-bubble { fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: miter; }
+  .mark-h, .mark-i { fill: currentColor; opacity: 0; }
+  .mark-cursor { fill: var(--amber); animation: mark-blink 1.06s steps(1, end) infinite; }
+  /* Leaving: backspace "i", then "h", cursor steps back. */
+  .mark-h { transition: opacity 0s linear 110ms; }
+  .mark-i { transition: opacity 0s linear 0ms; }
+  .mark-cursor { transition: transform 220ms steps(2, jump-end); }
+
+  :global(.mark-host:hover) .mark-h,
+  :global(.mark-host:focus-visible) .mark-h { opacity: 1; transition-delay: 120ms; }
+  :global(.mark-host:hover) .mark-i,
+  :global(.mark-host:focus-visible) .mark-i { opacity: 1; transition-delay: 250ms; }
+  :global(.mark-host:hover) .mark-cursor,
+  :global(.mark-host:focus-visible) .mark-cursor {
+    transform: translateX(12px);
+    transition: transform 260ms steps(2, jump-end);
+  }
+  @keyframes mark-blink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .mark-cursor { animation: none; }
+  }
+</style>

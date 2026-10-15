@@ -1,0 +1,77 @@
+---
+import Mark from "./Mark.astro";
+import { DOCS, support, product, legal, stats, kDown, commands } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const cols = [
+  { title: "Product", links: [
+    { href: `${base}features/`, label: "Features" },
+    { href: `${base}recipes/`, label: "Recipes" },
+    { href: `${base}integrations/`, label: "Integrations" },
+    { href: `${base}pricing/`, label: "Pricing" },
+    { href: `${base}compare/`, label: "Compare" },
+  ] },
+  { title: "Developers", links: [
+    { href: `${base}quickstart/`, label: "Quick start" },
+    { href: DOCS, label: "Docs" },
+    { href: support.apiExplorer, label: "API explorer" },
+    { href: `${base}changelog/`, label: "Changelog" },
+    { href: `${base}migrate/`, label: "Migrate from v4" },
+    { href: support.github, label: "GitHub" },
+    { href: support.npm, label: "npm" },
+    { href: support.dockerHub, label: "Docker Hub" },
+  ] },
+  { title: "Community", links: [
+    { href: support.discord, label: "Discord" },
+    { href: `${base}community/`, label: "Contributing" },
+    { href: `${base}integrations/#plugin-sdk`, label: "Plugin SDK" },
+    { href: `${base}support/`, label: "Support and consulting" },
+  ] },
+  { title: "Legal", links: [
+    { href: support.terms, label: "Terms of Service" },
+    { href: support.licenceText, label: "Software licence" },
+    { href: `${base}legal/`, label: "Unofficial notice" },
+  ] },
+];
+---
+
+<footer class="ft on-ocean">
+  <div class="wrap">
+    <div class="ft-top">
+      <div class="ft-brand">
+        <a class="mark-host ft-logo" href={base} aria-label="open-wa home"><Mark size={40} label="" tone="sand" /> <span>open-wa</span></a>
+        <p>Open-source WhatsApp automation for Node.js and anything that speaks HTTP. Maintained by {support.maintainer} since 2019.</p>
+        <p class="ft-stats">{kDown(stats.githubStars)} GitHub stars, {kDown(stats.npmDownloadsLast12Months)} npm downloads in 12 months, {kDown(stats.discordMembers)} on Discord. Checked {stats.checkedOn}.</p>
+        <code class="ft-cmd">{commands.easyApi}</code>
+      </div>
+      {cols.map((c) => (
+        <nav class="ft-col" aria-label={c.title}>
+          <h2>{c.title}</h2>
+          <ul>{c.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+        </nav>
+      ))}
+    </div>
+    <div class="ft-bottom">
+      <p class="ft-unofficial"><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> {product.risk}</p>
+      <p>{legal.copyright}. Software licence: {product.softwareLicence}. {product.terms}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ft { background: var(--ocean); color: var(--ocean-100); padding-block: clamp(56px, 7vw, 88px) 36px; margin-top: 0; }
+  .ft a { color: var(--sand-50); text-decoration: none; }
+  .ft a:hover { text-decoration: underline; text-decoration-color: #f0a48f; }
+  .ft-top { display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); gap: 32px; }
+  .ft-brand { display: grid; gap: 14px; align-content: start; max-width: 380px; }
+  .ft-logo { display: inline-flex; align-items: center; gap: 12px; font: 400 1.6rem/1 var(--font-display); min-height: 44px; }
+  .ft-stats { font-size: 0.9375rem; color: var(--ocean-300); }
+  .ft-cmd { font: 400 1rem/1.4 var(--font-mono); color: var(--sand); background: var(--ocean-900) !important; border-color: var(--ocean-700) !important; padding: 8px 12px !important; border-radius: 10px !important; width: fit-content; max-width: 100%; }
+  .ft-col h2 { font: 600 0.875rem/1.2 var(--font-text); letter-spacing: 0.08em; text-transform: uppercase; color: #f0a48f; margin-bottom: 10px; }
+  .ft-col ul { list-style: none; display: grid; }
+  .ft-col a { display: inline-flex; align-items: center; min-height: 44px; }
+  .ft-bottom { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--ocean-700); display: grid; gap: 10px; font-size: 0.9375rem; color: var(--ocean-300); }
+  .ft-unofficial { color: var(--ocean-100); }
+  .ft-unofficial strong { color: var(--sand); font-weight: 600; }
+  @media (max-width: 1000px) { .ft-top { grid-template-columns: repeat(2, 1fr); } .ft-brand { grid-column: 1 / -1; } }
+  @media (max-width: 420px) { .ft-col a { min-height: 44px; } }
+</style>

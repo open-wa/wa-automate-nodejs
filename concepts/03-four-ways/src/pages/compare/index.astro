@@ -1,0 +1,55 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import { product, href, links } from "../../data/site";
+const rows = [
+  ["Which number", "A number registered on Meta's WhatsApp Business Platform", "Your existing WhatsApp number, through WhatsApp Web"],
+  ["Account set-up", "A Meta business account", "Your phone, linked by QR code or link code"],
+  ["Starting conversations", "Approved templates for conversations you start", "Send to existing contacts free; new numbers need a Restricted key"],
+  ["Cost", "Per-message pricing", "Free for most methods; Insiders from £5 and Restricted from £15 a month per number"],
+  ["Where it runs", "Meta's cloud", "Your machine, server or container"],
+  ["Status", "Official and supported by Meta", "Unofficial and not affiliated with WhatsApp or Meta"],
+  ["Account risk", "Official access, subject to Meta's policies", "Automation can get the account restricted or banned"],
+];
+---
+<Base title="Official WhatsApp API or open-wa? Honest trade-offs | open-wa" description="Meta's WhatsApp Business Platform is official, needs a business account and approved templates, and charges per message. open-wa uses your own number, is free for most methods, and is unofficial with ban risk.">
+  <div class="wrap">
+    <PageHead title="Official API or open-wa?" lede="Both send and receive WhatsApp messages from code. They make different trade-offs, and the right one depends on whose number it is and how much risk you can carry." />
+    <div class="cmp" role="table" aria-label="Meta's WhatsApp Business Platform compared with open-wa">
+      <div class="cmp-row cmp-head" role="row"><span role="columnheader"></span><span role="columnheader">WhatsApp Business Platform (Cloud API)</span><span role="columnheader">open-wa</span></div>
+      {rows.map(([k, a, b]) => (
+        <div class="cmp-row" role="row"><span role="rowheader" class="k">{k}</span><span role="cell">{a}</span><span role="cell">{b}</span></div>
+      ))}
+    </div>
+    <div class="cols">
+      <section>
+        <h2>Choose the official platform if</h2>
+        <p>you need Meta's support, you're messaging at a scale where an account ban would stop the business, or your organisation can't run unofficial software.</p>
+      </section>
+      <section>
+        <h2>Choose open-wa if</h2>
+        <p>you want your existing number answering from code today, without templates or per-message pricing, and you accept that automation can get the account restricted or banned.</p>
+        <p><a class="btn btn-primary" href={href("quickstart/")}>Quick start <span class="arrow" aria-hidden="true">→</span></a></p>
+      </section>
+    </div>
+    <p class="end small muted">This page compares open-wa with Meta's official platform only. Read the <a class="link" href={links.terms}>Terms of Service</a> and the <a class="link" href={href("legal/")}>notices</a> before you link a number.</p>
+  </div>
+</Base>
+<style>
+  .cmp { border-top: 1px solid var(--color-ink); }
+  .cmp-row { display: grid; grid-template-columns: 1fr 2fr 2fr; gap: 24px; padding: 18px 0; border-bottom: 1px solid var(--color-rule); }
+  .cmp-head { font: 500 12.5px/1.3 var(--font-mono); letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-muted); }
+  .cmp-head span:last-child { color: var(--color-coral-ink); }
+  .k { font: 500 20px/1.2 var(--font-display); font-variation-settings: "opsz" 24; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding: 56px 0 24px; }
+  .cols section { display: grid; gap: 14px; align-content: start; }
+  .cols h2 { font-size: 30px; }
+  .end { padding: 24px 0 80px; }
+  @media (max-width: 800px) {
+    .cmp-head { display: none; }
+    .cmp-row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+    .cmp-row span[role="cell"]:nth-child(2)::before { content: "Official: "; font-weight: 600; }
+    .cmp-row span[role="cell"]:nth-child(3)::before { content: "open-wa: "; font-weight: 600; color: var(--color-coral-ink); }
+    .cols { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

@@ -1,0 +1,31 @@
+---
+import Page from "../layouts/Page.astro";
+import { product, legal, support } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+
+<Page title="Legal: unofficial notice, ban risk, terms and licence | open-wa" description="open-wa is unofficial and not affiliated with WhatsApp or Meta. Automation can get an account banned. Terms of Service, software licence and cryptography notice.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="crumbs"><a href={base}>Home</a> / Legal</p>
+      <h1>Legal notices</h1>
+      <p>Read these before you link a WhatsApp account.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap lg">
+      <article id="unofficial"><h2>Unofficial software</h2><p>{legal.affiliation}</p><p>{product.unofficial}</p></article>
+      <article id="risk"><h2>Account-ban risk</h2><p class="note"><span>{product.risk}</span></p><p>A licence key enables licensed methods. It doesn't change how WhatsApp treats the account.</p></article>
+      <article id="terms"><h2>Terms of Service</h2><p>{product.terms}</p><p><a class="link" href={support.terms}>Read the Terms of Service</a></p></article>
+      <article id="licence"><h2>Software licence</h2><p>open-wa is licensed under the {product.softwareLicence}.</p><p><a class="link" href={support.licenceText}>Read the licence</a></p></article>
+      <article id="crypto"><h2>Cryptography notice</h2><p>{legal.crypto}</p></article>
+      <p class="muted">{legal.copyright}. Maintained by {support.maintainer}.</p>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .lg { display: grid; gap: 40px; max-width: 820px; }
+  .lg article { display: grid; gap: 12px; }
+  .lg p { color: var(--slate-700); }
+</style>

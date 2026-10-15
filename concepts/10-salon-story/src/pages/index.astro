@@ -1,0 +1,265 @@
+---
+import Base from "../layouts/Base.astro";
+import CopyCommand from "../components/CopyCommand.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import SalonStory from "../components/SalonStory.astro";
+import StickyBar from "../components/StickyBar.astro";
+import JobBubble from "../components/JobBubble.astro";
+import heroImg from "../assets/generated/salon-hero.webp";
+import bookImg from "../assets/generated/salon-book.webp";
+import windowImg from "../assets/generated/salon-window.webp";
+import { jobs, jobKey, jobPlace, http, stats, product, support, licences, starsShort } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const others = jobs.filter((j) => j.id !== "salon-bookings");
+const restricted = licences.tiers.find((t) => t.id === "restricted")!;
+const insiders = licences.tiers.find((t) => t.id === "insiders")!;
+const byJob = [
+  { job: "Salon and clinic bookings, when the customer messages first", href: "recipes/salon-bookings/", needs: "No key", price: "Free" },
+  { job: "Replies, photos, voice notes, PDFs, polls and event cards", href: "recipes/media/", needs: "No key", price: "Free" },
+  { job: "Order updates to customers who messaged you before", href: "recipes/order-updates/", needs: "No key", price: "Free" },
+  { job: "Booking confirmations to new hotel guests", href: "recipes/hotel-notifications/", needs: "Restricted", price: `${restricted.prices.month} a month` },
+  { job: "One-time codes (OTP) to any number", href: "recipes/otp/", needs: "Restricted", price: `${restricted.prices.month} a month` },
+  { job: "Buttons, lists and number checks", href: "pricing/#insiders", needs: "Insiders", price: `${insiders.prices.month} a month` },
+  { job: "Answering WhatsApp calls, bridging to a PBX", href: "recipes/pbx-calls/", needs: "Calling-enabled key (licensed preview)", price: "Ask before you buy" },
+  { job: "Stickers made from photos", href: "recipes/stickers/", needs: "No key listed; sending relies on the current sticker patch", price: "No key listed" },
+];
+---
+<Base title="open-wa: WhatsApp bookings, reminders and codes from your own number" description="Run one command and a business's own WhatsApp number becomes an API. Follow an example salon from “can I book Friday?” to the reminder, then build it for a hotel, OTP codes or a phone line.">
+  <section class="hero">
+    <div class="wrap hero-in">
+      <div class="hero-copy">
+        <h1>Build a salon's <em>WhatsApp bookings</em> on its own number.</h1>
+        <p class="hero-sub">One command turns the salon's WhatsApp into an API you can call from Node.js, PHP, Python or n8n. Send a poll of free times, the appointment card and the reminder. The same works for hotels, codes and phone lines.</p>
+        <div id="hero-cmd"><CopyCommand id="cmd-hero" /></div>
+        <div class="hero-ctas">
+          <a class="btn btn-dark" href={`${base}quickstart/`}>Quick start</a>
+          <a class="btn btn-line" href={support.docs} rel="noopener">Read the docs</a>
+        </div>
+        <p class="hero-note">Free and open source. Unofficial: automating a number can get it banned, <a href="#risk">so read this first</a>.</p>
+      </div>
+      <figure class="hero-fig">
+        <img src={heroImg.src} width={heroImg.width} height={heroImg.height} alt="Illustration: an empty small salon in the morning, two leather chairs, round brass mirrors, a phone and an appointment book on the counter." fetchpriority="high" />
+        <div class="hero-bubble" aria-hidden="true">
+          <p class="hb-me">Hi, can I book a cut on Friday?</p>
+          <p class="hb-them">Friday: pick a time<span>10:00 · <b>13:30</b> · 16:00</span></p>
+        </div>
+        <figcaption>Illustration. Rosa's is an example salon.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <SalonStory />
+
+  <section class="same" aria-labelledby="same-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="same-h">The same works for <em>a hotel, a clinic, a shop, a phone line</em>.</h2>
+        <p>Every recipe is the same shape as Rosa's: an event comes in or your system decides to send, and one call does the rest. Each recipe has the conversation, the code and the licence it needs.</p>
+      </div>
+      <ul class="jobs">
+        {others.map((j) => (
+          <li class="job">
+            <a href={`${base}recipes/${j.id}/`} class="job-link">
+              <JobBubble id={j.id} />
+              <span class="job-place">For {jobPlace[j.id]}</span>
+              <span class="job-name">{j.name}</span>
+              <span class="job-methods">{j.methods.slice(0, 3).join(" · ")}</span>
+              <span class:list={["job-key", `tone-${jobKey[j.id].tone}`]}>{jobKey[j.id].label}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p class="same-all"><a class="btn btn-line" href={`${base}recipes/`}>See all nine recipes</a></p>
+    </div>
+  </section>
+
+  <section class="how" aria-labelledby="how-h">
+    <div class="wrap how-in">
+      <div class="how-head">
+        <h2 id="how-h">How it works, in three steps</h2>
+        <img src={bookImg.src} width={bookImg.width} height={bookImg.height} loading="lazy" alt="Illustration: a salon counter with an open appointment book, a brass pen, coffee, scissors and a phone." />
+      </div>
+      <ol class="how-steps">
+        <li>
+          <h3><span>1</span> Run the command</h3>
+          <p>On a laptop or a server with Node.js 22. It starts a local API on port 8080.</p>
+          <CopyCommand id="cmd-how" size="md" />
+        </li>
+        <li>
+          <h3><span>2</span> Scan the QR code with the salon's phone</h3>
+          <p>WhatsApp on the phone links the session, the same way WhatsApp Web does. A link code works too. Then open <code>localhost:8080/api-docs/</code> to see every method.</p>
+        </li>
+        <li>
+          <h3><span>3</span> Call it from any language</h3>
+          <p>Every method is an HTTP endpoint. This is the real call that sends a text; the chat ID is the full number with no plus sign, then <code>@c.us</code>.</p>
+          <CodeBlock code={http.sendTextCurl} lang="bash" title="Send a message with curl" />
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="free" aria-labelledby="free-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="free-h">What's free and what needs a key, <em>by job</em></h2>
+        <p>Replying to people who message you is free. Starting a chat with a number that hasn't messaged you needs Restricted. Keys are per WhatsApp number.</p>
+      </div>
+      <div class="free-table" role="region" aria-labelledby="free-h" tabindex="0">
+        <table>
+          <thead><tr><th scope="col">Job</th><th scope="col">What it needs</th><th scope="col">Price</th></tr></thead>
+          <tbody>
+            {byJob.map((r) => (
+              <tr>
+                <th scope="row"><a href={`${base}${r.href}`}>{r.job}</a></th>
+                <td>{r.needs}</td>
+                <td class:list={{ "is-free": r.price === "Free" }}>{r.price}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="free-foot">Prices in GBP, checked 12 Oct 2026. Checkout shows the current price. Keys also come in 3, 6 and 12-month periods. <a href={`${base}pricing/`}>See pricing and get a key</a></p>
+    </div>
+  </section>
+
+  <section class="risk" id="risk" aria-labelledby="risk-h">
+    <div class="wrap risk-in">
+      <div>
+        <h2 id="risk-h">Before you put a client's number on it</h2>
+        <p><strong>open-wa is unofficial.</strong> It isn't affiliated with, authorised or endorsed by WhatsApp or Meta. It runs WhatsApp Web in a browser it controls.</p>
+        <p><strong>Your number can be banned.</strong> {product.risk} Test on a spare number first, and tell your client.</p>
+        <p>If a business needs WhatsApp's official route, Meta's Cloud API asks for a business account, approved templates and per-message pricing. <a href={`${base}compare/`}>Compare the two</a>.</p>
+      </div>
+      <div class="signals-wrap">
+      <dl class="signals">
+        <div><dt>Maintained since</dt><dd>2019</dd></div>
+        <div><dt>Latest release</dt><dd>{product.currentVersion}</dd></div>
+        <div><dt>GitHub stars</dt><dd>{stats.githubStars.toLocaleString("en-GB")}</dd></div>
+        <div><dt>npm downloads, last 12 months</dt><dd>105k</dd></div>
+        <div><dt>Docker pulls</dt><dd>43.5k</dd></div>
+        <div><dt>Discord members</dt><dd>{stats.discordMembers.toLocaleString("en-GB")}</dd></div>
+      </dl>
+      <p class="signals-date">Checked {stats.checkedOn} on GitHub, npm, Docker Hub and Discord.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="close" aria-labelledby="close-h">
+    <img class="close-bg" src={windowImg.src} width={windowImg.width} height={windowImg.height} loading="lazy" alt="Illustration: a salon at dusk seen from inside, lamps on, a phone glowing on a shelf by the door." />
+    <div class="wrap close-in">
+      <h2 id="close-h">Start with the salon's <em>first message</em>.</h2>
+      <div id="close-cmd"><CopyCommand id="cmd-close" tone="dark" /></div>
+      <div class="close-ctas">
+        <a class="btn btn-brass" href={`${base}quickstart/`}>Quick start</a>
+        <a class="btn close-line" href={support.discord} rel="noopener">Ask in Discord</a>
+        <a class="btn close-line" href={support.github} rel="noopener">Star on GitHub · {starsShort}</a>
+      </div>
+    </div>
+  </section>
+
+  <StickyBar slot="after" />
+</Base>
+
+<style>
+  .hero { padding: 40px 0 72px; }
+  .hero-in { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 56px; align-items: center; }
+  .hero h1 { font-size: clamp(38px, 5.6vw, 76px); line-height: 1.02; letter-spacing: -0.02em; font-variation-settings: "opsz" 144; }
+  .hero-sub { margin: 22px 0 26px; font-size: 19px; line-height: 1.55; max-width: 50ch; color: #4a3530; }
+  .hero-ctas { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .hero-note { margin-top: 16px; font-size: 15.5px; color: var(--muted); }
+  .hero-note a { color: var(--brass-ink); }
+  .hero-fig { margin: 0; position: relative; }
+  .hero-fig img { width: 100%; aspect-ratio: 4 / 4.4; object-fit: cover; border-radius: 280px 280px 22px 22px; }
+  .hero-fig figcaption { margin-top: 10px; font: 400 13px/1.4 var(--font-mono); color: var(--muted); }
+  .hero-bubble { position: absolute; left: -36px; bottom: 64px; display: grid; gap: 8px; width: 250px; }
+  .hero-bubble p { padding: 10px 13px; border-radius: 16px; font-size: 15px; line-height: 1.35; box-shadow: 0 14px 30px -14px rgba(43, 27, 23, 0.45); }
+  .hb-me { background: var(--espresso); color: var(--cream-on-dark); border-bottom-right-radius: 5px; justify-self: end; animation: rise 700ms var(--ease) 300ms both; }
+  .hb-them { background: #fff; border-bottom-left-radius: 5px; font-weight: 700; animation: rise 700ms var(--ease) 1100ms both; }
+  .hb-them span { display: block; font: 500 14px/1.5 var(--font-mono); color: var(--muted); margin-top: 2px; }
+  .hb-them b { color: var(--espresso); background: var(--blush); border-radius: 4px; padding: 0 3px; }
+  @keyframes rise { from { transform: translateY(12px); } }
+
+  .sec-head { display: grid; gap: 14px; max-width: 760px; margin-bottom: 40px; }
+  .sec-head h2, .how-head h2, .risk h2 { font-size: clamp(30px, 4vw, 50px); }
+  .sec-head p { color: var(--muted); font-size: 18px; max-width: 60ch; }
+
+  .same { padding: 104px 0 96px; }
+  .jobs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .job-link { display: grid; gap: 8px; height: 100%; padding: 10px 10px 18px; border: 1px solid var(--line); border-radius: var(--radius-lg); text-decoration: none; background: #fff; transition: border-color var(--speed), transform var(--speed) var(--ease); align-content: start; }
+  .job-link:hover { border-color: var(--line-strong); transform: translateY(-3px); }
+  .job-link > span { padding-inline: 8px; }
+  .job-place { margin-top: 6px; font: 500 13px/1.3 var(--font-mono); color: var(--brass-ink); }
+  .job-name { font: 500 21px/1.2 var(--font-display); }
+  .job-methods { font: 400 13px/1.4 var(--font-mono); color: var(--muted); }
+  .job-key { justify-self: start; margin-inline: 8px; padding: 5px 10px !important; border-radius: 99px; font-size: 13.5px; font-weight: 600; }
+  .tone-free { background: #e4efe7; color: var(--ok); }
+  .tone-key { background: var(--blush); color: var(--espresso); }
+  .tone-preview { background: var(--espresso); color: var(--blush); }
+  .tone-note { background: var(--blush-soft); color: var(--muted); border: 1px solid var(--line); }
+  .same-all { margin-top: 28px; }
+
+  .how { padding: 96px 0; background: var(--espresso); color: var(--cream-on-dark); }
+  .how-in { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr); gap: 56px; }
+  .how-head img { margin-top: 28px; border-radius: 22px; aspect-ratio: 1; object-fit: cover; }
+  .how-head h2 em { color: var(--brass-light); }
+  .how-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 34px; }
+  .how-steps li { display: grid; gap: 12px; padding-bottom: 30px; border-bottom: 1px solid #4d3730; min-width: 0; }
+  .how-steps li:last-child { border-bottom: 0; }
+  .how-steps h3 { font-size: 27px; display: flex; gap: 14px; align-items: baseline; }
+  .how-steps h3 span { font: 500 15px/1 var(--font-mono); color: var(--espresso); background: var(--brass); width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center; flex: none; transform: translateY(-3px); }
+  .how-steps p { color: var(--muted-on-dark); max-width: 60ch; }
+  .how-steps code { background: #3d2a24; color: var(--blush); }
+  .how :global(.cb) { box-shadow: inset 0 0 0 1px #4d3730; background: #1f1310; }
+  .how :global(.cc) { background: #1f1310; box-shadow: inset 0 0 0 1px #4d3730; }
+
+  .free { padding: 104px 0; }
+  .free-table { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-lg); background: #fff; position: relative; }
+  table { width: 100%; border-collapse: collapse; min-width: 620px; }
+  th, td { text-align: left; padding: 16px 20px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  thead th { font: 600 13px/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: var(--blush-soft); }
+  tbody th { font-weight: 600; }
+  tbody th a { text-decoration-color: var(--line-strong); text-underline-offset: 4px; }
+  tbody tr:last-child > * { border-bottom: 0; }
+  td.is-free { color: var(--ok); font-weight: 700; }
+  .free-foot { margin-top: 16px; color: var(--muted); font-size: 15.5px; }
+  .free-foot a { color: var(--brass-ink); font-weight: 600; }
+
+  .risk { padding: 96px 0; background: var(--blush); }
+  .risk-in { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 56px; align-items: start; }
+  .risk p { margin-top: 16px; max-width: 58ch; }
+  .risk a { color: var(--espresso); font-weight: 600; text-underline-offset: 3px; }
+  .signals { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line-strong); border-radius: 18px; overflow: hidden; border: 1px solid var(--line-strong); }
+  .signals div { background: var(--paper); padding: 18px; }
+  .signals dt { font-size: 14px; color: var(--muted); }
+  .signals dd { margin: 4px 0 0; font: 500 30px/1.1 var(--font-display); }
+  .signals-date { margin-top: 10px !important; font: 400 13.5px/1.4 var(--font-mono); color: var(--muted); }
+
+  .close { position: relative; padding: 140px 0; color: var(--cream-on-dark); background: var(--espresso); overflow: hidden; }
+  .close-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 50%; }
+  .close::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(43, 27, 23, 0.94) 0%, rgba(43, 27, 23, 0.82) 45%, rgba(43, 27, 23, 0.25) 100%); }
+  .close-in { position: relative; z-index: 1; display: grid; gap: 24px; max-width: 760px; margin-left: max(var(--gutter), calc((100% - var(--wrap)) / 2 + var(--gutter))); }
+  .close h2 { font-size: clamp(36px, 5vw, 64px); }
+  .close h2 em { color: var(--brass-light); }
+  .close-ctas { display: flex; gap: 10px; flex-wrap: wrap; }
+  .close-line { border-color: #7a5d55; color: var(--cream-on-dark); }
+  .close-line:hover { border-color: var(--blush); }
+
+  @media (max-width: 1080px) { .jobs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 900px) {
+    .hero-in, .how-in, .risk-in { grid-template-columns: minmax(0, 1fr); }
+    .hero-fig { max-width: 520px; }
+    .hero-bubble { left: 12px; }
+  }
+  @media (max-width: 600px) {
+    .hero { padding: 20px 0 56px; }
+    .hero-in { gap: 32px; }
+    .hero h1 { font-size: 38px; }
+    .hero-sub { font-size: 17px; margin: 14px 0 18px; }
+    .hero-ctas .btn { flex: 1; }
+    .jobs { grid-template-columns: minmax(0, 1fr); }
+    .signals { grid-template-columns: 1fr; }
+    .same, .free { padding: 72px 0; }
+    .how, .risk { padding: 72px 0; }
+    .close { padding: 96px 0; }
+  }
+</style>

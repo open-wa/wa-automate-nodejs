@@ -1,0 +1,59 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import { product, licences } from "../../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const rows = [
+  { q: "Whose number", a: "The business's own WhatsApp account, linked like WhatsApp Web", b: "A number registered to a Meta business account" },
+  { q: "Set-up", a: "Run one command and scan a QR code", b: "Business verification and app set-up with Meta" },
+  { q: "Starting conversations", a: "Free to reply; first messages to new numbers need a Restricted key", b: "Conversations you start use approved message templates" },
+  { q: "Cost", a: `Free for most methods; keys from ${licences.tiers[0].prices.month} a month per number`, b: "Per-message pricing from Meta" },
+  { q: "Where it runs", a: "Your laptop, server or container", b: "Meta's cloud" },
+  { q: "Official status", a: "Unofficial. Not affiliated with WhatsApp or Meta", b: "Official" },
+  { q: "Ban risk", a: "Automating an account can get it restricted or banned", b: "Accounts follow Meta's platform policies" },
+];
+---
+<Base title="open-wa compared with WhatsApp's official Cloud API | open-wa" description="How running a business's own WhatsApp number with open-wa compares with Meta's WhatsApp Business Platform: set-up, cost, templates, hosting and risk.">
+  <PageHead title="open-wa or the <em>official Cloud API</em>?" lead="Both send WhatsApp messages from code. They suit different businesses, and the honest answer depends on how much risk the business can take." />
+  <div class="wrap cp">
+    <div class="cp-table" role="region" aria-label="Comparison" tabindex="0">
+      <table>
+        <thead><tr><th scope="col"></th><th scope="col">open-wa</th><th scope="col">WhatsApp Business Platform (Cloud API)</th></tr></thead>
+        <tbody>{rows.map((r) => <tr><th scope="row">{r.q}</th><td>{r.a}</td><td>{r.b}</td></tr>)}</tbody>
+      </table>
+    </div>
+    <div class="cp-cols">
+      <div>
+        <h2>open-wa fits when</h2>
+        <ul>
+          <li>A small business wants its existing number to answer customers, take bookings or send reminders.</li>
+          <li>You want to try the job today without an approval process.</li>
+          <li>You can test on a spare number and the business accepts the ban risk.</li>
+        </ul>
+      </div>
+      <div>
+        <h2>The official API fits when</h2>
+        <ul>
+          <li>The account can't be put at risk under any circumstances.</li>
+          <li>You send high volumes of messages the business starts, and templates suit them.</li>
+          <li>Your organisation needs an official agreement with Meta.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="cp-risk">{product.risk} <a href={`${base}legal/`}>Read the unofficial notice</a></p>
+  </div>
+</Base>
+<style>
+  .cp { padding-block: 48px 96px; display: grid; gap: 48px; }
+  .cp-table { overflow-x: auto; border: 1px solid var(--line); border-radius: 20px; background: #fff; position: relative; }
+  table { width: 100%; border-collapse: collapse; min-width: 680px; }
+  th, td { text-align: left; vertical-align: top; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+  thead th { font: 600 13px/1.3 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: var(--blush-soft); }
+  tbody tr:last-child > * { border-bottom: 0; }
+  .cp-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .cp-cols h2 { font-size: 30px; margin-bottom: 12px; }
+  .cp-cols li { margin-bottom: 8px; }
+  .cp-risk { background: var(--blush); padding: 16px 20px; border-radius: 16px; }
+  .cp-risk a { color: var(--espresso); font-weight: 600; }
+  @media (max-width: 760px) { .cp-cols { grid-template-columns: 1fr; } }
+</style>

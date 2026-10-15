@@ -1,0 +1,53 @@
+---
+import Page from "../layouts/Page.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { capabilities, snippets, commands, href } from "../data/site";
+
+const rows = [
+  { id: "messages", title: "Messages", text: capabilities.messages, methods: ["sendText", "reply", "forwardMessages", "react", "deleteMessage"] },
+  { id: "media", title: "Media", text: capabilities.media, methods: ["sendImage", "sendFile", "sendPtt"] },
+  { id: "groups", title: "Groups", text: capabilities.groups, methods: ["onParticipantsChanged", "createGroup", "joinGroupViaLink"] },
+  { id: "polls", title: "Polls", text: capabilities.polls, methods: ["sendPoll", "onPollVote"] },
+  { id: "events", title: "Event cards", text: capabilities.events, code: { code: snippets.event, lang: "ts", title: "events.ts" } },
+  { id: "stickers", title: "Stickers", text: capabilities.stickers, code: { code: commands.stickerCli, lang: "bash", title: "Terminal" }, note: "client.sendSticker needs a private finalizer. Local rendering with the CLI works for everyone." },
+  { id: "multi", title: "Multi-session", text: capabilities.multiSession, code: { code: commands.namedSession, lang: "bash", title: "Second session" } },
+  { id: "sessions", title: "Sessions and keys", text: capabilities.sessions, code: { code: snippets.sessionKey, lang: "ts", title: "session.ts" } },
+  { id: "refresh", title: "Live refresh", text: capabilities.refresh, methods: ["client.refresh()"] },
+  { id: "drivers", title: "Drivers", text: capabilities.drivers, note: "Lightpanda is experimental." },
+  { id: "docs", title: "Generated API docs", text: capabilities.docs, methods: [commands.proofOfLife] },
+];
+---
+
+<Page title="Features | open-wa" description="Messages, media, groups, polls, event cards, stickers, multi-session, encrypted sessions, live refresh, drivers and generated API docs.">
+  <section class="page-hero wrap">
+    <span class="label">Features</span>
+    <h1>What your code and your agent can do</h1>
+    <p class="lede">Every capability below is a method. The same method is an HTTP route, a SocketClient call and an MCP tool.</p>
+  </section>
+  <section class="wrap feats">
+    {rows.map((r) => (
+      <article class="feat" id={r.id}>
+        <div class="feat-copy">
+          <h2>{r.title}</h2>
+          <p>{r.text}</p>
+          {r.note && <p class="feat-note">{r.note}</p>}
+          {r.methods && <p class="feat-methods">{r.methods.map((m) => <code>{m}</code>)}</p>}
+        </div>
+        {r.code && <CodeBlock code={r.code.code} lang={r.code.lang} title={r.code.title} />}
+      </article>
+    ))}
+  </section>
+  <section class="wrap section">
+    <p>Licensed methods are marked per method. <a class="textlink" href={href("pricing/")}>See which need a key</a>.</p>
+  </section>
+</Page>
+
+<style>
+  .feats { display: grid; border-top: 1px solid var(--line-strong); }
+  .feat { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px 48px; padding: 32px 0; border-bottom: 1px solid var(--line-strong); align-items: start; }
+  .feat-copy { display: grid; gap: 10px; }
+  .feat h2 { font-size: clamp(26px, 3vw, 34px); }
+  .feat-note { color: var(--oxblood-deep); }
+  .feat-methods { display: flex; flex-wrap: wrap; gap: 6px; }
+  @media (max-width: 860px) { .feat { grid-template-columns: minmax(0, 1fr); } }
+</style>

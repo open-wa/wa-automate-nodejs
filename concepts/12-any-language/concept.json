@@ -1,0 +1,12 @@
+{
+  "slug": "12-any-language",
+  "name": "Any language",
+  "tagline": "One HTTP call from PHP, Python, Node.js or your PBX sends WhatsApp from your own number",
+  "archetype": "developer",
+  "audience": "Developers building a WhatsApp job for a business (bookings, notifications, OTP, PBX calls) in any language",
+  "flow": "Show the call: command and Copy, then a request builder (job x language) with the result on a drawn phone",
+  "benchmark": "Postman (postman.com)",
+  "floor": ["/", "/recipes/", "/recipes/salon-bookings/", "/recipes/hotel-notifications/", "/recipes/otp/", "/recipes/pbx-calls/", "/recipes/stickers/", "/recipes/media/", "/recipes/order-updates/", "/recipes/support-inbox/", "/recipes/ai-agent/", "/quickstart/", "/features/", "/integrations/", "/pricing/", "/compare/", "/migrate/", "/support/", "/community/", "/changelog/", "/legal/", "/404.html"],
+  "fonts": ["Sora (OFL)", "Manrope (OFL)", "Fira Code (OFL)"],
+  "libraries": ["astro", "Shiki via astro:components Code (build-time syntax colour)"]
+}

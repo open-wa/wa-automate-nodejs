@@ -1,0 +1,6 @@
+# This concept is its own pnpm root: pnpm stops at the nearest
+# pnpm-workspace.yaml, so installs here never touch a parent workspace's
+# lockfile, and these settings apply (some Astro versions need esbuild's
+# install script).
+allowBuilds:
+  esbuild: true

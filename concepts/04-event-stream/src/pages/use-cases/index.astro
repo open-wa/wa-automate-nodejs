@@ -1,0 +1,45 @@
+---
+import Page from "../../layouts/Page.astro";
+import { useCases, href } from "../../data/site";
+const map = [
+  { path: "SocketClient + Chatwoot plugin", methods: ["onMessage", "sendText", "@open-wa/integration-chatwoot"], link: "integrations/#chatwoot" },
+  { path: "Easy API", methods: ["sendText", "sendEvent", "onAck"], link: "quickstart/", note: "Messaging numbers that are not already contacts needs a Restricted key." },
+  { path: "SocketClient", methods: ["onMessage", "onGlobalParticipantsChanged", "onPollVote", "onEventResponse"], link: "features/" },
+  { path: "Easy API + Webhook plugin or Node-RED", methods: ["@open-wa/integration-webhook", "@open-wa/node-red"], link: "integrations/#webhooks" },
+  { path: "Easy API, one sessionId per number", methods: ["--session-id", "sessionDataEncryptionKeyFile"], link: "features/#multi" },
+  { path: "MCP server", methods: ["mcp.enabled", "exposeToolsMeta"], link: "ai-agents/" },
+];
+---
+
+<Page title="Use cases: support inboxes, notifications, bots and AI agents | open-wa" description="Six things developers build with open-wa, each with the path and the methods it uses.">
+  <div class="wrap">
+    <header class="page-hero">
+      <span class="label">Use cases</span>
+      <h1>What you can build, and the methods behind it</h1>
+      <p>Each one lists the path to start from and the handlers, methods or packages it uses. No customer stories, just the parts.</p>
+    </header>
+    <ol class="uc">
+      {useCases.map((u, i) => (
+        <li class="card">
+          <span class="mono n">0{i + 1}</span>
+          <h2>{u}</h2>
+          <p class="mono path">{map[i].path}</p>
+          <p class="ms">{map[i].methods.map((m) => <span class="method">{m}</span>)}</p>
+          {map[i].note && <p class="lic">{map[i].note}</p>}
+          <a href={href(map[i].link)}>How to start</a>
+        </li>
+      ))}
+    </ol>
+  </div>
+</Page>
+
+<style>
+  .uc { list-style: none; margin: 40px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .uc .card { display: grid; gap: 10px; align-content: start; }
+  .uc h2 { font-size: 22px; line-height: 1.25; }
+  .n { color: var(--cyan); font-size: 14px; }
+  .path { color: var(--warm); font-size: 14.5px; margin: 0; }
+  .ms { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+  .lic { color: #f3c6ce; font-size: 15px; margin: 0; }
+  @media (max-width: 860px) { .uc { grid-template-columns: minmax(0, 1fr); } }
+</style>

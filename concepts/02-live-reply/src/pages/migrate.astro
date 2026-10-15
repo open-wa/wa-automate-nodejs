@@ -1,0 +1,46 @@
+---
+import Site from "../layouts/Site.astro";
+import PageHead from "../components/PageHead.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { migration, snippets, support } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+<Site title="Migrate from open-wa v4 to v5" description="Version 5 is the current release line. Pin v4 while you migrate, then move to createClient with a driver or to SocketClient. Full guide in the docs.">
+  <PageHead eyebrow="Migrate from v4" title="Keep your v4 bot running while you move." lede={migration.summary} />
+  <section class="mg">
+    <div class="wrap mg-grid">
+      <div class="mg-step">
+        <span class="mono mg-n">01</span>
+        <h2>Pin v4 today</h2>
+        <p class="muted">Unqualified installs now get v5. Pin the major version so a fresh install doesn't break your bot.</p>
+        <CodeBlock code={migration.v4Pin} lang="bash" file="Terminal" />
+      </div>
+      <div class="mg-step">
+        <span class="mono mg-n">02</span>
+        <h2>What changes at a glance</h2>
+        <ul class="mg-list">
+          <li>In process, you create the client with <code>createClient</code> and pass a driver package such as <code>@open-wa/driver-puppeteer</code>.</li>
+          <li>Out of process, your bot can connect to a running Easy API with <code>@open-wa/socket-client</code>.</li>
+          <li>Session data can be encrypted with your own key (5.4) and licences applied without a restart (5.5).</li>
+        </ul>
+        <CodeBlock code={snippets.embedded} file="app.mjs (v5)" />
+      </div>
+      <div class="mg-step">
+        <span class="mono mg-n">03</span>
+        <h2>Follow the full guide</h2>
+        <p class="muted">The migration guide in the docs has the details for each change.</p>
+        <div class="mg-do"><a class="btn btn-ink" href={support.migrationDocs}>Read the migration guide</a><a class="link-arrow" href={`${base}changelog/`}>Changelog</a></div>
+      </div>
+    </div>
+  </section>
+</Site>
+<style>
+  .mg { padding-bottom: 96px; }
+  .mg-grid { display: grid; gap: 48px; }
+  .mg-step { display: grid; gap: 14px; max-width: 820px; }
+  .mg-n { color: var(--blue); font-size: 15px; }
+  .mg-step h2 { font-size: 28px; }
+  .mg-list { margin: 0; padding-left: 20px; display: grid; gap: 8px; color: var(--grey-5); }
+  .mg-list code { font-size: 15px; background: var(--grey-1); padding: 1px 5px; border-radius: 5px; }
+  .mg-do { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; }
+</style>

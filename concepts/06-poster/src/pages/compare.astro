@@ -1,0 +1,40 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import { product } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const rows = [
+  ["What you connect", "Meta's WhatsApp Business Platform (Cloud API)", "Your existing WhatsApp number, through WhatsApp Web"],
+  ["Before you send", "A Meta business account, and approved templates for conversations you start", "One npx command and a QR scan"],
+  ["Cost", "Per-message pricing", "Free for most methods; licence keys per number for Insiders and Restricted methods"],
+  ["Status", "Official and supported by Meta", "Unofficial, not affiliated with WhatsApp or Meta"],
+  ["Account risk", "Run within Meta's policies", "Automation can get the number restricted or banned"],
+  ["Where it runs", "Meta's cloud", "Your machine, server or container"],
+];
+---
+
+<Base title="Official API or open-wa? An honest comparison | open-wa" description="Meta's WhatsApp Business Platform is official, needs a business account, templates and per-message pricing. open-wa uses your own number, is free for most methods, and is unofficial with ban risk.">
+  <PageHero title="Official API or open-wa?" lede="Both send WhatsApp messages from code. They make different trade-offs, and the right one depends on what you can risk." />
+  <section class="doc wrap">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col"></th><th scope="col">Official API</th><th scope="col">open-wa</th></tr></thead>
+        <tbody>{rows.map(([k, a, b]) => <tr><th scope="row">{k}</th><td>{a}</td><td>{b}</td></tr>)}</tbody>
+      </table>
+    </div>
+    <div class="doc-grid">
+      <h2>Pick the official API when</h2>
+      <ul>
+        <li>The number is business-critical and losing it would hurt.</li>
+        <li>You need Meta's support and can work with templates and per-message pricing.</li>
+      </ul>
+      <h2>Pick open-wa when</h2>
+      <ul>
+        <li>You want your existing number answering from code today, without a Meta business account.</li>
+        <li>You accept the risk: {product.risk.toLowerCase()}</li>
+        <li>You want it self-hosted, with the source on GitHub.</li>
+      </ul>
+      <p><a class="btn btn-ink" href={`${base}quickstart/`}>Try open-wa</a></p>
+    </div>
+  </section>
+</Base>

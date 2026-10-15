@@ -1,0 +1,22 @@
+name = "openwa-concepts"
+account_id = "11b1f0d90e2e01f7787152098cb332c3"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+# concepts.openwa.dev when the openwa.dev zone is in this account.
+workers_dev = true
+routes = [
+  { pattern = "concepts.openwa.dev", custom_domain = true },
+]
+
+# The Worker runs before the static assets so every path, including images and
+# the gallery index, sits behind the password gate.
+[assets]
+directory = "./_site"
+binding = "ASSETS"
+run_worker_first = true
+not_found_handling = "404-page"
+
+# Shared on purpose: one memorable password for every concepts gallery.
+[vars]
+CONCEPTS_PASSWORD = "concepts"

@@ -1,0 +1,52 @@
+---
+import Page from "../layouts/Page.astro";
+import PageHead from "../components/PageHead.astro";
+import { product, href } from "../data/site";
+const rows = [
+  ["Who runs it", "Meta, as the supported business route", "You, on your own machine or server"],
+  ["Number", "A number registered to the platform", "Your existing WhatsApp number, linked like WhatsApp Web"],
+  ["Sign-up", "A Meta business account", "None. Run one command"],
+  ["Starting conversations", "Approved message templates", "Send from code; new numbers need a Restricted key"],
+  ["Cost", "Per-message pricing", "Free for most methods; Insiders and Restricted keys per number"],
+  ["Status", "Official and supported", "Unofficial. Not affiliated with WhatsApp or Meta"],
+  ["Account risk", "Within the platform's rules", product.risk],
+];
+---
+<Page title="Official WhatsApp API or open-wa? | open-wa" description="An honest comparison: Meta's WhatsApp Business Platform is official, needs a business account, templates and per-message pricing. open-wa uses your own number, is free for most methods and is unofficial with ban risk.">
+  <div class="wrap">
+    <PageHead kicker="compare" title="Official API or open-wa?" lede="Both send and receive WhatsApp messages from code. They make different trade-offs, and for some teams the official route is the right one." />
+    <div class="cmp-wrap">
+      <table class="cmp">
+        <caption class="sr-only">Meta's WhatsApp Business Platform compared with open-wa</caption>
+        <thead><tr><th scope="col"><span class="sr-only">Topic</span></th><th scope="col">WhatsApp Business Platform (Cloud API)</th><th scope="col">open-wa</th></tr></thead>
+        <tbody>
+          {rows.map(([k, a, b]) => <tr><th scope="row">{k}</th><td>{a}</td><td>{b}</td></tr>)}
+        </tbody>
+      </table>
+    </div>
+    <section class="cmp-pick">
+      <div class="card">
+        <h2>Choose the official platform if</h2>
+        <p>You need official support, you message customers at scale who haven't contacted you, or your business can't accept the risk of an unofficial tool.</p>
+      </div>
+      <div class="card">
+        <h2>Choose open-wa if</h2>
+        <p>You want your existing number answering from code today, you're building internal tools, bots or agent workflows, and you accept the ban risk.</p>
+        <a class="btn btn-amber" href={href("quickstart/")}>Quick start <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+    </section>
+  </div>
+</Page>
+<style>
+  .cmp-wrap { overflow-x: auto; border: 1px solid var(--line-2); border-radius: var(--radius-lg); }
+  .cmp { width: 100%; border-collapse: collapse; min-width: 640px; }
+  .cmp th, .cmp td { text-align: left; vertical-align: top; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+  .cmp thead th { font-family: var(--font-mono); font-weight: 400; font-size: 16.5px; color: var(--amber); background: var(--ink-2); }
+  .cmp tbody th { font-weight: 600; width: 22%; }
+  .cmp td { color: var(--grey); }
+  .cmp td:last-child { color: var(--bone); }
+  .cmp tr:last-child > * { border-bottom: 0; }
+  .cmp-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 40px 0 80px; }
+  .cmp-pick .btn { justify-self: start; margin-top: 6px; }
+  @media (max-width: 760px) { .cmp-pick { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,35 @@
+---
+import Base from "../../layouts/Base.astro";
+import { releases, support, product } from "../../data/site";
+---
+
+<Base title="Changelog: what's new in open-wa | open-wa" description="Release highlights: events, live refresh and local stickers in 5.5; your own session key in 5.4.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="eyebrow">Changelog</p>
+      <h1>What's new</h1>
+      <p class="lede">Latest on npm: {product.currentVersion} ({product.currentVersionNote}). Full notes on <a href={support.releases} rel="external">GitHub releases</a>.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap">
+      <ol class="rel">
+        {releases.map((r) => (
+          <li>
+            <p class="rel-v">{r.version}</p>
+            <div><h2>{r.headline}</h2><p class="rel-d">{r.date}</p><ul>{r.highlights.map((h) => <li>{h}</li>)}</ul></div>
+          </li>
+        ))}
+      </ol>
+      <a class="btn" href={support.changelog} rel="external">Full changelog</a>
+    </div>
+  </section>
+</Base>
+<style>
+  .rel { list-style: none; padding: 0; margin: 0 0 32px; display: grid; gap: 24px; }
+  .rel > li { display: grid; grid-template-columns: 160px 1fr; gap: 24px; background: var(--paper); border: var(--line); border-radius: 20px; padding: 24px; box-shadow: var(--pop); }
+  .rel-v { font: 400 2.4rem/1 var(--font-display); margin: 0; background: var(--yellow); border: var(--line); border-radius: 14px; padding: 12px; text-align: center; align-self: start; rotate: -3deg; }
+  .rel h2 { font-size: 1.7rem; margin: 0; }
+  .rel-d { color: var(--ink-soft); margin: 4px 0 8px; }
+  @media (max-width: 600px) { .rel > li { grid-template-columns: 1fr; } .rel-v { justify-self: start; } }
+</style>

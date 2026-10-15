@@ -1,0 +1,25 @@
+---
+import Page from "../layouts/Page.astro";
+import { href } from "../data/site";
+---
+
+<Page title="Page not found | open-wa" description="This page doesn't exist. Head to the quick start, the docs or the home page.">
+  <div class="wrap nf">
+    <p class="mono nf-log"><span class="nf-t">404</span> GET <span class="nf-path" data-path>this page</span> <span class="nf-x">no handler</span></p>
+    <h1>Nothing is listening on this route</h1>
+    <p class="muted">The page moved or never existed.</p>
+    <div class="nf-links"><a class="btn btn-cyan" href={href("quickstart/")}>Quick start</a><a class="btn" href={href()}>Home</a><a class="btn" href="https://openwa.dev/docs">Docs</a></div>
+  </div>
+</Page>
+<script>
+  const el = document.querySelector("[data-path]");
+  if (el) el.textContent = location.pathname;
+</script>
+<style>
+  .nf { padding-top: 96px; display: grid; gap: 18px; justify-items: start; }
+  .nf-log { font-size: 15px; color: var(--muted); padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--graphite-2); max-width: 100%; overflow-wrap: anywhere; }
+  .nf-t { color: var(--alert-ink); background: var(--alert); padding: 2px 6px; border-radius: 3px; margin-right: 8px; }
+  .nf-path { color: var(--warm); }
+  .nf-x { color: var(--alert); margin-left: 8px; }
+  .nf-links { display: flex; gap: 10px; flex-wrap: wrap; }
+</style>

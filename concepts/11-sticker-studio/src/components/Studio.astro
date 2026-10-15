@@ -1,0 +1,191 @@
+---
+import { samples, effects, defaultEffects } from "../data/studio";
+import { commands, base } from "../data/site";
+const first = samples[0];
+---
+
+<div class="studio" id="studio" data-base={base}>
+  <div class="studio-top">
+    <p class="studio-title"><span class="studio-dot" aria-hidden="true"></span>Sticker studio</p>
+    <p class="studio-where">Renders in this browser with <code>@open-wa/stickers</code></p>
+  </div>
+
+  <div class="studio-grid">
+    <div class="studio-controls">
+      <fieldset class="st-samples">
+        <legend><span class="st-num">1</span> Pick a photo</legend>
+        <div class="st-sample-row">
+          {samples.map((s, i) => (
+            <label class="st-sample">
+              <input type="radio" name="st-sample" value={s.id} data-file={s.file} checked={i === 0} />
+              <img src={`${base}samples/${s.id}.webp`} alt={s.alt} width="512" height="512" loading={i === 0 ? "eager" : "lazy"} decoding="async" />
+              <span>{s.label}</span>
+            </label>
+          ))}
+          <label class="st-sample st-upload">
+            <input type="file" accept="image/png,image/jpeg,image/gif,image/webp" class="st-file" />
+            <span class="st-upload-face" aria-hidden="true">+</span>
+            <span>Your photo</span>
+          </label>
+        </div>
+        <p class="st-help"><span class="st-help-drop">Drop a photo anywhere on the studio. </span>Your photo stays in this browser.</p>
+      </fieldset>
+
+      <fieldset class="st-effects">
+        <legend><span class="st-num">2</span> Stack effects</legend>
+        <p class="st-help st-help-top">Order matters. Up to 8.</p>
+        <div class="st-chip-row">
+          {effects.map((e) => (
+            <button type="button" class="st-chip" data-effect={e.name} aria-pressed={defaultEffects.includes(e.name) ? "true" : "false"} title={e.hint}>
+              {e.name}{e.animated && <span class="st-anim" aria-label="animated">●</span>}
+            </button>
+          ))}
+        </div>
+        <ol class="st-stack" aria-label="Effect order"></ol>
+      </fieldset>
+    </div>
+
+    <div class="studio-stage">
+      <div class="st-phone">
+        <div class="st-phone-bar">
+          <span class="st-avatar" aria-hidden="true">R</span>
+          <span class="st-who"><strong>Rosa Salon</strong><small>Example chat</small></span>
+        </div>
+        <div class="st-thread">
+          <p class="bub bub-in">Can you send the photo as a sticker? <time>13:02</time></p>
+          <figure class="st-sticker-msg" aria-live="polite">
+            <div class="st-sticker-wrap">
+              <img class="st-sticker" src={`${base}stickers/${first.id}-polaroid.webp`} width="512" height="512"
+                alt="Example output: the dog photo rendered as a sticker with the polaroid effect" />
+              <div class="st-busy" hidden><span></span>Rendering</div>
+            </div>
+            <figcaption><time>13:02</time><svg viewBox="0 0 18 12" width="18" height="12" aria-label="delivered"><path d="M1 6.5 4.5 10 11 2M7 9l1 1 6.5-8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></figcaption>
+          </figure>
+        </div>
+      </div>
+      <p class="st-status" role="status"><span class="example-tag">Example output</span> <span class="st-status-text">Pre-rendered with the CLI. Change anything to render it live.</span></p>
+    </div>
+    <div class="studio-code">
+      <div class="st-tabs" role="tablist" aria-label="Code for this sticker">
+        <button type="button" role="tab" id="st-tab-send" aria-selected="true" aria-controls="st-panel">Send from your bot</button>
+        <button type="button" role="tab" id="st-tab-cli" aria-selected="false" aria-controls="st-panel" tabindex="-1">Make the file (CLI)</button>
+      </div>
+      <div class="st-panel" id="st-panel" role="tabpanel" aria-labelledby="st-tab-send">
+        <pre class="st-code"><code></code></pre>
+        <button type="button" class="copy-btn st-copy" data-copy="" aria-label="Copy this code"><span class="copy-idle">Copy</span><span class="copy-done">Copied</span></button>
+      </div>
+      <p class="st-fine">Rendering is local and works for everyone, here or with the CLI. Sending with <code>sendSticker</code> relies on the current sticker patch from the patch service, so check its status in the docs before you build on it.</p>
+    </div>
+  </div>
+
+  <div class="st-drop" hidden aria-hidden="true"><span>Drop to stickerise</span></div>
+</div>
+
+<script>
+  import { initStudio } from "../lib/studio";
+  initStudio(document.getElementById("studio")!);
+</script>
+
+<style>
+  .studio {
+    position: relative; background: var(--paper); border: var(--line); border-radius: 24px; box-shadow: var(--pop-lg);
+    padding: 16px; min-width: 0;
+  }
+  .studio-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 2px 4px 14px; }
+  .studio-title { margin: 0; font-family: var(--font-display); font-size: 1.35rem; display: flex; align-items: center; gap: 10px; }
+  .studio-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--yellow); border: 2px solid var(--ink); }
+  .studio-where { margin: 0; font-size: 0.875rem; color: var(--ink-soft); }
+  .studio-where code { font-size: 0.85em; }
+  .studio-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "samples samples" "effects stage" "code code"; gap: 14px 18px; }
+  .studio-controls { display: contents; }
+  .st-samples { grid-area: samples; margin: 0; }
+  .st-effects { grid-area: effects; margin: 0; }
+  .studio-stage { grid-area: stage; }
+  .studio-code { grid-area: code; }
+  .st-help-top { margin: -6px 0 10px; }
+  fieldset { border: 0; margin: 0 0 14px; padding: 0; min-width: 0; }
+  legend { font-weight: 800; padding: 0; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  legend small { font-weight: 500; color: var(--ink-soft); }
+  .st-num { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--yellow); font-size: 0.85rem; }
+  .st-sample-row { display: grid; grid-template-columns: repeat(5, minmax(0, 92px)); gap: 12px; }
+  .st-sample { position: relative; display: grid; gap: 4px; justify-items: center; font-size: 0.8rem; font-weight: 700; cursor: pointer; text-align: center; }
+  .st-sample input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+  .st-sample img, .st-upload-face {
+    width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 14px; border: 2.5px solid var(--ink);
+    transition: transform 200ms var(--ease-spring), box-shadow 200ms var(--ease);
+  }
+  .st-sample:hover img { transform: rotate(-3deg) scale(1.03); }
+  .st-sample input:checked + img { box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px var(--ink); transform: rotate(-3deg); }
+  .st-sample input:focus-visible + img, .st-upload input:focus-visible ~ .st-upload-face { outline: 3px solid var(--ink); outline-offset: 4px; }
+  .st-upload-face { display: grid; place-items: center; background: repeating-linear-gradient(45deg, var(--lilac-soft) 0 8px, var(--lilac-wash) 8px 16px); font: 400 2rem/1 var(--font-display); border-style: dashed; }
+  .st-upload.is-active .st-upload-face { border-style: solid; background: var(--yellow); }
+  .st-help { font-size: 0.85rem; color: var(--ink-soft); margin: 8px 0 0; }
+  .st-chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .st-chip {
+    min-height: 38px; padding: 0 10px; border: 2px solid var(--ink); border-radius: var(--radius-pill); background: var(--lilac-wash);
+    font: 600 0.85rem/1 var(--font-mono); cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+    transition: transform 160ms var(--ease-spring), background 160ms;
+  }
+  .st-chip:hover { transform: translateY(-2px); }
+  .st-chip[aria-pressed="true"] { background: var(--yellow); box-shadow: 2px 2px 0 var(--ink); }
+  .st-anim { color: #a03b88; font-size: 0.6rem; }
+  .st-stack { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; counter-reset: st; min-height: 44px; align-items: center; }
+  .st-stack:empty::before { content: "No effects: the photo is sent as a plain sticker."; font-size: 0.875rem; color: var(--ink-soft); }
+  .st-stack :global(li) { counter-increment: st; display: inline-flex; align-items: center; gap: 2px; padding: 2px 2px 2px 10px; border-radius: var(--radius-pill); background: var(--ink); color: var(--paper); font: 600 0.85rem/1 var(--font-mono); }
+  .st-stack :global(li)::before { content: counter(st) "."; color: var(--yellow); margin-right: 4px; }
+  .st-stack :global(button) { width: 34px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: pointer; font: 700 1rem/1 var(--font-text); }
+  .st-stack :global(button):hover { background: #3a3350; }
+  .st-stack :global(button):disabled { opacity: 0.35; cursor: default; }
+  .studio-stage { display: grid; gap: 10px; align-content: start; min-width: 0; }
+  .st-phone { border: var(--line); border-radius: 22px; overflow: hidden; background: var(--lilac-wash); }
+  .st-phone-bar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--lilac); border-bottom: 2px solid var(--ink); }
+  .st-avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--rose); border: 2px solid var(--ink); font: 400 1rem/1 var(--font-display); }
+  .st-who { display: grid; line-height: 1.15; }
+  .st-who small { font-size: 0.75rem; color: var(--ink-soft); }
+  .st-thread {
+    display: flex; flex-direction: column; gap: 10px; padding: 14px; min-height: 0;
+    background-image: radial-gradient(#d8cdfc 1.2px, transparent 1.3px); background-size: 14px 14px;
+  }
+  .st-sticker-msg { align-self: flex-end; margin: 0; display: grid; justify-items: end; gap: 2px; }
+  .st-sticker-wrap { position: relative; width: clamp(150px, 12.5vw, 184px); aspect-ratio: 1; }
+  .st-sticker { width: 100%; height: 100%; display: block; filter: drop-shadow(3px 0 0 var(--paper)) drop-shadow(-3px 0 0 var(--paper)) drop-shadow(0 3px 0 var(--paper)) drop-shadow(0 -3px 0 var(--paper)) drop-shadow(3px 5px 0 rgba(17,17,17,.28)); transform-origin: 70% 90%; }
+  .st-sticker.is-landing { animation: st-land 620ms var(--ease-spring); }
+  @keyframes st-land {
+    0% { transform: translate(-60%, -45%) scale(0.35) rotate(-18deg); opacity: 0; }
+    60% { opacity: 1; }
+    100% { transform: none; }
+  }
+  .st-busy { position: absolute; inset: auto 8px 8px auto; display: inline-flex; gap: 6px; align-items: center; padding: 6px 10px; border-radius: var(--radius-pill); background: var(--ink); color: var(--yellow); font-weight: 700; font-size: 0.8rem; }
+  .st-busy span { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--yellow); border-right-color: transparent; animation: st-spin 700ms linear infinite; }
+  @keyframes st-spin { to { transform: rotate(1turn); } }
+  .st-sticker-msg figcaption { display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; color: var(--ink-soft); padding: 2px 8px; background: var(--paper); border-radius: var(--radius-pill); border: 1.5px solid var(--ink); }
+  .st-status { margin: 0; font-size: 0.875rem; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .studio-code { margin-top: 2px; }
+  .st-tabs { display: flex; gap: 6px; margin-bottom: -2px; position: relative; z-index: 1; }
+  .st-tabs button { min-height: 44px; padding: 0 14px; border: var(--line); border-bottom: 0; border-radius: 12px 12px 0 0; background: var(--lilac-soft); font: 700 0.9rem/1 var(--font-text); cursor: pointer; }
+  .st-tabs button[aria-selected="true"] { background: var(--ink); color: var(--paper); }
+  .st-panel { position: relative; background: var(--ink); border: var(--line); border-radius: 0 14px 14px 14px; padding: 14px 96px 14px 16px; min-height: 88px; }
+  .st-code { margin: 0; color: #f4f0ff; font-size: 0.875rem; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .st-code :global(.k) { color: #c9b8ff; } .st-code :global(.s) { color: #ffe600; } .st-code :global(.f) { color: #8ff0c9; } .st-code :global(.p) { color: #d8d0ef; } .st-code :global(.c) { color: #a99fc4; }
+  .st-copy { position: absolute; top: 12px; right: 12px; min-height: 40px; }
+  .st-fine { font-size: 0.85rem; color: var(--ink-soft); margin: 10px 2px 0; }
+  .st-fine code { font-size: 0.85em; }
+  .st-drop { position: absolute; inset: 0; display: grid; place-items: center; border-radius: 22px; background: rgba(201, 184, 255, 0.92); border: 3px dashed var(--ink); font: 400 2rem/1 var(--font-display); z-index: 5; pointer-events: none; }
+
+  @media (max-width: 1100px) and (min-width: 861px) { .studio-grid { grid-template-columns: 1fr; grid-template-areas: "samples" "stage" "effects" "code"; } .st-thread { min-height: 0; } }
+  @media (max-width: 860px) {
+    .studio { padding: 12px; border-radius: 20px; box-shadow: var(--pop); }
+    .studio-grid { grid-template-columns: 1fr; grid-template-areas: "samples" "stage" "effects" "code"; gap: 12px; }
+    .st-sample-row { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+    .st-chip-row { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; margin-inline: -12px; padding-inline: 12px; scrollbar-width: thin; }
+    .st-chip { flex: none; min-height: 44px; }
+    .st-thread { min-height: 0; }
+    .st-sticker-wrap { width: 170px; }
+    .studio-where, .st-help-drop { display: none; }
+    .st-thread { padding: 10px; gap: 6px; }
+    .st-thread .bub-in { font-size: 0.9rem; }
+    .st-panel { padding: 14px; padding-bottom: 64px; }
+    .st-copy { top: auto; bottom: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .st-sticker.is-landing { animation: none; } }
+</style>

@@ -1,0 +1,53 @@
+---
+import Page from "../layouts/Page.astro";
+import NeedForm from "../components/NeedForm.astro";
+import { support, href } from "../data/site";
+const free = [
+  { t: "Docs", d: "Guides, configuration and the API reference.", h: support.docs },
+  { t: "Discord", d: "Ask the community and the maintainer.", h: support.discord },
+  { t: "GitHub issues", d: "Bugs and reproducible problems.", h: support.issues },
+];
+const paid = [
+  { t: "Email", d: support.consultingEmail, h: `mailto:${support.consultingEmail}` },
+  { t: "Per-minute consulting", d: "Book time with the maintainer on Otechie.", h: support.perMinuteConsulting },
+  { t: "Buy me a coffee", d: "Support the project without a request.", h: support.buyMeACoffee },
+];
+---
+
+<Page title="Support and consulting | open-wa" description="Free help on Discord, GitHub and the docs. Paid support and consulting from the maintainer, or tell us what you want built.">
+  <section class="page-hero wrap">
+    <span class="label">Support</span>
+    <h1>Help, free or paid</h1>
+    <p class="lede">Most answers are in the docs or on Discord. For a deadline, a production problem or a build done for you, talk to the maintainer.</p>
+  </section>
+  <section class="wrap sp-grid">
+    <div>
+      <h2 class="sp-h">Free</h2>
+      <ul class="sp-list">{free.map((x) => <li><a href={x.h}><strong>{x.t}</strong><span>{x.d}</span></a></li>)}</ul>
+    </div>
+    <div>
+      <h2 class="sp-h">Paid</h2>
+      <ul class="sp-list">{paid.map((x) => <li><a href={x.h}><strong>{x.t}</strong><span>{x.d}</span></a></li>)}</ul>
+    </div>
+  </section>
+  <section class="wrap section sp-form" id="tell-us" aria-labelledby="tell-title">
+    <div>
+      <h2 id="tell-title">Want it built for you?</h2>
+      <p class="muted">Not a developer, or short on time? Say what you need in plain words. You'll get a reply about what it would take.</p>
+      <p class="muted" style="margin-top:12px">Need a licence key instead? <a class="textlink" href={href("pricing/#licence")}>Configure a licence</a>.</p>
+    </div>
+    <NeedForm />
+  </section>
+</Page>
+
+<style>
+  .sp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .sp-h { font-size: 32px; margin-bottom: 12px; }
+  .sp-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line-strong); }
+  .sp-list a { display: grid; gap: 2px; padding: 16px 0; border-bottom: 1px solid var(--line-strong); text-decoration: none; }
+  .sp-list a:hover strong { color: var(--oxblood); text-decoration: underline; text-underline-offset: 3px; }
+  .sp-list span { color: var(--ink-soft); overflow-wrap: anywhere; }
+  .sp-form { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 48px; align-items: start; }
+  .sp-form h2 { font-size: clamp(32px, 4vw, 46px); margin-bottom: 14px; }
+  @media (max-width: 860px) { .sp-grid, .sp-form { grid-template-columns: minmax(0, 1fr); } }
+</style>

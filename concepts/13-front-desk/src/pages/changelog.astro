@@ -1,0 +1,32 @@
+---
+import Page from "../layouts/Page.astro";
+import { releases, support, product } from "../data/facts";
+---
+
+<Page title="Changelog: recent open-wa releases | open-wa" description="Recent open-wa releases: event cards, live refresh, local stickers and your own session encryption key.">
+  <section class="page-head wrap">
+    <p class="kicker">Changelog</p>
+    <h1>Recent releases.</h1>
+    <p class="lead">The latest version on npm is {product.currentVersion} ({product.currentVersionNote}). Full notes are on <a href={support.releases}>GitHub releases</a> and the <a href={support.changelog}>docs changelog</a>.</p>
+  </section>
+  <section class="wrap narrow cl">
+    {releases.map((r) => (
+      <article class="rel">
+        <p class="rel-meta"><span class="v">v{r.version}</span> <time>{r.date}</time></p>
+        <h2>{r.headline}</h2>
+        <ul>{r.highlights.map((h) => <li>{h}</li>)}</ul>
+      </article>
+    ))}
+  </section>
+</Page>
+
+<style>
+  .page-head a { color: var(--terracotta-ink); }
+  .cl { padding-bottom: clamp(56px, 8vw, 96px); display: grid; gap: 0; border-left: 2px solid var(--sand-300); }
+  .rel { position: relative; padding: 0 0 40px 28px; display: grid; gap: 10px; }
+  .rel::before { content: ""; position: absolute; left: -8px; top: 6px; width: 14px; height: 14px; border-radius: 50%; background: var(--terracotta); box-shadow: 0 0 0 4px var(--sand); }
+  .rel-meta { display: flex; gap: 12px; align-items: center; color: var(--color-muted); }
+  .v { font: 700 1rem/1 var(--font-mono); background: var(--ocean); color: var(--sand); padding: 6px 8px; border-radius: 8px; }
+  .rel h2 { font-size: 1.75rem; }
+  .rel ul { padding-left: 22px; display: grid; gap: 6px; }
+</style>

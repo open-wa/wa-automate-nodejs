@@ -1,0 +1,240 @@
+---
+import Base from "../layouts/Base.astro";
+import Studio from "../components/Studio.astro";
+import CopyCommand from "../components/CopyCommand.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import MediaStrip from "../components/MediaStrip.astro";
+import MiniChat from "../components/MiniChat.astro";
+import { miniChats } from "../data/minichats";
+import { jobs, http, tier, licences, product, stats, releases, support, href, jobBadge, checked, kRound, commands } from "../data/site";
+
+const restricted = tier("restricted");
+const insiders = tier("insiders");
+const recipeIds = ["salon-bookings", "hotel-notifications", "otp", "pbx-calls", "order-updates", "support-inbox", "ai-agent"];
+const recipeJobs = recipeIds.map((id) => jobs.find((j) => j.id === id)!);
+const latest = releases[0];
+const byJob = [
+  { job: "Stickers, photos, voice notes, PDFs, video notes", need: "No key for media. Sending stickers relies on the current sticker patch.", tone: "free", price: "Free" },
+  { job: "Replying to people who message you (bookings, orders, support)", need: "No key", tone: "free", price: "Free" },
+  { job: "Buttons, lists, number checks, status posts", need: "Insiders", tone: "insiders", price: `${insiders.prices.month} a month` },
+  { job: "OTP codes and first messages to new numbers", need: "Restricted (includes Insiders)", tone: "restricted", price: `${restricted.prices.month} a month` },
+  { job: "Creating and joining groups", need: "Restricted", tone: "restricted", price: `${restricted.prices.month} a month` },
+  { job: "Answering and making WhatsApp calls", need: "A calling-enabled key (licensed preview, audio only)", tone: "calls", price: "On request" },
+];
+---
+
+<Base
+  title="open-wa: make stickers and send media from your own WhatsApp number"
+  description="Run one command and your WhatsApp number becomes an API. Render stickers from photos in your browser, then send stickers, voice notes, PDFs, booking reminders and codes from any language."
+>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="eyebrow-new">New in 5.5</span> stickers render locally</p>
+        <h1>Photos in, stickers out, sent from your own WhatsApp number.</h1>
+        <p class="hero-sub">Run one command and your number becomes an API. Send stickers, voice notes, PDFs, booking reminders and login codes from Node.js, PHP, Python or any language.</p>
+        <CopyCommand id="hero-command" />
+        <div class="hero-actions">
+          <a class="btn btn-yellow" href={href("/quickstart/")}>Quick start</a>
+          <a class="btn" href={support.docs} rel="external">Read the docs</a>
+        </div>
+        <p class="hero-fine">Free and open source; some methods need a licence key. Unofficial, so <a href="#risk">ban risk applies</a>.</p>
+        <p class="hero-jump"><a href="#recipes">Building bookings, OTP or calls? See the recipes</a></p>
+      </div>
+      <div class="hero-studio">
+        <Studio />
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-lilac" id="media">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Media</p>
+        <h2>Stickers are the fun part. The rest of the media is one call each.</h2>
+        <p class="lede">Voice notes, documents, view-once photos and circular video notes go out from your number with the same client. None of these needs a licence key.</p>
+      </div>
+      <MediaStrip />
+    </div>
+  </section>
+
+  <section class="section" id="recipes">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Recipes</p>
+        <h2>The same number runs the rest of the business.</h2>
+        <p class="lede">Bookings, hotel reminders, login codes and phone lines are the jobs people build next. Each recipe has the flow, the code and the licence it needs.</p>
+      </div>
+      <ul class="recipe-grid">
+        {recipeJobs.map((j) => {
+          const chat = miniChats[j.id];
+          const badge = jobBadge[j.id];
+          return (
+            <li class="recipe-card">
+              <MiniChat who={chat.who} lines={chat.lines} />
+              <h3><a href={href(`/recipes/${j.id}/`)}>{j.name}</a></h3>
+              <p class="recipe-call"><code>{chat.call}</code></p>
+              <p class="recipe-foot"><span class={`badge badge-${badge.tone}`}>{badge.label}</span><span class="recipe-go" aria-hidden="true">Recipe →</span></p>
+            </li>
+          );
+        })}
+        <li class="recipe-card recipe-all">
+          <p class="recipe-all-big">9 recipes</p>
+          <p>Including stickers and media, each with a phone conversation, the code and the licence.</p>
+          <a class="btn btn-yellow" href={href("/recipes/")}>All recipes</a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section-ink" id="how">
+    <div class="wrap how-grid">
+      <div>
+        <p class="eyebrow">How it works</p>
+        <h2>Three steps, then it's just HTTP.</h2>
+        <ol class="steps">
+          <li><strong>Run the command.</strong> It starts an Easy API on the port you choose.<CopyCommand size="md" /></li>
+          <li><strong>Scan the QR code</strong> it prints with the phone, or use link-code login.</li>
+          <li><strong>Call the API from any language.</strong> Every method is an endpoint, listed live at <code>/api-docs/</code> with Swagger and Postman files.</li>
+        </ol>
+      </div>
+      <div class="how-code">
+        <CodeBlock code={http.sendTextCurl} lang="bash" title="curl: send a message" label="PHP, Python, Go, n8n work the same" />
+        <p class="how-note">{http.chatId}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="free-vs-licensed">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Free vs licensed</p>
+        <h2>What's free and what needs a key, by job.</h2>
+        <p class="lede">Most methods need no key. A key is per WhatsApp number and covers the methods marked Insiders or Restricted.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">Your job</th><th scope="col">What you need</th><th scope="col">Price</th></tr></thead>
+          <tbody>
+            {byJob.map((r) => (
+              <tr><td>{r.job}</td><td><span class={`badge badge-${r.tone}`}>{r.need}</span></td><td><strong>{r.price}</strong></td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="table-fine">Prices in GBP, checked {licences.pricesCheckedOn.split(",")[0]}; checkout shows the current price. Insiders is {insiders.prices.year} a year, Restricted {restricted.prices.year} a year.</p>
+      <a class="btn btn-ink" href={href("/pricing/")}>See pricing and get a key</a>
+    </div>
+  </section>
+
+  <section class="section section-yellow" id="risk">
+    <div class="wrap risk-grid">
+      <div>
+        <p class="eyebrow">Honest bits</p>
+        <h2>Unofficial, open about the risk, and maintained.</h2>
+        <p class="lede"><strong>open-wa is unofficial. It isn't affiliated with WhatsApp or Meta.</strong> {product.risk} If you need Meta's approval and templates, the WhatsApp Business Platform is the official route; see <a href={href("/compare/")}>how they compare</a>.</p>
+        <p>Maintained by {support.maintainer} since 2019. Latest release: {latest.version}, {latest.date}, "{latest.headline}".</p>
+      </div>
+      <dl class="signals">
+        <div><dt>GitHub stars</dt><dd>{kRound(stats.githubStars)}</dd></div>
+        <div><dt>npm downloads, last 12 months</dt><dd>{Math.floor(stats.npmDownloadsLast12Months / 1000)}k</dd></div>
+        <div><dt>Docker pulls</dt><dd>{Math.floor(stats.dockerPulls / 1000)}k</dd></div>
+        <div><dt>Discord members</dt><dd>{stats.discordMembers.toLocaleString("en-GB")}</dd></div>
+        <p class="signals-date">Checked {checked} from GitHub, npm, Docker Hub and Discord.</p>
+      </dl>
+    </div>
+  </section>
+
+  <section class="section closing">
+    <div class="wrap closing-inner">
+      <div class="closing-stickers" aria-hidden="true">
+        <img src={`${import.meta.env.BASE_URL}stickers/coffee-comic-stars.webp`} alt="" width="512" height="512" loading="lazy" />
+        <img src={`${import.meta.env.BASE_URL}stickers/cake-polaroid.webp`} alt="" width="512" height="512" loading="lazy" />
+        <img src={`${import.meta.env.BASE_URL}stickers/highfive-stamp.webp`} alt="" width="512" height="512" loading="lazy" />
+      </div>
+      <h2>Your number, your first sticker, about two minutes.</h2>
+      <CopyCommand command={commands.easyApi} />
+      <div class="hero-actions">
+        <a class="btn btn-yellow" href={href("/quickstart/")}>Quick start</a>
+        <a class="btn" href={support.discord} rel="external">Join the Discord</a>
+        <a class="btn" href={support.github} rel="external">Star on GitHub</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { background: var(--lilac); border-bottom: var(--line); padding: 32px 0 64px; overflow: hidden; }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 40px; align-items: start; }
+  @media (max-width: 1100px) and (min-width: 861px) { .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+  .hero-copy { padding-top: 8px; }
+  .hero-copy h1 { font-size: clamp(2.4rem, 4vw, 3.7rem); }
+  .hero-copy h1 { margin-bottom: 18px; }
+  .eyebrow-new { background: var(--yellow); border: 2px solid var(--ink); border-radius: 999px; padding: 1px 8px; margin-left: -6px; }
+  .hero-sub { font-size: 1.15rem; max-width: 34em; margin-bottom: 20px; }
+  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 18px; }
+  .hero-fine { margin-top: 18px; font-size: 0.95rem; }
+  .hero-fine a { font-weight: 700; }
+  .hero-jump { margin: 6px 0 0; }
+  .hero-jump a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; text-underline-offset: 4px; }
+  .hero-jump a::after { content: "↓"; margin-left: 6px; }
+  @media (max-width: 860px) {
+    .hero { padding: 16px 0 48px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 28px; }
+    .hero-copy { padding-top: 0; }
+    .hero-copy h1 { font-size: 2.25rem; margin-bottom: 10px; }
+    .hero-copy .eyebrow { display: none; }
+    .hero-sub { font-size: 1.02rem; margin-bottom: 14px; }
+    .hero-actions { margin-top: 12px; gap: 10px; }
+    .hero-actions .btn { flex: 1 1 0; padding: 0 12px; }
+    .hero-fine { margin-top: 12px; font-size: 0.9rem; }
+  }
+
+  .recipe-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+  .recipe-card { position: relative; display: flex; flex-direction: column; gap: 10px; background: var(--paper); border: var(--line); border-radius: 20px; padding: 14px; box-shadow: var(--pop); transition: transform 200ms var(--ease-spring), box-shadow 200ms; min-width: 0; }
+  .recipe-card:hover { transform: translate(-2px, -3px); box-shadow: 7px 7px 0 var(--ink); }
+  .recipe-card h3 { margin: 6px 0 0; font-size: 1.3rem; }
+  .recipe-card h3 a { text-decoration: none; }
+  .recipe-card h3 a::after { content: ""; position: absolute; inset: 0; border-radius: 20px; }
+  .recipe-card h3 a:focus-visible { outline: none; }
+  .recipe-card:has(h3 a:focus-visible) { outline: 3px solid var(--ink); outline-offset: 4px; }
+  .recipe-call { margin: 0; }
+  .recipe-call code { display: block; font-size: 0.78rem; background: var(--lilac-wash); padding: 8px; border-radius: 8px; border: 1.5px solid #d8cdfc; overflow-wrap: anywhere; }
+  .recipe-foot { margin: auto 0 0; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .recipe-go { font-weight: 800; }
+  .recipe-all { background: var(--yellow); justify-content: center; align-items: flex-start; }
+  .recipe-all-big { font: 400 2.6rem/1 var(--font-display); margin: 0; }
+  .recipe-all .btn { position: relative; z-index: 1; }
+  @media (max-width: 1100px) { .recipe-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 600px) { .recipe-grid { grid-template-columns: 1fr; } }
+
+  .how-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 48px; align-items: start; }
+  .section-ink h2 { color: var(--yellow); }
+  .steps { list-style: none; padding: 0; margin: 24px 0 0; counter-reset: s; display: grid; gap: 22px; }
+  .steps li { counter-increment: s; position: relative; padding-left: 56px; font-size: 1.1rem; }
+  .steps li::before { content: counter(s); position: absolute; left: 0; top: -4px; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--lilac); color: var(--ink); font: 400 1.3rem/1 var(--font-display); border: 2px solid var(--paper); }
+  .steps .cmd { margin-top: 12px; color: var(--ink); box-shadow: 4px 4px 0 var(--lilac); }
+  .steps code { color: var(--yellow); }
+  .how-code .codeblock { box-shadow: 6px 6px 0 var(--lilac); border-color: var(--paper); }
+  .how-note { margin-top: 14px; color: #d6cff0; font-size: 0.95rem; }
+  @media (max-width: 860px) { .how-grid { grid-template-columns: 1fr; gap: 32px; } }
+
+  .table-fine { font-size: 0.9rem; color: var(--ink-soft); margin: 14px 0 24px; }
+  .risk-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 48px; align-items: center; }
+  .risk-grid .lede a { font-weight: 700; }
+  .signals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0; }
+  .signals > div { background: var(--paper); border: var(--line); border-radius: 18px; padding: 16px; box-shadow: var(--pop); }
+  .signals dt { font-size: 0.875rem; font-weight: 600; }
+  .signals dd { margin: 4px 0 0; font: 400 2.2rem/1 var(--font-display); }
+  .signals-date { grid-column: 1 / -1; font-size: 0.875rem; margin: 0; }
+  @media (max-width: 860px) { .risk-grid { grid-template-columns: 1fr; gap: 28px; } }
+
+  .closing { background: var(--lilac-wash); text-align: center; }
+  .closing-inner { display: grid; justify-items: center; gap: 8px; }
+  .closing h2 { max-width: 14em; }
+  .closing .cmd { width: min(100%, 560px); text-align: left; }
+  .closing .hero-actions { justify-content: center; }
+  .closing-stickers { display: flex; justify-content: center; margin-bottom: 12px; }
+  .closing-stickers img { width: 150px; margin: 0 -14px; filter: drop-shadow(4px 0 0 var(--paper)) drop-shadow(-4px 0 0 var(--paper)) drop-shadow(0 4px 0 var(--paper)) drop-shadow(0 -4px 0 var(--paper)) drop-shadow(3px 5px 0 rgba(17,17,17,.28)); }
+  .closing-stickers img:nth-child(1) { rotate: -9deg; } .closing-stickers img:nth-child(2) { rotate: 4deg; translate: 0 -10px; } .closing-stickers img:nth-child(3) { rotate: 11deg; }
+</style>

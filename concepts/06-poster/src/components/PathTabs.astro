@@ -1,0 +1,69 @@
+---
+/** The four ways to use open-wa, as tabs (all panels render without JS). */
+import CodeBlock from "./CodeBlock.astro";
+import { paths, commands, snippets } from "../data/facts";
+type Block = { code: string; lang: string; label: string };
+const code: Record<string, Block[]> = {
+  "easy-api": [{ code: commands.easyApi, lang: "bash", label: "Terminal" }, { code: commands.docker, lang: "bash", label: "Or with Docker" }],
+  "socket-client": [{ code: commands.socketClientInstall, lang: "bash", label: "Terminal" }, { code: snippets.socketClient, lang: "js", label: "bot.mjs" }],
+  embedded: [{ code: commands.embeddedInstall, lang: "bash", label: "Terminal" }, { code: snippets.embedded, lang: "js", label: "app.mjs" }],
+  mcp: [{ code: snippets.mcpConfig, lang: "js", label: "wa.config.mjs" }, { code: snippets.mcpStart, lang: "bash", label: "Terminal" }],
+};
+---
+
+<div class="paths" data-tabs>
+  <div class="path-tabs" role="tablist" aria-label="Ways to use open-wa">
+    {paths.map((p, i) => (
+      <button type="button" role="tab" id={`tab-${p.id}`} aria-controls={`panel-${p.id}`} aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1}>
+        {p.name}
+      </button>
+    ))}
+  </div>
+  {paths.map((p, i) => (
+    <div class="path-panel" role="tabpanel" id={`panel-${p.id}`} aria-labelledby={`tab-${p.id}`} data-panel={i}>
+      <div class="path-copy">
+        <h3>{p.for}</h3>
+        <p>{p.what}</p>
+      </div>
+      <div class="path-code">{code[p.id].map((b) => <CodeBlock code={b.code} lang={b.lang} label={b.label} />)}</div>
+    </div>
+  ))}
+</div>
+
+<style>
+  .path-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+  .path-tabs button {
+    min-height: 52px; padding: 6px 20px; border: 2.5px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); cursor: pointer;
+    font-family: var(--font-display); font-weight: 900; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  .path-tabs button[aria-selected="true"] { background: var(--blue-text); border-color: var(--blue-text); color: #fff; box-shadow: 4px 4px 0 var(--pink); }
+  .path-panel { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(20px, 4vw, 48px); align-items: start; margin-bottom: 32px; }
+  .path-code { min-width: 0; }
+  .path-copy h3 { color: var(--blue-text); }
+  .path-copy p { font-size: 1.1rem; }
+  @media (max-width: 860px) { .path-panel { grid-template-columns: minmax(0, 1fr); } .path-tabs button { flex: 1 1 40%; font-size: 1.3rem; padding-inline: 10px; } }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-tabs]").forEach((root) => {
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const panels = [...root.querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+    const select = (i: number, focus = false) => {
+      tabs.forEach((t, j) => { t.setAttribute("aria-selected", String(i === j)); t.tabIndex = i === j ? 0 : -1; });
+      panels.forEach((p, j) => (p.hidden = i !== j));
+      if (focus) tabs[i].focus();
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => select(i));
+      t.addEventListener("keydown", (e) => {
+        const k = e.key;
+        if (k === "ArrowRight" || k === "ArrowLeft" || k === "Home" || k === "End") {
+          e.preventDefault();
+          const n = k === "Home" ? 0 : k === "End" ? tabs.length - 1 : (i + (k === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+          select(n, true);
+        }
+      });
+    });
+    select(0);
+  });
+</script>

@@ -1,0 +1,101 @@
+---
+import Site from "../../layouts/Site.astro";
+import CopyCommand from "../../components/CopyCommand.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import LangTabs from "../../components/LangTabs.astro";
+import { f, href, S } from "../../data/facts";
+import { sendTextAll } from "../../data/builder";
+const any = sendTextAll("Hello from my own number.");
+---
+<Site title="Quick start: your WhatsApp number as an HTTP API | open-wa" description="Run one command, scan the QR code, open the live API docs and send your first WhatsApp message with curl, PHP, Python, Node.js or n8n.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="kicker">Quick start</p>
+      <h1>From one command to your first sent message</h1>
+      <p class="lead">You need Node.js {f.product.node.replace(">=", "")} or newer (or Docker) and the phone with the WhatsApp account you want to use.</p>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap qs">
+      <ol class="qs-steps">
+        <li>
+          <h2><span>1</span>Run the command</h2>
+          <p>{f.firstRun[0]}</p>
+          <CopyCommand cmd={f.commands.easyApi} size="lg" />
+          <p>Protect the API with a key of your choosing:</p>
+          <CopyCommand cmd={f.commands.easyApiWithKey} />
+          <p>Or with Docker:</p>
+          <CopyCommand cmd={f.commands.docker} />
+        </li>
+        <li>
+          <h2><span>2</span>Scan the QR code</h2>
+          <p>{f.firstRun[1]}</p>
+          <p class="risk"><strong>Ban risk:</strong> {f.product.risk} Test on a number you can afford to lose before you point it at a business line.</p>
+        </li>
+        <li>
+          <h2><span>3</span>Open your live API docs</h2>
+          <p>{f.firstRun[2]}</p>
+          <ul class="links">
+            <li><span>Interactive docs for every method</span><code>{f.commands.proofOfLife}</code></li>
+            <li><span>Swagger file</span><code>{f.commands.swagger}</code></li>
+            <li><span>Postman collection to import</span><code>{f.commands.postman}</code></li>
+          </ul>
+          <CodeBlock code={f.http.health} lang="bash" title="Check it's up" />
+        </li>
+        <li>
+          <h2><span>4</span>Send a message from any language</h2>
+          <p>{f.http.chatId}</p>
+          <LangTabs items={any} name="Language" />
+        </li>
+      </ol>
+      <aside class="qs-side">
+        <h2>Next</h2>
+        <ul>
+          <li><a href={href("recipes/")}>Pick a recipe</a> for bookings, codes, calls or media.</li>
+          <li><a href={href("pricing/")}>Check which jobs need a key</a>. Add one with <code>{f.commands.licenceFlag}</code>.</li>
+          <li>Run more numbers side by side with a named session: <code>{f.commands.namedSession}</code></li>
+          <li><a href={S.quickstartDocs}>Full quick start in the docs</a></li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+  <section class="sec">
+    <div class="wrap">
+      <h2 class="h2">Other ways to connect from Node.js</h2>
+      <p class="lead">The HTTP API covers most jobs. If you write Node.js, these sit on top of the same session.</p>
+      <div class="other">
+        {f.paths.filter((p) => p.id !== "easy-api").map((p) => (
+          <details>
+            <summary><b>{p.name}</b><span>{p.for}</span></summary>
+            <p>{p.what}</p>
+            <CodeBlock code={(f.snippets as Record<string, string>)[p.start.replace("snippets.", "")]} lang="js" title={p.name} />
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</Site>
+<style>
+  .qs { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 56px; align-items: start; }
+  .qs-steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 48px; }
+  .qs-steps li { display: grid; gap: 14px; min-width: 0; }
+  .qs-steps h2 { font-size: 26px; display: flex; gap: 14px; align-items: center; }
+  .qs-steps h2 span { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--red); color: var(--navy); font: 700 17px var(--font-mono); flex: none; }
+  .qs-steps p { margin: 0; color: #d9dbe5; }
+  .links { margin: 0; padding: 0; list-style: none; color: #d9dbe5; display: grid; gap: 0; border: 1px solid var(--line); border-radius: var(--radius); }
+  .links li { display: grid; gap: 2px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  .links li:last-child { border-bottom: 0; }
+  .links span { font-size: 15.5px; color: var(--muted); }
+  .links code { color: var(--peach); overflow-wrap: anywhere; }
+  .qs-side { position: sticky; top: 88px; border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 22px; background: var(--navy-2); }
+  .qs-side h2 { font-size: 20px; }
+  .qs-side ul { padding-left: 18px; margin: 12px 0 0; display: grid; gap: 10px; color: #d9dbe5; }
+  .qs-side code { overflow-wrap: anywhere; color: var(--peach); }
+  .other { display: grid; gap: 10px; margin-top: 28px; }
+  .other details { border: 1px solid var(--line); border-radius: 12px; padding: 0 18px; background: var(--navy-2); }
+  .other summary { cursor: pointer; padding: 16px 0; display: flex; gap: 14px; flex-wrap: wrap; align-items: baseline; min-height: 44px; }
+  .other summary span { color: var(--muted); }
+  .other details p { color: #d9dbe5; margin: 0 0 14px; }
+  .other details :global(.codeblock) { margin-bottom: 18px; }
+  @media (max-width: 960px) { .qs { grid-template-columns: 1fr; } .qs-side { position: static; } }
+</style>

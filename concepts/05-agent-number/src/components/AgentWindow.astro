@@ -1,0 +1,62 @@
+---
+/**
+ * The hero object: an agent session window. Transcript above, composer pinned
+ * at the bottom. On phones the composer moves to the top of the window so the
+ * command and Copy are on the first screen, and the transcript follows.
+ */
+import Mark from "./Mark.astro";
+import AgentTranscript from "./AgentTranscript.astro";
+import Composer from "./Composer.astro";
+---
+
+<div class="aw" data-agent-window>
+  <div class="aw-bar">
+    <span class="aw-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="aw-title"><Mark size={13} decorative /> Agent session</span>
+    <span class="aw-example">Example</span>
+    <button class="aw-replay" type="button" data-replay aria-label="Replay the example conversation">Replay</button>
+  </div>
+  <div class="aw-scroll" data-scroll tabindex="0" aria-label="Example conversation">
+    <AgentTranscript />
+  </div>
+  <div class="aw-composer">
+    <Composer />
+  </div>
+</div>
+
+<style>
+  .aw {
+    display: flex; flex-direction: column; min-width: 0;
+    background: var(--paper); border: 1px solid var(--line-strong); border-radius: var(--radius-l);
+    box-shadow: var(--shadow-window); overflow: hidden;
+  }
+  .aw-bar {
+    display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 4px 8px 4px 16px;
+    border-bottom: 1px solid var(--line); background: var(--bone);
+    font: 500 13px/1 var(--font-mono); color: var(--ink-soft);
+  }
+  .aw-dots { display: inline-flex; gap: 6px; }
+  .aw-dots i { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--line-strong); }
+  .aw-title { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); }
+  .aw-example {
+    margin-left: auto; padding: 4px 8px; border-radius: 999px; background: var(--lichen-wash); color: var(--lichen);
+    font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .aw-replay {
+    min-height: 40px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 999px; background: transparent;
+    font: 500 13px/1 var(--font-mono); color: var(--ink-soft); cursor: pointer;
+  }
+  .aw-replay:hover { color: var(--ink); background: var(--paper); }
+  .aw-scroll { padding: 22px 20px 18px; height: 448px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+  .aw-composer { padding: 14px 16px 16px; border-top: 1px solid var(--line); background: var(--bone); }
+
+  @media (max-width: 900px) {
+    .aw-composer { order: -1; border-top: 0; border-bottom: 1px solid var(--line); }
+    .aw-bar { order: -2; }
+    .aw-scroll { height: auto; overflow: visible; padding: 18px 14px 18px; }
+    .aw-dots { display: none; }
+  }
+  @media (max-width: 420px) {
+    .aw-composer { padding: 12px 12px 14px; }
+  }
+</style>

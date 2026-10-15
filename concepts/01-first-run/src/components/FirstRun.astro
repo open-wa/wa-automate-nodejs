@@ -1,0 +1,415 @@
+---
+/**
+ * Signature moment: the first run, played as a timed terminal recording.
+ * The markup is the finished transcript (what reduced motion, ?still and
+ * no-JS visitors see). With motion allowed, the script empties it and plays
+ * it back: typing cadence, an ASCII QR assembling row by row, a drawn phone
+ * scanning it, session ready, a curl that sends a message and the reply
+ * arriving as an event. Step, pause, replay and chapter controls.
+ */
+import QRCode from "qrcode";
+import { commands, product } from "../data/site";
+
+// A real QR code (it opens the docs), printed the way terminals print one:
+// half-block characters, light modules drawn, two-module quiet zone.
+const qr = QRCode.create("https://openwa.dev/docs", { errorCorrectionLevel: "L" });
+const n = qr.modules.size;
+const q = 2;
+const size = n + q * 2;
+const light = (x: number, y: number) => {
+  const mx = x - q, my = y - q;
+  if (mx < 0 || my < 0 || mx >= n || my >= n) return true;
+  return !qr.modules.data[my * n + mx];
+};
+const rows: string[] = [];
+for (let y = 0; y < size; y += 2) {
+  let row = "";
+  for (let x = 0; x < size; x++) {
+    const top = light(x, y);
+    const bottom = y + 1 < size ? light(x, y + 1) : false;
+    row += top && bottom ? "█" : top ? "▀" : bottom ? "▄" : " ";
+  }
+  rows.push(row);
+}
+// The same code as a path, for the phone's viewfinder.
+let qrPath = "";
+for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (qr.modules.data[y * n + x]) qrPath += `M${x} ${y}h1v1h-1z`;
+
+const cmd = commands.easyApi;
+const curl = [
+  "curl -X POST localhost:8080/api/sendText \\",
+  "  -H 'Content-Type: application/json' \\",
+  `  -d '{"args":{"to":"447700900456@c.us","content":"Your order has shipped"}}'`,
+];
+const curlText = curl.join("\n");
+const beats = ["Run", "Scan", "Ready", "Send", "Reply"];
+---
+
+<div class="run is-done" data-run>
+  <div class="run-bar">
+    <span class="run-tag">Example output</span>
+    <span class="run-title">first run · ~/shop</span>
+  </div>
+
+  <div class="run-body">
+    <div class="run-screen" data-screen tabindex="0" aria-label="Example output of a first run, as a terminal transcript">
+      <section class="blk" aria-label="Block 1: start the Easy API">
+        <header class="blk-head">
+          <span class="blk-name">~/shop</span>
+          <button type="button" class="blk-copy" data-copy={cmd} aria-label="Copy the npx command"><span data-copy-label>Copy</span></button>
+        </header>
+        <p class="ln ln-cmd" data-b="1" data-k="type" data-d="420"><span class="p" aria-hidden="true">$</span> <span class="t">{cmd}</span><span class="caret" aria-hidden="true"></span></p>
+        <p class="ln" data-b="1" data-k="out" data-d="520"><span class="amber">open-wa {product.currentVersion}</span> <span class="muted">· Easy API · driver: puppeteer</span></p>
+        <p class="ln" data-b="1" data-k="out" data-d="900"><span class="muted">›</span> Starting WhatsApp Web in a headless browser</p>
+        <p class="ln" data-b="2" data-k="out" data-d="380"><span class="muted">›</span> Scan with WhatsApp: <span class="muted">Linked devices › Link a device</span></p>
+        <pre class="qr" aria-label="QR code for linking the session">{rows.map((r) => <span class="qr-row" data-b="2" data-k="qr" data-d="55">{r}</span>)}</pre>
+        <span data-b="2" data-k="phone" data-state="scan" data-d="2300" hidden></span>
+        <p class="ln qr-gone" data-b="3" data-k="collapse" data-d="300"><span class="muted">›</span> QR code scanned <span class="muted">(or log in with a link code)</span></p>
+        <span data-b="3" data-k="phone" data-state="linked" data-d="200" hidden></span>
+        <p class="ln" data-b="3" data-k="out" data-d="420"><span class="lime">ready</span>  session <span class="amber-tint">"default"</span> linked to +44 7700 900123</p>
+        <p class="ln" data-b="3" data-k="out" data-d="140"><span class="muted">docs </span>  <span class="url">http://localhost:8080/api-docs/</span></p>
+        <p class="ln" data-b="3" data-k="out" data-d="1100"><span class="muted">api  </span>  POST /api/sendText, /api/sendImage <span class="muted">and the rest</span></p>
+      </section>
+
+      <section class="blk" aria-label="Block 2: send a message">
+        <header class="blk-head">
+          <span class="blk-name">~/shop · second tab</span>
+          <button type="button" class="blk-copy" data-copy={curlText} aria-label="Copy the curl command"><span data-copy-label>Copy</span></button>
+        </header>
+        <p class="ln ln-cmd" data-b="4" data-k="type" data-d="420"><span class="p" aria-hidden="true">$</span> <span class="t">{curlText}</span><span class="caret" aria-hidden="true"></span></p>
+        <span data-b="4" data-k="phone" data-state="sent" data-d="160" hidden></span>
+        <p class="ln" data-b="4" data-k="out" data-d="1500"><span class="muted">{"{"}</span><span class="amber-tint">"success"</span><span class="muted">:</span><span class="lime">true</span><span class="muted">,</span><span class="amber-tint">"data"</span><span class="muted">:</span>"true_447700900456@c.us_3EB0C4F1"<span class="muted">{"}"}</span></p>
+      </section>
+
+      <section class="blk blk-event" aria-label="Block 3: an incoming message event">
+        <header class="blk-head">
+          <span class="blk-name">event · onMessage</span>
+        </header>
+        <span data-b="5" data-k="phone" data-state="reply" data-d="500" hidden></span>
+        <p class="ln" data-b="5" data-k="out" data-d="160"><span class="amber">←</span> message from +44 7700 900456</p>
+        <p class="ln" data-b="5" data-k="out" data-d="160">  <span class="amber-tint">"Thanks. Is it arriving tomorrow?"</span></p>
+      </section>
+    </div>
+
+    <figure class="phone" data-phone data-state="reply" aria-hidden="true">
+      <svg viewBox="0 0 120 236" role="presentation">
+        <rect class="ph-body" x="2" y="2" width="116" height="232" rx="18" />
+        <rect class="ph-screen" x="8" y="10" width="104" height="216" rx="12" />
+        <rect class="ph-notch" x="46" y="15" width="28" height="6" rx="3" />
+        <!-- off -->
+        <g class="st st-off"><text x="60" y="122" class="ph-t ph-dim" text-anchor="middle">waiting</text></g>
+        <!-- scanning: viewfinder with the same QR code -->
+        <g class="st st-scan">
+          <text x="60" y="44" class="ph-t" text-anchor="middle">Link a device</text>
+          <g transform={`translate(${60 - (n * 2.3) / 2} ${118 - (n * 2.3) / 2}) scale(2.3)`}>
+            <rect x="-2" y="-2" width={n + 4} height={n + 4} class="ph-qrbg" />
+            <path d={qrPath} class="ph-qr" />
+          </g>
+          <path class="ph-vf" d="M22 74v-10h10M98 64h-10M98 64v10M22 162v10h10M98 172h-10M98 172v-10" />
+          <rect class="ph-scanline" x="24" y="66" width="72" height="2" />
+          <text x="60" y="196" class="ph-t ph-dim" text-anchor="middle">point at the QR code</text>
+        </g>
+        <!-- linked -->
+        <g class="st st-linked">
+          <path class="ph-tick" d="M44 112l10 10 22-22" />
+          <text x="60" y="150" class="ph-t" text-anchor="middle">Device linked</text>
+          <text x="60" y="164" class="ph-t ph-dim" text-anchor="middle">open-wa · Chrome</text>
+        </g>
+        <!-- chat -->
+        <g class="st st-chat">
+          <rect x="8" y="26" width="104" height="26" class="ph-head" />
+          <rect x="16" y="32" width="14" height="14" class="ph-ava" />
+          <text x="36" y="43" class="ph-t">+44 7700 900456</text>
+          <g class="ph-out">
+            <path d="M36 70h66v30h-4v6l-6-6H36z" class="ph-bub-out" />
+            <text x="42" y="83" class="ph-t ph-ink">Your order</text>
+            <text x="42" y="94" class="ph-t ph-ink">has shipped</text>
+          </g>
+          <g class="ph-in">
+            <path d="M18 118h70v30H28l-6 6v-6h-4z" class="ph-bub-in" />
+            <text x="24" y="131" class="ph-t">Thanks. Is it</text>
+            <text x="24" y="142" class="ph-t">arriving tomorrow?</text>
+          </g>
+        </g>
+      </svg>
+    </figure>
+  </div>
+
+  <div class="run-ctrl" role="group" aria-label="Playback">
+    <button type="button" class="rc" data-act="toggle" aria-label="Play">
+      <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path class="i-play" d="M3 1.5l7 4.5-7 4.5z" /><path class="i-pause" d="M2.5 1.5h2.5v9H2.5zM7 1.5h2.5v9H7z" /></svg>
+    </button>
+    <button type="button" class="rc" data-act="step" aria-label="Step to the next part">Step</button>
+    <button type="button" class="rc" data-act="replay" aria-label="Replay from the start">Replay</button>
+    <ol class="chips" aria-label="Jump to">
+      {beats.map((b, i) => <li><button type="button" class="chip" data-beat={i + 1}><span class="chip-n">{i + 1}</span> {b}</button></li>)}
+    </ol>
+  </div>
+</div>
+
+<style>
+  .run {
+    --line-h: 1.6;
+    border: 1px solid var(--line-2); border-radius: var(--radius-lg); background: var(--ink-2);
+    display: grid; min-width: 0; overflow: hidden;
+  }
+  .run-bar {
+    display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 14px;
+    border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 16.5px; color: var(--grey);
+  }
+  .run-tag { white-space: nowrap; flex: none; color: var(--ink); background: var(--amber); padding: 1px 8px; border-radius: 2px; }
+  .run-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .run-body { display: grid; grid-template-columns: minmax(0, 1fr) 156px; min-width: 0; }
+  .run-screen {
+    height: 452px; overflow-y: auto; overflow-x: hidden; padding: 6px 0 18px; scroll-behavior: smooth;
+    font-family: var(--font-mono); font-size: var(--code-size); line-height: var(--line-h);
+    scrollbar-width: thin; scrollbar-color: var(--line-2) transparent;
+  }
+  :global(html:not(.anim)) .run-screen { height: auto; }
+  .run-screen:focus-visible { outline-offset: -2px; }
+  .blk { margin: 6px 8px 0; padding: 4px 10px 8px; border-radius: var(--radius); border: 1px solid transparent; transition: background var(--speed) var(--ease), border-color var(--speed) var(--ease); }
+  .blk:hover, .blk:focus-within { background: var(--ink-3); border-color: var(--line); }
+  .blk-head { display: flex; align-items: center; justify-content: space-between; min-height: 30px; color: var(--grey); font-size: 16.5px; }
+  .blk-copy {
+    font: inherit; color: var(--grey); background: none; border: 1px solid transparent; border-radius: var(--radius);
+    min-height: 32px; min-width: 44px; padding: 0 8px; cursor: pointer; opacity: 0.0; transition: opacity var(--speed) var(--ease);
+  }
+  .blk:hover .blk-copy, .blk:focus-within .blk-copy, .blk-copy:focus-visible, .blk-copy[data-state] { opacity: 1; }
+  .blk-copy:hover { color: var(--amber); border-color: var(--line-2); }
+  .blk-copy[data-state="copied"] { color: var(--lime); }
+  @media (hover: none) { .blk-copy { opacity: 1; } }
+  .ln { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--bone); }
+  .ln-cmd .p { color: var(--amber); }
+  .ln-cmd .t { color: var(--bone); }
+  .caret { display: none; width: 0.62em; height: 1.1em; background: var(--amber); vertical-align: -0.18em; margin-left: 1px; }
+  .ln-cmd.typing .caret { display: inline-block; animation: run-blink 1s steps(1, end) infinite; }
+  .ln-cmd.typing.keys .caret { animation: none; }
+  @keyframes run-blink { 50% { opacity: 0; } }
+  .muted { color: var(--grey); }
+  .amber { color: var(--amber); }
+  .run-screen .amber, .run-screen .p, .run-screen .lime { text-shadow: 0 0 10px rgba(255, 176, 0, 0.28); }
+  .run-screen .lime { text-shadow: 0 0 10px rgba(195, 234, 92, 0.25); }
+  .amber-tint { color: var(--amber-tint); }
+  .lime { color: var(--lime); }
+  .url { color: var(--amber); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+
+  /* The QR: Departure Mono's block glyphs span 700 of 550 units, and its
+     advance is 350, so line-height 700/550 makes square modules that join. */
+  .qr {
+    margin: 8px 0 6px; font-family: var(--font-mono); font-size: 11px; line-height: 1.2727; color: var(--bone);
+    letter-spacing: 0; white-space: pre; overflow: hidden;
+  }
+  .qr-row { display: block; }
+  .run.is-done .qr-row, .run.is-done .qr { display: none; }
+  .run:not(.is-done) .qr-gone { display: none; }
+
+  /* Playback state: lines start hidden and are switched on one by one. */
+  :global(html.anim) .run[data-armed] [data-k]:not(.on) { display: none; }
+  :global(html.anim) .run[data-armed] .blk:not(:has(.on)) { display: none; }
+
+  /* The drawn phone */
+  .phone { margin: 0; border-left: 1px solid var(--line); display: grid; place-items: center; padding: 16px 14px; background: var(--ink); }
+  .phone svg { width: 100%; max-width: 140px; height: auto; overflow: visible; transition: transform 500ms var(--ease); }
+  .phone[data-state="off"] svg { transform: translateY(6px) rotate(-2deg); }
+  .phone[data-state="scan"] svg { transform: translateY(-4px) rotate(-6deg) scale(1.03); }
+  .ph-body { fill: var(--ink-3); stroke: var(--line-2); stroke-width: 1.5; }
+  .ph-screen { fill: #0a0b08; }
+  .ph-notch { fill: var(--ink-3); }
+  .ph-t { font-family: var(--font-text); font-size: 8.5px; fill: var(--bone); }
+  .ph-dim { fill: var(--grey); }
+  .ph-ink { fill: var(--ink); }
+  .ph-qrbg { fill: var(--bone); }
+  .ph-qr { fill: var(--ink); }
+  .ph-vf { fill: none; stroke: var(--amber); stroke-width: 2.5; }
+  .ph-scanline { fill: var(--amber); opacity: 0.85; }
+  .phone[data-state="scan"] .ph-scanline { animation: scan 1.1s var(--ease) infinite alternate; }
+  @keyframes scan { from { transform: translateY(0); } to { transform: translateY(102px); } }
+  .ph-tick { fill: none; stroke: var(--lime); stroke-width: 5; stroke-linecap: square; stroke-dasharray: 50; stroke-dashoffset: 0; }
+  .phone[data-state="linked"] .ph-tick { animation: tick 420ms var(--ease) both; }
+  @keyframes tick { from { stroke-dashoffset: 50; } }
+  .ph-head { fill: var(--ink-3); }
+  .ph-ava { fill: var(--amber-dim); }
+  .ph-bub-out { fill: var(--amber); }
+  .ph-bub-in { fill: var(--ink-3); stroke: var(--line-2); }
+  .st { opacity: 0; transition: opacity 260ms var(--ease); }
+  .phone[data-state="off"] .st-off,
+  .phone[data-state="scan"] .st-scan,
+  .phone[data-state="linked"] .st-linked,
+  .phone[data-state="sent"] .st-chat,
+  .phone[data-state="reply"] .st-chat { opacity: 1; }
+  .ph-out, .ph-in { opacity: 0; transform-box: fill-box; transform-origin: 100% 100%; transition: opacity 260ms var(--ease), transform 360ms var(--ease); transform: translateY(8px) scale(0.92); }
+  .ph-in { transform-origin: 0% 100%; }
+  .phone[data-state="sent"] .ph-out, .phone[data-state="reply"] .ph-out { opacity: 1; transform: none; }
+  .phone[data-state="reply"] .ph-in { opacity: 1; transform: none; }
+
+  /* Controls */
+  .run-ctrl {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px; border-top: 1px solid var(--line);
+    font-family: var(--font-mono); font-size: 16.5px;
+  }
+  .rc, .chip {
+    font: inherit; color: var(--bone); background: transparent; border: 1px solid var(--line-2); border-radius: var(--radius);
+    min-height: 44px; min-width: 44px; padding: 0 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .rc:hover, .chip:hover { border-color: var(--amber); color: var(--amber); }
+  .rc svg path { fill: currentColor; }
+  .rc .i-pause { display: none; }
+  .run[data-playing] .rc .i-pause { display: inline; }
+  .run[data-playing] .rc .i-play { display: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0 0 0 auto; padding: 0; }
+  .chip { border-color: transparent; color: var(--grey); padding: 0 8px; }
+  .chip-n { color: var(--grey); }
+  .chip[aria-current="step"] { color: var(--amber); border-color: var(--line-2); }
+  .chip[aria-current="step"] .chip-n { color: var(--amber); }
+  .chip.done { color: var(--bone); }
+  :global(html:not(.js)) .run-ctrl { display: none; }
+
+  @media (max-width: 720px) {
+    .run-body { grid-template-columns: minmax(0, 1fr); }
+    .run-screen { height: 400px; }
+    .phone { border-left: 0; border-top: 1px solid var(--line); padding: 12px; grid-template-columns: 1fr; }
+    .phone svg { max-width: 104px; }
+    .chips { margin-left: 0; }
+  }
+</style>
+
+<script>
+  import { shouldAnimate } from "../lib/runtime";
+
+  const root = document.querySelector<HTMLElement>("[data-run]");
+  if (root) init(root);
+
+  function init(run: HTMLElement) {
+    const screen = run.querySelector<HTMLElement>("[data-screen]")!;
+    const phone = run.querySelector<HTMLElement>("[data-phone]")!;
+    const steps = [...run.querySelectorAll<HTMLElement>("[data-k]")];
+    const chips = [...run.querySelectorAll<HTMLButtonElement>(".chip")];
+    const toggle = run.querySelector<HTMLButtonElement>('[data-act="toggle"]')!;
+    const typed = new Map<HTMLElement, string>();
+    steps.forEach((s) => { if (s.dataset.k === "type") typed.set(s, s.querySelector(".t")!.textContent ?? ""); });
+
+    let i = 0;
+    let token = 0;
+    let playing = false;
+    let stopAfterBeat: string | null = null;
+
+    const sleep = (ms: number, t: number) => new Promise<boolean>((r) => setTimeout(() => r(t === token), ms));
+    const beatOf = (k: number) => steps[k]?.dataset.b ?? null;
+
+    function setPlaying(on: boolean) {
+      playing = on;
+      run.toggleAttribute("data-playing", on);
+      toggle.setAttribute("aria-label", on ? "Pause" : "Play");
+    }
+    function markBeat() {
+      const current = beatOf(Math.max(0, Math.min(i, steps.length - 1)));
+      const done = i >= steps.length;
+      chips.forEach((c) => {
+        const b = Number(c.dataset.beat);
+        const cur = Number(current);
+        c.toggleAttribute("aria-current", false);
+        if (!done && b === cur) c.setAttribute("aria-current", "step");
+        c.classList.toggle("done", done || b < cur);
+      });
+      if (done) chips[chips.length - 1]?.setAttribute("aria-current", "step");
+    }
+    const toBottom = () => { screen.scrollTop = screen.scrollHeight; };
+
+    function reset() {
+      token++;
+      i = 0;
+      run.setAttribute("data-armed", "");
+      run.classList.remove("is-done");
+      steps.forEach((s) => s.classList.remove("on", "typing", "keys"));
+      typed.forEach((_, s) => { s.querySelector(".t")!.textContent = ""; });
+      phone.dataset.state = "off";
+      markBeat();
+    }
+
+    async function perform(s: HTMLElement, instant: boolean, t: number): Promise<boolean> {
+      const d = Number(s.dataset.d ?? 120);
+      const k = s.dataset.k;
+      if (k === "phone") {
+        phone.dataset.state = s.dataset.state ?? "off";
+        return instant ? true : sleep(d, t);
+      }
+      if (k === "collapse") run.classList.add("is-done");
+      s.classList.add("on");
+      if (k === "type") {
+        const full = typed.get(s) ?? "";
+        const out = s.querySelector(".t")!;
+        if (instant) { out.textContent = full; s.classList.remove("typing"); return true; }
+        s.classList.add("typing");
+        if (!(await sleep(600, t))) return false;
+        s.classList.add("keys");
+        for (let c = 0; c < full.length; c++) {
+          out.textContent = full.slice(0, c + 1);
+          const ch = full[c];
+          // VHS-like cadence: steady keys, small hesitations at word breaks
+          // and line continuations.
+          const ms = ch === "\n" ? 260 : ch === " " ? 70 : /[@/'{:-]/.test(ch) ? 55 : 24 + ((c * 37) % 23);
+          if (ch === "\n") toBottom();
+          if (!(await sleep(ms, t))) return false;
+        }
+        s.classList.remove("keys");
+        if (!(await sleep(d, t))) return false;
+        s.classList.remove("typing");
+        return true;
+      }
+      toBottom();
+      return instant ? true : sleep(d, t);
+    }
+
+    async function play() {
+      if (i >= steps.length) reset();
+      const t = ++token;
+      setPlaying(true);
+      while (i < steps.length) {
+        const ok = await perform(steps[i], false, t);
+        if (!ok || t !== token) return;
+        i++;
+        toBottom();
+        markBeat();
+        if (stopAfterBeat && beatOf(i) !== stopAfterBeat) { stopAfterBeat = null; setPlaying(false); return; }
+      }
+      setPlaying(false);
+      markBeat();
+    }
+
+    function pause() {
+      token++;
+      setPlaying(false);
+      // Finish a half-typed line so the transcript never sits mid-word.
+      const s = steps[i];
+      if (s && s.classList.contains("on") && s.dataset.k === "type") { perform(s, true, token); i++; }
+      markBeat();
+    }
+
+    function jump(beat: number) {
+      reset();
+      const t = token;
+      while (i < steps.length && Number(beatOf(i)) <= beat) { perform(steps[i], true, t); i++; }
+      setPlaying(false);
+      markBeat();
+      toBottom();
+    }
+
+    toggle.addEventListener("click", () => (playing ? pause() : play()));
+    run.querySelector('[data-act="replay"]')!.addEventListener("click", () => { reset(); play(); });
+    run.querySelector('[data-act="step"]')!.addEventListener("click", () => {
+      if (i >= steps.length) reset();
+      if (playing) pause();
+      stopAfterBeat = beatOf(i);
+      play();
+    });
+    chips.forEach((c) => c.addEventListener("click", () => jump(Number(c.dataset.beat))));
+
+    if (!shouldAnimate()) { i = steps.length; markBeat(); return; }
+
+    reset();
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) { io.disconnect(); play(); }
+    }, { threshold: 0.35 });
+    io.observe(run);
+  }
+</script>

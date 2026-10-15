@@ -1,0 +1,43 @@
+---
+import Base from "./Base.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+interface Props { title: string; description: string }
+const { title, description } = Astro.props;
+---
+
+<Base title={title} description={description} themeColor="#2A0E2E">
+  <Header />
+  <main id="main"><slot /></main>
+  <Footer />
+  <div class="sr-only" aria-live="polite" id="copy-status"></div>
+</Base>
+
+<script>
+  // One copy behaviour for every command bar and code block.
+  const status = document.getElementById("copy-status");
+  document.addEventListener("click", async (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>("[data-copy]");
+    if (!btn) return;
+    const text = btn.dataset.copy ?? "";
+    let ok = true;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      ok = document.execCommand("copy"); ta.remove();
+    }
+    const label = btn.querySelector("span");
+    if (!label) return;
+    label.textContent = ok ? "Copied" : "Press Ctrl+C";
+    btn.classList.toggle("is-copied", ok);
+    if (status) status.textContent = ok ? "Copied to the clipboard" : "Copy failed; select the text and copy it";
+    window.setTimeout(() => { label.textContent = "Copy"; btn.classList.remove("is-copied"); }, 1800);
+  });
+</script>
+
+<style is:global>
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+</style>

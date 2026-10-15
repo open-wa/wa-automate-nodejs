@@ -1,0 +1,100 @@
+---
+import Page from "../layouts/Page.astro";
+import PageHead from "../components/PageHead.astro";
+import Cmd from "../components/Cmd.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { commands, snippets, paths, product, support, firstRun, href } from "../data/site";
+const pathCode: Record<string, { code: string; lang: string; title: string; install?: string }> = {
+  "easy-api": { code: commands.easyApiWithKey, lang: "bash", title: "terminal" },
+  "socket-client": { code: snippets.socketClient, lang: "js", title: "bot.mjs", install: commands.socketClientInstall },
+  embedded: { code: snippets.embedded, lang: "js", title: "app.mjs", install: commands.embeddedInstall },
+  mcp: { code: snippets.mcpConfig, lang: "js", title: "wa.config.mjs", install: snippets.mcpStart },
+};
+---
+<Page title="Quick start: your first WhatsApp session | open-wa" description="Run one npx command, link your WhatsApp number with a QR code or link code, and open the interactive API docs at localhost:8080/api-docs/.">
+  <div class="wrap">
+    <PageHead kicker="quickstart" title="Your first session in three steps" lede={`You need Node.js ${product.node.replace(">=", "")} or newer and a phone with WhatsApp. Docker works too.`} />
+    <p class="note qs-risk"><strong>Read this first:</strong> open-wa is unofficial. {product.risk} Try it on a test number first.</p>
+
+    <ol class="qs">
+      <li>
+        <span class="qs-n">1</span>
+        <div class="qs-body">
+          <h2>Run the command</h2>
+          <p>{firstRun[0]}</p>
+          <Cmd cmd={commands.easyApi} />
+          <p class="muted">Or with Docker:</p>
+          <Cmd cmd={commands.docker} what="Docker command" />
+          <p class="muted">Running more than one number? Give each a session ID and its own port:</p>
+          <Cmd cmd={commands.namedSession} what="named session command" />
+        </div>
+      </li>
+      <li>
+        <span class="qs-n">2</span>
+        <div class="qs-body">
+          <h2>Link your WhatsApp number</h2>
+          <p>{firstRun[1]}</p>
+          <p class="muted">On the phone: WhatsApp, then Linked devices, then Link a device.</p>
+        </div>
+      </li>
+      <li>
+        <span class="qs-n">3</span>
+        <div class="qs-body">
+          <h2>Open the API docs</h2>
+          <p>{firstRun[2]}</p>
+          <ul class="qs-urls">
+            <li><span>Docs</span><code>{commands.proofOfLife}</code></li>
+            <li><span>Swagger</span><code>{commands.swagger}</code></li>
+            <li><span>Postman</span><code>{commands.postman}</code></li>
+          </ul>
+          <p class="muted">Before you expose the port, set an API key:</p>
+          <Cmd cmd={commands.easyApiWithKey} what="command with API key" />
+        </div>
+      </li>
+    </ol>
+
+    <section class="sec qs-paths" aria-labelledby="qp-h">
+      <div class="sec-head"><h2 id="qp-h">Then pick a path</h2><p>All four start from a running session or from your own app.</p></div>
+      <div class="qs-grid">
+        {paths.map((p) => (
+          <article class="qs-path" id={p.id}>
+            <h3>{p.name}</h3>
+            <p class="muted">{p.for}. {p.what}</p>
+            {pathCode[p.id].install && <Cmd cmd={pathCode[p.id].install!} what={`${p.name} command`} />}
+            <CodeBlock code={pathCode[p.id].code} lang={pathCode[p.id].lang} title={pathCode[p.id].title} />
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="sec" aria-labelledby="qd-h">
+      <div class="sec-head"><h2 id="qd-h">Go further in the docs</h2></div>
+      <p class="qs-links">
+        <a class="btn" href={support.quickstartDocs}>Full quick start <span class="ext" aria-hidden="true">↗</span></a>
+        <a class="btn" href={support.apiExplorer}>API explorer <span class="ext" aria-hidden="true">↗</span></a>
+        <a class="btn" href={href("migrate/")}>Coming from v4</a>
+        <a class="btn" href={support.discord}>Ask in Discord</a>
+      </p>
+    </section>
+  </div>
+</Page>
+<style>
+  .qs-risk { max-width: 760px; margin-bottom: 40px; }
+  .qs { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
+  .qs > li { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 20px; padding: 36px 0; border-bottom: 1px solid var(--line); }
+  .qs-n { font-family: var(--font-display); font-size: 44px; color: var(--amber); line-height: 1; }
+  .qs-body { display: grid; gap: 14px; max-width: 820px; min-width: 0; }
+  .qs-urls { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .qs-urls li { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 12px; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius); }
+  .qs-urls span { color: var(--grey); }
+  .qs-urls code { overflow-wrap: anywhere; }
+  .qs-paths { margin-top: 40px; }
+  .qs-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .qs-path { display: grid; gap: 12px; align-content: start; min-width: 0; scroll-margin-top: 80px; }
+  .qs-path h3 { color: var(--amber); }
+  .qs-links { display: flex; flex-wrap: wrap; gap: 10px; }
+  @media (max-width: 860px) {
+    .qs-grid { grid-template-columns: minmax(0, 1fr); }
+    .qs > li { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  }
+</style>

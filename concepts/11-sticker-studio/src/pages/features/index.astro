@@ -1,0 +1,51 @@
+---
+import Base from "../../layouts/Base.astro";
+import { capabilities, href, support } from "../../data/site";
+const rows: [string, string, string][] = [
+  ["Messages", capabilities.messages, "messages"],
+  ["Media", capabilities.media, "media"],
+  ["Stickers", capabilities.stickers + " Sending relies on the current sticker patch.", "stickers"],
+  ["Polls", capabilities.polls, "polls"],
+  ["Event cards", capabilities.events, "events"],
+  ["Calls", "Answer, reject and start WhatsApp calls and stream call audio to your own system. A licensed preview: it needs a calling-enabled key; audio only.", "calls"],
+  ["Groups", capabilities.groups, "groups"],
+  ["Multiple numbers", capabilities.multiSession, "multi"],
+  ["Session files", capabilities.sessions, "sessions"],
+  ["Live refresh", capabilities.refresh, "refresh"],
+  ["Browsers", capabilities.drivers + " Lightpanda is experimental.", "drivers"],
+  ["API docs", capabilities.docs, "docs"],
+];
+---
+
+<Base title="Features: everything open-wa can send, receive and do | open-wa" description="Messages, media, stickers, polls, event cards, calls, groups, multiple numbers, session files, live refresh and generated API docs.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="eyebrow">Features</p>
+      <h1>Everything your number can do from code.</h1>
+      <p class="lede">Each method is also an HTTP endpoint on the running Easy API. Methods marked Insiders or Restricted need a key; see <a href={href("/pricing/")}>pricing by job</a>.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap">
+      <ul class="feat">
+        {rows.map(([t, d, k], i) => (
+          <li class={`feat-${k}`} style={`--r:${[-1.2, 0.8, -0.4, 1.1][i % 4]}deg`}><h2>{t}</h2><p>{d}</p></li>
+        ))}
+      </ul>
+      <p class="more">Every method with its parameters is in the <a href={support.apiExplorer} rel="external">API explorer</a> and in <code>/api-docs/</code> on your own instance.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .feat { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+  .feat li { background: var(--paper); border: var(--line); border-radius: 20px; padding: 22px; box-shadow: var(--pop); rotate: var(--r); transition: rotate 240ms var(--ease-spring); }
+  .feat li:hover { rotate: 0deg; }
+  .feat li:nth-child(4n+2) { background: var(--lilac-soft); }
+  .feat li:nth-child(5n+3) { background: var(--yellow); }
+  .feat h2 { font-size: 1.6rem; }
+  .feat p { margin: 0; }
+  .more { margin-top: 32px; }
+  @media (max-width: 960px) { .feat { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 600px) { .feat { grid-template-columns: 1fr; } .feat li { rotate: 0deg; } }
+</style>

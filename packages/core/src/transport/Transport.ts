@@ -1,11 +1,10 @@
-import { PortableSessionController, type PortableSessionStatus } from './portableSession';
+import { PortableSessionController } from './portableSession';
 import { acquireSessionPersistence, type SessionPersistenceConfig } from './sessionPersistence';
 import type { SessionEncryptionOptions } from './sessionEncryption';
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile, stat } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type {
   DisposableHandle,
   IConsoleMessage,
@@ -95,69 +94,27 @@ const BLOCKED_ASSET_RESOURCE_TYPES = new Set(['image', 'stylesheet', 'font']);
 
 /** JavaScript snippet to extract QR data from the WA Web page */
 const QR_CHECK_SCRIPT = `document.querySelector("canvas[aria-label]")?.parentElement?.getAttribute("data-ref") || null`;
-const INJECTABLE_SESSION_CHECK_SCRIPT = `(() => {
-  try {
-    const debug = window.require && window.require("__debug");
-    return Boolean(debug?.modulesMap?.["WAWebCollections"]);
-  } catch {
-    return false;
-  }
-})()`;
-const PRE_AUTH_SURFACE_READY_CHECK_SCRIPT = `(() => {
-  try {
-    return Boolean(${INJECTABLE_SESSION_CHECK_SCRIPT})
-      || Boolean(${QR_CHECK_SCRIPT});
-  } catch {
-    return false;
-  }
-})()`;
+const PRE_AUTH_SURFACE_READY_CHECK_SCRIPT = `Boolean(
+  document.querySelector('#pane-side')
+  || document.querySelector('[data-testid="chat-list-search"]')
+  || (${QR_CHECK_SCRIPT})
+)`;
 const QR_SELECTOR_PRIMARY = "canvas[aria-label='Scan this QR code to link a device!']";
 const QR_SELECTOR_FALLBACK = 'canvas[aria-label]';
 const PRE_API_HELPER_READY_CHECK_SCRIPT = `Boolean(!['jsSHA','axios','QRCode','Base64','objectHash'].find(x=>!window[x]))`;
 
 const WAPI_RUNTIME_CHECK_SCRIPT = '!!window.WAPI';
 const STORE_MSG_CHECK_SCRIPT = '!!(window.Store && window.Store.Msg)';
-const ATTEMPTING_REAUTH_CHECK_SCRIPT = `!!(
-  typeof localStorage !== 'undefined'
-  && (localStorage['WAToken2'] || localStorage['last-wid-md'])
-)`;
-const SESSION_INVALID_CHECK_SCRIPT = `!!(
-  typeof localStorage !== 'undefined'
-  && Object.prototype.hasOwnProperty.call(localStorage, 'old-logout-cred')
-)`;
 const PHONE_OUT_OF_REACH_CHECK_SCRIPT = `!!(
   typeof document !== 'undefined'
   && document.querySelector('body')
   && document.querySelector('body').innerText.includes('Trying to reach phone')
 )`;
 const LINK_CODE_AVAILABLE_CHECK_SCRIPT = `!!(typeof window.linkCode === 'function')`;
-const LEGACY_IS_INSIDE_CHAT_CHECK_SCRIPT = `!!(
-  !!window.WA_AUTHENTICATED
-  || (document.getElementsByClassName('app')[0]
-    && document.getElementsByClassName('app')[0].attributes
-    && !!document.getElementsByClassName('app')[0].attributes.tabindex)
-  || (document.getElementsByClassName('two')[0]
-    && document.getElementsByClassName('two')[0].attributes
-    && !!document.getElementsByClassName('two')[0].attributes.tabindex)
+const AUTHENTICATED_SHELL_CHECK_SCRIPT = `Boolean(
+  document.querySelector('#pane-side')
+  || document.querySelector('[data-testid="chat-list-search"]')
 )`;
-const AUTHENTICATED_SHELL_CHECK_SCRIPT = `!!(
-  (window.isSessionLoaded && window.isSessionLoaded()) ||
-  window.WA_AUTHENTICATED ||
-  document.querySelector('#pane-side') ||
-  document.querySelector('[aria-label="Search or start a new chat"]') ||
-  document.querySelector('[data-testid="chat-list-search"]') ||
-  (document.getElementsByClassName('app')[0] && document.getElementsByClassName('app')[0].getAttribute('tabindex') != null) ||
-  (document.getElementsByClassName('two')[0] && document.getElementsByClassName('two')[0].getAttribute('tabindex') != null)
-)`;
-const RIPE_SESSION_CHECK_SCRIPT = `(() => {
-  try {
-    return Boolean(
-      !!window.WA_AUTHENTICATED || (document.getElementsByClassName('app')[0] && document.getElementsByClassName('app')[0].attributes && !!document.getElementsByClassName('app')[0].attributes.tabindex) || (document.getElementsByClassName('two')[0] && document.getElementsByClassName('two')[0].attributes && !!document.getElementsByClassName('two')[0].attributes.tabindex)
-    );
-  } catch {
-    return false;
-  }
-})()`;
 const DOCUMENT_READY_CHECK_SCRIPT = `!!(
   typeof document === 'undefined'
   || document.readyState === 'interactive'
@@ -233,38 +190,13 @@ export interface RuntimeCapabilityProbe {
   sessionLoaded: boolean;
 }
 
-export type AuthSettlementOutcome = 'authenticated' | 'qr_timeout' | 'auth_timeout' | 'invalid_session' | 'phone_out_of_reach' | 'qr_max';
+export type AuthSettlementOutcome = 'authenticated' | 'qr_timeout' | 'auth_timeout' | 'phone_out_of_reach' | 'qr_max';
 
 export interface AuthSettlementResult {
   outcome: AuthSettlementOutcome;
   qrSeen: boolean;
   qrAttempts: number;
   authMethod?: 'qr' | 'link_code' | 'resumed_session';
-}
-
-export interface PostAuthRuntimeReconciliationResult extends RuntimeCapabilityProbe {
-  ripeSessionLoaded: boolean;
-  reinjected: boolean;
-  path: 'fresh_auth' | 'resumed_session';
-}
-
-export type RuntimeValidationStage = 'post_injection' | 'post_patch' | 'post_overlay';
-export type RuntimeValidationFailureReason = 'runtime_missing' | 'store_missing' | 'session_not_loaded' | 'required_method_missing';
-
-export interface RuntimeMethodIntegrityResult {
-  bridgeReady: boolean;
-  requiredMethods: string[];
-  missingMethods: string[];
-}
-
-export interface RuntimeValidationResult extends RuntimeCapabilityProbe {
-  stage: RuntimeValidationStage;
-  usable: boolean;
-  repairable: boolean;
-  bridgeReady: boolean;
-  requiredMethods: string[];
-  missingMethods: string[];
-  failureReason?: RuntimeValidationFailureReason;
 }
 
 export interface TransportOperationalReadinessSnapshot {
@@ -415,8 +347,8 @@ const DEFAULT_LICENSE_CHECK_URL = 'https://funcs.openwa.dev/license-check';
 const LIVE_PATCH_CACHE_FILENAME = 'patches.cache.json';
 /** Live-patch cache staleness threshold (24 hours in ms) */
 const LIVE_PATCH_CACHE_MAX_AGE_MS = 86_400_000;
-/** Maximum consecutive recovery attempts before giving up */
-const MAX_CONSECUTIVE_RECOVERY_ATTEMPTS = 5;
+
+class SessionRecoveryRequired extends Error {}
 
 export class Transport {
   private static assetScriptCache = new Map<string, Promise<string>>();
@@ -437,7 +369,6 @@ export class Transport {
   private allowDangerousBrowserArgs?: boolean;
   private linkCode?: string;
   private qrMax?: number;
-  private ignoreNuke: boolean;
   private logConsole: boolean;
   private logConsoleErrors: boolean;
   private blockCrashLogs: boolean;
@@ -457,7 +388,6 @@ export class Transport {
   private runtimeRecoveryEnabled = false;
   private latestRuntimeRecoveryRequestId = 0;
   private pendingRuntimeRecoveryCount = 0;
-  private consecutiveRecoveryAttempts = 0;
   /** Cached live patch scripts for re-application during recovery */
   private cachedLivePatchScripts: string[] = [];
   private frameNavCounter = 0;
@@ -473,6 +403,10 @@ export class Transport {
   private activeLivePatchPreload: LivePatchPreloadResult | null = null;
   private refreshHandler?: () => Promise<unknown>;
   private effectiveLicenseKey?: string;
+  private sessionRecoveryHandler?: (reason: string) => Promise<void>;
+  private sessionRecovery: Promise<void> | null = null;
+  private closed = false;
+  private awaitingRecoveryPairing = false;
 
   constructor(options: TransportOptions) {
     this.options = options;
@@ -491,7 +425,6 @@ export class Transport {
     this.allowDangerousBrowserArgs = options.allowDangerousBrowserArgs;
     this.linkCode = options.linkCode;
     this.qrMax = options.qrMax;
-    this.ignoreNuke = options.ignoreNuke ?? false;
     this.logConsole = options.logConsole ?? false;
     this.logConsoleErrors = options.logConsoleErrors ?? false;
     this.blockCrashLogs = options.blockCrashLogs ?? true;
@@ -516,14 +449,19 @@ export class Transport {
       },
     });
     this.portable = new PortableSessionController({
+      onError: error => this.logger.warn('session_checkpoint_reset_failed', { error }),
       acquire: async sessionId => {
-        const lease = await acquireSessionPersistence({ ...options, sessionId });
+        const lease = await acquireSessionPersistence({ ...options, sessionId }, reason => {
+          this.awaitingRecoveryPairing = true;
+          this.logger.warn('session_reauthentication_required', { reason });
+        });
         return {
           read: () => lease.read(),
           remove: () => lease.remove(),
           release: () => lease.release(),
           write: async (data: string) => {
-            await lease.write(data);
+            try { await lease.write(data); }
+            catch (error) { this.logger.warn('session_checkpoint_save_failed', { error }); throw error; }
             // A notification must not turn an accepted durable commit into a
             // failed commit or expose plaintext session encryption keys.
             try {
@@ -541,25 +479,55 @@ export class Transport {
 
   private readonly portable: PortableSessionController;
 
-  setPortableMessageHandler(handler: (message: unknown) => Promise<boolean>, listening: () => boolean = () => true): () => void {
-    return this.portable.setMessageHandler(async message => {
-      const accepted = await handler(message);
-      if (accepted) this.events.emit('message.received', {
-        ctx: { correlationId: 'portable-message-received', ts: Date.now() }, message,
-      });
-      return accepted;
-    }, listening);
+  setSessionRecoveryHandler(handler: (reason: string) => Promise<void>): void {
+    this.sessionRecoveryHandler = handler;
   }
 
-  getPortableSessionStatus(): Promise<PortableSessionStatus> {
-    return this.portable.status();
+  private requestSessionRecovery(reason: string): void {
+    if (this.closed || this.sessionRecovery || !this.sessionRecoveryHandler) return;
+    this.runtimeRecoveryEnabled = false;
+    this.awaitingRecoveryPairing = true;
+    this.runtimeRecoveryFailed = true;
+    ++this.latestRuntimeRecoveryRequestId;
+    clearTimeout(this.licenseRenewalTimer);
+    this.logger.warn('session_reauthentication_required', { reason });
+    this.sessionRecovery = Promise.resolve().then(async () => {
+      await this.runtimeRecoveryQueue;
+      if (!this.closed) await this.sessionRecoveryHandler!(reason);
+    }).catch(error => {
+      if (!this.closed) {
+        const normalized = error instanceof Error ? error : new Error(String(error));
+        this.logger.error('session_reauthentication_failed', { error: normalized });
+        try { this.events.emit('error', { scope: 'session.reauthentication', error: normalized, fatal: false }); }
+        catch (listenerError) { this.logger.error('session_reauthentication_listener_failed', { error: listenerError }); }
+      }
+    }).finally(() => { this.sessionRecovery = null; });
   }
 
-  replayPortableMessages(): Promise<void> {
-    return this.portable.replay();
+  /** Replace only this session's disposable browser; keep its client and writer lease. */
+  async resetSessionForPairing(reason: string): Promise<void> {
+    if (this.closed) throw new Error('Session has stopped');
+    this.runtimeRecoveryEnabled = false;
+    this.awaitingRecoveryPairing = true;
+    ++this.latestRuntimeRecoveryRequestId;
+    clearTimeout(this.licenseRenewalTimer);
+    this.stopQrWatcher();
+    await this.portable.preparePairing();
+    await this.calling.invalidate();
+    this.disposePageListeners();
+    await this.injectionController.dispose();
+    if (this.browser) await this.browser.close();
+    this.browser = null;
+    this.page = null;
+    if (this.closed) return;
+    this.lastQrData = null;
+    this.qrAttempt = 0;
+    this.lastRuntimeState = null;
+    this.retainedLicenseArtifact = undefined;
+    this.licenseFeatures = { status: 'missing', keyType: null, expiresAt: null, features: {} };
+    this.logger.warn('session_reset_for_pairing', { reason });
+    await this.initialize();
   }
-
-  async invalidatePortableSession(): Promise<void> { await this.portable.invalidate(); }
 
   async initialize(): Promise<void> {
     this.events.emit('launch.browser.init.before', {
@@ -644,10 +612,18 @@ export class Transport {
     if (!this.page) return false;
 
     const readyScript = `(() => Boolean(globalThis.OpenWA_PortableSession?.startupFailure()) || (${PRE_AUTH_SURFACE_READY_CHECK_SCRIPT}))()`;
-    await this.page.waitForFunction(readyScript, {
-      timeoutMs: this.navigationTimeoutMs,
-      polling: 100,
-    });
+    try {
+      await this.page.waitForFunction(readyScript, {
+        timeoutMs: 0,
+        polling: 100,
+      });
+    } catch (error) {
+      if (this.closed || !this.portable.hasCheckpoint) throw error;
+      if (this.runtimeRecoveryEnabled) throw new SessionRecoveryRequired('session_restore_timeout');
+      await this.resetSessionForPairing('session_restore_timeout');
+      await this.navigate();
+      return true;
+    }
     const portableFailure = await this.page.evaluateScript<string | null>('globalThis.OpenWA_PortableSession?.startupFailure() ?? null');
     if (portableFailure) {
       this.logger.warn('portable_session_bootstrap_failed', {
@@ -656,10 +632,13 @@ export class Transport {
       if (portableFailure === 'SESSION_ENCRYPTION_CONFIG_INVALID') {
         throw new Error('Session data encryption configuration is invalid. Supply a base64-encoded 32-byte key.');
       }
-      if (portableFailure === 'SESSION_DECRYPTION_FAILED') {
-        throw new Error('Session data could not be decrypted. Check the encryption key and sessionId, or reset sessionData to NUKE and scan a new QR code.');
+      if (this.runtimeRecoveryEnabled) throw new SessionRecoveryRequired(portableFailure);
+      if (this.portable.hasCheckpoint) {
+        await this.resetSessionForPairing(portableFailure);
+        await this.navigate();
+        return true;
       }
-      throw new Error('Compact session restore is unavailable for this WhatsApp build or session file. Update OpenWA; an incompatible session file requires resetting sessionData to NUKE and scanning a new QR code.');
+      throw new Error('WhatsApp could not initialize a fresh pairing session.');
     }
     return true;
   }
@@ -757,8 +736,13 @@ export class Transport {
     await this.injectionController.registerRuntimeWapiBridge(
       messageReceivedSurface.event,
       messageReceivedSurface.bindingName,
-      // Incoming messages are delivered by the acknowledged portable inbox.
-      () => undefined,
+      (message: unknown) => {
+        const value = message as { fromMe?: boolean; self?: string; id?: { fromMe?: boolean } } | null;
+        if (!value || value.fromMe || value.id?.fromMe || value.self === 'out') return;
+        this.events.emit('message.received', {
+          ctx: { correlationId: 'runtime-message-received', ts: Date.now() }, message,
+        });
+      },
       { wapiMethod: messageReceivedSurface.wapiMethod, required: messageReceivedSurface.required },
     );
 
@@ -800,6 +784,10 @@ export class Transport {
           step: 'session_state_changed',
           details: { prev, next },
         });
+        if (this.runtimeRecoveryEnabled && !this.plannedRuntimeMutation
+          && ['UNPAIRED', 'UNPAIRED_IDLE'].includes(String(state))) {
+          this.requestSessionRecovery('authentication_lost');
+        }
       },
       { wapiMethod: stateChangedSurface.wapiMethod, required: stateChangedSurface.required },
     );
@@ -869,7 +857,7 @@ export class Transport {
    */
   async activateRuntimeEventBridge(): Promise<void> {
     const bridgeReady = await this.injectionController.ensureRuntimeBridge();
-    await this.portable.activate();
+    await this.portable.activate().catch(error => this.logger.warn('session_save_background_start_failed', { error }));
     // Licence application precedes bridge activation during bootstrap. Calling
     // can bind only after the bridge has assigned this document's runtime ID.
     await this.calling.bind().catch(error => {
@@ -932,105 +920,6 @@ export class Transport {
     }
 
     return capability;
-  }
-
-  async validateRuntimeUsability(stage: RuntimeValidationStage): Promise<RuntimeValidationResult> {
-    try {
-
-      const capability = await this.probeRuntimeCapability();
-      const integrity = capability.hasRuntime
-        ? await this.probeBrokenMethodIntegrity()
-        : {
-          bridgeReady: false,
-          requiredMethods: this.injectionController.getRequiredRuntimeMethods(),
-          missingMethods: [],
-        } satisfies RuntimeMethodIntegrityResult;
-
-      const failureReason = !capability.hasRuntime
-        ? 'runtime_missing'
-        : (stage === 'post_patch' || stage === 'post_overlay') && !capability.hasStoreMsg
-          ? 'store_missing'
-          : (stage === 'post_patch' || stage === 'post_overlay') && !capability.sessionLoaded
-            ? 'session_not_loaded'
-            : integrity.missingMethods.length > 0 || !integrity.bridgeReady
-              ? 'required_method_missing'
-              : undefined;
-
-      const usable = failureReason === undefined;
-
-      return {
-        ...capability,
-        ...integrity,
-        stage,
-        usable,
-        repairable: !usable,
-        failureReason,
-      };
-    } catch (error) {
-      console.log("ERRORED OUT IN VALIDATE RUNTIME USABILITY", error)
-      throw error;
-    }
-  }
-
-  /**
-   * Lightweight runtime validation that checks runtime/store/session presence
-   * WITHOUT checking bridge integrity.
-   *
-   * Used for early validation stages (post_injection) where the WAPI bridge
-   * has not yet been activated and calling `probeBrokenMethodIntegrity()` →
-   * `ensureRuntimeBridge()` would prematurely wire listeners to unpatched WAPI.
-   */
-  async validateRuntimeCapabilityOnly(stage: RuntimeValidationStage): Promise<RuntimeValidationResult> {
-    const capability = await this.probeRuntimeCapability();
-
-    const failureReason = !capability.hasRuntime
-      ? 'runtime_missing'
-      : undefined;
-
-    const usable = failureReason === undefined;
-
-    const result: RuntimeValidationResult = {
-      ...capability,
-      bridgeReady: false,
-      requiredMethods: this.injectionController.getRequiredRuntimeMethods(),
-      missingMethods: [],
-      stage,
-      usable,
-      repairable: !usable,
-      failureReason,
-    };
-
-    this.events.emit('launch.session.validityCheck.after', {
-      correlationId: 'transport-capability-only',
-      ts: Date.now(),
-      step: 'session_validity_check',
-      details: {
-        phase: stage,
-        valid: usable,
-        usable,
-        hasRuntime: result.hasRuntime,
-        hasStore: result.hasStoreMsg,
-        hasMsg: result.hasStoreMsg,
-        sessionLoaded: result.sessionLoaded,
-        bridgeReady: result.bridgeReady,
-        requiredMethods: result.requiredMethods,
-        missingMethods: result.missingMethods,
-        repairable: result.repairable,
-        failureReason,
-      },
-    });
-
-    return result;
-  }
-
-  async repairRuntimeIntegrity(reason: RuntimeValidationFailureReason): Promise<boolean> {
-    this.logger.info('broken_method_integrity_gate_repair', { reason });
-    const recovery = await this.recoverRuntimeForCurrentDocument({
-      trigger: 'validation_failure',
-      forceReinject: true,
-    });
-
-    return recovery.reinjected || recovery.capability.hasRuntime;
   }
 
   async preloadLivePatchArtifacts(options?: { sessionInfo?: SessionDebugInfo; fresh?: boolean }): Promise<LivePatchPreloadResult> {
@@ -1835,7 +1724,7 @@ export class Transport {
 
     try {
       await this.waitForFunctionProbe(`Boolean(${QR_CHECK_SCRIPT})`, {
-        timeoutMs: this.qrTimeoutMs,
+        timeoutMs: this.awaitingRecoveryPairing ? 0 : this.qrTimeoutMs,
         polling: 'mutation',
       });
     } catch {
@@ -1953,86 +1842,6 @@ export class Transport {
     }
   }
 
-  async waitForRipeSession(timeoutMs: number = this.authTimeoutMs): Promise<boolean> {
-    if (!this.page) {
-      throw new Error('Transport not initialized');
-    }
-
-    try {
-      await this.page.waitForFunction(RIPE_SESSION_CHECK_SCRIPT, {
-        timeoutMs,
-        polling: 1000,
-      });
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  async detectAttemptingReauth(): Promise<boolean> {
-    return this.evaluateBooleanScript(ATTEMPTING_REAUTH_CHECK_SCRIPT);
-  }
-
-  async reconcilePostAuthRuntime(options: {
-    freshAuth: boolean;
-    timeoutMs?: number;
-  }): Promise<PostAuthRuntimeReconciliationResult> {
-    if (!this.page) {
-      throw new Error('Transport not initialized');
-    }
-
-    const timeoutMs = options.timeoutMs ?? this.authTimeoutMs;
-    const path = options.freshAuth ? 'fresh_auth' : 'resumed_session';
-    let reinjected = false;
-
-    await this.injectionController.waitForIdle();
-
-    const capabilityBeforeGate = await this.probeRuntimeCapability();
-    if (options.freshAuth || !capabilityBeforeGate.hasRuntime) {
-      const recoveryResult = await this.recoverRuntimeForCurrentDocument({
-        trigger: 'post_authentication',
-        forceReinject: options.freshAuth,
-      });
-      reinjected = recoveryResult.reinjected;
-    }
-
-    const shouldWaitForRipeSession = !options.freshAuth;
-    const ripeSessionLoaded = shouldWaitForRipeSession
-      ? await this.waitForRipeSession(timeoutMs)
-      : true;
-    if (shouldWaitForRipeSession && !ripeSessionLoaded) {
-      this.events.emit('session.reinject.qr.waiting', {
-        correlationId: 'post-auth-ripe-session',
-        ts: Date.now(),
-        step: 'ripe_session_wait',
-        details: {
-          reason: 'ripe_session_timeout',
-        },
-      });
-
-      const timeoutCapability = await this.probeRuntimeCapability();
-      return {
-        ...timeoutCapability,
-        ripeSessionLoaded: false,
-        reinjected,
-        path,
-      };
-    }
-
-    await this.injectionController.waitForIdle();
-    const finalRecovery = await this.recoverRuntimeForCurrentDocument({
-      trigger: 'post_authentication',
-      forceReinject: false,
-    });
-
-    return {
-      ...finalRecovery.capability,
-      ripeSessionLoaded: finalRecovery.capability.sessionLoaded,
-      reinjected: reinjected || finalRecovery.reinjected,
-      path,
-    };
-  }
-
   private async needsToScan(): Promise<false> {
     if (!this.page) {
       throw new Error('Transport not initialized');
@@ -2046,7 +1855,7 @@ export class Transport {
       return false;
     } catch {
       // QR selectors not found = no QR code available right now.
-      // Hang here so that isInsideChat(), sessionDataInvalid(), or the
+      // Hang here so that isInsideChat() or the
       // outer auth-timeout signal in waitForAuthentication() can win.
       return new Promise(() => { });
     }
@@ -2058,26 +1867,10 @@ export class Transport {
     }
 
     try {
-      await this.page.waitForFunction(LEGACY_IS_INSIDE_CHAT_CHECK_SCRIPT, {
+      await this.page.waitForFunction(AUTHENTICATED_SHELL_CHECK_SCRIPT, {
         timeoutMs: 0,
       });
       return true;
-    } catch {
-      return new Promise(() => { });
-    }
-  }
-
-  private async sessionDataInvalid(): Promise<'NUKE'> {
-    if (!this.page) {
-      throw new Error('Transport not initialized');
-    }
-
-    try {
-      await this.page.waitForFunction(SESSION_INVALID_CHECK_SCRIPT, {
-        timeoutMs: 0,
-        polling: 'mutation',
-      });
-      return 'NUKE';
     } catch {
       return new Promise(() => { });
     }
@@ -2089,34 +1882,10 @@ export class Transport {
       this.isInsideChat(),
     ];
 
-    if (!this.ignoreNuke) {
-      signals.push(this.sessionDataInvalid());
-    }
-
     return Promise.race(signals);
   }
 
-  /**
-   * Wait for window.Store.Msg to settle.
-   * This matches legacy v4 robustness and prevents store_missing failures.
-   */
-  async waitForStoreMsg(timeoutMs: number = 15000): Promise<boolean> {
-    return this.waitForFunctionProbe(STORE_MSG_CHECK_SCRIPT, { timeoutMs, polling: 200 });
-  }
-
-  /**
-   * Extract available window.Store keys for diagnostic purposes.
-   */
-  async getStoreKeys(): Promise<string[]> {
-    if (!this.page) return [];
-    try {
-      return await this.page.evaluateScript<string[]>(`Object.keys(window.Store || {})`);
-    } catch {
-      return [];
-    }
-  }
-
-  async waitForAuthentication(_options?: { attemptingReauth?: boolean }): Promise<AuthSettlementResult> {
+  async waitForAuthentication(): Promise<AuthSettlementResult> {
     if (!this.page) {
       throw new Error('Transport not initialized');
     }
@@ -2137,7 +1906,7 @@ export class Transport {
 
     const authRace: Array<Promise<unknown>> = [this.isAuthenticated().catch(() => undefined)];
     let authTimer: ReturnType<typeof setTimeout> | undefined;
-    if (this.authTimeoutMs !== 0) {
+    if (!this.awaitingRecoveryPairing && this.authTimeoutMs !== 0) {
       authRace.push(new Promise((resolve) => {
         authTimer = setTimeout(() => resolve('timeout'), this.authTimeoutMs);
       }));
@@ -2169,20 +1938,16 @@ export class Transport {
       };
     }
 
-    if (authenticated === 'NUKE') {
-      this.events.emit('launch.auth.nuke.detected', {
-        correlationId: 'auth-settle',
-        ts: Date.now(),
-        step: 'nuke_detected',
-        details: { reason: 'old_logout_cred_detected' },
-      });
+    if (authenticated === false && this.portable.hasCheckpoint) {
+      // WhatsApp has already returned to its login screen. Keep that page and QR.
+      this.awaitingRecoveryPairing = true;
+      await this.portable.beginPairing().catch(error => this.logger.warn('session_checkpoint_reset_failed', { error }));
+    }
 
-      return {
-        outcome: 'invalid_session',
-        qrSeen: false,
-        qrAttempts: this.qrAttempt,
-        authMethod: 'resumed_session',
-      };
+    if (authenticated === 'timeout' && this.portable.hasCheckpoint) {
+      await this.resetSessionForPairing('session_restore_timeout');
+      await this.navigate();
+      return this.waitForAuthentication();
     }
 
     if (authenticated === 'timeout') {
@@ -2220,7 +1985,7 @@ export class Transport {
           });
           this.logger.info('link_code_generated', { attempt: this.qrAttempt });
 
-          if (this.qrMax && this.qrAttempt >= this.qrMax) {
+          if (!this.awaitingRecoveryPairing && this.qrMax && this.qrAttempt >= this.qrMax) {
             return {
               outcome: 'qr_max',
               qrSeen: true,
@@ -2229,7 +1994,7 @@ export class Transport {
             };
           }
 
-          const linkCodeTimeoutMs = this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
+          const linkCodeTimeoutMs = this.awaitingRecoveryPairing || this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
           const sessionLoaded = await this.waitForSessionLoaded(linkCodeTimeoutMs);
           return sessionLoaded
             ? {
@@ -2262,7 +2027,7 @@ export class Transport {
       });
     }
 
-    const qrScanTimeoutMs = this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
+    const qrScanTimeoutMs = this.awaitingRecoveryPairing || this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
     const sessionLoaded = await this.waitForSessionLoaded(qrScanTimeoutMs);
     if (sessionLoaded) {
       return {
@@ -2273,7 +2038,7 @@ export class Transport {
       };
     }
 
-    if (this.qrMax && this.qrAttempt >= this.qrMax) {
+    if (!this.awaitingRecoveryPairing && this.qrMax && this.qrAttempt >= this.qrMax) {
       return {
         outcome: 'qr_max',
         qrSeen: true,
@@ -2397,7 +2162,11 @@ export class Transport {
 
   completeRuntimeReplacement(): void { this.runtimeRecoveryFailed = false; }
 
-  enableRuntimeRecovery(): void { this.runtimeRecoveryEnabled = true; }
+  enableRuntimeRecovery(): void {
+    if (this.closed) return;
+    this.awaitingRecoveryPairing = false;
+    this.runtimeRecoveryEnabled = true;
+  }
 
   getPage(): IPage | null {
     return this.page;
@@ -2425,18 +2194,14 @@ export class Transport {
     };
   }
 
-  async waitForOperationalReadiness(): Promise<TransportOperationalReadinessSnapshot> {
-    await this.injectionController.waitForIdle();
-    await this.runtimeRecoveryQueue;
-    await this.injectionController.waitForIdle();
-    return this.getOperationalReadinessSnapshot();
-  }
-
   getBrowser(): IBrowser | null {
     return this.browser;
   }
 
   async close(): Promise<void> {
+    this.closed = true;
+    this.runtimeRecoveryEnabled = false;
+    ++this.latestRuntimeRecoveryRequestId;
     clearTimeout(this.licenseRenewalTimer);
     await this.calling.close();
     this.licenseFeatures = { status: 'missing', keyType: null, expiresAt: null, features: {} };
@@ -2556,6 +2321,7 @@ export class Transport {
         step: 'session_logout',
         details: { reason: 'post_logout=1' },
       });
+      this.requestSessionRecovery('logged_out');
     });
 
     this.injectionController.registerNavigationObserver('runtime.navigation_recovery', (_frame, generation) => {
@@ -2788,7 +2554,7 @@ export class Transport {
         throw new Error('Unable to determine current module path for launch.js resolution');
       }
 
-      return dirname(fileName.startsWith('file:') ? fileURLToPath(fileName) : fileName);
+      return dirname(fileName);
     } finally {
       Error.prepareStackTrace = originalPrepareStackTrace;
     }
@@ -2823,6 +2589,10 @@ export class Transport {
       () => this.recoverDocument({ requestId, trigger, generation }),
     ).catch((error) => {
       this.runtimeRecoveryFailed = true;
+      if (error instanceof SessionRecoveryRequired || (error instanceof Error && error.message === 'PORTABLE_SESSION_ACTIVATE_FAILED')) {
+        this.requestSessionRecovery(error.message);
+        return;
+      }
       this.logger.warn('runtime_recovery_failed', {
         trigger,
         requestId: String(requestId),
@@ -2859,16 +2629,10 @@ export class Transport {
         return;
       }
 
-      // Guard: prevent infinite recovery loops
-      this.consecutiveRecoveryAttempts++;
-      if (this.consecutiveRecoveryAttempts > MAX_CONSECUTIVE_RECOVERY_ATTEMPTS) {
-        this.logger.warn('runtime_recovery_max_attempts_exceeded', {
-          trigger: request.trigger,
-          attempts: this.consecutiveRecoveryAttempts,
-          max: MAX_CONSECUTIVE_RECOVERY_ATTEMPTS,
-          requestId: String(request.requestId),
-        });
-        throw new Error('Runtime recovery exceeded its bounded attempt limit.');
+      if (!this.runtimeRecoveryEnabled || !this.isLatestRuntimeRecoveryRequest(request.requestId)) return;
+      if (this.page.url().includes('post_logout=1')
+        || await this.evaluateBooleanScript(`Boolean(${QR_CHECK_SCRIPT})`)) {
+        throw new SessionRecoveryRequired('authentication_lost');
       }
 
       const settledGeneration = await this.injectionController.waitForIdle();
@@ -2902,17 +2666,15 @@ export class Transport {
         return;
       }
 
-      // ── Early-exit: check if the session survived the frame nav ──
-      // Frame navigation does NOT always flush the global context. Before doing
-      // heavy recovery (reinject wapi + patches + bridge), probe whether:
-      //   1. The page is still injectable (WAWebCollections module available)
-      //   2. Live patches are still applied (window.moi exists — it's injected by
-      //      CDN live patches, NOT by wapi.js, so its presence proves patches survived)
-      // If both pass, the session is intact — skip recovery entirely.
+      // A navigation can keep the current runtime. Wait for WhatsApp's visible
+      // screen before deciding between QR pairing and restoring the bindings.
       if (request.trigger === 'main_frame_navigation') {
         try {
           const injectable = await this.waitForInjectableSession();
           if (injectable) {
+            if (await this.evaluateBooleanScript(`Boolean(${QR_CHECK_SCRIPT})`)) {
+              throw new SessionRecoveryRequired('authentication_lost');
+            }
             const livePatchIntact = await this.evaluateBooleanScript(
               `!!(typeof window.moi === 'function' && window.moi())`
             );
@@ -2924,7 +2686,6 @@ export class Transport {
                 requestId: String(request.requestId),
                 reason: 'live_patches_intact_after_frame_nav',
               });
-              this.consecutiveRecoveryAttempts = 0;
               return;
             }
             this.logger.debug('runtime_recovery_live_patches_missing', {
@@ -2933,6 +2694,7 @@ export class Transport {
             });
           }
         } catch (probeError) {
+          if (probeError instanceof SessionRecoveryRequired) throw probeError;
           // Probe failed — session is likely flushed, proceed with full recovery
           this.logger.debug('runtime_recovery_integrity_probe_failed', {
             trigger: request.trigger,
@@ -2955,9 +2717,7 @@ export class Transport {
         generation: settledGeneration,
       });
 
-      // Reset consecutive counter on successful recovery
-      this.consecutiveRecoveryAttempts = 0;
-    } finally {
+      } finally {
       this.pendingRuntimeRecoveryCount = Math.max(0, this.pendingRuntimeRecoveryCount - 1);
     }
   }
@@ -3113,18 +2873,6 @@ export class Transport {
     }
 
     return success;
-  }
-
-  private async probeBrokenMethodIntegrity(): Promise<RuntimeMethodIntegrityResult> {
-    const requiredMethods = this.injectionController.getRequiredRuntimeMethods();
-    const bridgeReady = await this.injectionController.ensureRuntimeBridge();
-    const health = this.injectionController.getHealthSnapshot();
-
-    return {
-      bridgeReady,
-      requiredMethods,
-      missingMethods: health.missingRuntimeMethods,
-    };
   }
 
   private async waitForFunctionProbe(

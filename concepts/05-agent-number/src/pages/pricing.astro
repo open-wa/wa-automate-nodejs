@@ -1,0 +1,106 @@
+---
+import Page from "../layouts/Page.astro";
+import LicenceForm from "../components/LicenceForm.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { licences, commands, product, support, href } from "../data/site";
+
+const periods = [
+  { key: "month", label: "1 month" },
+  { key: "threeMonths", label: "3 months" },
+  { key: "sixMonths", label: "6 months" },
+  { key: "year", label: "12 months" },
+] as const;
+
+const faq = [
+  { q: "Is a key per WhatsApp number or per server?", a: "Per WhatsApp number. Buy one key for each account that runs a licensed method, wherever it runs." },
+  { q: "Does my agent see licensed methods as MCP tools?", a: "Yes, the MCP server exposes Easy API methods as tools. Licence rules follow the method the tool calls, so a licensed method needs the key whether your agent calls it over MCP or your code calls it over HTTP." },
+  { q: "How do I apply a key?", a: "Pass it at launch with --license-key, or set licenseKey in config. Since 5.5 you can also apply it from the dashboard or with client.refresh() without restarting the Node process." },
+  { q: "Which tier do I need for createGroup?", a: "Restricted. It covers createGroup, joinGroupViaLink and joinGroup, and starting conversations with numbers that are not already contacts." },
+  { q: "Is open-wa itself free?", a: "Yes. The library is free to use, and every method marked none works without a key." },
+];
+---
+
+<Page title="Pricing and licence keys | open-wa" description="Free for most methods. Insiders from £5 a month and Restricted from £15 a month, per WhatsApp number. Prices checked 12 Oct 2026.">
+  <section class="page-hero wrap">
+    <span class="label">Pricing</span>
+    <h1>Free for most methods. A key per number for the rest.</h1>
+    <p class="lede">{licences.summary}</p>
+  </section>
+
+  <section class="wrap pr-tiers" aria-label="Tiers">
+    <article class="pt">
+      <h2>{licences.free.name}</h2>
+      <p class="pt-price">£0</p>
+      <p>{licences.free.covers}</p>
+      <a class="btn btn-ghost" href={href("quickstart/")}>Quick start</a>
+    </article>
+    {licences.tiers.map((t) => (
+      <article class:list={["pt", t.id === "restricted" && "pt-strong"]}>
+        <h2>{t.name}</h2>
+        <p class="pt-price">{t.prices.month}<span> a month</span></p>
+        <table class="pt-periods">
+          <caption class="sr-only">{t.name} prices by billing period</caption>
+          <tbody>
+            {periods.map((p) => <tr><th scope="row">{p.label}</th><td>{t.prices[p.key]}</td></tr>)}
+          </tbody>
+        </table>
+        <p>{t.unlocks}</p>
+        <a class="btn btn-primary" href="#licence">Get {t.name}</a>
+      </article>
+    ))}
+  </section>
+  <p class="wrap pr-checked">Prices in GBP, checked {licences.pricesCheckedOn}</p>
+
+  <section class="wrap pr-form" id="licence" aria-labelledby="licence-title">
+    <div class="pr-form-copy">
+      <h2 id="licence-title">Configure your licence</h2>
+      <p class="muted">Four details, then a prefilled Gumroad checkout. Before you buy:</p>
+      <ol class="pr-before">
+        {licences.beforeYouBuy.map((b) => <li>{b}</li>)}
+      </ol>
+      <p class="pr-risk"><strong>Ban risk.</strong> {product.risk} A key adds methods. The risk stays the same.</p>
+      <CodeBlock code={`${commands.easyApi} ${commands.licenceFlag}`} lang="bash" title="Then launch with the key" />
+    </div>
+    <LicenceForm />
+  </section>
+
+  <section class="wrap section pr-faq" aria-labelledby="faq-title">
+    <h2 id="faq-title">Questions before you buy</h2>
+    <div class="faq">
+      {faq.map((f) => (
+        <details>
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+    </div>
+    <p class="more">More in the <a class="textlink" href={support.licensingDocs}>licensing docs</a>, or ask on <a class="textlink" href={support.discord}>Discord</a>.</p>
+  </section>
+</Page>
+
+<style>
+  .pr-tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .pt { padding: 26px; border-radius: var(--radius-l); background: var(--paper); border: 1px solid var(--line-strong); display: grid; gap: 14px; align-content: start; }
+  .pt h2 { font-size: 30px; }
+  .pt-strong { border-color: var(--oxblood); box-shadow: inset 0 0 0 1px var(--oxblood); }
+  .pt-price { font: 400 48px/1 var(--font-display); }
+  .pt-price span { font: 400 16px var(--font-text); color: var(--ink-soft); }
+  .pt-periods { width: 100%; border-collapse: collapse; font-size: 16px; }
+  .pt-periods th { text-align: left; font-weight: 400; color: var(--ink-soft); padding: 7px 0; border-top: 1px solid var(--line); }
+  .pt-periods td { text-align: right; font-family: var(--font-mono); padding: 7px 0; border-top: 1px solid var(--line); }
+  .pt .btn { justify-self: start; margin-top: 4px; }
+  .pr-checked { margin-top: 14px; color: var(--ink-soft); }
+  .pr-form { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 48px; align-items: start; padding-block: clamp(64px, 8vw, 104px) 0; }
+  .pr-form-copy { display: grid; gap: 16px; }
+  .pr-form-copy h2 { font-size: clamp(34px, 4vw, 48px); }
+  .pr-before { margin: 0; padding-left: 1.3em; display: grid; gap: 8px; }
+  .pr-risk { padding: 14px 16px; border-radius: var(--radius); background: var(--oxblood-wash); color: var(--oxblood-deep); }
+  .faq { margin-top: 24px; border-top: 1px solid var(--line-strong); max-width: 860px; }
+  .faq details { border-bottom: 1px solid var(--line-strong); }
+  .faq summary { cursor: pointer; padding: 18px 0; min-height: 44px; font: 400 22px/1.3 var(--font-display); list-style-position: outside; }
+  .faq details p { padding-bottom: 18px; color: var(--ink-soft); max-width: 68ch; }
+  .more { margin-top: 20px; }
+  @media (max-width: 900px) {
+    .pr-tiers, .pr-form { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

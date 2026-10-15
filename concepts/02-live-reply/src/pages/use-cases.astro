@@ -1,0 +1,47 @@
+---
+import Site from "../layouts/Site.astro";
+import PageHead from "../components/PageHead.astro";
+import { useCases } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const detail = [
+  { path: "SocketClient or the webhook integration", methods: ["onMessage", "sendText"], extra: "Chatwoot bridge for a shared inbox", link: "integrations/#chatwoot" },
+  { path: "Easy API over HTTP from your existing systems", methods: ["sendText"], extra: "Messaging numbers that aren't contacts needs Restricted", link: "pricing/" },
+  { path: "SocketClient or the embedded runtime", methods: ["onMessage", "sendText", "sendEvent"], extra: "Group creation needs Restricted", link: "features/#groups" },
+  { path: "Webhook integration, Node-RED or the Plugin SDK", methods: ["@open-wa/integration-webhook", "@open-wa/node-red"], extra: "Low-code flows in Node-RED", link: "integrations/" },
+  { path: "Named sessions, each with its own consumers", methods: ["--session-id", "sessionId"], extra: "One licence key per number", link: "features/#multi-session" },
+  { path: "The built-in MCP server", methods: ["/mcp", "exposeToolsMeta"], extra: "Licence follows the method", link: "ai-agents/" },
+];
+---
+<Site title="What you can build with open-wa" description="Support inboxes, order and delivery notifications, bots, webhook bridges, multi-session automations and AI-agent workflows, with the path and methods each uses.">
+  <PageHead eyebrow="Use cases" title="What developers build on their own number." lede="Six patterns, each with the path it uses and the methods involved." />
+  <section class="uc">
+    <div class="wrap">
+      <ol class="uc-list">
+        {useCases.map((u, i) => (
+          <li class="uc-row">
+            <span class="mono uc-n">0{i + 1}</span>
+            <div class="uc-copy">
+              <h2>{u}</h2>
+              <p class="muted"><strong class="uc-k">Path:</strong> {detail[i].path}. {detail[i].extra}.</p>
+              <ul class="methods">{detail[i].methods.map((m) => <li>{m}</li>)}</ul>
+            </div>
+            <a class="link-arrow" href={`${base}${detail[i].link}`}>Details</a>
+          </li>
+        ))}
+      </ol>
+      <p class="muted uc-help">Want it built for you? <a href={`${base}support/`}>Tell us what you need</a>.</p>
+    </div>
+  </section>
+</Site>
+<style>
+  .uc { padding-bottom: 96px; }
+  .uc-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--grey-2); }
+  .uc-row { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 20px; padding: 32px 0; border-bottom: 1px solid var(--grey-2); align-items: start; }
+  .uc-n { color: var(--blue); font-size: 15px; padding-top: 6px; }
+  .uc-copy { display: grid; gap: 10px; }
+  .uc-copy h2 { font-size: 26px; letter-spacing: -0.02em; }
+  .uc-k { color: var(--ink); font-weight: 600; }
+  .uc-help { margin-top: 32px; }
+  .uc-help a { color: var(--blue); }
+  @media (max-width: 640px) { .uc-row { grid-template-columns: minmax(0, 1fr); gap: 8px; } }
+</style>

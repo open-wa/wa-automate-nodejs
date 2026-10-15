@@ -1,0 +1,88 @@
+---
+import { licences } from "../data/site";
+const fields = licences.checkoutFields;
+const phone = fields.find((x) => x.name === "phone")!;
+const useCase = fields.find((x) => x.name === "useCase")!;
+---
+
+<div class="lf" id="licence-form">
+  <form class="lf-form" novalidate>
+    <fieldset class="lf-tier">
+      <legend>License</legend>
+      <div class="lf-tier-row">
+        {licences.tiers.map((t, i) => (
+          <label class="lf-tier-opt">
+            <input type="radio" name="tier" value={t.id} checked={t.id === "restricted"} />
+            <span><strong>{t.name}</strong><small>from {t.prices.month} a month</small></span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+    <div class="lf-field" data-field="github">
+      <label for="lf-github">GitHub username</label>
+      <input id="lf-github" name="github" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="e.g. octocat" aria-describedby="lf-github-msg" />
+      <p class="lf-msg" id="lf-github-msg" aria-live="polite"></p>
+    </div>
+    <div class="lf-field" data-field="phone">
+      <label for="lf-phone">{phone.label}</label>
+      <input id="lf-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+44 7700 900123" aria-describedby="lf-phone-help lf-phone-msg" />
+      <p class="lf-help" id="lf-phone-help">{phone.help}</p>
+      <p class="lf-msg" id="lf-phone-msg" aria-live="polite"></p>
+    </div>
+    <div class="lf-field" data-field="useCase">
+      <label for="lf-use">{useCase.label}</label>
+      <textarea id="lf-use" name="useCase" rows="3" placeholder={useCase.placeholder} aria-describedby="lf-use-msg"></textarea>
+      <p class="lf-msg" id="lf-use-msg" aria-live="polite"></p>
+    </div>
+    <button type="submit" class="btn btn-yellow lf-submit">Continue to checkout</button>
+    <p class="lf-fine">No account needed. Next you review the price and pay on Gumroad.</p>
+  </form>
+
+  <div class="lf-done" hidden tabindex="-1">
+    <p class="lf-done-sticker" aria-hidden="true">Nearly there</p>
+    <h3>Your <span class="lf-done-tier">Restricted</span> key request is ready.</h3>
+    <p>Next is a prefilled Gumroad checkout for <strong class="lf-done-number"></strong>, where you review the price and terms and pay. The key works on that number only.</p>
+    <a class="btn btn-ink lf-checkout" href="https://openwa.dev/checkout?tier=restricted">Open the prefilled checkout</a>
+    <p><button type="button" class="btn-link lf-edit">Edit the details</button></p>
+    <p class="lf-fine">Demo: this concept keeps the details in this tab only.</p>
+  </div>
+</div>
+
+<script>
+  import { initLicenceForm } from "../lib/licence-form";
+  initLicenceForm(document.getElementById("licence-form")!);
+</script>
+
+<style>
+  .lf { background: var(--paper); border: var(--line); border-radius: 22px; box-shadow: var(--pop-lg); padding: 24px; }
+  .lf-form { display: grid; gap: 18px; }
+  fieldset { border: 0; padding: 0; margin: 0; }
+  legend, label { font-weight: 800; display: block; margin-bottom: 8px; }
+  .lf-tier-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .lf-tier-opt { position: relative; margin: 0; cursor: pointer; }
+  .lf-tier-opt input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .lf-tier-opt span { display: grid; gap: 2px; padding: 14px; min-height: 64px; border: var(--line); border-radius: 14px; background: var(--lilac-wash); }
+  .lf-tier-opt small { font-weight: 500; color: var(--ink-soft); }
+  .lf-tier-opt input:checked + span { background: var(--yellow); box-shadow: var(--pop); }
+  .lf-tier-opt input:focus-visible + span { outline: 3px solid var(--ink); outline-offset: 3px; }
+  input[type="text"], input[type="tel"], textarea {
+    width: 100%; min-height: 50px; padding: 12px 14px; border: var(--line); border-radius: 12px; background: var(--paper);
+    font: 500 1rem/1.4 var(--font-text); color: var(--ink);
+  }
+  textarea { resize: vertical; }
+  input:focus, textarea:focus { outline: 3px solid var(--lilac); outline-offset: 0; border-color: var(--ink); }
+  .lf-help { margin: 6px 0 0; font-size: 0.9rem; color: var(--ink-soft); }
+  .lf-msg { margin: 6px 0 0; font-size: 0.9rem; font-weight: 700; min-height: 0; }
+  .lf-msg:empty { display: none; }
+  .lf-field.is-bad input, .lf-field.is-bad textarea { border-color: #b0174f; background: #fff3f8; }
+  .lf-field.is-bad .lf-msg { color: #a3123f; }
+  .lf-field.is-good .lf-msg { color: #1f6b4a; }
+  .lf-submit { justify-self: start; }
+  .lf-fine { font-size: 0.875rem; color: var(--ink-soft); margin: 0; }
+  .lf-done { display: grid; gap: 6px; justify-items: start; }
+  .lf-done:focus { outline: none; }
+  .lf-done h3 { font-size: 1.8rem; }
+  .lf-done-sticker { font: 400 1.6rem/1 var(--font-display); background: var(--yellow); border: var(--line); padding: 10px 16px; border-radius: 16px; rotate: -6deg; box-shadow: var(--pop); margin-bottom: 10px; }
+  .btn-link { background: none; border: 0; padding: 0; cursor: pointer; font: 700 1rem var(--font-text); text-decoration: underline; color: var(--ink); }
+  @media (max-width: 480px) { .lf { padding: 16px; } .lf-tier-row { grid-template-columns: 1fr; } }
+</style>

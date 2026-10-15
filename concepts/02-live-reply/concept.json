@@ -1,0 +1,12 @@
+{
+  "slug": "02-live-reply",
+  "name": "Live reply",
+  "tagline": "Answer WhatsApp messages from Node.js: edit the real SocketClient handler and a drawn phone replies live.",
+  "archetype": "developer",
+  "audience": "Node.js developers who want WhatsApp in their app (indie, agency, in-house, AI-agent builders)",
+  "flow": "Copy and run the command, then the quick start; licence buyers go Pricing > four-field form > prefilled Gumroad checkout",
+  "benchmark": "Resend (resend.com)",
+  "floor": ["/", "/quickstart/", "/features/", "/integrations/", "/ai-agents/", "/use-cases/", "/pricing/", "/compare/", "/migrate/", "/support/", "/community/", "/changelog/", "/legal/", "/404.html"],
+  "fonts": ["Schibsted Grotesk (OFL, display and text)", "Fragment Mono (OFL, code)"],
+  "libraries": ["astro"]
+}

@@ -1,0 +1,112 @@
+---
+import Mark from "./Mark.astro";
+import { nav, href, base, support, stats, short } from "../data/site";
+const path = Astro.url.pathname;
+const current = (h: string) => path.startsWith(href(h));
+---
+
+<header class="hd">
+  <div class="hd-in wrap">
+    <a class="mark-host hd-logo" href={base} aria-label="open-wa home">
+      <Mark size={22} decorative />
+      <span class="hd-name">open-wa</span>
+    </a>
+    <nav class="hd-nav" aria-label="Main">
+      <a href={support.docs}>Docs<span class="ext" aria-hidden="true">↗</span></a>
+      {nav.map((n) => <a href={href(n.href)} aria-current={current(n.href) ? "page" : undefined}>{n.label}</a>)}
+    </nav>
+    <div class="hd-end">
+      <a class="hd-gh" href={support.github} title={`GitHub stars, checked ${stats.checkedOn}`}>
+        <svg viewBox="0 0 16 16" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        <span><span class="sr-only">GitHub, </span>{short(stats.githubStars)}<span class="sr-only"> stars</span></span>
+      </a>
+      <a class="hd-discord" href={support.discord}>Discord</a>
+      <a class="btn btn-primary hd-cta" href={href("quickstart/")}>Quick start</a>
+      <button class="hd-menu" type="button" aria-expanded="false" aria-controls="menu-sheet">
+        <span class="hd-menu-bars" aria-hidden="true"></span><span class="hd-menu-label">Menu</span>
+      </button>
+    </div>
+  </div>
+  <div class="sheet" id="menu-sheet" hidden>
+    <nav class="sheet-nav wrap" aria-label="Menu">
+      <a href={support.docs}>Docs <span aria-hidden="true">↗</span></a>
+      {nav.map((n) => <a href={href(n.href)}>{n.label}</a>)}
+      <a href={href("use-cases/")}>Use cases</a>
+      <a href={href("support/")}>Support</a>
+      <a href={support.github}>GitHub <span class="muted small">{short(stats.githubStars)} stars, {stats.checkedOn}</span></a>
+      <a href={support.discord}>Discord</a>
+      <a class="btn btn-primary" href={href("quickstart/")}>Quick start</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>(".hd-menu");
+  const sheet = document.getElementById("menu-sheet");
+  if (btn && sheet) {
+    const set = (open: boolean) => {
+      btn.setAttribute("aria-expanded", String(open));
+      sheet.hidden = !open;
+      document.documentElement.classList.toggle("menu-open", open);
+    };
+    btn.addEventListener("click", () => set(btn.getAttribute("aria-expanded") !== "true"));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !sheet.hidden) { set(false); btn.focus(); }
+    });
+    sheet.addEventListener("click", (e) => { if ((e.target as Element).closest("a")) set(false); });
+  }
+</script>
+
+<style>
+  .hd {
+    position: sticky; top: 0; z-index: 40;
+    background: var(--bone); border-bottom: 1px solid var(--line);
+  }
+  .hd-in { display: flex; align-items: center; gap: 20px; height: 64px; }
+  .hd-logo { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink); min-height: 44px; }
+  .hd-name { font: 400 24px/1 var(--font-display); letter-spacing: -0.01em; }
+  .hd-nav { display: flex; gap: 2px; margin-left: 12px; }
+  .hd-nav a, .hd-discord, .hd-gh {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 11px;
+    border-radius: 999px; text-decoration: none; color: var(--ink-soft); font-size: 15.5px; font-weight: 500;
+    transition: color var(--speed), background var(--speed);
+  }
+  .hd-nav a:hover, .hd-discord:hover, .hd-gh:hover { color: var(--ink); background: var(--paper); }
+  .hd-nav a[aria-current="page"] { color: var(--oxblood); }
+  .ext { font-size: 12px; opacity: 0.7; }
+  .hd-end { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+  .hd-gh { font-family: var(--font-mono); font-size: 14px; }
+  .hd-cta { margin-left: 8px; min-height: 42px; padding: 0 18px; font-size: 15px; }
+  .hd-menu {
+    display: none; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px;
+    background: transparent; border: 1px solid var(--line-strong); border-radius: 999px;
+    font: 600 15px/1 var(--font-text); color: var(--ink); cursor: pointer;
+  }
+  .hd-menu-bars, .hd-menu-bars::before {
+    display: block; width: 16px; height: 2px; background: currentColor; border-radius: 2px; position: relative;
+    transition: transform var(--speed) var(--ease);
+  }
+  .hd-menu-bars { top: -3px; }
+  .hd-menu-bars::before { content: ""; position: absolute; top: 6px; }
+  .hd-menu[aria-expanded="true"] .hd-menu-bars { transform: translateY(3px) rotate(45deg); }
+  .hd-menu[aria-expanded="true"] .hd-menu-bars::before { transform: translateY(-6px) rotate(-90deg); }
+
+  .sheet { border-top: 1px solid var(--line); background: var(--bone); max-height: calc(100dvh - 64px); overflow-y: auto; }
+  .sheet-nav { display: grid; padding-block: 8px 24px; }
+  .sheet-nav a:not(.btn) {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px; min-height: 52px; padding: 14px 2px;
+    border-bottom: 1px solid var(--line); text-decoration: none; font: 400 22px/1.2 var(--font-display);
+  }
+  .sheet-nav .small { font-family: var(--font-text); }
+  .sheet-nav .btn { margin-top: 20px; min-height: 50px; }
+
+  @media (max-width: 1080px) {
+    .hd-nav, .hd-discord { display: none; }
+    .hd-menu { display: inline-flex; }
+  }
+  @media (max-width: 560px) {
+    .hd-cta, .hd-gh { display: none; }
+    .hd-in { height: 60px; }
+  }
+  @media (min-width: 1081px) { .sheet { display: none !important; } }
+</style>

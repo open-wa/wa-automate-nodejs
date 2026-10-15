@@ -1,0 +1,287 @@
+---
+/**
+ * The signature moment: pick one of the four ways in. The tabs re-route the
+ * system diagram's flow lines and swap the real snippet and three-step start.
+ * Accessible tabs (arrow keys, Home, End); the diagram's label describes the
+ * active route. Reduced motion or ?still: lines switch without animation.
+ */
+import SystemDiagram from "./SystemDiagram.astro";
+import CodeBlock from "./CodeBlock.astro";
+import { wide, tall, routes, type PathId } from "../data/diagram";
+import { paths, commands, snippets, href } from "../data/site";
+
+const panels: Record<PathId, { short: string; steps: { text: string; code?: string }[]; code: string; lang: string; title: string }> = {
+  "easy-api": {
+    short: "Easy API",
+    steps: [
+      { text: "Run the command. It starts an Easy API instance on port 8080.", code: commands.easyApi },
+      { text: "Scan the QR code it prints with your phone, or use link-code login." },
+      { text: "Open the live session's interactive API docs.", code: commands.proofOfLife },
+    ],
+    code: `# Start the Easy API on port 8080\n${commands.easyApi}\n\n# Require an API key on every request\n${commands.easyApiWithKey}\n\n# Or run it with Docker\n${commands.docker}`,
+    lang: "sh",
+    title: "Terminal",
+  },
+  "socket-client": {
+    short: "SocketClient",
+    steps: [
+      { text: "Start an Easy API instance with an API key.", code: commands.easyApiWithKey },
+      { text: "Install the client in your Node.js app.", code: commands.socketClientInstall },
+      { text: "Connect and handle messages. Commands go over HTTP RPC, events arrive as Server-Sent Events." },
+    ],
+    code: snippets.socketClient,
+    lang: "js",
+    title: "bot.mjs",
+  },
+  embedded: {
+    short: "Embedded",
+    steps: [
+      { text: "Install open-wa and a browser driver.", code: commands.embeddedInstall },
+      { text: "Call createClient with a session ID and the driver." },
+      { text: "Start your app and link the account: scan the QR code or use link-code login." },
+    ],
+    code: snippets.embedded,
+    lang: "js",
+    title: "app.mjs",
+  },
+  mcp: {
+    short: "MCP",
+    steps: [
+      { text: "Turn on the MCP server in wa.config.mjs." },
+      { text: "Start open-wa with that config.", code: snippets.mcpStart },
+      { text: "Point Claude, Cursor or Windsurf at the endpoint.", code: commands.mcpEndpoint },
+    ],
+    code: snippets.mcpConfig,
+    lang: "js",
+    title: "wa.config.mjs",
+  },
+};
+const ids = paths.map((p) => p.id as PathId);
+const first = ids[0];
+const glyph: Record<PathId, string> = {
+  "easy-api": "M3 12h18M17 8l4 4-4 4",
+  "socket-client": "M3 9h18M3 15h18M17 5l4 4M7 19l-4-4",
+  embedded: "M5 5h14v14H5zM9 12h6",
+  mcp: "M3 12h8M11 12l6-6M11 12l6 6M17 6h3M17 18h3",
+};
+---
+<section class="ways" aria-labelledby="hero-title" data-ways>
+  <div class="ways-copy"><slot /></div>
+
+  <div class="ways-system">
+    <h2 id="ways-title" class="ways-title">Four ways to plug it in</h2>
+    <div class="tabs" role="tablist" aria-labelledby="ways-title">
+      {paths.map((p, i) => (
+        <button
+          type="button" role="tab" class="tab" id={`tab-${p.id}`} aria-controls={`panel-${p.id}`}
+          aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1} data-path={p.id} data-name={p.name}
+        >
+          <svg class="tab-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d={glyph[p.id as PathId]} /></svg>
+          <span class="tab-name"><span class="long">{p.name.replace(" runtime", "")}</span><span class="short">{panels[p.id as PathId].short}</span></span>
+        </button>
+      ))}
+    </div>
+    <div class="figure">
+      <SystemDiagram layout={wide} variant="wide" active={first} nodes={routes[first].nodes} edges={routes[first].edges} describe={routes[first].describe} />
+      <SystemDiagram layout={tall} variant="tall" active={first} nodes={routes[first].nodes} edges={routes[first].edges} describe={routes[first].describe} />
+      <p class="caption" id="diagram-caption" data-caption><strong data-caption-name>{paths[0].name}.</strong> <span data-caption-text>{routes[first].describe}</span></p>
+    </div>
+  </div>
+
+  <div class="ways-panels">
+    {paths.map((p, i) => {
+      const panel = panels[p.id as PathId];
+      return (
+        <div class="panel" role="tabpanel" id={`panel-${p.id}`} aria-labelledby={`tab-${p.id}`} tabindex="0" hidden={i !== 0} data-panel={p.id}>
+          <div class="panel-text">
+            <h3 class="panel-title">{p.name}<span class="panel-for">{p.for}</span></h3>
+            <p class="panel-what">{p.what}</p>
+            <ol class="steps">
+              {panel.steps.map((s) => (
+                <li>
+                  <span>{s.text}</span>
+                  {s.code && <code class="step-code">{s.code}</code>}
+                </li>
+              ))}
+            </ol>
+            <a class="link panel-more" href={href(`quickstart/#${p.id}`)}>Full {p.name} start <span aria-hidden="true">→</span></a>
+          </div>
+          <CodeBlock code={panel.code} lang={panel.lang} title={panel.title} />
+        </div>
+      );
+    })}
+  </div>
+</section>
+
+<script define:vars={{ routes }}>
+  window.__routes = routes;
+</script>
+<script>
+  import { shouldAnimate } from "../lib/runtime";
+  type Route = { nodes: string[]; edges: string[]; describe: string };
+  const root = document.querySelector<HTMLElement>("[data-ways]")!;
+  const routes = (window as unknown as { __routes: Record<string, Route> }).__routes;
+  const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+  const panels = [...root.querySelectorAll<HTMLElement>("[data-panel]")];
+  const diagrams = [...root.querySelectorAll<SVGSVGElement>("[data-diagram]")];
+  if (!shouldAnimate()) root.setAttribute("data-still", "");
+
+  function select(id: string, focus = false) {
+    const route = routes[id];
+    if (!route) return;
+    tabs.forEach((t) => {
+      const on = t.dataset.path === id;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    panels.forEach((p) => (p.hidden = p.dataset.panel !== id));
+    root.querySelector("[data-caption-name]")!.textContent = `${tabs.find((t) => t.dataset.path === id)?.dataset.name ?? ""}.`;
+    root.querySelector("[data-caption-text]")!.textContent = route.describe;
+    for (const svg of diagrams) {
+      svg.querySelectorAll<SVGGElement>("[data-node]").forEach((n) => n.classList.toggle("on", route.nodes.includes(n.dataset.node!)));
+      svg.querySelectorAll<SVGGElement>("[data-edge]").forEach((e) => {
+        const idx = route.edges.indexOf(e.dataset.edge!);
+        e.style.setProperty("--d", `${Math.max(0, idx) * 160}ms`);
+        e.classList.remove("on");
+        if (idx >= 0) {
+          // Restart the draw-in animation for each edge on the new route.
+          void e.getBoundingClientRect();
+          e.classList.add("on");
+        }
+      });
+    }
+    root.dataset.active = id;
+  }
+
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => select(t.dataset.path!));
+    t.addEventListener("keydown", (e) => {
+      const keys: Record<string, number> = { ArrowRight: i + 1, ArrowDown: i + 1, ArrowLeft: i - 1, ArrowUp: i - 1, Home: 0, End: tabs.length - 1 };
+      if (!(e.key in keys)) return;
+      e.preventDefault();
+      const next = tabs[(keys[e.key] + tabs.length) % tabs.length];
+      select(next.dataset.path!, true);
+    });
+  });
+
+  // Deep links such as #mcp open that path.
+  const fromHash = location.hash.replace("#", "");
+  if (routes[fromHash]) select(fromHash);
+</script>
+
+<style>
+  .ways {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    grid-template-areas: "copy system" "panels panels";
+    column-gap: clamp(28px, 5vw, 72px); row-gap: clamp(36px, 5vw, 64px);
+    padding: clamp(28px, 5vw, 64px) 0 clamp(56px, 7vw, 96px); align-items: start;
+  }
+  .ways-copy { grid-area: copy; min-width: 0; }
+  .ways-system { grid-area: system; display: grid; gap: 12px; min-width: 0; }
+  .ways-panels { grid-area: panels; min-width: 0; }
+  .ways-title { font: 500 13px/1 var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-muted); }
+
+  .tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--color-rule); border-radius: 14px; background: var(--color-paper-2); padding: 4px; gap: 4px; }
+  .tab {
+    display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center;
+    padding: 8px 10px; min-height: 48px; border: 1px solid transparent; border-radius: 10px; background: transparent;
+    color: var(--color-ink); font: inherit; cursor: pointer; transition: background var(--speed) var(--ease), box-shadow var(--speed) var(--ease);
+  }
+  .tab:hover { background: color-mix(in srgb, var(--color-paper-3) 60%, transparent); }
+  .tab[aria-selected="true"] { background: var(--color-paper-3); border-color: var(--color-rule); box-shadow: 0 1px 0 rgba(20, 33, 61, 0.06), 0 8px 20px -14px rgba(20, 33, 61, 0.4); }
+  .tab-glyph { flex: none; width: 20px; height: 20px; fill: none; stroke: var(--color-muted); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: stroke var(--speed); }
+  .tab[aria-selected="true"] .tab-glyph { stroke: var(--color-coral-ink); }
+  .tab-name { font: 600 15.5px/1.2 var(--font-text); white-space: nowrap; }
+  .tab-name .short { display: none; }
+
+  .figure { border: 1px solid var(--color-rule); border-radius: 16px; background: var(--color-paper-3); padding: clamp(10px, 1.6vw, 20px); display: grid; gap: 14px; }
+  .caption { font-size: 15px; line-height: 1.5; color: var(--color-muted); border-top: 1px solid var(--color-rule); padding-top: 12px; min-height: 4.5em; }
+  .caption strong { color: var(--color-ink); font-weight: 600; }
+  .panel { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: clamp(24px, 4vw, 56px); align-items: start; outline: none; border-top: 1px solid var(--color-ink); padding-top: 28px; }
+  .panel:focus-visible { outline: 2px solid var(--color-coral-ink); outline-offset: 8px; border-radius: 8px; }
+  .panel-text { display: grid; gap: 16px; min-width: 0; }
+  .panel-title { font-size: 34px; display: grid; gap: 6px; }
+  .panel-for { font: 400 17px/1.4 var(--font-text); color: var(--color-coral-ink); }
+  .panel-what { font-size: 17px; color: var(--color-muted); }
+  .steps { list-style: none; counter-reset: s; margin: 0; padding: 0; display: grid; border-top: 1px solid var(--color-rule); }
+  .steps li { counter-increment: s; display: grid; grid-template-columns: 30px minmax(0, 1fr); column-gap: 8px; row-gap: 6px; padding: 12px 0; border-bottom: 1px solid var(--color-rule); }
+  .steps li::before { content: counter(s); grid-row: 1 / span 2; font: 500 22px/1.1 var(--font-display); color: var(--color-coral-ink); font-variation-settings: "opsz" 24; }
+  .step-code { grid-column: 2; justify-self: start; max-width: 100%; font-size: 12.5px !important; white-space: nowrap; overflow-x: auto; display: block; scrollbar-width: thin; }
+  .panel-more { font-weight: 600; justify-self: start; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }
+
+  /* Diagram */
+  :global(.diagram) { display: block; width: 100%; height: auto; overflow: visible; font-family: var(--font-text); }
+  :global(.diagram-tall) { display: none; }
+  .ways :global(.n-title) { font: 600 16px var(--font-text); fill: var(--color-ink); }
+  .ways :global(.n-sub) { font: 400 13.5px var(--font-text); fill: var(--color-muted); }
+  .ways :global(.r-title) { font: 500 13px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; fill: var(--color-muted); }
+  .ways :global(.runtime-box) { fill: var(--color-bg); stroke: var(--color-ink); stroke-width: 1.5; }
+  .ways :global(.runtime-fill) { pointer-events: none; }
+  .ways :global(.box-bg) { fill: var(--color-paper-3); stroke: var(--color-rule); stroke-width: 1.2; transition: stroke 300ms, fill 300ms; }
+  .ways :global(.port) { fill: var(--color-rule); transition: fill 300ms; }
+  .ways :global(.node) { opacity: 0.4; transition: opacity 400ms var(--ease); }
+  .ways :global(.node.on) { opacity: 1; }
+  .ways :global(.node.on .box-bg) { stroke: var(--color-ink); }
+  .ways :global(.node.on .port) { fill: var(--color-coral); }
+  .ways :global(.phone-body) { fill: var(--color-ink); }
+  .ways :global(.phone-screen) { fill: var(--color-paper-3); }
+  .ways :global(.bubble.in) { fill: var(--color-paper-2); stroke: var(--color-rule); }
+  .ways :global(.bubble.out) { fill: var(--color-coral); }
+
+  .ways :global(.boundary-line) { fill: color-mix(in srgb, var(--color-coral) 6%, transparent); stroke: var(--color-coral-ink); stroke-width: 1.5; stroke-dasharray: 0.006 0.006; opacity: 0; transition: opacity 300ms; }
+  .ways :global(.boundary .b-label) { font: 500 12.5px var(--font-mono); letter-spacing: 0.04em; fill: var(--color-coral-ink); opacity: 0; transition: opacity 300ms 200ms; }
+  .ways :global(.boundary.on .boundary-line), .ways :global(.boundary.on .b-label) { opacity: 1; }
+  .ways :global(.boundary.on) { opacity: 1; }
+
+  .ways :global(.edge path) { fill: none; stroke-linecap: round; }
+  .ways :global(.e-idle) { stroke: var(--color-rule); stroke-width: 1.5; stroke-dasharray: 2 5; }
+  .ways :global(.e-draw) { stroke: var(--color-coral); stroke-width: 2.5; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; }
+  .ways :global(.edge.on .e-draw) { opacity: 1; }
+  .ways :global(.e-flow) { stroke: var(--color-ink); stroke-width: 4.5; stroke-dasharray: 0 16; opacity: 0; }
+  .ways :global(.e-label) { font: 500 13px var(--font-mono); fill: var(--color-coral-ink); opacity: 0; transition: opacity 300ms; paint-order: stroke; stroke: var(--color-paper-3); stroke-width: 5px; stroke-linejoin: round; }
+  .ways :global(.edge.on .e-draw) { animation: e-draw 520ms var(--d) var(--ease-draw) forwards; }
+  .ways :global(.edge.on .e-flow) { animation: e-show 200ms calc(var(--d) + 480ms) forwards, e-flow 1100ms calc(var(--d) + 480ms) linear infinite; }
+  .ways :global(.edge.on.rev .e-flow) { animation: e-show 200ms calc(var(--d) + 480ms) forwards, e-flow-rev 1100ms calc(var(--d) + 480ms) linear infinite; }
+  .ways :global(.edge.on .e-label) { opacity: 1; transition-delay: calc(var(--d) + 300ms); }
+  @keyframes e-draw { to { stroke-dashoffset: 0; } }
+  @keyframes e-show { to { opacity: 1; } }
+  @keyframes e-flow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -32; } }
+  @keyframes e-flow-rev { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 32; } }
+
+  /* Still: reduced motion or ?still. Lines switch instantly; dots sit still. */
+  .ways[data-still] :global(.edge.on .e-draw) { animation: none; stroke-dashoffset: 0; }
+  .ways[data-still] :global(.edge.on .e-flow) { animation: none; opacity: 1; }
+  .ways[data-still] :global(.node), .ways[data-still] :global(.e-label) { transition: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .ways :global(.edge.on .e-draw) { animation: none !important; stroke-dashoffset: 0; }
+    .ways :global(.edge.on .e-flow) { animation: none !important; opacity: 1; }
+  }
+
+  @media (max-width: 1240px) and (min-width: 961px) {
+    .tab-name .long { display: none; }
+    .tab-name .short { display: inline; }
+    .tab-glyph { display: none; }
+  }
+  @media (max-width: 960px) {
+    .ways { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "system" "panels"; row-gap: 32px; }
+    .tab-name .long { display: inline; }
+    .tab-name .short { display: none; }
+    .panel { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .ways { padding-top: 16px; row-gap: 28px; }
+    :global(.diagram-wide) { display: none; }
+    :global(.diagram-tall) { display: block; }
+    .ways :global(.diagram-tall .n-title) { font-size: 15px; }
+    .ways :global(.diagram-tall .n-sub) { font-size: 13px; }
+    .ways :global(.diagram-tall .e-label) { font-size: 12px; }
+    .ways :global(.diagram-tall .b-label) { font-size: 11px; letter-spacing: 0; }
+    .tabs { gap: 3px; padding: 3px; border-radius: 12px; }
+    .tab { flex-direction: column; gap: 4px; padding: 8px 2px; min-height: 56px; }
+    .tab-name { font-size: 13.5px; }
+    .tab-name .long { display: none; }
+    .tab-name .short { display: inline; }
+    .panel-title { font-size: 28px; }
+  }
+</style>

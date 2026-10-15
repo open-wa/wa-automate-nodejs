@@ -492,11 +492,12 @@ export class InjectionController {
   private attachPageLifecycle(page: IPage): void {
     this.pageRegistry.add(
       page.on('framenavigated', (frame) => {
-        if (!this.isMainFrame(frame)) {
+        if (this.page !== page || !this.isMainFrame(frame)) {
           return;
         }
 
         void this.enqueue(async () => {
+          if (this.page !== page) return;
           this.bumpDocumentGeneration();
           this.clearRuntimeBridgeState();
           await this.runtimeRegistry.disposeAll();

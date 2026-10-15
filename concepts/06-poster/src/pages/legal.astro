@@ -1,0 +1,29 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import { legal, product, support } from "../data/facts";
+---
+
+<Base title="Legal: unofficial notice, ban risk, terms and licence | open-wa" description="open-wa is unofficial and not affiliated with WhatsApp or Meta. Automation can get an account banned. Terms of Service, the Hippocratic licence and the cryptography notice.">
+  <PageHero title="The fine print, in large type" />
+  <section class="doc wrap doc-grid">
+    <h2 id="unofficial">Unofficial</h2>
+    <p>{legal.affiliation}</p>
+    <p>{product.unofficial}</p>
+
+    <h2 id="risk">Ban risk</h2>
+    <p>{product.risk}</p>
+    <p>A licence key changes which methods you can call; it doesn't change this risk.</p>
+
+    <h2 id="terms">Terms of Service</h2>
+    <p>{product.terms} <a href={support.terms}>Read the Terms of Service</a>.</p>
+
+    <h2 id="licence">Software licence</h2>
+    <p>open-wa is released under the {product.softwareLicence} licence. <a href={support.licenceText}>Read the licence</a>.</p>
+
+    <h2 id="crypto">Cryptography notice</h2>
+    <p>{legal.crypto}</p>
+
+    <p class="dated">{legal.copyright}.</p>
+  </section>
+</Base>

@@ -1,0 +1,76 @@
+---
+import Mark from "./Mark.astro";
+import { support, starsShort, stats } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const here = Astro.url.pathname;
+const nav = [
+  { href: `${base}features/`, label: "Features" },
+  { href: `${base}integrations/`, label: "Integrations" },
+  { href: `${base}ai-agents/`, label: "AI agents" },
+  { href: `${base}pricing/`, label: "Pricing" },
+];
+const more = [
+  { href: `${base}use-cases/`, label: "Use cases" },
+  { href: `${base}compare/`, label: "Official API or open-wa?" },
+  { href: `${base}migrate/`, label: "Migrate from v4" },
+  { href: `${base}changelog/`, label: "Changelog" },
+  { href: `${base}community/`, label: "Community" },
+  { href: `${base}support/`, label: "Support and consulting" },
+];
+const current = (href: string) => (here.startsWith(href) ? "page" : undefined);
+---
+
+<header class="site-header">
+  <div class="hdr wrap">
+    <a class="brand mark-host" href={base} aria-label="open-wa home">
+      <Mark size={34} label="" />
+      <span class="brand-word" aria-hidden="true">open-wa</span>
+    </a>
+    <nav class="hdr-nav" aria-label="Main">
+      <a href={support.docs}>Docs<span class="ext" aria-hidden="true">↗</span></a>
+      {nav.map((n) => <a href={n.href} aria-current={current(n.href)}>{n.label}</a>)}
+    </nav>
+    <div class="hdr-end">
+      <a class="hdr-gh" href={support.github} title={`${stats.githubStars.toLocaleString("en-GB")} stars on GitHub, checked ${stats.checkedOn}`}>
+        <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.71 1.22 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 8 0Z"/></svg>
+        <span>GitHub</span><span class="stars">{starsShort}<span class="sr-only"> stars</span></span>
+      </a>
+      <a class="hdr-discord" href={support.discord}>Discord</a>
+      <a class="btn btn-ink hdr-cta" href={`${base}quickstart/`}>Quick start</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu-sheet">
+        <span class="menu-label">Menu</span>
+        <span class="menu-icon" aria-hidden="true"><i></i><i></i></span>
+      </button>
+    </div>
+  </div>
+  <div class="menu-sheet" id="menu-sheet" hidden>
+    <nav class="wrap" aria-label="Menu">
+      <ul>
+        <li><a href={support.docs}>Docs<span class="ext" aria-hidden="true">↗</span></a></li>
+        {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+        {more.map((n) => <li class="sub"><a href={n.href}>{n.label}</a></li>)}
+        <li class="sub"><a href={support.github}>GitHub, {starsShort} stars</a></li>
+        <li class="sub"><a href={support.discord}>Discord</a></li>
+      </ul>
+      <a class="btn btn-ink btn-block" href={`${base}quickstart/`}>Quick start</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>(".menu-btn");
+  const sheet = document.getElementById("menu-sheet");
+  if (btn && sheet) {
+    const set = (open: boolean) => {
+      btn.setAttribute("aria-expanded", String(open));
+      sheet.hidden = !open;
+      document.documentElement.classList.toggle("menu-open", open);
+      btn.querySelector(".menu-label")!.textContent = open ? "Close" : "Menu";
+    };
+    btn.addEventListener("click", () => set(btn.getAttribute("aria-expanded") !== "true"));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !sheet.hidden) { set(false); btn.focus(); }
+    });
+    window.matchMedia("(min-width: 1080px)").addEventListener("change", (e) => { if (e.matches) set(false); });
+  }
+</script>

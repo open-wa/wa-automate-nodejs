@@ -1,0 +1,21 @@
+---
+import Page from "../layouts/Page.astro";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+
+<Page title="Page not found | open-wa" description="This page isn't at the desk. Try the quick start, the recipes or the docs.">
+  <section class="wrap nf">
+    <p class="kicker">404</p>
+    <h1>Nobody at the desk for this page.</h1>
+    <p class="lead">The link may be old. These are the usual places people head next.</p>
+    <div class="btn-row">
+      <a class="btn btn--primary" href={`${base}quickstart/`}>Quick start</a>
+      <a class="btn btn--ghost" href={`${base}recipes/`}>Recipes</a>
+      <a class="btn btn--ghost" href={base}>Home</a>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .nf { padding-block: clamp(80px, 12vw, 160px); display: grid; gap: 20px; justify-items: start; }
+</style>

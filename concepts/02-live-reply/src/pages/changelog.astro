@@ -1,0 +1,31 @@
+---
+import Site from "../layouts/Site.astro";
+import PageHead from "../components/PageHead.astro";
+import { releases, product, support } from "../data/site";
+---
+<Site title="Changelog: 5.5 and 5.4 | open-wa" description="open-wa 5.5 adds native WhatsApp events, live refresh and local stickers. 5.4 lets you bring your own session encryption key.">
+  <PageHead eyebrow="Changelog" title="What shipped recently." lede={`Latest on npm: ${product.currentVersion} (${product.currentVersionNote}).`} />
+  <section class="cl">
+    <div class="wrap">
+      {releases.map((r) => (
+        <article class="cl-r" id={`v${r.version}`}>
+          <div class="cl-meta"><span class="tag tag-blue">v{r.version}</span><time class="muted mono">{r.date}</time></div>
+          <div class="cl-body">
+            <h2>{r.headline}</h2>
+            <ul>{r.highlights.map((h) => <li>{h}</li>)}</ul>
+          </div>
+        </article>
+      ))}
+      <div class="cl-more"><a class="btn btn-ink" href={support.releases}>All GitHub releases</a><a class="btn btn-line" href={support.changelog}>Docs changelog</a></div>
+    </div>
+  </section>
+</Site>
+<style>
+  .cl { padding-bottom: 96px; }
+  .cl-r { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px; padding: 40px 0; border-top: 1px solid var(--grey-2); }
+  .cl-meta { display: grid; gap: 10px; align-content: start; justify-items: start; }
+  .cl-body h2 { font-size: 30px; margin-bottom: 14px; }
+  .cl-body ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; color: var(--grey-5); max-width: 62ch; }
+  .cl-more { display: flex; gap: 12px; flex-wrap: wrap; padding-top: 32px; border-top: 1px solid var(--grey-2); }
+  @media (max-width: 640px) { .cl-r { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
+</style>

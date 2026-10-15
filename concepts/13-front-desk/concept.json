@@ -1,0 +1,12 @@
+{
+  "slug": "13-front-desk",
+  "name": "Front desk",
+  "tagline": "Run a hotel's front desk from its own WhatsApp number: flip an automation switch and the guest's phone shows the result while the code appears beside it.",
+  "archetype": "developer",
+  "audience": "Developers building a WhatsApp job for a business (hotel notifications as the worked example; bookings, OTP, PBX calls, stickers, media as recipes), in any language over HTTP",
+  "flow": "Copy the Easy API command, then the front-desk inbox shows the jobs working; recipes, how it works, free vs licensed by job, risk, closing",
+  "benchmark": "Front (front.com)",
+  "floor": ["/", "/recipes/", "/recipes/salon-bookings/", "/recipes/hotel-notifications/", "/recipes/otp/", "/recipes/pbx-calls/", "/recipes/stickers/", "/recipes/media/", "/recipes/order-updates/", "/recipes/support-inbox/", "/recipes/ai-agent/", "/quickstart/", "/features/", "/integrations/", "/pricing/", "/compare/", "/migrate/", "/support/", "/community/", "/changelog/", "/legal/", "/404"],
+  "fonts": ["Young Serif (OFL)", "Work Sans (OFL)", "Ubuntu Mono (Ubuntu Font Licence)"],
+  "libraries": ["astro", "shiki (via astro:components Code)"]
+}

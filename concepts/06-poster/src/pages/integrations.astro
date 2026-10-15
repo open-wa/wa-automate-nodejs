@@ -1,0 +1,42 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import bubblesArt from "../assets/generated/bubbles.webp";
+import { integrations, snippets } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const extra: Record<string, { code: string; lang: string; label: string }> = {
+  "Cloudflare Session Proxy": { code: snippets.cfProxyConsumer, lang: "js", label: "Connect through your Worker" },
+  "Plugin SDK": { code: snippets.plugins, lang: "js", label: "wa.config.mjs" },
+};
+---
+
+<Base title="Integrations: webhooks, Chatwoot, Node-RED, S3, MCP | open-wa" description="Connect WhatsApp to your own service with webhooks, Chatwoot, Node-RED, S3 media storage, the Cloudflare Session Proxy, the built-in MCP server and the Plugin SDK.">
+  <PageHero title="Plugs into your stack" lede="Integrations load as plugins next to the Easy API, so WhatsApp events reach the tools you already run." art={bubblesArt} alt="Illustration: speech bubbles tumbling out of a laptop, printed in pink and blue ink." />
+  <section class="doc wrap">
+    <div class="integ-list">
+      {integrations.map((i) => (
+        <article class="card integ-card" id={i.name === "Plugin SDK" ? "plugin-sdk" : slug(i.name)}>
+          <h2>{i.name}</h2>
+          <p class="pkg">{i.package}</p>
+          <p>{i.what}</p>
+          {i.name === "MCP" && <p><a href={`${base}ai-agents/`}>Set up the MCP server</a></p>}
+          {extra[i.name] && <CodeBlock code={extra[i.name].code} lang={extra[i.name].lang} label={extra[i.name].label} />}
+        </article>
+      ))}
+    </div>
+    <h2>Loading plugins</h2>
+    <p>List packages or local paths under <code>plugins</code>, and give each its settings under <code>pluginConfig</code>:</p>
+    <CodeBlock code={snippets.plugins} lang="js" label="wa.config.mjs" />
+  </section>
+</Base>
+
+<style>
+  .integ-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-bottom: 48px; }
+  .integ-card { display: grid; align-content: start; gap: 6px; scroll-margin-top: calc(var(--header-h) + 16px); }
+  .integ-card h2 { font-size: clamp(2rem, 3.4vw, 2.6rem); margin: 0; }
+  .integ-card p { margin: 0; }
+  .integ-card :global(.code) { margin-top: 10px; box-shadow: none; }
+  @media (max-width: 860px) { .integ-list { grid-template-columns: minmax(0, 1fr); } }
+</style>

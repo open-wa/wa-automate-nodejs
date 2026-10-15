@@ -1,0 +1,96 @@
+---
+import Base from "../../layouts/Base.astro";
+import { support } from "../../data/site";
+---
+
+<Base title="Support and consulting: get it built or unstuck | open-wa" description="Free help in Discord and GitHub issues, or paid support and consulting from the maintainer to set up bookings, codes, calls or stickers for your business.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="eyebrow">Support</p>
+      <h1>Stuck, or want it built for you?</h1>
+      <p class="lede">Community help is free. For a deadline or a whole build, the maintainer, {support.maintainer}, takes paid support and consulting.</p>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap sup">
+      <div>
+        <h2>Free</h2>
+        <ul class="sup-list">
+          <li><a href={support.discord} rel="external">Discord</a>: questions and show-and-tell.</li>
+          <li><a href={support.issues} rel="external">GitHub issues</a>: bugs with steps to reproduce.</li>
+          <li><a href={support.docs} rel="external">Docs</a>: guides and every method.</li>
+        </ul>
+        <h2>Paid</h2>
+        <ul class="sup-list">
+          <li>Per-minute help on <a href={support.perMinuteConsulting} rel="external">Otechie</a>.</li>
+          <li>Consulting for a full build: use the form, or email <a href={`mailto:${support.consultingEmail}`}>{support.consultingEmail}</a>.</li>
+        </ul>
+      </div>
+      <div class="cf" id="consult">
+        <form class="cf-form" novalidate>
+          <h2>Tell us what you need</h2>
+          <div class="cf-field" data-field="name"><label for="cf-name">Your name</label><input id="cf-name" name="name" autocomplete="name" aria-describedby="cf-name-msg" /><p class="cf-msg" id="cf-name-msg" aria-live="polite"></p></div>
+          <div class="cf-field" data-field="email"><label for="cf-email">Email</label><input id="cf-email" name="email" type="email" autocomplete="email" inputmode="email" aria-describedby="cf-email-msg" /><p class="cf-msg" id="cf-email-msg" aria-live="polite"></p></div>
+          <div class="cf-field" data-field="need"><label for="cf-need">What should it do?</label><textarea id="cf-need" name="need" rows="4" placeholder="e.g. Booking reminders for 3 salons from our own number" aria-describedby="cf-need-msg"></textarea><p class="cf-msg" id="cf-need-msg" aria-live="polite"></p></div>
+          <button class="btn btn-yellow" type="submit">Send request</button>
+        </form>
+        <div class="cf-done" hidden tabindex="-1">
+          <h2>Thanks, <span class="cf-done-name"></span>.</h2>
+          <p>Your request is in. Next, a reply by email to <strong class="cf-done-email"></strong> with questions or a quote.</p>
+          <p class="cf-fine">Demo: this concept keeps the details in this tab only.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { submitLead } from "../../lib/leads";
+  const root = document.getElementById("consult")!;
+  const form = root.querySelector("form")!;
+  const done = root.querySelector<HTMLElement>(".cf-done")!;
+  const rules: Record<string, (v: string) => string | null> = {
+    name: (v) => (v.trim() ? null : "Add your name."),
+    email: (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? null : "Add an email we can reply to."),
+    need: (v) => (v.trim().length >= 8 ? null : "A sentence is enough."),
+  };
+  const tried = new Set<string>();
+  const check = (n: string, show: boolean) => {
+    const wrap = form.querySelector<HTMLElement>(`[data-field="${n}"]`)!;
+    const input = wrap.querySelector<HTMLInputElement | HTMLTextAreaElement>("input, textarea")!;
+    const err = rules[n](input.value);
+    if (show) { wrap.classList.toggle("is-bad", !!err); wrap.querySelector(".cf-msg")!.textContent = err ?? ""; input.setAttribute("aria-invalid", String(!!err)); }
+    return { err, input };
+  };
+  Object.keys(rules).forEach((n) => form.querySelector(`[name="${n}"]`)!.addEventListener("input", () => { const { err } = check(n, false); check(n, tried.has(n) || !err); }));
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    let first: HTMLElement | undefined;
+    for (const n of Object.keys(rules)) { tried.add(n); const { err, input } = check(n, true); if (err && !first) first = input; }
+    if (first) { first.focus(); return; }
+    const d = new FormData(form);
+    await submitLead("consulting", { name: String(d.get("name")), email: String(d.get("email")), need: String(d.get("need")) });
+    done.querySelector(".cf-done-name")!.textContent = String(d.get("name")).trim().split(" ")[0];
+    done.querySelector(".cf-done-email")!.textContent = String(d.get("email")).trim();
+    form.hidden = true; done.hidden = false; done.focus();
+  });
+</script>
+
+<style>
+  .sup { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
+  .sup h2 { font-size: 2rem; }
+  .sup-list { padding-left: 1.2em; margin-bottom: 32px; }
+  .sup-list li { margin-bottom: 8px; }
+  .cf { background: var(--paper); border: var(--line); border-radius: 22px; padding: 24px; box-shadow: var(--pop-lg); }
+  .cf-form { display: grid; gap: 16px; }
+  .cf-form .btn { justify-self: start; }
+  label { display: block; font-weight: 800; margin-bottom: 6px; }
+  input, textarea { width: 100%; min-height: 50px; padding: 12px 14px; border: var(--line); border-radius: 12px; font: 500 1rem/1.4 var(--font-text); }
+  input:focus, textarea:focus { outline: 3px solid var(--lilac); }
+  .cf-msg { margin: 6px 0 0; font-weight: 700; font-size: 0.9rem; color: #a3123f; }
+  .cf-msg:empty { display: none; }
+  .is-bad input, .is-bad textarea { border-color: #b0174f; background: #fff3f8; }
+  .cf-done:focus { outline: none; }
+  .cf-fine { font-size: 0.875rem; color: var(--ink-soft); }
+  @media (max-width: 860px) { .sup { grid-template-columns: 1fr; } }
+</style>

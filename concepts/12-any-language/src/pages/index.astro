@@ -1,0 +1,275 @@
+---
+import Site from "../layouts/Site.astro";
+import CopyCommand from "../components/CopyCommand.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import RequestBuilder from "../components/RequestBuilder.astro";
+import PbxFlow from "../components/PbxFlow.astro";
+import { f, href, S, stars, checked, insiders, restricted, priceNote, job } from "../data/facts";
+import { byJob } from "../data/pricing";
+import { recipeMeta } from "../data/recipes";
+
+const pbx = job("pbx-calls");
+const recipeCards = f.jobs.map((j) => ({ id: j.id, name: j.name, methods: j.methods.slice(0, 3), tag: recipeMeta[j.id].tag, paid: recipeMeta[j.id].paid }));
+const nf = (n: number) => n.toLocaleString("en-GB");
+---
+<Site
+  title="open-wa: send WhatsApp from PHP, Python, Node.js or your PBX"
+  description="Run one command and your own WhatsApp number becomes a local HTTP API. Send booking confirmations, one-time codes, PDFs and answer calls from any language."
+>
+  <section class="hero">
+    <div class="wrap hero-in">
+      <h1>Send WhatsApp from PHP, Python, Node.js or your PBX</h1>
+      <p class="hero-sub">One command turns your own WhatsApp number into a local HTTP API. Pick a job below and copy the request.</p>
+      <div class="hero-act">
+        <CopyCommand cmd={f.commands.easyApi} size="lg" />
+        <div class="btn-row">
+          <a class="btn btn-red" href={href("quickstart/")}>Quick start</a>
+          <a class="btn btn-ghost" href={S.docs}>Docs</a>
+        </div>
+        <p class="hero-fine">Needs Node.js {f.product.node.replace(">=", "")} or newer to run. Unofficial; <a href="#risk">read the ban-risk note</a>.</p>
+      </div>
+    </div>
+    <div class="wrap builder-wrap">
+      <RequestBuilder />
+    </div>
+  </section>
+
+  <section class="sec" id="how">
+    <div class="wrap">
+      <p class="kicker">How it works</p>
+      <h2 class="h2">Three steps from your terminal to a customer's phone</h2>
+      <ol class="steps">
+        <li>
+          <span class="step-n">1</span>
+          <h3>Run the command</h3>
+          <p>It starts the API on port 8080 on your machine or server. Docker works too.</p>
+          <CopyCommand cmd={f.commands.docker} />
+        </li>
+        <li>
+          <span class="step-n">2</span>
+          <h3>Scan the QR code</h3>
+          <p>Open WhatsApp on the business phone and scan the code the command prints, or log in with a link code. Interactive docs for your session open at <code>/api-docs/</code>.</p>
+          <p class="risk"><strong>Ban risk:</strong> {f.product.risk}</p>
+        </li>
+        <li>
+          <span class="step-n">3</span>
+          <h3>Call it from any language</h3>
+          <p>Anything that can make an HTTP request can send. This is the whole call:</p>
+          <CodeBlock code={f.http.sendTextCurl} lang="bash" title="curl: send a message" />
+        </li>
+      </ol>
+      <p class="how-fine">{f.http.chatId}</p>
+    </div>
+  </section>
+
+  <section class="sec" id="recipes">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="kicker">Recipes</p>
+          <h2 class="h2">The jobs people build on their own number</h2>
+        </div>
+        <a class="btn btn-ghost" href={href("recipes/")}>All recipes</a>
+      </div>
+      <ul class="recipes">
+        {recipeCards.map((r) => (
+          <li>
+            <a class="recipe" href={href(`recipes/${r.id}/`)}>
+              <span class="recipe-calls">{r.methods.map((m) => <code>{m}</code>)}</span>
+              <b>{r.name}</b>
+              <span class:list={["pill", r.paid ? "pill-red" : "pill-free"]}>{r.tag}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec sec-pbx" id="calls">
+    <div class="wrap">
+      <div class="pbx-head">
+        <div>
+          <p class="kicker">Calls and your PBX</p>
+          <h2 class="h2">Answer WhatsApp calls, then hand the audio to your PBX</h2>
+        </div>
+        <p class="lead">{pbx.flow} Calling is a licensed preview with a calling-enabled key, audio only.</p>
+      </div>
+      <PbxFlow />
+      <div class="pbx-grid">
+        <CodeBlock code={pbx.snippet} lang="js" title="Node.js: answer, greet, record or bridge" />
+        <dl class="specs">
+          <div><dt>Audio</dt><dd>16-bit little-endian PCM, 16 kHz, mono, both directions</dd></div>
+          <div><dt>Transport</dt><dd>Web streams in Node.js, or a <code>wss://</code> endpoint that speaks the OpenWA audio protocol</dd></div>
+          <div><dt>Your side</dt><dd>Most PBXs need a small adapter for their own socket format</dd></div>
+          <div><dt>Events</dt><dd><code>onIncomingCall</code>, <code>onCallState</code>, <code>getActiveCall</code>, <code>startCall</code></dd></div>
+          <div><dt>Licence</dt><dd>Licensed preview: a calling-enabled key. Camera calls are in development</dd></div>
+        </dl>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn-ghost" href={href("recipes/pbx-calls/")}>Read the PBX recipe</a>
+        <a class="btn btn-ghost" href={href("support/")}>Ask about a calling key</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec-paper" id="free">
+    <div class="wrap">
+      <p class="kicker">Free and licensed, by job</p>
+      <h2 class="h2">Replying to people who message you is free</h2>
+      <p class="lead">Keys are per WhatsApp number. A method marked none needs no key; you only pay for the jobs below that need one.</p>
+      <div class="jobtable" role="table" aria-label="Which jobs need a licence key">
+        <div class="jt-row jt-head" role="row"><span role="columnheader">Job</span><span role="columnheader">Methods</span><span role="columnheader">Key</span></div>
+        {byJob.map((r) => (
+          <div class="jt-row" role="row">
+            <span role="cell" class="jt-job">{r.job}</span>
+            <span role="cell" class="jt-m">{r.methods.map((m) => <code>{m}</code>)}</span>
+            <span role="cell"><span class:list={["pill", r.tier === "none" ? "" : "pill-red"]}>{r.label}</span></span>
+          </div>
+        ))}
+      </div>
+      <p class="fine">Insiders {insiders.prices.month} a month or {insiders.prices.year} a year. Restricted {restricted.prices.month} a month or {restricted.prices.year} a year, and includes Insiders. {priceNote}</p>
+      <a class="btn btn-red" href={href("pricing/")}>See pricing and get a key</a>
+    </div>
+  </section>
+
+  <section class="sec" id="risk">
+    <div class="wrap risk-grid">
+      <div>
+        <p class="kicker">Before you build</p>
+        <h2 class="h2">Unofficial, with a real ban risk</h2>
+        <p class="lead">open-wa drives WhatsApp Web in a browser it controls. It is not WhatsApp's Business Platform and is not approved by WhatsApp or Meta.</p>
+        <p class="risk"><strong>{f.product.risk}</strong> {f.product.unofficial}</p>
+        <p class="lead">If you need templates, approval and Meta's per-message pricing, the official Cloud API is the route. <a href={href("compare/")}>Compare the two</a>.</p>
+      </div>
+      <div class="signals">
+        <p class="sig-h">Maintained since 2019 by {S.maintainer}. Figures checked {checked}.</p>
+        <dl>
+          <div><dt>Latest version</dt><dd>{f.product.currentVersion}</dd></div>
+          <div><dt>Published versions</dt><dd>{f.stats.publishedVersions}</dd></div>
+          <div><dt>GitHub stars</dt><dd>{stars}</dd></div>
+          <div><dt>npm downloads, 12 months</dt><dd>{Math.floor(f.stats.npmDownloadsLast12Months / 1000)}k</dd></div>
+          <div><dt>Docker pulls</dt><dd>{(f.stats.dockerPulls / 1000).toFixed(1)}k</dd></div>
+          <div><dt>Discord members</dt><dd>{nf(f.stats.discordMembers)}</dd></div>
+        </dl>
+        <a class="release" href={href("changelog/")}>
+          <span class="mono">v{f.releases[0].version}, {f.releases[0].date}</span>
+          <b>{f.releases[0].headline}</b>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="integrations">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="kicker">Integrations</p>
+          <h2 class="h2">Plug it into the tools you already run</h2>
+        </div>
+        <a class="btn btn-ghost" href={href("integrations/")}>All integrations</a>
+      </div>
+      <ul class="ints">
+        {f.integrations.map((i) => <li><b>{i.name}</b><span>{i.what}</span></li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec closing">
+    <div class="wrap closing-in">
+      <h2 class="h2">Your number, one request away</h2>
+      <CopyCommand cmd={f.commands.easyApi} size="lg" />
+      <div class="btn-row">
+        <a class="btn btn-red" href={href("quickstart/")}>Quick start</a>
+        <a class="btn btn-ghost" href={S.discord}>Ask on Discord</a>
+        <a class="btn btn-ghost" href={S.github}>Star on GitHub, {stars}</a>
+      </div>
+    </div>
+  </section>
+</Site>
+
+<style>
+  .hero { padding: 48px 0 72px; background: radial-gradient(70% 60% at 85% 0%, #1a2550 0%, transparent 70%); }
+  .hero-in { display: grid; grid-template-columns: 1fr 1.05fr; grid-template-areas: "h h" "sub act"; column-gap: 48px; row-gap: 28px; align-items: start; }
+  .hero h1 { grid-area: h; font-size: clamp(34px, 5.2vw, 68px); font-weight: 700; letter-spacing: -0.035em; max-width: 19ch; }
+  .hero-sub { grid-area: sub; font-size: 21px; color: var(--muted); margin: 4px 0 0; max-width: 40ch; }
+  .hero-act { grid-area: act; }
+  .hero-act { display: grid; gap: 14px; }
+  .hero-fine { margin: 0; font-size: 15.5px; color: var(--muted); }
+  .builder-wrap { margin-top: 40px; }
+
+  .steps { list-style: none; padding: 0; margin: 40px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .steps li { display: grid; gap: 12px; align-content: start; border-top: 2px solid var(--red); padding-top: 18px; min-width: 0; }
+  .steps h3 { font-size: 22px; }
+  .steps p { margin: 0; color: #d9dbe5; }
+  .step-n { font: 600 14px var(--font-mono); color: var(--red); }
+  .how-fine { color: var(--muted); font-size: 16px; margin: 24px 0 0; }
+
+  .sec-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; }
+  .recipes { list-style: none; padding: 0; margin: 36px 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .recipe { display: grid; gap: 10px; align-content: start; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--navy-2); color: var(--paper); text-decoration: none; height: 100%; transition: border-color var(--speed), transform var(--speed) var(--ease); }
+  .recipe:hover { border-color: var(--red); transform: translateY(-2px); }
+  .recipe b { font: 700 19px var(--font-display); letter-spacing: -0.02em; }
+  .recipe-calls { display: flex; flex-wrap: wrap; gap: 6px; }
+  .recipe-calls code { font-size: 13px; color: var(--sky); background: #0a1024; padding: 2px 7px; border-radius: 6px; }
+  .recipe .pill { justify-self: start; }
+
+  .sec-pbx { background: linear-gradient(180deg, #0d1430, var(--navy)); }
+  .pbx-head { display: grid; grid-template-columns: 1.1fr 1fr; gap: 32px; align-items: end; margin-bottom: 48px; }
+  .pbx-head .h2 { max-width: 20ch; }
+  .pbx-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; margin: 40px 0 28px; }
+  .specs { margin: 0; display: grid; align-content: start; }
+  .specs div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .specs dt { font: 600 14px var(--font-mono); color: var(--red); padding-top: 2px; }
+  .specs dd { margin: 0; color: #d9dbe5; }
+
+  .jobtable { margin: 36px 0 20px; border: 1px solid #d8d1c1; border-radius: 14px; overflow: hidden; background: #fff; }
+  .jt-row { display: grid; grid-template-columns: 1.3fr 1.2fr 1fr; gap: 16px; padding: 14px 18px; border-bottom: 1px solid #e7e1d4; align-items: center; }
+  .jt-row:last-child { border-bottom: 0; }
+  .jt-head { background: var(--paper-2); font: 600 13px var(--font-mono); text-transform: uppercase; letter-spacing: .07em; color: var(--muted-paper); }
+  .jt-job { font-weight: 700; }
+  .jt-m { display: flex; flex-wrap: wrap; gap: 6px; }
+  .jt-m code { font-size: 13.5px; background: var(--paper); padding: 1px 6px; border-radius: 5px; }
+  .fine { font-size: 16px; color: var(--muted-paper); margin: 0 0 24px; max-width: 80ch; }
+
+  .risk-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px; }
+  .risk-grid .risk { margin: 24px 0 0; }
+  .signals { border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 22px; background: var(--navy-2); align-self: start; }
+  .sig-h { margin: 0 0 12px; color: var(--muted); font-size: 16px; }
+  .signals dl { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .signals dl div { background: var(--navy-2); padding: 14px; }
+  .signals dt { font-size: 14.5px; color: var(--muted); }
+  .signals dd { margin: 4px 0 0; font: 700 24px var(--font-display); }
+  .release { display: grid; gap: 4px; margin-top: 14px; padding: 14px; border-radius: 10px; border: 1px solid var(--line); text-decoration: none; color: var(--paper); }
+  .release:hover { border-color: var(--red); }
+  .release .mono { font-size: 14px; color: var(--red); }
+
+  .ints { list-style: none; padding: 0; margin: 32px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .ints li { border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 4px; align-content: start; }
+  .ints b { font: 700 17px var(--font-display); }
+  .ints span { color: var(--muted); font-size: 16px; }
+
+  .closing { background: var(--red); color: var(--navy); }
+  .closing-in { display: grid; gap: 22px; justify-items: start; }
+  .closing .h2 { max-width: none; }
+  .closing .btn-red { background: var(--navy); color: var(--paper); }
+  .closing .btn-ghost { color: var(--navy); border-color: var(--navy); }
+  .closing :global(.cmd) { width: min(100%, 640px); }
+
+  @media (max-width: 960px) {
+    .hero-in { grid-template-columns: 1fr; grid-template-areas: "h" "sub" "act"; row-gap: 18px; }
+    .pbx-head, .pbx-grid, .risk-grid { grid-template-columns: 1fr; }
+    .steps, .recipes { grid-template-columns: 1fr; }
+    .jt-row { grid-template-columns: 1fr; gap: 6px; }
+    .jt-head { display: none; }
+  }
+  @media (max-width: 760px) {
+    .hero { padding: 22px 0 48px; }
+    .hero-in { gap: 16px; }
+    .hero h1 { font-size: 32px; }
+    .hero-sub { font-size: 17px; margin-top: 10px; }
+    .hero-fine { display: none; }
+    .hero-act .btn-row .btn { flex: 1; }
+    .builder-wrap { margin-top: 22px; padding: 0 12px; }
+    .sec { padding: 64px 0; }
+  }
+</style>

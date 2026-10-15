@@ -1,0 +1,105 @@
+---
+import Base from "../layouts/Base.astro";
+import LicenceForm from "../components/LicenceForm.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { licences, product, commands, support } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const periods = [
+  ["month", "1 month"], ["threeMonths", "3 months"], ["sixMonths", "6 months"], ["year", "12 months"],
+] as const;
+const faq = [
+  ["Is a key per WhatsApp number or per app?", "Per WhatsApp number. One key covers one account, however many apps talk to it. Two numbers need two keys."],
+  ["Which tier unlocks createGroup?", "Restricted. It also covers joinGroupViaLink, joinGroup and starting conversations with numbers that aren't already contacts."],
+  ["Do I need a key to try open-wa?", "No. Every method marked none works without a key, including reading chats, sending to existing contacts, media, polls, events, webhooks and MCP for those methods."],
+  ["How do I use the key?", "Pass it at launch with --license-key, or as licenseKey in your config. On 5.5 you can also apply it from the dashboard or with client.refresh() without restarting the Node process."],
+  ["Does a licence reduce ban risk?", "No. A key enables methods; it changes nothing about how WhatsApp treats automated accounts. The risk note applies to every tier."],
+  ["What does the checkout show?", "Gumroad shows the current price and terms before you pay. Prices here were checked on 12 Oct 2026 and can change."],
+];
+---
+
+<Base title="Pricing: free for most methods, licences per number | open-wa" description="open-wa is free for most methods. Insiders and Restricted licence keys enable named methods on one WhatsApp number, from £5 a month. Prices checked 12 Oct 2026.">
+  <section class="page-hero">
+    <div class="wrap">
+      <h1>Most methods are free</h1>
+      <p class="lede">Most methods need no key. When your workflow needs one of the methods below, buy a licence key for the WhatsApp number that will run it.</p>
+    </div>
+  </section>
+
+  <section class="doc wrap">
+    <div class="tiers">
+      <article class="tier tier-free">
+        <h2>{licences.free.name}</h2>
+        <p class="tier-price">£0</p>
+        <p>{licences.free.covers}</p>
+        <a class="btn" href={`${base}quickstart/`}>Start free</a>
+      </article>
+      {licences.tiers.map((t) => (
+        <article class={`tier tier-${t.id}`}>
+          <h2>{t.name}</h2>
+          <p class="tier-price">{t.prices.month}<span> a month</span></p>
+          <p class="tier-periods">{periods.map(([k, label]) => <span>{label}: <strong>{t.prices[k]}</strong></span>)}</p>
+          <p>{t.unlocks}</p>
+          <a class="btn btn-ink" href="#licence" data-pick={t.id}>Choose {t.name}</a>
+        </article>
+      ))}
+    </div>
+    <p class="dated">Prices in GBP, per WhatsApp number, checked {licences.pricesCheckedOn}</p>
+
+    <div class="note">
+      <strong>Before you buy</strong>
+      <ul>{licences.beforeYouBuy.map((b) => <li>{b}</li>)}</ul>
+      <p>{product.risk} A licence doesn't change that.</p>
+    </div>
+
+    <div class="buy-grid" id="licence">
+      <div>
+        <h2>Configure your licence</h2>
+        <p>Four fields, no account. The details prefill the Gumroad checkout, so the key is issued for the right number.</p>
+        <p>Then launch with the key:</p>
+        <CodeBlock code={`${commands.easyApi} ${commands.licenceFlag}`} lang="bash" label="Terminal" />
+        <p>Need help choosing? <a href={support.licensingDocs}>Licensing docs</a>, <a href={support.discord}>ask on Discord</a> or <a href={`${base}support/`}>talk to us</a>.</p>
+      </div>
+      <LicenceForm />
+    </div>
+
+    <h2>Questions</h2>
+    <div class="faq">
+      {faq.map(([q, a]) => (
+        <details>
+          <summary>{q}</summary>
+          <p>{a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-bottom: 12px; }
+  .tier { display: grid; align-content: start; gap: 10px; border: 2.5px solid var(--ink); border-radius: var(--radius); padding: 22px; background: var(--paper); }
+  .tier h2 { font-size: 2.6rem; margin: 0; }
+  .tier p { margin: 0; }
+  .tier .btn { justify-self: start; margin-top: 8px; }
+  .tier-price { font-family: var(--font-display); font-weight: 900; font-size: 4rem; line-height: 0.9; color: var(--ink); }
+  .tier-price span { font-size: 1.4rem; font-weight: 800; text-transform: uppercase; }
+  .tier-periods { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.95rem; color: var(--ink-soft); }
+  .tier-restricted { box-shadow: 8px 8px 0 var(--pink); }
+  .tier-insiders { box-shadow: 8px 8px 0 var(--blue); }
+  .dated { margin: 16px 0 32px; }
+  .buy-grid { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: start; margin: 56px 0; scroll-margin-top: calc(var(--header-h) + 16px); }
+  .buy-grid h2 { margin-top: 0; }
+  .faq { display: grid; gap: 10px; max-width: 860px; }
+  .faq details { border: 2.5px solid var(--ink); border-radius: var(--radius); background: var(--paper); }
+  .faq summary { cursor: pointer; padding: 14px 18px; min-height: 48px; font-weight: 700; font-size: 1.08rem; }
+  .faq details p { padding: 0 18px 16px; margin: 0; }
+  @media (max-width: 960px) { .tiers, .buy-grid { grid-template-columns: minmax(0, 1fr); } }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLAnchorElement>("[data-pick]").forEach((a) => {
+    a.addEventListener("click", () => {
+      const input = document.querySelector<HTMLInputElement>(`input[name="tier"][value="${a.dataset.pick}"]`);
+      if (input) input.checked = true;
+    });
+  });
+</script>

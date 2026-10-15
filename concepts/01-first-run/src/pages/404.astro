@@ -1,0 +1,18 @@
+---
+import Page from "../layouts/Page.astro";
+import Cmd from "../components/Cmd.astro";
+import { commands, href } from "../data/site";
+---
+<Page title="Page not found | open-wa" description="This page doesn't exist. Start a session or head to the quick start.">
+  <div class="wrap nf">
+    <p class="kicker">$ cd {"<this page>"}</p>
+    <h1>No such page.</h1>
+    <p class="muted">The link may be old. These will get you going:</p>
+    <Cmd cmd={commands.easyApi} />
+    <p class="nf-links"><a class="btn btn-amber" href={href("quickstart/")}>Quick start <span class="arrow" aria-hidden="true">→</span></a> <a class="btn" href={href("")}>Home</a></p>
+  </div>
+</Page>
+<style>
+  .nf { padding-block: 96px 120px; display: grid; gap: 18px; max-width: 760px; }
+  .nf-links { display: flex; gap: 10px; flex-wrap: wrap; }
+</style>

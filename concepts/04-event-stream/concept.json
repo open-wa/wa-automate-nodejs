@@ -1,0 +1,12 @@
+{
+  "slug": "04-event-stream",
+  "name": "Event stream",
+  "tagline": "Tail your WhatsApp number from Node.js: a live event log is the hero, and each event opens into its handler, payload and plugin route.",
+  "archetype": "developer",
+  "audience": "Node.js developers who want WhatsApp in their app (indie, agency, in-house, AI-agent builders)",
+  "flow": "Copy the run command from the board's header bar, then Quick start; open an event to see the handler and route it",
+  "benchmark": "Trigger.dev",
+  "floor": ["/", "/quickstart/", "/features/", "/integrations/", "/ai-agents/", "/use-cases/", "/pricing/", "/compare/", "/migrate/", "/support/", "/community/", "/changelog/", "/legal/", "/404"],
+  "fonts": ["Chakra Petch (OFL)", "Red Hat Text (OFL)", "Red Hat Mono (OFL)"],
+  "libraries": ["astro", "Shiki via astro:components Code (build time)"]
+}

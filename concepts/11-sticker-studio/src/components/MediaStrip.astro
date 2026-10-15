@@ -1,0 +1,90 @@
+---
+import { base } from "../data/site";
+const items = [
+  { id: "voice", title: "Voice note", method: "sendPtt", code: "await client.sendPtt(chatId, './welcome.ogg');" },
+  { id: "pdf", title: "PDF invoice", method: "sendFile", code: "await client.sendFile(chatId, './invoice-1042.pdf', 'invoice-1042.pdf', { caption: 'Invoice 1042' });" },
+  { id: "once", title: "View-once photo", method: "sendImage", code: "await client.sendImage(chatId, './cake.jpg', 'cake.jpg', { viewOnce: true });" },
+  { id: "note", title: "Circular video note", method: "sendFile", code: "await client.sendFile(chatId, './hello.mp4', 'hello.mp4', { type: 'video', videoNote: true });" },
+];
+const bars = [6, 12, 18, 9, 22, 28, 16, 10, 24, 30, 20, 12, 8, 18, 26, 14, 9, 20, 12, 6, 15, 22, 10, 7];
+---
+
+<ul class="media-strip">
+  {items.map((it, i) => (
+    <li class={`media-card mc-${it.id}`} style={`--tilt:${[-1.5, 1, -0.5, 1.5][i]}deg`}>
+      <div class="media-visual" role="img" aria-label={`Drawn example of a ${it.title.toLowerCase()} in a chat`}>
+        {it.id === "voice" && (
+          <div class="bub bub-out media-voice">
+            <span class="media-play" aria-hidden="true"></span>
+            <svg viewBox="0 0 150 32" class="media-wave" aria-hidden="true">
+              {bars.map((h, j) => <rect x={j * 6.2} y={16 - h / 2} width="3.4" height={h} rx="1.7" class={j < 9 ? "is-played" : ""} />)}
+            </svg>
+            <time>0:07</time>
+          </div>
+        )}
+        {it.id === "pdf" && (
+          <div class="bub bub-out media-pdf">
+            <span class="media-pdf-page" aria-hidden="true"><b>PDF</b><i></i><i></i><i></i></span>
+            <span><strong>invoice-1042.pdf</strong><small>1 page · PDF</small></span>
+            <em>Invoice 1042</em>
+          </div>
+        )}
+        {it.id === "once" && (
+          <div class="bub bub-out media-once">
+            <img src={`${base}samples/cake.webp`} alt="" width="512" height="512" loading="lazy" decoding="async" />
+            <span class="media-once-badge" aria-hidden="true">1</span>
+            <small>View once</small>
+          </div>
+        )}
+        {it.id === "note" && (
+          <div class="media-note">
+            <img src={`${base}samples/coffee.webp`} alt="" width="512" height="512" loading="lazy" decoding="async" />
+            <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="47" /></svg>
+            <time>0:12</time>
+          </div>
+        )}
+      </div>
+      <h3>{it.title}</h3>
+      <p class="media-method"><code>{it.method}</code> <span class="badge badge-free">No key</span></p>
+      <div class="media-code">
+        <code>{it.code}</code>
+        <button type="button" class="copy-btn" data-copy={it.code} aria-label={`Copy the ${it.title.toLowerCase()} call`}><span class="copy-idle">Copy</span><span class="copy-done">Copied</span></button>
+      </div>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .media-strip { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+  .media-card { background: var(--paper); border: var(--line); border-radius: 20px; padding: 16px; box-shadow: var(--pop); display: flex; flex-direction: column; transform: rotate(var(--tilt)); transition: transform 260ms var(--ease-spring); min-width: 0; }
+  .media-card:hover { transform: rotate(0) translateY(-4px); }
+  .media-visual { min-height: 170px; display: grid; place-items: center; padding: 12px; margin-bottom: 14px; border-radius: 14px; background: var(--lilac-wash); background-image: radial-gradient(#d8cdfc 1.1px, transparent 1.2px); background-size: 12px 12px; border: 2px solid var(--ink); }
+  .media-card h3 { margin-bottom: 4px; }
+  .media-method { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .media-code { margin-top: auto; display: grid; gap: 8px; background: var(--ink); color: #f4f0ff; border-radius: 12px; padding: 12px; }
+  .media-code code { font-size: 0.8rem; line-height: 1.5; overflow-wrap: anywhere; background: none; padding: 0; color: inherit; }
+  .media-code .copy-btn { justify-self: start; min-height: 36px; border-width: 2px; font-size: 0.85rem; }
+  .media-voice { display: flex; align-items: center; gap: 8px; max-width: 100%; }
+  .media-play { width: 0; height: 0; border-left: 12px solid var(--ink); border-block: 8px solid transparent; flex: none; }
+  .media-wave { width: 130px; height: 32px; }
+  .media-wave rect { fill: #9b8bd6; } .media-wave rect.is-played { fill: var(--ink); }
+  .media-voice time { margin: 0; font-size: 0.75rem; }
+  .media-pdf { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: center; }
+  .media-pdf strong { display: block; font-size: 0.85rem; overflow-wrap: anywhere; }
+  .media-pdf small { display: block; font-size: 0.75rem; color: var(--ink-soft); }
+  .media-pdf em { grid-column: 1 / -1; font-style: normal; font-size: 0.85rem; }
+  .media-pdf-page { width: 40px; height: 50px; border: 2px solid var(--ink); border-radius: 4px 12px 4px 4px; background: var(--paper); display: grid; align-content: start; gap: 3px; padding: 5px; }
+  .media-pdf-page b { font-size: 0.6rem; color: #b0174f; }
+  .media-pdf-page i { height: 3px; background: #c9b8ff; border-radius: 2px; }
+  .media-once { position: relative; padding: 6px; display: grid; justify-items: center; gap: 4px; }
+  .media-once img { width: 120px; border-radius: 10px; filter: blur(9px) saturate(1.2); clip-path: inset(0 round 10px); }
+  .media-once-badge { position: absolute; top: 44px; left: 50%; translate: -50% 0; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; border: 2.5px dashed var(--ink); background: var(--paper); font: 400 1.1rem/1 var(--font-display); }
+  .media-once small { font-weight: 700; font-size: 0.8rem; }
+  .media-note { position: relative; width: 140px; aspect-ratio: 1; }
+  .media-note img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 2.5px solid var(--ink); }
+  .media-note svg { position: absolute; inset: -8px; width: calc(100% + 16px); height: calc(100% + 16px); rotate: -90deg; }
+  .media-note circle { fill: none; stroke: var(--yellow); stroke-width: 4; stroke-dasharray: 295; stroke-dashoffset: 120; stroke-linecap: round; }
+  .media-note time { position: absolute; bottom: 4px; left: 50%; translate: -50% 0; background: var(--ink); color: var(--paper); font-size: 0.75rem; padding: 2px 8px; border-radius: 999px; }
+  @media (max-width: 1060px) { .media-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .media-strip { grid-template-columns: 1fr; } .media-card { transform: none; } }
+</style>

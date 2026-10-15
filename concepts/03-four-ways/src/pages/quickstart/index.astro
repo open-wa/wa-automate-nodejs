@@ -1,0 +1,102 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import Command from "../../components/Command.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { commands, snippets, firstRun, paths, product, links, href } from "../../data/site";
+const p = Object.fromEntries(paths.map((x) => [x.id, x]));
+---
+<Base title="Quick start: a WhatsApp session from Node.js in three steps | open-wa" description="Run one npx command, link your phone with a QR code or link code, and open the live API docs. Then pick Easy API, SocketClient, embedded runtime or MCP.">
+  <div class="wrap">
+    <PageHead title="Quick start" lede="Three steps to a running session on your own WhatsApp number. You need Node.js 22.21.1 or later and the phone with the account on it." />
+
+    <aside class="risk-note" aria-label="Risk">
+      <p><strong>Before you link a number:</strong> {product.risk} open-wa is unofficial and not affiliated with WhatsApp or Meta. <a class="link" href={href("legal/#risk")}>Read the notices</a>.</p>
+    </aside>
+
+    <ol class="qs-steps">
+      <li>
+        <h2>Run the command</h2>
+        <p>{firstRun[0]}</p>
+        <Command cmd={commands.easyApi} id="qs-1" />
+        <p class="small muted">Or with Docker: <code>{commands.docker}</code></p>
+      </li>
+      <li>
+        <h2>Link your phone</h2>
+        <p>{firstRun[1]}</p>
+      </li>
+      <li>
+        <h2>Open the live API docs</h2>
+        <p>{firstRun[2]}</p>
+        <Command cmd={commands.proofOfLife} id="qs-3" tone="paper" />
+        <p class="small muted">Schemas: <code>{commands.swagger}</code> and <code>{commands.postman}</code></p>
+      </li>
+    </ol>
+  </div>
+
+  <section class="section" aria-labelledby="paths-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="paths-title">Then pick how your code talks to it</h2>
+        <p class="lede">Each way below is a complete start with the real code.</p>
+      </div>
+
+      <article class="way" id="easy-api">
+        <div class="way-text">
+          <h3>{p["easy-api"].name}</h3>
+          <p>{p["easy-api"].what}</p>
+          <p class="muted">Protect it with an API key before you expose the port anywhere. Run more than one account with a named session on its own port.</p>
+        </div>
+        <CodeBlock lang="sh" title="Terminal" code={`${commands.easyApiWithKey}\n\n# A second account on another port\n${commands.namedSession}`} />
+      </article>
+
+      <article class="way" id="socket-client">
+        <div class="way-text">
+          <h3>{p["socket-client"].name}</h3>
+          <p>{p["socket-client"].what}</p>
+          <Command cmd={commands.socketClientInstall} id="qs-sc" tone="paper" />
+        </div>
+        <CodeBlock lang="js" title="bot.mjs" code={snippets.socketClient} />
+      </article>
+
+      <article class="way" id="embedded">
+        <div class="way-text">
+          <h3>{p["embedded"].name}</h3>
+          <p>{p["embedded"].what}</p>
+          <Command cmd={commands.embeddedInstall} id="qs-em" tone="paper" />
+        </div>
+        <CodeBlock lang="js" title="app.mjs" code={snippets.embedded} />
+      </article>
+
+      <article class="way" id="mcp">
+        <div class="way-text">
+          <h3>{p["mcp"].name}</h3>
+          <p>{p["mcp"].what}</p>
+          <Command cmd={snippets.mcpStart} id="qs-mcp" tone="paper" />
+          <a class="link" href={href("ai-agents/")}>Claude Desktop config and tool rules <span aria-hidden="true">→</span></a>
+        </div>
+        <CodeBlock lang="js" title="wa.config.mjs" code={snippets.mcpConfig} />
+      </article>
+
+      <p class="docs-link">The full guide, with every option, is in the docs: <a class="link" href={links.quickstartDocs}>Quick start in the docs</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .risk-note { border-left: 3px solid var(--color-coral); padding: 6px 0 6px 18px; max-width: 760px; margin-bottom: 32px; }
+  .qs-steps { list-style: none; margin: 0 0 clamp(48px, 6vw, 80px); padding: 0; counter-reset: q; border-top: 1px solid var(--color-ink); }
+  .qs-steps li { counter-increment: q; display: grid; grid-template-columns: 80px minmax(0, 1fr); column-gap: 24px; row-gap: 12px; padding: 28px 0; border-bottom: 1px solid var(--color-rule); }
+  .qs-steps li::before { content: counter(q); grid-row: 1 / span 5; font: 400 56px/0.9 var(--font-display); color: var(--color-coral-ink); font-variation-settings: "opsz" 72; }
+  .qs-steps h2 { font-size: 28px; }
+  .qs-steps li > :global(*) { grid-column: 2; max-width: 720px; }
+  .way { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(24px, 4vw, 56px); padding: 36px 0; border-top: 1px solid var(--color-rule); scroll-margin-top: 80px; align-items: start; }
+  .way-text { display: grid; gap: 14px; }
+  .way h3 { font-size: 32px; }
+  .docs-link { padding-top: 28px; border-top: 1px solid var(--color-rule); }
+  @media (max-width: 900px) {
+    .way { grid-template-columns: minmax(0, 1fr); }
+    .qs-steps li { grid-template-columns: 44px minmax(0, 1fr); column-gap: 12px; }
+    .qs-steps li::before { font-size: 40px; }
+  }
+</style>

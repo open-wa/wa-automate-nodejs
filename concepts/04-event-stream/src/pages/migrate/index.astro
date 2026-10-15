@@ -1,0 +1,30 @@
+---
+import Page from "../../layouts/Page.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { migration, support, paths, commands } from "../../data/site";
+---
+
+<Page title="Migrate from v4 to v5 | open-wa" description="Version 5 is the current release line. Pin v4 while you migrate, then move to Easy API, SocketClient, the embedded runtime or MCP.">
+  <div class="wrap prose">
+    <header class="page-hero">
+      <span class="label">Migrate from v4</span>
+      <h1>Keep your v4 bot running while you move to v5</h1>
+      <p>{migration.summary}</p>
+    </header>
+    <h2>1. Pin v4 now</h2>
+    <p>An unpinned install pulls v5. Pin your running bot first.</p>
+    <CodeBlock code={migration.v4Pin} lang="bash" file="terminal" />
+    <h2>2. What changed at a glance</h2>
+    <ul>
+      <li>The work is split into four paths: {paths.map((p) => p.name).join(", ")}.</li>
+      <li>Drivers are separate packages: Puppeteer, Playwright and an experimental Lightpanda driver.</li>
+      <li>A bot can run as a remote consumer with <code>@open-wa/socket-client</code> while Easy API owns the session.</li>
+      <li>Sessions are compact encrypted files you can move between containers with your own key (5.4).</li>
+      <li>Licences can be applied to a running session without a restart (5.5).</li>
+    </ul>
+    <h2>3. Try v5 next to it</h2>
+    <p>Start a named v5 session on another port and point a test copy of your bot at it.</p>
+    <CodeBlock code={commands.namedSession} lang="bash" file="terminal" />
+    <p><a class="btn btn-cyan" href={support.migrationDocs}>Full migration guide</a></p>
+  </div>
+</Page>

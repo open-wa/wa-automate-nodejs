@@ -30,12 +30,11 @@ The example writes `./sessions/sales.data.json` and `_sessionData/sales.data.jso
 | `sessionId: 'sales'` | `sales.data.json`. The ID must be a portable filename component. |
 | `sessionDataPath: './sessions'` | Store the file in that directory. Absolute paths and `~/` are supported. |
 | `sessionDataPath: './sessions/custom.data.json'` | Use that exact filename locally. The S3 object remains `sales.data.json`. |
-| Existing file beside the entry script | If the working-directory candidate is absent, use the entry-script-relative candidate for both reads and writes. |
 | `sessionData` | Seed an empty store with the encrypted pair as an object, JSON string, or base64 JSON. Legacy WhatsApp token objects are not converted. |
 | `SALES_DATA_JSON` | Session-specific environment seed, with the same formats; takes precedence over `sessionData`. |
 | `sessionData: 'NUKE'` | Explicitly invalidate the selected stores and start fresh. Remove this setting after resetting. A session-specific environment seed takes precedence. |
 | `sessionDataBucketAuth` | Accept the v4 base64-encoded PicoS3 configuration. Explicit `s3Sync` fields override matching fields. |
-| `skipSessionSave: true` | Use S3 without a local payload/lock. Requires S3 configuration. |
+| `skipSessionSave: true` | Use S3 without a local payload. Requires S3 configuration. |
 
 For v4 compatibility, any configured path containing `.data.json` is treated as a filename, including names with a suffix after that extension.
 
@@ -54,26 +53,28 @@ const client = await create({
 
 `OPENWA_SESSION_DATA_ENCRYPTION_KEY` is also read automatically by `create()`, `createClient()` and the CLI. For mounted Docker secrets, use `sessionDataEncryptionKeyFile` or `OPENWA_SESSION_DATA_ENCRYPTION_KEY_FILE` instead; the file contains the base64 key, with an optional trailing newline. The normal `WA_` environment names also work, with `OPENWA_` taking precedence. Supply the key or its file, never both. Direct SDK options override the environment; the CLI follows normal configuration precedence. Secret files are limited to 4 KiB and read at launch.
 
-There is one key and one payload format, with no previous-key list, key IDs, migration or fallback decryption. Changing the key requires resetting the saved session and scanning a new QR code. Use `sessionData: 'NUKE'` for that reset, then remove it after pairing so subsequent launches reuse the session. A missing/wrong key fails restoration without automatically deleting the file.
+There is one key and one payload format, with no previous-key list, key IDs, migration or fallback decryption. Changing the key requires resetting the saved session and scanning a new QR code. Use `sessionData: 'NUKE'` for that reset, then remove it after pairing so subsequent launches reuse the session. An unusable encrypted checkpoint returns to fresh QR pairing and is replaced after pairing.
 
 The file remains `{ auth, data }`. Session decoding, encryption and restoration happen inside the private pre-init patch. Debug responses redact key settings; verbose environment loading prints variable names only.
 
-## S3 ownership and recovery
+## Shared storage and recovery
 
-The provider extends `@open-wa/session-sync` and uses its existing `pico-s3` transport. It supports PicoS3 provider names, custom endpoints, a configurable directory prefix, temporary credentials, and storage encryption headers. It does not set a public ACL. The endpoint must provide strongly consistent reads and enforce conditional PUT with `If-Match` and `If-None-Match`; unsupported conditions are errors, never retried as unconditional writes.
+The provider extends `@open-wa/session-sync` and uses its existing `pico-s3` transport. It supports PicoS3 provider names, custom endpoints, a configurable directory prefix, temporary credentials, and storage encryption headers. It does not set a public ACL.
 
-A companion `sales.data.json.lock` object holds ownership. Its body changes on acquire/release, and conditional writes prevent two cooperating clients from acquiring the same session. It has no expiry and is never stolen automatically. Clean shutdown releases it only after browser closure. A crash or ambiguous network write can leave it locked; an operator must establish that the old process/browser and any in-flight requests have stopped before removing that lock. Do not apply bucket lifecycle expiration to lock objects or edit session objects while a client owns them.
+Local and S3 storage allow multiple processes to open the same session. They do not create or acquire companion lock files or objects. Each save replaces the complete checkpoint, and the last completed write wins. Storage does not coordinate WhatsApp activity between those processes.
 
-An existing remote checkpoint is authoritative, including over local files and supplied seeds. Only a missing remote object permits importing a local file or seed. Permission errors, transport failures, and corrupt payloads stop startup instead of falling back to older credentials. Writes replace the complete object using its current ETag, then refresh the local copy. No archive is created.
+An existing remote checkpoint is authoritative, including over local files and supplied seeds. Only a missing remote object permits importing a local file or seed. Corrupt payloads return to fresh QR pairing. Storage failures are reported separately from WhatsApp connection state. S3 writes replace the complete object unconditionally, then refresh the local copy. No archive is created.
 
-Logout writes credential-free invalidation markers so older local files or configured seeds cannot silently restore the session. The markers are not usable session payloads. Valid checkpoints always retain exactly the two encrypted `auth` and `data` values. Local storage uses an atomic mode-0600 replacement and an exclusive lock; local locks also require deliberate recovery after a crash.
+Logout writes credential-free invalidation markers so older local files or configured seeds cannot silently restore the session. The markers are not usable session payloads. Valid checkpoints always retain exactly the two encrypted `auth` and `data` values. Local storage uses an atomic mode-0600 replacement, with writes serialized within each storage handle.
 
-## Incoming messages and compatibility
+## Login and incoming messages
 
-Pending incoming messages remain in the encrypted `data` value until every registered `onMessage` handler completes and the acknowledgement is saved. Register a handler after `create()` resolves; no handler means no acknowledgement. Processing is at least once, so deduplicate application side effects by message ID. A rejected handler pauses replay; call `client.replayPortableMessages()` to retry. `client.getPortableSessionStatus()` exposes counts and pause state. Processed message history is ephemeral.
+WhatsApp's visible screen drives authentication: a QR code means pairing, the chat list means connected, and loading means wait. An invalid saved checkpoint is discarded so a new QR can be scanned. A logout keeps the client and its message listeners alive while the session returns to pairing.
 
-The private adapter rejects unsupported WhatsApp builds or storage layouts. Update OpenWA when the adapter needs an update; rescan for an incompatible saved session. Rescanning alone cannot add support for an unsupported WhatsApp build.
+`onMessage` receives ordinary WAPI runtime events. OpenWA does not intercept native database writes or delivery receipts, wait for application callbacks before acknowledging WhatsApp messages, or require an unread-message audit before startup. Handler errors are reported through the event system.
+
+Encrypted session snapshots are saved in the background. A failed save does not block WhatsApp or stop message delivery. Native unread messages can be included in a snapshot; this is not a durable application delivery queue or an at-least-once callback guarantee.
 
 Session files are bound to their session ID; keep that ID when moving a file between hosts. Key handling runs inside the obfuscated patch, with no supported decryption API. Obfuscation cannot prevent an operator who controls the runtime from inspecting or invoking it. Customer keys protect files when the key remains separate; the shared baked default is an obfuscation boundary. Protect session files as credentials.
 
-The integrated browser and S3 paths have not received a live runtime acceptance run. Receipt coverage, concurrent native state changes, and abrupt crashes during outbound sends remain acceptance boundaries; successful graceful saves do not establish crash safety for every native operation. S3 durability also depends on the endpoint enforcing its conditional-request semantics.
+The integrated browser and S3 paths have not received a live runtime acceptance run. Receipt coverage, concurrent native state changes, and abrupt crashes during outbound sends remain acceptance boundaries; successful graceful saves do not establish crash safety for every native operation. S3 durability depends on the configured provider's object-storage guarantees.

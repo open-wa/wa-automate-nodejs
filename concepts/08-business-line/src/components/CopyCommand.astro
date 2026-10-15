@@ -1,0 +1,24 @@
+---
+import { commands } from "../data/facts";
+interface Props { command?: string; tone?: "cream" | "plum"; id?: string }
+const { command = commands.easyApi, tone = "cream", id } = Astro.props;
+---
+
+<div class={`cmd cmd-${tone}`} id={id}>
+  <span class="cmd-prompt" aria-hidden="true">$</span>
+  <code class="cmd-text">{command}</code>
+  <button class="copy-btn cmd-copy" type="button" data-copy={command} aria-label="Copy the command"><span>Copy</span></button>
+</div>
+
+<style>
+  .cmd {
+    display: flex; align-items: center; gap: 10px; border-radius: 16px; padding: 6px 6px 6px 16px;
+    font: 500 15px/1.45 var(--font-mono); min-width: 0; max-width: 100%;
+  }
+  .cmd-cream { background: var(--paper); color: var(--plum); box-shadow: 0 0 0 1px var(--cream-3), 0 18px 40px -18px rgba(28, 8, 32, 0.45); }
+  .cmd-plum { background: var(--plum-deep); color: var(--cream); box-shadow: 0 0 0 1px var(--plum-3); }
+  .cmd-prompt { color: var(--tangerine-ink); font-weight: 700; align-self: flex-start; padding-top: 8px; }
+  .cmd-plum .cmd-prompt { color: var(--tangerine); }
+  .cmd-text { flex: 1; min-width: 0; overflow-wrap: anywhere; background: none !important; padding: 8px 0 !important; font-size: inherit; }
+  .cmd-copy { align-self: stretch; }
+</style>

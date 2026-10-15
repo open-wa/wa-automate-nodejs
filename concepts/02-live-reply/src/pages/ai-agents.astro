@@ -1,0 +1,55 @@
+---
+import Site from "../layouts/Site.astro";
+import PageHead from "../components/PageHead.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import { snippets, commands, paths, product } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const mcp = paths.find((p) => p.id === "mcp")!;
+---
+<Site title="Give an AI agent a WhatsApp number with MCP | open-wa" description="open-wa's built-in MCP server exposes each Easy API method as a tool for Claude, Cursor and Windsurf. Config, start command and Claude Desktop setup.">
+  <PageHead eyebrow="AI agents" title="Give your agent a WhatsApp number." lede={mcp.what} />
+  <section class="ag">
+    <div class="wrap ag-steps">
+      <div class="ag-step">
+        <span class="mono ag-n">01</span>
+        <h2>Turn on MCP in your config</h2>
+        <CodeBlock code={snippets.mcpConfig} file="wa.config.mjs" />
+      </div>
+      <div class="ag-step">
+        <span class="mono ag-n">02</span>
+        <h2>Start open-wa with it</h2>
+        <CodeBlock code={snippets.mcpStart} lang="bash" file="Terminal" />
+        <p class="muted">The MCP endpoint is <code class="mono">{commands.mcpEndpoint}</code>.</p>
+      </div>
+      <div class="ag-step">
+        <span class="mono ag-n">03</span>
+        <h2>Point your agent at it</h2>
+        <CodeBlock code={snippets.claudeDesktop} lang="json" file="claude_desktop_config.json" />
+        <p class="muted">Cursor and Windsurf take the same URL and header.</p>
+      </div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="wrap grid-2">
+      <div class="card">
+        <h3>Which methods become tools</h3>
+        <p>Each Easy API method is exposed as a tool the agent can call, sendText included. Set exposeToolsMeta to include each method's metadata with its tool.</p>
+      </div>
+      <div class="card">
+        <h3>The licence follows the method</h3>
+        <p>Tools backed by free methods stay free. A tool backed by an Insiders or Restricted method needs that key on the number. <a href={`${base}pricing/`}>See which methods</a>.</p>
+      </div>
+    </div>
+    <div class="wrap"><p class="note ag-note"><strong>Your account, your risk.</strong> {product.risk}</p></div>
+  </section>
+</Site>
+<style>
+  .ag { padding-bottom: 72px; }
+  .ag-steps { display: grid; gap: 40px; }
+  .ag-step { display: grid; gap: 14px; max-width: 820px; }
+  .ag-n { color: var(--blue); font-size: 15px; }
+  .ag-step h2 { font-size: 28px; }
+  .ag-step code.mono { font-size: 15px; background: var(--grey-1); padding: 2px 6px; border-radius: 5px; }
+  .card a { color: var(--blue); }
+  .ag-note { margin-top: 24px; max-width: 820px; }
+</style>

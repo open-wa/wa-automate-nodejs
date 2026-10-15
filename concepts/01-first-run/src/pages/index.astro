@@ -1,0 +1,357 @@
+---
+import Page from "../layouts/Page.astro";
+import RunTabs from "../components/RunTabs.astro";
+import FirstRun from "../components/FirstRun.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import CopyButton from "../components/CopyButton.astro";
+import {
+  product, stats, commands, snippets, paths, useCases, capabilities, integrations,
+  licences, support, releases, firstRun, href, kfloor,
+} from "../data/site";
+
+const pathCode: Record<string, { code: string; lang: string; title: string }> = {
+  "easy-api": { code: commands.easyApi, lang: "bash", title: "terminal" },
+  "socket-client": { code: snippets.socketClient, lang: "js", title: "bot.mjs" },
+  embedded: { code: snippets.embedded, lang: "js", title: "app.mjs" },
+  mcp: { code: snippets.mcpConfig, lang: "js", title: "wa.config.mjs" },
+};
+const pathInstall: Record<string, string> = {
+  "easy-api": commands.easyApi,
+  "socket-client": commands.socketClientInstall,
+  embedded: commands.embeddedInstall,
+  mcp: snippets.mcpStart,
+};
+
+const caps = [
+  ["Messages", capabilities.messages],
+  ["Media", capabilities.media],
+  ["Groups", capabilities.groups],
+  ["Polls", capabilities.polls],
+  ["Events", capabilities.events],
+  ["Stickers", capabilities.stickers],
+  ["Multi-session", capabilities.multiSession],
+  ["Session files", capabilities.sessions],
+  ["Live refresh", capabilities.refresh],
+  ["Drivers", capabilities.drivers],
+  ["API docs", capabilities.docs],
+];
+const [insiders, restricted] = licences.tiers;
+const latest = releases[0];
+const stepCmd = [commands.easyApi, "scan the QR code, or use a link code", commands.proofOfLife];
+---
+
+<Page
+  title="open-wa: turn your WhatsApp number into a Node.js API"
+  description="One npx command runs WhatsApp Web for your Node.js app and serves your own number's chats, messages and events over HTTP, with interactive docs. Free for most methods. Unofficial."
+>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-l">
+        <div class="hero-copy">
+          <h1>Turn your WhatsApp number into an API with one&nbsp;command.</h1>
+          <p class="hero-sub">open-wa runs WhatsApp Web for your Node.js app and serves your own number's chats, messages and events over HTTP. Free for most methods.</p>
+        </div>
+        <div class="hero-cta">
+          <a class="btn btn-amber" href={href("quickstart/")}>Quick start <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn" href={support.docs}>Docs <span class="ext" aria-hidden="true">↗</span></a>
+          <p class="hero-aside">Weighing up Meta's official API? <a href={href("compare/")}>Compare the two</a>.</p>
+        </div>
+        <dl class="proof" aria-label={`Project signals, checked ${stats.checkedOn}`}>
+          <div><dt>GitHub stars</dt><dd>{kfloor(stats.githubStars)}</dd></div>
+          <div><dt>npm downloads, 12 months</dt><dd>{kfloor(stats.npmDownloadsLast12Months)}</dd></div>
+          <div><dt>Docker pulls</dt><dd>{kfloor(stats.dockerPulls)}</dd></div>
+          <div><dt>Latest release, {latest.date}</dt><dd>v{product.currentVersion}</dd></div>
+          <p class="proof-date">Checked {stats.checkedOn} on GitHub, npm and Docker Hub. Maintained since 2019.</p>
+        </dl>
+      </div>
+      <div class="hero-r">
+        <div class="hero-term"><RunTabs id="hero" /></div>
+        <div class="hero-run"><FirstRun /></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec steps-sec" aria-labelledby="steps-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="steps-h">Three steps to a running session</h2>
+        <p>No Meta business account and no templates. You link your existing number the same way you link WhatsApp Web.</p>
+      </div>
+      <ol class="steps">
+        {firstRun.map((s, k) => (
+          <li class="step">
+            <span class="step-n">{k + 1}</span>
+            <p>{s}</p>
+            {k !== 1 ? <code class="step-cmd">{stepCmd[k]}</code> : <code class="step-cmd muted">{stepCmd[k]}</code>}
+          </li>
+        ))}
+      </ol>
+      <p class="note steps-note"><strong>Before you link a number:</strong> open-wa is unofficial. {product.risk} <a href={href("legal/#risk")}>Read the risk note</a>.</p>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="paths-h" id="paths">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="paths-h">Four ways to plug it in</h2>
+        <p>Start with the Easy API. Move to a bot, an embedded runtime or an AI agent when you need to.</p>
+      </div>
+      <div class="paths" data-tabs>
+        <div class="path-list" role="tablist" aria-label="Ways to use open-wa" aria-orientation="vertical">
+          {paths.map((p, k) => (
+            <button type="button" role="tab" class="path-tab" id={`path-tab-${p.id}`} aria-controls={`path-panel-${p.id}`} aria-selected={k === 0 ? "true" : "false"} tabindex={k === 0 ? 0 : -1}>
+              <span class="path-name">{p.name}</span>
+              <span class="path-for">{p.for}</span>
+            </button>
+          ))}
+        </div>
+        {paths.map((p, k) => (
+          <div class="path-panel" role="tabpanel" id={`path-panel-${p.id}`} aria-labelledby={`path-tab-${p.id}`} hidden={k !== 0}>
+            <p class="lede">{p.what}</p>
+            <div class="cmdline">
+              <span class="cmd-prompt" aria-hidden="true">$</span>
+              <code class="cmd-text">{pathInstall[p.id]}</code>
+              <CopyButton text={pathInstall[p.id]} what={`${p.name} command`} />
+            </div>
+            {p.id !== "easy-api" && <CodeBlock code={pathCode[p.id].code} lang={pathCode[p.id].lang} title={pathCode[p.id].title} />}
+            {p.id === "easy-api" && (
+              <ul class="path-facts">
+                <li>Interactive docs at <code>{commands.proofOfLife}</code></li>
+                <li>Swagger at <code>{commands.swagger}</code></li>
+                <li>Postman at <code>{commands.postman}</code></li>
+                <li>Lock it down with <code>--api-key "your-secure-key"</code></li>
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="build-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="build-h">What people build with it</h2>
+        <p>The same session drives all of these. Pick the path that fits, then call the methods you need.</p>
+      </div>
+      <ul class="uses">
+        {useCases.map((u) => <li>{u}</li>)}
+      </ul>
+      <div class="caps">
+        {caps.map(([name, text]) => (
+          <div class="cap"><h3>{name}</h3><p>{text}</p></div>
+        ))}
+      </div>
+      <p class="sec-more"><a class="btn" href={href("features/")}>All features <span class="arrow" aria-hidden="true">→</span></a> <a class="btn" href={href("use-cases/")}>Use cases <span class="arrow" aria-hidden="true">→</span></a></p>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="int-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="int-h">Integrations you load as plugins</h2>
+        <p>Add them to <code>plugins</code> in your config. Write your own with the Plugin SDK.</p>
+      </div>
+      <ul class="ints">
+        {integrations.map((x) => (
+          <li class="int"><span class="int-name">{x.name}</span><code class="int-pkg">{x.package}</code><span class="int-what">{x.what}</span></li>
+        ))}
+      </ul>
+      <p class="sec-more"><a class="btn" href={href("integrations/")}>Integrations <span class="arrow" aria-hidden="true">→</span></a></p>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="ai-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="ai-h">Give an AI agent your WhatsApp number</h2>
+        <p>The built-in MCP server turns each Easy API method into a tool for Claude, Cursor or Windsurf. Licence rules follow the method: a tool for a licensed method needs the key.</p>
+      </div>
+      <div class="grid-2">
+        <CodeBlock code={snippets.mcpConfig} lang="js" title="wa.config.mjs" />
+        <CodeBlock code={snippets.claudeDesktop} lang="json" title="Claude Desktop config" />
+      </div>
+      <div class="cmdline ai-start">
+        <span class="cmd-prompt" aria-hidden="true">$</span>
+        <code class="cmd-text">{snippets.mcpStart}</code>
+        <CopyButton text={snippets.mcpStart} what="MCP start command" />
+      </div>
+      <p class="sec-more"><a class="btn" href={href("ai-agents/")}>Set up MCP <span class="arrow" aria-hidden="true">→</span></a></p>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="price-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="price-h">Most methods are free. A few need a key.</h2>
+        <p>Every method is marked none, insiders or restricted. A key is per WhatsApp number and goes in with <code>--license-key</code>.</p>
+      </div>
+      <div class="tiers">
+        <article class="tier">
+          <h3>No key</h3>
+          <p class="tier-price">£0</p>
+          <p>{licences.free.covers}</p>
+        </article>
+        <article class="tier">
+          <h3>{insiders.name}</h3>
+          <p class="tier-price">{insiders.prices.month}<span>/month</span></p>
+          <p>{insiders.unlocks}</p>
+        </article>
+        <article class="tier">
+          <h3>{restricted.name}</h3>
+          <p class="tier-price">{restricted.prices.month}<span>/month</span></p>
+          <p>{restricted.unlocks}</p>
+        </article>
+      </div>
+      <p class="muted tier-note">Prices in GBP, checked 12 Oct 2026 on Gumroad. Checkout shows the current price. Also sold for 3, 6 and 12 months.</p>
+      <p class="sec-more"><a class="btn btn-amber" href={href("pricing/")}>Pricing and licence keys <span class="arrow" aria-hidden="true">→</span></a></p>
+    </div>
+  </section>
+
+  <section class="sec" aria-labelledby="risk-h" id="risk">
+    <div class="wrap risk-grid">
+      <div class="sec-head">
+        <h2 id="risk-h">What to know before you rely on it</h2>
+      </div>
+      <dl class="facts">
+        <div><dt>Status</dt><dd>Unofficial. Not affiliated with, authorised or endorsed by WhatsApp or Meta.</dd></div>
+        <div><dt>Ban risk</dt><dd>{product.risk}</dd></div>
+        <div><dt>Need official?</dt><dd>Meta's WhatsApp Business Platform is the supported route, with a business account, approved templates and per-message pricing. <a href={href("compare/")}>Compare the two</a>.</dd></div>
+        <div><dt>Licence</dt><dd>{product.softwareLicence}. <a href={support.terms}>Terms of Service</a>.</dd></div>
+        <div><dt>Maintained</dt><dd>By {support.maintainer} since 2019. {stats.publishedVersions} versions on npm. Latest: {latest.version} on {latest.date}, "{latest.headline}". <a href={href("changelog/")}>Changelog</a>.</dd></div>
+        <div><dt>Moving from v4</dt><dd>Pin <code>{`@open-wa/wa-automate@4`}</code> while you migrate. <a href={href("migrate/")}>Migration notes</a>.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="sec close" aria-labelledby="close-h">
+    <div class="wrap close-grid">
+      <h2 id="close-h">Start your first session from the terminal</h2>
+      <div class="cmdline close-cmd">
+        <span class="cmd-prompt" aria-hidden="true">$</span>
+        <code class="cmd-text">{commands.easyApi}</code>
+        <CopyButton text={commands.easyApi} class="copy-hero" />
+      </div>
+      <p class="close-links">
+        <a class="btn btn-amber" href={href("quickstart/")}>Quick start <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn" href={support.discord}>Discord · {stats.discordMembers.toLocaleString("en-GB")} members</a>
+        <a class="btn" href={support.github}>GitHub · ★ {kfloor(stats.githubStars)}</a>
+      </p>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .hero { padding-block: clamp(20px, 6vw, 72px) clamp(48px, 7vw, 96px); position: relative; overflow: clip; }
+  .hero::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(circle at 1px 1px, rgba(237, 232, 220, 0.07) 1px, transparent 1.5px);
+    background-size: 22px 22px;
+    mask-image: linear-gradient(to bottom, #000 0%, transparent 85%);
+  }
+  .hero-grid { position: relative; display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(28px, 4vw, 56px); align-items: start; }
+  .hero-l { display: grid; gap: 28px; padding-top: 12px; position: sticky; top: 96px; }
+  .hero-r { display: grid; gap: 14px; min-width: 0; }
+  .hero-copy { display: grid; gap: 18px; }
+  .hero-copy h1 { font-size: clamp(33px, 3.4vw, 44px); }
+  .hero-sub { font-size: 19px; color: var(--bone); max-width: 520px; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 10px; }
+  .hero-aside { flex-basis: 100%; color: var(--grey); font-size: 16px; }
+  .hero-aside a { color: var(--bone); }
+  .proof { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+  .proof > div { background: var(--ink); padding: 12px 14px; display: grid; gap: 2px; }
+  .proof dt { color: var(--grey); font-size: 16px; }
+  .proof dd { margin: 0; font-family: var(--font-display); font-size: 22px; color: var(--amber); }
+  .proof-date { grid-column: 1 / -1; background: var(--ink); padding: 10px 14px; color: var(--grey); font-size: 16px; }
+
+  @media (max-width: 980px) {
+    .hero-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+    .hero-l, .hero-r { display: contents; }
+    .hero-copy { order: 1; }
+    .hero-term { order: 2; }
+    .hero-cta { order: 3; }
+    .hero-run { order: 4; margin-top: 14px; }
+    .proof { order: 5; }
+    .hero-copy h1 { font-size: clamp(27.5px, 7.2vw, 44px); }
+    .hero-sub { font-size: 17px; }
+  }
+  @media (max-width: 520px) {
+    .hero-cta .btn { flex: 1; }
+    .hero-copy { gap: 12px; }
+    .hero-sub { font-size: 16.5px; line-height: 1.5; }
+  }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+  .step { background: var(--ink); padding: 22px; display: grid; gap: 12px; align-content: start; }
+  .step-n { font-family: var(--font-display); font-size: 33px; color: var(--amber); line-height: 1; }
+  .step-cmd { font-size: 16.5px; color: var(--amber-tint); overflow-wrap: anywhere; }
+  .steps-note { margin-top: 20px; max-width: 760px; }
+  @media (max-width: 860px) { .steps { grid-template-columns: minmax(0, 1fr); } }
+
+  .paths { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 28px; align-items: start; }
+  .path-list { display: grid; gap: 6px; }
+  .path-tab {
+    text-align: left; display: grid; gap: 4px; padding: 14px 16px; min-height: 44px; cursor: pointer;
+    background: transparent; color: var(--bone); border: 1px solid var(--line); border-radius: var(--radius-lg); font: inherit;
+    border-left: 3px solid var(--line);
+  }
+  .path-tab:hover { border-color: var(--line-2); border-left-color: var(--grey); }
+  .path-tab[aria-selected="true"] { background: var(--ink-2); border-color: var(--line-2); border-left-color: var(--amber); }
+  .path-name { font-family: var(--font-display); font-size: 22px; }
+  .path-tab[aria-selected="true"] .path-name { color: var(--amber); }
+  .path-for { color: var(--grey); font-size: 16px; }
+  .path-panel { display: grid; gap: 16px; min-width: 0; }
+  .path-facts { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  .path-facts li { padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius); overflow-wrap: anywhere; }
+  @media (max-width: 860px) {
+    .paths { grid-template-columns: minmax(0, 1fr); }
+    .path-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  .uses { list-style: none; margin: 0 0 32px; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; }
+  .uses li { padding: 14px 0 14px 28px; border-bottom: 1px solid var(--line); position: relative; font-size: 18px; }
+  .uses li::before { content: "›"; position: absolute; left: 4px; color: var(--amber); font-family: var(--font-mono); }
+  .caps { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+  .cap { background: var(--ink); padding: 20px; display: grid; gap: 8px; align-content: start; }
+  .cap h3 { font-size: 22px; color: var(--amber); }
+  .cap p { color: var(--grey); font-size: 16.5px; }
+  .sec-more { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 10px; }
+  @media (max-width: 760px) { .uses { grid-template-columns: minmax(0, 1fr); } }
+
+  .ints { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .int { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 4fr) minmax(0, 6fr); gap: 20px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+  .int-name { font-family: var(--font-display); font-size: 22px; }
+  .int-pkg { color: var(--amber-tint); overflow-wrap: anywhere; }
+  .int-what { color: var(--grey); }
+  @media (max-width: 760px) { .int { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
+
+  .ai-start { margin-top: 20px; }
+
+  .tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .tier { border: 1px solid var(--line-2); border-radius: var(--radius-lg); padding: 22px; display: grid; gap: 10px; align-content: start; background: var(--ink-2); }
+  .tier:first-child { background: transparent; }
+  .tier h3 { font-size: 22px; }
+  .tier-price { font-family: var(--font-display); font-size: 44px; color: var(--amber); line-height: 1; }
+  .tier-price span { font-size: 16.5px; color: var(--grey); }
+  .tier p:last-child { color: var(--grey); font-size: 16.5px; }
+  .tier-note { margin-top: 14px; font-size: 16px; }
+  @media (max-width: 860px) { .tiers { grid-template-columns: minmax(0, 1fr); } }
+
+  .risk-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 32px; }
+  .facts { margin: 0; border-top: 1px solid var(--line); }
+  .facts > div { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 20px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .facts dt { font-family: var(--font-mono); font-size: 16.5px; color: var(--amber); }
+  .facts dd { margin: 0; }
+  .facts a { color: var(--amber); }
+  @media (max-width: 860px) {
+    .risk-grid { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .facts > div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  }
+
+  .close { background: linear-gradient(to bottom, var(--ink), #15130b); }
+  .close-grid { display: grid; gap: 24px; justify-items: start; }
+  .close-grid h2 { font-size: clamp(30px, 5vw, 55px); max-width: 900px; }
+  .close-cmd { width: min(100%, 760px); }
+  .close-links { display: flex; flex-wrap: wrap; gap: 10px; }
+  @media (max-width: 520px) { .close-cmd { flex-wrap: wrap; } .close-cmd .cmd-text { white-space: normal; overflow-wrap: anywhere; flex-basis: calc(100% - 30px); } }
+</style>

@@ -1,0 +1,4 @@
+.scratch/
+dist/
+node_modules/
+.astro/

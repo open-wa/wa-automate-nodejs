@@ -1,0 +1,32 @@
+---
+import { Image } from "astro:assets";
+import salon from "../assets/generated/salon.webp";
+import hotel from "../assets/generated/hotel.webp";
+import shop from "../assets/generated/shop.webp";
+import switchboard from "../assets/generated/switchboard.webp";
+interface Props { eyebrow: string; title: string; lede?: string; photo?: "salon" | "hotel" | "shop" | "switchboard" }
+const { eyebrow, title, lede, photo } = Astro.props;
+const photos = { salon, hotel, shop, switchboard };
+---
+
+<section class={`page-head on-plum ${photo ? "has-photo" : ""}`}>
+  {photo && <Image src={photos[photo]} alt="" width={1400} class="ph-bg" loading="eager" />}
+  <div class="wrap">
+    <p class="eyebrow">{eyebrow}</p>
+    <h1>{title}</h1>
+    {lede && <p class="lede">{lede}</p>}
+    <slot />
+  </div>
+  {photo && <p class="credit">Photograph: generated illustration</p>}
+</section>
+
+<style>
+  .page-head { position: relative; overflow: hidden; isolation: isolate; padding: clamp(48px, 7vw, 96px) 0 clamp(40px, 6vw, 72px); background:
+    radial-gradient(circle at 85% 20%, rgba(255, 122, 26, 0.18), transparent 40%), var(--plum); }
+  .page-head :global(.ph-bg) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+  .has-photo::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(42, 14, 46, 0.97) 0%, rgba(42, 14, 46, 0.88) 50%, rgba(42, 14, 46, 0.45)); }
+  .page-head h1 { max-width: 22ch; }
+  .page-head .lede { font-size: 19px; }
+  .credit { position: absolute; right: 12px; bottom: 8px; margin: 0; font: 500 12px/1 var(--font-mono); color: rgba(255, 244, 230, 0.8); }
+  @media (max-width: 700px) { .has-photo::before { background: rgba(42, 14, 46, 0.88); } }
+</style>

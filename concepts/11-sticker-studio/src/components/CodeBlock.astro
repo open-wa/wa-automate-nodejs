@@ -1,0 +1,17 @@
+---
+import { Code } from "astro:components";
+import { stickerTheme } from "../lib/shiki-theme";
+interface Props { code: string; lang?: string; title?: string; label?: string }
+const { code, lang = "js", title, label } = Astro.props;
+---
+
+<figure class="codeblock">
+  <figcaption>
+    <span class="codeblock-title">{title ?? lang}</span>
+    {label && <span class="codeblock-label">{label}</span>}
+    <button type="button" class="copy-btn" data-copy={code} aria-label={`Copy ${title ?? "code"}`}>
+      <span class="copy-idle">Copy</span><span class="copy-done">Copied</span>
+    </button>
+  </figcaption>
+  <Code code={code} lang={lang as any} theme={stickerTheme as any} wrap />
+</figure>

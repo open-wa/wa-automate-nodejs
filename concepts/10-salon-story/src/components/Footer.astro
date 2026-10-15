@@ -1,0 +1,46 @@
+---
+import Mark from "./Mark.astro";
+import { footer, product, legal, support, stats } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+---
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr-top">
+      <div class="ftr-brand">
+        <a class="ftr-logo mark-host" href={base} aria-label="open-wa home"><Mark size={40} /><span>open-wa</span></a>
+        <p>Your own WhatsApp number as an API, for bookings, reminders, codes, calls and the rest. Maintained by {support.maintainer} since 2019.</p>
+        <p class="ftr-ver">Latest release {product.currentVersion} · {stats.publishedVersions} versions published (checked {stats.checkedOn})</p>
+      </div>
+      {footer.map((g) => (
+        <div class="ftr-col">
+          <h2>{g.title}</h2>
+          <ul>
+            {g.links.map((l) => (
+              <li><a href={l.ext ? l.href : `${base}${l.href}`} rel={l.ext ? "noopener" : undefined}>{l.label}</a></li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+    <div class="ftr-legal">
+      <p class="ftr-unofficial"><strong>Unofficial. Not affiliated with WhatsApp or Meta.</strong> {product.risk}</p>
+      <p>Software licence: {product.softwareLicence}. {product.terms} {legal.copyright}.</p>
+    </div>
+  </div>
+</footer>
+<style>
+  .ftr { background: var(--espresso); color: var(--cream-on-dark); padding: 72px 0 40px; margin-top: 0; }
+  .ftr a { color: var(--cream-on-dark); text-decoration: none; }
+  .ftr a:hover { text-decoration: underline; text-decoration-color: var(--brass); text-underline-offset: 4px; }
+  .ftr :global(.mark-bubble) { fill: var(--blush); stroke: var(--blush); }
+  .ftr-top { display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); gap: 32px; }
+  .ftr-logo { display: inline-flex; align-items: center; gap: 12px; font: 600 26px/1 var(--font-display); min-height: 44px; }
+  .ftr-brand p { margin-top: 16px; color: var(--muted-on-dark); max-width: 36ch; font-size: 16px; }
+  .ftr-ver { font: 400 14px/1.5 var(--font-mono); }
+  .ftr-col h2 { font: 600 13px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--brass-light); margin: 12px 0 14px; }
+  .ftr-col ul { list-style: none; margin: 0; padding: 0; }
+  .ftr-col li a { display: inline-flex; align-items: center; min-height: 40px; font-size: 16px; }
+  .ftr-legal { margin-top: 56px; padding-top: 24px; border-top: 1px solid #4d3730; display: grid; gap: 10px; color: var(--muted-on-dark); font-size: 15px; }
+  .ftr-unofficial strong { color: var(--blush); font-weight: 600; }
+  @media (max-width: 900px) { .ftr-top { grid-template-columns: 1fr 1fr; } .ftr-brand { grid-column: 1 / -1; } }
+</style>

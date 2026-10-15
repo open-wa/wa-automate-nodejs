@@ -1,0 +1,258 @@
+---
+import Base from "../layouts/Base.astro";
+import PosterHero from "../components/PosterHero.astro";
+import PathTabs from "../components/PathTabs.astro";
+import CodeBlock from "../components/CodeBlock.astro";
+import phoneArt from "../assets/generated/phone.webp";
+import bubblesArt from "../assets/generated/bubbles.webp";
+import { commands, useCases, capabilities, integrations, licences, product, stats, releases, support, snippets } from "../data/facts";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const fmt = (n: number) => n.toLocaleString("en-GB");
+const caps = [
+  ["Messages", capabilities.messages],
+  ["Media", capabilities.media],
+  ["Groups", capabilities.groups],
+  ["Polls", capabilities.polls],
+  ["Events", capabilities.events],
+  ["Multi-session", capabilities.multiSession],
+];
+const terminal = `$ ${commands.easyApi}
+  Starting Easy API on port 8080
+  Scan this QR code with WhatsApp on your phone
+  ▄▄▄▄▄ ▄ ▄▄ ▄▄▄▄▄
+  █ ▄ █ ▀█▄▀ █ ▄ █
+  ▀▀▀▀▀ ▀ ▀▀ ▀▀▀▀▀
+  Session ready: +44 7700 900123
+  API docs: ${commands.proofOfLife}`;
+---
+
+<Base title="open-wa: WhatsApp from your terminal, an API on your own number" description="open-wa turns your own WhatsApp number into a local HTTP API for your Node.js app with one npx command. Free for most methods, open source since 2019. Unofficial.">
+  <PosterHero />
+
+  <!-- 2. Proof it works: the first run as a four-panel print run -->
+  <section class="section run" aria-labelledby="run-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="run-title">From npx to a reply in four panels</h2>
+        <p>Run one command, scan once, and your code is talking to WhatsApp. The panels show example output.</p>
+      </div>
+      <ol class="panels">
+        <li class="panel panel-1">
+          <h3><span class="pn" aria-hidden="true">1</span>Run it</h3>
+          <CodeBlock code={terminal} lang="bash" label="Terminal" example />
+          <p>{`Starts an Easy API instance on the port you choose. Node ${product.node.replace(">=", "")} or newer.`}</p>
+        </li>
+        <li class="panel panel-2">
+          <h3><span class="pn" aria-hidden="true">2</span>Scan or link</h3>
+          <img src={phoneArt.src} width={phoneArt.width} height={phoneArt.height} loading="lazy" decoding="async" alt="Illustration: a hand holds a phone showing an abstract grid, printed in pink and blue ink." />
+          <p>Scan the QR code it prints with the phone that has your WhatsApp account, or use link-code login.</p>
+        </li>
+        <li class="panel panel-3">
+          <h3><span class="pn" aria-hidden="true">3</span>Open the docs</h3>
+          <div class="browser" aria-label="Example output: the API docs page">
+            <div class="browser-bar"><span class="dot"></span><span class="dot"></span><span class="url">localhost:8080/api-docs/</span></div>
+            <div class="browser-body">
+              <span class="tag-example">Example output</span>
+              <ul>
+                <li>sendText</li>
+                <li>sendEvent</li>
+                <li>checkNumberStatus</li>
+                <li>createGroup</li>
+              </ul>
+              <p class="browser-files">swagger.json · postman.json</p>
+            </div>
+          </div>
+          <p>Every running instance serves interactive API docs for the live session, plus Swagger and Postman files.</p>
+        </li>
+        <li class="panel panel-4">
+          <h3><span class="pn" aria-hidden="true">4</span>Reply from code</h3>
+          <div class="chat" aria-label="Example output: a chat">
+            <span class="tag-example">Example output</span>
+            <p class="bubble in"><span class="who">+44 7700 900456</span>Hi</p>
+            <p class="bubble out"><span class="who">Your bot</span>👋 Hello!</p>
+          </div>
+          <p>Someone says Hi and your handler answers. The code is three lines; pick a path below to see it.</p>
+        </li>
+      </ol>
+      <p class="run-cta"><a class="btn btn-ink" href={`${base}quickstart/`}>Follow the quick start</a> <a href={`${base}legal/#risk`}>Read the ban-risk note first</a></p>
+    </div>
+  </section>
+
+  <!-- 3. Pick a path -->
+  <section class="section" aria-labelledby="paths-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="paths-title">Four ways in</h2>
+        <p>Run the HTTP API, connect to it from your bot, embed the runtime in your own app, or hand it to an AI agent.</p>
+      </div>
+      <PathTabs />
+    </div>
+  </section>
+
+  <!-- 4. What you can build -->
+  <section class="section build" aria-labelledby="build-title">
+    <div class="wrap build-grid">
+      <div>
+        <div class="section-head">
+          <h2 id="build-title">What people build with it</h2>
+        </div>
+        <ul class="uses">
+          {useCases.map((u) => <li>{u}</li>)}
+        </ul>
+        <a class="btn" href={`${base}use-cases/`}>See the use cases</a>
+      </div>
+      <img class="build-art" src={bubblesArt.src} width={bubblesArt.width} height={bubblesArt.height} loading="lazy" decoding="async" alt="Illustration: speech bubbles tumbling out of a laptop, printed in pink and blue ink." />
+    </div>
+    <div class="wrap">
+      <h3 class="sub-h">What it can send and handle</h3>
+      <div class="card-grid caps">
+        {caps.map(([name, text]) => (
+          <article class="card"><h3>{name}</h3><p>{text}</p></article>
+        ))}
+      </div>
+      <p class="more-link"><a href={`${base}features/`}>All features, with snippets</a></p>
+
+      <h3 class="sub-h">Plugs into</h3>
+      <ul class="integ">
+        {integrations.map((i) => (
+          <li><a href={`${base}integrations/#${i.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}><strong>{i.name}</strong><span class="pkg">{i.package}</span></a></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- AI agents -->
+  <section class="section agents" aria-labelledby="agents-title">
+    <div class="wrap agents-grid">
+      <div>
+        <div class="section-head">
+          <h2 id="agents-title">Give Claude a WhatsApp number</h2>
+          <p>The built-in MCP server exposes each Easy API method as a tool that agents such as Claude, Cursor and Windsurf can call. Licence rules follow the method.</p>
+        </div>
+        <a class="btn" href={`${base}ai-agents/`}>Set up the MCP server</a>
+      </div>
+      <CodeBlock code={snippets.claudeDesktop} lang="json" label="claude_desktop_config.json" />
+    </div>
+  </section>
+
+  <!-- 5. Free vs licensed -->
+  <section class="section" aria-labelledby="free-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 id="free-title">Free, until you need a named method</h2>
+        <p>{licences.summary}</p>
+      </div>
+      <div class="three">
+        <article class="card"><h3>{licences.free.name}</h3><p class="big-price">£0</p><p>{licences.free.covers}</p></article>
+        {licences.tiers.map((t) => (
+          <article class={`card tier-${t.id}`}><h3>{t.name}</h3><p class="big-price">{t.prices.month}<span> a month</span></p><p>{t.unlocks}</p></article>
+        ))}
+      </div>
+      <p class="dated">Prices in GBP per WhatsApp number, checked 12 Oct 2026. Checkout shows the current price.</p>
+      <a class="btn btn-ink" href={`${base}pricing/`}>See pricing and get a key</a>
+    </div>
+  </section>
+
+  <!-- 6. Honest risk and status -->
+  <section class="section risk" aria-labelledby="risk-title">
+    <div class="wrap risk-grid">
+      <div class="risk-card">
+        <h2 id="risk-title">Read this before you scan</h2>
+        <p><strong>open-wa is unofficial.</strong> It drives WhatsApp Web in a browser it controls. It isn't affiliated with, authorised or endorsed by WhatsApp or Meta.</p>
+        <p><strong>Your number can be banned.</strong> {product.risk} Test with a number you can afford to lose, and don't message people who haven't asked to hear from you.</p>
+        <p>Need official support and approved templates instead? <a href={`${base}compare/`}>Compare it with the official API</a>.</p>
+      </div>
+      <div class="status">
+        <h3>Still printing</h3>
+        <dl>
+          <div><dt>Latest release</dt><dd>{releases[0].version}, {releases[0].date}</dd></div>
+          <div><dt>GitHub stars</dt><dd>{fmt(stats.githubStars)}</dd></div>
+          <div><dt>npm downloads, last 12 months</dt><dd>{fmt(stats.npmDownloadsLast12Months)}</dd></div>
+          <div><dt>Discord members</dt><dd>{fmt(stats.discordMembers)}</dd></div>
+          <div><dt>Published versions</dt><dd>{fmt(stats.publishedVersions)}</dd></div>
+        </dl>
+        <p class="dated">Checked {stats.checkedOn}. Maintained by {support.maintainer} since 2019. <a href={`${base}changelog/`}>Changelog</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Closing -->
+  <section class="section closing" aria-labelledby="close-title">
+    <div class="wrap">
+      <h2 id="close-title">Run it now</h2>
+      <CodeBlock code={commands.easyApi} lang="bash" label="Terminal" />
+      <div class="close-ctas">
+        <a class="btn btn-ink" href={`${base}quickstart/`}>Quick start</a>
+        <a class="btn" href={support.discord}>Join the Discord</a>
+        <a class="btn" href={support.github}>Star on GitHub</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .panels { list-style: none; margin: 0 0 32px; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border: 2.5px solid var(--ink); border-radius: var(--radius); background: var(--paper); }
+  .panel { padding: 20px; border-right: 2.5px solid var(--ink); display: grid; align-content: start; gap: 14px; min-width: 0; }
+  .panel:last-child { border-right: 0; }
+  .panel h3 { display: flex; align-items: baseline; gap: 10px; margin: 0; color: var(--ink); }
+  .pn { font-size: 3.4rem; color: var(--blue); text-shadow: 3px 3px 0 var(--pink); line-height: 0.8; }
+  .panel p { margin: 0; font-size: 1rem; }
+  .panel :global(.code) { margin: 0; box-shadow: none; }
+  .panel :global(.code pre.astro-code) { font-size: 0.78rem; line-height: 1.35; }
+  .panel img { border: 2.5px solid var(--ink); border-radius: var(--radius); aspect-ratio: 1; object-fit: cover; }
+  .browser { border: 2.5px solid var(--ink); border-radius: var(--radius); background: #FBF9F3; }
+  .browser-bar { display: flex; gap: 6px; align-items: center; padding: 6px 10px; border-bottom: 2px solid var(--ink); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--ink); }
+  .url { font-family: var(--font-mono); font-size: 0.82rem; margin-left: 6px; overflow-wrap: anywhere; }
+  .browser-body { padding: 12px; display: grid; gap: 8px; justify-items: start; }
+  .browser-body ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; width: 100%; font-family: var(--font-mono); font-size: 0.88rem; }
+  .browser-body li { border: 2px solid var(--ink); padding: 4px 8px; border-radius: 3px; }
+    .browser-files { font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink-soft); }
+  .chat { display: grid; gap: 10px; padding: 14px; border: 2.5px solid var(--ink); border-radius: var(--radius); background: #FBF9F3; justify-items: start; }
+  .bubble { position: relative; margin: 0; padding: 8px 14px 10px; border: 2.5px solid var(--ink); border-radius: 16px; max-width: 90%; font-size: 1.05rem; }
+  .bubble .who { display: block; font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-soft); }
+  .bubble.in { background: var(--paper); border-bottom-left-radius: 2px; }
+  .bubble.out { justify-self: end; background: #FFD3EA; border-bottom-right-radius: 2px; box-shadow: 3px 3px 0 var(--blue); }
+  .run-cta { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin: 0; }
+  @media (max-width: 1080px) { .panels { grid-template-columns: repeat(2, minmax(0, 1fr)); } .panel:nth-child(2) { border-right: 0; } .panel:nth-child(-n+2) { border-bottom: 2.5px solid var(--ink); } }
+  @media (max-width: 640px) { .panels { grid-template-columns: minmax(0, 1fr); } .panel { border-right: 0; border-bottom: 2.5px solid var(--ink); } .panel:last-child { border-bottom: 0; } }
+
+  .build-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: clamp(24px, 4vw, 64px); align-items: center; margin-bottom: 56px; }
+  .uses { list-style: none; margin: 0 0 24px; padding: 0; display: grid; gap: 0; }
+  .uses li { padding: 12px 0 12px 34px; border-bottom: 1.5px dashed rgba(28,26,46,.35); font-size: 1.12rem; position: relative; }
+  .uses li::before { content: "»"; position: absolute; left: 4px; top: 6px; font-family: var(--font-display); font-weight: 900; font-size: 1.6rem; color: var(--pink-text); }
+  .build-art { width: 100%; border-radius: var(--radius); }
+  .sub-h { font-size: clamp(2rem, 3.6vw, 2.8rem); color: var(--ink); margin: 0 0 20px; }
+  .caps { margin-bottom: 12px; }
+  .more-link { margin: 0 0 48px; font-weight: 600; }
+  .integ { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 12px; }
+  .integ a { display: grid; gap: 2px; min-height: 64px; padding: 12px 16px; border: 2.5px solid var(--ink); border-radius: var(--radius); text-decoration: none; color: var(--ink); background: var(--paper); transition: transform 140ms var(--ease), box-shadow 140ms var(--ease); }
+  .integ a:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--pink); color: var(--ink); }
+  .integ strong { font-family: var(--font-display); font-weight: 900; text-transform: uppercase; font-size: 1.45rem; line-height: 1.05; }
+  .agents-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); align-items: center; }
+  @media (max-width: 860px) { .build-grid, .agents-grid { grid-template-columns: minmax(0, 1fr); } }
+  .three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .big-price { font-family: var(--font-display); font-weight: 900; font-size: 3.4rem; line-height: 0.9; margin: 0 0 12px; }
+  .big-price span { font-size: 1.2rem; text-transform: uppercase; }
+  .tier-insiders { box-shadow: 6px 6px 0 var(--blue); }
+  .tier-restricted { box-shadow: 6px 6px 0 var(--pink); }
+  .three + .dated { margin: 20px 0 24px; }
+  @media (max-width: 860px) { .three { grid-template-columns: minmax(0, 1fr); } }
+  .risk { background: var(--ink); color: var(--paper); }
+  .risk-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: clamp(24px, 4vw, 64px); align-items: start; }
+  .risk h2 { color: var(--pink); }
+  .risk a { color: var(--paper); }
+  .risk a:hover { color: var(--pink); }
+  .risk-card p { font-size: 1.12rem; }
+  .status { border: 2.5px solid var(--paper); border-radius: var(--radius); padding: 22px; }
+  .status h3 { color: var(--paper); }
+  .status dl { margin: 0 0 16px; display: grid; gap: 0; }
+  .status dl div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1.5px dashed rgba(242,238,227,.35); }
+  .status dt { color: rgba(242,238,227,.85); }
+  .status dd { margin: 0; font-family: var(--font-mono); font-weight: 600; text-align: right; }
+  .risk .dated { color: rgba(242,238,227,.85); margin: 0; }
+  @media (max-width: 860px) { .risk-grid { grid-template-columns: minmax(0, 1fr); } }
+  .closing h2 { font-size: clamp(3.4rem, 9vw, 7.5rem); color: var(--blue); text-shadow: 0.04em 0.035em 0 var(--pink); }
+  .closing :global(.code) { max-width: 760px; }
+  .close-ctas { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; }
+</style>

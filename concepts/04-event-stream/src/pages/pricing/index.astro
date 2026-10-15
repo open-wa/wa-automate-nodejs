@@ -1,0 +1,87 @@
+---
+import Page from "../../layouts/Page.astro";
+import LicenceForm from "../../components/LicenceForm.astro";
+import { licences, product, href, support } from "../../data/site";
+const periods = [["month", "1 month"], ["threeMonths", "3 months"], ["sixMonths", "6 months"], ["year", "1 year"]] as const;
+---
+
+<Page title="Pricing and licence keys | open-wa" description="open-wa is free for most methods. Insiders and Restricted licence keys cover specific methods per WhatsApp number, from £5 a month.">
+  <div class="wrap">
+    <header class="page-hero">
+      <span class="label">Pricing</span>
+      <h1>Free for most methods. A key per number for the rest.</h1>
+      <p>{licences.summary}</p>
+    </header>
+
+    <section class="tiers" aria-label="Tiers">
+      <article class="tier">
+        <h2>{licences.free.name}</h2>
+        <p class="price mono">£0</p>
+        <p>{licences.free.covers}</p>
+        <a class="btn" href={href("quickstart/")}>Quick start</a>
+      </article>
+      {licences.tiers.map((t) => (
+        <article class="tier" id={t.id}>
+          <h2>{t.name}</h2>
+          <p class="price mono">{t.prices.month}<span class="muted"> / month</span></p>
+          <table class="periods">
+            <caption class="sr">{t.name} prices by billing period</caption>
+            <tbody>
+              {periods.map(([key, label]) => <tr><th scope="row">{label}</th><td class="mono">{t.prices[key]}</td></tr>)}
+            </tbody>
+          </table>
+          <p>{t.unlocks}</p>
+          <a class="btn btn-cyan" href="#licence" data-pick-tier={t.id}>Get a {t.name} key</a>
+        </article>
+      ))}
+    </section>
+    <p class="muted checked">Prices in GBP, checked {licences.pricesCheckedOn}</p>
+
+    <section class="buy" id="licence">
+      <div class="buy-copy">
+        <span class="label">Get a key</span>
+        <h2>Configure your licence</h2>
+        <p class="muted">Four fields, no account. Then a prefilled Gumroad checkout where you review the price and pay.</p>
+        <h3>Before you buy</h3>
+        <ol class="byb">{licences.beforeYouBuy.map((b) => <li>{b}</li>)}</ol>
+        <p class="note-risk"><strong>Ban risk applies with or without a key.</strong> {product.risk}</p>
+      </div>
+      <LicenceForm />
+    </section>
+
+    <section class="faq">
+      <h2>Questions</h2>
+      <details><summary>Is the key per number or per account?</summary><p>Per WhatsApp number. Each number you run with licensed methods needs its own key.</p></details>
+      <details><summary>How do I apply the key?</summary><p>Start with <code class="mono">{`--license-key "YOUR-LICENSE-KEY"`}</code> or set <code class="mono">licenseKey</code> in your config. Since 5.5 you can also apply it from the dashboard or with <code class="mono">client.refresh()</code> without restarting the Node process.</p></details>
+      <details><summary>Which tier do I need for createGroup?</summary><p>Restricted: <code class="mono">createGroup</code>, <code class="mono">joinGroupViaLink</code> and <code class="mono">joinGroup</code>, plus starting conversations with numbers that are not already contacts.</p></details>
+      <details><summary>Do MCP tools follow the same rules?</summary><p>Yes. Each method keeps its licence level when an AI agent calls it as a tool.</p></details>
+      <details><summary>Can I get help instead of a key?</summary><p>Paid support and consulting are on the <a href={href("support/")}>support page</a>, or email <a href={`mailto:${support.consultingEmail}`}>{support.consultingEmail}</a>.</p></details>
+    </section>
+  </div>
+</Page>
+
+<style>
+  .tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 40px; }
+  .tier { background: var(--graphite-2); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 24px; display: grid; gap: 12px; align-content: start; }
+  .tier h2 { font-size: 26px; }
+  .tier p { color: var(--muted); margin: 0; }
+  .tier .price { font-size: 30px; color: var(--warm); }
+  .tier .btn { justify-self: start; margin-top: 6px; }
+  .periods { border-collapse: collapse; width: 100%; font-size: 15px; }
+  .periods th { text-align: left; font-weight: 400; color: var(--muted); padding: 6px 0; border-bottom: 1px solid var(--graphite-4); }
+  .periods td { text-align: right; padding: 6px 0; border-bottom: 1px solid var(--graphite-4); }
+  .checked { font-size: 15px; margin-top: 14px; }
+  .buy { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 40px; margin-top: 80px; align-items: start; }
+  .buy-copy { display: grid; gap: 14px; }
+  .buy-copy h3 { margin-top: 10px; font-size: 19px; }
+  .byb { margin: 0; padding-left: 20px; color: #d6d8da; display: grid; gap: 6px; }
+  .faq { margin-top: 80px; max-width: 820px; }
+  .faq h2 { margin-bottom: 16px; }
+  details { border-bottom: 1px solid var(--line); }
+  summary { cursor: pointer; padding: 16px 0; font-weight: 600; min-height: 44px; }
+  details p { color: #d6d8da; margin: 0 0 16px; }
+  details code { background: var(--graphite-3); padding: 1px 5px; border-radius: 4px; font-size: 15px; }
+  @media (max-width: 900px) {
+    .tiers, .buy { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

@@ -119,7 +119,6 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
       sessionId: config.client.sessionId,
       events: config.client.events,
       observability: config.client.observability,
-      portableTransport: config.transport,
     });
     
     // Bind method modules
@@ -355,12 +354,6 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
     return this._listenerManager.on('eventResponse', callback, options);
   }
 
-  /** Counts only; never exposes the encrypted session's contents or keys. */
-  getPortableSessionStatus() { return this._transport.getPortableSessionStatus(); }
-
-  /** Retry pending delivery after a handler failure. Successful callbacks may repeat after a crash. */
-  replayPortableMessages(): Promise<void> { return this._transport.replayPortableMessages(); }
-
   /** Listen for all incoming messages. */
   onMessage(callback: (message: Message) => void | Promise<void>, options?: QueueOptions): ListenerHandle {
     return this._listenerManager.on('message', async (payload) => {
@@ -472,11 +465,8 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   }
 
   private async _runLoadedFinalization(): Promise<void> {
-    this.logger.info('client_loaded_waiting_for_sync', { sessionId: this.sessionId });
-    await this._waitForSessionLoaded();
-
     this.registerAllSimpleListenersOnEv();
-    this._phoneVersion = await this._capturePhoneVersion();
+    this._phoneVersion = await this._capturePhoneVersion().catch(() => undefined);
     this._installRetainedFinalizationHooks();
     this._loaded = true;
 
@@ -484,37 +474,6 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
       sessionId: this.sessionId,
       phoneVersion: this._phoneVersion ?? 'unknown',
     });
-  }
-
-  private async _waitForSessionLoaded(timeoutMs = 20_000, pollingMs = 50): Promise<void> {
-    const startedAt = Date.now();
-
-    while (Date.now() - startedAt <= timeoutMs) {
-      const loaded = await this._transport.evaluate(() => {
-        const root = globalThis as typeof globalThis & {
-          WAPI?: { isSessionLoaded?: () => boolean };
-          isSessionLoaded?: () => boolean;
-        };
-
-        if (typeof root.WAPI?.isSessionLoaded === 'function') {
-          return Boolean(root.WAPI.isSessionLoaded());
-        }
-
-        if (typeof root.isSessionLoaded === 'function') {
-          return Boolean(root.isSessionLoaded());
-        }
-
-        return false;
-      }, undefined);
-
-      if (loaded) {
-        return;
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, pollingMs));
-    }
-
-    throw new Error('Timed out waiting for internal session sync to finish');
   }
 
   private registerAllSimpleListenersOnEv(): void {
@@ -542,9 +501,19 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
       return;
     }
 
+    this.events.on('session.state.changed', event => {
+      if (event.details?.next === 'STARTING' || event.details?.next === 'AUTHENTICATING') {
+        this._loaded = false;
+        this._loadedPromise = undefined;
+        this._phoneVersion = undefined;
+      }
+    });
+
     this.events.on('session.logout', () => {
       if (!this._logoutCleanupPromise) {
-        this._logoutCleanupPromise = this._runLogoutCleanup().finally(() => {
+        this._logoutCleanupPromise = this._runLogoutCleanup().catch(error => {
+          this.logger.error('session_logout_cleanup_failed', { error });
+        }).finally(() => {
           this._loaded = false;
           this._loadedPromise = undefined;
           this._phoneVersion = undefined;
@@ -557,7 +526,6 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   }
 
   private async _runLogoutCleanup(): Promise<void> {
-    await this._transport.invalidatePortableSession();
     if (this._client.config.killClientOnLogout) await this._client.stop('LOGGED_OUT');
   }
 

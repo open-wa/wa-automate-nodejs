@@ -1,0 +1,72 @@
+---
+/** The first run as a trace: spans on a shared timeline, no invented timings. */
+import { commands } from "../data/site";
+const spans = [
+  { d: 0, name: commands.easyApi, kind: "cli", s: 0, w: 100, mono: true },
+  { d: 1, name: "launch WhatsApp Web", kind: "runtime", s: 2, w: 14 },
+  { d: 1, name: "print QR or link code", kind: "auth", s: 16, w: 4 },
+  { d: 1, name: "you scan with your phone", kind: "you", s: 20, w: 26, wait: true },
+  { d: 1, name: "session ready", kind: "ready", s: 46, w: 0.6, tick: true },
+  { d: 0, name: `GET ${commands.proofOfLife}`, kind: "http", s: 50, w: 8, mono: true },
+  { d: 0, name: "sendText to 447700900123@c.us", kind: "http", s: 62, w: 6, mono: true },
+  { d: 0, name: "onMessage ← “Hi”", kind: "event", s: 80, w: 1.2, tick: true, mono: true },
+];
+---
+
+<div class="wf panel" data-wf>
+  <div class="wf-bar">
+    <span class="mono wf-title"><span class="wf-ok" aria-hidden="true"></span>run <b>first-run</b> &middot; session sales</span>
+    <span class="example">Example output</span>
+  </div>
+  <ol class="wf-rows">
+    {spans.map((s) => (
+      <li class:list={["wf-row", `k-${s.kind}`, { wait: s.wait }]} style={`--d:${s.d};--s:${s.s};--w:${s.w}`}>
+        <span class:list={["wf-name", { mono: s.mono }]}>{s.name}</span>
+        <span class="wf-track" aria-hidden="true"><span class:list={["wf-span", { tick: s.tick }]}></span></span>
+      </li>
+    ))}
+  </ol>
+</div>
+
+<script>
+  import { shouldAnimate } from "../lib/runtime";
+  const wf = document.querySelector<HTMLElement>("[data-wf]");
+  if (wf && shouldAnimate()) {
+    wf.classList.add("wf-armed");
+    new IntersectionObserver((entries, io) => {
+      if (entries.some((e) => e.isIntersecting)) { wf.classList.add("wf-run"); io.disconnect(); }
+    }, { threshold: 0.35 }).observe(wf);
+  }
+</script>
+
+<style>
+  .wf { overflow: hidden; }
+  .wf-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .wf-title { font-size: 13.5px; color: var(--muted); }
+  .wf-title b { color: var(--warm); font-weight: 600; }
+  .wf-ok { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); margin-right: 8px; }
+  .wf-rows { list-style: none; margin: 0; padding: 8px 0; }
+  .wf-row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; align-items: center; padding: 6px 16px; min-height: 38px; }
+  .wf-row:hover { background: var(--graphite-3); }
+  .wf-name { padding-left: calc(var(--d) * 22px); font-size: 15px; color: var(--warm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; position: relative; }
+  .wf-name.mono { font-size: 13.5px; }
+  .wf-row[style*="--d:1"] .wf-name::before { content: ""; position: absolute; left: 6px; top: -12px; bottom: 50%; width: 9px; border-left: 1px solid var(--graphite-4); border-bottom: 1px solid var(--graphite-4); }
+  .wf-track { position: relative; height: 18px; background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), var(--graphite-4) calc(10% - 1px) 10%); }
+  .wf-span {
+    position: absolute; top: 3px; height: 12px; border-radius: 2px;
+    left: calc(var(--s) * 1%); width: max(calc(var(--w) * 1%), 4px);
+    background: var(--cyan); transform-origin: left;
+  }
+  .k-cli .wf-span { background: color-mix(in srgb, var(--cyan) 22%, transparent); border: 1px solid var(--cyan-dim); }
+  .k-runtime .wf-span, .k-auth .wf-span { background: var(--cyan-dim); }
+  .k-http .wf-span { background: var(--warm); }
+  .wait .wf-span { background: repeating-linear-gradient(135deg, var(--muted) 0 3px, transparent 3px 7px); border: 1px solid var(--faint); }
+  .wf-span.tick { width: 4px; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+  .k-event .wf-span { height: 18px; top: 0; }
+  .wf-armed .wf-span { transform: scaleX(0); opacity: 0; }
+  .wf-run .wf-span { transform: none; opacity: 1; transition: transform 700ms var(--ease), opacity 300ms; transition-delay: calc(var(--s) * 22ms); }
+  @media (max-width: 700px) {
+    .wf-row { grid-template-columns: minmax(0, 1fr); gap: 4px; padding: 8px 12px; }
+    .wf-name { white-space: normal; }
+  }
+</style>

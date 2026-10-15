@@ -1,0 +1,66 @@
+---
+import Page from "../layouts/Page.astro";
+import CapRow from "../components/CapRow.astro";
+import { capabilities as c, commands, snippets, curlSend, DOCS } from "../data/facts";
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const rows = [
+  { id: "messages", title: "Messages", text: c.messages, code: curlSend, lang: "bash", codeTitle: "Send a message", methods: ["sendText", "onMessage"] },
+  { id: "media", title: "Media", text: c.media, code: null, methods: [] },
+  { id: "groups", title: "Groups", text: c.groups, code: null, methods: ["createGroup", "joinGroupViaLink", "joinGroup"], note: "Reading group activity is free. Creating and joining groups needs a Restricted key." },
+  { id: "polls", title: "Polls", text: c.polls, code: null, methods: [] },
+  { id: "events", title: "Event cards and RSVPs", text: c.events, code: snippets.event, lang: "js", codeTitle: "events.mjs", methods: ["sendEvent", "onEventResponse"] },
+  { id: "stickers", title: "Stickers", text: c.stickers, code: commands.stickerCli, lang: "bash", codeTitle: "Terminal", methods: [], note: "Sending stickers with client.sendSticker needs a private finalizer. Local rendering with the CLI is open to everyone." },
+  { id: "multi-session", title: "Multi-session", text: c.multiSession, code: commands.namedSession, lang: "bash", codeTitle: "Terminal", methods: ["--session-id"] },
+  { id: "sessions", title: "Sessions and keys", text: c.sessions, code: snippets.sessionKey, lang: "js", codeTitle: "session.mjs", methods: ["sessionDataEncryptionKeyFile"] },
+  { id: "refresh", title: "Live refresh", text: c.refresh, code: null, methods: ["client.refresh()"] },
+  { id: "drivers", title: "Browser drivers", text: c.drivers, code: snippets.embedded.split("\n").slice(0, 8).join("\n") + "\n});", lang: "js", codeTitle: "app.mjs", methods: [], note: "Lightpanda is experimental." },
+  { id: "docs", title: "Generated API docs", text: c.docs, code: `${commands.proofOfLife}\n${commands.swagger}\n${commands.postman}`, lang: "text", codeTitle: "Browser", methods: [] },
+];
+const withCode = rows.filter((r) => r.code);
+const noCode = rows.filter((r) => !r.code);
+---
+
+<Page title="Features: what open-wa can do with WhatsApp | open-wa" description="Messages, media, groups, polls, event cards, stickers, multi-session, encrypted sessions, live refresh, browser drivers and generated API docs, each with the call that does it.">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="crumbs"><a href={base}>Home</a> / Features</p>
+      <h1>Everything your code can do with a WhatsApp account</h1>
+      <p>Each capability with the request or method that does it. Most are free; licensed methods are marked.</p>
+      <nav class="jump" aria-label="On this page">
+        {rows.map((r) => <a href={`#${r.id}`}>{r.title}</a>)}
+      </nav>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      {withCode.map((r, i) => (
+        <CapRow id={r.id} flip={i % 2 === 1} title={r.title} text={r.text} code={r.code!} lang={r.lang} codeTitle={r.codeTitle} methods={r.methods} note={r.note} />
+      ))}
+      <div class="nocode">
+        {noCode.map((r) => (
+          <article class="card" id={r.id}>
+            <h3>{r.title}</h3>
+            <p>{r.text}</p>
+            {r.methods.length > 0 && <p class="mlist">{r.methods.map((m) => <code>{m}</code>)}</p>}
+            {r.note && <p class="small muted">{r.note}</p>}
+          </article>
+        ))}
+      </div>
+      <p class="more">Method-by-method reference: <a class="link" href={DOCS}>the docs</a>. What needs a key: <a class="link" href={`${base}pricing/`}>pricing</a>.</p>
+    </div>
+  </section>
+</Page>
+
+<style>
+  .jump { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+  .jump a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--slate-200); background: var(--white); color: var(--slate); text-decoration: none; font-weight: 600; font-size: 0.9375rem; }
+  .jump a:hover { border-color: var(--slate); }
+  .nocode { display: grid; gap: 16px; margin-top: 36px; }
+  @media (min-width: 760px) { .nocode { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .nocode .card { display: grid; gap: 10px; }
+  .nocode p { color: var(--slate-700); }
+  .mlist { display: flex; flex-wrap: wrap; gap: 6px; }
+  .more { margin-top: 36px; color: var(--slate-700); }
+</style>

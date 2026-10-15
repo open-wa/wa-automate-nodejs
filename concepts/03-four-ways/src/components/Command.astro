@@ -1,0 +1,21 @@
+---
+import CopyButton from "./CopyButton.astro";
+interface Props { cmd: string; id: string; tone?: "navy" | "paper" }
+const { cmd, id, tone = "navy" } = Astro.props;
+---
+<div class:list={["cmdline", `cmdline-${tone}`]}>
+  <span class="prompt" aria-hidden="true">$</span>
+  <code id={id}>{cmd.split(" ").map((t, i) => <>{i > 0 && " "}<span class="tok">{t}</span></>)}</code>
+  <CopyButton target={id} describe="the command" />
+</div>
+<style>
+  .cmdline { display: flex; align-items: center; gap: 10px; border-radius: 12px; padding: 6px 6px 6px 16px; min-width: 0; }
+  .cmdline-navy { background: var(--color-ink); color: var(--color-on-navy); }
+  .cmdline-navy :global(.copy) { color: var(--color-on-navy); border-color: rgba(244, 241, 234, 0.3); }
+  .cmdline-paper { background: var(--color-paper-3); border: 1px solid var(--color-rule); }
+  .prompt { font-family: var(--font-mono); color: var(--color-coral); font-size: 13px; }
+  .cmdline-paper .prompt { color: var(--color-coral-ink); }
+  code { background: none !important; padding: 0 !important; color: inherit; font-size: 13px !important; white-space: normal; line-height: 1.6; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .tok { white-space: nowrap; }
+  @media (max-width: 400px) { .tok { white-space: normal; } }
+</style>

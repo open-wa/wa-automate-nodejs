@@ -1,0 +1,51 @@
+---
+import Site from "../layouts/Site.astro";
+import PageHead from "../components/PageHead.astro";
+import { product } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/u, "/");
+const rows = [
+  ["Which number", "A number registered on the WhatsApp Business Platform through a Meta business account", "The WhatsApp number you already use, through WhatsApp Web"],
+  ["Starting conversations", "Approved message templates for conversations you start", "Send to existing contacts free; numbers that aren't contacts need a Restricted key"],
+  ["Cost", "Per-message pricing from Meta", "Free for most methods; Insiders from £5 and Restricted from £15 a month per number (checked 12 Oct 2026)"],
+  ["Status", "Official and supported by Meta", "Unofficial, not affiliated with WhatsApp or Meta"],
+  ["Account risk", "Officially supported use; Meta's policies apply", "Automation can get the account restricted or banned"],
+  ["Where it runs", "Meta's cloud", "Your machine or container, in a browser open-wa controls"],
+];
+---
+<Site title="Official WhatsApp API or open-wa? | open-wa" description="An honest comparison: Meta's WhatsApp Business Platform is official, needs a business account, templates and per-message pricing. open-wa uses your existing number, is free for most methods and is unofficial with ban risk.">
+  <PageHead eyebrow="Compare" title="Official API or open-wa?" lede="Both send and receive WhatsApp messages from code. They make different trade-offs, and the official route is the right one for many teams." />
+  <section class="cmp">
+    <div class="wrap">
+      <div class="cmp-table" role="table" aria-label="WhatsApp Business Platform compared with open-wa">
+        <div class="cmp-r cmp-h" role="row"><span role="columnheader"></span><span role="columnheader">WhatsApp Business Platform (Cloud API)</span><span role="columnheader">open-wa</span></div>
+        {rows.map(([k, a, b]) => (
+          <div class="cmp-r" role="row"><span role="rowheader" class="cmp-k">{k}</span><span role="cell">{a}</span><span role="cell">{b}</span></div>
+        ))}
+      </div>
+      <div class="grid-2 cmp-pick">
+        <div class="card"><h3>Pick the official platform if</h3><p>You need Meta's support, you're messaging at scale for a large brand, or your compliance team needs an officially supported channel.</p></div>
+        <div class="card"><h3>Pick open-wa if</h3><p>You want your own existing number answering from your code today, you can accept the ban risk, and you'd rather not pay per message.</p></div>
+      </div>
+      <p class="note cmp-note"><strong>Unofficial.</strong> {product.unofficial} {product.risk}</p>
+      <a class="btn btn-ink" href={`${base}quickstart/`}>Try open-wa with the quick start</a>
+    </div>
+  </section>
+</Site>
+<style>
+  .cmp { padding-bottom: 96px; }
+  .cmp-table { border: 1px solid var(--grey-2); border-radius: var(--radius-l); overflow: hidden; background: var(--white); }
+  .cmp-r { display: grid; grid-template-columns: 200px minmax(0, 1fr) minmax(0, 1fr); gap: 24px; padding: 18px 24px; border-top: 1px solid var(--grey-2); }
+  .cmp-r:first-child { border-top: 0; }
+  .cmp-h { background: var(--paper); font-weight: 650; }
+  .cmp-h span:last-child { color: var(--blue); }
+  .cmp-k { font-weight: 600; }
+  .cmp-r span[role=cell] { color: var(--grey-5); }
+  .cmp-pick { margin: 40px 0 24px; }
+  .cmp-note { margin-bottom: 32px; }
+  @media (max-width: 760px) {
+    .cmp-r { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+    .cmp-h { display: none; }
+    .cmp-r span[role=cell]:nth-child(2)::before { content: "Official platform: "; font-weight: 600; color: var(--ink); }
+    .cmp-r span[role=cell]:nth-child(3)::before { content: "open-wa: "; font-weight: 600; color: var(--blue); }
+  }
+</style>

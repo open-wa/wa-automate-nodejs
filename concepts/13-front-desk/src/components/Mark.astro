@@ -1,0 +1,75 @@
+---
+/**
+ * The mark: a reception bell inside a speech bubble. On hover or keyboard
+ * focus of the link around it (.mark-host) the plunger presses, the bell
+ * rocks on its base and two ring arcs open beside it, then it settles.
+ * Still under reduced motion. public/favicon.svg is the still mark.
+ */
+interface Props { size?: number; label?: string; tone?: "ocean" | "sand" }
+const { size = 34, label = "open-wa", tone = "ocean" } = Astro.props;
+---
+
+<svg class:list={["mark", `mark--${tone}`]} viewBox="0 0 40 40" width={size} height={size} role="img" aria-label={label}>
+  <path class="mark-bubble" d="M9 4h22a6 6 0 0 1 6 6v15a6 6 0 0 1-6 6H17l-7.2 5.6c-.7.5-1.6 0-1.6-.8V31A6 6 0 0 1 3 25V10a6 6 0 0 1 6-6z" />
+  <g class="mark-ring" aria-hidden="true">
+    <path d="M9.6 14.6a8 8 0 0 0-1.4 6" />
+    <path d="M30.4 14.6a8 8 0 0 1 1.4 6" />
+  </g>
+  <g class="mark-bell">
+    <g class="mark-plunger">
+      <rect x="18.9" y="9.4" width="2.2" height="3.4" rx="0.8" />
+      <rect x="17" y="8.2" width="6" height="2" rx="1" />
+    </g>
+    <path class="mark-dome" d="M11.6 21.6a8.4 8.4 0 0 1 16.8 0z" />
+    <rect class="mark-base" x="9.6" y="22.4" width="20.8" height="2.6" rx="1.3" />
+  </g>
+</svg>
+
+<style>
+  .mark { display: block; flex: none; overflow: visible; }
+  .mark-bubble { fill: var(--ocean); }
+  .mark-dome, .mark-base { fill: var(--sand); }
+  .mark-plunger { fill: var(--terracotta); }
+  .mark-ring path { fill: none; stroke: var(--terracotta); stroke-width: 1.8; stroke-linecap: round; opacity: 0; }
+  .mark--sand .mark-bubble { fill: var(--sand); }
+  .mark--sand .mark-dome, .mark--sand .mark-base { fill: var(--ocean); }
+
+  .mark-bell { transform-box: fill-box; transform-origin: 50% 100%; }
+  .mark-plunger { transform-box: fill-box; transform-origin: 50% 100%; }
+  .mark-ring path { transform-box: fill-box; transform-origin: center; }
+
+  :global(.mark-host:hover) .mark-bell,
+  :global(.mark-host:focus-visible) .mark-bell { animation: mark-rock 900ms var(--ease-bell) both; }
+  :global(.mark-host:hover) .mark-plunger,
+  :global(.mark-host:focus-visible) .mark-plunger { animation: mark-press 900ms var(--ease-bell) both; }
+  :global(.mark-host:hover) .mark-ring path,
+  :global(.mark-host:focus-visible) .mark-ring path { animation: mark-ring 900ms var(--ease) both; }
+  :global(.mark-host:hover) .mark-ring path + path,
+  :global(.mark-host:focus-visible) .mark-ring path + path { animation-delay: 60ms; }
+
+  @keyframes mark-press {
+    0% { transform: translateY(0); }
+    12% { transform: translateY(1.6px) scaleY(0.82); }
+    30% { transform: translateY(0); }
+    100% { transform: translateY(0); }
+  }
+  @keyframes mark-rock {
+    0%, 12% { transform: rotate(0); }
+    26% { transform: rotate(-6deg); }
+    42% { transform: rotate(4.5deg); }
+    58% { transform: rotate(-2.6deg); }
+    74% { transform: rotate(1.2deg); }
+    100% { transform: rotate(0); }
+  }
+  @keyframes mark-ring {
+    0%, 14% { opacity: 0; transform: scale(0.6); }
+    32% { opacity: 1; transform: scale(1); }
+    70% { opacity: 0.8; transform: scale(1.18); }
+    100% { opacity: 0; transform: scale(1.3); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.mark-host:hover) .mark-bell, :global(.mark-host:focus-visible) .mark-bell,
+    :global(.mark-host:hover) .mark-plunger, :global(.mark-host:focus-visible) .mark-plunger,
+    :global(.mark-host:hover) .mark-ring path, :global(.mark-host:focus-visible) .mark-ring path { animation: none; }
+  }
+</style>

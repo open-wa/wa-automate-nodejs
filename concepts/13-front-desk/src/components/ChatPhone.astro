@@ -1,0 +1,104 @@
+---
+/** A drawn phone showing one recipe's example conversation. Static. */
+import Mark from "./Mark.astro";
+import key from "../assets/generated/key.webp";
+import { getImage } from "astro:assets";
+import type { Msg } from "../data/recipes";
+interface Props { business: string; number: string; msgs: Msg[]; label: string }
+const { business, number, msgs, label } = Astro.props;
+const photo = await getImage({ src: key, width: 480, format: "webp" });
+---
+
+<figure class="cp">
+  <div class="cp-phone" role="group" aria-label={label}>
+    <div class="cp-head">
+      <span class="cp-avatar" aria-hidden="true"><Mark size={20} label="" tone="sand" /></span>
+      <span class="cp-who"><strong>{business}</strong><span>{number}</span></span>
+      <span class="example-tag">Example</span>
+    </div>
+    <ol class="cp-thread">
+      {msgs.map((m) => {
+        if (m.kind === "system") return <li class="cp-sys">{m.text}</li>;
+        if (m.kind === "call") return <li class="cp-call"><span class="cp-call-i" aria-hidden="true">✆</span><span><strong>{m.title}</strong><code>{m.detail}</code></span></li>;
+        const side = m.from === "them" ? "cp-b--them" : "cp-b--biz";
+        return (
+          <li class:list={["cp-b", side, `cp-b--${m.kind}`]}>
+            {m.kind === "text" && <p>{m.text}</p>}
+            {m.kind === "poll" && (
+              <div class="cp-poll"><strong>{m.title}</strong>
+                <ul>{m.options.map((o) => <li class:list={{ picked: o === m.picked }}><span class="dot" aria-hidden="true"></span>{o}{o === m.picked && <span class="cp-vote"> · 1 vote</span>}</li>)}</ul>
+              </div>
+            )}
+            {m.kind === "event" && (
+              <div class="cp-event"><span class="cp-event-cal" aria-hidden="true">FRI</span><span><strong>{m.title}</strong><span>{m.when}</span></span>
+                <span class="cp-rsvp"><span class="on">Going</span><span>Maybe</span><span>Not going</span></span></div>
+            )}
+            {m.kind === "location" && (
+              <div class="cp-loc"><svg viewBox="0 0 240 90" aria-hidden="true"><rect width="240" height="90" fill="#d9e5ec"/><path d="M0 52c30-6 52 4 80-6s44-22 76-18 58 10 84 2V90H0z" fill="#efe7da"/><path d="M0 68c40-6 70 6 110-2s80-8 130 0" stroke="#fffdf8" stroke-width="5" fill="none"/><g transform="translate(120 46)"><path d="M0-28c-8 0-14 6-14 14 0 10 14 23 14 23s14-13 14-23c0-8-6-14-14-14z" fill="#c8553d"/><circle cy="-14" r="5" fill="#fffdf8"/></g></svg><span><strong>{m.title}</strong><span>{m.address}</span></span></div>
+            )}
+            {m.kind === "file" && <div class="cp-file"><span class="cp-pdf" aria-hidden="true">PDF</span><span><strong>{m.name}</strong><span>{m.caption}</span></span></div>}
+            {m.kind === "voice" && <div class="cp-voice"><span class="cp-play" aria-hidden="true">▶</span><span class="cp-wave" aria-hidden="true">{Array.from({ length: 22 }, (_, i) => <i style={`height:${6 + ((i * 7) % 15)}px`}></i>)}</span><span>{m.length}</span><span class="sr">Voice note, {m.length}</span></div>}
+            {m.kind === "image" && (
+              <div class:list={["cp-img", { "cp-img--sticker": m.sticker }]}>
+                <img src={photo.src} width="240" height="240" alt={m.sticker ? "Illustration rendered as a sticker with the comic and sparkle effects" : "Illustration: a room key on a desk"} loading="lazy" />
+                {m.caption && <p>{m.caption}</p>}
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ol>
+  </div>
+  <figcaption>Example conversation. The business and numbers are invented.</figcaption>
+</figure>
+
+<style>
+  .cp { margin: 0; display: grid; gap: 10px; justify-items: center; }
+  .cp figcaption { font-size: 0.875rem; color: var(--color-muted); text-align: center; }
+  .cp-phone { width: min(100%, 340px); background: var(--sand-50); border: 9px solid var(--ocean); border-radius: 36px; overflow: hidden; box-shadow: var(--shadow-lift); }
+  .cp-head { display: flex; align-items: center; gap: 10px; padding: 14px 12px 12px; background: var(--paper); border-bottom: 1px solid var(--sand-200); }
+  .cp-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--ocean); display: grid; place-items: center; flex: none; }
+  .cp-who { flex: 1; display: grid; line-height: 1.25; min-width: 0; }
+  .cp-who strong { font-weight: 600; font-size: 1rem; }
+  .cp-who span { font-size: 0.8125rem; color: var(--color-muted); }
+  .cp-thread { list-style: none; display: flex; flex-direction: column; gap: 8px; padding: 14px 12px 18px; min-height: 380px; }
+  .cp-b { max-width: 86%; font-size: 0.9375rem; line-height: 1.4; }
+  .cp-b--biz { align-self: flex-start; background: var(--paper); border: 1px solid var(--sand-200); border-radius: 4px 16px 16px 16px; overflow: hidden; }
+  .cp-b--them { align-self: flex-end; background: var(--ocean); color: var(--sand-50); border-radius: 16px 4px 16px 16px; overflow: hidden; }
+  .cp-b p { padding: 8px 12px; }
+  .cp-sys { align-self: center; font: 400 0.9375rem/1.3 var(--font-mono); color: var(--ocean-700); background: var(--sand-100); border: 1px dashed var(--sand-300); padding: 4px 10px; border-radius: 8px; text-align: center; }
+  .cp-call { align-self: center; display: flex; gap: 10px; align-items: center; background: var(--sand-100); border-radius: 14px; padding: 10px 12px; }
+  .cp-call-i { width: 34px; height: 34px; border-radius: 50%; background: var(--ok); color: #fff; display: grid; place-items: center; }
+  .cp-call span:last-child { display: grid; }
+  .cp-call code { background: none !important; border: 0 !important; padding: 0 !important; font-size: 0.875rem; color: var(--color-muted); }
+  .cp-poll { padding: 10px 12px; display: grid; gap: 8px; }
+  .cp-poll ul { list-style: none; display: grid; gap: 6px; }
+  .cp-poll li { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; background: var(--sand-50); border: 1px solid var(--sand-200); }
+  .cp-poll li.picked { border-color: var(--terracotta); background: #fdf3ef; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ocean-300); }
+  .picked .dot { border-color: var(--terracotta); background: radial-gradient(circle, var(--terracotta) 45%, transparent 50%); }
+  .cp-vote { color: var(--color-muted); font-size: 0.8125rem; }
+  .cp-event { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; padding: 10px 12px; }
+  .cp-event > span:nth-child(2) { display: grid; line-height: 1.3; }
+  .cp-event > span:nth-child(2) span { font-size: 0.8125rem; color: var(--color-muted); }
+  .cp-event-cal { width: 40px; height: 40px; border-radius: 8px; background: var(--terracotta); color: #fff; display: grid; place-items: center; font: 700 0.75rem/1 var(--font-mono); }
+  .cp-rsvp { grid-column: 1 / -1; display: flex; gap: 6px; flex-wrap: wrap; }
+  .cp-rsvp span { font-size: 0.8125rem; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--sand-300); }
+  .cp-rsvp .on { background: var(--ocean); color: var(--sand-50); border-color: var(--ocean); }
+  .cp-loc svg { display: block; width: 100%; height: auto; }
+  .cp-loc > span, .cp-file > span:last-child { display: grid; padding: 8px 12px; line-height: 1.3; }
+  .cp-loc > span span, .cp-file > span:last-child span { font-size: 0.8125rem; color: var(--color-muted); }
+  .cp-file { display: grid; grid-template-columns: auto 1fr; align-items: center; padding-left: 10px; }
+  .cp-file strong { font-family: var(--font-mono); font-weight: 700; }
+  .cp-pdf { width: 34px; height: 42px; border-radius: 6px; background: var(--terracotta); color: #fff; display: grid; place-items: end center; padding-bottom: 6px; font: 700 0.6875rem/1 var(--font-mono); clip-path: polygon(0 0, 70% 0, 100% 24%, 100% 100%, 0 100%); }
+  .cp-voice { display: flex; align-items: center; gap: 10px; padding: 10px 12px; font-size: 0.875rem; }
+  .cp-play { width: 30px; height: 30px; border-radius: 50%; background: var(--ocean); color: var(--sand); display: grid; place-items: center; font-size: 0.75rem; }
+  .cp-wave { display: flex; align-items: center; gap: 2px; }
+  .cp-wave i { width: 3px; border-radius: 2px; background: var(--ocean-300); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .cp-img img { width: 100%; aspect-ratio: 1; object-fit: cover; }
+  .cp-b--image { width: 70%; }
+  .cp-img--sticker { padding: 10px; }
+  .cp-b--biz:has(.cp-img--sticker) { background: transparent; border: 0; }
+  .cp-img--sticker img { border-radius: 28px; border: 6px solid #fff; box-shadow: 0 6px 16px -8px rgba(15,59,87,.5); filter: contrast(1.25) saturate(1.4); transform: rotate(-4deg); }
+</style>

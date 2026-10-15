@@ -1,0 +1,255 @@
+---
+/**
+ * A small drawn phone that plays one job's example conversation. Server-rendered
+ * settled (every line shown), so it reads with no JS, under reduced motion and
+ * with ?still. RecipeWall's player hides the lines and replays them in order.
+ * The bubbles are this concept's own drawing, never WhatsApp's UI.
+ */
+import type { Job } from "../data/site";
+interface Props { job: Job; size?: "card" | "large" }
+const { job, size = "card" } = Astro.props;
+const initial = job.contact.name.replace(/[^A-Za-z]/g, "").charAt(0);
+// The call that produced each line, so the wall can light the matching method and code line.
+const callIdx = { n: 0 };
+const methodFor = (l: Job["chat"][number]): string | undefined => {
+  const byKind: Record<string, string> = { poll: "sendPoll", event: "sendEvent", rsvp: "onEventResponse", pin: "sendLocation", file: "sendFile", voice: "sendPtt", sticker: "sendSticker", code: "sendText" };
+  let m: string | undefined = byKind[l.kind];
+  if (l.kind === "text" || l.kind === "photo") m = l.who === "in" ? "onMessage" : l.kind === "photo" ? "sendImage" : "sendText";
+  if (l.kind === "call") m = ["onIncomingCall", "call.accept", "call.accept", "onCallState"][callIdx.n++];
+  if (m && job.methods.includes(m)) return m;
+  return job.methods.length === 1 ? job.methods[0] : undefined;
+};
+---
+
+<div class:list={["ph", `ph-${size}`]} data-phone={job.id} aria-hidden="true">
+  <div class="ph-screen">
+    <div class="ph-top">
+      <span class="ph-av">{initial}</span>
+      <span class="ph-who">
+        <span class="ph-name">{job.contact.name}</span>
+        <span class="ph-num">{job.contact.number}</span>
+      </span>
+      <span class="ph-ex">Example</span>
+    </div>
+    <div class="ph-feed">
+      {job.chat.map((l, i) => (
+        <div class:list={["ph-line", `ph-${l.who}`, `ph-k-${l.kind}`, "is-on", { "is-old": i < job.chat.length - 3 }]} data-i={i} data-m={methodFor(l)}>
+          {l.kind === "text" && (
+            <div class="b"><span>{l.text}</span>{l.time && <time>{l.time}</time>}</div>
+          )}
+          {l.kind === "code" && (
+            <div class="b"><span>{l.text}</span><span class="ph-code">{l.code.slice(0, 3)} {l.code.slice(3)}</span></div>
+          )}
+          {l.kind === "poll" && (
+            <div class="b ph-poll">
+              <strong>{l.title}</strong>
+              <span class="ph-poll-sub">Select one</span>
+              {l.options.map((o, k) => (
+                <span class:list={["ph-opt", { picked: k === l.picked }]}>
+                  <i class="ph-radio"></i><span>{o}</span><span class="ph-votes">{k === l.picked ? "1" : "0"}</span>
+                  <b class="ph-bar"></b>
+                </span>
+              ))}
+            </div>
+          )}
+          {l.kind === "event" && (
+            <div class="b ph-event">
+              <span class="ph-cal"><b>FRI</b><span>13:30</span></span>
+              <span class="ph-ev-t"><strong>{l.title}</strong><span>{l.when}</span></span>
+              <span class="ph-rsvp-row"><span>Going</span><span>Maybe</span><span>Can't go</span></span>
+            </div>
+          )}
+          {l.kind === "rsvp" && <div class="b ph-pill">Replied: {l.text}</div>}
+          {l.kind === "pin" && (
+            <div class="b ph-pin">
+              <span class="ph-map"><i class="ph-road r1"></i><i class="ph-road r2"></i><i class="ph-water"></i><i class="ph-marker"></i></span>
+              <strong>{l.title}</strong><span>{l.address}</span>
+            </div>
+          )}
+          {l.kind === "file" && (
+            <div class="b ph-file">
+              <span class="ph-doc"><i></i>{l.size}</span>
+              <span class="ph-file-t"><strong>{l.name}</strong><span>{l.caption}</span></span>
+            </div>
+          )}
+          {l.kind === "photo" && (
+            <div class="b ph-photo" style={`--tone: var(--${l.tone})`}>
+              <span class="ph-pic"><i class="sun"></i><i class="hill h1"></i><i class="hill h2"></i></span>
+              {l.caption && <span class="ph-cap">{l.caption}</span>}
+            </div>
+          )}
+          {l.kind === "sticker" && (
+            <div class="ph-sticker">
+              <span class="ph-pic"><i class="sun"></i><i class="hill h1"></i><i class="hill h2"></i><i class="dots"></i></span>
+              <i class="spark s1"></i><i class="spark s2"></i><i class="spark s3"></i>
+            </div>
+          )}
+          {l.kind === "voice" && (
+            <div class="b ph-voice">
+              <span class="ph-play"></span>
+              <span class="ph-wave">{Array.from({ length: 18 }, (_, k) => <i style={`--h:${[5,9,14,8,12,16,10,6,13,15,9,7,11,14,8,5,9,6][k]}px`}></i>)}</span>
+              <span class="ph-len">{l.length}</span>
+            </div>
+          )}
+          {l.kind === "call" && (
+            <div class="ph-callcard">
+              <span class="ph-callico"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg></span>
+              <span><strong>{l.state}</strong><span>{l.detail}</span></span>
+            </div>
+          )}
+          {l.kind === "note" && <div class="ph-note">{l.text}</div>}
+        </div>
+      ))}
+      <div class="ph-line ph-out ph-typing" hidden><div class="b"><i></i><i></i><i></i></div></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .ph {
+    --ph-h: 330px; --ph-text: 0.8125rem;
+    width: 100%; max-width: 260px; margin: 0 auto; background: var(--phone-body);
+    border-radius: 30px; padding: 7px; box-shadow: 0 1px 0 #00000014, 0 18px 40px -22px #1C1C1C80;
+  }
+  .ph-large { --ph-h: 440px; --ph-text: 0.9375rem; max-width: 340px; border-radius: 38px; padding: 9px; }
+  .ph-screen {
+    height: var(--ph-h); background: var(--phone-screen); border-radius: 23px; overflow: hidden;
+    display: flex; flex-direction: column; font-size: var(--ph-text); line-height: 1.35;
+  }
+  .ph-large .ph-screen { border-radius: 30px; }
+  .ph-top {
+    display: flex; align-items: center; gap: 8px; padding: 12px 12px 10px; background: var(--card);
+    border-bottom: 1px solid var(--line); flex: none;
+  }
+  .ph-av {
+    width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none;
+    background: var(--sw); color: var(--ink); font: 600 0.8125rem/1 var(--font-text);
+  }
+  .ph-who { display: grid; min-width: 0; }
+  .ph-name { font-weight: 600; font-size: 0.8125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink); }
+  .ph-num { font: 400 0.6875rem/1.2 var(--font-mono); color: var(--ink-2); }
+  .ph-ex {
+    margin-left: auto; font: 600 0.625rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--ink-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 4px 6px; flex: none;
+  }
+  .ph-feed {
+    flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: 6px;
+    padding: 10px 10px 12px; overflow: hidden;
+    background-image: radial-gradient(circle at 1px 1px, #1C1C1C10 1px, transparent 0);
+    background-size: 14px 14px;
+    mask-image: linear-gradient(to bottom, transparent 0, #000 22px);
+  }
+  .ph-line { display: flex; flex: none; }
+  .ph-line:not(.is-on) { display: none; }
+  .ph-line.is-on.is-new { animation: pop 380ms var(--ease-out) both; }
+  @keyframes pop { from { opacity: 0; transform: translateY(10px) scale(0.96); } to { opacity: 1; transform: none; } }
+  .ph-in { justify-content: flex-start; }
+  .ph-out { justify-content: flex-end; }
+  .ph-sys { justify-content: center; }
+  .b {
+    max-width: 84%; padding: 7px 10px 6px; border-radius: 14px; color: var(--ink);
+    display: flex; flex-wrap: wrap; align-items: flex-end; column-gap: 8px; row-gap: 2px;
+  }
+  .ph-in .b { background: var(--bubble-in); box-shadow: inset 0 0 0 1px var(--line); border-bottom-left-radius: 4px; }
+  .ph-out .b { background: var(--bubble-out); color: var(--bubble-out-ink); border-bottom-right-radius: 4px; }
+  .b time { font: 400 0.625rem/1.4 var(--font-mono); opacity: 0.65; margin-left: auto; }
+  .ph-code {
+    display: block; width: 100%; margin-top: 4px; padding: 6px 8px; border-radius: 8px; text-align: center;
+    background: var(--saffron); color: var(--ink); font: 600 1.25em/1 var(--font-mono); letter-spacing: 0.08em;
+  }
+  /* poll */
+  .ph-poll { display: grid; gap: 5px; width: 84%; }
+  .ph-poll strong { font-weight: 600; }
+  .ph-poll-sub { font-size: 0.85em; opacity: 0.7; margin-top: -3px; }
+  .ph-opt { position: relative; display: grid; grid-template-columns: 14px 1fr auto; align-items: center; gap: 7px; padding: 3px 0 7px; }
+  .ph-radio { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px #F7F7F299; }
+  .ph-opt.picked .ph-radio { background: var(--sw); box-shadow: inset 0 0 0 3px var(--bubble-out), 0 0 0 1.5px var(--sw); }
+  .ph-votes { font: 400 0.75em/1 var(--font-mono); opacity: 0.75; }
+  .ph-bar { position: absolute; left: 21px; right: 0; bottom: 1px; height: 3px; border-radius: 3px; background: #F7F7F22E; }
+  .ph-opt.picked .ph-bar { background: linear-gradient(to right, var(--sw) 100%, transparent 0); }
+  /* event */
+  .ph-event { display: grid; grid-template-columns: auto 1fr; gap: 8px 10px; width: 84%; }
+  .ph-cal { display: grid; place-items: center; width: 42px; padding: 5px 0; border-radius: 8px; background: var(--sw); color: var(--ink); font: 600 0.7em/1.1 var(--font-mono); }
+  .ph-cal b { font-size: 1.1em; }
+  .ph-ev-t { display: grid; }
+  .ph-ev-t strong { font-weight: 600; }
+  .ph-ev-t span { opacity: 0.75; font-size: 0.9em; }
+  .ph-rsvp-row { grid-column: 1 / -1; display: flex; justify-content: space-between; border-top: 1px solid #F7F7F233; padding-top: 6px; font-size: 0.85em; font-weight: 600; }
+  .ph-pill { font-size: 0.9em; font-weight: 600; }
+  .ph-in .ph-pill::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--sw); margin-right: 6px; }
+  /* map pin */
+  .ph-pin { display: grid; width: 78%; padding: 5px 5px 8px; gap: 1px; }
+  .ph-pin strong, .ph-pin > span:last-child { padding: 0 5px; }
+  .ph-pin > span:last-child { opacity: 0.75; font-size: 0.9em; }
+  .ph-map { position: relative; display: block; height: 82px; border-radius: 10px; background: #EDE6D6; overflow: hidden; margin-bottom: 5px; }
+  .ph-road { position: absolute; background: #FFFFFF; }
+  .ph-road.r1 { left: -10%; right: -10%; top: 44%; height: 9px; transform: rotate(-12deg); }
+  .ph-road.r2 { top: -10%; bottom: -10%; left: 58%; width: 7px; transform: rotate(18deg); }
+  .ph-water { position: absolute; left: 0; bottom: 0; width: 42%; height: 34%; background: #BFD6EC; border-top-right-radius: 40px; }
+  .ph-marker {
+    position: absolute; left: 50%; top: 38%; width: 18px; height: 18px; margin: -18px 0 0 -9px;
+    background: var(--tomato); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 0 0 2px #fff;
+  }
+  /* file */
+  .ph-file { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; width: 84%; }
+  .ph-doc {
+    position: relative; width: 34px; height: 42px; border-radius: 4px; background: var(--paper); color: var(--ink);
+    display: grid; place-items: end center; padding-bottom: 5px; font: 600 0.6em/1 var(--font-mono);
+    clip-path: polygon(0 0, 68% 0, 100% 26%, 100% 100%, 0 100%);
+  }
+  .ph-doc i { position: absolute; right: 0; top: 0; width: 32%; height: 26%; background: var(--sw); }
+  .ph-file-t { display: grid; min-width: 0; }
+  .ph-file-t strong { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-mono); font-size: 0.9em; }
+  .ph-file-t span { opacity: 0.75; font-size: 0.9em; }
+  /* photo and sticker: one small drawn picture */
+  .ph-photo { display: grid; padding: 4px; width: 70%; gap: 4px; }
+  .ph-cap { padding: 0 5px 2px; }
+  .ph-pic { position: relative; display: block; aspect-ratio: 4 / 3; border-radius: 10px; overflow: hidden; background: color-mix(in srgb, var(--tone, var(--sw)) 30%, #fff); }
+  .ph-pic .sun { position: absolute; width: 26%; aspect-ratio: 1; border-radius: 50%; background: var(--saffron); right: 16%; top: 14%; }
+  .ph-pic .hill { position: absolute; border-radius: 50% 50% 0 0; }
+  .ph-pic .h1 { left: -10%; bottom: -30%; width: 80%; height: 80%; background: var(--tone, var(--sw)); }
+  .ph-pic .h2 { right: -20%; bottom: -40%; width: 90%; height: 75%; background: var(--ink); opacity: 0.85; }
+  .ph-sticker { position: relative; width: 52%; padding: 6px; transform: rotate(-5deg); }
+  .ph-sticker .ph-pic {
+    --tone: var(--lilac); border-radius: 22px; aspect-ratio: 1;
+    box-shadow: 0 0 0 5px #fff, 0 6px 14px -4px #1C1C1C55;
+  }
+  .ph-sticker .dots {
+    position: absolute; inset: 0; background-image: radial-gradient(circle, #1C1C1C38 1.2px, transparent 1.6px);
+    background-size: 6px 6px; mix-blend-mode: multiply;
+  }
+  .spark { position: absolute; width: 14px; height: 14px; background: var(--saffron); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+  .spark.s1 { left: -4px; top: 4px; }
+  .spark.s2 { right: 0; top: 30%; width: 10px; height: 10px; background: var(--tomato); }
+  .spark.s3 { left: 30%; bottom: -4px; width: 11px; height: 11px; background: var(--sky); }
+  /* voice note */
+  .ph-voice { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; width: 72%; padding: 8px 10px; }
+  .ph-play { width: 24px; height: 24px; border-radius: 50%; background: var(--paper); position: relative; flex: none; }
+  .ph-play::after { content: ""; position: absolute; left: 9px; top: 7px; border-left: 8px solid var(--ink); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+  .ph-wave { display: flex; align-items: center; gap: 2px; flex: 1; height: 18px; }
+  .ph-wave i { width: 3px; height: var(--h); border-radius: 2px; background: var(--sw); }
+  .ph-len { font: 400 0.75em/1 var(--font-mono); opacity: 0.75; }
+  /* call */
+  .ph-callcard {
+    display: flex; align-items: center; gap: 10px; width: 92%; padding: 9px 11px; border-radius: 14px;
+    background: var(--card); box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .ph-callcard strong { display: block; font-weight: 600; }
+  .ph-callcard span span { display: block; font: 400 0.8em/1.3 var(--font-mono); color: var(--ink-2); }
+  .ph-callico { width: 30px; height: 30px; border-radius: 50%; background: var(--sw); color: var(--ink); flex: none; display: grid; place-items: center; }
+  .ph-k-call:first-child .ph-callico { animation: ring 1.4s ease-in-out infinite; }
+  :global(html.still) .ph-callico { animation: none; }
+  @keyframes ring { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--sw) 60%, transparent); } 50% { box-shadow: 0 0 0 6px transparent; } }
+  .ph-note {
+    font: 400 0.75em/1.3 var(--font-mono); color: var(--ink-2); background: var(--paper-2);
+    padding: 5px 9px; border-radius: 999px; text-align: center; max-width: 92%;
+  }
+  .ph-typing .b { gap: 4px; padding: 10px 12px; flex-wrap: nowrap; }
+  .ph-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--paper); opacity: 0.4; animation: blink 1s infinite; }
+  .ph-typing i:nth-child(2) { animation-delay: 0.15s; }
+  .ph-typing i:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes blink { 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .ph-line.is-on.is-new, .ph-callico { animation: none !important; }
+  }
+</style>

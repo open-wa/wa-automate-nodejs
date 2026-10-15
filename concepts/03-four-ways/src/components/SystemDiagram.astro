@@ -1,0 +1,56 @@
+---
+import type { Layout } from "../data/diagram";
+interface Props { layout: Layout; variant: "wide" | "tall"; active: string; nodes: string[]; edges: string[]; describe: string }
+const { layout: L, variant, nodes, edges, describe } = Astro.props;
+const on = (id: string) => nodes.includes(id);
+const eOn = (id: string) => edges.includes(id);
+const p = L.phone;
+const tallText = variant === "tall";
+---
+<svg class:list={["diagram", `diagram-${variant}`]} viewBox={L.viewBox} role="img" aria-labelledby="diagram-caption" data-diagram>
+  <defs>
+    <pattern id={`dots-${variant}`} width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#D6CFC1" /></pattern>
+  </defs>
+
+  <g class:list={["boundary", { on: on("boundary") }]} data-node="boundary">
+    <path class="boundary-line" d={L.boundary.d} pathLength="1" />
+    <text class="b-label" x={L.boundary.labelX} y={L.boundary.labelY}>One Node.js process</text>
+  </g>
+
+  <!-- Flow lines: an idle hairline, a coral line that draws in, and moving dots. -->
+  {Object.entries(L.edges).map(([id, e], i) => (
+    <g class:list={["edge", { on: eOn(id), rev: e.reverse }]} data-edge={id} style={`--d:${Math.max(0, edges.indexOf(id)) * 160}ms`}>
+      <path class="e-idle" d={e.d} />
+      <path class="e-draw" d={e.d} pathLength="1" />
+      <path class="e-flow" d={e.d} />
+      {e.label && <text class="e-label" x={e.label.x} y={e.label.y} text-anchor={e.label.anchor ?? "middle"}>{e.label.text}</text>}
+    </g>
+  ))}
+
+  <g class:list={["node phone", { on: on("phone") }]} data-node="phone">
+    <rect class="phone-body" x={p.x} y={p.y} width={p.w} height={p.h} rx={tallText ? 12 : 16} />
+    <rect class="phone-screen" x={p.x + 6} y={p.y + 12} width={p.w - 12} height={p.h - 24} rx={tallText ? 6 : 8} />
+    <rect class="bubble in" x={p.x + 11} y={p.y + p.h * 0.28} width={p.w * 0.5} height={p.h * 0.1} rx={p.h * 0.05} />
+    <rect class="bubble out" x={p.x + p.w * 0.38} y={p.y + p.h * 0.45} width={p.w * 0.5} height={p.h * 0.1} rx={p.h * 0.05} />
+    <rect class="bubble in" x={p.x + 11} y={p.y + p.h * 0.62} width={p.w * 0.36} height={p.h * 0.1} rx={p.h * 0.05} />
+    <text class="n-title" x={p.labelX} y={p.labelY} text-anchor={p.anchor}>Your phone</text>
+    <text class="n-sub" x={p.labelX} y={p.labelY + 20} text-anchor={p.anchor}>your account,</text>
+    <text class="n-sub" x={p.labelX} y={p.labelY + 38} text-anchor={p.anchor}>linked by QR</text>
+    <text class="n-sub" x={p.labelX} y={p.labelY + 56} text-anchor={p.anchor}>or link code</text>
+  </g>
+
+  <g class:list={["node runtime", { on: on("runtime") }]} data-node="runtime">
+    <rect class="runtime-box" x={L.runtime.x} y={L.runtime.y} width={L.runtime.w} height={L.runtime.h} rx="14" />
+    <rect class="runtime-fill" x={L.runtime.x} y={L.runtime.y} width={L.runtime.w} height={L.runtime.h} rx="14" fill={`url(#dots-${variant})`} />
+    <text class="r-title" x={L.runtime.x + 20} y={L.runtime.y + 26}>open-wa runtime</text>
+  </g>
+
+  {Object.entries(L.nodes).map(([id, b]) => (
+    <g class:list={["node box", `n-${id}`, { on: on(id) }]} data-node={id}>
+      <rect class="box-bg" x={b.x} y={b.y} width={b.w} height={b.h} rx="9" />
+      <circle class="port" cx={b.x + 15} cy={b.y + (tallText && b.w < 120 ? 18 : b.h / 2)} r="4" />
+      <text class="n-title" x={b.x + (tallText && b.w < 120 ? 10 : 28)} y={b.y + (tallText && b.w < 120 ? 46 : b.h / 2 - 3)}>{b.title}</text>
+      {b.sub && <text class="n-sub" x={b.x + (tallText && b.w < 120 ? 10 : 28)} y={b.y + (tallText && b.w < 120 ? 66 : b.h / 2 + 17)}>{b.sub}</text>}
+    </g>
+  ))}
+</svg>

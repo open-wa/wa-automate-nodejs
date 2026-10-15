@@ -100,7 +100,7 @@ export class ApiServer {
       });
     }
 
-    this.setupMiddleware();
+    this.setupMiddleware(options.verbose);
     registerCallingRoutes(this.app, { config: this.config, upgrade: upgradeWebSocket, getService: () => this.client?.getCallingService?.() });
     this.registerRoutes();
 
@@ -286,7 +286,7 @@ export class ApiServer {
       : false;
   }
 
-  private setupMiddleware() {
+  private setupMiddleware(verbose = false) {
     this.app.use(
       '/*',
       cors({
@@ -321,7 +321,7 @@ export class ApiServer {
       await next();
     });
 
-    if (this.config.logLevel !== 'silent') {
+    if (verbose || ['debug', 'verbose'].includes(this.config.logLevel?.toLowerCase() ?? '')) {
       this.app.use('*', logger());
     }
   }

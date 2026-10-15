@@ -1,0 +1,32 @@
+---
+import Base from "../../layouts/Base.astro";
+import PageHead from "../../components/PageHead.astro";
+import { releases, support, product } from "../../data/site";
+---
+<Base title="Changelog: event cards, live refresh and local stickers | open-wa" description="What's new in open-wa: 5.5 brings WhatsApp event cards and RSVPs, live refresh and local sticker rendering; 5.4 brings your own session encryption key.">
+  <PageHead title="What's new" lead={`The latest npm release is ${product.currentVersion} (checked 12 Oct 2026). Older versions stay on npm, so you can pin the one you run.`} />
+  <div class="wrap cl">
+    <ol class="cl-list">
+      {releases.map((r) => (
+        <li>
+          <p class="cl-meta"><span>{r.version}</span><time>{r.date}</time></p>
+          <h2>{r.headline}</h2>
+          <ul>{r.highlights.map((h) => <li>{h}</li>)}</ul>
+        </li>
+      ))}
+    </ol>
+    <p class="cl-more"><a class="btn btn-line" href={support.releases} rel="noopener">Every release on GitHub</a> <a class="btn btn-line" href={support.changelog} rel="noopener">Full changelog</a></p>
+  </div>
+</Base>
+<style>
+  .cl { padding-block: 48px 96px; max-width: 860px; }
+  .cl-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-left: 2px solid var(--line-strong); }
+  .cl-list > li { position: relative; padding: 0 0 48px 32px; }
+  .cl-list > li::before { content: ""; position: absolute; left: -8px; top: 6px; width: 14px; height: 14px; border-radius: 50%; background: var(--brass); box-shadow: 0 0 0 4px var(--paper); }
+  .cl-meta { display: flex; gap: 12px; font: 500 15px/1 var(--font-mono); color: var(--brass-ink); }
+  .cl-meta span { background: var(--espresso); color: var(--blush); padding: 4px 8px; border-radius: 6px; }
+  .cl-list h2 { font-size: 32px; margin: 12px 0; }
+  .cl-list ul { padding-left: 20px; }
+  .cl-list ul li { margin-bottom: 6px; }
+  .cl-more { display: flex; gap: 10px; flex-wrap: wrap; }
+</style>

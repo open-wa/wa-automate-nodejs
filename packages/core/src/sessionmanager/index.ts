@@ -243,14 +243,12 @@ export class SessionManager {
             .map(([name]) => name);
         const lowerLevel = this.createLowerLevelTruthSnapshot(lowerLevelTruth);
         const pending = [...requirementPending, ...lowerLevel.pending];
-        const exposureSafe = blockers.length === 0
-            && pending.length === 0
-            && this.runtime.finalization.outcome === 'ready';
-        const ready = this.state === 'READY' && exposureSafe;
+        const ready = this.state === 'READY';
+        const exposureSafe = ready;
 
         return {
             state: this.state,
-            status: ready ? 'ready' : blockers.length > 0 ? 'blocked' : 'not_ready',
+            status: ready ? 'ready' : 'not_ready',
             ready,
             exposureSafe,
             pending,

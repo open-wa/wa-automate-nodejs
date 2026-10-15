@@ -1,0 +1,53 @@
+---
+import { licences, href } from "../data/site";
+interface Props { full?: boolean }
+const { full = false } = Astro.props;
+const periods = [["month", "1 month"], ["threeMonths", "3 months"], ["sixMonths", "6 months"], ["year", "12 months"]] as const;
+---
+<div class="pt">
+  <article class="pt-col pt-free">
+    <h3>{licences.free.name}</h3>
+    <p class="pt-price"><span class="amt">£0</span></p>
+    <p class="pt-covers">{licences.free.covers}</p>
+    <a class="btn btn-ghost" href={href("quickstart/")}>Start free</a>
+  </article>
+  {licences.tiers.map((t) => (
+    <article class:list={["pt-col", { "pt-hot": t.id === "restricted" }]}>
+      <h3>{t.name}</h3>
+      <p class="pt-price"><span class="amt">{t.prices.month}</span> <span class="per">a month per number</span></p>
+      {full ? (
+        <table class="pt-periods">
+          <caption class="visually-hidden">{t.name} prices by billing period</caption>
+          <tbody>{periods.map(([k, label]) => <tr><th scope="row">{label}</th><td>{t.prices[k]}</td></tr>)}</tbody>
+        </table>
+      ) : (
+        <p class="pt-year">or {t.prices.year} for 12 months</p>
+      )}
+      <p class="pt-covers">{t.unlocks}</p>
+      <a class:list={["btn", t.id === "restricted" ? "btn-primary" : "btn-ghost"]} href={`${href("pricing/")}?tier=${t.id}#licence`}>Get {t.name}</a>
+    </article>
+  ))}
+</div>
+<p class="pt-note small muted">Prices in GBP, checked {licences.pricesCheckedOn.split(",")[0]}. Checkout shows the current price. A key covers one WhatsApp number.</p>
+
+<style>
+  .pt { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--color-rule); border-radius: 16px; overflow: hidden; background: var(--color-paper-3); }
+  .pt-col { display: grid; grid-template-rows: auto auto auto 1fr auto; gap: 14px; padding: clamp(20px, 2.6vw, 32px); border-left: 1px solid var(--color-rule); }
+  .pt-col:first-child { border-left: 0; }
+  .pt-hot { background: var(--color-bg); box-shadow: inset 0 3px 0 var(--color-coral); }
+  .pt h3 { font-size: 26px; }
+  .pt-price { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .amt { font: 450 44px/1 var(--font-display); font-variation-settings: "opsz" 60; }
+  .per, .pt-year { color: var(--color-muted); font-size: 15px; }
+  .pt-covers { font-size: 15.5px; line-height: 1.55; }
+  .pt .btn { justify-self: start; align-self: end; }
+  .pt-periods { border-collapse: collapse; width: 100%; font-size: 15px; }
+  .pt-periods th { text-align: left; font-weight: 400; color: var(--color-muted); padding: 6px 0; border-bottom: 1px solid var(--color-rule); }
+  .pt-periods td { text-align: right; font-family: var(--font-mono); font-size: 14px; padding: 6px 0; border-bottom: 1px solid var(--color-rule); }
+  .pt-note { margin-top: 14px; }
+  @media (max-width: 860px) {
+    .pt { grid-template-columns: minmax(0, 1fr); }
+    .pt-col { border-left: 0; border-top: 1px solid var(--color-rule); }
+    .pt-col:first-child { border-top: 0; }
+  }
+</style>

@@ -1,0 +1,66 @@
+---
+import Page from "../../layouts/Page.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import { commands, firstRun, http, snippets, product, support, base } from "../../data/site";
+---
+
+<Page title="Quick start: your WhatsApp number as an API in three steps | open-wa" description="Run one command, scan the QR code with WhatsApp on the phone, open the live API docs and send your first message with curl.">
+  <div class="wrap page-head">
+    <h1 class="h-display">Quick start</h1>
+    <p class="lede">Three steps from nothing to a message sent from your own number. You need Node.js {product.node.replace(">=", "")} or newer, or Docker, and the phone with the WhatsApp account.</p>
+    <div class="note qs-risk"><p><strong>Read this first.</strong> {product.risk} {product.unofficial}</p></div>
+  </div>
+  <div class="wrap doc">
+    <ol class="qs">
+      <li>
+        <h2><span class="qs-n" style="--sw: var(--tomato)">1</span> Run the command</h2>
+        <p>{firstRun[0]}</p>
+        <CodeBlock code={commands.easyApi} lang="bash" wrap />
+        <p>Protect the API with a key before you expose it anywhere:</p>
+        <CodeBlock code={commands.easyApiWithKey} lang="bash" wrap />
+        <p>Or with Docker:</p>
+        <CodeBlock code={commands.docker} lang="bash" wrap />
+      </li>
+      <li>
+        <h2><span class="qs-n" style="--sw: var(--saffron)">2</span> Scan the QR code</h2>
+        <p>{firstRun[1]} Use the phone and number the business will send from.</p>
+      </li>
+      <li>
+        <h2><span class="qs-n" style="--sw: var(--sky)">3</span> Open the API docs and send a message</h2>
+        <p>{firstRun[2]}</p>
+        <CodeBlock code={commands.proofOfLife} lang="bash" title="Open in your browser" wrap />
+        <p>Send a text from any language. {http.chatId}</p>
+        <CodeBlock code={http.sendTextCurl} lang="bash" title="curl" />
+        <p class="qs-dim">Route: {http.sendTextRoute}. Health check: <code>{http.health}</code></p>
+      </li>
+    </ol>
+
+    <h2 id="node">Other ways to connect</h2>
+    <p>The recipes use a <code>client</code> in Node.js. Pick whichever fits your app.</p>
+    <div class="grid-cards">
+      <div class="tile"><h3>SocketClient</h3><p>Connect your Node.js bot to the running Easy API. Commands go over HTTP; events arrive as Server-Sent Events.</p></div>
+      <div class="tile"><h3>In your own app</h3><p>Create the client inside your Node.js process and control the browser and lifecycle yourself.</p></div>
+      <div class="tile"><h3>MCP for AI agents</h3><p>Turn on the built-in MCP server so Claude, Cursor or Windsurf can call each method as a tool.</p></div>
+    </div>
+    <h3>SocketClient</h3>
+    <CodeBlock code={`${commands.socketClientInstall}`} lang="bash" />
+    <CodeBlock code={snippets.socketClient} lang="js" title="bot.js" />
+    <h3>In your own app</h3>
+    <CodeBlock code={commands.embeddedInstall} lang="bash" />
+    <CodeBlock code={snippets.embedded} lang="js" title="app.js" />
+    <h3>MCP</h3>
+    <CodeBlock code={snippets.mcpConfig} lang="js" title="wa.config.mjs" />
+    <p>Full guides: <a href={support.quickstartDocs}>quick start in the docs</a>, then pick a <a href={`${base}recipes/`}>recipe</a>.</p>
+  </div>
+</Page>
+
+<style>
+  .qs-risk { margin-top: 24px; }
+  .qs { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .qs > li { display: grid; gap: 12px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+  .qs h2 { display: flex; align-items: center; gap: 14px; margin-top: 32px !important; }
+  .qs-n { width: 40px; height: 40px; border-radius: 50%; background: var(--sw); display: grid; place-items: center; font: 600 1.0625rem/1 var(--font-mono); flex: none; }
+  .qs p { margin: 0; }
+  .qs-dim { color: var(--ink-2); font-size: 0.9375rem; }
+  .doc :global(.cb) { margin: 12px 0; }
+</style>
