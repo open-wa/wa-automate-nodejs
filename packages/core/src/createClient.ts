@@ -386,6 +386,8 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
 
   const refreshController = new SessionRefreshController({ transport, session, events, sessionId, logger });
   events.on('session.logout', () => refreshController.stop());
+  let admissionAcquired = false;
+  let recoveringSession = false;
 
   const client: OpenWAClient = {
     sessionId,
@@ -411,13 +413,14 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         ...options, sessionDataEncryptionKey: undefined, sessionDataEncryptionKeyFile: undefined,
       } });
 
-      if (options.sessionAdmission) {
+      if (options.sessionAdmission && !admissionAcquired) {
         const memoryMb = Math.max(1, Math.round(options.estimatedMemoryMb ?? 512));
         const lease = await Effect.runPromise(options.sessionAdmission.acquire(memoryMb));
         await resourceScope.addFinalizer(
           'session-admission.release',
           () => Effect.runPromise(lease.release),
         );
+        admissionAcquired = true;
       }
 
       session.resetRuntime();
@@ -453,7 +456,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         events.emit('error', {
           scope,
           error: normalizedError,
-          fatal: true,
+          fatal: !recoveringSession,
         });
         Effect.runSync(observability.recordCause(scope, normalizedError));
         await session.setState('DISCONNECTED', scope);
@@ -641,7 +644,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
             id: 'transport',
             run: () => Effect.tryPromise({
               try: async () => {
-                await transport.initialize();
+                if (!transport.getPage()) await transport.initialize();
                 await transport.navigate();
                 return true;
               },
@@ -658,7 +661,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
           {
             id: 'license-preflight',
             run: () => Effect.tryPromise({
-              try: () => transport.preloadLicenseArtifact({ sessionId, licenseKey: options.licenseKey }),
+              try: () => transport.preloadLicenseArtifact({ sessionId, licenseKey: transport.getEffectiveLicenseKey() ?? options.licenseKey }),
               catch: (error) => error instanceof Error ? error : new Error(String(error)),
             }),
           },
@@ -738,6 +741,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       });
 
       const authResult = await transport.waitForAuthentication({ attemptingReauth });
+      if (session.getState() === 'STOPPED') throw new Error('Session has stopped');
       if (authResult.outcome === 'qr_timeout') {
         emitFailedFinalization('QR scan took too long. Increase qrTimeout or set qrTimeout=0 to wait forever.');
         return emitFatalBootstrapError(
@@ -762,14 +766,6 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         );
       }
 
-      if (authResult.outcome === 'invalid_session') {
-        emitFailedFinalization('Session data most likely expired due to manual host account logout. Re-authenticate this session or set ignoreNuke to bypass the explicit invalid-session classification.');
-        return emitFatalBootstrapError(
-          'bootstrap.auth.invalid_session',
-          new Error('Session data most likely expired due to manual host account logout. Re-authenticate this session or set ignoreNuke to bypass the explicit invalid-session classification.')
-        );
-      }
-
       if (authResult.outcome === 'qr_max') {
         emitFailedFinalization('Authentication aborted because the configured QR/link-code limit was reached before login completed. Increase qrMax or remove it to keep waiting.');
         return emitFatalBootstrapError(
@@ -779,7 +775,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       }
 
       const postAuthRuntime = await transport.reconcilePostAuthRuntime({
-        freshAuth: !attemptingReauth,
+        freshAuth: authResult.authMethod !== 'resumed_session',
       });
 
       if (!postAuthRuntime.ripeSessionLoaded) {
@@ -989,6 +985,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         }
 
         session.setFinalization('pending', 'Waiting for finalized operational readiness truth to settle');
+        transport.completeRuntimeReplacement();
         const operationalReadiness = await transport.waitForOperationalReadiness();
 
         session.setFinalization('ready', 'Post-overlay validation, client finalization hooks, and operational readiness truth verification completed');
@@ -1009,6 +1006,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       }
 
       await session.setState('READY');
+      refreshController.resume();
       transport.enableRuntimeRecovery();
 
       events.emit('launch.client.finalize.after', {
@@ -1030,6 +1028,13 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
         sessionId,
       });
       } catch (error) {
+        if (recoveringSession) {
+          if (session.getState() !== 'STOPPED') {
+            session.setFinalization('failed', 'Session reauthentication could not finish');
+            await session.setState('DISCONNECTED', 'session_reauthentication_failed');
+          }
+          throw error;
+        }
         try {
           await resourceScope.close('startup-failure');
         } catch (cleanupError) {
@@ -1117,6 +1122,26 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       return Effect.runPromise(observability.causes);
     },
   };
+
+  transport.setSessionRecoveryHandler(async reason => {
+    if (session.getState() === 'STOPPED' || options.killClientOnLogout) return;
+    recoveringSession = true;
+    refreshController.stop();
+    session.resetRuntime();
+    await session.setState('AUTHENTICATING', reason);
+    try {
+      await transport.resetSessionForPairing(reason);
+      if (session.getState() !== 'STOPPED') await client.start();
+    } catch (error) {
+      if (session.getState() !== 'STOPPED') {
+        session.setFinalization('failed', 'Session reauthentication could not finish');
+        await session.setState('DISCONNECTED', 'session_reauthentication_failed');
+      }
+      throw error;
+    } finally {
+      recoveringSession = false;
+    }
+  });
 
   return client;
 }

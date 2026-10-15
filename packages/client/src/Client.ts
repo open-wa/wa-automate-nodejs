@@ -542,9 +542,19 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
       return;
     }
 
+    this.events.on('session.state.changed', event => {
+      if (event.details?.next === 'STARTING' || event.details?.next === 'AUTHENTICATING') {
+        this._loaded = false;
+        this._loadedPromise = undefined;
+        this._phoneVersion = undefined;
+      }
+    });
+
     this.events.on('session.logout', () => {
       if (!this._logoutCleanupPromise) {
-        this._logoutCleanupPromise = this._runLogoutCleanup().finally(() => {
+        this._logoutCleanupPromise = this._runLogoutCleanup().catch(error => {
+          this.logger.error('session_logout_cleanup_failed', { error });
+        }).finally(() => {
           this._loaded = false;
           this._loadedPromise = undefined;
           this._phoneVersion = undefined;

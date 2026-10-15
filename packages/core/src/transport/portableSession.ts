@@ -53,6 +53,8 @@ export class PortableSessionController {
   private page?: IPage;
   #encryption?: SessionEncryptionCredentials;
 
+  get hasCheckpoint(): boolean { return this.payload !== null; }
+
   constructor(private readonly persistence: SessionPersistence, private readonly sessionId: string,
     private readonly encryptionOptions: SessionEncryptionOptions = {}) {}
 
@@ -89,12 +91,13 @@ export class PortableSessionController {
   private installEffect(page: IPage, origin: string, script: string): Effect.Effect<void, PortableSessionFailure> {
     return Effect.gen({ self: this }, function* () {
       this.#encryption = yield* resolveSessionEncryption(this.encryptionOptions);
-      const lease = yield* Effect.acquireRelease(
+      const lease = this.lease ?? (yield* Effect.acquireRelease(
         portableIO('PORTABLE_SESSION_PROVISION_FAILED', () => this.persistence.acquire(this.sessionId)),
         lease => portableIO('PORTABLE_SESSION_RELEASE_FAILED', () => lease.release()).pipe(Effect.orDie),
-      ).pipe(Scope.provide(this.leaseScope));
+      ).pipe(Scope.provide(this.leaseScope)));
       this.lease = lease;
       this.payload = yield* portableIO('PORTABLE_SESSION_PROVISION_FAILED', () => lease.read());
+      this.invalidated = false;
       if (this.payload !== null) yield* validatePortablePayload(this.payload);
       if (typeof script !== 'string' || !script.trim()) return yield* Effect.fail(portableFailure('PORTABLE_SESSION_PATCH_REQUIRED'));
       const capability = randomUUID();
@@ -194,6 +197,21 @@ export class PortableSessionController {
       if (this.lease) yield* portableIO('PORTABLE_SESSION_REMOVE_FAILED', () => this.lease!.remove());
       this.payload = null;
       this.#encryption = undefined;
+    }));
+  }
+
+  /** Fence the old document immediately, retaining storage ownership and listeners. */
+  preparePairing(): Promise<void> {
+    this.invalidated = true;
+    this.active = false;
+    return this.serial(Effect.gen({ self: this }, function* () {
+      if (this.releasing) return yield* Effect.fail(portableFailure('PORTABLE_SESSION_FENCED'));
+      if (this.lease) yield* portableIO('PORTABLE_SESSION_REMOVE_FAILED', () => this.lease!.remove());
+      this.payload = null;
+      this.documentId = '';
+      this.revision++;
+      this.installAttempted = false;
+      this.page = undefined;
     }));
   }
 

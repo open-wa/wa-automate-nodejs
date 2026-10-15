@@ -55,7 +55,10 @@ export function resolvePortableSessionPath(sessionId = 'session', sessionDataPat
 }
 
 /** Compose local persistence and an optional authoritative remote store without interpreting ciphertext. */
-export function acquirePortableSessionStorage(options: PortableSessionStorageOptions = {}): Promise<PortableSessionLease> {
+export function acquirePortableSessionStorage(
+  options: PortableSessionStorageOptions = {},
+  onRecovery?: (reason: string) => void,
+): Promise<PortableSessionLease> {
   return runPortable(Effect.uninterruptible(Effect.gen(function* () {
     if (options.skipSessionSave && !options.acquireRemote) {
       return yield* Effect.fail(portableFailure('PORTABLE_SESSION_DURABLE_STORE_REQUIRED'));
@@ -75,7 +78,7 @@ export function acquirePortableSessionStorage(options: PortableSessionStorageOpt
     const provision = Effect.gen(function* () {
       if (localPath) {
         local = yield* Effect.acquireRelease(
-          io(() => acquirePortableSessionFile(localPath)),
+          io(() => acquirePortableSessionFile(localPath, onRecovery)),
           lease => io(() => lease.release()).pipe(Effect.orDie),
         );
       }
@@ -91,24 +94,27 @@ export function acquirePortableSessionStorage(options: PortableSessionStorageOpt
       if (seed === 'NUKE' || seed === '"NUKE"') {
         if (remote) yield* io(() => remote!.remove());
         if (local) yield* io(() => local!.remove());
+        onRecovery?.('session_reset_requested');
         return;
       }
       // A remote checkpoint (including logout) wins over any stale local replica or seed.
       if (snapshot?.exists) {
-        payload = snapshot.payload === null ? null : yield* normalizePortablePayload(snapshot.payload);
+        payload = snapshot.payload === null ? null : yield* normalizePortablePayload(snapshot.payload).pipe(Effect.orElseSucceed(() => null));
+        if (snapshot.payload !== null && payload === null) yield* io(() => remote!.remove());
       } else if (local && localExists) {
         payload = yield* io(() => local!.read());
       } else if (seed !== undefined) {
-        payload = yield* normalizePortablePayload(seed);
+        payload = yield* normalizePortablePayload(seed).pipe(Effect.orElseSucceed(() => null));
       }
       if (payload !== null) {
         yield* validatePortablePayload(payload);
         // Provision is read-only for encrypted checkpoints. Pre-init must first
-        // authenticate both halves with the configured keys; its first durable
-        // commit then seeds/mirrors the stores. Wrong keys cannot replace files.
+        // authenticate both halves before resuming. An unusable checkpoint is
+        // invalidated by the transport before it starts fresh pairing.
       } else {
         if (remote && !snapshot?.exists && localExists) yield* io(() => remote!.remove());
         if (snapshot?.exists && local) yield* io(() => local!.remove());
+        if (snapshot?.exists || localExists || seed !== undefined) onRecovery?.('saved_session_unavailable');
       }
     }).pipe(Scope.provide(scope));
     yield* provision.pipe(Effect.onExit(exit => Exit.isFailure(exit) ? Scope.close(scope, exit) : Effect.void));

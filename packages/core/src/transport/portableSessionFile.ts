@@ -1,15 +1,18 @@
 import { constants } from 'node:fs';
-import { open, mkdir, rename, unlink } from 'node:fs/promises';
+import { open, mkdir, rename, unlink, lstat, link, rm } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { hostname } from 'node:os';
 import { Effect, Exit, Scope, Semaphore } from 'effect';
 import type { PortableSessionLease } from './portableSession';
 import { normalizePortablePayload, portableFailure, portableIO, runPortable, validatePortablePayload, type PortableSessionFailure } from './portableSessionEffects';
 
 const missing = (error: unknown): boolean => (error as NodeJS.ErrnoException)?.code === 'ENOENT';
 
-/** Local exclusive store. A stale lock is deliberately not stolen automatically. */
-export function acquirePortableSessionFile(path: string): Promise<PortableSessionLease> {
+const codeOf = (error: unknown) => (error as NodeJS.ErrnoException)?.code;
+
+/** Local exclusive store with automatic recovery of dead or corrupt lock owners. */
+export function acquirePortableSessionFile(path: string, onRecovery?: (reason: string) => void): Promise<PortableSessionLease> {
   return runPortable(Effect.uninterruptible(Effect.gen(function* () {
     const destination = resolve(path);
     const directory = dirname(destination);
@@ -18,6 +21,7 @@ export function acquirePortableSessionFile(path: string): Promise<PortableSessio
     let closed = false;
     let closeResult: Exit.Exit<void, never> | undefined;
     const lockPath = `${destination}.lock`;
+    const owner = { pid: process.pid, host: hostname(), token: randomUUID() };
     const io = <A>(operation: () => PromiseLike<A>) => portableIO('PORTABLE_SESSION_STORE_FAILED', operation);
     const removeIfPresent = (file: string) => io(async () => {
       try { await unlink(file); } catch (error) { if (!missing(error)) throw error; }
@@ -32,16 +36,72 @@ export function acquirePortableSessionFile(path: string): Promise<PortableSessio
         ? Effect.fail(portableFailure('PORTABLE_SESSION_STORE_CLOSED')) : effect))),
     );
 
-    // The scope owns the lock across Promise calls; each operation separately
-    // brackets its handles. An acquisition failure never unlinks another owner's lock.
+    const claimLock = async () => {
+      // Publish complete owner metadata atomically, so another starter never
+      // mistakes an owner that is still writing its metadata for a corrupt lock.
+      const temporary = `${lockPath}.${owner.token}.tmp`;
+      const handle = await open(temporary, 'wx', 0o600);
+      try {
+        await handle.writeFile(JSON.stringify(owner), 'utf8');
+        await handle.sync();
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try { await link(temporary, lockPath); return handle; }
+          catch (error) { if (codeOf(error) !== 'EEXIST') throw error; }
+          let previous;
+          try { previous = await lstat(lockPath); }
+          catch (error) { if (missing(error)) continue; throw error; }
+          let live = false;
+          if (previous.isFile() && previous.size <= 4096) {
+            const existing = await open(lockPath, constants.O_RDONLY | constants.O_NOFOLLOW).catch(error => {
+              if (missing(error)) return null;
+              throw error;
+            });
+            if (!existing) continue;
+            try {
+              let value: { pid?: unknown; host?: unknown } | null = null;
+              try { value = JSON.parse(await existing.readFile('utf8')); } catch { /* Corrupt lock. */ }
+              if (value && Number.isSafeInteger(value.pid) && Number(value.pid) > 0 && typeof value.host === 'string') {
+                live = value.host !== owner.host;
+                if (!live) {
+                  try { process.kill(Number(value.pid), 0); live = true; }
+                  catch (error) { live = codeOf(error) !== 'ESRCH'; }
+                }
+              }
+            } finally { await existing.close(); }
+          }
+          if (live) throw portableFailure('PORTABLE_SESSION_STORE_LOCKED');
+          try {
+            const current = await lstat(lockPath);
+            if (current.dev !== previous.dev || current.ino !== previous.ino) continue;
+            if (current.isDirectory()) await rm(lockPath, { recursive: true });
+            else await unlink(lockPath);
+            onRecovery?.('stale_session_lock_removed');
+          } catch (error) { if (!missing(error)) throw error; }
+        }
+        throw portableFailure('PORTABLE_SESSION_STORE_LOCKED');
+      } catch (error) {
+        await handle.close();
+        throw error;
+      } finally {
+        await unlink(temporary);
+      }
+    };
+
+    // Keep the writer lease across browser replacement and fresh pairing.
     const acquire = Effect.gen(function* () {
-      yield* io(() => mkdir(directory, { recursive: true, mode: 0o700 }));
+      yield* io(async () => {
+        try { await mkdir(directory, { recursive: true, mode: 0o700 }); }
+        catch (error) {
+          if (codeOf(error) !== 'EEXIST') throw error;
+          const entry = await lstat(directory);
+          if (entry.isDirectory()) throw error;
+          await unlink(directory);
+          await mkdir(directory, { recursive: true, mode: 0o700 });
+          onRecovery?.('session_directory_repaired');
+        }
+      });
       yield* Effect.acquireRelease(
-        Effect.tryPromise({
-          try: () => open(lockPath, 'wx', 0o600),
-          catch: error => portableFailure((error as NodeJS.ErrnoException)?.code === 'EEXIST'
-            ? 'PORTABLE_SESSION_STORE_LOCKED' : 'PORTABLE_SESSION_STORE_FAILED'),
-        }),
+        portableIO('PORTABLE_SESSION_STORE_FAILED', claimLock),
         handle => Effect.gen(function* () {
           // If close fails, keep the lock instead of admitting a second writer.
           yield* portableIO('PORTABLE_SESSION_RELEASE_FAILED', () => handle.close());
@@ -62,15 +122,29 @@ export function acquirePortableSessionFile(path: string): Promise<PortableSessio
         }),
         handle => io(() => handle.close()),
       );
-      yield* io(() => rename(temporary, destination));
+      yield* io(async () => {
+        try { await rename(temporary, destination); }
+        catch (error) {
+          if (!['EISDIR', 'ENOTEMPTY', 'EEXIST'].includes(codeOf(error) ?? '')) throw error;
+          // Only the exact credential filename can be replaced recursively.
+          // Other sessions and the containing directory remain untouched.
+          const entry = await lstat(destination);
+          if (!entry.isDirectory()) throw error;
+          await rm(destination, { recursive: true });
+          await rename(temporary, destination);
+        }
+      });
       yield* syncDirectory();
     }));
 
     return {
       read: () => owned(Effect.acquireUseRelease(
         io(async () => {
-          try { return await open(destination, constants.O_RDONLY | constants.O_NOFOLLOW); }
-          catch (error) { if (missing(error)) return null; throw error; }
+          try {
+            if (!(await lstat(destination)).isFile()) return null;
+            return await open(destination, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
+          }
+          catch (error) { if (missing(error) || ['ELOOP', 'EISDIR'].includes(codeOf(error) ?? '')) return null; throw error; }
         }),
         handle => Effect.gen(function* () {
           if (handle === null) return null;

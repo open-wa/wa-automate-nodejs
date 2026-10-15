@@ -233,7 +233,7 @@ export interface RuntimeCapabilityProbe {
   sessionLoaded: boolean;
 }
 
-export type AuthSettlementOutcome = 'authenticated' | 'qr_timeout' | 'auth_timeout' | 'invalid_session' | 'phone_out_of_reach' | 'qr_max';
+export type AuthSettlementOutcome = 'authenticated' | 'qr_timeout' | 'auth_timeout' | 'phone_out_of_reach' | 'qr_max';
 
 export interface AuthSettlementResult {
   outcome: AuthSettlementOutcome;
@@ -415,8 +415,10 @@ const DEFAULT_LICENSE_CHECK_URL = 'https://funcs.openwa.dev/license-check';
 const LIVE_PATCH_CACHE_FILENAME = 'patches.cache.json';
 /** Live-patch cache staleness threshold (24 hours in ms) */
 const LIVE_PATCH_CACHE_MAX_AGE_MS = 86_400_000;
-/** Maximum consecutive recovery attempts before giving up */
+/** Maximum consecutive runtime repairs before returning to fresh pairing. */
 const MAX_CONSECUTIVE_RECOVERY_ATTEMPTS = 5;
+
+class SessionRecoveryRequired extends Error {}
 
 export class Transport {
   private static assetScriptCache = new Map<string, Promise<string>>();
@@ -473,6 +475,10 @@ export class Transport {
   private activeLivePatchPreload: LivePatchPreloadResult | null = null;
   private refreshHandler?: () => Promise<unknown>;
   private effectiveLicenseKey?: string;
+  private sessionRecoveryHandler?: (reason: string) => Promise<void>;
+  private sessionRecovery: Promise<void> | null = null;
+  private closed = false;
+  private awaitingRecoveryPairing = false;
 
   constructor(options: TransportOptions) {
     this.options = options;
@@ -517,7 +523,10 @@ export class Transport {
     });
     this.portable = new PortableSessionController({
       acquire: async sessionId => {
-        const lease = await acquireSessionPersistence({ ...options, sessionId });
+        const lease = await acquireSessionPersistence({ ...options, sessionId }, reason => {
+          this.awaitingRecoveryPairing = true;
+          this.logger.warn('session_reauthentication_required', { reason });
+        });
         return {
           read: () => lease.read(),
           remove: () => lease.remove(),
@@ -560,6 +569,56 @@ export class Transport {
   }
 
   async invalidatePortableSession(): Promise<void> { await this.portable.invalidate(); }
+
+  setSessionRecoveryHandler(handler: (reason: string) => Promise<void>): void {
+    this.sessionRecoveryHandler = handler;
+  }
+
+  private requestSessionRecovery(reason: string): void {
+    if (this.closed || this.sessionRecovery || !this.sessionRecoveryHandler) return;
+    this.runtimeRecoveryEnabled = false;
+    this.runtimeRecoveryFailed = true;
+    ++this.latestRuntimeRecoveryRequestId;
+    clearTimeout(this.licenseRenewalTimer);
+    this.logger.warn('session_reauthentication_required', { reason });
+    this.sessionRecovery = Promise.resolve().then(async () => {
+      await this.runtimeRecoveryQueue;
+      if (!this.closed) await this.sessionRecoveryHandler!(reason);
+    }).catch(error => {
+      if (!this.closed) {
+        const normalized = error instanceof Error ? error : new Error(String(error));
+        this.logger.error('session_reauthentication_failed', { error: normalized });
+        try { this.events.emit('error', { scope: 'session.reauthentication', error: normalized, fatal: false }); }
+        catch (listenerError) { this.logger.error('session_reauthentication_listener_failed', { error: listenerError }); }
+      }
+    }).finally(() => { this.sessionRecovery = null; });
+  }
+
+  /** Replace only this session's disposable browser; keep its client and writer lease. */
+  async resetSessionForPairing(reason: string): Promise<void> {
+    if (this.closed) throw new Error('Session has stopped');
+    this.runtimeRecoveryEnabled = false;
+    this.awaitingRecoveryPairing = true;
+    ++this.latestRuntimeRecoveryRequestId;
+    clearTimeout(this.licenseRenewalTimer);
+    this.stopQrWatcher();
+    await this.portable.preparePairing();
+    await this.calling.invalidate();
+    this.disposePageListeners();
+    await this.injectionController.dispose();
+    if (this.browser) await this.browser.close();
+    this.browser = null;
+    this.page = null;
+    if (this.closed) return;
+    this.lastQrData = null;
+    this.qrAttempt = 0;
+    this.lastRuntimeState = null;
+    this.consecutiveRecoveryAttempts = 0;
+    this.retainedLicenseArtifact = undefined;
+    this.licenseFeatures = { status: 'missing', keyType: null, expiresAt: null, features: {} };
+    this.logger.warn('session_reset_for_pairing', { reason });
+    await this.initialize();
+  }
 
   async initialize(): Promise<void> {
     this.events.emit('launch.browser.init.before', {
@@ -644,10 +703,18 @@ export class Transport {
     if (!this.page) return false;
 
     const readyScript = `(() => Boolean(globalThis.OpenWA_PortableSession?.startupFailure()) || (${PRE_AUTH_SURFACE_READY_CHECK_SCRIPT}))()`;
-    await this.page.waitForFunction(readyScript, {
-      timeoutMs: this.navigationTimeoutMs,
-      polling: 100,
-    });
+    try {
+      await this.page.waitForFunction(readyScript, {
+        timeoutMs: this.navigationTimeoutMs,
+        polling: 100,
+      });
+    } catch (error) {
+      if (this.closed || !this.portable.hasCheckpoint) throw error;
+      if (this.runtimeRecoveryEnabled) throw new SessionRecoveryRequired('session_restore_timeout');
+      await this.resetSessionForPairing('session_restore_timeout');
+      await this.navigate();
+      return true;
+    }
     const portableFailure = await this.page.evaluateScript<string | null>('globalThis.OpenWA_PortableSession?.startupFailure() ?? null');
     if (portableFailure) {
       this.logger.warn('portable_session_bootstrap_failed', {
@@ -656,10 +723,13 @@ export class Transport {
       if (portableFailure === 'SESSION_ENCRYPTION_CONFIG_INVALID') {
         throw new Error('Session data encryption configuration is invalid. Supply a base64-encoded 32-byte key.');
       }
-      if (portableFailure === 'SESSION_DECRYPTION_FAILED') {
-        throw new Error('Session data could not be decrypted. Check the encryption key and sessionId, or reset sessionData to NUKE and scan a new QR code.');
+      if (this.runtimeRecoveryEnabled) throw new SessionRecoveryRequired(portableFailure);
+      if (this.portable.hasCheckpoint) {
+        await this.resetSessionForPairing(portableFailure);
+        await this.navigate();
+        return true;
       }
-      throw new Error('Compact session restore is unavailable for this WhatsApp build or session file. Update OpenWA; an incompatible session file requires resetting sessionData to NUKE and scanning a new QR code.');
+      throw new Error('WhatsApp could not initialize a fresh pairing session.');
     }
     return true;
   }
@@ -800,6 +870,10 @@ export class Transport {
           step: 'session_state_changed',
           details: { prev, next },
         });
+        if (this.runtimeRecoveryEnabled && !this.plannedRuntimeMutation
+          && ['UNPAIRED', 'UNPAIRED_IDLE'].includes(String(state))) {
+          this.requestSessionRecovery('authentication_lost');
+        }
       },
       { wapiMethod: stateChangedSurface.wapiMethod, required: stateChangedSurface.required },
     );
@@ -1835,7 +1909,7 @@ export class Transport {
 
     try {
       await this.waitForFunctionProbe(`Boolean(${QR_CHECK_SCRIPT})`, {
-        timeoutMs: this.qrTimeoutMs,
+        timeoutMs: this.awaitingRecoveryPairing ? 0 : this.qrTimeoutMs,
         polling: 'mutation',
       });
     } catch {
@@ -2089,7 +2163,7 @@ export class Transport {
       this.isInsideChat(),
     ];
 
-    if (!this.ignoreNuke) {
+    if (!this.ignoreNuke && !this.awaitingRecoveryPairing) {
       signals.push(this.sessionDataInvalid());
     }
 
@@ -2137,7 +2211,7 @@ export class Transport {
 
     const authRace: Array<Promise<unknown>> = [this.isAuthenticated().catch(() => undefined)];
     let authTimer: ReturnType<typeof setTimeout> | undefined;
-    if (this.authTimeoutMs !== 0) {
+    if (!this.awaitingRecoveryPairing && this.authTimeoutMs !== 0) {
       authRace.push(new Promise((resolve) => {
         authTimer = setTimeout(() => resolve('timeout'), this.authTimeoutMs);
       }));
@@ -2169,20 +2243,15 @@ export class Transport {
       };
     }
 
-    if (authenticated === 'NUKE') {
+    if (authenticated === 'NUKE' || (this.portable.hasCheckpoint && (authenticated === false || authenticated === 'timeout'))) {
+      const reason = authenticated === 'timeout' ? 'session_restore_timeout' : 'invalid_session';
       this.events.emit('launch.auth.nuke.detected', {
-        correlationId: 'auth-settle',
-        ts: Date.now(),
-        step: 'nuke_detected',
-        details: { reason: 'old_logout_cred_detected' },
+        correlationId: 'auth-settle', ts: Date.now(), step: 'nuke_detected', details: { reason },
       });
-
-      return {
-        outcome: 'invalid_session',
-        qrSeen: false,
-        qrAttempts: this.qrAttempt,
-        authMethod: 'resumed_session',
-      };
+      await this.resetSessionForPairing(reason);
+      await this.navigate();
+      await this.injectWapi();
+      return this.waitForAuthentication();
     }
 
     if (authenticated === 'timeout') {
@@ -2220,7 +2289,7 @@ export class Transport {
           });
           this.logger.info('link_code_generated', { attempt: this.qrAttempt });
 
-          if (this.qrMax && this.qrAttempt >= this.qrMax) {
+          if (!this.awaitingRecoveryPairing && this.qrMax && this.qrAttempt >= this.qrMax) {
             return {
               outcome: 'qr_max',
               qrSeen: true,
@@ -2229,7 +2298,7 @@ export class Transport {
             };
           }
 
-          const linkCodeTimeoutMs = this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
+          const linkCodeTimeoutMs = this.awaitingRecoveryPairing || this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
           const sessionLoaded = await this.waitForSessionLoaded(linkCodeTimeoutMs);
           return sessionLoaded
             ? {
@@ -2262,7 +2331,7 @@ export class Transport {
       });
     }
 
-    const qrScanTimeoutMs = this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
+    const qrScanTimeoutMs = this.awaitingRecoveryPairing || this.qrTimeoutMs === 0 ? 0 : this.qrTimeoutMs * 2;
     const sessionLoaded = await this.waitForSessionLoaded(qrScanTimeoutMs);
     if (sessionLoaded) {
       return {
@@ -2273,7 +2342,7 @@ export class Transport {
       };
     }
 
-    if (this.qrMax && this.qrAttempt >= this.qrMax) {
+    if (!this.awaitingRecoveryPairing && this.qrMax && this.qrAttempt >= this.qrMax) {
       return {
         outcome: 'qr_max',
         qrSeen: true,
@@ -2397,7 +2466,11 @@ export class Transport {
 
   completeRuntimeReplacement(): void { this.runtimeRecoveryFailed = false; }
 
-  enableRuntimeRecovery(): void { this.runtimeRecoveryEnabled = true; }
+  enableRuntimeRecovery(): void {
+    if (this.closed) return;
+    this.awaitingRecoveryPairing = false;
+    this.runtimeRecoveryEnabled = true;
+  }
 
   getPage(): IPage | null {
     return this.page;
@@ -2437,6 +2510,9 @@ export class Transport {
   }
 
   async close(): Promise<void> {
+    this.closed = true;
+    this.runtimeRecoveryEnabled = false;
+    ++this.latestRuntimeRecoveryRequestId;
     clearTimeout(this.licenseRenewalTimer);
     await this.calling.close();
     this.licenseFeatures = { status: 'missing', keyType: null, expiresAt: null, features: {} };
@@ -2556,6 +2632,7 @@ export class Transport {
         step: 'session_logout',
         details: { reason: 'post_logout=1' },
       });
+      this.requestSessionRecovery('logged_out');
     });
 
     this.injectionController.registerNavigationObserver('runtime.navigation_recovery', (_frame, generation) => {
@@ -2823,6 +2900,10 @@ export class Transport {
       () => this.recoverDocument({ requestId, trigger, generation }),
     ).catch((error) => {
       this.runtimeRecoveryFailed = true;
+      if (error instanceof SessionRecoveryRequired || (error instanceof Error && error.message === 'PORTABLE_SESSION_ACTIVATE_FAILED')) {
+        this.requestSessionRecovery(error.message);
+        return;
+      }
       this.logger.warn('runtime_recovery_failed', {
         trigger,
         requestId: String(requestId),
@@ -2859,6 +2940,13 @@ export class Transport {
         return;
       }
 
+      if (!this.runtimeRecoveryEnabled || !this.isLatestRuntimeRecoveryRequest(request.requestId)) return;
+      if (this.page.url().includes('post_logout=1')
+        || await this.evaluateBooleanScript(SESSION_INVALID_CHECK_SCRIPT)
+        || await this.evaluateBooleanScript(`Boolean(${QR_CHECK_SCRIPT})`)) {
+        throw new SessionRecoveryRequired('authentication_lost');
+      }
+
       // Guard: prevent infinite recovery loops
       this.consecutiveRecoveryAttempts++;
       if (this.consecutiveRecoveryAttempts > MAX_CONSECUTIVE_RECOVERY_ATTEMPTS) {
@@ -2868,7 +2956,7 @@ export class Transport {
           max: MAX_CONSECUTIVE_RECOVERY_ATTEMPTS,
           requestId: String(request.requestId),
         });
-        throw new Error('Runtime recovery exceeded its bounded attempt limit.');
+        throw new SessionRecoveryRequired('runtime_recovery_exhausted');
       }
 
       const settledGeneration = await this.injectionController.waitForIdle();
@@ -2933,6 +3021,7 @@ export class Transport {
             });
           }
         } catch (probeError) {
+          if (probeError instanceof SessionRecoveryRequired) throw probeError;
           // Probe failed — session is likely flushed, proceed with full recovery
           this.logger.debug('runtime_recovery_integrity_probe_failed', {
             trigger: request.trigger,

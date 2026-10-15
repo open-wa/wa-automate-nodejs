@@ -34,6 +34,7 @@ export class SessionRefreshController {
       error: this.snapshot.error && { ...this.snapshot.error } };
   }
   stop(): void { this.stopped = true; }
+  resume(): void { this.stopped = false; }
   private ensureActive(): void {
     if (this.stopped || this.options.session.getState() === 'STOPPED') throw new Error('SESSION_REFRESH_STOPPED');
   }
