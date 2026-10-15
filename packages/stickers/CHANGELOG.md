@@ -3,6 +3,12 @@
 
 
 
+
+## 5.6.2
+<sub>2026-10-15</sub>
+
+- *(patch)* Version bump from group with `@open-wa/api` v5.6.2, `@open-wa/client` v5.6.2, `@open-wa/core` v5.6.2, `@open-wa/logger` v5.6.2, `@open-wa/session-sync` v5.6.2, `@open-wa/wa-automate` v5.6.2
+
 ## 5.6.1
 <sub>2026-10-14</sub>
 

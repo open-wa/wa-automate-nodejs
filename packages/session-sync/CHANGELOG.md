@@ -8,6 +8,13 @@
 
 
 
+
+## 5.6.2
+<sub>2026-10-15</sub>
+
+- [#3552](https://github.com/open-wa/wa-automate-nodejs/pull/3552)  *(patch)*
+  - ♻️ Remove exclusive local and S3 session locks so another process can open the same session immediately. Keep atomic local checkpoint replacement and use unconditional, last-write-wins S3 saves.
+
 ## 5.6.1
 <sub>2026-10-14</sub>
 
