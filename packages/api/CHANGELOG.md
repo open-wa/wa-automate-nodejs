@@ -8,6 +8,15 @@
 
 
 
+
+## 5.6.2
+<sub>2026-10-15</sub>
+
+- [#3552](https://github.com/open-wa/wa-automate-nodejs/pull/3552)  *(patch)*
+  - 🐛 Keep per-request HTTP logs off during normal Easy API operation. Enable them through verbose CLI output or debug logging.
+- [#3552](https://github.com/open-wa/wa-automate-nodejs/pull/3552)  *(patch)*
+  - 🐛 Open the dashboard from the Easy API server root when enabled, and open API documentation when the dashboard is disabled.
+
 ## 5.6.1
 <sub>2026-10-14</sub>
 
