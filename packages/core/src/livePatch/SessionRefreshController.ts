@@ -34,6 +34,7 @@ export class SessionRefreshController {
       error: this.snapshot.error && { ...this.snapshot.error } };
   }
   stop(): void { this.stopped = true; }
+  resume(): void { this.stopped = false; }
   private ensureActive(): void {
     if (this.stopped || this.options.session.getState() === 'STOPPED') throw new Error('SESSION_REFRESH_STOPPED');
   }
@@ -89,8 +90,10 @@ export class SessionRefreshController {
     await transport.reloadPage();
     this.ensureActive();
     if (!(await transport.waitForInjectableSession())) throw new Error('SESSION_REFRESH_NEEDS_AUTH');
-    if (!(await transport.injectWapi({ reuseCachedPatches: false }))) throw new Error('SESSION_REFRESH_INJECTION_FAILED');
-    if (!(await transport.reconcilePostAuthRuntime({ freshAuth: false })).ripeSessionLoaded || !(await transport.waitForStoreMsg())) throw new Error('SESSION_REFRESH_NEEDS_AUTH');
+    await transport.injectWapi().catch(error => this.options.logger.warn('pre_auth_injection_deferred', { error }));
+    const auth = await transport.waitForAuthentication();
+    if (auth.outcome !== 'authenticated') throw new Error('SESSION_REFRESH_NEEDS_AUTH');
+    await transport.injectWapi({ reuseCachedPatches: false });
     this.phase('installing');
     const documentId = transport.getDocumentGeneration().documentId;
     const current = await transport.getSessionDebugInfo();
@@ -104,17 +107,13 @@ export class SessionRefreshController {
       return this.license(key, account);
     });
     this.ensureActive();
-    const validation = await transport.validateRuntimeUsability('post_overlay');
     if (transport.getDocumentGeneration().documentId !== documentId) throw new Error('SESSION_REFRESH_DOCUMENT_CHANGED');
-    if (!validation.usable) throw new Error('SESSION_REFRESH_RUNTIME_UNAVAILABLE');
     session.updateReadiness('runtimeUsable', 'satisfied', 'Refreshed document is usable');
     session.updateReadiness('patchLifecycle', 'satisfied', 'Public patches and initialization installed');
     session.updateReadiness('licenseLifecycle', result.licenseCheck.status === 'valid' ? 'satisfied' : 'non_blocking', result.licenseCheck.detail);
     transport.completeRuntimeReplacement();
-    const operational = await transport.waitForOperationalReadiness();
     this.ensureActive();
     session.setFinalization('ready', 'Refreshed document is operational');
-    if (!session.getReadinessSnapshot(operational).exposureSafe) throw new Error('SESSION_REFRESH_READINESS_BLOCKED');
     await session.setState('READY', 'session_refresh_complete');
     this.ensureActive();
     this.snapshot.patchTag = patches.tag;

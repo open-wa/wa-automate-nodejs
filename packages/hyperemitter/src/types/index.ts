@@ -1,14 +1,26 @@
+import type { Effect } from 'effect';
+
 export type AnyFn = (...args: any[]) => any;
 
 export type EventMap = { [key: string]: unknown };
 
-export type EventListener<T> = (payload: T) => void | Promise<void>;
+export type ListenerResult = void | Promise<unknown> | Effect.Effect<unknown, unknown>;
+
+export type HyperEmission<TMap extends object> = {
+  [K in keyof TMap & string]: { readonly event: K; readonly payload: TMap[K] };
+}[keyof TMap & string];
+
+export type EventListener<T> = (payload: T) => ListenerResult;
+
+export type AnyEventListener = (event: string, payload: any) => ListenerResult;
 
 export interface ListenerOptions {
   /**
    * AbortSignal to auto-remove the listener when aborted.
    */
   signal?: AbortSignal;
+  /** Insert before other listeners registered for this pattern. */
+  prepend?: boolean;
   /**
    * Mark the listener as weak; provide a target object to track.
    * When the target is GC'd, the listener is removed.
@@ -22,6 +34,8 @@ export interface ListenerOptions {
 
 export interface HyperEmitterOptions {
   delimiter?: string;
+  /** Public OpenWA emitter uses * and **; client.events uses MQTT wildcards. */
+  wildcardStyle?: 'mqtt' | 'eventemitter';
   captureRejections?: boolean;
   onError?: (error: unknown) => void;
   /**

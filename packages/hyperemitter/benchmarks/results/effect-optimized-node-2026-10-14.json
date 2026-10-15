@@ -1,0 +1,3024 @@
+{
+  "benchmark": "hyperemitter-effect-dispatch",
+  "recordedAt": "2026-10-14T04:38:23.294Z",
+  "node": "v26.10.0",
+  "effect": "4.0.2",
+  "platform": "darwin-arm64",
+  "cpu": "Apple M1 Pro",
+  "baselineCommit": "edf0e755da222b162d88980ba39dc0b1bc0e7419",
+  "rounds": 7,
+  "warmupBatches": 2,
+  "gcExposed": true,
+  "implementations": [
+    {
+      "name": "node-eventemitter",
+      "sourceSha256": null
+    },
+    {
+      "name": "callback-baseline",
+      "sourceSha256": "a81e06cbf34d7672085911fcdbf6bb8528dd6d5c5843e174be4fd14f78eafa5e",
+      "sourceFiles": {
+        "core/HyperEmitter.ts": "import { EventEmitter as NodeEmitter } from 'node:events';\nimport { RadixTree } from '../routing/RadixTree';\nimport { ListenerOptions, HyperEmitterOptions } from '../types/index';\nimport {\n  ListenerRecord,\n  attachAbort,\n  cleanupAbort,\n  createRecord\n} from '../utils/listener';\nimport { createLogger, Logger } from '@open-wa/logger';\nimport type { LogContext } from '@open-wa/logger';\n\ntype AnyFn = (...args: any[]) => any;\n\nexport class HyperEmitter<TMap extends object = Record<string, unknown>> {\n  private readonly delimiter: string;\n  private readonly captureRejections: boolean;\n  private readonly onError?: (err: unknown) => void;\n  private readonly finalizer?: FinalizationRegistry<unknown>;\n  private readonly logger?: Logger;\n  private readonly debugEnabled: boolean;\n  private readonly baseLogContext: LogContext;\n\n  private exactListeners: Map<string, ListenerRecord<AnyFn>[]>;\n  private wildcardTree: RadixTree<ListenerRecord<AnyFn>>;\n  private wildcardIndex: Map<ListenerRecord<AnyFn>, string>;\n  private hasWildcards = false;\n  private anyListeners: Set<(event: string, payload: any) => void> = new Set();\n\n  constructor(options: HyperEmitterOptions = {}) {\n    this.delimiter = options.delimiter ?? '.';\n    this.captureRejections = options.captureRejections ?? false;\n    this.onError = options.onError;\n    this.debugEnabled = !!options.debug;\n    this.baseLogContext = {\n      component: 'hyperemitter',\n      ...options.loggerContext\n    };\n    this.logger =\n      options.logger?.withContext?.(this.baseLogContext) ??\n      createLogger({ component: 'hyperemitter', ...options.loggerContext });\n\n    // WeakRef support\n    if (typeof FinalizationRegistry !== 'undefined') {\n      this.finalizer = new FinalizationRegistry((token: unknown) => {\n        if (token && typeof token === 'object') {\n          // token is used only for unregister; actual removal is handled during emit via deref\n        }\n      });\n    }\n\n    this.exactListeners = new Map();\n    this.wildcardTree = new RadixTree<ListenerRecord<AnyFn>>(this.delimiter);\n    this.wildcardIndex = new Map();\n  }\n\n  on<K extends keyof TMap & string>(\n    event: K,\n    listener: (payload: TMap[K]) => void | Promise<void>,\n    options: ListenerOptions = {}\n  ): this {\n    const record = createRecord(listener as AnyFn, options, this.finalizer as any);\n    this.add(event, record);\n    return this;\n  }\n\n  once<K extends keyof TMap & string>(\n    event: K,\n    listener: (payload: TMap[K]) => void | Promise<void>,\n    options: ListenerOptions = {}\n  ): this {\n    const record = createRecord(listener as AnyFn, options, this.finalizer as any);\n    record.once = true;\n    this.add(event, record);\n    return this;\n  }\n\n  off<K extends keyof TMap & string>(event: K, listener: (payload: TMap[K]) => void | Promise<void>): this {\n    const list = this.exactListeners.get(event);\n    if (list) {\n      const idx = list.findIndex(l => l.fn === listener);\n      if (idx !== -1) {\n        cleanupAbort(list[idx]);\n        list.splice(idx, 1);\n      }\n      if (list.length === 0) this.exactListeners.delete(event);\n    }\n    if (this.hasWildcards && (event.includes('+') || event.includes('#'))) {\n      this.removeWildcard(event, listener as AnyFn);\n    }\n    return this;\n  }\n\n  emit<K extends keyof TMap & string>(\n    event: K,\n    payload: TMap[K]\n  ): boolean {\n    const exact = this.exactListeners.get(event as string);\n    const wildcard = this.hasWildcards\n      ? this.wildcardTree.match(event as string)\n      : undefined;\n\n    const called = this.dispatch(exact, [payload]) | this.dispatch(wildcard, [payload]);\n\n    // Notify catch-all listeners\n    for (const listener of this.anyListeners) {\n      try {\n        listener(event as string, payload);\n      } catch { /* swallow */ }\n    }\n\n    return Boolean(called);\n  }\n\n  /**\n   * Register a catch-all listener that fires on every emit with (event, payload).\n   * Useful for event bridging / debugging.\n   */\n  onAny(listener: (event: string, payload: any) => void): this {\n    this.anyListeners.add(listener);\n    return this;\n  }\n\n  /**\n   * Remove a catch-all listener registered via onAny.\n   */\n  offAny(listener: (event: string, payload: any) => void): this {\n    this.anyListeners.delete(listener);\n    return this;\n  }\n\n  listenerCount(event?: keyof TMap & string): number {\n    if (!event) {\n      let total = 0;\n      for (const arr of this.exactListeners.values()) total += arr.length;\n      return total;\n    }\n    return this.exactListeners.get(event)?.length ?? 0;\n  }\n\n  removeAllListeners(event?: keyof TMap & string): this {\n    if (!event) {\n      for (const arr of this.exactListeners.values()) {\n        arr.forEach(cleanupAbort);\n      }\n      this.exactListeners.clear();\n      this.wildcardTree = new RadixTree<ListenerRecord<AnyFn>>(this.delimiter);\n      this.hasWildcards = false;\n      this.wildcardIndex.clear();\n      return this;\n    }\n\n    const list = this.exactListeners.get(event);\n    if (list) {\n      list.forEach(cleanupAbort);\n      this.exactListeners.delete(event);\n    }\n    // Wildcards: best effort clear by rebuilding tree\n    if (this.hasWildcards && (event.includes('+') || event.includes('#'))) {\n      for (const [record, pattern] of this.wildcardIndex.entries()) {\n        if (pattern === event) {\n          this.wildcardTree.remove(pattern, record);\n          this.wildcardIndex.delete(record);\n        }\n      }\n    }\n    return this;\n  }\n\n  /**\n   * Bridge from a Node EventEmitter: forward Node events into this emitter.\n   */\n  fromNodeEmitter(emitter: NodeEmitter, event: string): () => void {\n    const handler = (...args: any[]) => {\n      // @ts-expect-error safe runtime emit\n      this.emit(event as any, ...args);\n    };\n    emitter.on(event, handler);\n    return () => emitter.off(event, handler);\n  }\n\n  /**\n   * Bridge to a Node EventEmitter: emit HyperEmitter events on a provided Node emitter.\n   */\n  toNodeEmitter(target: NodeEmitter): () => void {\n    const forwarder = (event: string, args: any[]) => target.emit(event, ...args);\n    // naive bridge: wrap emit; caller can replace as needed\n    const original = (this as any).emit;\n    (this as any).emit = (ev: string, ...args: any[]) => {\n      forwarder(ev, args);\n      return original.call(this, ev, ...args);\n    };\n    return () => {\n      (this as any).emit = original;\n    };\n  }\n\n  /**\n   * Attach a handler to an EventTarget and re-emit through HyperEmitter.\n   */\n  onEventTarget(target: EventTarget, type: string, eventName: keyof TMap & string) {\n    const handler = (ev: Event) => {\n      // @ts-expect-error forwarding payload\n      this.emit(eventName, ev);\n    };\n    target.addEventListener(type, handler);\n    return () => target.removeEventListener(type, handler);\n  }\n\n  private add(event: string, record: ListenerRecord<AnyFn>) {\n    // Wildcard patterns contain '+' or '#'\n    const isWildcard = event.includes('+') || event.includes('#');\n    if (isWildcard) {\n      this.hasWildcards = true;\n      this.wildcardTree.insert(event, record);\n      this.wildcardIndex.set(record, event);\n    } else {\n      const list = this.exactListeners.get(event);\n      if (list) {\n        list.push(record);\n      } else {\n        this.exactListeners.set(event, [record]);\n      }\n    }\n\n    attachAbort(record, () => this.off(event as any, record.fn as any));\n    this.logDebug('listener_registered', {\n      event,\n      once: record.once,\n      wildcard: isWildcard\n    });\n  }\n\n  private dispatch(list: ListenerRecord<AnyFn>[] | undefined, args: any[]): number {\n    if (!list || list.length === 0) return 0;\n    // Copy-on-write to avoid mutation during emit.\n    const snapshot = list.slice();\n    let called = 0;\n    for (const record of snapshot) {\n      // WeakRef cleanup: if target gone, remove and skip.\n      if (record.weakRef && !record.weakRef.deref()) {\n        this.offListener(record);\n        continue;\n      }\n\n      called++;\n      const result = this.invoke(record, args);\n      if (record.once) {\n        this.offListener(record);\n      }\n      if (result && typeof result.then === 'function') {\n        result.catch((err: unknown) => this.handleRejection(record, err));\n      }\n    }\n    return called;\n  }\n\n  private invoke(record: ListenerRecord<AnyFn>, args: any[]) {\n    switch (args.length) {\n      case 0:\n        return record.fn();\n      case 1:\n        return record.fn(args[0]);\n      case 2:\n        return record.fn(args[0], args[1]);\n      case 3:\n        return record.fn(args[0], args[1], args[2]);\n      default:\n        return record.fn(...args);\n    }\n  }\n\n  private offListener(record: ListenerRecord<AnyFn>) {\n    // Exact listeners\n    for (const [event, arr] of this.exactListeners.entries()) {\n      const idx = arr.indexOf(record);\n      if (idx !== -1) {\n        cleanupAbort(arr[idx]);\n        arr.splice(idx, 1);\n        if (arr.length === 0) this.exactListeners.delete(event);\n        return;\n      }\n    }\n    // Wildcard listeners (pattern tracked)\n    const pattern = this.wildcardIndex.get(record);\n    if (pattern) {\n      this.wildcardTree.remove(pattern, record);\n      this.wildcardIndex.delete(record);\n    }\n  }\n\n  private handleRejection(record: ListenerRecord<AnyFn>, err: unknown) {\n    const shouldCapture =\n      record.captureRejections !== undefined\n        ? record.captureRejections\n        : this.captureRejections;\n\n    if (!shouldCapture) {\n      queueMicrotask(() => {\n        throw err;\n      });\n      return;\n    }\n\n    if (this.onError) {\n      try {\n        this.onError(err);\n      } catch {\n        // swallow secondary errors\n      }\n      return;\n    }\n\n    // Fallback logging\n    this.logger?.error('listener_rejection', {\n      error: err as any,\n      ...this.baseLogContext\n    });\n  }\n\n  private removeWildcard(event: string, listener: AnyFn) {\n    // Slow path: tree removal requires record reference; search recorded patterns.\n    for (const [record, pattern] of this.wildcardIndex.entries()) {\n      if (pattern === event && record.fn === listener) {\n        this.wildcardTree.remove(pattern, record);\n        this.wildcardIndex.delete(record);\n        cleanupAbort(record);\n        break;\n      }\n    }\n  }\n\n  private logDebug(message: string, meta?: LogContext) {\n    if (!this.debugEnabled) return;\n    this.logger?.debug(message, { ...this.baseLogContext, ...meta });\n  }\n}\n",
+        "index.ts": "export { HyperEmitter } from './core/HyperEmitter';\nexport type {\n  EventMap,\n  EventListener,\n  ListenerOptions,\n  HyperEmitterOptions\n} from './types/index';\n",
+        "routing/RadixNode.ts": "/**\n * Monomorphic radix tree node for MQTT-style wildcard routing.\n */\nexport class RadixNode<T> {\n  segment: string;\n  listeners: T[];\n  children: Map<string, RadixNode<T>> | null;\n  wildcardSingle: RadixNode<T> | null; // '+'\n  wildcardMulti: RadixNode<T> | null; // '#'\n\n  constructor(segment: string) {\n    // Preserve property order for hidden-class stability.\n    this.segment = segment;\n    this.listeners = [];\n    this.children = null;\n    this.wildcardSingle = null;\n    this.wildcardMulti = null;\n  }\n}\n",
+        "routing/RadixTree.ts": "import { RadixNode } from './RadixNode';\n\n/**\n * Radix tree with MQTT-style wildcards.\n * Complexity: O(K) where K = number of path segments.\n */\nexport class RadixTree<T> {\n  private readonly delimiter: string;\n  private readonly root: RadixNode<T>;\n\n  constructor(delimiter = '.') {\n    this.delimiter = delimiter;\n    this.root = new RadixNode<T>('');\n  }\n\n  insert(pattern: string, value: T) {\n    const segments = this.tokenize(pattern);\n    let node = this.root;\n\n    for (const segment of segments) {\n      if (segment === '+') {\n        if (!node.wildcardSingle) node.wildcardSingle = new RadixNode<T>('+');\n        node = node.wildcardSingle;\n        continue;\n      }\n      if (segment === '#') {\n        if (!node.wildcardMulti) node.wildcardMulti = new RadixNode<T>('#');\n        node = node.wildcardMulti;\n        break; // '#' consumes the rest\n      }\n      if (!node.children) node.children = new Map();\n      let child = node.children.get(segment);\n      if (!child) {\n        child = new RadixNode<T>(segment);\n        node.children.set(segment, child);\n      }\n      node = child;\n    }\n\n    node.listeners.push(value);\n  }\n\n  remove(pattern: string, value: T) {\n    const path: Array<[RadixNode<T>, string]> = [];\n    let node = this.root;\n    const segments = this.tokenize(pattern);\n\n    for (const segment of segments) {\n      path.push([node, segment]);\n      if (segment === '+') {\n        if (!node.wildcardSingle) return;\n        node = node.wildcardSingle;\n      } else if (segment === '#') {\n        if (!node.wildcardMulti) return;\n        node = node.wildcardMulti;\n        break;\n      } else {\n        if (!node.children) return;\n        const next = node.children.get(segment);\n        if (!next) return;\n        node = next;\n      }\n    }\n\n    const idx = node.listeners.indexOf(value);\n    if (idx !== -1) {\n      node.listeners.splice(idx, 1);\n    }\n  }\n\n  match(event: string): T[] {\n    const segments = this.tokenize(event);\n    const stack: Array<{ node: RadixNode<T>; index: number }> = [\n      { node: this.root, index: 0 }\n    ];\n    const results: T[] = [];\n\n    while (stack.length > 0) {\n      const { node, index } = stack.pop()!;\n\n      if (index === segments.length) {\n        // Exact depth match\n        if (node.listeners.length) results.push(...node.listeners);\n        // '#' can also match empty suffix\n        if (node.wildcardMulti && node.wildcardMulti.listeners.length) {\n          results.push(...node.wildcardMulti.listeners);\n        }\n        continue;\n      }\n\n      const seg = segments[index];\n\n      // Exact child\n      if (node.children) {\n        const child = node.children.get(seg);\n        if (child) {\n          stack.push({ node: child, index: index + 1 });\n        }\n      }\n\n      // Single-level wildcard '+'\n      if (node.wildcardSingle) {\n        stack.push({ node: node.wildcardSingle, index: index + 1 });\n      }\n\n      // Multi-level wildcard '#'\n      if (node.wildcardMulti) {\n        // '#' consumes the rest, so we can collect listeners directly\n        if (node.wildcardMulti.listeners.length) {\n          results.push(...node.wildcardMulti.listeners);\n        }\n        // But it can also match additional segments\n        stack.push({ node: node.wildcardMulti, index: index + 1 });\n      }\n    }\n\n    return results;\n  }\n\n  private tokenize(path: string): string[] {\n    // Simple tokenizer; allocations are acceptable for initial implementation.\n    return path.split(this.delimiter);\n  }\n}\n",
+        "types/index.ts": "export type AnyFn = (...args: any[]) => any;\n\nexport type EventMap = { [key: string]: unknown };\n\nexport type EventListener<T> = (payload: T) => void | Promise<void>;\n\nexport interface ListenerOptions {\n  /**\n   * AbortSignal to auto-remove the listener when aborted.\n   */\n  signal?: AbortSignal;\n  /**\n   * Mark the listener as weak; provide a target object to track.\n   * When the target is GC'd, the listener is removed.\n   */\n  weak?: object;\n  /**\n   * Enable captureRejections for this listener (fallbacks to emitter-level).\n   */\n  captureRejections?: boolean;\n}\n\nexport interface HyperEmitterOptions {\n  delimiter?: string;\n  captureRejections?: boolean;\n  onError?: (error: unknown) => void;\n  /**\n   * Enable debug logging (uses @open-wa/logger).\n   */\n  debug?: boolean;\n  /**\n   * Optional logger instance; if omitted, a child logger will be created.\n   */\n  logger?: import('@open-wa/logger').Logger;\n  /**\n   * Additional bound context for logger child.\n   */\n  loggerContext?: import('@open-wa/logger').LogContext;\n}\n",
+        "utils/listener.ts": "import { ListenerOptions } from '../types/index';\n\nexport type ListenerFn = (...args: any[]) => any;\n\nexport interface ListenerRecord<T extends ListenerFn> {\n  fn: T;\n  once: boolean;\n  signal?: AbortSignal;\n  abortHandler?: () => void;\n  weakRef?: WeakRef<object>;\n  finalizerToken?: object;\n  captureRejections?: boolean;\n}\n\nexport function createRecord<T extends ListenerFn>(\n  fn: T,\n  opts: ListenerOptions,\n  finalizer?: FinalizationRegistry<unknown>\n): ListenerRecord<T> {\n  const record: ListenerRecord<T> = {\n    fn,\n    once: false,\n    signal: opts.signal,\n    captureRejections: opts.captureRejections\n  };\n\n  if (opts.weak && typeof WeakRef !== 'undefined') {\n    const weakRef = new WeakRef(opts.weak);\n    record.weakRef = weakRef;\n    if (finalizer) {\n      const token = {};\n      record.finalizerToken = token;\n      finalizer.register(opts.weak, token, token);\n    }\n  }\n\n  return record;\n}\n\nexport function attachAbort(\n  record: ListenerRecord<any>,\n  remove: () => void\n) {\n  if (!record.signal) return;\n  if (record.signal.aborted) {\n    remove();\n    return;\n  }\n  const handler = () => remove();\n  record.abortHandler = handler;\n  record.signal.addEventListener('abort', handler, { once: true });\n}\n\nexport function cleanupAbort(record: ListenerRecord<any>) {\n  if (record.signal && record.abortHandler) {\n    record.signal.removeEventListener('abort', record.abortHandler);\n    record.abortHandler = undefined;\n  }\n}\n"
+      }
+    },
+    {
+      "name": "effect-aware-snapshot",
+      "sourceSha256": "b3769345f1cf89a44513e48c5fcafa8e9d5cdde07f845b26ef5191f7df7a3c7f",
+      "sourceFiles": {
+        "core/HyperEmitter.ts": "import type { EventEmitter as NodeEmitter } from 'node:events';\nimport { Cause, Effect, Exit, Fiber, Scope } from 'effect';\nimport { RadixTree } from '../routing/RadixTree';\nimport type { AnyEventListener, EventListener, ListenerOptions, HyperEmitterOptions } from '../types/index';\nimport {\n  ListenerRecord,\n  attachAbort,\n  cleanupAbort,\n  createRecord\n} from '../utils/listener';\nimport { createLogger, Logger } from '@open-wa/logger';\nimport type { LogContext } from '@open-wa/logger';\n\ntype AnyFn = (...args: any[]) => any;\n\nexport class HyperEmitter<TMap extends object = Record<string, unknown>> {\n  private readonly delimiter: string;\n  private readonly captureRejections: boolean;\n  private readonly onError?: (err: unknown) => void;\n  private readonly finalizer?: FinalizationRegistry<unknown>;\n  private readonly logger?: Logger;\n  private readonly debugEnabled: boolean;\n  private readonly baseLogContext: LogContext;\n\n  private exactListeners: Map<string, ListenerRecord<AnyFn>[]>;\n  private wildcardTree: RadixTree<ListenerRecord<AnyFn>>;\n  private wildcardIndex: Map<ListenerRecord<AnyFn>, string>;\n  private hasWildcards = false;\n  private anyListeners = new Map<AnyEventListener, ListenerRecord<AnyFn>>();\n  private readonly scope = Scope.makeUnsafe();\n  private closed = false;\n\n  get isClosed(): boolean {\n    return this.closed;\n  }\n\n  constructor(options: HyperEmitterOptions = {}) {\n    this.delimiter = options.delimiter ?? '.';\n    this.captureRejections = options.captureRejections ?? false;\n    this.onError = options.onError;\n    this.debugEnabled = !!options.debug;\n    this.baseLogContext = {\n      component: 'hyperemitter',\n      ...options.loggerContext\n    };\n    this.logger =\n      options.logger?.withContext?.(this.baseLogContext) ??\n      createLogger({ component: 'hyperemitter', ...options.loggerContext });\n\n    // WeakRef support\n    if (typeof FinalizationRegistry !== 'undefined') {\n      this.finalizer = new FinalizationRegistry((token: unknown) => {\n        if (token && typeof token === 'object') {\n          // token is used only for unregister; actual removal is handled during emit via deref\n        }\n      });\n    }\n\n    this.exactListeners = new Map();\n    this.wildcardTree = new RadixTree<ListenerRecord<AnyFn>>(this.delimiter);\n    this.wildcardIndex = new Map();\n  }\n\n  on<K extends keyof TMap & string>(\n    event: K,\n    listener: EventListener<TMap[K]>,\n    options: ListenerOptions = {}\n  ): this {\n    const record = createRecord(listener as AnyFn, options, this.finalizer as any);\n    this.add(event, record);\n    return this;\n  }\n\n  once<K extends keyof TMap & string>(\n    event: K,\n    listener: EventListener<TMap[K]>,\n    options: ListenerOptions = {}\n  ): this {\n    const record = createRecord(listener as AnyFn, options, this.finalizer as any);\n    record.once = true;\n    this.add(event, record);\n    return this;\n  }\n\n  /** Register a listener and own its in-flight Effects until the caller's scope closes. */\n  onScoped<K extends keyof TMap & string>(\n    event: K,\n    listener: EventListener<TMap[K]>,\n    options: ListenerOptions = {},\n  ): Effect.Effect<void, never, Scope.Scope> {\n    return Effect.acquireRelease(\n      Effect.sync(() => {\n        this.assertOpen();\n        const record = createRecord(listener as AnyFn, options, this.finalizer as any);\n        record.scope = Scope.forkUnsafe(this.scope);\n        this.add(event, record);\n        return record;\n      }),\n      record => Effect.sync(() => this.offListener(record)).pipe(\n        Effect.andThen(Scope.close(record.scope!, Exit.void)),\n      ),\n    ).pipe(Effect.asVoid);\n  }\n\n  off<K extends keyof TMap & string>(event: K, listener: EventListener<TMap[K]>): this {\n    const list = this.exactListeners.get(event);\n    if (list) {\n      const idx = list.findIndex(l => l.fn === listener);\n      if (idx !== -1) {\n        cleanupAbort(list[idx]);\n        list.splice(idx, 1);\n      }\n      if (list.length === 0) this.exactListeners.delete(event);\n    }\n    if (this.hasWildcards && (event.includes('+') || event.includes('#'))) {\n      this.removeWildcard(event, listener as AnyFn);\n    }\n    return this;\n  }\n\n  emit<K extends keyof TMap & string>(\n    event: K,\n    payload: TMap[K]\n  ): boolean {\n    if (this.closed) return false;\n    const listeners = this.snapshot(event);\n    let called = false;\n    for (const { record, any } of listeners) {\n      if (!this.prepare(record)) continue;\n      called = true;\n      try {\n        const result = this.invoke(record, any ? [event, payload] : [payload]);\n        if (Effect.isEffect(result) || (result && typeof result.then === 'function')) {\n          Effect.runSync(Effect.forkIn(\n            this.resultEffect(result).pipe(Effect.catchCause(cause => Effect.sync(() => {\n              if (!Cause.hasInterruptsOnly(cause)) this.handleRejection(record, Cause.squash(cause));\n            }))),\n            record.scope ?? this.scope,\n            { startImmediately: true },\n          ));\n        }\n      } catch (error) {\n        if (!this.shouldCapture(record)) throw error;\n        this.handleRejection(record, error);\n      }\n    }\n    return called;\n  }\n\n  /** Emit lazily and await every listener, including Promise and Effect callbacks. */\n  emitEffect<K extends keyof TMap & string>(event: K, payload: TMap[K]): Effect.Effect<boolean, unknown> {\n    return Effect.suspend(() => {\n      if (this.closed) return Effect.succeed(false);\n      const listeners = this.snapshot(event).filter(({ record }) => this.prepare(record));\n      return Effect.forEach(listeners, ({ record, any }) => {\n        const invoke = Effect.try({\n          try: () => this.invoke(record, any ? [event, payload] : [payload]),\n          catch: error => error,\n        }).pipe(Effect.flatMap(result => this.resultEffect(result)));\n        const handled = this.shouldCapture(record)\n          ? invoke.pipe(Effect.catchCause(cause => Effect.sync(() => {\n              if (!Cause.hasInterruptsOnly(cause)) this.handleRejection(record, Cause.squash(cause));\n            })))\n          : invoke;\n        return Effect.forkIn(handled, record.scope ?? this.scope, { startImmediately: true }).pipe(\n          Effect.flatMap(fiber => Fiber.join(fiber).pipe(Effect.ensuring(Fiber.interrupt(fiber)))),\n        );\n      }, { concurrency: 'unbounded', discard: true }).pipe(Effect.as(listeners.length > 0));\n    });\n  }\n\n  /**\n   * Register a catch-all listener that fires on every emit with (event, payload).\n   * Useful for event bridging / debugging.\n   */\n  onAny(listener: AnyEventListener, options: ListenerOptions = {}): this {\n    this.assertOpen();\n    const existing = this.anyListeners.get(listener);\n    if (existing) cleanupAbort(existing);\n    const record = createRecord(listener, options, this.finalizer as any);\n    this.anyListeners.set(listener, record);\n    attachAbort(record, () => this.offAny(listener));\n    return this;\n  }\n\n  onAnyScoped(listener: AnyEventListener, options: ListenerOptions = {}): Effect.Effect<void, never, Scope.Scope> {\n    const owned: AnyEventListener = (event, payload) => listener(event, payload);\n    return Effect.acquireRelease(\n      Effect.sync(() => {\n        this.assertOpen();\n        const record = createRecord(owned, options, this.finalizer as any);\n        record.scope = Scope.forkUnsafe(this.scope);\n        this.anyListeners.set(owned, record);\n        attachAbort(record, () => this.offAny(owned));\n        return record;\n      }),\n      record => Effect.sync(() => this.offAny(owned)).pipe(\n        Effect.andThen(Scope.close(record.scope!, Exit.void)),\n      ),\n    ).pipe(Effect.asVoid);\n  }\n\n  /**\n   * Remove a catch-all listener registered via onAny.\n   */\n  offAny(listener: AnyEventListener): this {\n    const record = this.anyListeners.get(listener);\n    if (record) cleanupAbort(record);\n    this.anyListeners.delete(listener);\n    return this;\n  }\n\n  listeners(event: keyof TMap & string): EventListener<any>[] {\n    return this.snapshot(event).filter(({ record, any }) => !any && this.isLive(record)).map(({ record }) => record.fn);\n  }\n\n  hasListeners(event: keyof TMap & string): boolean {\n    return this.snapshot(event).some(({ record }) => this.isLive(record));\n  }\n\n  listenerCount(event?: keyof TMap & string): number {\n    if (!event) {\n      let total = this.wildcardIndex.size + this.anyListeners.size;\n      for (const arr of this.exactListeners.values()) total += arr.length;\n      return total;\n    }\n    return this.listeners(event).length;\n  }\n\n  removeAllListeners(event?: keyof TMap & string): this {\n    if (!event) {\n      for (const arr of this.exactListeners.values()) {\n        arr.forEach(cleanupAbort);\n      }\n      this.exactListeners.clear();\n      for (const record of this.wildcardIndex.keys()) cleanupAbort(record);\n      for (const record of this.anyListeners.values()) cleanupAbort(record);\n      this.anyListeners.clear();\n      this.wildcardTree = new RadixTree<ListenerRecord<AnyFn>>(this.delimiter);\n      this.hasWildcards = false;\n      this.wildcardIndex.clear();\n      return this;\n    }\n\n    const list = this.exactListeners.get(event);\n    if (list) {\n      list.forEach(cleanupAbort);\n      this.exactListeners.delete(event);\n    }\n    // Wildcards: best effort clear by rebuilding tree\n    if (this.hasWildcards && (event.includes('+') || event.includes('#'))) {\n      for (const [record, pattern] of this.wildcardIndex.entries()) {\n        if (pattern === event) {\n          cleanupAbort(record);\n          this.wildcardTree.remove(pattern, record);\n          this.wildcardIndex.delete(record);\n        }\n      }\n    }\n    return this;\n  }\n\n  /** Remove subscriptions and interrupt listener work owned by this emitter. */\n  close(): Effect.Effect<void> {\n    return Effect.suspend(() => {\n      if (this.closed) return Effect.void;\n      this.closed = true;\n      this.removeAllListeners();\n      return Scope.close(this.scope, Exit.void);\n    });\n  }\n\n  /**\n   * Bridge from a Node EventEmitter: forward Node events into this emitter.\n   */\n  fromNodeEmitter(emitter: NodeEmitter, event: string): () => void {\n    const handler = (...args: any[]) => {\n      this.emit(event as keyof TMap & string, args[0]);\n    };\n    emitter.on(event, handler);\n    return () => emitter.off(event, handler);\n  }\n\n  /**\n   * Bridge to a Node EventEmitter: emit HyperEmitter events on a provided Node emitter.\n   */\n  toNodeEmitter(target: NodeEmitter): () => void {\n    const forwarder: AnyEventListener = (event, payload) => { target.emit(event, payload); };\n    this.onAny(forwarder);\n    return () => { this.offAny(forwarder); };\n  }\n\n  /**\n   * Attach a handler to an EventTarget and re-emit through HyperEmitter.\n   */\n  onEventTarget(target: EventTarget, type: string, eventName: keyof TMap & string) {\n    const handler = (ev: Event) => {\n      // @ts-expect-error forwarding payload\n      this.emit(eventName, ev);\n    };\n    target.addEventListener(type, handler);\n    return () => target.removeEventListener(type, handler);\n  }\n\n  private add(event: string, record: ListenerRecord<AnyFn>) {\n    this.assertOpen();\n    // Wildcard patterns contain '+' or '#'\n    const isWildcard = event.includes('+') || event.includes('#');\n    if (isWildcard) {\n      this.hasWildcards = true;\n      this.wildcardTree.insert(event, record);\n      this.wildcardIndex.set(record, event);\n    } else {\n      const list = this.exactListeners.get(event);\n      if (list) {\n        list.push(record);\n      } else {\n        this.exactListeners.set(event, [record]);\n      }\n    }\n\n    attachAbort(record, () => this.off(event as any, record.fn as any));\n    this.logDebug('listener_registered', {\n      event,\n      once: record.once,\n      wildcard: isWildcard\n    });\n  }\n\n  private assertOpen() {\n    if (this.closed) throw new Error('HyperEmitter is closed');\n  }\n\n  private snapshot(event: string) {\n    return [\n      ...(this.exactListeners.get(event) ?? []).map(record => ({ record, any: false })),\n      ...(this.hasWildcards ? this.wildcardTree.match(event) : []).map(record => ({ record, any: false })),\n      ...Array.from(this.anyListeners.values(), record => ({ record, any: true })),\n    ];\n  }\n\n  private isLive(record: ListenerRecord<AnyFn>) {\n    return !record.signal?.aborted && (!record.weakRef || !!record.weakRef.deref());\n  }\n\n  private prepare(record: ListenerRecord<AnyFn>) {\n    if (!this.isLive(record)) {\n      this.offListener(record);\n      return false;\n    }\n    // Remove before invoking so a recursive emit cannot call a once listener twice.\n    if (record.once) {\n      if (record.fired) return false;\n      record.fired = true;\n      this.offListener(record);\n    }\n    return true;\n  }\n\n  private resultEffect(result: any): Effect.Effect<unknown, unknown> {\n    if (Effect.isEffect(result)) return result as Effect.Effect<unknown, unknown>;\n    if (result && typeof result.then === 'function') {\n      return Effect.tryPromise({ try: () => Promise.resolve(result), catch: error => error });\n    }\n    return Effect.succeed(result);\n  }\n\n  private invoke(record: ListenerRecord<AnyFn>, args: any[]) {\n    switch (args.length) {\n      case 0:\n        return record.fn();\n      case 1:\n        return record.fn(args[0]);\n      case 2:\n        return record.fn(args[0], args[1]);\n      case 3:\n        return record.fn(args[0], args[1], args[2]);\n      default:\n        return record.fn(...args);\n    }\n  }\n\n  private offListener(record: ListenerRecord<AnyFn>) {\n    // Exact listeners\n    for (const [event, arr] of this.exactListeners.entries()) {\n      const idx = arr.indexOf(record);\n      if (idx !== -1) {\n        cleanupAbort(arr[idx]);\n        arr.splice(idx, 1);\n        if (arr.length === 0) this.exactListeners.delete(event);\n        return;\n      }\n    }\n    // Wildcard listeners (pattern tracked)\n    const pattern = this.wildcardIndex.get(record);\n    if (pattern) {\n      cleanupAbort(record);\n      this.wildcardTree.remove(pattern, record);\n      this.wildcardIndex.delete(record);\n      return;\n    }\n    if (this.anyListeners.get(record.fn) === record) this.offAny(record.fn);\n  }\n\n  private shouldCapture(record: ListenerRecord<AnyFn>) {\n    return record.captureRejections ?? this.captureRejections;\n  }\n\n  private handleRejection(record: ListenerRecord<AnyFn>, err: unknown) {\n    if (!this.shouldCapture(record)) {\n      queueMicrotask(() => {\n        throw err;\n      });\n      return;\n    }\n\n    if (this.onError) {\n      try {\n        this.onError(err);\n      } catch {\n        // swallow secondary errors\n      }\n      return;\n    }\n\n    // Fallback logging\n    this.logger?.error('listener_rejection', {\n      error: err as any,\n      ...this.baseLogContext\n    });\n  }\n\n  private removeWildcard(event: string, listener: AnyFn) {\n    // Slow path: tree removal requires record reference; search recorded patterns.\n    for (const [record, pattern] of this.wildcardIndex.entries()) {\n      if (pattern === event && record.fn === listener) {\n        this.wildcardTree.remove(pattern, record);\n        this.wildcardIndex.delete(record);\n        cleanupAbort(record);\n        break;\n      }\n    }\n  }\n\n  private logDebug(message: string, meta?: LogContext) {\n    if (!this.debugEnabled) return;\n    this.logger?.debug(message, { ...this.baseLogContext, ...meta });\n  }\n}\n",
+        "index.ts": "export { HyperEmitter } from './core/HyperEmitter';\nexport type {\n  EventMap,\n  EventListener,\n  AnyEventListener,\n  ListenerResult,\n  ListenerOptions,\n  HyperEmitterOptions\n} from './types/index';\n",
+        "routing/RadixNode.ts": "/**\n * Monomorphic radix tree node for MQTT-style wildcard routing.\n */\nexport class RadixNode<T> {\n  segment: string;\n  listeners: T[];\n  children: Map<string, RadixNode<T>> | null;\n  wildcardSingle: RadixNode<T> | null; // '+'\n  wildcardMulti: RadixNode<T> | null; // '#'\n\n  constructor(segment: string) {\n    // Preserve property order for hidden-class stability.\n    this.segment = segment;\n    this.listeners = [];\n    this.children = null;\n    this.wildcardSingle = null;\n    this.wildcardMulti = null;\n  }\n}\n",
+        "routing/RadixTree.ts": "import { RadixNode } from './RadixNode';\n\n/**\n * Radix tree with MQTT-style wildcards.\n * Complexity: O(K) where K = number of path segments.\n */\nexport class RadixTree<T> {\n  private readonly delimiter: string;\n  private readonly root: RadixNode<T>;\n\n  constructor(delimiter = '.') {\n    this.delimiter = delimiter;\n    this.root = new RadixNode<T>('');\n  }\n\n  insert(pattern: string, value: T) {\n    const segments = this.tokenize(pattern);\n    let node = this.root;\n\n    for (const segment of segments) {\n      if (segment === '+') {\n        if (!node.wildcardSingle) node.wildcardSingle = new RadixNode<T>('+');\n        node = node.wildcardSingle;\n        continue;\n      }\n      if (segment === '#') {\n        if (!node.wildcardMulti) node.wildcardMulti = new RadixNode<T>('#');\n        node = node.wildcardMulti;\n        break; // '#' consumes the rest\n      }\n      if (!node.children) node.children = new Map();\n      let child = node.children.get(segment);\n      if (!child) {\n        child = new RadixNode<T>(segment);\n        node.children.set(segment, child);\n      }\n      node = child;\n    }\n\n    node.listeners.push(value);\n  }\n\n  remove(pattern: string, value: T) {\n    const path: Array<[RadixNode<T>, string]> = [];\n    let node = this.root;\n    const segments = this.tokenize(pattern);\n\n    for (const segment of segments) {\n      path.push([node, segment]);\n      if (segment === '+') {\n        if (!node.wildcardSingle) return;\n        node = node.wildcardSingle;\n      } else if (segment === '#') {\n        if (!node.wildcardMulti) return;\n        node = node.wildcardMulti;\n        break;\n      } else {\n        if (!node.children) return;\n        const next = node.children.get(segment);\n        if (!next) return;\n        node = next;\n      }\n    }\n\n    const idx = node.listeners.indexOf(value);\n    if (idx !== -1) {\n      node.listeners.splice(idx, 1);\n    }\n  }\n\n  match(event: string): T[] {\n    const segments = this.tokenize(event);\n    const stack: Array<{ node: RadixNode<T>; index: number }> = [\n      { node: this.root, index: 0 }\n    ];\n    const results: T[] = [];\n\n    while (stack.length > 0) {\n      const { node, index } = stack.pop()!;\n\n      if (index === segments.length) {\n        // Exact depth match\n        if (node.listeners.length) results.push(...node.listeners);\n        // '#' can also match empty suffix\n        if (node.wildcardMulti && node.wildcardMulti.listeners.length) {\n          results.push(...node.wildcardMulti.listeners);\n        }\n        continue;\n      }\n\n      const seg = segments[index];\n\n      // Exact child\n      if (node.children) {\n        const child = node.children.get(seg);\n        if (child) {\n          stack.push({ node: child, index: index + 1 });\n        }\n      }\n\n      // Single-level wildcard '+'\n      if (node.wildcardSingle) {\n        stack.push({ node: node.wildcardSingle, index: index + 1 });\n      }\n\n      // Multi-level wildcard '#'\n      if (node.wildcardMulti) {\n        // '#' consumes the rest, so we can collect listeners directly\n        if (node.wildcardMulti.listeners.length) {\n          results.push(...node.wildcardMulti.listeners);\n        }\n        // But it can also match additional segments\n        stack.push({ node: node.wildcardMulti, index: index + 1 });\n      }\n    }\n\n    return results;\n  }\n\n  private tokenize(path: string): string[] {\n    // Simple tokenizer; allocations are acceptable for initial implementation.\n    return path.split(this.delimiter);\n  }\n}\n",
+        "types/index.ts": "import type { Effect } from 'effect';\n\nexport type AnyFn = (...args: any[]) => any;\n\nexport type EventMap = { [key: string]: unknown };\n\nexport type ListenerResult = void | Promise<unknown> | Effect.Effect<unknown, unknown>;\n\nexport type EventListener<T> = (payload: T) => ListenerResult;\n\nexport type AnyEventListener = (event: string, payload: any) => ListenerResult;\n\nexport interface ListenerOptions {\n  /**\n   * AbortSignal to auto-remove the listener when aborted.\n   */\n  signal?: AbortSignal;\n  /**\n   * Mark the listener as weak; provide a target object to track.\n   * When the target is GC'd, the listener is removed.\n   */\n  weak?: object;\n  /**\n   * Enable captureRejections for this listener (fallbacks to emitter-level).\n   */\n  captureRejections?: boolean;\n}\n\nexport interface HyperEmitterOptions {\n  delimiter?: string;\n  captureRejections?: boolean;\n  onError?: (error: unknown) => void;\n  /**\n   * Enable debug logging (uses @open-wa/logger).\n   */\n  debug?: boolean;\n  /**\n   * Optional logger instance; if omitted, a child logger will be created.\n   */\n  logger?: import('@open-wa/logger').Logger;\n  /**\n   * Additional bound context for logger child.\n   */\n  loggerContext?: import('@open-wa/logger').LogContext;\n}\n",
+        "utils/listener.ts": "import type { ListenerOptions } from '../types/index';\nimport type { Scope } from 'effect';\n\nexport type ListenerFn = (...args: any[]) => any;\n\nexport interface ListenerRecord<T extends ListenerFn> {\n  fn: T;\n  once: boolean;\n  fired?: boolean;\n  signal?: AbortSignal;\n  abortHandler?: () => void;\n  weakRef?: WeakRef<object>;\n  finalizerToken?: object;\n  captureRejections?: boolean;\n  scope?: Scope.Closeable;\n}\n\nexport function createRecord<T extends ListenerFn>(\n  fn: T,\n  opts: ListenerOptions,\n  finalizer?: FinalizationRegistry<unknown>\n): ListenerRecord<T> {\n  const record: ListenerRecord<T> = {\n    fn,\n    once: false,\n    signal: opts.signal,\n    captureRejections: opts.captureRejections\n  };\n\n  if (opts.weak && typeof WeakRef !== 'undefined') {\n    const weakRef = new WeakRef(opts.weak);\n    record.weakRef = weakRef;\n    if (finalizer) {\n      const token = {};\n      record.finalizerToken = token;\n      finalizer.register(opts.weak, token, token);\n    }\n  }\n\n  return record;\n}\n\nexport function attachAbort(\n  record: ListenerRecord<any>,\n  remove: () => void\n) {\n  if (!record.signal) return;\n  if (record.signal.aborted) {\n    remove();\n    return;\n  }\n  const handler = () => remove();\n  record.abortHandler = handler;\n  record.signal.addEventListener('abort', handler, { once: true });\n}\n\nexport function cleanupAbort(record: ListenerRecord<any>) {\n  if (record.signal && record.abortHandler) {\n    record.signal.removeEventListener('abort', record.abortHandler);\n    record.abortHandler = undefined;\n  }\n}\n"
+      }
+    },
+    {
+      "name": "effect-prototype-snapshot",
+      "sourceSha256": "9b3e6ed3cbe3ae96a9740cdfbec840edd1cb777ebc8ee24ca7c90b3eddbc3bab",
+      "sourceFiles": {
+        "core/HyperEmitter.ts": "import type { EventEmitter as NodeEmitter } from 'node:events';\nimport { Cause, Effect, Exit, Fiber, Scope } from 'effect';\nimport { RadixTree } from '../routing/RadixTree';\nimport type { AnyEventListener, EventListener, ListenerOptions, HyperEmitterOptions } from '../types/index';\nimport {\n  ListenerRecord,\n  attachAbort,\n  cleanupAbort,\n  createRecord\n} from '../utils/listener';\nimport { createLogger, Logger } from '@open-wa/logger';\nimport type { LogContext } from '@open-wa/logger';\n\ntype AnyFn = (...args: any[]) => any;\n\nexport class HyperEmitter<TMap extends object = Record<string, unknown>> {\n  private readonly delimiter: string;\n  private readonly captureRejections: boolean;\n  private readonly onError?: (err: unknown) => void;\n  private readonly finalizer?: FinalizationRegistry<unknown>;\n  private readonly logger?: Logger;\n  private readonly debugEnabled: boolean;\n  private readonly baseLogContext: LogContext;\n\n  private exactListeners: Map<string, ListenerRecord<AnyFn>[]>;\n  private wildcardTree: RadixTree<ListenerRecord<AnyFn>>;\n  private wildcardIndex: Map<ListenerRecord<AnyFn>, string>;\n  private hasWildcards = false;\n  private anyListeners = new Map<AnyEventListener, ListenerRecord<AnyFn>>();\n  private readonly scope = Scope.makeUnsafe();\n  private closed = false;\n\n  get isClosed(): boolean {\n    return this.closed;\n  }\n\n  constructor(options: HyperEmitterOptions = {}) {\n    this.delimiter = options.delimiter ?? '.';\n    this.captureRejections = options.captureRejections ?? false;\n    this.onError = options.onError;\n    this.debugEnabled = !!options.debug;\n    this.baseLogContext = {\n      component: 'hyperemitter',\n      ...options.loggerContext\n    };\n    this.logger =\n      options.logger?.withContext?.(this.baseLogContext) ??\n      createLogger({ component: 'hyperemitter', ...options.loggerContext });\n\n    // WeakRef support\n    if (typeof FinalizationRegistry !== 'undefined') {\n      this.finalizer = new FinalizationRegistry((token: unknown) => {\n        if (token && typeof token === 'object') {\n          // token is used only for unregister; actual removal is handled during emit via deref\n        }\n      });\n    }\n\n    this.exactListeners = new Map();\n    this.wildcardTree = new RadixTree<ListenerRecord<AnyFn>>(this.delimiter);\n    this.wildcardIndex = new Map();\n  }\n\n  on<K extends keyof TMap & string>(\n    event: K,\n    listener: EventListener<TMap[K]>,\n    options: ListenerOptions = {}\n  ): this {\n    const record = createRecord(listener as AnyFn, options, this.finalizer as any);\n    this.add(event, record);\n    return this;\n  }\n\n  once<K extends keyof TMap & string>(\n    event: K,\n    listener: EventListener<TMap[K]>,\n    options: ListenerOptions = {}\n  ): this {\n    const record = createRecord(listener as AnyFn, options, this.finalizer as any);\n    record.once = true;\n    this.add(event, record);\n    return this;\n  }\n\n  /** Register a listener and own its in-flight Effects until the caller's scope closes. */\n  onScoped<K extends keyof TMap & string>(\n    event: K,\n    listener: EventListener<TMap[K]>,\n    options: ListenerOptions = {},\n  ): Effect.Effect<void, never, Scope.Scope> {\n    return Effect.acquireRelease(\n      Effect.sync(() => {\n        this.assertOpen();\n        const record = createRecord(listener as AnyFn, options, this.finalizer as any);\n        record.scope = Scope.forkUnsafe(this.scope);\n        this.add(event, record);\n        return record;\n      }),\n      record => Effect.sync(() => this.offListener(record)).pipe(\n        Effect.andThen(Scope.close(record.scope!, Exit.void)),\n      ),\n    ).pipe(Effect.asVoid);\n  }\n\n  off<K extends keyof TMap & string>(event: K, listener: EventListener<TMap[K]>): this {\n    const list = this.exactListeners.get(event);\n    if (list) {\n      const idx = list.findIndex(l => l.fn === listener);\n      if (idx !== -1) {\n        cleanupAbort(list[idx]);\n        list.splice(idx, 1);\n      }\n      if (list.length === 0) this.exactListeners.delete(event);\n    }\n    if (this.hasWildcards && (event.includes('+') || event.includes('#'))) {\n      this.removeWildcard(event, listener as AnyFn);\n    }\n    return this;\n  }\n\n  emit<K extends keyof TMap & string>(\n    event: K,\n    payload: TMap[K]\n  ): boolean {\n    return Effect.runSync(this.dispatch(event, payload, false));\n  }\n\n  /** Emit lazily and await every listener, including Promise and Effect callbacks. */\n  emitEffect<K extends keyof TMap & string>(event: K, payload: TMap[K]): Effect.Effect<boolean, unknown> {\n    return this.dispatch(event, payload, true);\n  }\n\n  private dispatch(event: string, payload: unknown, awaitListeners: boolean): Effect.Effect<boolean, unknown> {\n    return Effect.suspend(() => {\n      if (this.closed) return Effect.succeed(false);\n      let called = false;\n      return Effect.forEach(this.snapshot(event), ({ record, any }) => Effect.suspend(() => {\n        if (!this.prepare(record)) return Effect.void;\n        called = true;\n        const invoke = Effect.try({\n          try: () => any ? record.fn(event, payload) : record.fn(payload),\n          catch: error => error,\n        }).pipe(Effect.flatMap(result => {\n          if (!Effect.isEffect(result) && !(result && typeof result.then === 'function')) return Effect.void;\n          const work = this.resultEffect(result);\n          const handled = !awaitListeners || this.shouldCapture(record)\n            ? work.pipe(Effect.catchCause(cause => Effect.sync(() => {\n                if (!Cause.hasInterruptsOnly(cause)) this.handleRejection(record, Cause.squash(cause));\n              })))\n            : work;\n          return Effect.forkIn(handled, record.scope ?? this.scope, { startImmediately: true }).pipe(\n            Effect.flatMap(fiber => awaitListeners\n              ? Fiber.join(fiber).pipe(Effect.ensuring(Fiber.interrupt(fiber)))\n              : Effect.void),\n          );\n        }));\n        return this.shouldCapture(record)\n          ? invoke.pipe(Effect.catchCause(cause => Effect.sync(() => {\n              if (!Cause.hasInterruptsOnly(cause)) this.handleRejection(record, Cause.squash(cause));\n            })))\n          : invoke;\n      }), { concurrency: awaitListeners ? 'unbounded' : 1, discard: true }).pipe(\n        Effect.map(() => called),\n      );\n    });\n  }\n\n  /**\n   * Register a catch-all listener that fires on every emit with (event, payload).\n   * Useful for event bridging / debugging.\n   */\n  onAny(listener: AnyEventListener, options: ListenerOptions = {}): this {\n    this.assertOpen();\n    const existing = this.anyListeners.get(listener);\n    if (existing) cleanupAbort(existing);\n    const record = createRecord(listener, options, this.finalizer as any);\n    this.anyListeners.set(listener, record);\n    attachAbort(record, () => this.offAny(listener));\n    return this;\n  }\n\n  onAnyScoped(listener: AnyEventListener, options: ListenerOptions = {}): Effect.Effect<void, never, Scope.Scope> {\n    const owned: AnyEventListener = (event, payload) => listener(event, payload);\n    return Effect.acquireRelease(\n      Effect.sync(() => {\n        this.assertOpen();\n        const record = createRecord(owned, options, this.finalizer as any);\n        record.scope = Scope.forkUnsafe(this.scope);\n        this.anyListeners.set(owned, record);\n        attachAbort(record, () => this.offAny(owned));\n        return record;\n      }),\n      record => Effect.sync(() => this.offAny(owned)).pipe(\n        Effect.andThen(Scope.close(record.scope!, Exit.void)),\n      ),\n    ).pipe(Effect.asVoid);\n  }\n\n  /**\n   * Remove a catch-all listener registered via onAny.\n   */\n  offAny(listener: AnyEventListener): this {\n    const record = this.anyListeners.get(listener);\n    if (record) cleanupAbort(record);\n    this.anyListeners.delete(listener);\n    return this;\n  }\n\n  listeners(event: keyof TMap & string): EventListener<any>[] {\n    return this.snapshot(event).filter(({ record, any }) => !any && this.isLive(record)).map(({ record }) => record.fn);\n  }\n\n  hasListeners(event: keyof TMap & string): boolean {\n    return this.snapshot(event).some(({ record }) => this.isLive(record));\n  }\n\n  listenerCount(event?: keyof TMap & string): number {\n    if (!event) {\n      let total = this.wildcardIndex.size + this.anyListeners.size;\n      for (const arr of this.exactListeners.values()) total += arr.length;\n      return total;\n    }\n    return this.listeners(event).length;\n  }\n\n  removeAllListeners(event?: keyof TMap & string): this {\n    if (!event) {\n      for (const arr of this.exactListeners.values()) {\n        arr.forEach(cleanupAbort);\n      }\n      this.exactListeners.clear();\n      for (const record of this.wildcardIndex.keys()) cleanupAbort(record);\n      for (const record of this.anyListeners.values()) cleanupAbort(record);\n      this.anyListeners.clear();\n      this.wildcardTree = new RadixTree<ListenerRecord<AnyFn>>(this.delimiter);\n      this.hasWildcards = false;\n      this.wildcardIndex.clear();\n      return this;\n    }\n\n    const list = this.exactListeners.get(event);\n    if (list) {\n      list.forEach(cleanupAbort);\n      this.exactListeners.delete(event);\n    }\n    // Wildcards: best effort clear by rebuilding tree\n    if (this.hasWildcards && (event.includes('+') || event.includes('#'))) {\n      for (const [record, pattern] of this.wildcardIndex.entries()) {\n        if (pattern === event) {\n          cleanupAbort(record);\n          this.wildcardTree.remove(pattern, record);\n          this.wildcardIndex.delete(record);\n        }\n      }\n    }\n    return this;\n  }\n\n  /** Remove subscriptions and interrupt listener work owned by this emitter. */\n  close(): Effect.Effect<void> {\n    return Effect.suspend(() => {\n      if (this.closed) return Effect.void;\n      this.closed = true;\n      this.removeAllListeners();\n      return Scope.close(this.scope, Exit.void);\n    });\n  }\n\n  /**\n   * Bridge from a Node EventEmitter: forward Node events into this emitter.\n   */\n  fromNodeEmitter(emitter: NodeEmitter, event: string): () => void {\n    const handler = (...args: any[]) => {\n      this.emit(event as keyof TMap & string, args[0]);\n    };\n    emitter.on(event, handler);\n    return () => emitter.off(event, handler);\n  }\n\n  /**\n   * Bridge to a Node EventEmitter: emit HyperEmitter events on a provided Node emitter.\n   */\n  toNodeEmitter(target: NodeEmitter): () => void {\n    const forwarder: AnyEventListener = (event, payload) => { target.emit(event, payload); };\n    this.onAny(forwarder);\n    return () => { this.offAny(forwarder); };\n  }\n\n  /**\n   * Attach a handler to an EventTarget and re-emit through HyperEmitter.\n   */\n  onEventTarget(target: EventTarget, type: string, eventName: keyof TMap & string) {\n    const handler = (ev: Event) => {\n      // @ts-expect-error forwarding payload\n      this.emit(eventName, ev);\n    };\n    target.addEventListener(type, handler);\n    return () => target.removeEventListener(type, handler);\n  }\n\n  private add(event: string, record: ListenerRecord<AnyFn>) {\n    this.assertOpen();\n    // Wildcard patterns contain '+' or '#'\n    const isWildcard = event.includes('+') || event.includes('#');\n    if (isWildcard) {\n      this.hasWildcards = true;\n      this.wildcardTree.insert(event, record);\n      this.wildcardIndex.set(record, event);\n    } else {\n      const list = this.exactListeners.get(event);\n      if (list) {\n        list.push(record);\n      } else {\n        this.exactListeners.set(event, [record]);\n      }\n    }\n\n    attachAbort(record, () => this.off(event as any, record.fn as any));\n    this.logDebug('listener_registered', {\n      event,\n      once: record.once,\n      wildcard: isWildcard\n    });\n  }\n\n  private assertOpen() {\n    if (this.closed) throw new Error('HyperEmitter is closed');\n  }\n\n  private snapshot(event: string) {\n    return [\n      ...(this.exactListeners.get(event) ?? []).map(record => ({ record, any: false })),\n      ...(this.hasWildcards ? this.wildcardTree.match(event) : []).map(record => ({ record, any: false })),\n      ...Array.from(this.anyListeners.values(), record => ({ record, any: true })),\n    ];\n  }\n\n  private isLive(record: ListenerRecord<AnyFn>) {\n    return !record.signal?.aborted && (!record.weakRef || !!record.weakRef.deref());\n  }\n\n  private prepare(record: ListenerRecord<AnyFn>) {\n    if (!this.isLive(record)) {\n      this.offListener(record);\n      return false;\n    }\n    // Remove before invoking so a recursive emit cannot call a once listener twice.\n    if (record.once) {\n      if (record.fired) return false;\n      record.fired = true;\n      this.offListener(record);\n    }\n    return true;\n  }\n\n  private resultEffect(result: any): Effect.Effect<unknown, unknown> {\n    if (Effect.isEffect(result)) return result as Effect.Effect<unknown, unknown>;\n    if (result && typeof result.then === 'function') {\n      return Effect.tryPromise({ try: () => Promise.resolve(result), catch: error => error });\n    }\n    return Effect.succeed(result);\n  }\n\n  private offListener(record: ListenerRecord<AnyFn>) {\n    // Exact listeners\n    for (const [event, arr] of this.exactListeners.entries()) {\n      const idx = arr.indexOf(record);\n      if (idx !== -1) {\n        cleanupAbort(arr[idx]);\n        arr.splice(idx, 1);\n        if (arr.length === 0) this.exactListeners.delete(event);\n        return;\n      }\n    }\n    // Wildcard listeners (pattern tracked)\n    const pattern = this.wildcardIndex.get(record);\n    if (pattern) {\n      cleanupAbort(record);\n      this.wildcardTree.remove(pattern, record);\n      this.wildcardIndex.delete(record);\n      return;\n    }\n    if (this.anyListeners.get(record.fn) === record) this.offAny(record.fn);\n  }\n\n  private shouldCapture(record: ListenerRecord<AnyFn>) {\n    return record.captureRejections ?? this.captureRejections;\n  }\n\n  private handleRejection(record: ListenerRecord<AnyFn>, err: unknown) {\n    if (!this.shouldCapture(record)) {\n      queueMicrotask(() => {\n        throw err;\n      });\n      return;\n    }\n\n    if (this.onError) {\n      try {\n        this.onError(err);\n      } catch {\n        // swallow secondary errors\n      }\n      return;\n    }\n\n    // Fallback logging\n    this.logger?.error('listener_rejection', {\n      error: err as any,\n      ...this.baseLogContext\n    });\n  }\n\n  private removeWildcard(event: string, listener: AnyFn) {\n    // Slow path: tree removal requires record reference; search recorded patterns.\n    for (const [record, pattern] of this.wildcardIndex.entries()) {\n      if (pattern === event && record.fn === listener) {\n        this.wildcardTree.remove(pattern, record);\n        this.wildcardIndex.delete(record);\n        cleanupAbort(record);\n        break;\n      }\n    }\n  }\n\n  private logDebug(message: string, meta?: LogContext) {\n    if (!this.debugEnabled) return;\n    this.logger?.debug(message, { ...this.baseLogContext, ...meta });\n  }\n}\n",
+        "index.ts": "export { HyperEmitter } from './core/HyperEmitter';\nexport type {\n  EventMap,\n  EventListener,\n  AnyEventListener,\n  ListenerResult,\n  ListenerOptions,\n  HyperEmitterOptions\n} from './types/index';\n",
+        "routing/RadixNode.ts": "/**\n * Monomorphic radix tree node for MQTT-style wildcard routing.\n */\nexport class RadixNode<T> {\n  segment: string;\n  listeners: T[];\n  children: Map<string, RadixNode<T>> | null;\n  wildcardSingle: RadixNode<T> | null; // '+'\n  wildcardMulti: RadixNode<T> | null; // '#'\n\n  constructor(segment: string) {\n    // Preserve property order for hidden-class stability.\n    this.segment = segment;\n    this.listeners = [];\n    this.children = null;\n    this.wildcardSingle = null;\n    this.wildcardMulti = null;\n  }\n}\n",
+        "routing/RadixTree.ts": "import { RadixNode } from './RadixNode';\n\n/**\n * Radix tree with MQTT-style wildcards.\n * Complexity: O(K) where K = number of path segments.\n */\nexport class RadixTree<T> {\n  private readonly delimiter: string;\n  private readonly root: RadixNode<T>;\n\n  constructor(delimiter = '.') {\n    this.delimiter = delimiter;\n    this.root = new RadixNode<T>('');\n  }\n\n  insert(pattern: string, value: T) {\n    const segments = this.tokenize(pattern);\n    let node = this.root;\n\n    for (const segment of segments) {\n      if (segment === '+') {\n        if (!node.wildcardSingle) node.wildcardSingle = new RadixNode<T>('+');\n        node = node.wildcardSingle;\n        continue;\n      }\n      if (segment === '#') {\n        if (!node.wildcardMulti) node.wildcardMulti = new RadixNode<T>('#');\n        node = node.wildcardMulti;\n        break; // '#' consumes the rest\n      }\n      if (!node.children) node.children = new Map();\n      let child = node.children.get(segment);\n      if (!child) {\n        child = new RadixNode<T>(segment);\n        node.children.set(segment, child);\n      }\n      node = child;\n    }\n\n    node.listeners.push(value);\n  }\n\n  remove(pattern: string, value: T) {\n    const path: Array<[RadixNode<T>, string]> = [];\n    let node = this.root;\n    const segments = this.tokenize(pattern);\n\n    for (const segment of segments) {\n      path.push([node, segment]);\n      if (segment === '+') {\n        if (!node.wildcardSingle) return;\n        node = node.wildcardSingle;\n      } else if (segment === '#') {\n        if (!node.wildcardMulti) return;\n        node = node.wildcardMulti;\n        break;\n      } else {\n        if (!node.children) return;\n        const next = node.children.get(segment);\n        if (!next) return;\n        node = next;\n      }\n    }\n\n    const idx = node.listeners.indexOf(value);\n    if (idx !== -1) {\n      node.listeners.splice(idx, 1);\n    }\n  }\n\n  match(event: string): T[] {\n    const segments = this.tokenize(event);\n    const stack: Array<{ node: RadixNode<T>; index: number }> = [\n      { node: this.root, index: 0 }\n    ];\n    const results: T[] = [];\n\n    while (stack.length > 0) {\n      const { node, index } = stack.pop()!;\n\n      if (index === segments.length) {\n        // Exact depth match\n        if (node.listeners.length) results.push(...node.listeners);\n        // '#' can also match empty suffix\n        if (node.wildcardMulti && node.wildcardMulti.listeners.length) {\n          results.push(...node.wildcardMulti.listeners);\n        }\n        continue;\n      }\n\n      const seg = segments[index];\n\n      // Exact child\n      if (node.children) {\n        const child = node.children.get(seg);\n        if (child) {\n          stack.push({ node: child, index: index + 1 });\n        }\n      }\n\n      // Single-level wildcard '+'\n      if (node.wildcardSingle) {\n        stack.push({ node: node.wildcardSingle, index: index + 1 });\n      }\n\n      // Multi-level wildcard '#'\n      if (node.wildcardMulti) {\n        // '#' consumes the rest, so we can collect listeners directly\n        if (node.wildcardMulti.listeners.length) {\n          results.push(...node.wildcardMulti.listeners);\n        }\n        // But it can also match additional segments\n        stack.push({ node: node.wildcardMulti, index: index + 1 });\n      }\n    }\n\n    return results;\n  }\n\n  private tokenize(path: string): string[] {\n    // Simple tokenizer; allocations are acceptable for initial implementation.\n    return path.split(this.delimiter);\n  }\n}\n",
+        "types/index.ts": "import type { Effect } from 'effect';\n\nexport type AnyFn = (...args: any[]) => any;\n\nexport type EventMap = { [key: string]: unknown };\n\nexport type ListenerResult = void | Promise<unknown> | Effect.Effect<unknown, unknown>;\n\nexport type EventListener<T> = (payload: T) => ListenerResult;\n\nexport type AnyEventListener = (event: string, payload: any) => ListenerResult;\n\nexport interface ListenerOptions {\n  /**\n   * AbortSignal to auto-remove the listener when aborted.\n   */\n  signal?: AbortSignal;\n  /**\n   * Mark the listener as weak; provide a target object to track.\n   * When the target is GC'd, the listener is removed.\n   */\n  weak?: object;\n  /**\n   * Enable captureRejections for this listener (fallbacks to emitter-level).\n   */\n  captureRejections?: boolean;\n}\n\nexport interface HyperEmitterOptions {\n  delimiter?: string;\n  captureRejections?: boolean;\n  onError?: (error: unknown) => void;\n  /**\n   * Enable debug logging (uses @open-wa/logger).\n   */\n  debug?: boolean;\n  /**\n   * Optional logger instance; if omitted, a child logger will be created.\n   */\n  logger?: import('@open-wa/logger').Logger;\n  /**\n   * Additional bound context for logger child.\n   */\n  loggerContext?: import('@open-wa/logger').LogContext;\n}\n",
+        "utils/listener.ts": "import type { ListenerOptions } from '../types/index';\nimport type { Scope } from 'effect';\n\nexport type ListenerFn = (...args: any[]) => any;\n\nexport interface ListenerRecord<T extends ListenerFn> {\n  fn: T;\n  once: boolean;\n  fired?: boolean;\n  signal?: AbortSignal;\n  abortHandler?: () => void;\n  weakRef?: WeakRef<object>;\n  finalizerToken?: object;\n  captureRejections?: boolean;\n  scope?: Scope.Closeable;\n}\n\nexport function createRecord<T extends ListenerFn>(\n  fn: T,\n  opts: ListenerOptions,\n  finalizer?: FinalizationRegistry<unknown>\n): ListenerRecord<T> {\n  const record: ListenerRecord<T> = {\n    fn,\n    once: false,\n    signal: opts.signal,\n    captureRejections: opts.captureRejections\n  };\n\n  if (opts.weak && typeof WeakRef !== 'undefined') {\n    const weakRef = new WeakRef(opts.weak);\n    record.weakRef = weakRef;\n    if (finalizer) {\n      const token = {};\n      record.finalizerToken = token;\n      finalizer.register(opts.weak, token, token);\n    }\n  }\n\n  return record;\n}\n\nexport function attachAbort(\n  record: ListenerRecord<any>,\n  remove: () => void\n) {\n  if (!record.signal) return;\n  if (record.signal.aborted) {\n    remove();\n    return;\n  }\n  const handler = () => remove();\n  record.abortHandler = handler;\n  record.signal.addEventListener('abort', handler, { once: true });\n}\n\nexport function cleanupAbort(record: ListenerRecord<any>) {\n  if (record.signal && record.abortHandler) {\n    record.signal.removeEventListener('abort', record.abortHandler);\n    record.abortHandler = undefined;\n  }\n}\n"
+      }
+    },
+    {
+      "name": "effect-dispatcher",
+      "sourceSha256": "bb0e771aefa0740a28264dc907607563b95c1506dc0099ca2ede0e962b42a282",
+      "sourceFiles": {
+        "core/HyperEmitter.ts": "import type { EventEmitter as NodeEmitter } from 'node:events';\nimport { Cause, Effect, Exit, Fiber, Scope } from 'effect';\nimport { RadixTree } from '../routing/RadixTree';\nimport type { AnyEventListener, EventListener, ListenerOptions, HyperEmitterOptions } from '../types/index';\nimport {\n  ListenerRecord,\n  attachAbort,\n  cleanupAbort,\n  createRecord\n} from '../utils/listener';\nimport { createLogger, Logger } from '@open-wa/logger';\nimport type { LogContext } from '@open-wa/logger';\n\ntype AnyFn = (...args: any[]) => any;\nconst emitted = Effect.succeed(true);\nconst noListeners = Effect.succeed(false);\n\nexport class HyperEmitter<TMap extends object = Record<string, unknown>> {\n  private readonly delimiter: string;\n  private readonly captureRejections: boolean;\n  private readonly onError?: (err: unknown) => void;\n  private readonly finalizer?: FinalizationRegistry<unknown>;\n  private readonly logger?: Logger;\n  private readonly debugEnabled: boolean;\n  private readonly baseLogContext: LogContext;\n\n  private exactListeners: Map<string, ListenerRecord<AnyFn>[]>;\n  private wildcardTree: RadixTree<ListenerRecord<AnyFn>>;\n  private wildcardIndex: Map<ListenerRecord<AnyFn>, string>;\n  private hasWildcards = false;\n  private anyListeners = new Map<AnyEventListener, ListenerRecord<AnyFn>>();\n  private readonly scope = Scope.makeUnsafe();\n  private closed = false;\n\n  get isClosed(): boolean {\n    return this.closed;\n  }\n\n  constructor(options: HyperEmitterOptions = {}) {\n    this.delimiter = options.delimiter ?? '.';\n    this.captureRejections = options.captureRejections ?? false;\n    this.onError = options.onError;\n    this.debugEnabled = !!options.debug;\n    this.baseLogContext = {\n      component: 'hyperemitter',\n      ...options.loggerContext\n    };\n    this.logger =\n      options.logger?.withContext?.(this.baseLogContext) ??\n      createLogger({ component: 'hyperemitter', ...options.loggerContext });\n\n    // WeakRef support\n    if (typeof FinalizationRegistry !== 'undefined') {\n      this.finalizer = new FinalizationRegistry((token: unknown) => {\n        if (token && typeof token === 'object') {\n          // token is used only for unregister; actual removal is handled during emit via deref\n        }\n      });\n    }\n\n    this.exactListeners = new Map();\n    this.wildcardTree = new RadixTree<ListenerRecord<AnyFn>>(this.delimiter);\n    this.wildcardIndex = new Map();\n  }\n\n  on<K extends keyof TMap & string>(\n    event: K,\n    listener: EventListener<TMap[K]>,\n    options: ListenerOptions = {}\n  ): this {\n    const record = createRecord(listener as AnyFn, options, this.finalizer as any);\n    this.add(event, record);\n    return this;\n  }\n\n  once<K extends keyof TMap & string>(\n    event: K,\n    listener: EventListener<TMap[K]>,\n    options: ListenerOptions = {}\n  ): this {\n    const record = createRecord(listener as AnyFn, options, this.finalizer as any);\n    record.once = true;\n    this.add(event, record);\n    return this;\n  }\n\n  /** Register a listener and own its in-flight Effects until the caller's scope closes. */\n  onScoped<K extends keyof TMap & string>(\n    event: K,\n    listener: EventListener<TMap[K]>,\n    options: ListenerOptions = {},\n  ): Effect.Effect<void, never, Scope.Scope> {\n    return Effect.acquireRelease(\n      Effect.sync(() => {\n        this.assertOpen();\n        const record = createRecord(listener as AnyFn, options, this.finalizer as any);\n        record.scope = Scope.forkUnsafe(this.scope);\n        this.add(event, record);\n        return record;\n      }),\n      record => Effect.sync(() => this.offListener(record)).pipe(\n        Effect.andThen(Scope.close(record.scope!, Exit.void)),\n      ),\n    ).pipe(Effect.asVoid);\n  }\n\n  off<K extends keyof TMap & string>(event: K, listener: EventListener<TMap[K]>): this {\n    const list = this.exactListeners.get(event);\n    if (list) {\n      const idx = list.findIndex(l => l.fn === listener);\n      if (idx !== -1) {\n        cleanupAbort(list[idx]);\n        list.splice(idx, 1);\n      }\n      if (list.length === 0) this.exactListeners.delete(event);\n    }\n    if (this.hasWildcards && (event.includes('+') || event.includes('#'))) {\n      this.removeWildcard(event, listener as AnyFn);\n    }\n    return this;\n  }\n\n  emit<K extends keyof TMap & string>(\n    event: K,\n    payload: TMap[K]\n  ): boolean {\n    if (this.closed || (this.exactListeners.size === 0 && this.wildcardIndex.size === 0 && this.anyListeners.size === 0)) return false;\n    return Effect.runSync(this.dispatch(event, payload, false));\n  }\n\n  /** Emit lazily and await every listener, including Promise and Effect callbacks. */\n  emitEffect<K extends keyof TMap & string>(event: K, payload: TMap[K]): Effect.Effect<boolean, unknown> {\n    return this.dispatch(event, payload, true);\n  }\n\n  private dispatch(event: string, payload: unknown, awaitListeners: boolean): Effect.Effect<boolean, unknown> {\n    return Effect.suspend(() => {\n      if (this.closed) return noListeners;\n      const records = this.snapshot(event);\n      if (records.length === 0) return noListeners;\n      let pending: Fiber.Fiber<unknown, unknown>[] | undefined;\n      let called = false;\n      let hasAsync = false;\n      // Batch ordinary callbacks in one deferred Effect. Continue through Effect\n      // combinators only when a listener returns work that needs a scoped fiber.\n      const loop = (start: number): Effect.Effect<boolean, unknown> => {\n        for (let index = start; index < records.length; index++) {\n          const record = records[index];\n          if (!this.prepare(record)) continue;\n          called = true;\n          let result: any;\n          try {\n            result = record.any ? record.fn(event, payload) : record.fn(payload);\n          } catch (error) {\n            if (!this.shouldCapture(record)) return Effect.fail(error);\n            this.handleRejection(record, error);\n            continue;\n          }\n          if (!Effect.isEffect(result) && !(result && typeof result.then === 'function')) continue;\n          hasAsync = true;\n          const work = this.resultEffect(result);\n          const handled = !awaitListeners || this.shouldCapture(record)\n            ? work.pipe(Effect.catchCause(cause => Effect.sync(() => {\n                if (!Cause.hasInterruptsOnly(cause)) this.handleRejection(record, Cause.squash(cause));\n              })))\n            : work;\n          return Effect.forkIn(handled, record.scope ?? this.scope, { startImmediately: true }).pipe(\n            Effect.flatMap(fiber => {\n              if (awaitListeners) (pending ??= []).push(fiber);\n              return Effect.suspend(() => loop(index + 1));\n            }),\n          );\n        }\n        return pending\n          ? Fiber.joinAll(pending).pipe(Effect.as(called))\n          : called ? emitted : noListeners;\n      };\n      const program = loop(0);\n      return awaitListeners && hasAsync\n        ? program.pipe(Effect.ensuring(Effect.suspend(() => pending ? Fiber.interruptAll(pending) : Effect.void)))\n        : program;\n    });\n  }\n\n  /**\n   * Register a catch-all listener that fires on every emit with (event, payload).\n   * Useful for event bridging / debugging.\n   */\n  onAny(listener: AnyEventListener, options: ListenerOptions = {}): this {\n    this.assertOpen();\n    const existing = this.anyListeners.get(listener);\n    if (existing) cleanupAbort(existing);\n    const record = createRecord(listener, options, this.finalizer as any);\n    record.any = true;\n    this.anyListeners.set(listener, record);\n    attachAbort(record, () => this.offAny(listener));\n    return this;\n  }\n\n  onAnyScoped(listener: AnyEventListener, options: ListenerOptions = {}): Effect.Effect<void, never, Scope.Scope> {\n    const owned: AnyEventListener = (event, payload) => listener(event, payload);\n    return Effect.acquireRelease(\n      Effect.sync(() => {\n        this.assertOpen();\n        const record = createRecord(owned, options, this.finalizer as any);\n        record.any = true;\n        record.scope = Scope.forkUnsafe(this.scope);\n        this.anyListeners.set(owned, record);\n        attachAbort(record, () => this.offAny(owned));\n        return record;\n      }),\n      record => Effect.sync(() => this.offAny(owned)).pipe(\n        Effect.andThen(Scope.close(record.scope!, Exit.void)),\n      ),\n    ).pipe(Effect.asVoid);\n  }\n\n  /**\n   * Remove a catch-all listener registered via onAny.\n   */\n  offAny(listener: AnyEventListener): this {\n    const record = this.anyListeners.get(listener);\n    if (record) cleanupAbort(record);\n    this.anyListeners.delete(listener);\n    return this;\n  }\n\n  listeners(event: keyof TMap & string): EventListener<any>[] {\n    return this.snapshot(event).filter(record => !record.any && this.isLive(record)).map(record => record.fn);\n  }\n\n  hasListeners(event: keyof TMap & string): boolean {\n    return this.snapshot(event).some(record => this.isLive(record));\n  }\n\n  listenerCount(event?: keyof TMap & string): number {\n    if (!event) {\n      let total = this.wildcardIndex.size + this.anyListeners.size;\n      for (const arr of this.exactListeners.values()) total += arr.length;\n      return total;\n    }\n    return this.listeners(event).length;\n  }\n\n  removeAllListeners(event?: keyof TMap & string): this {\n    if (!event) {\n      for (const arr of this.exactListeners.values()) {\n        arr.forEach(cleanupAbort);\n      }\n      this.exactListeners.clear();\n      for (const record of this.wildcardIndex.keys()) cleanupAbort(record);\n      for (const record of this.anyListeners.values()) cleanupAbort(record);\n      this.anyListeners.clear();\n      this.wildcardTree = new RadixTree<ListenerRecord<AnyFn>>(this.delimiter);\n      this.hasWildcards = false;\n      this.wildcardIndex.clear();\n      return this;\n    }\n\n    const list = this.exactListeners.get(event);\n    if (list) {\n      list.forEach(cleanupAbort);\n      this.exactListeners.delete(event);\n    }\n    // Wildcards: best effort clear by rebuilding tree\n    if (this.hasWildcards && (event.includes('+') || event.includes('#'))) {\n      for (const [record, pattern] of this.wildcardIndex.entries()) {\n        if (pattern === event) {\n          cleanupAbort(record);\n          this.wildcardTree.remove(pattern, record);\n          this.wildcardIndex.delete(record);\n        }\n      }\n    }\n    return this;\n  }\n\n  /** Remove subscriptions and interrupt listener work owned by this emitter. */\n  close(): Effect.Effect<void> {\n    return Effect.suspend(() => {\n      if (this.closed) return Effect.void;\n      this.closed = true;\n      this.removeAllListeners();\n      return Scope.close(this.scope, Exit.void);\n    });\n  }\n\n  /**\n   * Bridge from a Node EventEmitter: forward Node events into this emitter.\n   */\n  fromNodeEmitter(emitter: NodeEmitter, event: string): () => void {\n    const handler = (...args: any[]) => {\n      this.emit(event as keyof TMap & string, args[0]);\n    };\n    emitter.on(event, handler);\n    return () => emitter.off(event, handler);\n  }\n\n  /**\n   * Bridge to a Node EventEmitter: emit HyperEmitter events on a provided Node emitter.\n   */\n  toNodeEmitter(target: NodeEmitter): () => void {\n    const forwarder: AnyEventListener = (event, payload) => { target.emit(event, payload); };\n    this.onAny(forwarder);\n    return () => { this.offAny(forwarder); };\n  }\n\n  /**\n   * Attach a handler to an EventTarget and re-emit through HyperEmitter.\n   */\n  onEventTarget(target: EventTarget, type: string, eventName: keyof TMap & string) {\n    const handler = (ev: Event) => {\n      // @ts-expect-error forwarding payload\n      this.emit(eventName, ev);\n    };\n    target.addEventListener(type, handler);\n    return () => target.removeEventListener(type, handler);\n  }\n\n  private add(event: string, record: ListenerRecord<AnyFn>) {\n    this.assertOpen();\n    // Wildcard patterns contain '+' or '#'\n    const isWildcard = event.includes('+') || event.includes('#');\n    if (isWildcard) {\n      this.hasWildcards = true;\n      this.wildcardTree.insert(event, record);\n      this.wildcardIndex.set(record, event);\n    } else {\n      const list = this.exactListeners.get(event);\n      if (list) {\n        list.push(record);\n      } else {\n        this.exactListeners.set(event, [record]);\n      }\n    }\n\n    attachAbort(record, () => this.off(event as any, record.fn as any));\n    this.logDebug('listener_registered', {\n      event,\n      once: record.once,\n      wildcard: isWildcard\n    });\n  }\n\n  private assertOpen() {\n    if (this.closed) throw new Error('HyperEmitter is closed');\n  }\n\n  private snapshot(event: string) {\n    const exact = this.exactListeners.get(event);\n    if (!this.hasWildcards && this.anyListeners.size === 0) return exact?.slice() ?? [];\n    return [\n      ...(exact ?? []),\n      ...(this.hasWildcards ? this.wildcardTree.match(event) : []),\n      ...this.anyListeners.values(),\n    ];\n  }\n\n  private isLive(record: ListenerRecord<AnyFn>) {\n    return !record.signal?.aborted && (!record.weakRef || !!record.weakRef.deref());\n  }\n\n  private prepare(record: ListenerRecord<AnyFn>) {\n    if (!this.isLive(record)) {\n      this.offListener(record);\n      return false;\n    }\n    // Remove before invoking so a recursive emit cannot call a once listener twice.\n    if (record.once) {\n      if (record.fired) return false;\n      record.fired = true;\n      this.offListener(record);\n    }\n    return true;\n  }\n\n  private resultEffect(result: any): Effect.Effect<unknown, unknown> {\n    if (Effect.isEffect(result)) return result as Effect.Effect<unknown, unknown>;\n    if (result && typeof result.then === 'function') {\n      return Effect.tryPromise({ try: () => Promise.resolve(result), catch: error => error });\n    }\n    return Effect.succeed(result);\n  }\n\n  private offListener(record: ListenerRecord<AnyFn>) {\n    // Exact listeners\n    for (const [event, arr] of this.exactListeners.entries()) {\n      const idx = arr.indexOf(record);\n      if (idx !== -1) {\n        cleanupAbort(arr[idx]);\n        arr.splice(idx, 1);\n        if (arr.length === 0) this.exactListeners.delete(event);\n        return;\n      }\n    }\n    // Wildcard listeners (pattern tracked)\n    const pattern = this.wildcardIndex.get(record);\n    if (pattern) {\n      cleanupAbort(record);\n      this.wildcardTree.remove(pattern, record);\n      this.wildcardIndex.delete(record);\n      return;\n    }\n    if (this.anyListeners.get(record.fn) === record) this.offAny(record.fn);\n  }\n\n  private shouldCapture(record: ListenerRecord<AnyFn>) {\n    return record.captureRejections ?? this.captureRejections;\n  }\n\n  private handleRejection(record: ListenerRecord<AnyFn>, err: unknown) {\n    if (!this.shouldCapture(record)) {\n      queueMicrotask(() => {\n        throw err;\n      });\n      return;\n    }\n\n    if (this.onError) {\n      try {\n        this.onError(err);\n      } catch {\n        // swallow secondary errors\n      }\n      return;\n    }\n\n    // Fallback logging\n    this.logger?.error('listener_rejection', {\n      error: err as any,\n      ...this.baseLogContext\n    });\n  }\n\n  private removeWildcard(event: string, listener: AnyFn) {\n    // Slow path: tree removal requires record reference; search recorded patterns.\n    for (const [record, pattern] of this.wildcardIndex.entries()) {\n      if (pattern === event && record.fn === listener) {\n        this.wildcardTree.remove(pattern, record);\n        this.wildcardIndex.delete(record);\n        cleanupAbort(record);\n        break;\n      }\n    }\n  }\n\n  private logDebug(message: string, meta?: LogContext) {\n    if (!this.debugEnabled) return;\n    this.logger?.debug(message, { ...this.baseLogContext, ...meta });\n  }\n}\n",
+        "index.ts": "export { HyperEmitter } from './core/HyperEmitter';\nexport type {\n  EventMap,\n  EventListener,\n  AnyEventListener,\n  ListenerResult,\n  ListenerOptions,\n  HyperEmitterOptions\n} from './types/index';\n",
+        "routing/RadixNode.ts": "/**\n * Monomorphic radix tree node for MQTT-style wildcard routing.\n */\nexport class RadixNode<T> {\n  segment: string;\n  listeners: T[];\n  children: Map<string, RadixNode<T>> | null;\n  wildcardSingle: RadixNode<T> | null; // '+'\n  wildcardMulti: RadixNode<T> | null; // '#'\n\n  constructor(segment: string) {\n    // Preserve property order for hidden-class stability.\n    this.segment = segment;\n    this.listeners = [];\n    this.children = null;\n    this.wildcardSingle = null;\n    this.wildcardMulti = null;\n  }\n}\n",
+        "routing/RadixTree.ts": "import { RadixNode } from './RadixNode';\n\n/**\n * Radix tree with MQTT-style wildcards.\n * Complexity: O(K) where K = number of path segments.\n */\nexport class RadixTree<T> {\n  private readonly delimiter: string;\n  private readonly root: RadixNode<T>;\n\n  constructor(delimiter = '.') {\n    this.delimiter = delimiter;\n    this.root = new RadixNode<T>('');\n  }\n\n  insert(pattern: string, value: T) {\n    const segments = this.tokenize(pattern);\n    let node = this.root;\n\n    for (const segment of segments) {\n      if (segment === '+') {\n        if (!node.wildcardSingle) node.wildcardSingle = new RadixNode<T>('+');\n        node = node.wildcardSingle;\n        continue;\n      }\n      if (segment === '#') {\n        if (!node.wildcardMulti) node.wildcardMulti = new RadixNode<T>('#');\n        node = node.wildcardMulti;\n        break; // '#' consumes the rest\n      }\n      if (!node.children) node.children = new Map();\n      let child = node.children.get(segment);\n      if (!child) {\n        child = new RadixNode<T>(segment);\n        node.children.set(segment, child);\n      }\n      node = child;\n    }\n\n    node.listeners.push(value);\n  }\n\n  remove(pattern: string, value: T) {\n    const path: Array<[RadixNode<T>, string]> = [];\n    let node = this.root;\n    const segments = this.tokenize(pattern);\n\n    for (const segment of segments) {\n      path.push([node, segment]);\n      if (segment === '+') {\n        if (!node.wildcardSingle) return;\n        node = node.wildcardSingle;\n      } else if (segment === '#') {\n        if (!node.wildcardMulti) return;\n        node = node.wildcardMulti;\n        break;\n      } else {\n        if (!node.children) return;\n        const next = node.children.get(segment);\n        if (!next) return;\n        node = next;\n      }\n    }\n\n    const idx = node.listeners.indexOf(value);\n    if (idx !== -1) {\n      node.listeners.splice(idx, 1);\n    }\n  }\n\n  match(event: string): T[] {\n    const segments = this.tokenize(event);\n    const stack: Array<{ node: RadixNode<T>; index: number }> = [\n      { node: this.root, index: 0 }\n    ];\n    const results: T[] = [];\n\n    while (stack.length > 0) {\n      const { node, index } = stack.pop()!;\n\n      if (index === segments.length) {\n        // Exact depth match\n        if (node.listeners.length) results.push(...node.listeners);\n        // '#' can also match empty suffix\n        if (node.wildcardMulti && node.wildcardMulti.listeners.length) {\n          results.push(...node.wildcardMulti.listeners);\n        }\n        continue;\n      }\n\n      const seg = segments[index];\n\n      // Exact child\n      if (node.children) {\n        const child = node.children.get(seg);\n        if (child) {\n          stack.push({ node: child, index: index + 1 });\n        }\n      }\n\n      // Single-level wildcard '+'\n      if (node.wildcardSingle) {\n        stack.push({ node: node.wildcardSingle, index: index + 1 });\n      }\n\n      // Multi-level wildcard '#'\n      if (node.wildcardMulti) {\n        // '#' consumes the rest, so we can collect listeners directly\n        if (node.wildcardMulti.listeners.length) {\n          results.push(...node.wildcardMulti.listeners);\n        }\n        // But it can also match additional segments\n        stack.push({ node: node.wildcardMulti, index: index + 1 });\n      }\n    }\n\n    return results;\n  }\n\n  private tokenize(path: string): string[] {\n    // Simple tokenizer; allocations are acceptable for initial implementation.\n    return path.split(this.delimiter);\n  }\n}\n",
+        "types/index.ts": "import type { Effect } from 'effect';\n\nexport type AnyFn = (...args: any[]) => any;\n\nexport type EventMap = { [key: string]: unknown };\n\nexport type ListenerResult = void | Promise<unknown> | Effect.Effect<unknown, unknown>;\n\nexport type EventListener<T> = (payload: T) => ListenerResult;\n\nexport type AnyEventListener = (event: string, payload: any) => ListenerResult;\n\nexport interface ListenerOptions {\n  /**\n   * AbortSignal to auto-remove the listener when aborted.\n   */\n  signal?: AbortSignal;\n  /**\n   * Mark the listener as weak; provide a target object to track.\n   * When the target is GC'd, the listener is removed.\n   */\n  weak?: object;\n  /**\n   * Enable captureRejections for this listener (fallbacks to emitter-level).\n   */\n  captureRejections?: boolean;\n}\n\nexport interface HyperEmitterOptions {\n  delimiter?: string;\n  captureRejections?: boolean;\n  onError?: (error: unknown) => void;\n  /**\n   * Enable debug logging (uses @open-wa/logger).\n   */\n  debug?: boolean;\n  /**\n   * Optional logger instance; if omitted, a child logger will be created.\n   */\n  logger?: import('@open-wa/logger').Logger;\n  /**\n   * Additional bound context for logger child.\n   */\n  loggerContext?: import('@open-wa/logger').LogContext;\n}\n",
+        "utils/listener.ts": "import type { ListenerOptions } from '../types/index';\nimport type { Scope } from 'effect';\n\nexport type ListenerFn = (...args: any[]) => any;\n\nexport interface ListenerRecord<T extends ListenerFn> {\n  fn: T;\n  once: boolean;\n  any: boolean;\n  fired?: boolean;\n  signal?: AbortSignal;\n  abortHandler?: () => void;\n  weakRef?: WeakRef<object>;\n  finalizerToken?: object;\n  captureRejections?: boolean;\n  scope?: Scope.Closeable;\n}\n\nexport function createRecord<T extends ListenerFn>(\n  fn: T,\n  opts: ListenerOptions,\n  finalizer?: FinalizationRegistry<unknown>\n): ListenerRecord<T> {\n  const record: ListenerRecord<T> = {\n    fn,\n    once: false,\n    any: false,\n    signal: opts.signal,\n    captureRejections: opts.captureRejections\n  };\n\n  if (opts.weak && typeof WeakRef !== 'undefined') {\n    const weakRef = new WeakRef(opts.weak);\n    record.weakRef = weakRef;\n    if (finalizer) {\n      const token = {};\n      record.finalizerToken = token;\n      finalizer.register(opts.weak, token, token);\n    }\n  }\n\n  return record;\n}\n\nexport function attachAbort(\n  record: ListenerRecord<any>,\n  remove: () => void\n) {\n  if (!record.signal) return;\n  if (record.signal.aborted) {\n    remove();\n    return;\n  }\n  const handler = () => remove();\n  record.abortHandler = handler;\n  record.signal.addEventListener('abort', handler, { once: true });\n}\n\nexport function cleanupAbort(record: ListenerRecord<any>) {\n  if (record.signal && record.abortHandler) {\n    record.signal.removeEventListener('abort', record.abortHandler);\n    record.abortHandler = undefined;\n  }\n}\n"
+      }
+    }
+  ],
+  "notes": [
+    "Current source and frozen baseline sources are bundled to temporary ESM files and executed by plain Node.",
+    "Dependencies are external: all HyperEmitter variants use the same installed Effect and logger packages.",
+    "Creation, registration, delivery-count/checksum checks, GC, and teardown are outside timing, except the scoped churn scenario.",
+    "Async scenarios wait for completed listener work; scoped churn verifies zero remaining registrations.",
+    "Effect await scenarios use one root Effect runtime per batch; sync scenarios enter the runtime per emit.",
+    "Numbers are per-event batch medians, not per-callback or application end-to-end latency.",
+    "Unsupported features are omitted rather than approximated with compatibility wrappers."
+  ],
+  "results": [
+    {
+      "name": "sync-empty",
+      "mode": "sync",
+      "listeners": 0,
+      "iterations": 100000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": true,
+          "medianMs": 2.3630000000000564,
+          "minMs": 1.9877080000001115,
+          "maxMs": 2.481832999999938,
+          "operationsPerSecond": 42319086,
+          "nanosecondsPerOperation": 23.630000000000564,
+          "samplesMs": [
+            1.9877080000001115,
+            2.281750000000102,
+            2.3227079999999205,
+            2.3630000000000564,
+            2.3892080000000533,
+            2.4137499999999363,
+            2.481832999999938
+          ],
+          "medianCpuMs": 7.298,
+          "samples": [
+            {
+              "durationMs": 2.481832999999938,
+              "cpuMs": 8.493
+            },
+            {
+              "durationMs": 2.3630000000000564,
+              "cpuMs": 7.298
+            },
+            {
+              "durationMs": 1.9877080000001115,
+              "cpuMs": 6.367
+            },
+            {
+              "durationMs": 2.3227079999999205,
+              "cpuMs": 6.881
+            },
+            {
+              "durationMs": 2.281750000000102,
+              "cpuMs": 7.366
+            },
+            {
+              "durationMs": 2.3892080000000533,
+              "cpuMs": 5.961
+            },
+            {
+              "durationMs": 2.4137499999999363,
+              "cpuMs": 7.409
+            }
+          ]
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": true,
+          "medianMs": 2.6936249999998836,
+          "minMs": 2.0772920000000568,
+          "maxMs": 3.089666999999963,
+          "operationsPerSecond": 37124693,
+          "nanosecondsPerOperation": 26.936249999998836,
+          "samplesMs": [
+            2.0772920000000568,
+            2.0858329999999796,
+            2.6648750000001655,
+            2.6936249999998836,
+            2.754791999999952,
+            2.785000000000082,
+            3.089666999999963
+          ],
+          "medianCpuMs": 7.225,
+          "samples": [
+            {
+              "durationMs": 2.0772920000000568,
+              "cpuMs": 7.225
+            },
+            {
+              "durationMs": 2.0858329999999796,
+              "cpuMs": 6.751
+            },
+            {
+              "durationMs": 3.089666999999963,
+              "cpuMs": 8.4
+            },
+            {
+              "durationMs": 2.6648750000001655,
+              "cpuMs": 7.066
+            },
+            {
+              "durationMs": 2.754791999999952,
+              "cpuMs": 7.063
+            },
+            {
+              "durationMs": 2.6936249999998836,
+              "cpuMs": 10.434
+            },
+            {
+              "durationMs": 2.785000000000082,
+              "cpuMs": 7.429
+            }
+          ]
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 12.94316700000013,
+          "minMs": 12.623583000000053,
+          "maxMs": 15.365208999999936,
+          "operationsPerSecond": 7726084,
+          "nanosecondsPerOperation": 129.4316700000013,
+          "samplesMs": [
+            12.623583000000053,
+            12.764208999999937,
+            12.793249999999944,
+            12.94316700000013,
+            13.039332999999942,
+            13.860834000000068,
+            15.365208999999936
+          ],
+          "medianCpuMs": 23.467,
+          "samples": [
+            {
+              "durationMs": 15.365208999999936,
+              "cpuMs": 23.733
+            },
+            {
+              "durationMs": 13.860834000000068,
+              "cpuMs": 23.985
+            },
+            {
+              "durationMs": 12.94316700000013,
+              "cpuMs": 21.657
+            },
+            {
+              "durationMs": 12.793249999999944,
+              "cpuMs": 21.428
+            },
+            {
+              "durationMs": 12.623583000000053,
+              "cpuMs": 23.467
+            },
+            {
+              "durationMs": 12.764208999999937,
+              "cpuMs": 22.681
+            },
+            {
+              "durationMs": 13.039332999999942,
+              "cpuMs": 24.056
+            }
+          ]
+        },
+        {
+          "implementation": "effect-prototype-snapshot",
+          "supported": true,
+          "medianMs": 70.83670800000004,
+          "minMs": 67.92129099999988,
+          "maxMs": 195.08774999999991,
+          "operationsPerSecond": 1411697,
+          "nanosecondsPerOperation": 708.3670800000004,
+          "samplesMs": [
+            67.92129099999988,
+            69.18450000000007,
+            70.80579200000011,
+            70.83670800000004,
+            71.26025000000004,
+            83.81258300000002,
+            195.08774999999991
+          ],
+          "medianCpuMs": 98.465,
+          "samples": [
+            {
+              "durationMs": 70.83670800000004,
+              "cpuMs": 98.465
+            },
+            {
+              "durationMs": 83.81258300000002,
+              "cpuMs": 100.979
+            },
+            {
+              "durationMs": 70.80579200000011,
+              "cpuMs": 98.208
+            },
+            {
+              "durationMs": 69.18450000000007,
+              "cpuMs": 97.136
+            },
+            {
+              "durationMs": 67.92129099999988,
+              "cpuMs": 94.149
+            },
+            {
+              "durationMs": 71.26025000000004,
+              "cpuMs": 99.74
+            },
+            {
+              "durationMs": 195.08774999999991,
+              "cpuMs": 109.101
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 2.254167000000052,
+          "minMs": 1.9542499999997744,
+          "maxMs": 2.691874999999982,
+          "operationsPerSecond": 44362285,
+          "nanosecondsPerOperation": 22.541670000000522,
+          "samplesMs": [
+            1.9542499999997744,
+            2.181041999999934,
+            2.2014580000000024,
+            2.254167000000052,
+            2.2923330000000988,
+            2.339625000000069,
+            2.691874999999982
+          ],
+          "medianCpuMs": 6.563,
+          "samples": [
+            {
+              "durationMs": 2.691874999999982,
+              "cpuMs": 6.974
+            },
+            {
+              "durationMs": 2.181041999999934,
+              "cpuMs": 6.19
+            },
+            {
+              "durationMs": 2.339625000000069,
+              "cpuMs": 7.073
+            },
+            {
+              "durationMs": 2.2014580000000024,
+              "cpuMs": 6.262
+            },
+            {
+              "durationMs": 2.254167000000052,
+              "cpuMs": 6.73
+            },
+            {
+              "durationMs": 1.9542499999997744,
+              "cpuMs": 6.501
+            },
+            {
+              "durationMs": 2.2923330000000988,
+              "cpuMs": 6.563
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sync-exact-1",
+      "mode": "sync",
+      "listeners": 1,
+      "iterations": 100000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": true,
+          "medianMs": 2.884541000000354,
+          "minMs": 2.5358750000000327,
+          "maxMs": 2.9987089999999625,
+          "operationsPerSecond": 34667561,
+          "nanosecondsPerOperation": 28.84541000000354,
+          "samplesMs": [
+            2.5358750000000327,
+            2.5370419999999285,
+            2.628041999999823,
+            2.884541000000354,
+            2.902874999999767,
+            2.971584000000348,
+            2.9987089999999625
+          ],
+          "medianCpuMs": 7.566,
+          "samples": [
+            {
+              "durationMs": 2.971584000000348,
+              "cpuMs": 8.212
+            },
+            {
+              "durationMs": 2.628041999999823,
+              "cpuMs": 7.367
+            },
+            {
+              "durationMs": 2.5358750000000327,
+              "cpuMs": 7.309
+            },
+            {
+              "durationMs": 2.902874999999767,
+              "cpuMs": 7.701
+            },
+            {
+              "durationMs": 2.884541000000354,
+              "cpuMs": 7.566
+            },
+            {
+              "durationMs": 2.9987089999999625,
+              "cpuMs": 7.895
+            },
+            {
+              "durationMs": 2.5370419999999285,
+              "cpuMs": 7.293
+            }
+          ]
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": true,
+          "medianMs": 5.614165999999841,
+          "minMs": 5.488582999999835,
+          "maxMs": 8.256584000000203,
+          "operationsPerSecond": 17812085,
+          "nanosecondsPerOperation": 56.14165999999841,
+          "samplesMs": [
+            5.488582999999835,
+            5.584708999999748,
+            5.608707999999751,
+            5.614165999999841,
+            5.83179199999995,
+            6.530416999999943,
+            8.256584000000203
+          ],
+          "medianCpuMs": 13.464,
+          "samples": [
+            {
+              "durationMs": 8.256584000000203,
+              "cpuMs": 19.021
+            },
+            {
+              "durationMs": 5.488582999999835,
+              "cpuMs": 13.464
+            },
+            {
+              "durationMs": 6.530416999999943,
+              "cpuMs": 13.939
+            },
+            {
+              "durationMs": 5.608707999999751,
+              "cpuMs": 12.905
+            },
+            {
+              "durationMs": 5.584708999999748,
+              "cpuMs": 12.515
+            },
+            {
+              "durationMs": 5.83179199999995,
+              "cpuMs": 13.694
+            },
+            {
+              "durationMs": 5.614165999999841,
+              "cpuMs": 12.767
+            }
+          ]
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 15.996291999999812,
+          "minMs": 15.554541999999856,
+          "maxMs": 19.696833999999853,
+          "operationsPerSecond": 6251449,
+          "nanosecondsPerOperation": 159.96291999999812,
+          "samplesMs": [
+            15.554541999999856,
+            15.907000000000153,
+            15.957625000000007,
+            15.996291999999812,
+            16.034375000000182,
+            16.091875000000073,
+            19.696833999999853
+          ],
+          "medianCpuMs": 27.701,
+          "samples": [
+            {
+              "durationMs": 19.696833999999853,
+              "cpuMs": 34.842
+            },
+            {
+              "durationMs": 16.034375000000182,
+              "cpuMs": 28.269
+            },
+            {
+              "durationMs": 15.957625000000007,
+              "cpuMs": 27.976
+            },
+            {
+              "durationMs": 15.554541999999856,
+              "cpuMs": 27.087
+            },
+            {
+              "durationMs": 15.907000000000153,
+              "cpuMs": 27.701
+            },
+            {
+              "durationMs": 16.091875000000073,
+              "cpuMs": 27.634
+            },
+            {
+              "durationMs": 15.996291999999812,
+              "cpuMs": 27.454
+            }
+          ]
+        },
+        {
+          "implementation": "effect-prototype-snapshot",
+          "supported": true,
+          "medianMs": 95.5322500000002,
+          "minMs": 95.075875,
+          "maxMs": 102.89916700000003,
+          "operationsPerSecond": 1046767,
+          "nanosecondsPerOperation": 955.322500000002,
+          "samplesMs": [
+            95.075875,
+            95.16816699999981,
+            95.42212500000005,
+            95.5322500000002,
+            96.00941599999987,
+            96.86412500000006,
+            102.89916700000003
+          ],
+          "medianCpuMs": 129.543,
+          "samples": [
+            {
+              "durationMs": 102.89916700000003,
+              "cpuMs": 137.534
+            },
+            {
+              "durationMs": 96.86412500000006,
+              "cpuMs": 131.327
+            },
+            {
+              "durationMs": 96.00941599999987,
+              "cpuMs": 129.543
+            },
+            {
+              "durationMs": 95.42212500000005,
+              "cpuMs": 133.492
+            },
+            {
+              "durationMs": 95.5322500000002,
+              "cpuMs": 127.995
+            },
+            {
+              "durationMs": 95.075875,
+              "cpuMs": 127.715
+            },
+            {
+              "durationMs": 95.16816699999981,
+              "cpuMs": 127.947
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 33.25504099999989,
+          "minMs": 31.053416999999627,
+          "maxMs": 37.03083300000026,
+          "operationsPerSecond": 3007063,
+          "nanosecondsPerOperation": 332.5504099999989,
+          "samplesMs": [
+            31.053416999999627,
+            31.124874999999975,
+            31.520958000000064,
+            33.25504099999989,
+            33.623041999999714,
+            33.99466600000005,
+            37.03083300000026
+          ],
+          "medianCpuMs": 53.65,
+          "samples": [
+            {
+              "durationMs": 37.03083300000026,
+              "cpuMs": 61.531
+            },
+            {
+              "durationMs": 33.99466600000005,
+              "cpuMs": 56.894
+            },
+            {
+              "durationMs": 33.25504099999989,
+              "cpuMs": 56.474
+            },
+            {
+              "durationMs": 31.520958000000064,
+              "cpuMs": 51.514
+            },
+            {
+              "durationMs": 31.124874999999975,
+              "cpuMs": 50.885
+            },
+            {
+              "durationMs": 33.623041999999714,
+              "cpuMs": 53.65
+            },
+            {
+              "durationMs": 31.053416999999627,
+              "cpuMs": 50.541
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sync-exact-capture-1",
+      "mode": "sync",
+      "listeners": 1,
+      "capture": true,
+      "iterations": 100000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": true,
+          "medianMs": 2.90191699999923,
+          "minMs": 2.5649999999996,
+          "maxMs": 14.756208999999672,
+          "operationsPerSecond": 34459979,
+          "nanosecondsPerOperation": 29.0191699999923,
+          "samplesMs": [
+            2.5649999999996,
+            2.5746659999999792,
+            2.634874999999738,
+            2.90191699999923,
+            2.9396669999996448,
+            2.9567079999997077,
+            14.756208999999672
+          ],
+          "medianCpuMs": 7.742,
+          "samples": [
+            {
+              "durationMs": 14.756208999999672,
+              "cpuMs": 7.97
+            },
+            {
+              "durationMs": 2.5746659999999792,
+              "cpuMs": 7.469
+            },
+            {
+              "durationMs": 2.634874999999738,
+              "cpuMs": 7.411
+            },
+            {
+              "durationMs": 2.9396669999996448,
+              "cpuMs": 7.841
+            },
+            {
+              "durationMs": 2.9567079999997077,
+              "cpuMs": 7.757
+            },
+            {
+              "durationMs": 2.90191699999923,
+              "cpuMs": 7.742
+            },
+            {
+              "durationMs": 2.5649999999996,
+              "cpuMs": 7.37
+            }
+          ]
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": true,
+          "medianMs": 5.702167000000372,
+          "minMs": 5.444791999999325,
+          "maxMs": 8.333625000000211,
+          "operationsPerSecond": 17537192,
+          "nanosecondsPerOperation": 57.02167000000372,
+          "samplesMs": [
+            5.444791999999325,
+            5.56879200000003,
+            5.652957999999671,
+            5.702167000000372,
+            6.418999999999869,
+            6.588416999999936,
+            8.333625000000211
+          ],
+          "medianCpuMs": 13.225,
+          "samples": [
+            {
+              "durationMs": 8.333625000000211,
+              "cpuMs": 19.956
+            },
+            {
+              "durationMs": 6.588416999999936,
+              "cpuMs": 15.415
+            },
+            {
+              "durationMs": 6.418999999999869,
+              "cpuMs": 14.531
+            },
+            {
+              "durationMs": 5.652957999999671,
+              "cpuMs": 12.629
+            },
+            {
+              "durationMs": 5.444791999999325,
+              "cpuMs": 12.756
+            },
+            {
+              "durationMs": 5.702167000000372,
+              "cpuMs": 12.922
+            },
+            {
+              "durationMs": 5.56879200000003,
+              "cpuMs": 13.225
+            }
+          ]
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 16.08483399999932,
+          "minMs": 15.806958999999551,
+          "maxMs": 18.357500000000073,
+          "operationsPerSecond": 6217036,
+          "nanosecondsPerOperation": 160.8483399999932,
+          "samplesMs": [
+            15.806958999999551,
+            15.975749999999607,
+            15.991250000000036,
+            16.08483399999932,
+            16.47854099999995,
+            17.032708000000184,
+            18.357500000000073
+          ],
+          "medianCpuMs": 28.188,
+          "samples": [
+            {
+              "durationMs": 18.357500000000073,
+              "cpuMs": 30.615
+            },
+            {
+              "durationMs": 16.47854099999995,
+              "cpuMs": 30.64
+            },
+            {
+              "durationMs": 17.032708000000184,
+              "cpuMs": 30.239
+            },
+            {
+              "durationMs": 15.806958999999551,
+              "cpuMs": 27.415
+            },
+            {
+              "durationMs": 15.991250000000036,
+              "cpuMs": 27.586
+            },
+            {
+              "durationMs": 15.975749999999607,
+              "cpuMs": 27.896
+            },
+            {
+              "durationMs": 16.08483399999932,
+              "cpuMs": 28.188
+            }
+          ]
+        },
+        {
+          "implementation": "effect-prototype-snapshot",
+          "supported": true,
+          "medianMs": 100.83429100000012,
+          "minMs": 99.59870799999953,
+          "maxMs": 104.34120800000028,
+          "operationsPerSecond": 991726,
+          "nanosecondsPerOperation": 1008.3429100000013,
+          "samplesMs": [
+            99.59870799999953,
+            99.97787499999959,
+            100.28108299999985,
+            100.83429100000012,
+            100.97129200000018,
+            101.68854099999953,
+            104.34120800000028
+          ],
+          "medianCpuMs": 134.578,
+          "samples": [
+            {
+              "durationMs": 104.34120800000028,
+              "cpuMs": 141.304
+            },
+            {
+              "durationMs": 100.28108299999985,
+              "cpuMs": 134.445
+            },
+            {
+              "durationMs": 99.59870799999953,
+              "cpuMs": 134.578
+            },
+            {
+              "durationMs": 100.97129200000018,
+              "cpuMs": 139.265
+            },
+            {
+              "durationMs": 100.83429100000012,
+              "cpuMs": 134.166
+            },
+            {
+              "durationMs": 101.68854099999953,
+              "cpuMs": 135.539
+            },
+            {
+              "durationMs": 99.97787499999959,
+              "cpuMs": 134.369
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 31.637416999999914,
+          "minMs": 30.83487500000001,
+          "maxMs": 34.419708999999784,
+          "operationsPerSecond": 3160814,
+          "nanosecondsPerOperation": 316.37416999999914,
+          "samplesMs": [
+            30.83487500000001,
+            30.996874999999818,
+            31.186041000000387,
+            31.637416999999914,
+            32.04570899999999,
+            32.902124999999614,
+            34.419708999999784
+          ],
+          "medianCpuMs": 52.725,
+          "samples": [
+            {
+              "durationMs": 30.83487500000001,
+              "cpuMs": 50.296
+            },
+            {
+              "durationMs": 31.186041000000387,
+              "cpuMs": 52.629
+            },
+            {
+              "durationMs": 34.419708999999784,
+              "cpuMs": 62.704
+            },
+            {
+              "durationMs": 30.996874999999818,
+              "cpuMs": 51.419
+            },
+            {
+              "durationMs": 31.637416999999914,
+              "cpuMs": 52.725
+            },
+            {
+              "durationMs": 32.04570899999999,
+              "cpuMs": 54.176
+            },
+            {
+              "durationMs": 32.902124999999614,
+              "cpuMs": 59.202
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sync-wildcard-1",
+      "mode": "sync",
+      "listeners": 1,
+      "wildcard": true,
+      "iterations": 100000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": false
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": true,
+          "medianMs": 13.17358299999978,
+          "minMs": 13.02166699999998,
+          "maxMs": 15.308790999999474,
+          "operationsPerSecond": 7590949,
+          "nanosecondsPerOperation": 131.7358299999978,
+          "samplesMs": [
+            13.02166699999998,
+            13.0287500000004,
+            13.070999999999913,
+            13.17358299999978,
+            13.434624999999869,
+            14.443041999999878,
+            15.308790999999474
+          ],
+          "medianCpuMs": 22.149,
+          "samples": [
+            {
+              "durationMs": 13.02166699999998,
+              "cpuMs": 21.8
+            },
+            {
+              "durationMs": 13.0287500000004,
+              "cpuMs": 21.831
+            },
+            {
+              "durationMs": 15.308790999999474,
+              "cpuMs": 30.646
+            },
+            {
+              "durationMs": 13.17358299999978,
+              "cpuMs": 22.149
+            },
+            {
+              "durationMs": 14.443041999999878,
+              "cpuMs": 28.889
+            },
+            {
+              "durationMs": 13.070999999999913,
+              "cpuMs": 21.968
+            },
+            {
+              "durationMs": 13.434624999999869,
+              "cpuMs": 23.881
+            }
+          ]
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 26.76129200000014,
+          "minMs": 25.93004099999962,
+          "maxMs": 27.91320799999994,
+          "operationsPerSecond": 3736740,
+          "nanosecondsPerOperation": 267.6129200000014,
+          "samplesMs": [
+            25.93004099999962,
+            26.135957999999846,
+            26.42162499999995,
+            26.76129200000014,
+            26.924667000000227,
+            27.14075000000048,
+            27.91320799999994
+          ],
+          "medianCpuMs": 45.719,
+          "samples": [
+            {
+              "durationMs": 27.91320799999994,
+              "cpuMs": 46.573
+            },
+            {
+              "durationMs": 26.924667000000227,
+              "cpuMs": 45.719
+            },
+            {
+              "durationMs": 25.93004099999962,
+              "cpuMs": 43.909
+            },
+            {
+              "durationMs": 26.42162499999995,
+              "cpuMs": 45.06
+            },
+            {
+              "durationMs": 26.135957999999846,
+              "cpuMs": 44.344
+            },
+            {
+              "durationMs": 26.76129200000014,
+              "cpuMs": 45.926
+            },
+            {
+              "durationMs": 27.14075000000048,
+              "cpuMs": 46.446
+            }
+          ]
+        },
+        {
+          "implementation": "effect-prototype-snapshot",
+          "supported": true,
+          "medianMs": 107.11074999999983,
+          "minMs": 106.46195799999987,
+          "maxMs": 108.72408300000006,
+          "operationsPerSecond": 933613,
+          "nanosecondsPerOperation": 1071.1074999999983,
+          "samplesMs": [
+            106.46195799999987,
+            106.76216699999986,
+            106.95391600000039,
+            107.11074999999983,
+            107.44804099999965,
+            107.69791600000008,
+            108.72408300000006
+          ],
+          "medianCpuMs": 150.593,
+          "samples": [
+            {
+              "durationMs": 108.72408300000006,
+              "cpuMs": 151.172
+            },
+            {
+              "durationMs": 107.11074999999983,
+              "cpuMs": 145.267
+            },
+            {
+              "durationMs": 107.44804099999965,
+              "cpuMs": 152.158
+            },
+            {
+              "durationMs": 106.76216699999986,
+              "cpuMs": 145.2
+            },
+            {
+              "durationMs": 107.69791600000008,
+              "cpuMs": 152.66
+            },
+            {
+              "durationMs": 106.95391600000039,
+              "cpuMs": 145.053
+            },
+            {
+              "durationMs": 106.46195799999987,
+              "cpuMs": 150.593
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 44.78416600000037,
+          "minMs": 41.82895800000006,
+          "maxMs": 51.73058300000048,
+          "operationsPerSecond": 2232932,
+          "nanosecondsPerOperation": 447.8416600000037,
+          "samplesMs": [
+            41.82895800000006,
+            42.39124999999967,
+            43.407249999999294,
+            44.78416600000037,
+            44.88445899999988,
+            46.044958999999835,
+            51.73058300000048
+          ],
+          "medianCpuMs": 77.934,
+          "samples": [
+            {
+              "durationMs": 44.88445899999988,
+              "cpuMs": 78.84
+            },
+            {
+              "durationMs": 44.78416600000037,
+              "cpuMs": 79.986
+            },
+            {
+              "durationMs": 41.82895800000006,
+              "cpuMs": 67.913
+            },
+            {
+              "durationMs": 42.39124999999967,
+              "cpuMs": 73.651
+            },
+            {
+              "durationMs": 43.407249999999294,
+              "cpuMs": 70.581
+            },
+            {
+              "durationMs": 51.73058300000048,
+              "cpuMs": 80.197
+            },
+            {
+              "durationMs": 46.044958999999835,
+              "cpuMs": 77.934
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sync-fanout-16",
+      "mode": "sync",
+      "listeners": 16,
+      "iterations": 10000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": true,
+          "medianMs": 2.5989589999999225,
+          "minMs": 2.460084000000279,
+          "maxMs": 2.7532090000004246,
+          "operationsPerSecond": 3847694,
+          "nanosecondsPerOperation": 259.89589999999225,
+          "samplesMs": [
+            2.460084000000279,
+            2.4912079999994603,
+            2.573500000000422,
+            2.5989589999999225,
+            2.6266249999998763,
+            2.6364169999997102,
+            2.7532090000004246
+          ],
+          "medianCpuMs": 6.511,
+          "samples": [
+            {
+              "durationMs": 2.6364169999997102,
+              "cpuMs": 6.316
+            },
+            {
+              "durationMs": 2.573500000000422,
+              "cpuMs": 7.315
+            },
+            {
+              "durationMs": 2.5989589999999225,
+              "cpuMs": 8.679
+            },
+            {
+              "durationMs": 2.4912079999994603,
+              "cpuMs": 7.238
+            },
+            {
+              "durationMs": 2.6266249999998763,
+              "cpuMs": 6.134
+            },
+            {
+              "durationMs": 2.7532090000004246,
+              "cpuMs": 6.511
+            },
+            {
+              "durationMs": 2.460084000000279,
+              "cpuMs": 5.974
+            }
+          ]
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": true,
+          "medianMs": 4.282250000000204,
+          "minMs": 4.187249999999949,
+          "maxMs": 4.508791000000201,
+          "operationsPerSecond": 2335221,
+          "nanosecondsPerOperation": 428.2250000000204,
+          "samplesMs": [
+            4.187249999999949,
+            4.199333000000479,
+            4.238624999999956,
+            4.282250000000204,
+            4.3278339999997115,
+            4.505583000000115,
+            4.508791000000201
+          ],
+          "medianCpuMs": 11.729,
+          "samples": [
+            {
+              "durationMs": 4.505583000000115,
+              "cpuMs": 10.621
+            },
+            {
+              "durationMs": 4.238624999999956,
+              "cpuMs": 11.729
+            },
+            {
+              "durationMs": 4.187249999999949,
+              "cpuMs": 10.028
+            },
+            {
+              "durationMs": 4.508791000000201,
+              "cpuMs": 10.714
+            },
+            {
+              "durationMs": 4.199333000000479,
+              "cpuMs": 12.992
+            },
+            {
+              "durationMs": 4.282250000000204,
+              "cpuMs": 13.124
+            },
+            {
+              "durationMs": 4.3278339999997115,
+              "cpuMs": 11.873
+            }
+          ]
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 8.381792000000132,
+          "minMs": 8.211833000000297,
+          "maxMs": 10.134750000000167,
+          "operationsPerSecond": 1193062,
+          "nanosecondsPerOperation": 838.1792000000132,
+          "samplesMs": [
+            8.211833000000297,
+            8.230375000000095,
+            8.306499999999687,
+            8.381792000000132,
+            8.468415999999706,
+            8.519540999999663,
+            10.134750000000167
+          ],
+          "medianCpuMs": 18.388,
+          "samples": [
+            {
+              "durationMs": 10.134750000000167,
+              "cpuMs": 19.852
+            },
+            {
+              "durationMs": 8.468415999999706,
+              "cpuMs": 18.812
+            },
+            {
+              "durationMs": 8.381792000000132,
+              "cpuMs": 18.325
+            },
+            {
+              "durationMs": 8.306499999999687,
+              "cpuMs": 18.235
+            },
+            {
+              "durationMs": 8.211833000000297,
+              "cpuMs": 18.388
+            },
+            {
+              "durationMs": 8.230375000000095,
+              "cpuMs": 18.14
+            },
+            {
+              "durationMs": 8.519540999999663,
+              "cpuMs": 19.11
+            }
+          ]
+        },
+        {
+          "implementation": "effect-prototype-snapshot",
+          "supported": true,
+          "medianMs": 51.643457999999555,
+          "minMs": 48.72254100000009,
+          "maxMs": 52.55866699999933,
+          "operationsPerSecond": 193635,
+          "nanosecondsPerOperation": 5164.3457999999555,
+          "samplesMs": [
+            48.72254100000009,
+            50.1215000000002,
+            50.13154200000008,
+            51.643457999999555,
+            51.89991699999973,
+            52.102084000000104,
+            52.55866699999933
+          ],
+          "medianCpuMs": 77.223,
+          "samples": [
+            {
+              "durationMs": 52.55866699999933,
+              "cpuMs": 77.25
+            },
+            {
+              "durationMs": 50.13154200000008,
+              "cpuMs": 77.223
+            },
+            {
+              "durationMs": 50.1215000000002,
+              "cpuMs": 75.93
+            },
+            {
+              "durationMs": 51.643457999999555,
+              "cpuMs": 76.907
+            },
+            {
+              "durationMs": 51.89991699999973,
+              "cpuMs": 77.825
+            },
+            {
+              "durationMs": 52.102084000000104,
+              "cpuMs": 78.758
+            },
+            {
+              "durationMs": 48.72254100000009,
+              "cpuMs": 73.832
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 9.510124999999789,
+          "minMs": 8.102125000000342,
+          "maxMs": 10.19549999999981,
+          "operationsPerSecond": 1051511,
+          "nanosecondsPerOperation": 951.0124999999789,
+          "samplesMs": [
+            8.102125000000342,
+            9.139040999999452,
+            9.34637499999917,
+            9.510124999999789,
+            9.588917000000038,
+            9.804458999999952,
+            10.19549999999981
+          ],
+          "medianCpuMs": 21.463,
+          "samples": [
+            {
+              "durationMs": 9.804458999999952,
+              "cpuMs": 21.463
+            },
+            {
+              "durationMs": 9.34637499999917,
+              "cpuMs": 22.553
+            },
+            {
+              "durationMs": 10.19549999999981,
+              "cpuMs": 19.678
+            },
+            {
+              "durationMs": 9.588917000000038,
+              "cpuMs": 21.406
+            },
+            {
+              "durationMs": 9.139040999999452,
+              "cpuMs": 20.883
+            },
+            {
+              "durationMs": 9.510124999999789,
+              "cpuMs": 22.253
+            },
+            {
+              "durationMs": 8.102125000000342,
+              "cpuMs": 21.906
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sync-fanout-capture-16",
+      "mode": "sync",
+      "listeners": 16,
+      "capture": true,
+      "iterations": 10000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": true,
+          "medianMs": 2.579916000000594,
+          "minMs": 2.542500000000473,
+          "maxMs": 2.972125000000233,
+          "operationsPerSecond": 3876095,
+          "nanosecondsPerOperation": 257.9916000000594,
+          "samplesMs": [
+            2.542500000000473,
+            2.544333999999253,
+            2.577000000001135,
+            2.579916000000594,
+            2.7202500000003056,
+            2.7371669999993173,
+            2.972125000000233
+          ],
+          "medianCpuMs": 7.518,
+          "samples": [
+            {
+              "durationMs": 2.542500000000473,
+              "cpuMs": 5.997
+            },
+            {
+              "durationMs": 2.544333999999253,
+              "cpuMs": 9.006
+            },
+            {
+              "durationMs": 2.7202500000003056,
+              "cpuMs": 9.276
+            },
+            {
+              "durationMs": 2.7371669999993173,
+              "cpuMs": 9.318
+            },
+            {
+              "durationMs": 2.579916000000594,
+              "cpuMs": 6.025
+            },
+            {
+              "durationMs": 2.972125000000233,
+              "cpuMs": 7.169
+            },
+            {
+              "durationMs": 2.577000000001135,
+              "cpuMs": 7.518
+            }
+          ]
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": true,
+          "medianMs": 4.293541999999434,
+          "minMs": 4.088416000000507,
+          "maxMs": 4.640958999999384,
+          "operationsPerSecond": 2329079,
+          "nanosecondsPerOperation": 429.3541999999434,
+          "samplesMs": [
+            4.088416000000507,
+            4.131416999998692,
+            4.281208000000333,
+            4.293541999999434,
+            4.315166999998837,
+            4.343707999998514,
+            4.640958999999384
+          ],
+          "medianCpuMs": 11.487,
+          "samples": [
+            {
+              "durationMs": 4.640958999999384,
+              "cpuMs": 11.487
+            },
+            {
+              "durationMs": 4.281208000000333,
+              "cpuMs": 10.708
+            },
+            {
+              "durationMs": 4.293541999999434,
+              "cpuMs": 10.402
+            },
+            {
+              "durationMs": 4.343707999998514,
+              "cpuMs": 10.971
+            },
+            {
+              "durationMs": 4.131416999998692,
+              "cpuMs": 12.855
+            },
+            {
+              "durationMs": 4.315166999998837,
+              "cpuMs": 13.352
+            },
+            {
+              "durationMs": 4.088416000000507,
+              "cpuMs": 11.997
+            }
+          ]
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 8.221292000000176,
+          "minMs": 7.996417000000292,
+          "maxMs": 10.134500000000116,
+          "operationsPerSecond": 1216354,
+          "nanosecondsPerOperation": 822.1292000000176,
+          "samplesMs": [
+            7.996417000000292,
+            8.1578329999993,
+            8.196749999999156,
+            8.221292000000176,
+            8.542292000000089,
+            9.348332999999911,
+            10.134500000000116
+          ],
+          "medianCpuMs": 18.092,
+          "samples": [
+            {
+              "durationMs": 10.134500000000116,
+              "cpuMs": 20.082
+            },
+            {
+              "durationMs": 9.348332999999911,
+              "cpuMs": 19.092
+            },
+            {
+              "durationMs": 8.542292000000089,
+              "cpuMs": 18.754
+            },
+            {
+              "durationMs": 8.196749999999156,
+              "cpuMs": 18.092
+            },
+            {
+              "durationMs": 7.996417000000292,
+              "cpuMs": 17.655
+            },
+            {
+              "durationMs": 8.221292000000176,
+              "cpuMs": 18.012
+            },
+            {
+              "durationMs": 8.1578329999993,
+              "cpuMs": 17.948
+            }
+          ]
+        },
+        {
+          "implementation": "effect-prototype-snapshot",
+          "supported": true,
+          "medianMs": 58.90008299999863,
+          "minMs": 58.26187499999833,
+          "maxMs": 64.03054200000042,
+          "operationsPerSecond": 169779,
+          "nanosecondsPerOperation": 5890.008299999863,
+          "samplesMs": [
+            58.26187499999833,
+            58.72308299999895,
+            58.77812499999891,
+            58.90008299999863,
+            59.91450000000077,
+            60.79462500000045,
+            64.03054200000042
+          ],
+          "medianCpuMs": 84.138,
+          "samples": [
+            {
+              "durationMs": 60.79462500000045,
+              "cpuMs": 84.138
+            },
+            {
+              "durationMs": 64.03054200000042,
+              "cpuMs": 90.371
+            },
+            {
+              "durationMs": 58.72308299999895,
+              "cpuMs": 83.859
+            },
+            {
+              "durationMs": 58.26187499999833,
+              "cpuMs": 83.696
+            },
+            {
+              "durationMs": 59.91450000000077,
+              "cpuMs": 86.832
+            },
+            {
+              "durationMs": 58.77812499999891,
+              "cpuMs": 83.846
+            },
+            {
+              "durationMs": 58.90008299999863,
+              "cpuMs": 84.529
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 9.041000000001077,
+          "minMs": 8.796791000000667,
+          "maxMs": 10.738290999999663,
+          "operationsPerSecond": 1106072,
+          "nanosecondsPerOperation": 904.1000000001077,
+          "samplesMs": [
+            8.796791000000667,
+            8.940499999998792,
+            8.968041999998604,
+            9.041000000001077,
+            9.514499999999316,
+            9.75670799999989,
+            10.738290999999663
+          ],
+          "medianCpuMs": 20.327,
+          "samples": [
+            {
+              "durationMs": 10.738290999999663,
+              "cpuMs": 21.901
+            },
+            {
+              "durationMs": 9.75670799999989,
+              "cpuMs": 19.517
+            },
+            {
+              "durationMs": 8.796791000000667,
+              "cpuMs": 20.058
+            },
+            {
+              "durationMs": 9.514499999999316,
+              "cpuMs": 18.698
+            },
+            {
+              "durationMs": 8.968041999998604,
+              "cpuMs": 20.327
+            },
+            {
+              "durationMs": 9.041000000001077,
+              "cpuMs": 21.535
+            },
+            {
+              "durationMs": 8.940499999998792,
+              "cpuMs": 20.614
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sync-effect-listener-1",
+      "mode": "fork",
+      "listeners": 1,
+      "iterations": 10000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": false
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": false
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 9.05804100000023,
+          "minMs": 7.433582999999999,
+          "maxMs": 11.871458999999959,
+          "operationsPerSecond": 1103991,
+          "nanosecondsPerOperation": 905.804100000023,
+          "samplesMs": [
+            7.433582999999999,
+            8.03020899999865,
+            8.506666000001132,
+            9.05804100000023,
+            9.182958999999755,
+            11.653083000001061,
+            11.871458999999959
+          ],
+          "medianCpuMs": 21.868,
+          "samples": [
+            {
+              "durationMs": 11.871458999999959,
+              "cpuMs": 24.418
+            },
+            {
+              "durationMs": 9.182958999999755,
+              "cpuMs": 20.057
+            },
+            {
+              "durationMs": 8.03020899999865,
+              "cpuMs": 15.516
+            },
+            {
+              "durationMs": 9.05804100000023,
+              "cpuMs": 21.936
+            },
+            {
+              "durationMs": 7.433582999999999,
+              "cpuMs": 13.257
+            },
+            {
+              "durationMs": 11.653083000001061,
+              "cpuMs": 23.377
+            },
+            {
+              "durationMs": 8.506666000001132,
+              "cpuMs": 21.868
+            }
+          ]
+        },
+        {
+          "implementation": "effect-prototype-snapshot",
+          "supported": true,
+          "medianMs": 21.377667000000656,
+          "minMs": 17.523584000000483,
+          "maxMs": 22.70270899999923,
+          "operationsPerSecond": 467778,
+          "nanosecondsPerOperation": 2137.7667000000656,
+          "samplesMs": [
+            17.523584000000483,
+            18.833416999999827,
+            19.14799999999923,
+            21.377667000000656,
+            22.36579200000051,
+            22.68329199999971,
+            22.70270899999923
+          ],
+          "medianCpuMs": 38.362,
+          "samples": [
+            {
+              "durationMs": 22.68329199999971,
+              "cpuMs": 41.27
+            },
+            {
+              "durationMs": 22.70270899999923,
+              "cpuMs": 41.099
+            },
+            {
+              "durationMs": 17.523584000000483,
+              "cpuMs": 32.838
+            },
+            {
+              "durationMs": 19.14799999999923,
+              "cpuMs": 37.053
+            },
+            {
+              "durationMs": 21.377667000000656,
+              "cpuMs": 38.663
+            },
+            {
+              "durationMs": 22.36579200000051,
+              "cpuMs": 38.362
+            },
+            {
+              "durationMs": 18.833416999999827,
+              "cpuMs": 30.752
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 14.023333000001003,
+          "minMs": 9.300458000001527,
+          "maxMs": 15.18212499999936,
+          "operationsPerSecond": 713097,
+          "nanosecondsPerOperation": 1402.3333000001003,
+          "samplesMs": [
+            9.300458000001527,
+            11.68566699999974,
+            12.336834000001545,
+            14.023333000001003,
+            14.48687499999869,
+            14.552541999999448,
+            15.18212499999936
+          ],
+          "medianCpuMs": 24.607,
+          "samples": [
+            {
+              "durationMs": 14.023333000001003,
+              "cpuMs": 28.16
+            },
+            {
+              "durationMs": 11.68566699999974,
+              "cpuMs": 24.607
+            },
+            {
+              "durationMs": 14.48687499999869,
+              "cpuMs": 24.942
+            },
+            {
+              "durationMs": 15.18212499999936,
+              "cpuMs": 26.232
+            },
+            {
+              "durationMs": 9.300458000001527,
+              "cpuMs": 16.669
+            },
+            {
+              "durationMs": 12.336834000001545,
+              "cpuMs": 22.645
+            },
+            {
+              "durationMs": 14.552541999999448,
+              "cpuMs": 23.793
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "effect-callback-1",
+      "mode": "await-callback",
+      "listeners": 1,
+      "iterations": 10000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": false
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": false
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 27.804333000000042,
+          "minMs": 27.006624999999985,
+          "maxMs": 29.423084000000017,
+          "operationsPerSecond": 359656,
+          "nanosecondsPerOperation": 2780.4333000000042,
+          "samplesMs": [
+            27.006624999999985,
+            27.18041699999958,
+            27.624417000000903,
+            27.804333000000042,
+            28.263166000000638,
+            29.39270800000122,
+            29.423084000000017
+          ],
+          "medianCpuMs": 45.088,
+          "samples": [
+            {
+              "durationMs": 29.39270800000122,
+              "cpuMs": 51.577
+            },
+            {
+              "durationMs": 27.624417000000903,
+              "cpuMs": 43.233
+            },
+            {
+              "durationMs": 27.006624999999985,
+              "cpuMs": 45.088
+            },
+            {
+              "durationMs": 28.263166000000638,
+              "cpuMs": 45.772
+            },
+            {
+              "durationMs": 27.18041699999958,
+              "cpuMs": 44.866
+            },
+            {
+              "durationMs": 29.423084000000017,
+              "cpuMs": 43.426
+            },
+            {
+              "durationMs": 27.804333000000042,
+              "cpuMs": 48.162
+            }
+          ]
+        },
+        {
+          "implementation": "effect-prototype-snapshot",
+          "supported": true,
+          "medianMs": 16.066417,
+          "minMs": 13.110833000000639,
+          "maxMs": 18.519625000000815,
+          "operationsPerSecond": 622416,
+          "nanosecondsPerOperation": 1606.6417000000001,
+          "samplesMs": [
+            13.110833000000639,
+            14.725124999999025,
+            15.82274999999936,
+            16.066417,
+            17.163500000000568,
+            18.122707999998966,
+            18.519625000000815
+          ],
+          "medianCpuMs": 27.927,
+          "samples": [
+            {
+              "durationMs": 18.519625000000815,
+              "cpuMs": 30.755
+            },
+            {
+              "durationMs": 15.82274999999936,
+              "cpuMs": 26.172
+            },
+            {
+              "durationMs": 14.725124999999025,
+              "cpuMs": 27.927
+            },
+            {
+              "durationMs": 18.122707999998966,
+              "cpuMs": 31.73
+            },
+            {
+              "durationMs": 16.066417,
+              "cpuMs": 26.991
+            },
+            {
+              "durationMs": 17.163500000000568,
+              "cpuMs": 30.637
+            },
+            {
+              "durationMs": 13.110833000000639,
+              "cpuMs": 24.57
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 5.012667000000874,
+          "minMs": 4.641707999999198,
+          "maxMs": 5.592500000000655,
+          "operationsPerSecond": 1994946,
+          "nanosecondsPerOperation": 501.2667000000874,
+          "samplesMs": [
+            4.641707999999198,
+            4.676457999999911,
+            4.860916999999972,
+            5.012667000000874,
+            5.165499999999156,
+            5.338291999998546,
+            5.592500000000655
+          ],
+          "medianCpuMs": 9.668,
+          "samples": [
+            {
+              "durationMs": 5.592500000000655,
+              "cpuMs": 10.296
+            },
+            {
+              "durationMs": 4.641707999999198,
+              "cpuMs": 9.567
+            },
+            {
+              "durationMs": 5.165499999999156,
+              "cpuMs": 9.923
+            },
+            {
+              "durationMs": 4.860916999999972,
+              "cpuMs": 9.294
+            },
+            {
+              "durationMs": 5.012667000000874,
+              "cpuMs": 9.668
+            },
+            {
+              "durationMs": 4.676457999999911,
+              "cpuMs": 9.299
+            },
+            {
+              "durationMs": 5.338291999998546,
+              "cpuMs": 9.863
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "effect-callback-fanout-16",
+      "mode": "await-callback",
+      "listeners": 16,
+      "capture": true,
+      "iterations": 10000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": false
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": false
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 184.3313330000001,
+          "minMs": 181.07937500000116,
+          "maxMs": 190.43116700000064,
+          "operationsPerSecond": 54250,
+          "nanosecondsPerOperation": 18433.13330000001,
+          "samplesMs": [
+            181.07937500000116,
+            182.77504100000078,
+            182.984457999999,
+            184.3313330000001,
+            186.55795800000124,
+            188.80412499999875,
+            190.43116700000064
+          ],
+          "medianCpuMs": 221.845,
+          "samples": [
+            {
+              "durationMs": 182.984457999999,
+              "cpuMs": 218.839
+            },
+            {
+              "durationMs": 184.3313330000001,
+              "cpuMs": 221.39
+            },
+            {
+              "durationMs": 188.80412499999875,
+              "cpuMs": 224.398
+            },
+            {
+              "durationMs": 186.55795800000124,
+              "cpuMs": 221.845
+            },
+            {
+              "durationMs": 181.07937500000116,
+              "cpuMs": 225.969
+            },
+            {
+              "durationMs": 190.43116700000064,
+              "cpuMs": 225.911
+            },
+            {
+              "durationMs": 182.77504100000078,
+              "cpuMs": 220.089
+            }
+          ]
+        },
+        {
+          "implementation": "effect-prototype-snapshot",
+          "supported": true,
+          "medianMs": 77.47745799999939,
+          "minMs": 75.48741599999994,
+          "maxMs": 80.76308400000016,
+          "operationsPerSecond": 129070,
+          "nanosecondsPerOperation": 7747.745799999939,
+          "samplesMs": [
+            75.48741599999994,
+            76.16749999999956,
+            76.56395800000064,
+            77.47745799999939,
+            79.29570799999965,
+            80.05074999999852,
+            80.76308400000016
+          ],
+          "medianCpuMs": 108.931,
+          "samples": [
+            {
+              "durationMs": 80.76308400000016,
+              "cpuMs": 112.855
+            },
+            {
+              "durationMs": 76.56395800000064,
+              "cpuMs": 107.015
+            },
+            {
+              "durationMs": 77.47745799999939,
+              "cpuMs": 108.931
+            },
+            {
+              "durationMs": 75.48741599999994,
+              "cpuMs": 105.139
+            },
+            {
+              "durationMs": 79.29570799999965,
+              "cpuMs": 109.987
+            },
+            {
+              "durationMs": 80.05074999999852,
+              "cpuMs": 111.684
+            },
+            {
+              "durationMs": 76.16749999999956,
+              "cpuMs": 106.229
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 8.355290999999852,
+          "minMs": 7.867374999999811,
+          "maxMs": 8.758083999999144,
+          "operationsPerSecond": 1196846,
+          "nanosecondsPerOperation": 835.5290999999852,
+          "samplesMs": [
+            7.867374999999811,
+            8.109166000000187,
+            8.264291999999841,
+            8.355290999999852,
+            8.486249999999927,
+            8.611249999999927,
+            8.758083999999144
+          ],
+          "medianCpuMs": 16.59,
+          "samples": [
+            {
+              "durationMs": 8.758083999999144,
+              "cpuMs": 16.901
+            },
+            {
+              "durationMs": 8.109166000000187,
+              "cpuMs": 16.363
+            },
+            {
+              "durationMs": 7.867374999999811,
+              "cpuMs": 16.97
+            },
+            {
+              "durationMs": 8.611249999999927,
+              "cpuMs": 15.977
+            },
+            {
+              "durationMs": 8.486249999999927,
+              "cpuMs": 16.169
+            },
+            {
+              "durationMs": 8.355290999999852,
+              "cpuMs": 16.885
+            },
+            {
+              "durationMs": 8.264291999999841,
+              "cpuMs": 16.59
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "effect-listener-1",
+      "mode": "await-effect",
+      "listeners": 1,
+      "iterations": 10000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": false
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": false
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 27.87724999999955,
+          "minMs": 24.464208000001236,
+          "maxMs": 30.530625000001237,
+          "operationsPerSecond": 358715,
+          "nanosecondsPerOperation": 2787.724999999955,
+          "samplesMs": [
+            24.464208000001236,
+            24.566625000001295,
+            27.855375000001004,
+            27.87724999999955,
+            28.390457999999853,
+            30.371750000000247,
+            30.530625000001237
+          ],
+          "medianCpuMs": 48.781,
+          "samples": [
+            {
+              "durationMs": 30.530625000001237,
+              "cpuMs": 48.722
+            },
+            {
+              "durationMs": 27.87724999999955,
+              "cpuMs": 49.144
+            },
+            {
+              "durationMs": 27.855375000001004,
+              "cpuMs": 49.577
+            },
+            {
+              "durationMs": 30.371750000000247,
+              "cpuMs": 53.341
+            },
+            {
+              "durationMs": 24.464208000001236,
+              "cpuMs": 37.926
+            },
+            {
+              "durationMs": 24.566625000001295,
+              "cpuMs": 41.76
+            },
+            {
+              "durationMs": 28.390457999999853,
+              "cpuMs": 48.781
+            }
+          ]
+        },
+        {
+          "implementation": "effect-prototype-snapshot",
+          "supported": true,
+          "medianMs": 26.534542000001238,
+          "minMs": 24.322165999999925,
+          "maxMs": 30.289749999999913,
+          "operationsPerSecond": 376867,
+          "nanosecondsPerOperation": 2653.454200000124,
+          "samplesMs": [
+            24.322165999999925,
+            25.18908300000112,
+            25.87633300000016,
+            26.534542000001238,
+            29.576209000000745,
+            30.20337499999914,
+            30.289749999999913
+          ],
+          "medianCpuMs": 47.25,
+          "samples": [
+            {
+              "durationMs": 26.534542000001238,
+              "cpuMs": 43.645
+            },
+            {
+              "durationMs": 25.87633300000016,
+              "cpuMs": 42.661
+            },
+            {
+              "durationMs": 25.18908300000112,
+              "cpuMs": 47.25
+            },
+            {
+              "durationMs": 30.289749999999913,
+              "cpuMs": 48.874
+            },
+            {
+              "durationMs": 30.20337499999914,
+              "cpuMs": 51.697
+            },
+            {
+              "durationMs": 29.576209000000745,
+              "cpuMs": 49.543
+            },
+            {
+              "durationMs": 24.322165999999925,
+              "cpuMs": 41.544
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 24.897249999999985,
+          "minMs": 21.122332999999344,
+          "maxMs": 26.38404100000116,
+          "operationsPerSecond": 401651,
+          "nanosecondsPerOperation": 2489.7249999999985,
+          "samplesMs": [
+            21.122332999999344,
+            21.71833400000105,
+            23.312792000000627,
+            24.897249999999985,
+            25.147249999999985,
+            25.741374999999607,
+            26.38404100000116
+          ],
+          "medianCpuMs": 40.105,
+          "samples": [
+            {
+              "durationMs": 26.38404100000116,
+              "cpuMs": 42.073
+            },
+            {
+              "durationMs": 25.741374999999607,
+              "cpuMs": 41.141
+            },
+            {
+              "durationMs": 24.897249999999985,
+              "cpuMs": 40.105
+            },
+            {
+              "durationMs": 23.312792000000627,
+              "cpuMs": 35.794
+            },
+            {
+              "durationMs": 21.122332999999344,
+              "cpuMs": 33.387
+            },
+            {
+              "durationMs": 21.71833400000105,
+              "cpuMs": 34.837
+            },
+            {
+              "durationMs": 25.147249999999985,
+              "cpuMs": 40.151
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "effect-listener-fanout-16",
+      "mode": "await-effect",
+      "listeners": 16,
+      "capture": true,
+      "iterations": 2000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": false
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": false
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 45.6674579999999,
+          "minMs": 42.38008300000001,
+          "maxMs": 48.83954200000153,
+          "operationsPerSecond": 43795,
+          "nanosecondsPerOperation": 22833.72899999995,
+          "samplesMs": [
+            42.38008300000001,
+            43.23854199999914,
+            45.318083000000115,
+            45.6674579999999,
+            47.9864579999994,
+            48.299417000000176,
+            48.83954200000153
+          ],
+          "medianCpuMs": 71.6,
+          "samples": [
+            {
+              "durationMs": 45.318083000000115,
+              "cpuMs": 71.6
+            },
+            {
+              "durationMs": 48.299417000000176,
+              "cpuMs": 70.227
+            },
+            {
+              "durationMs": 42.38008300000001,
+              "cpuMs": 66.099
+            },
+            {
+              "durationMs": 47.9864579999994,
+              "cpuMs": 84.581
+            },
+            {
+              "durationMs": 43.23854199999914,
+              "cpuMs": 71.061
+            },
+            {
+              "durationMs": 48.83954200000153,
+              "cpuMs": 78.13
+            },
+            {
+              "durationMs": 45.6674579999999,
+              "cpuMs": 75.823
+            }
+          ]
+        },
+        {
+          "implementation": "effect-prototype-snapshot",
+          "supported": true,
+          "medianMs": 52.733540999999605,
+          "minMs": 49.81762499999968,
+          "maxMs": 59.84216699999888,
+          "operationsPerSecond": 37927,
+          "nanosecondsPerOperation": 26366.770499999802,
+          "samplesMs": [
+            49.81762499999968,
+            50.25537499999882,
+            50.36858399999983,
+            52.733540999999605,
+            53.92874999999913,
+            56.77283299999908,
+            59.84216699999888
+          ],
+          "medianCpuMs": 93.32,
+          "samples": [
+            {
+              "durationMs": 59.84216699999888,
+              "cpuMs": 104.526
+            },
+            {
+              "durationMs": 56.77283299999908,
+              "cpuMs": 100.627
+            },
+            {
+              "durationMs": 50.36858399999983,
+              "cpuMs": 91.878
+            },
+            {
+              "durationMs": 49.81762499999968,
+              "cpuMs": 70.401
+            },
+            {
+              "durationMs": 52.733540999999605,
+              "cpuMs": 95.274
+            },
+            {
+              "durationMs": 53.92874999999913,
+              "cpuMs": 92.47
+            },
+            {
+              "durationMs": 50.25537499999882,
+              "cpuMs": 93.32
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 30.621124999999665,
+          "minMs": 29.033833000001323,
+          "maxMs": 31.93054200000006,
+          "operationsPerSecond": 65314,
+          "nanosecondsPerOperation": 15310.562499999833,
+          "samplesMs": [
+            29.033833000001323,
+            29.723374999999578,
+            30.230374999999185,
+            30.621124999999665,
+            30.735625000001164,
+            30.93383399999948,
+            31.93054200000006
+          ],
+          "medianCpuMs": 54.963,
+          "samples": [
+            {
+              "durationMs": 29.723374999999578,
+              "cpuMs": 55.634
+            },
+            {
+              "durationMs": 30.93383399999948,
+              "cpuMs": 54.963
+            },
+            {
+              "durationMs": 29.033833000001323,
+              "cpuMs": 56.609
+            },
+            {
+              "durationMs": 31.93054200000006,
+              "cpuMs": 51.926
+            },
+            {
+              "durationMs": 30.621124999999665,
+              "cpuMs": 59.821
+            },
+            {
+              "durationMs": 30.735625000001164,
+              "cpuMs": 53.782
+            },
+            {
+              "durationMs": 30.230374999999185,
+              "cpuMs": 53.163
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "effect-promise-listener-1",
+      "mode": "await-promise",
+      "listeners": 1,
+      "iterations": 2000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": false
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": false
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 10.856417000000874,
+          "minMs": 10.650541000000885,
+          "maxMs": 12.386083999999755,
+          "operationsPerSecond": 184223,
+          "nanosecondsPerOperation": 5428.208500000437,
+          "samplesMs": [
+            10.650541000000885,
+            10.668625000000247,
+            10.688167000000249,
+            10.856417000000874,
+            11.051666999999725,
+            11.260250000001179,
+            12.386083999999755
+          ],
+          "medianCpuMs": 26.567,
+          "samples": [
+            {
+              "durationMs": 10.688167000000249,
+              "cpuMs": 22.612
+            },
+            {
+              "durationMs": 12.386083999999755,
+              "cpuMs": 28.934
+            },
+            {
+              "durationMs": 10.668625000000247,
+              "cpuMs": 26.425
+            },
+            {
+              "durationMs": 10.856417000000874,
+              "cpuMs": 26.806
+            },
+            {
+              "durationMs": 11.260250000001179,
+              "cpuMs": 26.567
+            },
+            {
+              "durationMs": 10.650541000000885,
+              "cpuMs": 21.905
+            },
+            {
+              "durationMs": 11.051666999999725,
+              "cpuMs": 27.372
+            }
+          ]
+        },
+        {
+          "implementation": "effect-prototype-snapshot",
+          "supported": true,
+          "medianMs": 9.876083999999537,
+          "minMs": 9.663624999999229,
+          "maxMs": 12.051625000000058,
+          "operationsPerSecond": 202509,
+          "nanosecondsPerOperation": 4938.041999999768,
+          "samplesMs": [
+            9.663624999999229,
+            9.721832999999606,
+            9.749416000000565,
+            9.876083999999537,
+            10.194499999999607,
+            11.248000000001412,
+            12.051625000000058
+          ],
+          "medianCpuMs": 20.202,
+          "samples": [
+            {
+              "durationMs": 9.749416000000565,
+              "cpuMs": 20.202
+            },
+            {
+              "durationMs": 9.876083999999537,
+              "cpuMs": 20.063
+            },
+            {
+              "durationMs": 10.194499999999607,
+              "cpuMs": 20.014
+            },
+            {
+              "durationMs": 11.248000000001412,
+              "cpuMs": 27.066
+            },
+            {
+              "durationMs": 12.051625000000058,
+              "cpuMs": 26.551
+            },
+            {
+              "durationMs": 9.663624999999229,
+              "cpuMs": 20.202
+            },
+            {
+              "durationMs": 9.721832999999606,
+              "cpuMs": 20.885
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 9.567957999999635,
+          "minMs": 8.982875000001513,
+          "maxMs": 9.930082999999286,
+          "operationsPerSecond": 209031,
+          "nanosecondsPerOperation": 4783.9789999998175,
+          "samplesMs": [
+            8.982875000001513,
+            9.084290999999212,
+            9.200417000000016,
+            9.567957999999635,
+            9.591957999999067,
+            9.63141700000051,
+            9.930082999999286
+          ],
+          "medianCpuMs": 20.439,
+          "samples": [
+            {
+              "durationMs": 9.930082999999286,
+              "cpuMs": 26.898
+            },
+            {
+              "durationMs": 9.63141700000051,
+              "cpuMs": 19.893
+            },
+            {
+              "durationMs": 9.200417000000016,
+              "cpuMs": 20.439
+            },
+            {
+              "durationMs": 9.084290999999212,
+              "cpuMs": 19.788
+            },
+            {
+              "durationMs": 8.982875000001513,
+              "cpuMs": 19.718
+            },
+            {
+              "durationMs": 9.591957999999067,
+              "cpuMs": 20.614
+            },
+            {
+              "durationMs": 9.567957999999635,
+              "cpuMs": 22.963
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "effect-promise-fanout-16",
+      "mode": "await-promise",
+      "listeners": 16,
+      "capture": true,
+      "iterations": 500,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": false
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": false
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 25.03595900000073,
+          "minMs": 23.9268749999992,
+          "maxMs": 25.597874999999476,
+          "operationsPerSecond": 19971,
+          "nanosecondsPerOperation": 50071.91800000146,
+          "samplesMs": [
+            23.9268749999992,
+            24.334375000000364,
+            24.505083000000013,
+            25.03595900000073,
+            25.336167000001296,
+            25.53570799999943,
+            25.597874999999476
+          ],
+          "medianCpuMs": 45.865,
+          "samples": [
+            {
+              "durationMs": 25.597874999999476,
+              "cpuMs": 50.417
+            },
+            {
+              "durationMs": 25.53570799999943,
+              "cpuMs": 46.67
+            },
+            {
+              "durationMs": 24.334375000000364,
+              "cpuMs": 49.697
+            },
+            {
+              "durationMs": 23.9268749999992,
+              "cpuMs": 44.677
+            },
+            {
+              "durationMs": 24.505083000000013,
+              "cpuMs": 44.558
+            },
+            {
+              "durationMs": 25.336167000001296,
+              "cpuMs": 45.865
+            },
+            {
+              "durationMs": 25.03595900000073,
+              "cpuMs": 44.76
+            }
+          ]
+        },
+        {
+          "implementation": "effect-prototype-snapshot",
+          "supported": true,
+          "medianMs": 25.61737499999981,
+          "minMs": 21.233208999999988,
+          "maxMs": 27.617333000000144,
+          "operationsPerSecond": 19518,
+          "nanosecondsPerOperation": 51234.74999999962,
+          "samplesMs": [
+            21.233208999999988,
+            21.28533299999981,
+            25.27691600000071,
+            25.61737499999981,
+            25.620750000000044,
+            27.05712499999936,
+            27.617333000000144
+          ],
+          "medianCpuMs": 47.279,
+          "samples": [
+            {
+              "durationMs": 27.05712499999936,
+              "cpuMs": 48.864
+            },
+            {
+              "durationMs": 21.233208999999988,
+              "cpuMs": 43.575
+            },
+            {
+              "durationMs": 27.617333000000144,
+              "cpuMs": 49.105
+            },
+            {
+              "durationMs": 25.620750000000044,
+              "cpuMs": 46.579
+            },
+            {
+              "durationMs": 21.28533299999981,
+              "cpuMs": 44.97
+            },
+            {
+              "durationMs": 25.61737499999981,
+              "cpuMs": 47.847
+            },
+            {
+              "durationMs": 25.27691600000071,
+              "cpuMs": 47.279
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 15.26970799999981,
+          "minMs": 11.747041999999055,
+          "maxMs": 16.12812500000109,
+          "operationsPerSecond": 32745,
+          "nanosecondsPerOperation": 30539.41599999962,
+          "samplesMs": [
+            11.747041999999055,
+            12.19379200000003,
+            12.385917000001427,
+            15.26970799999981,
+            15.473500000000058,
+            15.895125000000917,
+            16.12812500000109
+          ],
+          "medianCpuMs": 30.366,
+          "samples": [
+            {
+              "durationMs": 15.895125000000917,
+              "cpuMs": 31.513
+            },
+            {
+              "durationMs": 16.12812500000109,
+              "cpuMs": 32.097
+            },
+            {
+              "durationMs": 15.26970799999981,
+              "cpuMs": 30.366
+            },
+            {
+              "durationMs": 12.385917000001427,
+              "cpuMs": 27.892
+            },
+            {
+              "durationMs": 15.473500000000058,
+              "cpuMs": 34.936
+            },
+            {
+              "durationMs": 12.19379200000003,
+              "cpuMs": 27.095
+            },
+            {
+              "durationMs": 11.747041999999055,
+              "cpuMs": 26.137
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "scoped-subscribe-emit-close",
+      "mode": "scope",
+      "listeners": 1,
+      "iterations": 1000,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": false
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": false
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 7.158042000000933,
+          "minMs": 5.338207999999213,
+          "maxMs": 7.2526249999991705,
+          "operationsPerSecond": 139703,
+          "nanosecondsPerOperation": 7158.042000000933,
+          "samplesMs": [
+            5.338207999999213,
+            5.488292000000001,
+            5.557875000000422,
+            7.158042000000933,
+            7.242292000000816,
+            7.243500000000495,
+            7.2526249999991705
+          ],
+          "medianCpuMs": 14.269,
+          "samples": [
+            {
+              "durationMs": 5.557875000000422,
+              "cpuMs": 12.216
+            },
+            {
+              "durationMs": 7.243500000000495,
+              "cpuMs": 13.421
+            },
+            {
+              "durationMs": 7.242292000000816,
+              "cpuMs": 13.78
+            },
+            {
+              "durationMs": 5.488292000000001,
+              "cpuMs": 17.337
+            },
+            {
+              "durationMs": 7.158042000000933,
+              "cpuMs": 14.269
+            },
+            {
+              "durationMs": 5.338207999999213,
+              "cpuMs": 16.692
+            },
+            {
+              "durationMs": 7.2526249999991705,
+              "cpuMs": 15.106
+            }
+          ]
+        },
+        {
+          "implementation": "effect-prototype-snapshot",
+          "supported": true,
+          "medianMs": 8.385000000000218,
+          "minMs": 7.544625000000451,
+          "maxMs": 9.908958999998504,
+          "operationsPerSecond": 119261,
+          "nanosecondsPerOperation": 8385.000000000218,
+          "samplesMs": [
+            7.544625000000451,
+            7.6053329999995185,
+            7.962333999999828,
+            8.385000000000218,
+            8.631916999998793,
+            8.939666999998735,
+            9.908958999998504
+          ],
+          "medianCpuMs": 18.848,
+          "samples": [
+            {
+              "durationMs": 8.631916999998793,
+              "cpuMs": 16.693
+            },
+            {
+              "durationMs": 8.385000000000218,
+              "cpuMs": 21.439
+            },
+            {
+              "durationMs": 7.962333999999828,
+              "cpuMs": 18.167
+            },
+            {
+              "durationMs": 9.908958999998504,
+              "cpuMs": 18.818
+            },
+            {
+              "durationMs": 8.939666999998735,
+              "cpuMs": 19.025
+            },
+            {
+              "durationMs": 7.6053329999995185,
+              "cpuMs": 18.848
+            },
+            {
+              "durationMs": 7.544625000000451,
+              "cpuMs": 21.729
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 5.6617499999993015,
+          "minMs": 4.981124999998428,
+          "maxMs": 7.18645800000013,
+          "operationsPerSecond": 176624,
+          "nanosecondsPerOperation": 5661.7499999993015,
+          "samplesMs": [
+            4.981124999998428,
+            5.2317500000008295,
+            5.416957999999795,
+            5.6617499999993015,
+            6.296415999999226,
+            6.354165999999168,
+            7.18645800000013
+          ],
+          "medianCpuMs": 14.064,
+          "samples": [
+            {
+              "durationMs": 6.296415999999226,
+              "cpuMs": 14.064
+            },
+            {
+              "durationMs": 5.416957999999795,
+              "cpuMs": 10.617
+            },
+            {
+              "durationMs": 5.6617499999993015,
+              "cpuMs": 11.051
+            },
+            {
+              "durationMs": 6.354165999999168,
+              "cpuMs": 15.581
+            },
+            {
+              "durationMs": 7.18645800000013,
+              "cpuMs": 16.052
+            },
+            {
+              "durationMs": 4.981124999998428,
+              "cpuMs": 14.772
+            },
+            {
+              "durationMs": 5.2317500000008295,
+              "cpuMs": 11.764
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "scoped-effect-interrupt",
+      "mode": "scope-effect",
+      "listeners": 1,
+      "capture": true,
+      "iterations": 500,
+      "measurements": [
+        {
+          "implementation": "node-eventemitter",
+          "supported": false
+        },
+        {
+          "implementation": "callback-baseline",
+          "supported": false
+        },
+        {
+          "implementation": "effect-aware-snapshot",
+          "supported": true,
+          "medianMs": 6.830958000000464,
+          "minMs": 5.959333000000697,
+          "maxMs": 7.23883300000125,
+          "operationsPerSecond": 73196,
+          "nanosecondsPerOperation": 13661.916000000929,
+          "samplesMs": [
+            5.959333000000697,
+            6.347291000000041,
+            6.561416999998983,
+            6.830958000000464,
+            6.864333999999872,
+            6.880750000000262,
+            7.23883300000125
+          ],
+          "medianCpuMs": 15.683,
+          "samples": [
+            {
+              "durationMs": 5.959333000000697,
+              "cpuMs": 14.991
+            },
+            {
+              "durationMs": 6.864333999999872,
+              "cpuMs": 15.224
+            },
+            {
+              "durationMs": 6.880750000000262,
+              "cpuMs": 15.683
+            },
+            {
+              "durationMs": 7.23883300000125,
+              "cpuMs": 22.155
+            },
+            {
+              "durationMs": 6.347291000000041,
+              "cpuMs": 15.228
+            },
+            {
+              "durationMs": 6.561416999998983,
+              "cpuMs": 18.821
+            },
+            {
+              "durationMs": 6.830958000000464,
+              "cpuMs": 18.428
+            }
+          ]
+        },
+        {
+          "implementation": "effect-prototype-snapshot",
+          "supported": true,
+          "medianMs": 7.634625000000597,
+          "minMs": 6.5864999999994325,
+          "maxMs": 8.597207999999227,
+          "operationsPerSecond": 65491,
+          "nanosecondsPerOperation": 15269.250000001193,
+          "samplesMs": [
+            6.5864999999994325,
+            6.627042000000074,
+            7.406208000000333,
+            7.634625000000597,
+            8.018167000000176,
+            8.44145799999933,
+            8.597207999999227
+          ],
+          "medianCpuMs": 21.489,
+          "samples": [
+            {
+              "durationMs": 6.627042000000074,
+              "cpuMs": 19.591
+            },
+            {
+              "durationMs": 7.406208000000333,
+              "cpuMs": 22.053
+            },
+            {
+              "durationMs": 8.44145799999933,
+              "cpuMs": 21.175
+            },
+            {
+              "durationMs": 7.634625000000597,
+              "cpuMs": 22.25
+            },
+            {
+              "durationMs": 8.597207999999227,
+              "cpuMs": 23.15
+            },
+            {
+              "durationMs": 8.018167000000176,
+              "cpuMs": 21.489
+            },
+            {
+              "durationMs": 6.5864999999994325,
+              "cpuMs": 16.427
+            }
+          ]
+        },
+        {
+          "implementation": "effect-dispatcher",
+          "supported": true,
+          "medianMs": 6.20416699999987,
+          "minMs": 5.336624999999913,
+          "maxMs": 6.998583000000508,
+          "operationsPerSecond": 80591,
+          "nanosecondsPerOperation": 12408.33399999974,
+          "samplesMs": [
+            5.336624999999913,
+            5.734375,
+            5.887124999999287,
+            6.20416699999987,
+            6.341249999999491,
+            6.4565829999992275,
+            6.998583000000508
+          ],
+          "medianCpuMs": 17.152,
+          "samples": [
+            {
+              "durationMs": 6.20416699999987,
+              "cpuMs": 20.803
+            },
+            {
+              "durationMs": 5.887124999999287,
+              "cpuMs": 19.164
+            },
+            {
+              "durationMs": 6.4565829999992275,
+              "cpuMs": 15.933
+            },
+            {
+              "durationMs": 5.336624999999913,
+              "cpuMs": 16.339
+            },
+            {
+              "durationMs": 6.341249999999491,
+              "cpuMs": 16.601
+            },
+            {
+              "durationMs": 6.998583000000508,
+              "cpuMs": 17.152
+            },
+            {
+              "durationMs": 5.734375,
+              "cpuMs": 17.917
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/schema",
-  "version": "5.5.1",
+  "version": "5.6.1",
   "type": "module",
   "description": "Zod-based schema definitions for open-wa",
   "main": "./dist/index.cjs",
@@ -79,7 +79,7 @@
     }
   },
   "scripts": {
-    "generate": "tsx scripts/gen-openapi.ts && tsx scripts/gen-types.ts && tsx scripts/gen-client-implementation.ts && tsx scripts/gen-client-reference-docs.ts",
+    "generate": "tsx scripts/gen-asyncapi.ts && tsx scripts/gen-openapi.ts && tsx scripts/gen-types.ts && tsx scripts/gen-client-implementation.ts && tsx scripts/gen-client-reference-docs.ts",
     "build": "pnpm generate && tsdown",
     "dev": "tsdown --watch",
     "lint": "oxlint src scripts",

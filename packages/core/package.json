@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/core",
-  "version": "5.5.1",
+  "version": "5.6.1",
   "description": "Core orchestration backbone for open-wa WhatsApp automation",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -30,7 +30,6 @@
     "@open-wa/schema": "workspace:*",
     "@open-wa/session-sync": "workspace:*",
     "effect": "catalog:",
-    "eventemitter2": "^6.4.9",
     "hono": "catalog:",
     "uuid": "catalog:"
   },

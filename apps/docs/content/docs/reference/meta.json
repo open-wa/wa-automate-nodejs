@@ -8,6 +8,8 @@
     "client",
     "messaging",
     "events",
+    "hyperemitter",
+    "event-contracts",
     "core"
   ]
 }

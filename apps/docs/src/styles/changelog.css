@@ -26,6 +26,10 @@
 .release-article-meta { display: flex; gap: 24px; align-items: center; font-size: 14px; color: var(--muted-foreground); }
 .release-prose { font-size: 17px; line-height: 1.85; }
 .release-prose h2 { scroll-margin-top: 100px; }
+.release-prose .editorial-code-block { font-size: 14px; line-height: 1.65; }
+.release-prose .editorial-code-block pre { margin: 0; font: 14px/1.65 var(--font-mono); }
+.release-prose [role="tablist"] { font-size: 14px; line-height: 1.5; }
+.release-prose [role="tab"] { min-height: 42px; }
 .release-article-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; border-top: 1px solid var(--border); margin-top: 56px; padding-top: 28px; font-size: 14px; }
 @media (max-width: 700px) {
   .changelog { width: calc(100% - 36px); padding-top: 36px; }

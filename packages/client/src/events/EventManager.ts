@@ -1,6 +1,5 @@
 import type { HyperEmitter } from '@open-wa/hyperemitter';
-import type { OpenWAEventMap, STATE, Transport } from '@open-wa/core';
-import { hasGlobalMessageListeners } from '@open-wa/core';
+import type { OpenWAEventMap, STATE } from '@open-wa/core';
 import {
   ScopedTaskQueue,
   queueMetricsObserver,
@@ -25,7 +24,6 @@ export interface ListenerHandle {
 }
 
 export interface ListenerManagerConfig {
-  portableTransport?: Transport;
   sessionId: string;
   events: HyperEmitter<OpenWAEventMap>;
   observability?: RuntimeObservabilityShape;
@@ -135,27 +133,11 @@ export class ListenerManager {
   private readonly listeners = new Map<EventName, Map<string, EventHandler<EventName>>>();
   private readonly bridgeHandlers = new Map<EventName, (rawPayload: OpenWAEventMap[keyof OpenWAEventMap]) => void | Promise<void>>();
   private handleCounter = 0;
-  private readonly unbindPortable?: () => void;
-  private readonly portableTransport?: Transport;
 
   constructor(config: ListenerManagerConfig) {
     this.events = config.events;
     this.sessionId = config.sessionId;
     this.observability = config.observability;
-    this.portableTransport = config.portableTransport;
-    if (config.portableTransport) {
-      this.unbindPortable = config.portableTransport.setPortableMessageHandler(async (message) => {
-        const listeners = [...(this.listeners.get('message')?.values() ?? [])];
-        if (!listeners.length) return hasGlobalMessageListeners(this.events);
-        const definition = eventRegistry.get('message');
-        if (!definition) throw new Error('PORTABLE_MESSAGE_SCHEMA_MISSING');
-        // A validation failure must retain the message, never acknowledge a skipped callback.
-        const payload = definition.meta.payloadSchema.parse(message) as Message;
-        const ctx = { sessionId: this.sessionId, timestamp: Date.now() };
-        for (const listener of listeners) await listener(payload, ctx);
-        return true;
-      }, () => (this.listeners.get('message')?.size ?? 0) > 0 || hasGlobalMessageListeners(this.events));
-    }
   }
 
   on<K extends EventName>(eventName: K, handler: EventHandler<K>, options?: QueueOptions): ListenerHandle {
@@ -235,7 +217,6 @@ export class ListenerManager {
   }
 
   async dispose(): Promise<void> {
-    this.unbindPortable?.();
     const queues = [...this.queues.values()];
     for (const handle of [...this.handles.values()]) handle.off();
     await Promise.all(queues.map(async (queue) => (await queue).close()));
@@ -252,7 +233,6 @@ export class ListenerManager {
   }
 
   private ensureAutobind<K extends EventName>(eventName: K): void {
-    if (eventName === 'message' && this.portableTransport) return;
     if (this.bridgeHandlers.has(eventName)) {
       return;
     }
@@ -276,16 +256,9 @@ export class ListenerManager {
         return;
       }
 
-      let validatedPayload: EventPayloadMap[K];
-      try {
-        validatedPayload = eventDef.meta.payloadSchema.parse(transformed) as EventPayloadMap[K];
-      } catch {
-        return;
-      }
-
       const listeners = [...(this.listeners.get(eventName)?.values() ?? [])] as Array<EventHandler<K>>;
       for (const listener of listeners) {
-        await listener(validatedPayload, ctx);
+        await listener(transformed, ctx);
       }
     };
 

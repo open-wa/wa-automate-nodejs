@@ -4,7 +4,7 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "predev": "pnpm openapi",
+    "predev": "pnpm openapi && pnpm asyncapi",
     "prebuild": "pnpm openapi",
     "dev": "vite dev",
     "build": "pnpm workspace-docs && vite build",
@@ -13,7 +13,7 @@
     "check": "pnpm workspace-docs && pnpm check:ste && fumadocs-mdx && tsc --noEmit",
     "check:ste": "node scripts/check-ste.mjs",
     "lint": "oxlint src scripts",
-    "workspace-docs": "node scripts/gen-workspace-readme-docs.js",
+    "workspace-docs": "node scripts/gen-workspace-readme-docs.js && pnpm asyncapi",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,md,mdx}\" \"scripts/**/*.{ts,js}\"",
     "copy": "node scripts/copy-openapi.js",
     "openapi": "node scripts/copy-openapi.js",
@@ -22,7 +22,8 @@
     "deploy": "pnpm run build && wrangler deploy",
     "publish:agent-readiness": "node scripts/publish-agent-readiness.mjs --apply",
     "cf-typegen": "wrangler types",
-    "test:og": "tsx scripts/test-og.ts"
+    "test:og": "tsx scripts/test-og.ts",
+    "asyncapi": "tsx scripts/gen-asyncapi.ts"
   },
   "dependencies": {
     "@ai-sdk/react": "4.0.125",
@@ -67,7 +68,9 @@
     "typescript": "catalog:",
     "unist-util-visit": "^5.1.0",
     "vite": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@fumadocs/asyncapi": "0.4.4",
+    "shiki": "4.5.0"
   },
   "devDependencies": {
     "@types/hast": "^3.0.5",
@@ -78,6 +81,7 @@
     "@vitejs/plugin-react": "catalog:",
     "serve": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "tsx": "^4.23.15"
   }
 }

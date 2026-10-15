@@ -107,7 +107,7 @@ export function DocsTopBar(props: React.ComponentPropsWithoutRef<'header'>) {
         data-transparent={isNavTransparent}
         {...props}
         className={cn(
-          'w-full min-w-0 [grid-area:header] sticky top-(--fd-docs-row-1) z-30 flex h-(--fd-header-height) items-center border-b border-border bg-background ps-4 pe-2.5 transition-colors md:hidden max-md:layout:[--fd-header-height:--spacing(14)]',
+          'docs-topbar docs-topbar-mobile w-full min-w-0 [grid-area:header] sticky top-(--fd-docs-row-1) z-30 flex h-(--fd-header-height) items-center border-b border-border bg-background ps-4 pe-2.5 transition-colors md:hidden max-md:layout:[--fd-header-height:--spacing(14)]',
           props.className,
         )}
       >
@@ -139,19 +139,19 @@ export function DocsTopBar(props: React.ComponentPropsWithoutRef<'header'>) {
         ) : null}
       </header>
 
-      <header className="w-full min-w-0 [grid-area:header] sticky top-(--fd-docs-row-1) z-30 hidden h-14 items-center border-b border-border bg-background px-4 md:flex">
+      <header className="docs-topbar docs-topbar-desktop w-full min-w-0 [grid-area:header] sticky top-(--fd-docs-row-1) z-30 hidden h-14 items-center border-b border-border bg-background md:flex">
         {slots.navTitle ? (
-          <slots.navTitle className="inline-flex shrink-0 items-center gap-2.5 font-semibold" />
+          <slots.navTitle className="docs-topbar-brand inline-flex shrink-0 items-center gap-2.5 font-semibold" />
         ) : null}
         <nav
-          className="ml-6 flex min-w-0 flex-1 items-center gap-2 overflow-x-auto"
+          className="docs-topbar-nav flex min-w-0 flex-1 items-center overflow-x-auto"
           aria-label="Docs navigation"
         >
           {primaryItems.map((item, index) => (
             <HeaderLink key={index} item={item} />
           ))}
         </nav>
-        <div className="ml-4 flex shrink-0 items-center justify-end gap-1.5">
+        <div className="docs-topbar-actions flex shrink-0 items-center justify-end gap-1.5">
           {customActions.map((item, index) => (
             <HeaderLink key={index} item={item} />
           ))}

@@ -19,6 +19,7 @@
     "group-filtering",
     "message-deletion",
     "session-events",
+    "effect-event-streams",
     "multiple-sessions",
     "---Integration patterns---",
     "webhooks-for-business",

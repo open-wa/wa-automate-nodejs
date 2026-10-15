@@ -119,6 +119,11 @@ release-notes-detailed.md
 /release-[0-9]*.png
 apps/docs/.fumadocs-typescript/
 apps/docs/.wrangler/
+# AsyncAPI documentation artifacts are produced by the source generators.
+/apps/docs/src/generated/asyncapi.json
+/apps/docs/public/asyncapi.json
+/apps/docs/content/docs/reference/event-contracts/generated/
+/packages/schema/src/generated/asyncapi.json
 apps/docs/types_error.txt
 .open-wa/
 

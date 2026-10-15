@@ -48,23 +48,6 @@ const competitors = [
     }
   },
   {
-    name: 'eventemitter2',
-    module: 'eventemitter2',
-    supportsWildcard: true,
-    setupExact: (mod) => {
-      const emitter = new mod();
-      const handler = noop;
-      emitter.on('test.event', handler);
-      return () => emitter.emit('test.event', 1, 2, 3);
-    },
-    setupWildcard: (mod) => {
-      const emitter = new mod({ wildcard: true, delimiter: '.' });
-      const handler = noop;
-      emitter.on('a.**', handler); // multi-level wildcard
-      return () => emitter.emit('a.b.c', 1, 2, 3);
-    }
-  },
-  {
     name: 'emittery',
     module: 'emittery',
     supportsWildcard: true,

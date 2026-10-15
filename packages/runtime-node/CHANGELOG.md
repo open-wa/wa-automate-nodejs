@@ -4,6 +4,18 @@
 
 
 
+
+
+## 5.1.3
+<sub>2026-10-14</sub>
+
+- *(patch)* Updated dependency `@open-wa/core` v5.6.1
+
+## 5.1.2
+<sub>2026-10-14</sub>
+
+- *(patch)* Updated dependency `@open-wa/schema` v5.6.0
+
 ## 5.1.1
 <sub>2026-10-12</sub>
 

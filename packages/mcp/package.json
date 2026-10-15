@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/mcp",
-  "version": "5.5.1",
+  "version": "5.6.1",
   "type": "module",
   "description": "MCP server integration for open-wa",
   "main": "./dist/index.cjs",
@@ -26,13 +26,15 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.30.1",
     "@open-wa/config": "workspace:*",
     "@open-wa/schema": "workspace:*",
     "@open-wa/utils": "workspace:*",
     "hono": "catalog:",
     "zod": "catalog:",
-    "zod-to-json-schema": "^3.25.2"
+    "@modelcontextprotocol/server": "2.3.1",
+    "@open-wa/runtime-core": "workspace:*",
+    "standardwebhooks": "1.0.0",
+    "ipaddr.js": "2.2.0"
   },
   "devDependencies": {
     "tsdown": "^0.23.0",

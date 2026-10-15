@@ -6,3 +6,5 @@ export * from './calls';
 export * from './whatsapp-events';
 
 export * from './polls';
+export * from './contracts';
+export * from './asyncapi';
