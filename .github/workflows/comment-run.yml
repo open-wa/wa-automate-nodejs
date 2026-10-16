@@ -1,28 +1,99 @@
-name: "Comment run"
+name: Prepare release
+
 on:
   issue_comment:
-    types: [created, edited]
+    types: [created]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: prepare-release
+  cancel-in-progress: false
 
 jobs:
-  comment-run:
-    runs-on: ubuntu-20.04
+  prepare:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.comment.body == '/release' &&
+       contains(fromJSON('["OWNER", "MEMBER"]'), github.event.comment.author_association))
+    runs-on: ubuntu-latest
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: '1'
+      GH_TOKEN: ${{ github.token }}
     steps:
-    - name: Install emojis
-      run: sudo apt install fonts-noto-color-emoji
-    - name: Update NPM
-      run: sudo npm install -g npm@10.1.0
-    - name: Set npm token
-      run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-    - uses: actions/checkout@v2
-      with:
-        # 0 indicates all history
-        fetch-depth: 0
-    - uses: nwtgck/actions-comment-run@v1.1.3
-      with:
-        github-token: ${{ secrets.CUSTOM_GH_TOKEN }}
-        allowed-associations: '["OWNER", "MEMBER"]'
-      env:
-        NPM_TOKEN: ${{secrets.NPM_TOKEN}}
-        GITHUB_TOKEN: ${{ secrets.CUSTOM_GH_TOKEN }}
-        GIT_USER: smashah
-        GIT_PASS: ${{ secrets.CUSTOM_GH_TOKEN }}
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Version packages on master
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          pnpm exec bumpy version
+
+          # Stage only Bumpy's versions, changelogs, lockfile, and consumed bumps.
+          git add --update -- .bumpy/ pnpm-lock.yaml
+          node --input-type=module <<'NODE'
+          import { existsSync, readdirSync } from 'node:fs';
+          import { execFileSync } from 'node:child_process';
+          const paths = [];
+          for (const root of ['packages', 'integrations', 'sdks', 'apps']) {
+            if (!existsSync(root)) continue;
+            for (const entry of readdirSync(root, { withFileTypes: true })) {
+              if (!entry.isDirectory()) continue;
+              const dir = `${root}/${entry.name}`;
+              if (!existsSync(`${dir}/package.json`)) continue;
+              paths.push(`${dir}/package.json`);
+              if (existsSync(`${dir}/CHANGELOG.md`)) paths.push(`${dir}/CHANGELOG.md`);
+            }
+          }
+          if (paths.length) execFileSync('git', ['add', '--', ...paths], { stdio: 'inherit' });
+          NODE
+
+          if ! git diff --cached --quiet; then
+            git commit -m '🔖 chore(release): version packages'
+          fi
+          git push origin HEAD:master
+
+      - name: Open or reuse the release PR
+        id: promotion
+        run: |
+          version=$(node -p 'require("./packages/core/package.json").version')
+          pr=$(gh pr list --base release --head master --state open --json number --jq '.[0].number // empty')
+          if [ -n "$pr" ]; then
+            url=$(gh pr view "$pr" --json url --jq .url)
+          else
+            cat > "$RUNNER_TEMP/release-pr.md" <<'BODY'
+          Promote the versioned master branch to release. Package versions and changelogs are already committed on master, so merging this PR publishes directly without a separate Bumpy version PR or a version sync PR.
+
+          The Release workflow builds and publishes the packages using npm trusted publishing, publishes GitHub Packages, and creates the GitHub release and normal Discord announcement. npm may keep accepted packages unavailable while its automated validation runs; the release is complete only when the package versions and tarballs are publicly available.
+          BODY
+            url=$(gh pr create --base release --head master \
+              --title "🔖 chore(release): publish OpenWA $version" \
+              --body-file "$RUNNER_TEMP/release-pr.md")
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          printf '## Release prepared\n\n[Merge the release PR](%s) to publish.\n' "$url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Reply with the release PR
+        if: github.event_name == 'issue_comment'
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          PR_URL: ${{ steps.promotion.outputs.url }}
+        run: |
+          printf 'Versions and changelogs are prepared on master. [Merge the release PR](%s) to publish.\n' "$PR_URL" > "$RUNNER_TEMP/release-reply.md"
+          gh issue comment "$ISSUE_NUMBER" --body-file "$RUNNER_TEMP/release-reply.md"

@@ -1,7 +1,7 @@
 name: Docs Quality Gate
 
 # Hard-fails a PR when generated docs are stale or when known-wrong canonical
-# shapes reappear in the docs. Complements the advisory PR Release Checklist.
+# shapes reappear in the docs.
 
 on:
   pull_request:
