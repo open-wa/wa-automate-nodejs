@@ -55,7 +55,7 @@ export function StudioLayout({ title, description, actions, mobileActions, navig
     <TabPanel id={view} className="studio-panels" data-view={view}>
       <section aria-label="Editor" className="studio-panel studio-editor">{inspector}</section>
       <section aria-label="Preview" className="studio-panel studio-preview">{preview}</section>
-      <section aria-label="Code" className="studio-panel studio-code">{code}</section>
+      <section aria-label="Code" className="dark studio-panel studio-code">{code}</section>
     </TabPanel>
     </Tabs>
     {mobileActions && <div className="studio-mobile-actions">{mobileActions}</div>}

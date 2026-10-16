@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { CalendarDays, ClipboardList, Copy, ExternalLink, List, Phone, Reply } from "lucide-react"
 import type { InteractiveContent, InteractiveAction, InteractiveHeader } from "@open-wa/schema/interactive"
 import { DetailSheet } from "@/components/application/detail-sheet"
 import { Button } from "@/components/ui/button"
@@ -6,7 +7,10 @@ import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/boardui/checkbox"
 import { Radio, RadioGroup } from "@/components/boardui/radio"
 import { StudioChoices, type StudioView } from "./shared"
+import { WhatsAppChat, WhatsAppMessageMeta } from "./whatsapp-chat"
 import { actionDescription, type FieldPath } from "@/lib/studio/messages"
+
+type PreviewResponse = { type: "reply" | "list"; id: string; label?: string } | { type: "form"; answers: Record<string, string | string[]> }
 
 function HeaderPreview({ header, edit }: { header?: InteractiveHeader; edit: (path: FieldPath) => void }) {
   if (!header) return null
@@ -22,7 +26,7 @@ export function MessagePreview({ content, valid, edit, view, onViewChange, selec
 }) {
   const [trying, setTrying] = useState(false)
   const [sheet, setSheet] = useState<"list" | "form" | "booking" | null>(null)
-  const [simulation, setSimulation] = useState<unknown>(null)
+  const [simulation, setSimulation] = useState<PreviewResponse | null>(null)
   const [notice, setNotice] = useState("")
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({})
   const [customAnswers, setCustomAnswers] = useState<Record<string, string>>({})
@@ -46,34 +50,48 @@ export function MessagePreview({ content, valid, edit, view, onViewChange, selec
     else { setNotice(actionDescription(item) + ". Preview only."); setSimulation(null) }
   }
   const actionButtons = (items: InteractiveAction[], path: FieldPath) => <div className="studio-chat-actions">{items.map((item, i) =>
-    <button type="button" className="studio-chat-action" key={i} aria-pressed={!trying && selected === [...path, i, "label"].join(".")} onClick={() => action(item, [...path, i])}>{item.label || "Button text"}</button>
+    <button type="button" className="studio-chat-action" key={i} aria-pressed={!trying && selected === [...path, i, "label"].join(".")} onClick={() => action(item, [...path, i])}>
+      {item.type === "reply" ? <Reply aria-hidden /> : item.type === "url" ? <ExternalLink aria-hidden /> : item.type === "call" ? <Phone aria-hidden /> : <Copy aria-hidden />}<span>{item.label || "Button text"}</span></button>
   )}</div>
   const text = (value: string | undefined, path: FieldPath, fallback: string, heading = false) => <button type="button" className={"studio-chat-text" + (heading ? " font-semibold" : "")} data-editable={!trying} onClick={() => editField(path)}>{value || fallback}</button>
   return <>
     <div className="studio-panel-heading"><h2>Preview</h2><StudioChoices label="Preview mode" value={trying ? "try" : "edit"} choices={[{ value: "edit", label: "Edit" }, { value: "try", label: "Try message" }]} onChange={value => { setTrying(value === "try"); onViewChange(value === "try" ? "preview" : "edit") }} /></div>
-    <div className="studio-chat">
-      <p className="studio-note">Nothing sent</p>
-      <div className="studio-chat-bubble">
+    <WhatsAppChat>
+      <div className="studio-wa-message">
+        <div className="studio-wa-message-content">
         {"header" in content && <HeaderPreview header={content.header} edit={editField} />}
         {"title" in content && content.title && text(content.title, ["title"], "Title", true)}
         {text(content.body, ["body"], "Message text")}
-        {content.footer && <div className="studio-note">{text(content.footer, ["footer"], "Footer")}</div>}
+        {content.footer && <div className="studio-wa-footer">{text(content.footer, ["footer"], "Footer")}</div>}
+        {content.type === "booking" && <p className="studio-wa-footer py-2">{formatBookingTime(content.booking.startAt)}</p>}
+        <WhatsAppMessageMeta />
+        </div>
         {content.type === "buttons" && actionButtons(content.actions, ["actions"])}
-        {content.type === "list" && <button type="button" className="studio-chat-action" onClick={() => trying ? setSheet("list") : edit(["buttonLabel"])}>{content.buttonLabel || "Choose an option"}</button>}
-        {content.type === "form" && <button type="button" className="studio-chat-action" onClick={() => trying ? setSheet("form") : edit(["questions", 0, "label"])}>Answer questions</button>}
-        {content.type === "booking" && <><p className="studio-note py-2">{formatBookingTime(content.booking.startAt)}</p><button type="button" className="studio-chat-action" onClick={() => trying ? setSheet("booking") : edit(["buttonLabel"])}>{content.buttonLabel || "View booking"}</button>
+        {content.type === "list" && <button type="button" className="studio-chat-action" onClick={() => trying ? setSheet("list") : edit(["buttonLabel"])}><List aria-hidden /><span>{content.buttonLabel || "Choose an option"}</span></button>}
+        {content.type === "form" && <button type="button" className="studio-chat-action" onClick={() => trying ? setSheet("form") : edit(["questions", 0, "label"])}><ClipboardList aria-hidden /><span>Answer questions</span></button>}
+        {content.type === "booking" && <><button type="button" className="studio-chat-action" onClick={() => trying ? setSheet("booking") : edit(["buttonLabel"])}><CalendarDays aria-hidden /><span>{content.buttonLabel || "View booking"}</span></button>
           {content.actions && actionButtons(content.actions, ["actions"])}</>}
         {content.type === "native" && content.actions.map((item, index) => <button type="button" key={index} className="studio-chat-action" onClick={() => setNotice("Try native actions by sending the message to a chat.")}>{item.name}</button>)}
       </div>
-      {content.type === "carousel" && <div className="studio-cards">{content.cards.map((card, index) => <div key={index} className="studio-chat-bubble studio-card">
+      {content.type === "carousel" && <div className="studio-cards">{content.cards.map((card, index) => <div key={index} className="studio-wa-message studio-card">
+        <div className="studio-wa-message-content">
         <button type="button" className="w-full" onClick={() => editField(["cards", index, "header", "source"])}>{card.header.source ? <img className="studio-media-preview" src={card.header.source} alt={"Card " + (index + 1)} /> : <span className="studio-media-placeholder">Choose an image</span>}</button>
-        {text(card.body, ["cards", index, "body"], "Card text", true)}{actionButtons(card.actions, ["cards", index, "actions"])}
+        {text(card.body, ["cards", index, "body"], "Card text", true)}<WhatsAppMessageMeta /></div>{actionButtons(card.actions, ["cards", index, "actions"])}
       </div>)}</div>}
-      <p className="studio-note">{trying ? "Try the message here. Nothing is sent to WhatsApp." : "Click the message text or a button label to edit it."}</p>
-      {!valid && <p className="studio-note">Finish the highlighted fields to copy or send this message.</p>}
-      {(simulation || notice) && <div aria-live="polite" className="studio-received">{simulation ? <><h3>Preview response</h3><pre className="whitespace-pre-wrap break-all">{JSON.stringify(simulation, null, 2)}</pre></> : <p>{notice}</p>}</div>}
+      {simulation && <div className="studio-wa-message studio-wa-incoming" aria-live="polite"><div className="studio-wa-message-content"><span className="studio-wa-reply-label">Preview reply</span>
+        {simulation.type === "form" ? <><p>Answers submitted</p>{content.type === "form" && content.questions.map(question => {
+          const answer = simulation.answers[question.id]
+          const values = Array.isArray(answer) ? answer : answer ? [answer] : []
+          return values.length ? <div key={question.id} className="studio-wa-answer"><strong>{question.label}</strong><span>{values.map(value => question.options.find(option => option.id === value)?.label || value).join(", ")}</span></div> : null
+        })}</> : <p>{simulation.label || simulation.id}</p>}
+      </div></div>}
+    </WhatsAppChat>
+    <div className="studio-preview-caption"><p>{trying ? "Try a button or choice to see the reply." : "Click message text or a button label to edit it."}</p>
+      {!valid && <p>Finish the highlighted fields to copy or send this message.</p>}
+      {notice && <p role="status" className="studio-preview-feedback">{notice}</p>}
     </div>
-    <DetailSheet title={sheet === "form" ? "Answer questions" : sheet === "booking" ? "Booking details" : "Choose an option"} description="Preview only. Nothing is sent to WhatsApp." open={!!sheet} onOpenChange={open => { if (!open) setSheet(null) }}
+    {simulation && <div aria-live="polite" className="studio-received"><h3>Preview response</h3><pre className="whitespace-pre-wrap break-all">{JSON.stringify(simulation, null, 2)}</pre></div>}
+    <DetailSheet className="studio-wa-sheet" title={sheet === "form" ? "Answer questions" : sheet === "booking" ? "Booking details" : "Choose an option"} description="Preview only. Nothing is sent to WhatsApp." open={!!sheet} onOpenChange={open => { if (!open) setSheet(null) }}
       footer={sheet === "form" ? <Button onClick={submitAnswers}>Submit answers</Button> : undefined}>
       {sheet === "list" && content.type === "list" && <div className="space-y-5">{content.sections.map((section, s) => <section key={s} className="space-y-2">
         {section.title && <h3>{section.title}</h3>}{section.rows.map(row => <Button key={row.id} variant="outline" className="h-auto w-full justify-start whitespace-normal py-3 text-start" onClick={() => { setSimulation({ type: "list", id: row.id, label: row.title }); setSheet(null) }}>
