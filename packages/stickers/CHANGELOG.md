@@ -4,6 +4,14 @@
 
 
 
+
+## 5.6.3
+<sub>2026-10-16</sub>
+
+-  *(patch)*
+  - 🐛 Make `createSticker()` manage warm renderers and idle cleanup automatically, queue bursts before loading inputs, and recover individual failed workers without stalling later jobs.
+  - ⚡️ Process standalone jobs with a small CPU-aware worker pool and yield during browser effects to keep the page responsive.
+
 ## 5.6.2
 <sub>2026-10-15</sub>
 
