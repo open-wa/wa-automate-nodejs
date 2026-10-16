@@ -52,6 +52,8 @@ const PAGE_TITLES: Record<string, string> = {
   "/portal": "Live portal",
   "/api-docs": "API reference",
   "/playground": "Playground",
+  "/studio/messages": "Message studio",
+  "/studio/stickers": "Sticker studio",
   "/mcp": "MCP",
   "/debug": "Diagnostics",
   "/integrations": "Integrations",

@@ -23,6 +23,8 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as PlaygroundRouteImport } from './routes/playground'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PluginsNameRouteImport } from './routes/plugins.$name'
+import { Route as StudioMessagesRouteImport } from './routes/studio_.messages'
+import { Route as StudioStickersRouteImport } from './routes/studio_.stickers'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -94,6 +96,16 @@ const PluginsNameRoute = PluginsNameRouteImport.update({
   path: '/plugins/$name',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StudioMessagesRoute = StudioMessagesRouteImport.update({
+  id: '/studio_/messages',
+  path: '/studio/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudioStickersRoute = StudioStickersRouteImport.update({
+  id: '/studio_/stickers',
+  path: '/studio/stickers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -110,6 +122,8 @@ export interface FileRoutesByFullPath {
   '/playground': typeof PlaygroundRoute
   '/portal': typeof PortalRoute
   '/plugins/$name': typeof PluginsNameRoute
+  '/studio/messages': typeof StudioMessagesRoute
+  '/studio/stickers': typeof StudioStickersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,6 +140,8 @@ export interface FileRoutesByTo {
   '/playground': typeof PlaygroundRoute
   '/portal': typeof PortalRoute
   '/plugins/$name': typeof PluginsNameRoute
+  '/studio/messages': typeof StudioMessagesRoute
+  '/studio/stickers': typeof StudioStickersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,6 +159,8 @@ export interface FileRoutesById {
   '/playground': typeof PlaygroundRoute
   '/portal': typeof PortalRoute
   '/plugins/$name': typeof PluginsNameRoute
+  '/studio_/messages': typeof StudioMessagesRoute
+  '/studio_/stickers': typeof StudioStickersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +179,8 @@ export interface FileRouteTypes {
     | '/playground'
     | '/portal'
     | '/plugins/$name'
+    | '/studio/messages'
+    | '/studio/stickers'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,6 +197,8 @@ export interface FileRouteTypes {
     | '/playground'
     | '/portal'
     | '/plugins/$name'
+    | '/studio/messages'
+    | '/studio/stickers'
   id:
     | '__root__'
     | '/'
@@ -193,6 +215,8 @@ export interface FileRouteTypes {
     | '/playground'
     | '/portal'
     | '/plugins/$name'
+    | '/studio_/messages'
+    | '/studio_/stickers'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -210,6 +234,8 @@ export interface RootRouteChildren {
   PlaygroundRoute: typeof PlaygroundRoute
   PortalRoute: typeof PortalRoute
   PluginsNameRoute: typeof PluginsNameRoute
+  StudioMessagesRoute: typeof StudioMessagesRoute
+  StudioStickersRoute: typeof StudioStickersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -312,6 +338,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PluginsNameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/studio_/messages': {
+      id: '/studio_/messages'
+      path: '/studio/messages'
+      fullPath: '/studio/messages'
+      preLoaderRoute: typeof StudioMessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/studio_/stickers': {
+      id: '/studio_/stickers'
+      path: '/studio/stickers'
+      fullPath: '/studio/stickers'
+      preLoaderRoute: typeof StudioStickersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -330,6 +370,8 @@ const rootRouteChildren: RootRouteChildren = {
   PlaygroundRoute: PlaygroundRoute,
   PortalRoute: PortalRoute,
   PluginsNameRoute: PluginsNameRoute,
+  StudioMessagesRoute: StudioMessagesRoute,
+  StudioStickersRoute: StudioStickersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
