@@ -3,6 +3,8 @@ import type { InteractiveContent, InteractiveAction, InteractiveHeader } from "@
 import { DetailSheet } from "@/components/application/detail-sheet"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/boardui/checkbox"
+import { Radio, RadioGroup } from "@/components/boardui/radio"
 import { StudioChoices, type StudioView } from "./shared"
 import { actionDescription, type FieldPath } from "@/lib/studio/messages"
 
@@ -79,16 +81,16 @@ export function MessagePreview({ content, valid, edit, view, onViewChange, selec
         </Button>)}
       </section>)}</div>}
       {sheet === "form" && content.type === "form" && <div className="space-y-6">{content.questions.map(question => <fieldset key={question.id} className="space-y-3"><legend className="mb-2 text-sm font-semibold">{question.label}</legend>
-        {question.options.map(option => <label className="flex items-center gap-3 text-sm" key={option.id}><input type={question.type === "singleSelect" ? "radio" : "checkbox"} name={question.id}
-          checked={question.type === "singleSelect" ? answers[question.id] === option.id : Array.isArray(answers[question.id]) && answers[question.id].includes(option.id)}
-          onChange={event => {
-            if (question.type === "singleSelect") setCustomAnswers(previous => ({ ...previous, [question.id]: "" }))
-            setAnswers(previous => {
-            if (question.type === "singleSelect") return { ...previous, [question.id]: option.id }
+        {question.type === "singleSelect" ? <RadioGroup aria-label={question.label} value={typeof answers[question.id] === "string" ? answers[question.id] as string : ""} onChange={value => {
+          setCustomAnswers(previous => ({ ...previous, [question.id]: "" }))
+          setAnswers(previous => ({ ...previous, [question.id]: value }))
+        }}>{question.options.map(option => <Radio key={option.id} value={option.id} className="min-h-11">{option.label}</Radio>)}</RadioGroup>
+          : <div className="flex flex-col gap-2">{question.options.map(option => <Checkbox key={option.id} className="min-h-11" isSelected={Array.isArray(answers[question.id]) && answers[question.id].includes(option.id)}
+          onChange={checked => setAnswers(previous => {
             const prior = previous[question.id]
             const values = Array.isArray(prior) ? prior : []
-            return { ...previous, [question.id]: event.target.checked ? [...values, option.id] : values.filter(value => value !== option.id) }
-          })}} />{option.label}</label>)}
+            return { ...previous, [question.id]: checked ? [...values, option.id] : values.filter(value => value !== option.id) }
+          })}>{option.label}</Checkbox>)}</div>}
         {question.allowCustomAnswer && <label className="block space-y-2 text-sm">Another answer<Input value={customAnswers[question.id] || ""} onChange={event => {
           setCustomAnswers(previous => ({ ...previous, [question.id]: event.target.value }))
           if (question.type === "singleSelect") setAnswers(previous => ({ ...previous, [question.id]: "" }))

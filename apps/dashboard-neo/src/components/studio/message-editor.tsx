@@ -2,7 +2,8 @@ import { useLayoutEffect, useRef, useState } from "react"
 import type { InteractiveAction, InteractiveContent, FormQuestion } from "@open-wa/schema/interactive"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { StudioField, StudioOptions, StudioRow, type FieldErrors, type StudioOption } from "./shared"
+import { Checkbox } from "@/components/boardui/checkbox"
+import { StudioField, StudioOptions, StudioRow, StudioSelect, type FieldErrors, type StudioOption } from "./shared"
 import { fieldId, freshReplyIds, pathValue, uiKey, type FieldPath, type MessageKind } from "@/lib/studio/messages"
 import { moveItem, newStudioKey, readMediaFile } from "@/lib/studio/files"
 
@@ -49,10 +50,9 @@ function HeaderFields(props: EditorProps) {
   const type = header?.type || "none"
   const changeType = (type: string) => props.change(["header"], type === "none" ? undefined : type === "text" ? { type, text: "" } : { type, source: "" })
   return <div className="studio-section">
-    <div className="studio-section-heading"><label htmlFor="studio-header-kind">Header (optional)</label>
-      <select id="studio-header-kind" className="studio-select" value={type} onChange={event => changeType(event.target.value)}>
-        <option value="none">None</option><option value="text">Text</option><option value="image">Image</option><option value="video">Video</option><option value="document">Document</option>
-      </select></div>
+    <StudioSelect id="studio-header-kind" label="Header (optional)" value={type} onChange={changeType} choices={[
+      { value: "none", label: "None" }, { value: "text", label: "Text" }, { value: "image", label: "Image" }, { value: "video", label: "Video" }, { value: "document", label: "Document" },
+    ]} />
     {header?.type === "text" && <MessageField {...props} path={["header", "text"]} label="Header text" />}
     {header && header.type !== "text" && <MediaField label={header.type === "image" ? "Header image" : header.type === "video" ? "Header video" : "Document"}
       value={header.source} onChange={value => props.change(["header", "source"], value)} error={props.errors["header.source"]}
@@ -92,10 +92,9 @@ export function ActionFields({ path, family, ...props }: EditorProps & { path: F
           onDuplicate={() => update([...actions.slice(0, index + 1), freshReplyIds(action), ...actions.slice(index + 1)])}
           options={action.type === "reply" ? [{ label: "Edit reply key…", action: () => props.details("Reply key", [{ path: [...base, "id"], label: "Reply key" }]) }] : []} />
         {action.type !== "reply" && (selected || props.errors[current + ".url"] || props.errors[current + ".phoneNumber"] || props.errors[current + ".code"]) && <div className="studio-action-details">
-          <label>Action <select className="studio-select" value={action.type} onChange={event => {
-            const type = event.target.value
+          <StudioSelect label="Action" value={action.type} onChange={type => {
             props.change(base, type === "url" ? { type, label: action.label, url: "" } : type === "call" ? { type, label: action.label, phoneNumber: "" } : { type: "copy", label: action.label, code: "" })
-          }}><option value="url">Open a link</option><option value="call">Call a number</option><option value="copy">Copy text</option></select></label>
+          }} choices={[{ value: "url", label: "Open a link" }, { value: "call", label: "Call a number" }, { value: "copy", label: "Copy text" }]} />
           <MessageField {...props} label={action.type === "url" ? "Website address" : action.type === "call" ? "Phone number" : "Text to copy"} path={[...base, action.type === "url" ? "url" : action.type === "call" ? "phoneNumber" : "code"]} />
         </div>}
       </div>
@@ -147,8 +146,7 @@ function QuestionFields(props: EditorProps & { content: Extract<InteractiveConte
         ]} /></div>
       <MessageField {...props} path={["questions", q, "label"]} label="Question" />
       {props.errors["questions." + q + ".id"] && <p className="studio-error">{props.errors["questions." + q + ".id"] + ". Open Question options to edit the key."}</p>}
-      <label className="studio-field">Answer type<select className="studio-select" value={question.type} onChange={event => props.change(["questions", q, "type"], event.target.value)}>
-        <option value="singleSelect">Choose one</option><option value="multiSelect">Choose several</option></select></label>
+      <StudioSelect label="Answer type" value={question.type} onChange={value => props.change(["questions", q, "type"], value)} choices={[{ value: "singleSelect", label: "Choose one" }, { value: "multiSelect", label: "Choose several" }]} />
       {question.options.map((option, o) => {
         const path = ["questions", q, "options", o] as FieldPath
         const update = (options: typeof question.options) => props.change(["questions", q, "options"], options)
@@ -161,7 +159,7 @@ function QuestionFields(props: EditorProps & { content: Extract<InteractiveConte
       })}
       {props.errors["questions." + q + ".options"] && <p className="studio-error">Add an option.</p>}
       <Button variant="outline" onClick={() => props.change(["questions", q, "options"], [...question.options, { id: newStudioKey("option"), label: "" }])}>+ Add option</Button>
-      <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!question.allowCustomAnswer} onChange={event => props.change(["questions", q, "allowCustomAnswer"], event.target.checked)} />Allow another answer</label>
+      <Checkbox className="min-h-9 max-sm:min-h-11" isSelected={!!question.allowCustomAnswer} onChange={value => props.change(["questions", q, "allowCustomAnswer"], value)}>Allow another answer</Checkbox>
     </div>)}
     {props.errors.questions && <p className="studio-error">Add a question.</p>}
     <Button variant="outline" onClick={() => props.change(["questions"], [...questions, { type: "singleSelect", id: newStudioKey("answer"), label: "", options: [{ id: newStudioKey("option"), label: "" }] } satisfies FormQuestion])}>+ Add question</Button>
@@ -180,9 +178,9 @@ function CarouselFields(props: EditorProps & { content: Extract<InteractiveConte
       <div className="studio-section-heading"><h3>{"Card " + (index + 1)}</h3><StudioOptions label="Card options" options={listOptions(cards, index, value => props.change(["cards"], value))} /></div>
       <MediaField inputId={fieldId(["cards", index, "header", "source"])} label="Card image" value={card.header.source} onChange={value => props.change(["cards", index, "header", "source"], value)} error={props.errors["cards." + index + ".header.source"]} />
       <MessageField {...props} path={["cards", index, "body"]} label="Card text" multiline />
-      <label className="studio-field">Button type<select className="studio-select" value={card.actions[0]?.type === "reply" || !card.actions.length ? "reply" : "actions"} onChange={event => props.change(["cards", index, "actions"],
-        event.target.value === "reply" ? [{ type: "reply", id: newStudioKey(), label: card.actions[0]?.label || "" }] : [{ type: "url", label: card.actions[0]?.label || "", url: "" }])}>
-        <option value="reply">Reply buttons</option><option value="actions">Link, call or copy</option></select></label>
+      <StudioSelect label="Button type" value={card.actions[0]?.type === "reply" || !card.actions.length ? "reply" : "actions"} onChange={value => props.change(["cards", index, "actions"],
+        value === "reply" ? [{ type: "reply", id: newStudioKey(), label: card.actions[0]?.label || "" }] : [{ type: "url", label: card.actions[0]?.label || "", url: "" }])}
+        choices={[{ value: "reply", label: "Reply buttons" }, { value: "actions", label: "Link, call or copy" }]} />
       <ActionFields {...props} path={["cards", index, "actions"]} family={card.actions[0]?.type === "reply" || !card.actions.length ? "reply" : "actions"} />
     </>}
     {props.errors.cards && <p className="studio-error">Add a card.</p>}
@@ -203,13 +201,12 @@ function BookingFields(props: EditorProps & { content: Extract<InteractiveConten
     <StudioField label="Date" type="date" value={date} onChange={setDate} />
     <StudioField label="Start time" type="time" value={booking.startAt.slice(11, 16)} onChange={value => props.change(["booking", "startAt"], date + "T" + value + ":00" + offset)} error={props.errors["booking.startAt"]} />
     <StudioField label="End time (optional)" type="time" value={booking.endAt?.slice(11, 16) || ""} onChange={value => props.change(["booking", "endAt"], value ? (booking.endAt?.slice(0, 10) || date) + "T" + value + ":00" + offset : undefined)} error={props.errors["booking.endAt"]} />
-    <label className="studio-field">Time zone (UTC offset)<select className="studio-select" value={offset === "Z" ? "+00:00" : offset} onChange={event => {
-      const value = event.target.value
+    <StudioSelect label="Time zone (UTC offset)" value={offset === "Z" ? "+00:00" : offset} onChange={value => {
       props.change(["booking"], { ...booking, startAt: booking.startAt.slice(0, 19) + value, ...(booking.endAt ? { endAt: booking.endAt.slice(0, 19) + value } : {}) })
-    }}>{Array.from({ length: 105 }, (_, index) => index * 15 - 720).map(minutes => {
+    }} choices={Array.from({ length: 105 }, (_, index) => index * 15 - 720).map(minutes => {
       const value = (minutes < 0 ? "-" : "+") + String(Math.floor(Math.abs(minutes) / 60)).padStart(2, "0") + ":" + String(Math.abs(minutes) % 60).padStart(2, "0")
-      return <option value={value} key={value}>{"UTC" + value}</option>
-    })}</select></label>
+      return { value, label: "UTC" + value }
+    })} />
     <MessageField {...props} path={["booking", "location"]} label="Location (optional)" />
     <MessageField {...props} path={["booking", "managementUrl"]} label="Manage booking link (optional)" />
     <MessageField {...props} path={["buttonLabel"]} label="Button text" />
