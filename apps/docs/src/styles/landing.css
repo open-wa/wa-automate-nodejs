@@ -51,3 +51,5 @@
 .landing-code-body a:hover{color:#fff}
 .landing-code-body code{font-size:inherit}
 .landing .landing-example-instructions{margin-top:10px}
+.landing-faq{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 36px}.landing-faq article{min-width:0;border-top:1px solid var(--ow-border-strong);padding-top:24px}.landing-faq h3{font-size:20px;margin:0 0 12px}.landing-faq p{font-size:15px;line-height:25px;color:var(--muted-foreground)}.landing-faq .landing-arrow-link{margin-top:16px}
+@media(max-width:800px){.landing-faq{grid-template-columns:1fr}}

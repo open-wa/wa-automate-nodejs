@@ -16,7 +16,7 @@ const topics = [
 export function DocsHomepage() {
   return <div className="docs-hub">
     <header className="docs-hub-header">
-      <div><h1>Build with open-wa</h1><p className="docs-hub-intro">Start by linking WhatsApp to your application. If you already have a session running, jump to the guides or look up a method.</p><p className="docs-hub-version"><a href="/docs/releases/v5-alpha">Documentation for v{CURRENT_VERSION}</a></p></div>
+      <div><h1>WhatsApp API documentation</h1><p className="docs-hub-intro">Set up the self-hosted open-wa WhatsApp API, send messages from Node.js or HTTP, and connect your application. If you already have a session running, jump to the guides or look up a method.</p><p className="docs-hub-version"><a href={DOCS_PATHS.changelog}>Documentation for v{CURRENT_VERSION}</a></p></div>
       <div className="docs-hub-wally" aria-hidden="true"><WorkbenchTexture /><img src="/mascots/wally-quickstart-transparent.png" alt="" width="180" height="180" /></div>
     </header>
     <section className="docs-hub-paths" aria-label="Start building">{paths.map(path => <a href={path.href} key={path.href}><path.icon size={23} /><h2>{path.title}</h2><p>{path.description}</p><ArrowRight size={18} aria-hidden="true" /></a>)}</section>
