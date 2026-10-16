@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     branches: [master]
-    paths: ['.bumpy/**']
+    paths: ['.bumpy/*.md', '!.bumpy/README.md']
 
 permissions:
   contents: write

@@ -1,0 +1,45 @@
+name: Release notes
+run-name: Release ${{ inputs.version }} notes
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version without the v prefix
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: release-followup-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  notes:
+    runs-on: ubuntu-latest
+    environment: Release
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_VERSION: ${{ inputs.version }}
+      RELEASE_SOURCE_DIR: ${{ github.workspace }}/release-source
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+      - uses: actions/checkout@v4
+        with:
+          ref: v${{ inputs.version }}
+          path: release-source
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Write release notes from the released commits
+        run: node tools/release/generate-notes.ts --version "$RELEASE_VERSION"
+      - name: Update the release, announcement, and originating issue
+        run: node tools/release/publish-notes.mjs
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
