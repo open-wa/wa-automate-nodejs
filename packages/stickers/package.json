@@ -18,6 +18,7 @@
     },
     "./browser": {
       "types": "./src/browser.d.mts",
+      "browser": "./src/browser-web.mjs",
       "default": "./src/browser.mjs"
     },
     "./library": {

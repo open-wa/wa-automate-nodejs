@@ -22,9 +22,8 @@ export function normalizeJob(options = {}) {
       const defaultValue = recipe.defaults[key];
       if (typeof defaultValue === 'number' && (typeof value !== 'number' || !Number.isFinite(value))) throw new StickerError('INVALID_JOB', `${descriptor.name}: ${key} must be a finite number.`);
       if (typeof defaultValue === 'number') {
-        const bounds={iterations:[0,8],offset:[0,256],levels:[2,32],sectors:[2,32],cell:[4,128],grid:[2,16],count:[1,64],copies:[1,8],bars:[2,20],samples:[2,32],size:[2,512],width:[16,512],height:[16,512],workingSize:[48,256],retain:[.4,1],radius:[0,32],distance:[0,128],threshold:[0,255],minimum:[.05,1],factor:[.1,10],quality:[.01,1],amount:[0,8],zoom:[0,1],turns:[.1,8]};
-        const range=bounds[key]||(key==='strength'&&['flash','leak','rainbow','tint'].includes(descriptor.name)?[0,1]:key==='seed'?[0,4294967295]:[-32,32]);
-        if(value<range[0]||value>range[1]||(['iterations','offset','levels','sectors','cell','grid','count','copies','bars','samples','size','workingSize'].includes(key)&&!Number.isInteger(value))) throw new StickerError('INVALID_JOB',`${descriptor.name}: invalid ${key}; expected ${range[0]}–${range[1]}.`);
+        const { min, max, integer } = recipe.options[key];
+        if(value < min || value > max || (integer && !Number.isInteger(value))) throw new StickerError('INVALID_JOB',`${descriptor.name}: invalid ${key}; expected ${min}–${max}.`);
       }
       if (typeof defaultValue === 'string' && (typeof value !== 'string' || value.length > 128)) throw new StickerError('INVALID_JOB', `${descriptor.name}: ${key} must be a string of at most 128 characters.`);
       if (key === 'color' && !isPortableColor(value)) throw new StickerError('INVALID_JOB', 'Use a portable sRGB colour: hex, a named colour, or comma-separated RGB/HSL.');
@@ -47,6 +46,9 @@ export function normalizeJob(options = {}) {
   if (options.onProgress !== undefined && typeof options.onProgress !== 'function') throw new StickerError('INVALID_JOB','onProgress must be a function.');
   return { ...options, backend, quality, fit, effects };
 }
+
+/** Validate a job without decoding media or starting a renderer. */
+export function validateStickerJob(job = {}) { normalizeJob(job); }
 
 export function requirementsFor(input, job) {
   const requirements = new Set(['canvas2d', 'encode:image/webp', `decode:${input.mime}`]);
