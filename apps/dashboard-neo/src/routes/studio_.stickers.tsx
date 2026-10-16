@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useId, useMemo, useRef, useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { validateStickerJob } from "@open-wa/stickers/browser"
+import { ChevronRight, Code2, Copy, Download, Film, Send, SlidersHorizontal, Tag, X } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { PageHeader } from "@/components/application/page-header"
 import { DetailSheet } from "@/components/application/detail-sheet"
-import { StudioChoices, StudioCode, StudioLayout, StudioTypeChoices, type StudioView } from "@/components/studio/shared"
+import { StudioChoices, StudioCode } from "@/components/studio/shared"
 import { StickerEditor, type StickerPanel } from "@/components/studio/sticker-editor"
 import { StickerPreview } from "@/components/studio/sticker-preview"
 import { StudioSendSheet } from "@/components/studio/send-sheet"
@@ -18,14 +19,21 @@ import "@/components/studio/studio.css"
 
 export const Route = createFileRoute("/studio_/stickers")({ component: StickerStudio })
 
+const stickerSettingsPanels = [
+  { value: "shape", label: "Size and shape", icon: SlidersHorizontal },
+  { value: "animation", label: "Animation", icon: Film },
+  { value: "pack", label: "Pack and creator", icon: Tag },
+] as const
+
 function StickerStudio() {
   const [draft, setDraft, saved] = useBrowserDraft("openwa-sticker-studio-v1", initialStickerDraft, acceptsStickerDraft)
   const [file, setFile] = useState<File | null>(null)
   const [sourceError, setSourceError] = useState("")
   const [sourceStatus, setSourceStatus] = useState("Restoring photo…")
   const [sourceLoading, setSourceLoading] = useState(true)
-  const [view, setView] = useState<StudioView>("edit")
-  const [panel, setPanel] = useState<StickerPanel>("effects")
+  const [codeOpen, setCodeOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [panel, setPanel] = useState<StickerPanel>("shape")
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState("all")
   const [selected, setSelected] = useState(draft.effects[0]?.id || "")
@@ -33,6 +41,10 @@ function StickerStudio() {
   const [sendOpen, setSendOpen] = useState(false)
   const [setupOpen, setSetupOpen] = useState(false)
   const fileInput = useRef<HTMLInputElement>(null)
+  const codeButton = useRef<HTMLButtonElement>(null)
+  const codePanel = useRef<HTMLElement>(null)
+  const settingsButton = useRef<HTMLButtonElement>(null)
+  const codeId = useId()
   const sourceVersion = useRef(0)
   const { ask } = useSocket()
   const job = useMemo(() => stickerJob(draft), [draft])
@@ -40,6 +52,9 @@ function StickerStudio() {
   try { validateStickerJob(job) } catch (error) { jobError = error instanceof Error ? error.message : "Check the sticker settings." }
   const render = useStickerRender(file, job)
   const valid = !jobError && !render.invalidSource
+  useEffect(() => {
+    if (codeOpen) { codePanel.current?.focus({ preventScroll: true }); codePanel.current?.scrollIntoView({ block: "nearest" }) }
+  }, [codeOpen])
   useEffect(() => {
     let active = true
     const revision = sourceVersion.current
@@ -83,20 +98,36 @@ function StickerStudio() {
       <p className="studio-note">Your photo stays in this browser.</p>{sourceLoading && <p role="status" className="studio-note">{sourceStatus}</p>}
       {sourceError && <p role="alert" className="studio-error">{sourceError}</p>}
     </div></div>
-  return <>{uploader}<StudioLayout title="Sticker studio" description="Make a sticker and copy the code." view={view} onViewChange={setView}
-    actions={<><span role="status" className="studio-note">{saved}</span><span className="studio-desktop-actions"><Button variant="outline" disabled={!valid} onClick={() => setSendOpen(true)}>Send to chat</Button>
-      <Button variant="outline" disabled={!render.result} onClick={() => { if (render.result) downloadStudioFile("sticker.webp", new Uint8Array(render.result.bytes), "image/webp") }}>Download sticker</Button>
-      </span><Button disabled={!code} onClick={() => void copyStudioCode(code, () => setView("code"))}>Copy code</Button></>}
-    mobileActions={<><Button variant="outline" disabled={!valid} onClick={() => setSendOpen(true)}>Send to chat</Button><Button variant="outline" disabled={!render.result} onClick={() => { if (render.result) downloadStudioFile("sticker.webp", new Uint8Array(render.result.bytes), "image/webp") }}>Download sticker</Button></>}
-    navigation={<div className="studio-type-picker"><StudioTypeChoices label="Sticker settings" value={panel} onChange={value => { setPanel(value); setView("edit") }} choices={[
-      { value: "effects", label: "Effects" }, { value: "shape", label: "Size and shape" }, { value: "animation", label: "Animation" }, { value: "pack", label: "Pack and creator" },
-    ]} /></div>}
-    inspector={<><StickerEditor file={file} onFile={value => void choose(value)} draft={draft} setDraft={setDraft} panel={panel} search={search} setSearch={setSearch} filter={filter} setFilter={setFilter} selected={selected} setSelected={setSelected} error={jobError || sourceError} /><p role="status" className="studio-note">{sourceStatus}</p></>}
-    preview={<StickerPreview source={file} result={render.result} rendering={render.rendering} error={render.error} cancel={render.cancel} retry={render.retry} />}
-    code={<StudioCode value={code || (render.invalidSource ? "Choose another source file to generate code." : "Check the sticker settings to generate code.")} footer={<div className="flex flex-wrap gap-2"><Button variant="outline" size="sm" disabled={!valid} onClick={() => void downloadExample()}>Download code + photo</Button><Button variant="outline" size="sm" disabled={!!jobError} onClick={() => downloadStudioFile("sticker-job.json", JSON.stringify(job, null, 2))}>Download settings</Button><Button variant="ghost" size="sm" onClick={() => setSetupOpen(true)}>View setup</Button></div>}><StudioChoices label="Code format" value={format} onChange={setFormat} choices={[
-      { value: "javascript", label: "JavaScript" }, { value: "http", label: "HTTP" }, { value: "json", label: "JSON" }, { value: "cli", label: "CLI" },
-    ]} /><p className="studio-note">{format === "javascript" ? "Uses your connected client and the original source file." : format === "cli" ? "Save the settings as sticker-job.json beside your source file." : format === "http" ? "Uses Node.js fetch with your Easy API." : "Sticker settings."}</p>
-    </StudioCode>} />
+  const editorProps = { file, onFile: (value: File) => void choose(value), draft, setDraft, search, setSearch, filter, setFilter, selected, setSelected, error: jobError || sourceError }
+  return <>{uploader}<div className="dashboard-page studio sticker-studio space-y-5">
+    <div className="studio-heading"><PageHeader title="Sticker studio" description={saved} actions={<>
+      <Button ref={codeButton} variant="outline" aria-expanded={codeOpen} aria-controls={codeId} onClick={() => setCodeOpen(value => !value)}><Code2 aria-hidden />Code</Button>
+      <Button variant="outline" disabled={!valid} onClick={() => setSendOpen(true)}><Send aria-hidden />Send to chat</Button>
+      <Button disabled={!render.result} onClick={() => { if (render.result) downloadStudioFile("sticker.webp", new Uint8Array(render.result.bytes), "image/webp") }}><Download aria-hidden />Download sticker</Button>
+    </>} /></div>
+    <div className="sticker-studio-layout">
+      <aside aria-label="Sticker effects and settings" className="studio-panel studio-editor">
+        <StickerEditor {...editorProps} panel="effects" />
+        <div className="sticker-studio-settings">{stickerSettingsPanels.map(section => <Button key={section.value} variant="ghost" onClick={event => { settingsButton.current = event.currentTarget; setPanel(section.value); setSettingsOpen(true) }}><section.icon aria-hidden /><span>{section.label}</span><ChevronRight aria-hidden /></Button>)}</div>
+        <p role="status" className="studio-note">{sourceStatus}</p>
+      </aside>
+      <div className="sticker-studio-main">
+        <section aria-label="Sticker preview" className="studio-panel studio-preview"><StickerPreview source={file} result={render.result} rendering={render.rendering} error={render.error} cancel={render.cancel} retry={render.retry} /></section>
+        <section ref={codePanel} id={codeId} tabIndex={-1} aria-label="Sticker code" className="studio-panel studio-code sticker-studio-code" hidden={!codeOpen}>
+          <StudioCode value={code || (render.invalidSource ? "Choose another source file to generate code." : "Check the sticker settings to generate code.")}
+            actions={<div className="flex items-center gap-2"><Button size="sm" disabled={!code} onClick={() => void copyStudioCode(code, () => codePanel.current?.querySelector("pre")?.focus())}><Copy aria-hidden />Copy code</Button><Button variant="ghost" size="icon" aria-label="Close code" onClick={() => { setCodeOpen(false); codeButton.current?.focus() }}><X aria-hidden /></Button></div>}
+            footer={<div className="flex flex-wrap gap-2"><Button variant="outline" size="sm" disabled={!valid} onClick={() => void downloadExample()}>Download code + photo</Button><Button variant="outline" size="sm" disabled={!!jobError} onClick={() => downloadStudioFile("sticker-job.json", JSON.stringify(job, null, 2))}>Download settings</Button><Button variant="ghost" size="sm" onClick={() => setSetupOpen(true)}>View setup</Button></div>}>
+            <StudioChoices label="Code format" value={format} onChange={setFormat} choices={[
+              { value: "javascript", label: "JavaScript" }, { value: "http", label: "HTTP" }, { value: "json", label: "JSON" }, { value: "cli", label: "CLI" },
+            ]} />{format === "cli" && <p className="studio-note">Save the settings as sticker-job.json beside your source file.</p>}{format === "http" && <p className="studio-note">Uses Node.js fetch with your Easy API.</p>}
+          </StudioCode>
+        </section>
+      </div>
+    </div>
+  </div>
+    <DetailSheet title={stickerSettingsPanels.find(section => section.value === panel)?.label || "Sticker settings"} description="Changes update your sticker as you edit." open={settingsOpen} onOpenChange={setSettingsOpen} finalFocus={settingsButton}>
+      <div className="studio studio-sticker-settings"><StickerEditor {...editorProps} panel={panel} /></div>
+    </DetailSheet>
     <StudioSendSheet open={sendOpen} onOpenChange={setSendOpen} valid={valid} onSend={async to => { validateStickerJob(job); return ask("sendSticker", { to, input: await readMediaFile(file), job }) }} />
     <DetailSheet title="Use the sticker code" description="The example includes your original photo and settings." open={setupOpen} onOpenChange={setSetupOpen}>
       <div className="space-y-5 text-sm"><p>JavaScript snippets use your connected OpenWA client. Keep the original photo beside the script.</p><p>The downloaded example uses your Easy API. Extract it, rename .env.example to .env, and enter your API address, API key and chat ID.</p>

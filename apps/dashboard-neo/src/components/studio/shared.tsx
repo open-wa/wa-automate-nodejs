@@ -111,8 +111,8 @@ export function StudioRow({ rowId, group, label, value, onChange, error, selecte
   </div>
 }
 
-export function StudioCode({ value, children, footer }: { value: string; children?: ReactNode; footer?: ReactNode }) {
-  return <div className="studio-code-content"><h2>Code</h2>{children}<pre tabIndex={0} aria-label="Generated code" data-base-ui-swipe-ignore>{value}</pre>{footer}</div>
+export function StudioCode({ value, children, footer, actions }: { value: string; children?: ReactNode; footer?: ReactNode; actions?: ReactNode }) {
+  return <div className="studio-code-content"><div className="studio-section-heading"><h2>Code</h2>{actions}</div>{children}<pre tabIndex={0} aria-label="Generated code" data-base-ui-swipe-ignore>{value}</pre>{footer}</div>
 }
 
 export function EmptyStudio({ title, children }: { title: string; children?: ReactNode }) {
