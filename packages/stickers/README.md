@@ -6,8 +6,11 @@ addon build, browser download or default model weights.
 
 ```js
 import { createSticker } from '@open-wa/stickers';
+import { writeFile } from 'node:fs/promises';
 
 const sticker = await createSticker('./photo.jpg', {
+  author: 'My label',
+  pack: 'My pack',
   effects: ['comic', { name: 'tint', options: { color: '#e056ae' } }, 'sparkle'],
 });
 await writeFile('./sticker.webp', sticker.bytes);
@@ -30,16 +33,25 @@ forwarding is blocked until its local re-finalization path is ported.
 
 ## Routing and lifecycle
 
+`createSticker()` manages its own runtime. Call it directly, including for bursts;
+there is no runtime to initialize or dispose:
+
+```js
+const stickers = await Promise.all(files.map(file => createSticker(file, {
+  author: 'My label',
+  pack: 'My pack',
+  effects: ['comic'],
+})));
+```
+
 For a bundled browser UI, use the browser entry. Its browser export excludes
 the standalone Node worker and Node resource cache:
 
-    import { createBrowserStickerRuntime, validateStickerJob } from '@open-wa/stickers/browser';
-    const runtime = createBrowserStickerRuntime();
+    import { createSticker, validateStickerJob } from '@open-wa/stickers/browser';
     const job = { effects: ['comic'] };
     validateStickerJob(job);
-    const result = await runtime.createSticker(file, job);
-    // Download or preview result.bytes, then release the runtime when finished.
-    await runtime.dispose();
+    const result = await createSticker(file, job);
+    // Download or preview result.bytes. Cleanup is automatic.
 
 Job validation does not read media or start rendering. The browser runtime uses
 the same job planner, renderer and output limits as the other execution hosts.
@@ -68,21 +80,30 @@ import { createStickerRuntime } from '@open-wa/stickers';
 import { createBrowserBackend } from '@open-wa/stickers/browser';
 
 const stickers = createStickerRuntime({ browser: createBrowserBackend(page) });
-try {
-  const result = await stickers.createSticker(input, { effects: ['invert'] });
-} finally {
-  await stickers.dispose();
-}
+const result = await stickers.createSticker(input, { effects: ['invert'] });
 ```
 
 The page must provide `evaluate(fn, argument)`. Inside a browser page the default
-runtime uses that page directly. Each backend serializes work, caps its queued
-inputs at 64 MiB and four requests, and drops owned resources after 60 seconds
-without work. Standalone cancellation terminates the active worker; queued jobs
-continue in a new worker. Browser cancellation prevents submission and rejects
-the result, with cancellation observed between frames; an active native codec operation
-can finish before cleanup.
-The CLI disposes its worker when the command ends.
+runtime uses that page directly. Explicit runtimes also clean up automatically;
+their optional `dispose()` method is for an immediate, permanent shutdown.
+
+Bursts wait in arrival order before inputs are read, downloaded or copied, rather
+than failing when four requests are queued. Node prepares at most two jobs at
+once and lazily starts up to two standalone workers, leaving a CPU core available
+where possible. Browser jobs render one at a time and yield between CPU-heavy
+pixel batches, effects and frames so the page can process input and cancellation.
+Waiting jobs retain their original input references; callers still own the memory
+used by those inputs and any completed results they retain.
+
+Warm renderers are reused across the burst. After 60 seconds without work, owned
+workers, WASM instances, canvases and fonts are released; the next call recreates
+them automatically. Idle Node workers and cleanup timers do not keep the process
+alive. Cancelled or timed-out standalone jobs terminate their worker, and later
+jobs continue with a replacement. Each running job has a two-minute execution
+budget, including input loading; time spent waiting in the outer queue does not
+consume that budget. Browser cancellation is observed between pixel batches,
+effects and frames; an active native codec operation can finish before cleanup.
+The CLI releases its resources when the command ends.
 
 ## CLI
 
