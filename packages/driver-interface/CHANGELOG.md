@@ -10,6 +10,12 @@
 
 
 
+
+## 5.6.4
+<sub>2026-10-16</sub>
+
+- *(patch)* Version bump from group with `@open-wa/api` v5.6.4, `@open-wa/stickers` v5.6.4
+
 ## 5.6.3
 <sub>2026-10-16</sub>
 
