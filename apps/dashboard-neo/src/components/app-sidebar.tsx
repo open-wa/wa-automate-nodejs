@@ -8,6 +8,7 @@ import {
   FlaskConical,
   Bug,
   MessageSquare,
+  Sticker,
   Phone,
   Contact,
   Tv,
@@ -135,6 +136,8 @@ export function AppSidebar({
     {
       label: "Developer tools",
       items: [
+        { title: "Message studio", href: "/studio/messages", icon: <MessageSquare size={20} /> },
+        { title: "Sticker studio", href: "/studio/stickers", icon: <Sticker size={20} /> },
         {
           title: "API reference",
           href: "/api-docs",

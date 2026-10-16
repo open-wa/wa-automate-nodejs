@@ -39,9 +39,18 @@ export interface EffectDescriptor {
   name: string; version: string; emoji?: string; description?: string;
   implemented: boolean; browser: boolean; standalone: boolean;
   requirements: readonly string[]; defaults?: Readonly<Record<string, unknown>>;
+  options?: Readonly<Record<string, EffectOption>>;
   animated?: boolean; provenance?: string; unavailableReason?: string;
 }
+export type EffectOption = Readonly<
+  { type: 'number'; min: number; max: number; integer: boolean; step: number } |
+  { type: 'string'; maxLength: number; format?: 'color' } |
+  { type: 'points'; min: number; max: number; step: number }
+>;
+/** Automatically queue bursts, reuse renderers, and release resources after idle. No disposal is needed. */
 export function createSticker(input: StickerInput, job?: StickerJob): Promise<StickerResult>;
+/** Validate a job without decoding media or starting a renderer. */
+export function validateStickerJob(job?: StickerJob): void;
 export function createStickerRuntime(options?: { browser?: BrowserBackend; cacheDirectory?: string; offline?: boolean }): StickerRuntime;
 export function disposeStickerRuntime(): Promise<void>;
 export function listEffects(options?: { backend?: StickerBackend; availableOnly?: boolean }): EffectDescriptor[];
