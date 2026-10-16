@@ -1,34 +1,70 @@
 # Release tools
 
-The repository uses `@varlock/bumpy` 1.18.1 for package versions, changelogs, and npm publishing. Bump files live in `.bumpy/`; the configuration is `.bumpy/_config.json`.
+Development lands directly on `master`. Bumpy manages package bump intent and versions; one `master` → `release` PR starts publication. No development, Bumpy version, or version-sync PR is required.
 
 ## Release flow
 
-1. Push development and bump files directly to `master`. Use `pnpm bump` to create a bump file; development PRs aren't part of the normal flow.
-2. Comment `/release` on an issue as a repository owner/member, or run `gh workflow run comment-run.yml --ref master`. The **Prepare release** workflow consumes the pending bumps, updates versions and changelogs, commits them directly to `master`, and opens or reuses one `master` → `release` PR. The comment command replies with the PR link.
-3. Merge that PR normally. The `release` push runs `.github/workflows/release.yml` with the versions already committed. There is no separate Bumpy version PR or sync PR back to master. Preserve release history; don't force-push either branch.
-4. The publish job builds packages, packs with pnpm to resolve `workspace:` and `catalog:` ranges, and publishes to npm with the npm CLI and GitHub OIDC. It then publishes the same versions to GitHub Packages, creates package tags and releases, and runs the aggregate notes, image, release, and Discord steps when `@open-wa/core` is included.
-5. Confirm the registry versions, `latest` tags, and tarball availability. npm accepts uploads before its automated validation finishes, so a successful publish or an `E409` for an already staged version doesn't prove that users can install it. Wait for availability; don't upload that version again.
+1. Push the changes and `.bumpy/*.md` bump files to `master`. Use gitmoji Conventional Commit messages and append a final `Refs #123` paragraph whenever the work relates to an issue. Use `Fixes #123` only when the commit resolves it. Supporting documentation and follow-up commits need the reference too; a reference on the PR alone is insufficient.
+2. Comment `/release` on an issue as an owner/member, or run `gh workflow run comment-run.yml --ref master`. **Prepare release** consumes the bumps, commits versions and package changelogs to `master`, and opens or updates the single promotion PR. The issue receives its link. Further bump files pushed while that PR is open refresh its versions. If there are no pending package versions, no new release PR is created.
+3. Merge the promotion PR normally. **Release** builds and submits unpublished packages to npm with trusted publishing, publishes missing GitHub Packages, and publishes the aggregate GitHub release against the exact source commit. Any bumps arriving just before the merge are consumed directly on `release`, with a normal merge back to `master`; this never creates a second PR. Preserve branch history and protections; do not force-push.
+4. **Release availability** runs separately. It deploys documentation from the release tag and tracks that exact deployment. It checks each public package's version manifest, dist-tag and tarball until npm validation finishes, for up to two hours. A newer stable dist-tag can supersede the release being tracked without making the older version uninstallable. Existing Bumpy package release metadata is reconciled to successful publication while retaining its changelog.
+5. **Release notes** generates the grouped commit changelog from the immutable release tag and updates the GitHub release. After availability and documentation are confirmed, it posts one concise Discord announcement and updates the originating issue with completion. Reruns edit the saved Discord message rather than starting another announcement.
 
-The 28 packages in Bumpy's `fixed` group retain one version. Other public packages can receive their own version updates through their dependencies. Stable releases use npm's `latest` tag.
+The 28 fixed-group packages share a version. Independently versioned public packages retain their own versions. Stable packages use npm's `latest` tag. `release-state.json`, attached to the aggregate GitHub release, records source SHA, package versions, publication progress, docs run, and the confirmed Discord message ID. It contains no credentials.
+
+Accepted npm uploads can remain unavailable during npm's automated validation. An E409 for a previously staged version is tracked as pending availability, not uploaded again. The package publishing action does not wait for validation, documentation, release notes or Discord. A failure in a follow-up action does not undo package publication or require another release PR.
+
+## Commit-based release notes
+
+Use this commit format:
+
+```text
+🐛 fix(session): recover unusable sessions with fresh QR pairing
+
+Refs #3550
+```
+
+For issues in another repository, append the full issue URL. Include all known relevant issues, and don't invent references for unrelated work.
+
+The generator reads original commit messages between the preceding aggregate tag and the release tag. It omits merge commits and version/promotion/sync bookkeeping, deduplicates repeated descriptions, groups by change type and concern, and sorts concerns and entries newest first. Plain section headings carry no emoji; each entry retains its gitmoji, an inline concern, a commit link, and confirmed issue links. PR numbers and links are omitted. Breaking-change paragraphs from commit messages are retained.
+
+```markdown
+## Fixes
+
+- 🐛 **API:** Open the dashboard from the server root. ([COMMIT](COMMIT_URL))
+- 🐛 **Sessions:** Recover unusable sessions with fresh QR pairing. ([COMMIT](COMMIT_URL) · [#3550](https://github.com/open-wa/wa-automate-nodejs/issues/3550))
+```
+
+`generate-notes.ts` writes `RELEASE_BODY.md` and `release-notes-detailed.md`. It uses Node built-ins and `gh`, with no dependency installation, browser, AI provider or CMS credential. AI-written articles, blog posts, CMS publication and release artwork are reserved for significant releases authored directly with Mohammed. The existing image and editorial tools remain available for that work; they are not part of automatic publishing.
+
+## Independent actions and reruns
+
+```bash
+# Prepare the single release PR.
+gh workflow run comment-run.yml --ref master
+
+# Retry an interrupted package publisher on the release branch.
+# Persisted npm submission state prevents a duplicate upload.
+gh workflow run release.yml --ref release
+
+# Recheck availability and the existing documentation deployment.
+gh workflow run release-status.yml --ref master -f version=5.6.3
+
+# Regenerate notes and update the saved announcement, without publishing packages.
+gh workflow run release-notes.yml --ref release -f version=5.6.3
+```
+
+These version examples apply to a release created by this setup. For a failed documentation deployment, rerun its recorded action run with `gh run rerun RUN_ID --failed`, then rerun **Release availability**. The recorded docs run must succeed before the completion announcement claims that deployment is done. An availability timeout is resumed by rerunning availability; it is not a reason to republish accepted npm versions.
+
+New releases announce normally. Include `[skip-discord]` in the promotion PR's merge commit message when the authorized release excludes announcements. No extra approval step is added. Discord failures affect only the release notes action; its confirmed message ID is saved immediately so a rerun updates it.
 
 ## Publishing access
 
-Each existing npm package has a Trusted Publisher connection to `open-wa/wa-automate-nodejs`, workflow `release.yml`, environment `Release`. The workflow grants `id-token: write` and uses npm 11 on Node 24. npm requires a package to exist before its Trusted Publisher can be configured. For the first `@open-wa/stickers` publication, the Bumpy action exposes the existing `NPM_TOKEN` secret through a temporary npm configuration file. npm uses OIDC for existing trusted packages and the token for the new package. The action removes the temporary file when publishing exits. After the package exists, configure its Trusted Publisher with the same repository, workflow and environment; subsequent release runs use OIDC without loading the bootstrap token.
+Existing packages use npm Trusted Publisher connections to `open-wa/wa-automate-nodejs`, workflow `release.yml`, environment `Release`. The publisher grants `id-token: write` and uses npm 11 on Node 24. A new npm package must first be created and have its Trusted Publisher configured before it can use OIDC. GitHub Packages uses the built-in `GITHUB_TOKEN`.
 
-The built-in `GITHUB_TOKEN` commits the version changes, opens the promotion PR, and publishes to GitHub Packages. It doesn't trigger other workflows for its own push or PR creation; merging the promotion PR triggers the release push normally. Preparation has no npm credentials and runs no build or test suite. Set `DISCORD_WEBHOOK_URL` in the repository or `Release` environment secrets before publishing; the aggregate release fails visibly without it.
+Keep `DISCORD_WEBHOOK_URL` in the repository or `Release` environment secrets. Documentation retains the existing `Docs` environment and its Cloudflare credentials. Preparation has no npm credentials. Notes and availability use only Node and `gh`; only the announcement step receives the Discord secret.
 
-## Optional local signoff
-
-[Basecamp's gh-signoff](https://github.com/basecamp/gh-signoff) posts a commit status to record checks you've actually performed locally. It doesn't run those checks, publish packages, or shorten npm's automated review. It is optional here; neither master nor release requires a signoff status.
-
-```bash
-gh extension install basecamp/gh-signoff
-# After pushing and completing the checks you chose to run:
-gh signoff --commit <commit-sha>
-```
-
-Installing the extension is different from `gh signoff install`, which creates a required-status ruleset. Don't run the latter unless a required signoff has been explicitly requested. Don't sign off as though tests ran when they didn't.
+The built-in `GITHUB_TOKEN` does not trigger push/release workflows for its own changes. The publisher explicitly dispatches availability; availability explicitly dispatches docs and notes on `release`, retaining the existing environment branch permissions. Their source checkout uses the immutable version tag; notes tooling comes from `master`. Merging the promotion PR triggers the publisher normally.
 
 ## Local commands
 
@@ -39,26 +75,6 @@ pnpm version-packages             # consume bump files locally
 pnpm publish-packages             # publish unpublished versions locally
 ```
 
-`tools/release/publish-github-packages.sh` is the CI step for GitHub Packages. It validates the package names from Bumpy's publish plan and reconciles the current version of every public package, including packages published to npm in earlier attempts. It skips versions already present, runs build scripts when provided, and packs each missing package with pnpm before publishing with `GITHUB_TOKEN`. A failed GitHub Packages publish can be retried by pushing `release` again. The aggregate GitHub release is also resumed if its npm version exists but its `vX.Y.Z` release does not.
+`publish-github-packages.sh` reconciles public workspace versions, skipping existing versions and building/packing missing packages with pnpm. `publish-packages-local.sh` is intentionally gitignored and must not be committed.
 
-`generate-notes.ts` writes the same concise copy to `RELEASE_BODY.md` and `release-notes-detailed.md`. Notes and images share the change parser: duplicate features appear once, and version-only/dependency bumps go in one final section. Curated releases set `notesFile` in `image-highlights.json`. `release-image.js` renders `release.png` and numbered pages from those notes and the package changelogs. The images are required for the aggregate GitHub release. New releases automatically announce on Discord: `discord-notify.ts` sends the cover and page batches as visible file attachments and checks that Discord returned every file.
-
-To repair or announce an existing GitHub release without republishing packages, dispatch `.github/workflows/release.yml` on the `release` branch with its `version` input (for example, `5.0.0`). It reads that release's body and replaces its image assets. For an authorized announcement, dispatch with `publish_discord=true` to post the images visibly to Discord through the configured webhook. New-release authorization includes the normal Discord step unless the user explicitly excludes it. Pass every existing message ID in `discord_message_ids` (cover first, followed by each page batch) to update an announcement; omitting the IDs creates new messages. New releases published by a push to `release` post automatically. Manual dispatches keep `publish_discord=false` by default so rerendering alone does not repost the announcement. When editing, the notifier updates existing batches, adds any extra batches, and removes surplus supplied batches only after all replacement images are confirmed.
-
-## Changelog articles
-
-Write the release breakdown alongside the feature work in `apps/docs/content/docs/releases/`. Add `release` frontmatter with `version`, an ISO publication `date`, `headline`, ordered `highlights`, and optional `audience` and cover `image`. This gives the same MDX article a dated entry at `/changelog` and a permanent `/changelog/VERSION` URL; existing documentation links keep working.
-
-Lead with the user-facing change, explain what it enables, include a short usable example and upgrade guidance, then cover limitations and smaller fixes. Group dependency sync and coordinated bumps at the end. Use the actual release changes as the source, and publish the article with the release. The site renders the checked-in explanation; it does not generate new claims at request time.
-
-## Release image content
-
-The cover leads with the feature headline. Set `headline`, `summary`, `badge`, and an optional ordered `packages` list for a release in `tools/release/image-highlights.json`. Without an editorial entry, the renderer uses the leading changelog heading or release title and the first change summary. Keep cover copy short enough to read in a Discord thumbnail.
-
-Changes are ordered by security/breaking impact, then major, minor and patch significance; editorial package order breaks ties. Identical entries shared by several packages appear once with the affected packages. Version alignment and dependency-only entries are collected in one final section. Packages, integrations and SDKs are included, along with independently versioned companions changed since the preceding aggregate release.
-
-Markdown is rendered by GitHub's `POST /markdown` API in GFM mode, including headings, nested lists, code fences, links, emphasis and tables. Local rendering uses `gh` authentication; the workflow supplies `GH_TOKEN`. Pagination measures the rendered HTML and keeps headings with their following content. Oversized blocks fail visibly rather than being silently cropped.
-
-## Editorial rules
-
-Lead with what users can do now. Keep aggregate notes around 200 words for a focused release, with gitmoji bullets such as ✨, 🐛, ⚡️, 🔒️ and 🚚. Be warm and direct, and preserve migration requirements and known limitations. Do not thank the maintainer, list the same feature under every package, or append a commit-log dump. Keep automatic contributor thanks disabled in Bumpy; PR links retain attribution. Package changelogs should describe that package's actual change in one to three short bullets. Group version alignment and dependency-only changes at the end.
+[gh-signoff](https://github.com/basecamp/gh-signoff) remains optional for recording checks Mohammed requested and actually performed. It does not execute checks or speed up npm validation. Do not install its required-status ruleset or make it a release requirement.

@@ -64,4 +64,4 @@ As a PR evolves, make sure its bump file stays in sync. If the scope of changes 
 
 ## OpenWA release copy
 
-Write one to three concise gitmoji bullets about what changed for users. Include required migration steps and material limitations. Avoid self-thanks, commit-log prose, and repeated descriptions across packages. Aggregate notes deduplicate shared changes and put version-only or dependency bumps in a final maintenance section; see `tools/release/README.md`.
+Write one to three concise gitmoji bullets about what changed for users in the package changelog. Include required migration steps and material limitations, and avoid repeating descriptions across packages. Aggregate release notes are generated separately from commit messages: use the repository's gitmoji Conventional Commit format and append `Refs #123` for every related issue. See `tools/release/README.md` for grouping and publication.
