@@ -4,11 +4,11 @@ The repository uses `@varlock/bumpy` 1.18.1 for package versions, changelogs, an
 
 ## Release flow
 
-1. Commit development and bump files to `master`. Use `pnpm bump` to create a bump file and `pnpm exec bumpy status` to inspect the release plan.
-2. Reconcile the `release` branch to the intended `master` commit. A push to `release` runs `.github/workflows/release.yml`; merging a PR to `master` alone does not publish.
-3. Bumpy creates or updates `chore: version packages` when bump files are present. Merge that PR into `release` to publish the versioned packages.
+1. Push development and bump files directly to `master`. Use `pnpm bump` to create a bump file; development PRs aren't part of the normal flow.
+2. Comment `/release` on an issue as a repository owner/member, or run `gh workflow run comment-run.yml --ref master`. The **Prepare release** workflow consumes the pending bumps, updates versions and changelogs, commits them directly to `master`, and opens or reuses one `master` → `release` PR. The comment command replies with the PR link.
+3. Merge that PR normally. The `release` push runs `.github/workflows/release.yml` with the versions already committed. There is no separate Bumpy version PR or sync PR back to master. Preserve release history; don't force-push either branch.
 4. The publish job builds packages, packs with pnpm to resolve `workspace:` and `catalog:` ranges, and publishes to npm with the npm CLI and GitHub OIDC. It then publishes the same versions to GitHub Packages, creates package tags and releases, and runs the aggregate notes, image, release, and Discord steps when `@open-wa/core` is included.
-5. Confirm the registry `latest` tags and the GitHub release. The release workflow's success alone is not proof that every registry read has propagated.
+5. Confirm the registry versions, `latest` tags, and tarball availability. npm accepts uploads before its automated validation finishes, so a successful publish or an `E409` for an already staged version doesn't prove that users can install it. Wait for availability; don't upload that version again.
 
 The 28 packages in Bumpy's `fixed` group retain one version. Other public packages can receive their own version updates through their dependencies. Stable releases use npm's `latest` tag.
 
@@ -16,7 +16,19 @@ The 28 packages in Bumpy's `fixed` group retain one version. Other public packag
 
 Each existing npm package has a Trusted Publisher connection to `open-wa/wa-automate-nodejs`, workflow `release.yml`, environment `Release`. The workflow grants `id-token: write` and uses npm 11 on Node 24. npm requires a package to exist before its Trusted Publisher can be configured. For the first `@open-wa/stickers` publication, the Bumpy action exposes the existing `NPM_TOKEN` secret through a temporary npm configuration file. npm uses OIDC for existing trusted packages and the token for the new package. The action removes the temporary file when publishing exits. After the package exists, configure its Trusted Publisher with the same repository, workflow and environment; subsequent release runs use OIDC without loading the bootstrap token.
 
-The built-in `GITHUB_TOKEN` creates Bumpy's version PR and publishes to GitHub Packages. GitHub does not trigger other workflows from PRs created with this token; merging the version PR still triggers the release push. Set `DISCORD_WEBHOOK_URL` in the repository or `Release` environment secrets before publishing; the aggregate release fails visibly without it.
+The built-in `GITHUB_TOKEN` commits the version changes, opens the promotion PR, and publishes to GitHub Packages. It doesn't trigger other workflows for its own push or PR creation; merging the promotion PR triggers the release push normally. Preparation has no npm credentials and runs no build or test suite. Set `DISCORD_WEBHOOK_URL` in the repository or `Release` environment secrets before publishing; the aggregate release fails visibly without it.
+
+## Optional local signoff
+
+[Basecamp's gh-signoff](https://github.com/basecamp/gh-signoff) posts a commit status to record checks you've actually performed locally. It doesn't run those checks, publish packages, or shorten npm's automated review. It is optional here; neither master nor release requires a signoff status.
+
+```bash
+gh extension install basecamp/gh-signoff
+# After pushing and completing the checks you chose to run:
+gh signoff --commit <commit-sha>
+```
+
+Installing the extension is different from `gh signoff install`, which creates a required-status ruleset. Don't run the latter unless a required signoff has been explicitly requested. Don't sign off as though tests ran when they didn't.
 
 ## Local commands
 

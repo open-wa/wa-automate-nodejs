@@ -119,8 +119,8 @@ primary purpose.
   artifacts unless the user explicitly asks for a tracked artifact.
 - Check staged content before committing so sensitive files are not included.
 - Run `git status` after each commit to verify the remaining work.
-- If pushing, check the current branch first and warn before pushing directly to
-  `main` or `master`.
+- Development commits go directly to `master`; do not create development PRs
+  unless Mohammed asks for one. Check the current branch before pushing.
 - Do not force push unless the user explicitly requests it.
 
 ### Push Workflow
@@ -147,23 +147,28 @@ stop and report the issue instead of forcing a push.
 
 Publishing is driven by Bumpy and the `release` branch.
 
-- Development and bump files land on `master`. Merging there deploys affected
+- Push development and bump files directly to `master`. Pushing there deploys affected
   docs, but does not publish packages.
 - Put package bump intent in `.bumpy/*.md`; `.bumpy/_config.json` defines the
   fixed package group and publication settings.
-- Promote `master` into `release` with a normal merge PR. Preserve release-only
-  history; do not force-push or bypass branch/environment protections.
-- The release workflow creates a `bumpy/version-packages` PR. Review the versions
-  and merge that PR to publish packages using npm trusted publishing, publish
-  GitHub Packages, and create the aggregate GitHub release.
+- Post `/release` on an issue or run `gh workflow run comment-run.yml --ref master`.
+  The Prepare release workflow consumes the bump files, commits versions and
+  changelogs directly to `master`, and opens or reuses one `master` → `release` PR.
+- Merge that normal promotion PR to publish using npm trusted publishing,
+  publish GitHub Packages, and create the aggregate GitHub release. Versions
+  already live on `master`; do not create separate Bumpy version or sync PRs.
+  Preserve release-only history; do not force-push or bypass protections.
 - New aggregate releases normally announce on Discord. If the authorized
-  release excludes announcements, include `[skip-discord]` in the version PR's
+  release excludes announcements, include `[skip-discord]` in the release PR's
   **merge commit message**. This skips both the webhook requirement and posting
   for that push, while retaining the normal release behavior otherwise.
 - Confirm registry versions and the workflow conclusion before reporting a
   package as released. A merged development PR is not a published package.
 - Stable packages publish under npm's `latest` tag. Do not reintroduce
   Changesets pre-mode.
+- `gh-signoff` can record checks Mohammed requested and actually ran. It does
+  not run checks itself. Do not install a required signoff ruleset or add a
+  release gate unless Mohammed explicitly asks for one.
 - `tools/release/publish-packages-local.sh` is intentionally gitignored and
   local-only. Do not commit it.
 
