@@ -7,6 +7,12 @@
 
 
 
+
+## 5.6.6
+<sub>2026-10-16</sub>
+
+- *(patch)* Version bump from group with `@open-wa/hyperemitter` v5.6.6
+
 ## 5.6.5
 <sub>2026-10-16</sub>
 
