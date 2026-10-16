@@ -47,11 +47,13 @@ const stickers = await Promise.all(files.map(file => createSticker(file, {
 For a bundled browser UI, use the browser entry. Its browser export excludes
 the standalone Node worker and Node resource cache:
 
-    import { createSticker, validateStickerJob } from '@open-wa/stickers/browser';
-    const job = { effects: ['comic'] };
-    validateStickerJob(job);
-    const result = await createSticker(file, job);
-    // Download or preview result.bytes. Cleanup is automatic.
+```js
+import { createSticker, validateStickerJob } from '@open-wa/stickers/browser';
+const job = { effects: ['comic'] };
+validateStickerJob(job);
+const result = await createSticker(file, job);
+// Download or preview result.bytes. Cleanup is automatic.
+```
 
 Job validation does not read media or start rendering. The browser runtime uses
 the same job planner, renderer and output limits as the other execution hosts.
