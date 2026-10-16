@@ -27,6 +27,8 @@ export function useStickerRender(source: File | null, job: StickerJob) {
         if (abort.signal.aborted || revision !== version.current) return
         const code = error && typeof error === "object" && "code" in error ? error.code : ""
         const messages: Record<string, string> = {
+          INVALID_INPUT: "This file couldn't be read. Choose a different PNG, JPG, GIF or WebP.",
+          INPUT_TOO_LARGE: "This image is too large to process. Choose a smaller photo.",
           CAPABILITY_UNAVAILABLE: "This browser can't render this combination. Try another browser or download the example.",
           RESOURCE_UNAVAILABLE: "The rendering resources couldn't be loaded. Try again.",
           SECURE_CONTEXT_REQUIRED: "This effect needs HTTPS to load its fonts. You can also download the example and render it on your server.",

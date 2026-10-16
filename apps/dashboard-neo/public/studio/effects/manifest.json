@@ -1,0 +1,377 @@
+{
+  "sourceSha256": "c198afdf3e7897390adf40d0111396629d058406963cc3baed7696ff4e61a0f7",
+  "effects": {
+    "bayer": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 27826
+    },
+    "comic": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 81310
+    },
+    "dilate": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 68628
+    },
+    "earth": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 50298
+    },
+    "edge": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 81162
+    },
+    "emboss": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 67006
+    },
+    "fisheye": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 75518
+    },
+    "flash": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 64286
+    },
+    "freeze": {
+      "animated": false,
+      "frames": 1,
+      "durationMs": 0,
+      "bytes": 5794
+    },
+    "gold": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 65706
+    },
+    "half": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 70046
+    },
+    "invert": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 68120
+    },
+    "jail": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 75922
+    },
+    "kaleidoscope": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 57928
+    },
+    "leak": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 115060
+    },
+    "lego": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 142524
+    },
+    "liquid": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 75876
+    },
+    "low": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 32208
+    },
+    "magik": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 95688
+    },
+    "mirror": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 69014
+    },
+    "mosaic": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 33682
+    },
+    "motion": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 78430
+    },
+    "newspaper": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 47386
+    },
+    "opaque": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 46344
+    },
+    "pixelate": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 32724
+    },
+    "polaroid": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 50608
+    },
+    "rainbow": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 75712
+    },
+    "random": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 68120
+    },
+    "recede": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 40650
+    },
+    "resize": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 38420
+    },
+    "scramble": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 74914
+    },
+    "screen": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 75702
+    },
+    "shake": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 70764
+    },
+    "sketch": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 83314
+    },
+    "slow": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 4788,
+      "bytes": 69110
+    },
+    "smooth": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 78596
+    },
+    "snap": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 147280
+    },
+    "solar": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 50946
+    },
+    "sort": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 66338
+    },
+    "sparkle": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 85918
+    },
+    "spiral": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 85176
+    },
+    "spread": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 82770
+    },
+    "square": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 71454
+    },
+    "squish": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 55580
+    },
+    "stack": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 67272
+    },
+    "stamp": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 36604
+    },
+    "stars": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 55872
+    },
+    "stereo": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 82288
+    },
+    "stripes": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 109954
+    },
+    "swirl": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 78566
+    },
+    "tint": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 57570
+    },
+    "trace": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 77558
+    },
+    "triangle": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 52082
+    },
+    "trip": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 71490
+    },
+    "uncanny": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 59948
+    },
+    "unfreeze": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 75866
+    },
+    "unsharpen": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 79384
+    },
+    "vaporwave": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 68936
+    },
+    "vibrate": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 68422
+    },
+    "woke": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 83076
+    },
+    "grayscale": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 55074
+    },
+    "erode": {
+      "animated": true,
+      "frames": 13,
+      "durationMs": 1596,
+      "bytes": 69042
+    }
+  }
+}

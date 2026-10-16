@@ -76,9 +76,9 @@ function StickerStudio() {
   const sample = async () => {
     setSourceError("")
     try {
-      const response = await fetch(import.meta.env.BASE_URL + "studio/coffee.webp")
+      const response = await fetch(import.meta.env.BASE_URL + "studio/effects/sample.webp")
       if (!response.ok) throw new Error("The sample couldn't be loaded.")
-      await choose(new File([await response.blob()], "coffee.webp", { type: "image/webp" }))
+      await choose(new File([await response.blob()], "sample-cat.webp", { type: "image/webp" }))
     } catch (error) { setSourceError(error instanceof Error ? error.message : "The sample couldn't be loaded.") }
   }
   const code = file && valid ? stickerCode(job, file, format) : ""
@@ -94,7 +94,7 @@ function StickerStudio() {
   if (!file) return <div className="dashboard-page studio space-y-6"><PageHeader title="Sticker studio" description="Make a sticker and copy the code." />{uploader}
     <div className="studio-upload" onDragOver={event => event.preventDefault()} onDrop={event => { event.preventDefault(); const file = event.dataTransfer.files[0]; if (file) void choose(file) }}>
       <h2>Choose a photo</h2><p className="studio-note">Add a PNG, JPG, GIF or WebP, up to 20 MB.</p><Button onClick={() => fileInput.current?.click()}>Choose a photo or GIF</Button>
-      <p className="studio-note">Or drop a file here</p><Button variant="outline" onClick={() => void sample()}>Use sample photo</Button>
+      <p className="studio-note">Or drop a file here</p><Button variant="outline" onClick={() => void sample()}>Try the animated sample</Button>
       <p className="studio-note">Your photo stays in this browser.</p>{sourceLoading && <p role="status" className="studio-note">{sourceStatus}</p>}
       {sourceError && <p role="alert" className="studio-error">{sourceError}</p>}
     </div></div>
@@ -112,7 +112,7 @@ function StickerStudio() {
         <p role="status" className="studio-note">{sourceStatus}</p>
       </aside>
       <div className="sticker-studio-main">
-        <section aria-label="Sticker preview" className="studio-panel studio-preview"><StickerPreview source={file} result={render.result} rendering={render.rendering} error={render.error} cancel={render.cancel} retry={render.retry} /></section>
+        <section aria-label="Sticker preview" className="studio-panel studio-preview"><StickerPreview source={file} result={render.result} rendering={render.rendering} error={render.error} invalidSource={render.invalidSource} cancel={render.cancel} retry={render.retry} chooseSource={() => fileInput.current?.click()} /></section>
         <section ref={codePanel} id={codeId} tabIndex={-1} aria-label="Sticker code" className="studio-panel studio-code sticker-studio-code" hidden={!codeOpen}>
           <StudioCode value={code || (render.invalidSource ? "Choose another source file to generate code." : "Check the sticker settings to generate code.")}
             actions={<div className="flex items-center gap-2"><Button size="sm" disabled={!code} onClick={() => void copyStudioCode(code, () => codePanel.current?.querySelector("pre")?.focus())}><Copy aria-hidden />Copy code</Button><Button variant="ghost" size="icon" aria-label="Close code" onClick={() => { setCodeOpen(false); codeButton.current?.focus() }}><X aria-hidden /></Button></div>}

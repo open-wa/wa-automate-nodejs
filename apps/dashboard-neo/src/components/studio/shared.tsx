@@ -84,10 +84,10 @@ export function StudioOptions({ label, options }: { label: string; options: Stud
   </Menu.Root>
 }
 
-export function StudioRow({ rowId, group, label, value, onChange, error, selected, onSelect, onMove, onDrop, onRemove, inputId, details = [] }: {
+export function StudioRow({ rowId, group, label, value, onChange, error, selected, onSelect, onMove, onDrop, onRemove, inputId, index, count, details = [] }: {
   rowId: string; group: string; label: string; value?: string; onChange?: (value: string) => void;
   error?: string; selected?: boolean; onSelect?: () => void; onMove: (direction: -1 | 1) => void;
-  onDrop: (id: string) => void; onRemove: () => void; inputId?: string; details?: StudioOption[]
+  onDrop: (id: string) => void; onRemove: () => void; inputId?: string; index: number; count: number; details?: StudioOption[]
 }) {
   const generatedId = useId()
   const id = inputId || generatedId
@@ -99,12 +99,17 @@ export function StudioRow({ rowId, group, label, value, onChange, error, selecte
       try { const item = JSON.parse(event.dataTransfer.getData("application/x-openwa-studio-row")); if (item.group === group && typeof item.id === "string") onDrop(item.id) } catch { /* Ignore unrelated drops. */ }
     }}>
     <div className="studio-row-line">
-      <Button variant="ghost" size="icon" draggable className="studio-drag" aria-label={"Reorder " + label} title="Drag to reorder, or press Alt + Up or Down"
+      <Menu.Root><Menu.Trigger render={<Button variant="ghost" size="icon" draggable className="studio-drag" aria-label={"Reorder " + (value || label)} title="Drag or choose a position"
         onDragStart={event => { event.dataTransfer.setData("application/x-openwa-studio-row", JSON.stringify({ group, id: rowId })); event.dataTransfer.effectAllowed = "move" }}
-        onKeyDown={event => { if (event.altKey && (event.key === "ArrowUp" || event.key === "ArrowDown")) { event.preventDefault(); onMove(event.key === "ArrowUp" ? -1 : 1) } }}><GripVertical aria-hidden /></Button>
+        onKeyDown={event => { if (event.altKey && (event.key === "ArrowUp" || event.key === "ArrowDown")) { event.preventDefault(); event.preventBaseUIHandler(); onMove(event.key === "ArrowUp" ? -1 : 1) } }} />}><GripVertical aria-hidden /></Menu.Trigger>
+        <Menu.Portal><Menu.Positioner sideOffset={4} align="start" className="z-[70]"><Menu.Popup className={cn(MENU_POPOVER_SURFACE, "min-w-40")}>
+          <Menu.Item disabled={index === 0} className={cn(MENU_ITEM, "min-h-11 text-body-medium data-disabled:opacity-40 data-disabled:cursor-default")} onClick={() => onMove(-1)}>Move up</Menu.Item>
+          <Menu.Item disabled={index === count - 1} className={cn(MENU_ITEM, "min-h-11 text-body-medium data-disabled:opacity-40 data-disabled:cursor-default")} onClick={() => onMove(1)}>Move down</Menu.Item>
+        </Menu.Popup></Menu.Positioner></Menu.Portal>
+      </Menu.Root>
       {onChange ? <Input id={id} aria-label={label} value={value || ""} onFocus={onSelect} placeholder={label} onChange={event => onChange(event.target.value)} aria-invalid={!!error} aria-describedby={error ? id + "-error" : undefined} className="studio-input" />
         : <Button variant="ghost" className="studio-row-label" aria-pressed={selected} onClick={onSelect}>{label}</Button>}
-      <Button variant="ghost" size="icon" className="studio-remove" aria-label={"Delete " + label} title={"Delete " + label} onClick={onRemove}><X aria-hidden /></Button>
+      <Button variant="ghost" size="icon" className="studio-remove" aria-label={"Delete " + (value || label)} title={"Delete " + (value || label)} onClick={onRemove}><X aria-hidden /></Button>
     </div>
     {selected && details.length > 0 && <div className="studio-row-details">{details.map(detail => <Button key={detail.label} variant="link" size="xs" onClick={detail.action}>{detail.label}</Button>)}</div>}
     {error && <p id={id + "-error"} className="studio-error studio-row-error">{error}</p>}
