@@ -37,7 +37,7 @@ async function availability(pkg) {
     const query = `?openwa_release=${Date.now()}`;
     const manifest = await (await request(`${url}/${pkg.version}${query}`, { headers: { 'Cache-Control': 'no-cache' } })).json();
     if (manifest.version !== pkg.version || !manifest.dist?.tarball) throw new Error('Version manifest incomplete');
-    const tags = await (await request(`${url}/dist-tags${query}`, { headers: { 'Cache-Control': 'no-cache' } })).json();
+    const tags = await (await request(`https://registry.npmjs.org/-/package/${encodeURIComponent(pkg.name)}/dist-tags${query}`, { headers: { 'Cache-Control': 'no-cache' } })).json();
     const tag = pkg.version.includes('-') ? pkg.version.split('-')[1].split('.')[0] : 'latest';
     if (!atLeast(tags[tag], pkg.version)) throw new Error(`${tag} is ${tags[tag] || 'missing'}`);
     const tarball = new URL(manifest.dist.tarball);

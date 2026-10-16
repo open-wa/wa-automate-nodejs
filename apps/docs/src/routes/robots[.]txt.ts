@@ -7,7 +7,7 @@ export const Route = createFileRoute('/robots.txt')({
       GET() {
         const content = `User-agent: *
 Allow: /
-Content-Signal: ai-train=no, search=yes, ai-input=no
+Content-Signal: ai-train=no, search=yes, ai-input=yes
 Sitemap: ${SITE_ORIGIN}/sitemap.xml`;
         return new Response(content, {
           headers: {

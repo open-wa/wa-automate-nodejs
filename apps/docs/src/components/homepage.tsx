@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { WorkbenchTexture } from '@/components/workbench-texture';
 import { baseOptions } from '@/lib/layout.shared';
 import { CURRENT_VERSION, DOCS_PATHS, REPO_URL } from '@/lib/site';
+import { HOMEPAGE_DESCRIPTION, HOMEPAGE_FAQS } from '@/lib/homepage';
 
 const runCommand = `npx @open-wa/wa-automate@${CURRENT_VERSION} --host 127.0.0.1 --port 8080`;
 const examples = {
@@ -60,8 +61,8 @@ export function DocsHomepage() {
     <main className="landing">
       <section className="landing-hero" aria-labelledby="landing-title">
         <div className="landing-hero-copy">
-          <h1 id="landing-title">Connect WhatsApp<br />to your<br /><span>application.</span></h1>
-          <p className="landing-lead">Send order updates, reply to incoming messages, and connect WhatsApp to the tools you already use. open-wa runs on your own computer or server.</p>
+          <h1 id="landing-title">Self-hosted<br />WhatsApp API<br /><span>for developers.</span></h1>
+          <p className="landing-lead">{HOMEPAGE_DESCRIPTION}</p>
           <p className="landing-requirements">You’ll need <a href={`${DOCS_PATHS.quickstart}#before-you-start`}>Node.js 22.21.1 or newer</a> and a phone with WhatsApp.</p>
           <ol className="landing-steps" aria-label="Get started"><li><span>1</span> Start open-wa</li><li><span>2</span> Link WhatsApp</li><li><span>3</span> Send a message</li></ol>
           <p className="landing-command-label">Start the <a href={DOCS_PATHS.easyApi}>Easy API</a>, open-wa’s HTTP server, in your terminal:</p>
@@ -79,6 +80,10 @@ export function DocsHomepage() {
       </section>
       <section className="landing-section" aria-labelledby="guides-heading"><div className="landing-section-heading"><h2 id="guides-heading">Build on your first message</h2><a className="landing-arrow-link" href={DOCS_PATHS.overview}>All documentation <ArrowRight size={16} /></a></div><div className="landing-guides">{guideGroups.map(group => <article key={group.title}><group.icon size={24} /><h3>{group.title}</h3><p>{group.description}</p><div>{group.links.map(([label,href]) => <a key={href} className="landing-arrow-link" href={href}>{label}<ArrowRight size={15} /></a>)}</div></article>)}</div></section>
       <section className="landing-license"><ShieldCheck size={30} /><div><h2>Choose a license for the features you need</h2><p>Check which features need Restricted or Insiders access, including their account requirements and current limitations, before you buy.</p></div><a className="landing-button ow-license-foil" href={DOCS_PATHS.licensedFeatures}>Compare licensed features <ArrowRight size={16} /></a></section>
+      <section className="landing-section" aria-labelledby="faq-heading" id="faq">
+        <div className="landing-section-heading"><h2 id="faq-heading">Questions about the WhatsApp API</h2><a className="landing-arrow-link" href="/docs/licensing/pricing">Pricing and licensing <ArrowRight size={16} /></a></div>
+        <div className="landing-faq">{HOMEPAGE_FAQS.map(({ question, answer, href, label }) => <article key={question}><h3>{question}</h3><p>{answer}</p><a className="landing-arrow-link" href={href}>{label}<ArrowRight size={15} /></a></article>)}</div>
+      </section>
       <footer className="landing-footer"><div><strong>open-wa</strong><span>WhatsApp automation on your own infrastructure. <a href={DOCS_PATHS.changelog}>Version {CURRENT_VERSION}</a></span></div><nav aria-label="Footer"><a href={DOCS_PATHS.overview}>Documentation</a><a href={REPO_URL}>GitHub ↗</a><a href="https://discord.gg/dpan7EYE3t">Community ↗</a><a href={DOCS_PATHS.licensedFeatures}>Licensing</a></nav></footer>
     </main>
   </HomeLayout>;
