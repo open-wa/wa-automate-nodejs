@@ -76,6 +76,17 @@
         "types": "./dist/calling-media.d.cts",
         "default": "./dist/calling-media.cjs"
       }
+    },
+    "./interactive": {
+      "bun": "./src/interactive.ts",
+      "import": {
+        "types": "./dist/interactive.d.mts",
+        "default": "./dist/interactive.mjs"
+      },
+      "require": {
+        "types": "./dist/interactive.d.cts",
+        "default": "./dist/interactive.cjs"
+      }
     }
   },
   "scripts": {
@@ -162,6 +173,16 @@
         "require": {
           "types": "./dist/calling-media.d.cts",
           "default": "./dist/calling-media.cjs"
+        }
+      },
+      "./interactive": {
+        "import": {
+          "types": "./dist/interactive.d.mts",
+          "default": "./dist/interactive.mjs"
+        },
+        "require": {
+          "types": "./dist/interactive.d.cts",
+          "default": "./dist/interactive.cjs"
         }
       }
     }
