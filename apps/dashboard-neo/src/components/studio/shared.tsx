@@ -1,6 +1,6 @@
 import { useId, useState, type ReactNode, type InputHTMLAttributes } from "react"
 import { Menu } from "@base-ui/react/menu"
-import { GripVertical, MoreHorizontal } from "lucide-react"
+import { GripVertical, MoreHorizontal, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -84,21 +84,14 @@ export function StudioOptions({ label, options }: { label: string; options: Stud
   </Menu.Root>
 }
 
-export function StudioRow({ rowId, group, index, count, label, value, onChange, error, selected, onSelect, onMove, onDrop, onRemove, onDuplicate, inputId, options = [] }: {
-  rowId: string; group: string; index: number; count: number; label: string; value?: string; onChange?: (value: string) => void;
+export function StudioRow({ rowId, group, label, value, onChange, error, selected, onSelect, onMove, onDrop, onRemove, inputId, details = [] }: {
+  rowId: string; group: string; label: string; value?: string; onChange?: (value: string) => void;
   error?: string; selected?: boolean; onSelect?: () => void; onMove: (direction: -1 | 1) => void;
-  onDrop: (id: string) => void; onRemove: () => void; onDuplicate?: () => void; inputId?: string; options?: StudioOption[]
+  onDrop: (id: string) => void; onRemove: () => void; inputId?: string; details?: StudioOption[]
 }) {
   const generatedId = useId()
   const id = inputId || generatedId
   const [over, setOver] = useState(false)
-  const actions: StudioOption[] = [
-    ...(index > 0 ? [{ label: "Move up", action: () => onMove(-1) }] : []),
-    ...(index < count - 1 ? [{ label: "Move down", action: () => onMove(1) }] : []),
-    ...(onDuplicate ? [{ label: "Duplicate", action: onDuplicate }] : []),
-    ...options,
-    { label: "Remove", action: onRemove, destructive: true },
-  ]
   return <div className={cn("studio-row", selected && "studio-row-selected", over && "studio-row-over")}
     onDragOver={event => { event.preventDefault(); setOver(true) }} onDragLeave={() => setOver(false)}
     onDrop={event => {
@@ -106,13 +99,14 @@ export function StudioRow({ rowId, group, index, count, label, value, onChange, 
       try { const item = JSON.parse(event.dataTransfer.getData("application/x-openwa-studio-row")); if (item.group === group && typeof item.id === "string") onDrop(item.id) } catch { /* Ignore unrelated drops. */ }
     }}>
     <div className="studio-row-line">
-      <Button variant="ghost" size="icon" draggable className="studio-drag" aria-label={"Reorder " + label} title="Drag to reorder, or use the options menu"
+      <Button variant="ghost" size="icon" draggable className="studio-drag" aria-label={"Reorder " + label} title="Drag to reorder, or press Alt + Up or Down"
         onDragStart={event => { event.dataTransfer.setData("application/x-openwa-studio-row", JSON.stringify({ group, id: rowId })); event.dataTransfer.effectAllowed = "move" }}
         onKeyDown={event => { if (event.altKey && (event.key === "ArrowUp" || event.key === "ArrowDown")) { event.preventDefault(); onMove(event.key === "ArrowUp" ? -1 : 1) } }}><GripVertical aria-hidden /></Button>
       {onChange ? <Input id={id} aria-label={label} value={value || ""} onFocus={onSelect} placeholder={label} onChange={event => onChange(event.target.value)} aria-invalid={!!error} aria-describedby={error ? id + "-error" : undefined} className="studio-input" />
         : <Button variant="ghost" className="studio-row-label" aria-pressed={selected} onClick={onSelect}>{label}</Button>}
-      <StudioOptions label={label + " options"} options={actions} />
+      <Button variant="ghost" size="icon" className="studio-remove" aria-label={"Delete " + label} title={"Delete " + label} onClick={onRemove}><X aria-hidden /></Button>
     </div>
+    {selected && details.length > 0 && <div className="studio-row-details">{details.map(detail => <Button key={detail.label} variant="link" size="xs" onClick={detail.action}>{detail.label}</Button>)}</div>}
     {error && <p id={id + "-error"} className="studio-error studio-row-error">{error}</p>}
   </div>
 }

@@ -83,14 +83,13 @@ export function ActionFields({ path, family, ...props }: EditorProps & { path: F
       const selected = props.selected.startsWith(base.join(".") + ".")
       const current = base.join(".")
       return <div key={uiKey(action)} className="studio-section">
-        <StudioRow rowId={uiKey(action)} group={path.join(".")} index={index} count={actions.length} label="Button text" value={action.label}
+        <StudioRow rowId={uiKey(action)} group={path.join(".")} label="Button text" value={action.label}
           inputId={fieldId([...base, "label"])} onChange={value => props.change([...base, "label"], value)} selected={selected}
           onSelect={() => props.select([...base, "label"])} error={props.errors[current + ".label"] || props.errors[current + ".id"]}
           onMove={direction => { update(moveItem(actions, index, index + direction)); props.select([...path, index + direction, "label"]) }}
           onDrop={id => update(moveItem(actions, actions.findIndex(item => uiKey(item) === id), index))}
           onRemove={() => update(actions.filter((_, i) => i !== index))}
-          onDuplicate={() => update([...actions.slice(0, index + 1), freshReplyIds(action), ...actions.slice(index + 1)])}
-          options={action.type === "reply" ? [{ label: "Edit reply key…", action: () => props.details("Reply key", [{ path: [...base, "id"], label: "Reply key" }]) }] : []} />
+          details={action.type === "reply" ? [{ label: "Edit reply key…", action: () => props.details("Reply key", [{ path: [...base, "id"], label: "Reply key" }]) }] : []} />
         {action.type !== "reply" && (selected || props.errors[current + ".url"] || props.errors[current + ".phoneNumber"] || props.errors[current + ".code"]) && <div className="studio-action-details">
           <StudioSelect label="Action" value={action.type} onChange={type => {
             props.change(base, type === "url" ? { type, label: action.label, url: "" } : type === "call" ? { type, label: action.label, phoneNumber: "" } : { type: "copy", label: action.label, code: "" })
@@ -117,14 +116,13 @@ function ListFields(props: EditorProps & { content: Extract<InteractiveContent, 
         const path = ["sections", s, "rows", r] as FieldPath
         const rowsPath = ["sections", s, "rows"] as FieldPath
         const update = (rows: typeof section.rows) => props.change(rowsPath, rows)
-        return <StudioRow key={uiKey(row)} rowId={uiKey(row)} group={"list-" + s} index={r} count={section.rows.length} label="Choice text"
+        return <StudioRow key={uiKey(row)} rowId={uiKey(row)} group={"list-" + s} label="Choice text"
           value={row.title} inputId={fieldId([...path, "title"])} onChange={value => props.change([...path, "title"], value)}
           selected={props.selected.startsWith(path.join(".") + ".")} onSelect={() => props.select([...path, "title"])} error={props.errors[path.join(".") + ".title"] || props.errors[path.join(".") + ".id"]}
           onMove={direction => update(moveItem(section.rows, r, r + direction))}
           onDrop={id => update(moveItem(section.rows, section.rows.findIndex(row => uiKey(row) === id), r))}
           onRemove={() => update(section.rows.filter((_, i) => i !== r))}
-          onDuplicate={() => update([...section.rows.slice(0, r + 1), freshReplyIds(row), ...section.rows.slice(r + 1)])}
-          options={[{ label: "Choice details…", action: () => props.details("Choice details", [{ path: [...path, "id"], label: "Reply key" }, { path: [...path, "description"], label: "Description (optional)" }]) }]} />
+          details={[{ label: "Choice details…", action: () => props.details("Choice details", [{ path: [...path, "id"], label: "Reply key" }, { path: [...path, "description"], label: "Description (optional)" }]) }]} />
       })}
       {props.errors["sections." + s + ".rows"] && <p className="studio-error">Add a choice.</p>}
       <Button variant="outline" onClick={() => props.change(["sections", s, "rows"], [...section.rows, { id: newStudioKey("choice"), title: "" }])}>+ Add choice</Button>
@@ -150,12 +148,13 @@ function QuestionFields(props: EditorProps & { content: Extract<InteractiveConte
       {question.options.map((option, o) => {
         const path = ["questions", q, "options", o] as FieldPath
         const update = (options: typeof question.options) => props.change(["questions", q, "options"], options)
-        return <StudioRow key={uiKey(option)} rowId={uiKey(option)} group={"question-" + q} index={o} count={question.options.length} label="Option text" value={option.label}
+        return <StudioRow key={uiKey(option)} rowId={uiKey(option)} group={"question-" + q} label="Option text" value={option.label}
           inputId={fieldId([...path, "label"])} onChange={value => props.change([...path, "label"], value)} error={props.errors[path.join(".") + ".label"] || props.errors[path.join(".") + ".id"]}
+          selected={props.selected.startsWith(path.join(".") + ".")} onSelect={() => props.select([...path, "label"])}
           onMove={direction => update(moveItem(question.options, o, o + direction))}
           onDrop={id => update(moveItem(question.options, question.options.findIndex(item => uiKey(item) === id), o))}
           onRemove={() => update(question.options.filter((_, i) => i !== o))}
-          options={[{ label: "Edit option key…", action: () => props.details("Option key", [{ path: [...path, "id"], label: "Option key" }]) }]} />
+          details={[{ label: "Edit option key…", action: () => props.details("Option key", [{ path: [...path, "id"], label: "Option key" }]) }]} />
       })}
       {props.errors["questions." + q + ".options"] && <p className="studio-error">Add an option.</p>}
       <Button variant="outline" onClick={() => props.change(["questions", q, "options"], [...question.options, { id: newStudioKey("option"), label: "" }])}>+ Add option</Button>

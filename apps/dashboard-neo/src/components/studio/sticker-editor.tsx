@@ -36,14 +36,10 @@ export function StickerEditor({ file, onFile, draft, setDraft, panel, search, se
       {!effects.length && <p className="studio-note">No matching effects.</p>}
       <div className="studio-section"><div className="studio-section-heading"><h3>Applied effects</h3><span className="studio-note">{draft.effects.length + " of " + STICKER_PROFILE.maxEffects}</span></div>
         {!draft.effects.length && <p className="studio-note">Choose an effect above.</p>}
-        {draft.effects.map((item, index) => <StudioRow key={item.id} rowId={item.id} group="sticker-effects" index={index} count={draft.effects.length} label={effectLabel(item.effect.name)} selected={selected === item.id}
+        {draft.effects.map((item, index) => <StudioRow key={item.id} rowId={item.id} group="sticker-effects" label={effectLabel(item.effect.name)} selected={selected === item.id}
           onSelect={() => setSelected(item.id)} onMove={direction => updateEffects(moveItem(draft.effects, index, index + direction))}
           onDrop={id => updateEffects(moveItem(draft.effects, draft.effects.findIndex(item => item.id === id), index))}
-          onRemove={() => { updateEffects(draft.effects.filter(value => value.id !== item.id)); if (selected === item.id) setSelected(draft.effects[index + 1]?.id || draft.effects[index - 1]?.id || "") }}
-          onDuplicate={draft.effects.length < STICKER_PROFILE.maxEffects ? () => {
-            const duplicate = { id: newStudioKey("effect"), effect: structuredClone(item.effect) }
-            updateEffects([...draft.effects.slice(0, index + 1), duplicate, ...draft.effects.slice(index + 1)]); setSelected(duplicate.id)
-          } : undefined} />)}
+          onRemove={() => { updateEffects(draft.effects.filter(value => value.id !== item.id)); if (selected === item.id) setSelected(draft.effects[index + 1]?.id || draft.effects[index - 1]?.id || "") }} />)}
       </div>
       {current && descriptor?.defaults && Object.keys(descriptor.defaults).length > 0 && <div className="studio-section"><h3>{effectLabel(current.effect.name) + " settings"}</h3>
         {Object.entries(descriptor.defaults).map(([key, defaultValue]) => {
