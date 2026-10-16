@@ -67,8 +67,8 @@ export function StudioSendSheet({ open, onOpenChange, valid, onSend, interactive
     catch (error) { setError(error instanceof Error ? error.message : "The message couldn't be sent.") }
     finally { setSending(false) }
   }
-  const search = query.toLocaleLowerCase().trim()
-  const items = chats.filter(chat => (chat.name + " " + chat.id).toLocaleLowerCase().includes(search)).slice(0, 50)
+  const search = recipient && query === redactName(recipient.name, recipient.id) ? "" : query.toLocaleLowerCase().trim()
+  const items = chats.filter(chat => (chat.name + " " + chat.id + " " + redactName(chat.name, chat.id) + " " + redact(chat.id)).toLocaleLowerCase().includes(search)).slice(0, 50)
   const manual = normalizeRecipient(query)
   if (manual && !items.some(item => item.id === manual)) items.unshift({ id: manual, name: query.trim() })
   const label = (item: Recipient) => redactName(item.name, item.id)

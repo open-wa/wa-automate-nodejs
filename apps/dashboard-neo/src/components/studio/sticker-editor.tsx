@@ -81,7 +81,7 @@ export function StickerEditor({ file, onFile, draft, setDraft, panel, search, se
       <p className="studio-note">{"Up to " + STICKER_PROFILE.maxDurationMs / 1000 + " seconds or " + STICKER_PROFILE.maxFrames + " frames."}</p>
     </>}
     {panel === "pack" && <><StudioField label="Pack name (optional)" maxLength={128} value={settings.pack || ""} onChange={value => setting("pack", value || undefined)} />
-      <StudioField label="Creator (optional)" maxLength={128} value={settings.author || ""} onChange={value => setting("author", value || undefined)} /></>}
+      <StudioField label="Creator (optional)" maxLength={128} value={settings.author || ""} onChange={value => setting("author", value || undefined)} /><p className="studio-note">OpenWA applies these labels when it sends the sticker.</p></>}
     {error && <p role="alert" className="studio-error">{error}</p>}
   </>
 }
