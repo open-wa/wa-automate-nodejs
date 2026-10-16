@@ -84,7 +84,7 @@
 .studio-cards { display: flex; align-self: stretch; gap: 12px; min-width: 0; overflow-x: auto; padding: 2px 2px 12px; scroll-snap-type: x mandatory; }
 .studio-card { min-width: 0; max-width: none; flex: 0 0 88%; border-radius: 8px; scroll-snap-align: start; }
 .studio-card::after { display: none; }
-.studio-checkerboard { display: grid; min-height: 300px; place-items: center; padding: 16px; background-color: #fff; background-image: conic-gradient(#e1e5eb 25%, transparent 0 50%, #e1e5eb 0 75%, transparent 0); background-size: 20px 20px; border-radius: 12px; }
+.studio-checkerboard { display: grid; min-height: 300px; place-items: center; padding: 16px; color: #26352e; background-color: #fff; background-image: conic-gradient(#e1e5eb 25%, transparent 0 50%, #e1e5eb 0 75%, transparent 0); background-size: 20px 20px; border-radius: 12px; }
 .studio-checkerboard img { width: 100%; max-height: 360px; object-fit: contain; }
 .studio-wa-sticker { align-self: flex-end; max-width: 90%; }
 .studio-wa-sticker .studio-wa-message-meta { width: fit-content; margin: 4px 0 0 auto; padding: 2px 7px; border-radius: 8px; background: var(--wa-chip); }

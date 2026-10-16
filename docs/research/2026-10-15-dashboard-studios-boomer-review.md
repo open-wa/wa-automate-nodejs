@@ -70,6 +70,12 @@ The studios now import BoardUI segmented controls, tabs, selects, sliders, check
 
 The running development server delivered hot updates for the changed studio components. No tests, typechecks, lint checks, builds, computer use, visual walkthrough or live WhatsApp sends were performed for this correction; no visual acceptance is claimed.
 
+## WhatsApp preview and surface contrast, 2026-10-16
+
+Mohammed found the implemented surfaces too flat and white to distinguish and asked for a WhatsApp Web aesthetic in the preview. Message and sticker chat previews now share a chat header, original patterned wallpaper, green outgoing bubbles and white incoming preview replies, with corresponding dark-theme colors. Interactive actions use full-width rows and separators. Sticker preview defaults to chat context, with the rendered transparent sticker placed directly on the wallpaper; the checkerboard remains available for inspecting transparency. Local reply JSON stays outside the chat frame. Status copy says Not sent rather than inventing a delivery or read receipt.
+
+The editor has a contrasting neutral surface and panel border, and the code panel has a dark BoardUI theme with a darker code surface. Recipient-preview sheets use a WhatsApp-colored accent and distinct header/footer surfaces. A React key-spread warning observed in the running app exposed that the internal render key was remounting StickerPreview on settings changes; explicit preview props fix that reset. These changes are committed locally in ebdbb4ac4 and 613db9b09, and the running Vite server delivered hot updates. No tests, typechecks, lint checks, builds, computer use, visual walkthrough or real WhatsApp sends were performed for this change.
+
 ## Revised artboards
 
 1. Reply buttons: inline editable labels, drag handles and secondary options.
