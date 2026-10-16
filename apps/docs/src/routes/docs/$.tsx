@@ -33,7 +33,7 @@ const loader = createServerFn({
 
       return {
         path: page.path,
-        canonical: page.data.release ? getAbsoluteDocsUrl(`/changelog/${page.data.release.version}`) : undefined,
+        canonical: getAbsoluteDocsUrl(page.data.release ? `/changelog/${page.data.release.version}` : page.url),
         meta: getDocsSocialMeta({
           title: page.data.title,
           description,

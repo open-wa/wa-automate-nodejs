@@ -5,6 +5,7 @@ import { SITE_NAME } from '@/lib/site';
 
 export const Route = createFileRoute('/')({
   head: () => ({
+    links: [{ rel: 'canonical', href: getAbsoluteDocsUrl('/') }],
     // Default social card for the homepage (a non-docs route with no per-page
     // metadata). Reuses the docs-root OG image so shares of "/" unfurl with the
     // brand card instead of nothing.

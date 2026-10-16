@@ -5,7 +5,7 @@ export type LicenseTier = 'insiders' | 'restricted';
 export const SITE_NAME = 'open-wa v5 docs';
 // Canonical origin for the docs site. Used for sitemap, robots, OG image URLs,
 // and og:url so they never disagree. Current docs are served at openwa.dev;
-// docs.openwa.dev hosts the v4 archive.
+// docs.openwa.dev redirects to the current documentation.
 export const SITE_ORIGIN = 'https://openwa.dev';
 export const REPO_URL = 'https://github.com/open-wa/wa-automate-nodejs';
 export const LICENSE_CHECKOUT_URL = `${SITE_ORIGIN}/checkout`;
