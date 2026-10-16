@@ -62,6 +62,14 @@ The sticker package now has a browser condition for its browser entry, a shared 
 
 The route registry was generated with TanStack's generator, the dependency lockfile was updated, and dependencies were installed from the local store without install scripts. The Neo Vite development server started on port 3004. Opening the preview through Codex returned queued, so this does not establish a browser walkthrough. In the main checkout, a frozen install encountered an existing apps/orchestrator-cli manifest/lockfile mismatch. pnpm exec then attempted an automatic workspace refresh; that was stopped and its unrelated lockfile edits were discarded. Vite was launched directly with the existing installed tooling, and the two new local workspace links were added without changing unrelated manifests. No tests, fixtures, typechecks, lint checks, builds, generated-download execution or real WhatsApp sends were performed. Browser use and recipient acceptance remain unverified; they are not claimed by the source implementation. Empty advanced JSON clears generated code, invalid action destinations remain visible when selection changes, and live sending remains separate from local preview.
 
+## BoardUI component correction, 2026-10-16
+
+Mohammed identified that the implementation used custom choice buttons and native selects, sliders and checkboxes despite the earlier component research. Neo's action buttons and text inputs already used BoardUI styling, but the new studio controls did not consistently use the actual component sources. Reusing the theme alone did not fulfill the intended component integration.
+
+The studios now import BoardUI segmented controls, tabs, selects, sliders, checkboxes and radio groups from the public MIT registry source pinned at ec5c5eb3e29c2441be63b9422cd54f411ef23466. Their existing React Aria dependency was already installed. The action menus use BoardUI's shared menu surface and item recipe with Base UI behavior. Studio CSS no longer replaces these controls' colors, borders, radii and typography. WhatsApp previews and the layout remain application code. The component README records the source revision, helper files and local adaptations.
+
+The running development server delivered hot updates for the changed studio components. No tests, typechecks, lint checks, builds, computer use, visual walkthrough or live WhatsApp sends were performed for this correction; no visual acceptance is claimed.
+
 ## Revised artboards
 
 1. Reply buttons: inline editable labels, drag handles and secondary options.
