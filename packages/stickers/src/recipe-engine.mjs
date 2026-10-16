@@ -8,7 +8,7 @@ const environment = config.environment || {
  createImageBitmap: globalThis.createImageBitmap,
  ImageDecoder: globalThis.ImageDecoder,
  ImageData: globalThis.ImageData,
- supportsColor: color=>typeof CSS!=='undefined'&&CSS.supports('color',color),
+ supportsColor: color=>!!globalThis.CSS?.supports('color',color),
  disposeSurface(c){c.width=0;c.height=0;},
 };
 const ImageData=environment.ImageData;
