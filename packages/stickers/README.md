@@ -30,6 +30,29 @@ forwarding is blocked until its local re-finalization path is ported.
 
 ## Routing and lifecycle
 
+For a bundled browser UI, use the browser entry. Its browser export excludes
+the standalone Node worker and Node resource cache:
+
+    import { createBrowserStickerRuntime, validateStickerJob } from '@open-wa/stickers/browser';
+    const runtime = createBrowserStickerRuntime();
+    const job = { effects: ['comic'] };
+    validateStickerJob(job);
+    const result = await runtime.createSticker(file, job);
+    // Download or preview result.bytes, then release the runtime when finished.
+    await runtime.dispose();
+
+Job validation does not read media or start rendering. The browser runtime uses
+the same job planner, renderer and output limits as the other execution hosts.
+`listEffects({ backend: 'browser', availableOnly: true })` includes option
+descriptors alongside defaults: numeric bounds, integer requirements and slider
+steps, string lengths, and point-coordinate bounds. The planner uses those same
+numeric bounds, so authoring controls can follow the public catalogue.
+
+Browser font verification needs a secure context (HTTPS or localhost). Animated
+input decoding also depends on the browser's codec support. A browser capability
+failure leaves server-side code export available; it does not create a successful
+local render.
+
 `createSticker(input, job)` defaults to `backend: 'auto'`. Before decoding, the
 planner compares the input codec and every ordered effect with the available
 browser capabilities. If all requirements fit, the job runs in that browser.
