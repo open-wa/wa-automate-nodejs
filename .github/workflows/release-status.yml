@@ -1,0 +1,35 @@
+name: Release availability
+run-name: Release ${{ inputs.version }} availability
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version without the v prefix
+        required: true
+        type: string
+
+permissions:
+  actions: write
+  contents: write
+
+concurrency:
+  group: release-followup-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  availability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 130
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Track npm packages and the documentation deployment
+        run: node tools/release/release-status.mjs

@@ -1,4 +1,5 @@
 name: Build & Deploy Documentation
+run-name: ${{ inputs.release_version && format('Docs {0} / {1}', inputs.release_version, inputs.release_request_id) || 'Build & Deploy Documentation' }}
 
 # Builds the v5 docs app (apps/docs) and deploys it to Cloudflare Workers
 # (the `openwa-docs` worker, per apps/docs/wrangler.jsonc).
@@ -9,6 +10,15 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: Release being deployed (set by the release action)
+        required: false
+        type: string
+      release_request_id:
+        description: Release deployment identifier
+        required: false
+        type: string
   push:
     branches: [master]
     paths:
@@ -29,8 +39,8 @@ on:
       - '.github/workflows/docs-run.yml'
 
 concurrency:
-  group: docs-deploy
-  cancel-in-progress: true
+  group: ${{ inputs.release_version && format('docs-release-{0}', inputs.release_version) || 'docs-deploy' }}
+  cancel-in-progress: ${{ !inputs.release_version }}
 
 jobs:
   deploy:
@@ -42,6 +52,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_version && format('v{0}', inputs.release_version) || github.ref }}
 
       - uses: pnpm/action-setup@v4
 

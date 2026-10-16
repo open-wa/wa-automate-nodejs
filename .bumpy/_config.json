@@ -46,9 +46,5 @@
     "packManager": "pnpm",
     "publishManager": "npm",
     "provenance": true
-  },
-  "versionPr": {
-    "title": "chore: version packages",
-    "branch": "bumpy/version-packages"
   }
 }

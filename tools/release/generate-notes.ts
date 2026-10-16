@@ -1,81 +1,116 @@
 #!/usr/bin/env node
-/** Build concise release notes from the same deduplicated changes as the images. */
-import { execFileSync } from 'node:child_process';
+/** Generate grouped release notes directly from commit messages. */
 import { readFileSync, writeFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join, resolve } from 'node:path';
+import { command, api, repo, source, version as parseVersion } from './shared.mjs';
 
-const require = createRequire(import.meta.url);
-const { collectChanges, groupChanges, previousReleaseTag } = require('./image-content.cjs');
-const editorial = require('./image-highlights.json');
-const directory = dirname(fileURLToPath(import.meta.url));
-const root = resolve(directory, '../..');
-const repo = 'https://github.com/open-wa/wa-automate-nodejs';
-
-type Change = { markdown: string; severity: string; packages: string[] };
-
-function options() {
-  const args = process.argv.slice(2);
-  const get = (flag: string) => {
-    const index = args.indexOf(flag);
-    return index >= 0 ? args[index + 1] : undefined;
-  };
-  const version = get('--version') || JSON.parse(readFileSync(join(root, 'packages/core/package.json'), 'utf8')).version;
-  if (!/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(version)) throw new Error('Invalid release version');
-  return { version, output: resolve(get('--output') || join(root, 'RELEASE_BODY.md')), compare: get('--compare') };
-}
-
-function bullet(change: Change): string {
-  const text = change.markdown.trim();
-  const emoji = change.severity === 'major' ? '💥' : change.severity === 'minor' ? '✨' : '🐛';
-  // Preserve migration notes and limitations; never cut an entry mid-sentence.
-  const content = /^\p{Extended_Pictographic}/u.test(text) ? text : `${emoji} ${text}`;
-  return `- ${content.replace(/\n/g, '\n  ')}`;
-}
-
-function commitFallback(previous: string | undefined): Change[] {
-  if (!previous) return [];
-  const log = execFileSync('git', ['log', `${previous}..HEAD`, '--format=%s', '--no-merges'], { cwd: root, encoding: 'utf8' });
-  const seen = new Set<string>();
-  return log.split('\n').flatMap(subject => {
-    const match = subject.replace(/^[^\p{L}\d]+/u, '').match(/^(feat|fix|perf)(?:\([^)]+\))?(!)?:\s*(.+)$/);
-    if (!match || seen.has(match[3])) return [];
-    seen.add(match[3]);
-    return [{ markdown: `${match[1] === 'perf' ? '⚡️ ' : ''}${match[3]}`, severity: match[2] ? 'major' : match[1] === 'feat' ? 'minor' : 'patch', packages: [] }];
+const args = process.argv.slice(2);
+const option = name => {
+  const index = args.indexOf(name);
+  return index < 0 ? undefined : args[index + 1];
+};
+const manifest = JSON.parse(readFileSync(join(source, 'packages/core/package.json'), 'utf8'));
+const version = parseVersion(option('--version') || manifest.version);
+const requestedOutput = option('--output');
+const output = requestedOutput === '-' ? '-' : resolve(requestedOutput || join(source, 'RELEASE_BODY.md'));
+const stdin = args.includes('--stdin');
+const git = (...argv) => command('git', argv, { cwd: source });
+const previous = option('--compare') || (stdin ? undefined : git('tag', '--merged', 'HEAD', '--sort=-version:refname', '--list', 'v*')
+  .split('\n').find(tag => /^v\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(tag) && tag !== `v${version}`));
+const range = previous ? [`${previous}..HEAD`] : ['HEAD'];
+const log = stdin ? readFileSync(0, 'utf8') : git('log', ...range, '--no-merges', '--format=%H%x1f%P%x1f%aI%x1f%B%x1e');
+const headings = {
+  feat: 'Features', fix: 'Fixes', perf: 'Performance', refactor: 'Changes', style: 'Changes',
+  revert: 'Changes', docs: 'Documentation', test: 'Tests', chore: 'Maintenance',
+  build: 'Maintenance', ci: 'Maintenance',
+};
+const concerns = {
+  api: 'API', dashboard: 'Dashboard', logger: 'Logging', session: 'Sessions',
+  events: 'Events', release: 'Releases', core: 'Core', docs: 'Documentation',
+  deps: 'Dependencies', plan: 'Planning', concepts: 'Concepts',
+};
+const defaultEmoji = { feat: '✨', fix: '🐛', perf: '⚡️', refactor: '♻️', style: '💄', revert: '⏪️', docs: '📝', test: '✅', chore: '🔧', build: '🔨', ci: '👷' };
+const issueCache = new Map();
+function issues(body) {
+  const references = new Map();
+  for (const match of body.matchAll(/(?:^|[\s(])#(\d+)\b/g)) references.set(`${repo}#${match[1]}`, [repo, match[1]]);
+  for (const match of body.matchAll(/https:\/\/github\.com\/([\w.-]+\/[\w.-]+)\/issues\/(\d+)\b/g)) {
+    references.set(`${match[1]}#${match[2]}`, [match[1], match[2]]);
+  }
+  return [...references].flatMap(([key, [repository, number]]) => {
+    if (!issueCache.has(key)) {
+      const item = api(`repos/${repository}/issues/${number}`);
+      // GitHub shares the issue-number namespace with PRs. Only show issues.
+      issueCache.set(key, item.pull_request ? null : {
+        label: repository === repo ? `#${number}` : `${repository}#${number}`, url: item.html_url,
+      });
+    }
+    return issueCache.get(key) ? [issueCache.get(key)] : [];
   });
 }
 
-function main() {
-  const { version, output, compare } = options();
-  const legacyEditorial: Record<string, string> = { '5.0.0': 'v5-release-notes.md', '5.1.0': 'v5.1-release-notes.md' };
-  const curatedFile = editorial[version]?.notesFile || legacyEditorial[version];
-  let notes: string;
-  if (curatedFile) {
-    notes = readFileSync(join(directory, curatedFile), 'utf8');
+const entries = new Map();
+for (const record of log.split('\x1e')) {
+  if (!record.trim()) continue;
+  const [sha, parents, date, body] = record.trim().split('\x1f');
+  if (parents.trim().split(/\s+/).length > 1) continue;
+  const subject = body.split('\n')[0];
+  const match = subject.match(/^([^\p{L}\p{N}]*)(\w+)(?:\(([^)]+)\))?(!)?:\s*(.+)$/u);
+  const [, prefix, type, scope, breaking, rawDescription] = match || ['', '', 'other', undefined, '', subject];
+  const description = rawDescription.replace(/\s*\(#\d+\)/g, '').trim() || rawDescription.trim();
+  if (type === 'chore' && scope === 'release' && /^(version packages|sync .* (?:back )?to master|publish OpenWA|promote )/i.test(description)) continue;
+  const breakingNote = body.match(/(?:^|\n)BREAKING[ -]CHANGE:\s*([^\n]+(?:\n(?!\s*$)[^\n]+)*)/)?.[1];
+  const heading = breaking || breakingNote ? 'Breaking changes' : headings[type] || 'Other changes';
+  const concern = concerns[scope] || (scope ? scope.replace(/[-_]/g, ' ') : 'General');
+  const key = `${heading}:${description.toLowerCase().replace(/[.!]+$/, '').replace(/\s+/g, ' ')}`;
+  const related = issues(body);
+  const existing = entries.get(key);
+  if (existing) {
+    existing.scopes.add(concern);
+    existing.commits.add(sha);
+    for (const issue of related) existing.issues.set(issue.url, issue);
+    existing.time = Math.max(existing.time, Date.parse(date));
+    if (breakingNote) existing.breakingNotes.add(breakingNote);
   } else {
-    const previous = compare || previousReleaseTag(version);
-    const changes = collectChanges(version);
-    const { ranked, maintenance }: { ranked: Change[]; maintenance: string[] } = groupChanges(version, changes);
-    const highlights = changes.length ? ranked : commitFallback(previous);
-    const config = editorial[version] || {};
-    const lines = [`# ✨ OpenWA ${version}${config.headline ? ` — ${config.headline}` : ''}`, ''];
-    if (config.summary) lines.push(config.summary, '');
-    if (highlights.length) {
-      lines.push("## ✨ What's new", '', ...highlights.slice(0, 6).map(bullet), '');
-      if (highlights.length > 6) {
-        lines.push('<details>', `<summary>${highlights.length - 6} more changes</summary>`, '', ...highlights.slice(6).map(bullet), '', '</details>', '');
-      }
-    }
-    // Coordinated bumps are bookkeeping, not headline features.
-    if (maintenance.length) lines.push('## 🔖 Version alignment', '', `${maintenance.length} companion packages receive version or dependency updates. No separate feature changes.`, '');
-    lines.push(`[Full diff](${previous ? `${repo}/compare/${previous}...v${version}` : `${repo}/releases/tag/v${version}`})`, '');
-    notes = lines.join('\n');
+    entries.set(key, {
+      heading, description: description[0].toUpperCase() + description.slice(1),
+      emoji: prefix.trim() || defaultEmoji[type] || '🔧', scopes: new Set([concern]),
+      commits: new Set([sha]), issues: new Map(related.map(issue => [issue.url, issue])),
+      time: Date.parse(date), breakingNotes: new Set(breakingNote ? [breakingNote] : []),
+    });
   }
-  writeFileSync(output, notes, 'utf8');
-  // Both consumers receive the same editorial copy, never a duplicated commit dump.
-  writeFileSync(join(root, 'release-notes-detailed.md'), notes, 'utf8');
-  console.log(`Wrote concise OpenWA ${version} release notes.`);
 }
-
-try { main(); } catch (error) { console.error('Release notes generation failed:', error); process.exitCode = 1; }
+const lines = [`# OpenWA ${version}`, ''];
+for (const heading of ['Breaking changes', 'Features', 'Fixes', 'Performance', 'Changes', 'Documentation', 'Tests', 'Maintenance', 'Other changes']) {
+  const groups = new Map();
+  for (const entry of entries.values()) {
+    if (entry.heading !== heading) continue;
+    const concern = [...entry.scopes].sort().join(' / ');
+    if (!groups.has(concern)) groups.set(concern, []);
+    groups.get(concern).push(entry);
+  }
+  if (!groups.size) continue;
+  lines.push(`## ${heading}`, '');
+  const ordered = [...groups].sort((a, b) => Math.max(...b[1].map(item => item.time)) - Math.max(...a[1].map(item => item.time)));
+  for (const [concern, group] of ordered) {
+    group.sort((a, b) => b.time - a.time);
+    for (const entry of group) {
+      const links = [
+        ...[...entry.commits].map(sha => `[${sha.slice(0, 7)}](https://github.com/${repo}/commit/${sha})`),
+        ...[...entry.issues.values()].map(issue => `[${issue.label}](${issue.url})`),
+      ];
+      lines.push(`- ${entry.emoji} **${concern}:** ${entry.description.replace(/[.!]+$/, '')}. (${links.join(' · ')})`);
+      for (const note of entry.breakingNotes) lines.push(`\n  **Breaking change:** ${note.replace(/\n/g, '\n  ')}`);
+    }
+  }
+  lines.push('');
+}
+if (!entries.size) lines.push('No user-facing commit entries in this release.', '');
+if (previous) lines.push(`[Full diff](https://github.com/${repo}/compare/${previous}...v${version})`, '');
+const notes = lines.join('\n');
+if (output === '-') process.stdout.write(notes);
+else writeFileSync(output, notes);
+if (!requestedOutput) writeFileSync(join(source, 'release-notes-detailed.md'), notes);
+const message = `Wrote OpenWA ${version} release notes from ${entries.size} distinct commit messages.`;
+if (output === '-') console.error(message);
+else console.log(message);
