@@ -92,6 +92,19 @@
 .studio-wa-sticker .studio-wa-message-meta { width: fit-content; margin: 4px 0 0 auto; padding: 2px 7px; border-radius: 8px; background: var(--wa-chip); }
 .studio-sticker-in-chat { width: 210px; max-width: 100%; height: 210px; object-fit: contain; filter: drop-shadow(0 2px 3px #0b141a1f); }
 .studio-sticker-photo { display: block; width: 100%; max-height: 320px; object-fit: contain; border-radius: 6px; }
+.studio-sticker-preview { display: flex; flex-direction: column; }
+.studio-sticker-preview .studio-panel-heading { padding: 10px 14px; }
+.studio-sticker-preview-actions, .studio-sticker-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.studio-sticker-summary { justify-content: space-between; }
+.studio-sticker-preview .studio-checkerboard { min-height: 380px; border-radius: 0; }
+.studio-wa-chat-compact .studio-wa-header { min-height: 48px; padding-block: 8px; }
+.studio-wa-chat-compact .studio-wa-avatar { width: 28px; height: 28px; }
+.studio-wa-chat-compact .studio-wa-avatar svg { width: 18px; height: 18px; }
+.studio-wa-chat-compact .studio-wa-contact > span { display: none; }
+.studio-wa-chat-compact .studio-wa-wallpaper { min-height: 380px; padding-block: 24px; }
+.studio-wa-chat-compact .studio-wa-messages { min-height: 332px; justify-content: center; }
+.studio-wa-chat-compact .studio-wa-sticker { align-self: center; }
+.studio-wa-chat-compact .studio-sticker-in-chat { width: 300px; height: 300px; }
 .studio-wa-photo-message { padding: 4px; }
 .studio-wa-render-status { align-self: stretch; border: 1px solid #8696a042; border-radius: 12px; background: var(--wa-incoming); }
 .studio-wa-render-note { padding: 18px; color: var(--wa-muted); font-size: 13px; }
