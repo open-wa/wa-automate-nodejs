@@ -19,6 +19,7 @@
     "build": "turbo build --filter='!docs'",
     "dev": "turbo dev --concurrency 100",
     "test": "turbo test",
+    "test:startup": "turbo build --filter=@open-wa/wa-automate... && node --test tools/regression/runtime-startup.test.mjs",
     "lint": "oxlint .",
     "lint:fix": "oxlint . --fix",
     "clean": "turbo clean && rimraf node_modules",
