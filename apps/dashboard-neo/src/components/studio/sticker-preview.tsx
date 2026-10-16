@@ -5,8 +5,8 @@ import { useStickerResultUrl, useStickerStillUrl } from "@/lib/studio/use-sticke
 import { EmptyStudio, StudioChoices } from "./shared"
 import { WhatsAppChat } from "./whatsapp-chat"
 
-export function StickerPreview({ source, result, rendering, error, cancel, retry }: {
-  source: File; result?: StickerResult; rendering?: boolean; error?: string; cancel: () => void; retry: () => void
+export function StickerPreview({ source, result, rendering, error, invalidSource, cancel, retry, chooseSource }: {
+  source: File; result?: StickerResult; rendering?: boolean; error?: string; invalidSource?: boolean; cancel: () => void; retry: () => void; chooseSource: () => void
 }) {
   const [context, setContext] = useState<"sticker" | "chat">("chat")
   const [compare, setCompare] = useState(false)
@@ -37,7 +37,7 @@ export function StickerPreview({ source, result, rendering, error, cancel, retry
       <div className="studio-sticker-summary">{result && <p className="studio-note">{result.width + " × " + result.height + " · " + (result.animated ? result.frames + " frames · " + (result.durationMs / 1000).toFixed(1) + " seconds" : "Static WebP") + " · " + Math.ceil(result.bytes.byteLength / 1024) + " KB"}</p>}
         <span role="status" className="studio-note">{rendering ? "Rendering sticker…" : error ? "" : compare ? "Original photo" : result ? "Ready" : ""}</span>
         {rendering && result && <Button variant="outline" size="sm" onClick={cancel}>Cancel</Button>}</div>
-      {error && <div className="space-y-3"><p role="alert" className="studio-error">{error}</p><Button variant="outline" onClick={retry}>Try again</Button></div>}
+      {error && <div className="space-y-3"><p role="alert" className="studio-error">{error}</p><Button variant="outline" onClick={invalidSource ? chooseSource : retry}>{invalidSource ? "Choose another photo" : "Try again"}</Button></div>}
     </div>
   </div>
 }

@@ -1,4 +1,5 @@
-.studio { min-width: 0; }
+.studio { --muted-foreground: #59655f; min-width: 0; }
+.dark .studio { --muted-foreground: #b4c0ba; }
 .studio h2 { font-size: 15px; line-height: 22px; font-weight: 600; }
 .studio h3 { font-size: 14px; line-height: 20px; font-weight: 600; }
 .studio-heading { position: sticky; top: 0; z-index: 20; padding-block: 8px; background: var(--background); }
@@ -13,6 +14,8 @@
 .studio-panel-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 14px 18px; border-bottom: 1px solid var(--border); background: var(--background); }
 .studio-choices { max-width: 100%; }
 .studio-type-picker { padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.studio-message-navigation { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.studio-message-navigation .studio-type-picker { flex: 1; min-width: 0; padding-bottom: 0; border-bottom: 0; }
 .studio-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
 .studio-field label { font-size: 13px; line-height: 20px; font-weight: 500; }
 .studio-separated { padding-top: 12px; border-top: 1px solid var(--border); }
@@ -114,8 +117,21 @@
 .dark .studio-wa-sheet > header, .dark .studio-wa-sheet > footer { background: #202c33; }
 .studio-effect-chooser { display: flex; flex-direction: column; gap: 16px; }
 .studio.studio-effect-chooser { padding-bottom: 0; }
-.studio-effect-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: 8px; }
+.studio-effect-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .studio-effect-grid button { overflow-wrap: anywhere; }
+.studio-effect-sample { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--color-background-secondary-default); }
+.studio-effect-sample img { flex-shrink: 0; border-radius: 8px; }
+.studio-effect-sample p { flex: 1; min-width: 140px; font-size: 13px; line-height: 20px; }
+.studio-effect-sample p span { display: block; color: var(--muted-foreground); }
+.studio-effect-grid .studio-effect-tile { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; height: auto; padding: 8px; gap: 8px; border-radius: 12px; text-align: start; white-space: normal; }
+.studio-effect-tile:hover { border-color: var(--primary); }
+.studio-effect-image { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 1; border: 1px solid var(--border); border-radius: 8px; background: #efeae2; overflow: hidden; }
+.studio-effect-image img { width: 100%; height: 100%; object-fit: contain; }
+.studio-effect-motion { position: absolute; right: 4px; bottom: 4px; display: flex; align-items: center; gap: 3px; padding: 2px 5px; border-radius: 5px; background: #fffef5ed; color: #284839; font-size: 11px; line-height: 16px; }
+.studio-effect-motion svg { width: 11px; height: 11px; }
+.studio-effect-name { display: flex; align-items: center; justify-content: space-between; gap: 4px; font-size: 14px; font-weight: 600; }
+.studio-effect-name svg { width: 14px; height: 14px; flex-shrink: 0; }
+.studio-effect-description { color: var(--muted-foreground); font-size: 13px; line-height: 20px; font-weight: 400; }
 .studio-add-effect { width: 100%; }
 .studio-upload { display: flex; min-height: 380px; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 32px; border: 1px dashed var(--color-border-button-default); border-radius: 12px; text-align: center; }
 .studio-slider { display: flex; align-items: center; gap: 12px; }
@@ -144,15 +160,22 @@
   .studio-panel { min-height: auto; }
   .studio-mobile-navigation { display: block; }
   .studio-preview { order: -1; }
-  .studio-panels[data-view=edit] .studio-code, .studio-panels[data-view=preview] .studio-editor, .studio-panels[data-view=preview] .studio-code, .studio-panels[data-view=code] .studio-preview, .studio-panels[data-view=code] .studio-editor { display: none; }
+  .studio-panels[data-view=edit] .studio-preview, .studio-panels[data-view=edit] .studio-code, .studio-panels[data-view=preview] .studio-editor, .studio-panels[data-view=preview] .studio-code, .studio-panels[data-view=code] .studio-preview, .studio-panels[data-view=code] .studio-editor { display: none; }
+  .studio-panels .studio-preview > .studio-panel-heading { display: none; }
 }
 @media (max-width: 767px) {
   .studio { padding-bottom: 84px; }
   .studio.sticker-studio { padding-bottom: 0; }
   .sticker-studio-layout { grid-template-columns: minmax(0, 1fr); }
   .sticker-studio-main { grid-row: 1; }
-  .sticker-studio .studio-heading header > div:last-child { width: 100%; }
+  .sticker-studio .studio-heading header > div:last-child { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
   .sticker-studio .studio-heading header > div:last-child > button { flex: 1; }
+  .sticker-studio .studio-heading header > div:last-child > button:last-child { grid-column: 1 / -1; }
+  .sticker-studio .studio-wa-wallpaper { min-height: 230px; padding-block: 16px; }
+  .sticker-studio .studio-wa-messages { min-height: 220px; }
+  .sticker-studio .studio-sticker-in-chat { width: 220px; height: 220px; }
+  .sticker-studio .studio-wa-render-status { min-height: 180px; }
+  .sticker-studio .studio-wa-render-status .studio-empty { min-height: 180px; }
   .studio-desktop-type, .studio-desktop-actions { display: none; }
   .studio-mobile-type { display: block; width: 100%; }
   .studio-mobile-actions { position: sticky; bottom: 0; z-index: 20; display: flex; justify-content: flex-end; gap: 8px; padding: 12px 0 max(12px, env(safe-area-inset-bottom)); background: var(--background); border-top: 1px solid var(--border); }
@@ -166,4 +189,10 @@
   .studio-row-error { padding-inline-start: 48px; }
   .studio-panels { padding: 8px; }
   .studio-wa-wallpaper { padding: 18px 14px 28px; }
+  .studio-effect-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .studio-effect-sample { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 8px; padding: 8px; }
+  .studio-effect-sample img { width: 44px; height: 44px; }
+  .studio-effect-sample p { min-width: 0; font-size: 12px; line-height: 18px; }
+  .studio-effect-sample > button { width: 44px; height: 44px; padding: 0; }
+  .studio-effect-sample > button > span { display: none; }
 }

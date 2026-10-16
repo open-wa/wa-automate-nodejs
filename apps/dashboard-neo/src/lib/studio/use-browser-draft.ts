@@ -1,4 +1,4 @@
-import { useEffect, useState, type Dispatch, type SetStateAction } from "react"
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react"
 
 export function useBrowserDraft<T>(key: string, initial: T, accepts: (value: unknown) => value is T): [T, Dispatch<SetStateAction<T>>, string] {
   const [draft, setDraft] = useState<T>(() => {
@@ -12,6 +12,16 @@ export function useBrowserDraft<T>(key: string, initial: T, accepts: (value: unk
     return initial
   })
   const [status, setStatus] = useState("Saving draft…")
+  const latest = useRef(draft)
+  latest.current = draft
+  useEffect(() => {
+    const saveBeforeLeaving = () => {
+      try { localStorage.setItem(key, JSON.stringify(latest.current)) }
+      catch { /* Keep the editor usable if browser storage is unavailable. */ }
+    }
+    window.addEventListener("pagehide", saveBeforeLeaving)
+    return () => { window.removeEventListener("pagehide", saveBeforeLeaving); saveBeforeLeaving() }
+  }, [key])
   useEffect(() => {
     const timer = setTimeout(() => {
       try {
