@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/decrypt",
-  "version": "5.6.2",
+  "version": "5.6.3",
   "description": "Lightweight WhatsApp media decryption \u2014 zero external dependencies",
   "type": "module",
   "main": "./dist/index.cjs",
