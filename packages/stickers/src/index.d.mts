@@ -47,6 +47,7 @@ export type EffectOption = Readonly<
   { type: 'string'; maxLength: number; format?: 'color' } |
   { type: 'points'; min: number; max: number; step: number }
 >;
+/** Automatically queue bursts, reuse renderers, and release resources after idle. No disposal is needed. */
 export function createSticker(input: StickerInput, job?: StickerJob): Promise<StickerResult>;
 /** Validate a job without decoding media or starting a renderer. */
 export function validateStickerJob(job?: StickerJob): void;

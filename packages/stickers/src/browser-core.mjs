@@ -3,24 +3,30 @@ import { resourceManifest } from './resources.mjs';
 import { StickerError, abortIfRequested } from './errors.mjs';
 import { renderSticker } from './render.mjs';
 import { webResourceBytes, webKernelBytes } from './browser-resources.mjs';
+import { manageStickerRuntime } from './lifecycle.mjs';
 
 /** A browser driver needs only evaluate(fn, argument). Without a driver, use this page. */
 export function createBrowserStickerRuntime(driver, resources) {
-  const browser = createBrowserBackend(driver, resources);
-  let closed = false;
-  return {
-    async createSticker(input, job = {}) {
-      if (closed) throw new StickerError('RUNTIME_CLOSED', 'The browser sticker runtime is closed.');
-      return renderSticker(input, { ...job, backend: job.backend ?? 'browser' }, { browser, standalone: { available: false, requirements: [] } });
-    },
-    async dispose() { closed = true; await browser.dispose(); },
-  };
+  return manageStickerRuntime(() => {
+    const browser = createBrowserBackend(driver, resources);
+    return {
+      createSticker(input, job) {
+        return renderSticker(input, { ...job, backend: job.backend ?? 'browser' }, { browser, standalone: { available: false, requirements: [] } });
+      },
+      dispose: () => browser.dispose(),
+    };
+  });
+}
+
+let defaultRuntime;
+export function createSticker(input, job) {
+  defaultRuntime ??= createBrowserStickerRuntime();
+  return defaultRuntime.createSticker(input, job);
 }
 
 /** A browser driver needs only evaluate(fn, argument). Without a driver, use this page. */
 export function createBrowserBackend(driver, { resourceBytes = webResourceBytes, kernelBytes = webKernelBytes } = {}) {
   const evaluate = driver ? driver.evaluate.bind(driver) : (fn, arg) => Promise.resolve().then(() => fn(arg));
-  let tail = Promise.resolve(), queued = 0, pendingBytes = 0, closed = false, timer;
   async function capabilities() {
     return evaluate(async () => {
       if (typeof createImageBitmap !== 'function' || (typeof OffscreenCanvas === 'undefined' && typeof document === 'undefined')) return { available: false, requirements: [] };
@@ -37,10 +43,9 @@ export function createBrowserBackend(driver, { resourceBytes = webResourceBytes,
     });
   }
   async function execute(input, job, requirements) {
-    if (closed) throw new StickerError('RUNTIME_CLOSED', 'The browser sticker runtime is closed.');
     abortIfRequested(job.signal);
     const installed = await evaluate(() => globalThis.__OPENWA_STICKER_RENDERER_V1__?.version === '1');
-    if (!installed) await evaluate(createRecipeEngine, { install: true, kernelBytes: Array.from(await kernelBytes()) });
+    if (!installed) await evaluate(createRecipeEngine, { install: true, kernelBytes: Array.from(await kernelBytes(job.signal)) });
     for (const requirement of requirements.filter(value => value.startsWith('font:'))) {
       const resource = resourceManifest['font' + requirement.slice(5,6).toUpperCase() + requirement.slice(6)];
       const loaded = await evaluate(family => (globalThis.fonts || document.fonts).check(`12px "${family}"`) && !!globalThis.__OPENWA_STICKER_FONTS_V1__?.has(family), resource.family);
@@ -48,7 +53,7 @@ export function createBrowserBackend(driver, { resourceBytes = webResourceBytes,
         const fonts = globalThis.fonts || document.fonts;
         const face = new FontFace(family, new Uint8Array(bytes)); await face.load(); fonts.add(face);
         (globalThis.__OPENWA_STICKER_FONTS_V1__ ??= new Map()).set(family, face);
-      }, { family: resource.family, bytes: Array.from(await resourceBytes(resource)) });
+      }, { family: resource.family, bytes: Array.from(await resourceBytes(resource, job.signal)) });
     }
     abortIfRequested(job.signal);
     const { signal, onProgress, ...serializable } = job;
@@ -56,12 +61,12 @@ export function createBrowserBackend(driver, { resourceBytes = webResourceBytes,
     const cancel = () => { evaluate(id => globalThis.__OPENWA_STICKER_RENDERER_V1__?.cancel(id), renderId).catch(() => {}); };
     signal?.addEventListener('abort', cancel, { once: true });
     let result;
-    try { result = await evaluate(async ({ bytes, mime, job }) => {
+    try { result = await evaluate(async ({ bytes, mime, job, serialize }) => {
       try {
         const result = await globalThis.__OPENWA_STICKER_RENDERER_V1__.render(new Blob([new Uint8Array(bytes)], { type: mime }), job);
-        return { result: { ...result, bytes: Array.from(result.bytes) } };
+        return { result: { ...result, bytes: serialize ? Array.from(result.bytes) : result.bytes } };
       } catch (error) { return { error: { message: error.message || String(error), code: error.code || 'RENDER_FAILED' } }; }
-    }, { bytes: Array.from(input.bytes), mime: input.mime, job: { ...serializable, __renderId: renderId } }); }
+    }, { bytes: driver ? Array.from(input.bytes) : input.bytes, mime: input.mime, job: { ...serializable, __renderId: renderId }, serialize: !!driver }); }
     finally { signal?.removeEventListener('abort', cancel); }
     abortIfRequested(signal);
     if (result.error) throw new StickerError(result.error.code, result.error.message);
@@ -78,19 +83,15 @@ export function createBrowserBackend(driver, { resourceBytes = webResourceBytes,
       delete globalThis.__OPENWA_STICKER_FONTS_V1__;
     });
   }
+  const jobs = manageStickerRuntime(() => ({
+    createSticker: ({ input, requirements }, job) => execute(input, job, requirements),
+    dispose: release,
+  }));
   return {
     capabilities,
     render(input, job, requirements) {
-      if (closed) return Promise.reject(new StickerError('RUNTIME_CLOSED', 'The browser sticker runtime is closed.'));
-      if (queued >= 4 || pendingBytes + input.bytes.length > 64 * 1024 * 1024) return Promise.reject(new StickerError('QUEUE_FULL', 'The bounded browser sticker queue is full.'));
-      clearTimeout(timer); queued++; pendingBytes += input.bytes.length;
-      const promise = tail.then(() => execute(input, job, requirements));
-      tail = promise.catch(() => {}).finally(() => {
-        queued--; pendingBytes -= input.bytes.length;
-        if (!queued) { timer = setTimeout(() => { tail = tail.then(release).catch(() => {}); }, 60_000); timer.unref?.(); }
-      });
-      return promise;
+      return jobs.createSticker({ input, requirements }, job);
     },
-    async dispose() { closed = true; clearTimeout(timer); await tail; await release(); },
+    dispose: () => jobs.dispose(),
   };
 }
