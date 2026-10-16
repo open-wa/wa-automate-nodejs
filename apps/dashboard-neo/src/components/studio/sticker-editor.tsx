@@ -1,9 +1,11 @@
-import { useId, useRef } from "react"
+import { useId, useRef, useState } from "react"
 import type { Dispatch, SetStateAction } from "react"
+import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/boardui/checkbox"
 import { Slider } from "@/components/boardui/slider"
+import { DetailSheet } from "@/components/application/detail-sheet"
 import { StudioChoices, StudioField, StudioRow } from "./shared"
 import { availableEffects, effectLabel, optionLabel, STICKER_PROFILE, type EffectInstance, type StickerDraft, type StickerSettings } from "@/lib/studio/stickers"
 import { moveItem, newStudioKey } from "@/lib/studio/files"
@@ -16,6 +18,8 @@ export function StickerEditor({ file, onFile, draft, setDraft, panel, search, se
   selected: string; setSelected: (value: string) => void; error?: string
 }) {
   const input = useRef<HTMLInputElement>(null)
+  const addEffectButton = useRef<HTMLButtonElement>(null)
+  const [chooserOpen, setChooserOpen] = useState(false)
   const settings = draft.settings
   const setting = <K extends keyof StickerSettings>(key: K, value: StickerSettings[K]) => setDraft(previous => ({ ...previous, settings: { ...previous.settings, [key]: value } }))
   const updateEffects = (effects: EffectInstance[]) => setDraft(previous => ({ ...previous, effects }))
@@ -23,23 +27,18 @@ export function StickerEditor({ file, onFile, draft, setDraft, panel, search, se
   const descriptor = availableEffects.find(item => item.name === current?.effect.name)
   const effects = availableEffects.filter(effect => (!search || effectLabel(effect.name).toLowerCase().includes(search.toLowerCase())) && (filter === "all" || (filter === "animated" ? effect.animated : !effect.animated)))
   return <>
-    <div className="studio-section"><h2>{panel === "effects" ? "Media and effects" : panel === "shape" ? "Size and shape" : panel === "animation" ? "Animation" : "Pack and creator"}</h2>
+    {panel === "effects" && <div className="studio-section"><h2>Photo</h2>
       <div className="studio-section-heading"><span className="studio-note break-all">{file.name}</span><Button variant="ghost" size="sm" onClick={() => input.current?.click()}>Change photo</Button></div>
-      <input ref={input} type="file" className="sr-only" accept="image/png,image/jpeg,image/gif,image/webp" aria-label="Change sticker source" onChange={event => { const value = event.target.files?.[0]; if (value) onFile(value); event.currentTarget.value = "" }} /></div>
+      <input ref={input} type="file" className="sr-only" accept="image/png,image/jpeg,image/gif,image/webp" aria-label="Change sticker source" onChange={event => { const value = event.target.files?.[0]; if (value) onFile(value); event.currentTarget.value = "" }} /></div>}
     {panel === "effects" && <>
-      <StudioField label="Add an effect" type="search" value={search} onChange={setSearch} placeholder="Search effects" />
-      <StudioChoices label="Effect type" value={filter} onChange={setFilter} choices={[{ value: "all", label: "All" }, { value: "static", label: "Static" }, { value: "animated", label: "Animated" }]} />
-      <div className="studio-effect-grid" aria-label="Available effects">{effects.map(effect => <Button key={effect.name} variant="outline" size="sm" className="h-auto min-h-10 justify-start whitespace-normal text-start max-sm:min-h-11" disabled={draft.effects.length >= STICKER_PROFILE.maxEffects} onClick={() => {
-        const item: EffectInstance = { id: newStudioKey("effect"), effect: { name: effect.name } }
-        setDraft(previous => ({ ...previous, effects: [...previous.effects, item] })); setSelected(item.id)
-      }}>{"+ " + effectLabel(effect.name)}</Button>)}</div>
-      {!effects.length && <p className="studio-note">No matching effects.</p>}
       <div className="studio-section"><div className="studio-section-heading"><h3>Applied effects</h3><span className="studio-note">{draft.effects.length + " of " + STICKER_PROFILE.maxEffects}</span></div>
-        {!draft.effects.length && <p className="studio-note">Choose an effect above.</p>}
+        {!draft.effects.length && <p className="studio-note">Add an effect to get started.</p>}
         {draft.effects.map((item, index) => <StudioRow key={item.id} rowId={item.id} group="sticker-effects" label={effectLabel(item.effect.name)} selected={selected === item.id}
           onSelect={() => setSelected(item.id)} onMove={direction => updateEffects(moveItem(draft.effects, index, index + direction))}
           onDrop={id => updateEffects(moveItem(draft.effects, draft.effects.findIndex(item => item.id === id), index))}
           onRemove={() => { updateEffects(draft.effects.filter(value => value.id !== item.id)); if (selected === item.id) setSelected(draft.effects[index + 1]?.id || draft.effects[index - 1]?.id || "") }} />)}
+        <Button ref={addEffectButton} variant="outline" className="studio-add-effect" aria-expanded={chooserOpen} disabled={draft.effects.length >= STICKER_PROFILE.maxEffects} onClick={() => setChooserOpen(true)}><Plus aria-hidden />Add effect</Button>
+        {draft.effects.length > 1 && <p className="studio-note">Effects run from top to bottom.</p>}
       </div>
       {current && descriptor?.defaults && Object.keys(descriptor.defaults).length > 0 && <div className="studio-section"><h3>{effectLabel(current.effect.name) + " settings"}</h3>
         {Object.entries(descriptor.defaults).map(([key, defaultValue]) => {
@@ -59,7 +58,17 @@ export function StickerEditor({ file, onFile, draft, setDraft, panel, search, se
           return null
         })}
       </div>}
-      <p className="studio-note">Effects run from top to bottom.</p>
+      <DetailSheet title="Add an effect" description="Search for an effect, then add it to your sticker." open={chooserOpen} onOpenChange={setChooserOpen} finalFocus={addEffectButton} size="wide">
+        <div className="studio studio-effect-chooser">
+          <StudioField label="Search effects" type="search" value={search} onChange={setSearch} placeholder="Search effects" />
+          <StudioChoices label="Effect type" value={filter} onChange={setFilter} choices={[{ value: "all", label: "All" }, { value: "static", label: "Static" }, { value: "animated", label: "Animated" }]} />
+          <div className="studio-effect-grid" aria-label="Available effects">{effects.map(effect => <Button key={effect.name} variant="outline" size="sm" className="h-auto min-h-11 justify-start whitespace-normal text-start" disabled={draft.effects.length >= STICKER_PROFILE.maxEffects} onClick={() => {
+            const item: EffectInstance = { id: newStudioKey("effect"), effect: { name: effect.name } }
+            setDraft(previous => ({ ...previous, effects: [...previous.effects, item] })); setSelected(item.id); setChooserOpen(false)
+          }}><Plus aria-hidden />{effectLabel(effect.name)}</Button>)}</div>
+          {!effects.length && <p role="status" className="studio-note">No matching effects.</p>}
+        </div>
+      </DetailSheet>
     </>}
     {panel === "shape" && <>
       <p className="studio-note">{STICKER_PROFILE.width + " × " + STICKER_PROFILE.height + " pixels"}</p>

@@ -99,8 +99,11 @@
 .studio-wa-sheet > header, .studio-wa-sheet > footer { background: #f0f2f5; }
 .dark .studio-wa-sheet { background: #111b21; border-color: #31473e; }
 .dark .studio-wa-sheet > header, .dark .studio-wa-sheet > footer { background: #202c33; }
-.studio-effect-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; max-height: 224px; overflow-y: auto; }
+.studio-effect-chooser { display: flex; flex-direction: column; gap: 16px; }
+.studio.studio-effect-chooser { padding-bottom: 0; }
+.studio-effect-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: 8px; }
 .studio-effect-grid button { overflow-wrap: anywhere; }
+.studio-add-effect { width: 100%; }
 .studio-upload { display: flex; min-height: 380px; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 32px; border: 1px dashed var(--color-border-button-default); border-radius: 12px; text-align: center; }
 .studio-slider { display: flex; align-items: center; gap: 12px; }
 .studio-slider > :first-child { flex: 1; min-width: 0; }
