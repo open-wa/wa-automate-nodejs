@@ -37,6 +37,14 @@ The generator reads original commit messages between the preceding aggregate tag
 
 `generate-notes.ts` writes `RELEASE_BODY.md` and `release-notes-detailed.md`. It uses Node built-ins and `gh`, with no dependency installation, browser, AI provider or CMS credential. AI-written articles, blog posts, CMS publication and release artwork are reserved for significant releases authored directly with Mohammed. The existing image and editorial tools remain available for that work; they are not part of automatic publishing.
 
+To time the actual generator against the latest 100 commits, including issue lookups, pipe the git records directly into it:
+
+```bash
+git log -100 --format='%H%x1f%P%x1f%aI%x1f%B%x1e' | /usr/bin/time -p node tools/release/generate-notes.ts --stdin --output -
+```
+
+This prints Markdown to stdout without writing repository files or publishing anything. Use `--output /tmp/openwa-last100.md` to save the unedited output instead. Merge commits are removed after selecting the 100-commit window.
+
 ## Independent actions and reruns
 
 ```bash

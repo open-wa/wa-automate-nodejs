@@ -11,12 +11,14 @@ const option = name => {
 };
 const manifest = JSON.parse(readFileSync(join(source, 'packages/core/package.json'), 'utf8'));
 const version = parseVersion(option('--version') || manifest.version);
-const output = resolve(option('--output') || join(source, 'RELEASE_BODY.md'));
+const requestedOutput = option('--output');
+const output = requestedOutput === '-' ? '-' : resolve(requestedOutput || join(source, 'RELEASE_BODY.md'));
+const stdin = args.includes('--stdin');
 const git = (...argv) => command('git', argv, { cwd: source });
-const previous = option('--compare') || git('tag', '--merged', 'HEAD', '--sort=-version:refname', '--list', 'v*')
-  .split('\n').find(tag => /^v\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(tag) && tag !== `v${version}`);
+const previous = option('--compare') || (stdin ? undefined : git('tag', '--merged', 'HEAD', '--sort=-version:refname', '--list', 'v*')
+  .split('\n').find(tag => /^v\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(tag) && tag !== `v${version}`));
 const range = previous ? [`${previous}..HEAD`] : ['HEAD'];
-const log = git('log', ...range, '--no-merges', '--format=%H%x1f%aI%x1f%B%x1e');
+const log = stdin ? readFileSync(0, 'utf8') : git('log', ...range, '--no-merges', '--format=%H%x1f%P%x1f%aI%x1f%B%x1e');
 const headings = {
   feat: 'Features', fix: 'Fixes', perf: 'Performance', refactor: 'Changes', style: 'Changes',
   revert: 'Changes', docs: 'Documentation', test: 'Tests', chore: 'Maintenance',
@@ -50,7 +52,8 @@ function issues(body) {
 const entries = new Map();
 for (const record of log.split('\x1e')) {
   if (!record.trim()) continue;
-  const [sha, date, body] = record.trim().split('\x1f');
+  const [sha, parents, date, body] = record.trim().split('\x1f');
+  if (parents.trim().split(/\s+/).length > 1) continue;
   const subject = body.split('\n')[0];
   const match = subject.match(/^([^\p{L}\p{N}]*)(\w+)(?:\(([^)]+)\))?(!)?:\s*(.+)$/u);
   const [, prefix, type, scope, breaking, rawDescription] = match || ['', '', 'other', undefined, '', subject];
@@ -105,6 +108,9 @@ for (const heading of ['Breaking changes', 'Features', 'Fixes', 'Performance', '
 if (!entries.size) lines.push('No user-facing commit entries in this release.', '');
 if (previous) lines.push(`[Full diff](https://github.com/${repo}/compare/${previous}...v${version})`, '');
 const notes = lines.join('\n');
-writeFileSync(output, notes);
-writeFileSync(join(source, 'release-notes-detailed.md'), notes);
-console.log(`Wrote OpenWA ${version} release notes from ${entries.size} distinct commit messages.`);
+if (output === '-') process.stdout.write(notes);
+else writeFileSync(output, notes);
+if (!requestedOutput) writeFileSync(join(source, 'release-notes-detailed.md'), notes);
+const message = `Wrote OpenWA ${version} release notes from ${entries.size} distinct commit messages.`;
+if (output === '-') console.error(message);
+else console.log(message);
