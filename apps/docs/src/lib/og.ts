@@ -53,6 +53,55 @@ export function getDocsSocialMeta({
   ];
 }
 
+/** The `<title>` for a docs page: an explicit SEO title, or the page title with the brand. */
+export function getDocsDocumentTitle(data: Readonly<{ title: string; seoTitle?: string }>): string {
+  if (data.seoTitle) return data.seoTitle;
+  return /open-?wa/i.test(data.title) ? data.title : `${data.title} | open-wa`;
+}
+
+/** TechArticle and breadcrumb structured data for a docs page. */
+export function getDocsPageSchema({
+  title,
+  description,
+  url,
+  imageUrl,
+  breadcrumbs,
+}: Readonly<{
+  title: string;
+  description?: string;
+  url: string;
+  imageUrl: string;
+  breadcrumbs: readonly { name: string; url: string }[];
+}>) {
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'TechArticle',
+        '@id': `${url}#article`,
+        headline: title,
+        ...(description ? { description } : {}),
+        url,
+        image: imageUrl,
+        inLanguage: 'en',
+        isPartOf: { '@id': `${SITE_ORIGIN}/#website` },
+        publisher: { '@id': `${SITE_ORIGIN}/#organization` },
+        about: { '@id': `${SITE_ORIGIN}/#software` },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${url}#breadcrumbs`,
+        itemListElement: breadcrumbs.map((crumb, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: crumb.name,
+          item: crumb.url,
+        })),
+      },
+    ],
+  };
+}
+
 export function getSlugsFromImagePath(path: string): string[] {
   const parts = path.split('/').filter(Boolean);
 

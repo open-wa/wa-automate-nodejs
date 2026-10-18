@@ -12,7 +12,7 @@ export const Route = createFileRoute('/changelog/')({
   loader: () => loadChangelog(),
   head: ({ loaderData }) => ({
     meta: getDocsSocialMeta({
-      title: 'Changelog — OpenWA',
+      title: 'open-wa changelog: WhatsApp API release notes',
       description: 'New features, useful improvements, and what they mean for your WhatsApp integrations.',
       imageUrl: getAbsoluteDocsUrl(loaderData?.[0]?.image || getPageImage([]).url),
     }),

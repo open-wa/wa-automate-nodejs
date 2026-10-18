@@ -9,7 +9,7 @@ export function baseOptions(): BaseLayoutProps {
       title: (
         <span className="site-wordmark flex items-center gap-2 font-semibold tracking-tight">
           <span className="site-brand-mark flex size-7 items-center justify-center rounded-md bg-[#214be6] text-white">
-            <img src="/logo.png" alt="" className="size-4 object-contain" />
+            <img src="/logo.png" alt="open-wa logo" className="size-4 object-contain" />
           </span>
           <span>open-wa</span>
         </span>

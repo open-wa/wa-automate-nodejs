@@ -226,6 +226,8 @@ export const docs = defineDocs({
     dir: 'content/docs',
     docs: {
         schema: frontmatterSchema.extend({
+            // Search-result title when the page heading is too short or generic.
+            seoTitle: z.string().optional(),
             release: z.object({
                 version: z.string(),
                 date: z.string().datetime(),
