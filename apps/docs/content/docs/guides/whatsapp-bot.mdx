@@ -1,0 +1,149 @@
+---
+title: Build a WhatsApp bot
+seoTitle: "WhatsApp bot and automation with Node.js, self-hosted | open-wa"
+description: Build a self-hosted WhatsApp bot in Node.js. Reply to commands, automate replies, and send events to your backend with webhooks.
+---
+
+# Build a WhatsApp bot
+
+This guide shows how to build a WhatsApp bot that runs on your own server. The bot reads incoming messages, replies to commands, and sends events to other systems. All examples use the open-wa Node.js library.
+
+open-wa links a normal WhatsApp account through WhatsApp Web. You do not need a Meta business account, a template approval, or a cloud provider. You are responsible for the server and for the account.
+
+## How a bot works
+
+A WhatsApp bot has three parts:
+
+1. **A connected session.** open-wa keeps a WhatsApp Web session open for your account.
+2. **Event handlers.** Your code subscribes to events such as `onMessage` and decides what to do.
+3. **Actions.** Your code calls client methods such as `sendText` and `reply`, or calls other systems.
+
+The bot process must stay running to receive messages. Run it as a service, in Docker, or with a process manager.
+
+## Create the project
+
+Run the initializer to create a project with the library and a start script:
+
+```bash
+bunx --bun @open-wa/wa-automate init my-bot
+```
+
+For an existing Node.js project, install the library:
+
+```bash
+npm install @open-wa/wa-automate
+```
+
+Read the [initializer guide](/docs/getting-started/initializer) for the generated files.
+
+## Reply to commands
+
+Replace `index.ts` with this example. It replies to three commands and ignores all other messages.
+
+```ts
+import { create } from '@open-wa/wa-automate';
+
+const client = await create({ sessionId: 'bot' });
+
+const commands: Record<string, string> = {
+  '!help': 'Commands: !help, !hours, !price',
+  '!hours': 'We are open Monday to Friday, 09:00 to 17:00.',
+  '!price': 'See our current prices at https://example.com/prices',
+};
+
+client.onMessage(async (message) => {
+  const reply = commands[message.body?.trim().toLowerCase() ?? ''];
+  if (!reply) return;
+
+  try {
+    await client.reply(message.from, reply, message.id);
+  } catch (error) {
+    console.error('Reply failed. Check the chat before you send again:', error);
+  }
+});
+```
+
+Start the bot. On the first run, scan the QR code with WhatsApp on your phone. Then send `!help` to the linked account from another phone.
+
+## Ignore groups and your own messages
+
+`onMessage` does not include messages that your account sends. To ignore group chats, check `isGroupMsg`.
+
+```ts
+client.onMessage(async (message) => {
+  if (message.isGroupMsg) return;
+  // Handle direct messages here.
+});
+```
+
+To work with group messages, read the [groups guide](/docs/guides/groups) and the [group filtering guide](/docs/guides/group-filtering).
+
+## Automate replies with your own data
+
+A bot handler can call any system that your server can access. This example looks up an order status and sends the result.
+
+```ts
+client.onMessage(async (message) => {
+  const match = message.body?.match(/^order\s+(\d+)$/i);
+  if (!match) return;
+
+  const response = await fetch(`https://shop.example/api/orders/${match[1]}`);
+  if (!response.ok) {
+    await client.reply(message.from, 'I cannot find that order.', message.id);
+    return;
+  }
+
+  const order = (await response.json()) as { status: string };
+  await client.reply(message.from, `Order ${match[1]}: ${order.status}`, message.id);
+});
+```
+
+Keep each handler short. For slow work, put the message in a queue and reply when the work completes.
+
+## Send events to another backend
+
+Your bot can also run without custom code in the session process. The webhook integration sends each WhatsApp event to an HTTP endpoint. Your backend then calls the Easy API to reply. This pattern lets you write the bot logic in any language.
+
+```text
+WhatsApp -> open-wa Easy API -> webhook -> your backend -> POST /api/messages/sendText
+```
+
+Read these guides to set up this pattern:
+
+- [WhatsApp webhooks](/docs/client-and-integrations/webhook-payloads) shows the setup and the event payload.
+- [Webhooks for business](/docs/guides/webhooks-for-business) shows a receiver with authentication.
+- [Build a WhatsApp bot in Python](/docs/guides/whatsapp-bot-python) shows a complete Python receiver.
+
+## Add buttons, lists, and polls
+
+Interactive messages make a bot faster to use. Read [interactive messages](/docs/guides/interactive-messages) and [polls and pins](/docs/guides/polls-and-pins) for the supported message types.
+
+## Connect an AI agent
+
+To let an AI model read and send WhatsApp messages, use the open-wa MCP server. Read the [MCP guide](/docs/guides/mcp) and [AI agent patterns](/docs/guides/ai-agent-patterns).
+
+## Stop the bot safely
+
+Stop the client when the process receives a stop signal. This action closes the browser and keeps the saved login.
+
+```ts
+let stopping = false;
+const shutdown = async () => {
+  if (stopping) return;
+  stopping = true;
+  await client.stop();
+};
+process.once('SIGINT', () => void shutdown());
+process.once('SIGTERM', () => void shutdown());
+```
+
+<Callout type="warning">
+WhatsApp can restrict an account that sends unwanted messages. To decrease this risk, reply only to users that contact the bot, and obey the [rate limits](/docs/guides/rate-limits).
+</Callout>
+
+## Related
+
+- [Send a WhatsApp message with the API](/docs/guides/send-message-api)
+- [Messages and message events](/docs/guides/messages)
+- [WhatsApp events](/docs/guides/whatsapp-events)
+- [Best practices](/docs/operations-and-troubleshooting/best-practices)

@@ -1,0 +1,161 @@
+---
+title: Build a WhatsApp bot in Python
+seoTitle: "WhatsApp bot in Python with a self-hosted API | open-wa"
+description: Build a WhatsApp bot in Python. Receive messages with a webhook and reply through the self-hosted open-wa HTTP API.
+---
+
+# Build a WhatsApp bot in Python
+
+This guide shows how to build a WhatsApp bot in Python. open-wa runs the WhatsApp session in Node.js. Your Python application receives messages through a webhook and replies through the HTTP API.
+
+```text
+WhatsApp -> open-wa Easy API -> webhook -> Python app -> POST /api/messages/sendText
+```
+
+## Before you start
+
+- Install Node.js 22 or later for the open-wa process.
+- Install Python 3.10 or later.
+- Keep a phone with WhatsApp near you to link the account.
+
+## 1. Create the Python receiver
+
+Install Flask and requests:
+
+```bash
+pip install flask requests
+```
+
+Create `bot.py`. The receiver checks the shared secret, reads the message, and replies through the Easy API.
+
+```python
+import hmac
+import os
+
+import requests
+from flask import Flask, abort, request
+
+API_URL = "http://127.0.0.1:8080"
+API_KEY = os.environ["OPEN_WA_API_KEY"]
+WEBHOOK_SECRET = os.environ["OPEN_WA_WEBHOOK_SECRET"]
+
+app = Flask(__name__)
+
+
+def send_text(chat_id: str, text: str) -> None:
+    response = requests.post(
+        f"{API_URL}/api/messages/sendText",
+        headers={"X-API-Key": API_KEY},
+        json={"to": chat_id, "content": text, "options": {}},
+        timeout=30,
+    )
+    response.raise_for_status()
+
+
+@app.post("/webhooks/open-wa")
+def webhook():
+    secret = request.headers.get("X-Webhook-Secret", "")
+    if not hmac.compare_digest(secret, WEBHOOK_SECRET):
+        abort(401)
+
+    envelope = request.get_json(silent=True)
+    if not envelope:
+        abort(400)
+
+    if envelope.get("event") == "message.received":
+        message = envelope["payload"]["message"]
+        body = (message.get("body") or "").strip().lower()
+        if body == "!help":
+            send_text(message["from"], "Commands: !help, !hours")
+        elif body == "!hours":
+            send_text(message["from"], "We are open Monday to Friday, 09:00 to 17:00.")
+
+    return "", 204
+
+
+if __name__ == "__main__":
+    app.run(host="127.0.0.1", port=5000)
+```
+
+Start the receiver before you start open-wa:
+
+```bash
+export OPEN_WA_API_KEY='use-a-long-random-value'
+export OPEN_WA_WEBHOOK_SECRET='use-a-different-long-random-value'
+python bot.py
+```
+
+## 2. Configure open-wa
+
+In a new directory, install the webhook integration:
+
+```bash
+npm install @open-wa/integration-webhook
+```
+
+Create `wa.config.mjs`:
+
+```js
+const webhookSecret = process.env.OPEN_WA_WEBHOOK_SECRET?.trim();
+if (!webhookSecret) throw new Error('OPEN_WA_WEBHOOK_SECRET is required');
+
+export default {
+  sessionId: 'python-bot',
+  host: '127.0.0.1',
+  port: 8080,
+  plugins: ['@open-wa/integration-webhook'],
+  pluginConfig: {
+    webhook: {
+      url: 'http://127.0.0.1:5000/webhooks/open-wa',
+      events: ['message.received'],
+      headers: { 'X-Webhook-Secret': webhookSecret },
+    },
+  },
+};
+```
+
+## 3. Start open-wa
+
+Set the same two values in this terminal. Then start the Easy API:
+
+```bash
+export OPEN_WA_API_KEY='use-a-long-random-value'
+export OPEN_WA_WEBHOOK_SECRET='use-a-different-long-random-value'
+npx @open-wa/wa-automate --config ./wa.config.mjs --session-id python-bot --host 127.0.0.1 --port 8080 --api-key "$OPEN_WA_API_KEY"
+```
+
+Scan the QR code with WhatsApp on your phone. Then send `!help` to the linked account from another phone. The bot replies in the same chat.
+
+## Respond quickly
+
+open-wa waits for the webhook response. A slow response uses a delivery slot and can cause a retry after a timeout. Return `204` quickly. For slow work, put the message in a queue and send the reply from a worker.
+
+A retry can send the same event again. To prevent a duplicate reply, store `payload.message.id` and ignore an ID that you already processed.
+
+## Send messages without a webhook
+
+To send a notification from a Python script, call the HTTP API directly. You do not need the webhook for this task.
+
+```python
+import requests
+
+requests.post(
+    "http://127.0.0.1:8080/api/messages/sendText",
+    headers={"X-API-Key": "use-a-long-random-value"},
+    json={"to": "447123456789@c.us", "content": "Your order has shipped.", "options": {}},
+    timeout=30,
+).raise_for_status()
+```
+
+Read [send a WhatsApp message with the API](/docs/guides/send-message-api) for the chat ID format and license rules.
+
+<Callout type="warning">
+The API key gives full control of the WhatsApp account. Do not expose port `8080` to the internet. Keep the Easy API on `127.0.0.1` or behind a private network.
+</Callout>
+
+## Related
+
+- [WhatsApp webhooks](/docs/client-and-integrations/webhook-payloads)
+- [Build a WhatsApp bot in Node.js](/docs/guides/whatsapp-bot)
+- [Security and deployment](/docs/operations/security-and-deployment)
+- [Rate limits](/docs/guides/rate-limits)
