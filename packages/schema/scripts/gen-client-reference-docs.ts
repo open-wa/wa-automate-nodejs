@@ -378,10 +378,11 @@ function buildGeneratedWarning(): string {
   return `> Generated file warning: \`${generatorPath}\` generates this page. Do not edit generated method content by hand.`;
 }
 
-function buildFrontmatter(title: string, description: string, icon?: string): string {
+function buildFrontmatter(title: string, description: string, icon?: string, seoTitle?: string): string {
   const lines = [
     '---',
     `title: ${JSON.stringify(title)}`,
+    ...(seoTitle ? [`seoTitle: ${JSON.stringify(seoTitle)}`] : []),
     `description: ${JSON.stringify(description)}`,
   ];
 
@@ -806,9 +807,9 @@ function slugForNamespace(namespace: string): string {
   return namespace.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
 }
 
-function buildGeneratedPage(title: string, description: string, body: string): string {
+function buildGeneratedPage(title: string, description: string, body: string, seoTitle?: string): string {
   return [
-    buildFrontmatter(title, description, 'BookOpen'),
+    buildFrontmatter(title, description, 'BookOpen', seoTitle),
     '',
     `# ${title}`,
     '',
@@ -837,6 +838,7 @@ function buildClientIndexPage(methods: MethodDefinition[]): string {
       ...rows,
       '\n</details>',
     ].join('\n'),
+    'WhatsApp Client API reference for Node.js | open-wa',
   );
 }
 
