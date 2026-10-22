@@ -31,7 +31,7 @@ function CopyButton({ value, label = 'Copy code' }: { value: string; label?: str
 function MessageExample() {
   const [mode, setMode] = useState<keyof typeof examples>('HTTP');
   return <div className="landing-example">
-    <div className="landing-example-art" aria-hidden="true"><WorkbenchTexture /><img src="/mascots/wally-quickstart-transparent.png" width="230" height="230" alt="" /></div>
+    <div className="landing-example-art" aria-hidden="true"><WorkbenchTexture /><img src="/mascots/wally-quickstart-transparent.png" width="230" height="230" alt="Wally, the open-wa mascot" /></div>
     <div className="landing-code">
       <div className="landing-code-toolbar">
         <div className="landing-example-switch" role="group" aria-label="Example language">

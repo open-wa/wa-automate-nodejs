@@ -86,7 +86,7 @@ export function LicenseCheckoutTrigger({ tier, onClick, ...props }: React.Button
 export function LicenseCheckoutPage({ initialDetails }: { initialDetails: LicenseCheckoutDetails }) {
   const [details, setDetails] = React.useState(initialDetails);
   return <main className="license-checkout-page">
-    <a href="/" className="license-checkout-home"><img src="/logo.png" width="24" height="24" alt="" />open-wa</a>
+    <a href="/" className="license-checkout-home"><img src="/logo.png" width="24" height="24" alt="open-wa logo" />open-wa</a>
     <section className="license-config-card">
       <div className="license-config-heading"><Ticket size={22} aria-hidden="true" /><h1>Configure your license</h1></div>
       <CheckoutIntroduction />

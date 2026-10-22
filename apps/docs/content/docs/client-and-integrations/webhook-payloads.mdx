@@ -1,5 +1,6 @@
 ---
 title: Webhook payloads
+seoTitle: "WhatsApp webhooks: setup, payloads and troubleshooting | open-wa"
 description: Receive, authenticate, validate, and deduplicate open-wa webhook events.
 ---
 
@@ -264,6 +265,18 @@ Set `durability.enabled: true` to journal queued deliveries in SQLite. Pending r
 | `ack.changed` | `payload.ack` acknowledgment details. |
 | `session.state.changed` | `payload.details.prev` and `payload.details.next`. |
 | `group.participants.changed.global` | `payload.change` participant changes. |
+
+## Troubleshooting
+
+| Problem | Cause | Fix |
+| --- | --- | --- |
+| The receiver gets no requests | The integration is not in `plugins`, or the event is not in `events`. | Add `@open-wa/integration-webhook` to `plugins`. Add the event name to `events`. |
+| The log shows connection errors | The receiver was not listening when open-wa started. | Start the receiver first. Check that open-wa can connect to the `url` value. |
+| The receiver returns `401` | The `X-Webhook-Secret` value does not match. | Use the same secret in the sender and in the receiver. |
+| The same event arrives two times | A timeout or a non-`2xx` response caused a retry. | Return `2xx` quickly. Store the `Idempotency-Key` value or the message ID, and ignore duplicates. |
+| Events stop after a restart | The in-memory queue does not survive a restart. | Set `durability.enabled: true` to journal deliveries in SQLite. |
+
+For complete receivers, read [webhooks for business](/docs/guides/webhooks-for-business) and [build a WhatsApp bot in Python](/docs/guides/whatsapp-bot-python).
 
 ## Generated type reference
 

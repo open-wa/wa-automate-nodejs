@@ -438,8 +438,8 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       }
 
       await transport.injectWapi({ reuseCachedPatches: false });
-      const account = await transport.getSessionDebugInfo().catch(() => undefined);
       const installation = await installDocumentRuntime(transport, earlyLivePatchPreload, async () => {
+        const account = await transport.getSessionDebugInfo().catch(() => undefined);
         const key = transport.getEffectiveLicenseKey() ?? earlyLicensePreload.artifact?.key ?? options.licenseKey;
         return account?.hostNumber
           ? transport.preloadLicenseArtifact({ sessionId, licenseKey: key, sessionInfo: account })

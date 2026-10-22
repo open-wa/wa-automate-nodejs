@@ -29,7 +29,7 @@ export function ReleaseCard({ entry, latest }: { entry: ChangelogEntry; latest: 
       <h2><a href={entry.url}>{entry.headline}</a></h2>
       <p className="release-description">{entry.description}</p>
       {entry.image && <a href={entry.url} tabIndex={-1} aria-hidden="true">
-        <img className="release-cover" src={entry.image} alt="" width="1440" height="900" loading={latest ? 'eager' : 'lazy'} />
+        <img className="release-cover" src={entry.image} alt={`open-wa ${entry.version}: ${entry.headline}`} width="1440" height="900" loading={latest ? 'eager' : 'lazy'} />
       </a>}
       <ul className="release-highlights">{entry.highlights.map(highlight => <li key={highlight}>{highlight}</li>)}</ul>
       <a className="release-read" href={entry.url}>Explore this release <ArrowRight size={18} aria-hidden="true" /></a>

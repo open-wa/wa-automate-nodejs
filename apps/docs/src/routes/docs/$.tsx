@@ -10,6 +10,8 @@ import { FeedbackCard } from '@/components/feedback-card';
 import { DocsPageHeader } from '@/components/docs-page-header';
 import {
   getAbsoluteDocsUrl,
+  getDocsDocumentTitle,
+  getDocsPageSchema,
   getDocsSocialMeta,
   getOgDescription,
   getPageImage,
@@ -29,16 +31,33 @@ const loader = createServerFn({
       if (!page) throw notFound();
 
       const image = getPageImage(slugs);
+      const imageUrl = getAbsoluteDocsUrl(image.url);
       const description = getOgDescription(page.data);
+      const canonical = getAbsoluteDocsUrl(page.data.release ? `/changelog/${page.data.release.version}` : page.url);
+      const breadcrumbs = [{ name: 'Docs', url: getAbsoluteDocsUrl('/docs') }];
+      for (let depth = 1; depth < slugs.length; depth++) {
+        const parent = source.getPage(slugs.slice(0, depth));
+        if (parent) breadcrumbs.push({ name: parent.data.title, url: getAbsoluteDocsUrl(parent.url) });
+      }
+      if (slugs.length > 0) breadcrumbs.push({ name: page.data.title, url: canonical });
 
       return {
         path: page.path,
-        canonical: getAbsoluteDocsUrl(page.data.release ? `/changelog/${page.data.release.version}` : page.url),
+        canonical,
         meta: getDocsSocialMeta({
-          title: page.data.title,
+          title: getDocsDocumentTitle(page.data),
           description,
-          imageUrl: getAbsoluteDocsUrl(image.url),
+          imageUrl,
         }),
+        schema: JSON.stringify(
+          getDocsPageSchema({
+            title: page.data.title,
+            description,
+            url: canonical,
+            imageUrl,
+            breadcrumbs,
+          }),
+        ),
         pageTree: await source.serializePageTree(source.pageTree),
       };
     } catch (err: unknown) {
@@ -59,6 +78,7 @@ export const Route = createFileRoute('/docs/$')({
     return {
       meta: loaderData?.meta ?? [{ title: SITE_NAME }],
       links: loaderData?.canonical ? [{ rel: 'canonical', href: loaderData.canonical }] : [],
+      scripts: loaderData?.schema ? [{ type: 'application/ld+json', children: loaderData.schema }] : [],
     };
   },
   component: Page,
