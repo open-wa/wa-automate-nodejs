@@ -5,7 +5,7 @@ description: Answer and start WhatsApp audio calls, play greetings, capture rece
 
 # Calls
 
-Calling is a licensed preview. The public API and dashboard are included in OpenWA; WhatsApp calling is enabled through your calling-enabled license. Use the latest package. This preview provides audio controls and media sources; camera calls and provider adapters are still in development.
+WhatsApp audio calling is a licensed preview included with active Insiders, Restricted and Premium licenses, including Gumroad purchases. Patches Only does not include calling. Use the latest package and configure your license key; OpenWA activates calling after pairing. Camera calls and provider adapters are still in development.
 
 ## Answer with a greeting and record the caller
 
@@ -156,7 +156,7 @@ For an incoming call, choose **Answer** or **Reject**. Choose **My microphone** 
 
 You can also open an individual conversation in **Chat** and choose **Call** in its header. It uses the same audio settings. During a call, a compact control at the top of the dashboard shows ringing, connection progress and connected time. Hover over it or click to expand it, then answer, reject, mute or end the call from any page. Navigation preserves the call, audio settings and completed recording; reloading the browser closes its media attachment.
 
-The session's licence menu lists enabled and disabled features. Applications can read the same access list with `await client.getLicenseFeatures()`, which returns `status`, `keyType`, `expiresAt` and a boolean `features` map. For example, `features.patch_calls_audio` reports licensed call audio access. This is optional information for your UI; calling actions handle admission themselves, so you don't need a capability check before making a call.
+The session's licence menu lists enabled and disabled features. Applications can read the same access list with `await client.getLicenseFeatures()`, which returns `status`, `keyType`, `expiresAt` and a boolean `features` map. For example, `features['calls.audio']` reports licensed call audio access. This is optional information for your UI; calling actions handle admission themselves, so you don't need a capability check before making a call.
 
 ## When media stops
 
