@@ -55,5 +55,5 @@ shared call controller. Its `chat.js` module contributes to the existing Chat
 toolbar and timeline through the same host, with transcripts attached to their
 original WhatsApp messages where available.
 
-See the [guide](../../apps/docs/content/docs/guides/voxtral.mdx) and
-[implementation contract](../../docs/plans/2026-10-20-voxtral-integration.md).
+See the [guide](https://openwa.dev/docs/guides/voxtral) and
+[implementation contract](https://github.com/open-wa/wa-automate-nodejs/blob/master/docs/plans/2026-10-20-voxtral-integration.md).
