@@ -70,6 +70,35 @@ New releases announce normally. Include `[skip-discord]` in the promotion PR's m
 
 Existing packages use npm Trusted Publisher connections to `open-wa/wa-automate-nodejs`, workflow `release.yml`, environment `Release`. The publisher grants `id-token: write` and uses npm 11 on Node 24. A new npm package must first be created and have its Trusted Publisher configured before it can use OIDC. GitHub Packages uses the built-in `GITHUB_TOKEN`.
 
+## New package onboarding
+
+Use the onboarding command when adding public workspace packages. Release preparation also lists unregistered names and puts the exact command in the promotion PR. Discovery is informational and adds no release approval or staging gate. Normal `release.yml` publishing remains direct OIDC and never receives an onboarding token.
+
+```bash
+# Discover new npm names without npm authentication or publication changes.
+pnpm packages:onboard --status
+
+# Create new names, configure package-specific OIDC, and approve first versions.
+# With no names, discover new packages and resume incomplete onboarding.
+pnpm packages:onboard @open-wa/integration-voxtral
+
+# Reuse an already built publication artifact.
+pnpm packages:onboard @open-wa/integration-voxtral --tarball /absolute/path/package.tgz
+
+# A CI job with package-creation credentials can stage only; finish locally.
+pnpm packages:onboard @open-wa/integration-voxtral --stage-only
+```
+
+Run from an installed workspace with Node 22.21.1+ and npm 11.15+. The interactive command opens npm's maintainer sign-in when local authentication has expired or is missing; `--stage-only` never starts interactive login. You can also authenticate in advance using `npm login --registry=https://registry.npmjs.org`. Credentials must allow creating packages in the `@open-wa` scope. A granular token's **Organizations** permissions only manage organization settings, teams and users; its **Packages and scopes** permissions control publication. Stage-only CI can use its configured npm credential; use a maintainer session for the interactive completion. Tokens and npmrc files never belong in Git.
+
+The command discovers public workspace packages and builds/packs only their first publication artifacts. `--tarball` accepts an artifact matching the selected package and version. It stages absent package names, configures trust for this repository's `release.yml` and `Release` environment with `--allow-publish`, then approves the first staged versions. Existing, different trust settings are reported and left unchanged. npm requires maintainer 2FA for trust setup and initial approval; subsequent regular releases use OIDC without these onboarding steps. During trust configuration, npm offers a five-minute 2FA window for batching packages.
+
+Progress, stage IDs, artifact hashes and timestamps are saved under the ignored `.open-wa/package-onboarding/` directory. The command reconciles pending npm stages on every run and reuses matching stages after interruption. It does not re-upload accepted artifacts, approve a different saved artifact, or treat a registry/auth failure as a missing package. Preserve this directory until onboarding completes. When finishing a CI-created stage on another machine, download its publication artifact and pass `--tarball` so the command can confirm the staged hash before approval. npm can delay public metadata after approval; use the existing release availability workflow for manifest, tarball and dist-tag tracking.
+
+Sources: [npm stage](https://docs.npmjs.com/cli/v12/commands/npm-stage/), [npm trust and bulk configuration](https://docs.npmjs.com/cli/v12/commands/npm-trust/), [new-package staging](https://github.blog/changelog/2026-10-02-npm-staged-publishing-now-supports-creating-new-packages/), [token permissions](https://docs.npmjs.com/creating-and-viewing-access-tokens/).
+
+## Release credentials
+
 Keep `DISCORD_WEBHOOK_URL` in the repository or `Release` environment secrets. Documentation retains the existing `Docs` environment and its Cloudflare credentials. Preparation has no npm credentials. Notes and availability use only Node and `gh`; only the announcement step receives the Discord secret.
 
 The built-in `GITHUB_TOKEN` does not trigger push/release workflows for its own changes. The publisher explicitly dispatches availability; availability explicitly dispatches docs and notes on `release`, retaining the existing environment branch permissions. Their source checkout uses the immutable version tag; notes tooling comes from `master`. Merging the promotion PR triggers the publisher normally.
