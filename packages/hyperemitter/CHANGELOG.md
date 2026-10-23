@@ -15,6 +15,12 @@
 
 
 
+
+## 5.8.0
+<sub>2026-10-23</sub>
+
+- *(minor)* Version bump from group with `@open-wa/core` v5.8.0
+
 ## 5.7.0
 <sub>2026-10-23</sub>
 
