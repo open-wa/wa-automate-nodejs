@@ -60,12 +60,18 @@ interface PluginEntry {
  */
 export class PluginHost {
   private plugins = new Map<string, PluginEntry>();
+  private runtimeInvoker?: (method: string, args: unknown[]) => Promise<unknown>;
   private readonly logger: Logger;
   private readonly events: HyperEmitter<OpenWAEventMap>;
 
   constructor(events: HyperEmitter<OpenWAEventMap>, logger: Logger) {
     this.events = events;
     this.logger = logger;
+  }
+
+  /** Bound by the public Client facade; core never imports that package. */
+  bindRuntime(invoke: (method: string, args: unknown[]) => Promise<unknown>): void {
+    this.runtimeInvoker = invoke;
   }
 
   /**
@@ -109,6 +115,13 @@ export class PluginHost {
       config: validatedConfig,
       sessionId: options.sessionId,
       client: options.client,
+      runtime: {
+        invoke: async <T = unknown>(method: string, args: unknown[] = []): Promise<T> => {
+          if (abortController.signal.aborted) throw new Error('Plugin has stopped.');
+          if (!this.runtimeInvoker) throw new Error('The host Client facade is not attached.');
+          return await this.runtimeInvoker(method, args) as T;
+        },
+      },
       signal: abortController.signal,
     };
 
@@ -217,12 +230,12 @@ export class PluginHost {
    * Get all plugin-provided Hono sub-applications.
    * Each entry is ready to be mounted at `/plugins/<name>/`.
    */
-  getRoutes(): Array<{ name: string; router: Hono }> {
-    const routes: Array<{ name: string; router: Hono }> = [];
+  getRoutes(): Array<{ name: string; router: Hono; routeAuth?: 'host' }> {
+    const routes: Array<{ name: string; router: Hono; routeAuth?: 'host' }> = [];
     for (const [name, { hooks }] of this.plugins) {
       if (hooks.routes) {
         try {
-          routes.push({ name, router: hooks.routes() });
+          routes.push({ name, router: hooks.routes(), routeAuth: hooks.routeAuth });
         } catch (err) {
           this.logger.error('plugin_routes_error', { plugin: name, error: err });
         }
@@ -279,6 +292,7 @@ export class PluginHost {
         version: meta.version,
         description: meta.description,
         pages: hooks.pages ?? [],
+        chat: hooks.chat,
         hasRoutes: !!hooks.routes,
         tools: hooks.tool ? Object.keys(hooks.tool) : [],
       });
@@ -306,6 +320,7 @@ export class PluginHost {
       }
     }
     this.plugins.clear();
+    this.runtimeInvoker = undefined;
   }
 
   // ── Queries ──────────────────────────────────────────────

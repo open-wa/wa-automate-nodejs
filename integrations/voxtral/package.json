@@ -1,0 +1,17 @@
+{
+  "name": "@open-wa/integration-voxtral",
+  "version": "5.7.0",
+  "description": "Voxtral conversational voice notes and live audio calls for open-wa",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": { ".": { "bun": "./src/index.ts", "import": "./dist/index.mjs", "require": "./dist/index.cjs", "types": "./dist/index.d.mts" } },
+  "files": ["dist", "src/dashboard.js", "src/chat.js"],
+  "scripts": { "build": "tsdown src/index.ts --format esm --format cjs --dts", "dev": "tsdown src/index.ts --format esm --format cjs --watch" },
+  "dependencies": { "@open-wa/plugin-sdk": "workspace:*", "@open-wa/schema": "workspace:*", "ffmpeg-static": "5.3.0", "hono": "catalog:", "ws": "^8.22.0", "zod": "catalog:" },
+  "devDependencies": { "@types/node": "catalog:", "typescript": "catalog:" },
+  "publishConfig": { "access": "public", "exports": { ".": { "import": "./dist/index.mjs", "require": "./dist/index.cjs", "types": "./dist/index.d.mts" } } },
+  "repository": { "type": "git", "url": "https://github.com/open-wa/wa-automate-nodejs.git" },
+  "license": "SEE LICENSE IN LICENSE.md"
+}

@@ -82,7 +82,7 @@ export class RemoteCalls {
       const previous = mode === 'replace' && call ? this.find(call.id) : undefined;
       const response = await fetch(`${this.url.replace(/\/$/, '')}/api/calls/media`, {
         method: 'POST', headers: { 'Content-Type': 'application/json', ...(this.apiKey ? { 'X-API-Key': this.apiKey } : {}) },
-        body: JSON.stringify({ call, to, mode, microphone: media.microphone !== null, speaker: media.speaker !== null, replacesId: previous?.ticket, onMediaFailure: media.onMediaFailure }),
+        body: JSON.stringify({ call, to, mode, microphone: media.microphone !== null, speaker: media.speaker !== null, replacesId: previous?.ticket, takeover: media.takeover, onMediaFailure: media.onMediaFailure }),
       });
       const admission = await response.json();
       if (response.status === 401) throw Object.assign(new Error('Calling media API authentication failed.'), { status: 401, code: 'UNAUTHORIZED' });

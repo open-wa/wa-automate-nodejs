@@ -21,7 +21,12 @@ function CallsPage() {
       {active && <p className="text-sm">{redact(active.peer)}</p>}
       {active?.video && <p className="text-sm text-muted-foreground">Video was offered. This dashboard currently answers with audio only; live video is not available here yet.</p>}
       {active ? <div className="flex flex-wrap gap-2">
-        {active.direction === 'incoming' && active.state === 'ringing' ? <><Button disabled={busy || !connected} onClick={() => void calling.answer()}>{active.video ? 'Answer with audio' : 'Answer'}</Button><Button variant="outline" disabled={busy || !connected} onClick={() => void calling.reject()}>Reject</Button></> : <Button variant="outline" disabled={busy || !connected} onClick={() => void calling.toggleMute()}>{muted ? <MicOff className="size-4" /> : <Mic className="size-4" />}{muted ? 'Unmute' : 'Mute'}</Button>}
+        {active.direction === 'incoming' && active.state === 'ringing' ? <>
+          {calling.assistant && calling.assistant.mode !== 'voice-notes' && <Button disabled={busy || !connected} onClick={() => void calling.answerWithAssistant()}>Answer with Voxtral</Button>}
+          <Button disabled={busy || !connected} onClick={() => void calling.answerMyself()}>Answer myself</Button><Button variant="outline" disabled={busy || !connected} onClick={() => void calling.reject()}>Reject</Button>
+        </> : <Button variant="outline" disabled={busy || !connected} onClick={() => void calling.toggleMute()}>{muted ? <MicOff className="size-4" /> : <Mic className="size-4" />}{muted ? 'Unmute' : 'Mute'}{calling.assistantOwnsCall ? ' AI' : ''}</Button>}
+        {calling.assistantOwnsCall && <Button variant="outline" disabled={busy || !connected} onClick={() => void calling.takeOverAssistant()}>Take over</Button>}
+        {calling.assistantHandlesCall && calling.assistant?.call?.owner === 'human' && <Button variant="outline" disabled={busy || !connected} onClick={() => void calling.returnToAssistant()}>Return to assistant</Button>}
         <Button variant="destructive" disabled={busy || !connected} onClick={() => void calling.end()}><PhoneOff className="size-4" />End call</Button>
         <Button variant="outline" disabled={busy || !connected} onClick={() => void calling.clearAudio()}>Clear queued audio</Button>
         <Button variant="outline" disabled={busy || !connected} onClick={() => void calling.applyMedia()}>Use selected source</Button>
@@ -31,7 +36,7 @@ function CallsPage() {
       </div>}
     </section>
     <section className="space-y-4 rounded-2xl border bg-card p-5"><h2 className="font-medium">Audio</h2>
-      <label className="flex flex-wrap items-center gap-2 text-sm">Send audio from <select className="rounded-lg border bg-background p-2" value={source} onChange={event => calling.setSource(event.target.value as typeof source)}><option value="microphone">My microphone</option><option value="file">An audio file</option><option value="url">An HTTP audio URL</option><option value="sample">Bundled OpenWA greeting</option></select></label>
+      <label className="flex flex-wrap items-center gap-2 text-sm">Send audio from <select className="rounded-lg border bg-background p-2" value={source} onChange={event => calling.setSource(event.target.value as typeof source)}><option value="microphone">My microphone</option><option value="file">An audio file</option><option value="url">An HTTP audio URL</option><option value="sample">Bundled OpenWA greeting</option>{(calling.assistant || source === 'voxtral') && <option value="voxtral">{calling.assistant ? 'Voxtral assistant' : 'Voxtral assistant · unavailable'}</option>}</select></label>
       {source === 'file' && <div className="space-y-2"><input aria-label="Audio file" type="file" accept="audio/*,.pcm" onChange={event => calling.setFile(event.target.files?.[0] ?? null)} />{file && <p className="text-xs text-muted-foreground">Selected: {file.name}</p>}</div>}
       {source === 'url' && <Input aria-label="Audio URL" value={url} onChange={event => calling.setUrl(event.target.value)} placeholder="https://example.com/greeting.mp3" />}
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={record} onChange={event => calling.setRecord(event.target.checked)} />Record received audio instead of playing it through my speaker</label>

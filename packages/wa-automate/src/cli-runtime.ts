@@ -553,6 +553,8 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
 
     const openwaClient = await createClient({
         sessionId: config.sessionId,
+        pluginRefs: config.plugins,
+        pluginConfig: config.pluginConfig,
         eventMode: config.eventMode,
         driver,
         deleteSessionDataOnLogout: config.deleteSessionDataOnLogout,
@@ -638,6 +640,7 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
     });
 
     server.setClient(client as any);
+    server.mountPlugins(openwaClient.plugins);
 
     const runtimeBridgeListeners = new Set<(event: string, value: any) => void>();
     const runtimeEventPublishers: RuntimeEventPublisher[] = [

@@ -15,6 +15,7 @@ interface PluginInput<TConfig = unknown> {
   sessionId: string;
   signal: AbortSignal;
   client: PluginClient;
+  runtime: PluginRuntime;
 }
 ```
 
@@ -143,6 +144,22 @@ init: async ({ signal, logger }) => {
   return {};
 }
 ```
+
+## `runtime`: Host Client methods
+
+`runtime.invoke()` calls the attached high-level Client facade on the Easy API
+host. Use it for prepared media, decryption, and calling with streams; these
+operations need host services that a raw browser method cannot provide.
+
+```ts
+const audio = await runtime.invoke<string>('decryptMedia', [message]);
+const call = await runtime.invoke<Call | null>('getActiveCall');
+```
+
+The facade must be attached before invocation, so start runtime work from
+`client.ready` or a later event rather than `init()`. Calls return hydrated local
+objects and can accept Web streams; don't JSON-serialize those values. This
+bridge has the same process trust as the installed plugin.
 
 ## `client`: WhatsApp Method Proxy
 

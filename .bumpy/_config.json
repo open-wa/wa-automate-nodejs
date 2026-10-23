@@ -26,6 +26,7 @@
       "@open-wa/integration-chatwoot",
       "@open-wa/integration-cloudflare",
       "@open-wa/integration-s3",
+      "@open-wa/integration-voxtral",
       "@open-wa/integration-webhook",
       "@open-wa/logger",
       "@open-wa/mcp",

@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
 import { Plug, Puzzle, FileText } from "lucide-react"
+import { PluginPage } from '@/components/plugin-page';
+import { getApiKey, getApiUrl } from '@/lib/api-client';
 
 interface PluginPageData {
   name: string
@@ -12,6 +14,7 @@ interface PluginPageData {
     title: string
     icon?: string
     description?: string
+    module?: string
   }>
   tools: string[]
 }
@@ -19,9 +22,7 @@ interface PluginPageData {
 /**
  * Dynamic plugin page route.
  *
- * This route catches /plugins/:name and renders a plugin status view.
- * In v1, this shows plugin info fetched from the manifest.
- * Future: lazy-loaded React components from plugins.
+ * Renders a plugin-supplied Neo page module, or the plugin's status metadata.
  */
 export const Route = createFileRoute("/plugins/$name")({
   component: PluginPageRoute,
@@ -37,10 +38,8 @@ function PluginPageRoute() {
     const fetchPlugin = async () => {
       try {
         setLoading(true)
-        const base =
-          (window as unknown as { __OPENWA_API_BASE__?: string })
-            .__OPENWA_API_BASE__ ?? ""
-        const res = await fetch(`${base}/plugins/manifest`)
+        const key = getApiKey();
+        const res = await fetch(new URL('/plugins/manifest', getApiUrl()), { headers: key ? { 'X-API-Key': key } : {} })
         if (!res.ok) {
           setError("Failed to fetch plugin manifest")
           return
@@ -86,6 +85,9 @@ function PluginPageRoute() {
       </div>
     )
   }
+
+  const page = plugin.pages.find(page => page.path === '/') ?? plugin.pages[0];
+  if (page?.module) return <PluginPage name={name} module={page.module} />;
 
   return (
     <div className="flex max-w-2xl flex-col gap-6 p-6">

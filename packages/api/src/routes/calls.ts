@@ -10,6 +10,7 @@ const requestSchema = z.object({
   call: z.object({ id: z.string(), sessionId: z.string(), generation: z.string() }).optional(),
   to: z.string().optional(), mode: z.enum(['accept', 'start', 'replace', 'observe']), microphone: z.boolean(), speaker: z.boolean(),
   replacesId: z.string().optional(),
+  takeover: z.boolean().optional(),
   onMediaFailure: z.enum(['end', 'keep-open']).optional(),
 });
 

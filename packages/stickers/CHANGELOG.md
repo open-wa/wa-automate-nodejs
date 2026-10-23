@@ -9,6 +9,12 @@
 
 
 
+
+## 5.7.0
+<sub>2026-10-23</sub>
+
+- *(minor)* Version bump from group with `@open-wa/api` v5.7.0, `@open-wa/client` v5.7.0, `@open-wa/core` v5.7.0, `@open-wa/integration-voxtral` v5.7.0, `@open-wa/plugin-sdk` v5.7.0, `@open-wa/schema` v5.7.0, `@open-wa/socket-client` v5.7.0, `@open-wa/wa-automate` v5.7.0
+
 ## 5.6.7
 <sub>2026-10-22</sub>
 

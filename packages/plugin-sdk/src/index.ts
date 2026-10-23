@@ -36,6 +36,7 @@ export type {
 
   // Client interface
   PluginClient,
+  PluginRuntime,
 
   // Events & Logger
   PluginEventEmitter,
@@ -43,6 +44,9 @@ export type {
 
   // Dashboard
   DashboardPage,
+  PluginPageHost,
+  PluginChatProps,
+  PluginChatEntry,
 
   // Tools
   ToolDefinition,
