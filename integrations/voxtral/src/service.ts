@@ -64,7 +64,7 @@ export class VoxtralService {
   }
   key() { return this.explicitKey || process.env.MISTRAL_API_KEY?.trim() || undefined; }
   settings() { return this.effective; }
-  settingsView() { return { settings: this.effective, revision: this.state.revision, overrides: Object.keys(this.state.overrides), keyConfigured: Boolean(this.key()), keySource: this.explicitKey ? 'config.js' : this.key() ? 'MISTRAL_API_KEY' : 'missing' }; }
+  settingsView() { return { settings: this.effective, revision: this.state.revision, overrides: Object.keys(this.state.overrides), keyConfigured: Boolean(this.key()), keySource: this.explicitKey ? 'config file' : this.key() ? 'MISTRAL_API_KEY' : 'missing' }; }
   status() {
     return { sessionId: this.input.sessionId, ready: this.ready, configured: Boolean(this.key()), mode: this.effective.mode, paused: this.state.paused,
       error: this.lastError, call: this.live?.snapshot() ?? null, queued: this.jobs.length, processing: this.running.size,
