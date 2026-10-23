@@ -146,7 +146,7 @@ export function createPage(host) {
           field('Remember conversation for (minutes)', h(ui.Input, { type: 'number', min: 1, max: 1440, value: draft.conversation.idleTimeoutSeconds / 60, onChange: event => change('conversation', 'idleTimeoutSeconds', Number(event.target.value) * 60) })),
           field('Names and specialist terms', h(ui.Textarea, { rows: 3, value: draft.contextBias.join('\n'), onChange: event => setDraft(current => ({ ...current, contextBias: event.target.value.split('\n') })) }), 'One term per line. Used to improve speech recognition.')),
         settings.overrides.length > 0 && h('p', { className: 'vx-muted' }, `Saved dashboard overrides: ${settings.overrides.join(', ')}.`),
-        h('div', { className: 'vx-row' }, button('Reset to config.js', () => run(async () => { const fresh = await post('settings/reset'); setSettings(fresh); setDraft(structuredClone(fresh.settings)); }), { disabled: busy }),
+        h('div', { className: 'vx-row' }, button('Reset to config', () => run(async () => { const fresh = await post('settings/reset'); setSettings(fresh); setDraft(structuredClone(fresh.settings)); }), { disabled: busy }),
           button('Copy config', () => run(async () => { const source = await (await request('settings/export')).text(); await navigator.clipboard.writeText(source); }), { disabled: busy })),
         error && h('p', { className: 'vx-error', role: 'alert' }, error)));
 

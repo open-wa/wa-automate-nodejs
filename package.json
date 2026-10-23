@@ -32,6 +32,7 @@
     "version-packages": "bumpy version",
     "repomix": "npx repomix@latest",
     "publish-packages": "bumpy publish",
+    "packages:onboard": "node tools/release/onboard-packages.mjs",
     "release-image": "node tools/release-image.js"
   },
   "devDependencies": {

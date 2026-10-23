@@ -9,11 +9,13 @@
  * - Local relative: "./plugins/my-plugin"
  * - Local absolute: "/path/to/plugin"
  *
+ * Missing npm packages are installed on demand in the project's plugin cache.
  * Each reference is dynamically imported. The module must export
  * a Plugin as its default export, or as a named `plugin` export.
  */
 import type { Plugin } from '@open-wa/plugin-sdk';
 import type { Logger } from '@open-wa/logger';
+import { resolvePlugin } from './PluginPackage';
 
 export interface LoadedPlugin {
   /** The original reference string from config */
@@ -46,7 +48,7 @@ export async function loadPlugins(
 
   for (const ref of refs) {
     try {
-      const mod = await import(ref);
+      const mod = await import(await resolvePlugin(ref, logger));
       const plugin: Plugin | undefined = mod.default ?? mod.plugin;
 
       if (!plugin || typeof plugin !== 'function') {
