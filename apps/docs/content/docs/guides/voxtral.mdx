@@ -24,7 +24,6 @@ plugin together:
 mkdir whatsapp-voice-assistant
 cd whatsapp-voice-assistant
 npm init -y
-npm pkg set type=module
 npm install @open-wa/wa-automate @open-wa/integration-voxtral
 ```
 
@@ -38,49 +37,32 @@ export MISTRAL_API_KEY='YOUR_MISTRAL_API_KEY'
 Mistral bills transcription, answer generation, and speech separately. The
 plugin uses your own Mistral account; see [Mistral's current pricing](https://mistral.ai/pricing).
 
-## 2. Create config.js
+## 2. Create wa.config.mjs
 
-Save this as `config.js` in the project directory:
+Save this as `wa.config.mjs` in the project directory. Easy API loads it
+automatically:
 
-```js title="config.js"
+```js title="wa.config.mjs"
 export default {
-  sessionId: 'voice-assistant',
-  host: '127.0.0.1',
-  port: 8080,
-  dashboard: true,
   plugins: ['@open-wa/integration-voxtral'],
-  pluginConfig: {
-    voxtral: {
-      mode: 'voice-notes',
-      agent: {
-        instructions: [
-          'You are a helpful voice assistant.',
-          'Reply in the language the person uses.',
-          'Keep answers brief and easy to follow when spoken.',
-          'Ask when you need more information.',
-        ],
-      },
-    },
-  },
 };
 ```
 
-If you already have an Easy API config, add the package to its `plugins` array
-and add `pluginConfig.voxtral` to its existing plugin settings.
+If you already have an Easy API config, just add the package to its `plugins`
+array.
 
-The plugin reads `MISTRAL_API_KEY` automatically. Instructions can be a string
-or an array of strings; the plugin joins an array in order with line breaks.
-You can omit `pluginConfig.voxtral` entirely to use the default voice-note
-assistant. Add settings only when you want to change its behavior.
+The plugin reads `MISTRAL_API_KEY` automatically and starts with the default
+voice-note assistant. Change its instructions, voice, and mode in the dashboard,
+or add `pluginConfig.voxtral` settings to this file when you need them.
 
 ## 3. Start Easy API
 
 ```bash
-npx @open-wa/wa-automate --config ./config.js
+npx @open-wa/wa-automate
 ```
 
 Link WhatsApp using the QR code shown by Easy API, then open the
-[dashboard](http://127.0.0.1:8080/dashboard/) and select **Plugins → Voxtral**.
+[dashboard](http://localhost:8080/dashboard/) and select **Plugins → Voxtral**.
 The plugin runs inside Easy API and uses its connected WhatsApp session. It
 keeps working when you close the dashboard.
 
@@ -137,30 +119,19 @@ the top-level Easy API config:
 export OPENWA_LICENSE_KEY='YOUR_CALLING_LICENSE'
 ```
 
-```js
+```js title="wa.config.mjs"
 export default {
-  sessionId: 'voice-assistant',
-  host: '127.0.0.1',
-  port: 8080,
-  dashboard: true,
   licenseKey: process.env.OPENWA_LICENSE_KEY,
   plugins: ['@open-wa/integration-voxtral'],
   pluginConfig: {
     voxtral: {
       mode: 'both',
-      agent: {
-        instructions: 'You are a helpful assistant. Give short, clear answers.',
-      },
-      calls: {
-        answer: 'auto',
-        greeting: 'Hello, you are speaking with our AI assistant. How can I help?',
-      },
     },
   },
 };
 ```
 
-Start Easy API with `--config ./config.js` as before. Calling uses open-wa's
+Run `npx @open-wa/wa-automate` as before. Calling uses open-wa's
 [licensed audio calling support](/docs/guides/calls).
 If calling isn't available, the dashboard shows the reason; the Easy API and
 any enabled voice-note handling continue running.
@@ -216,13 +187,28 @@ Live transcription duration and interrupted requests may be missing; these
 counters are not a Mistral invoice.
 
 Dashboard settings are saved for this session and override matching values in
-`config.js` after a restart. **Reset to config.js** removes those saved overrides.
+your config file after a restart. Resetting settings removes those saved overrides.
 Use **Copy config** to move the effective settings into your file; the exported
 example references environment variables instead of including API keys.
 Voice and instruction changes apply to the next conversation turn. Mode
 changes affect new work; they don't silently hang up an active call.
 
 ## Configuration reference
+
+To customize the assistant in `wa.config.mjs`, add `pluginConfig`. For example:
+
+```js
+pluginConfig: {
+  voxtral: {
+    agent: {
+      instructions: [
+        'You are a patient language tutor.',
+        'Keep replies short and ask one question at a time.',
+      ],
+    },
+  },
+},
+```
 
 These fields belong in `pluginConfig.voxtral`:
 

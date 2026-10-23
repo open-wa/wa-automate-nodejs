@@ -12,9 +12,10 @@ be confirmed from the registry and live documentation after deployment.
 ## Customer contract
 
 Install `@open-wa/integration-voxtral` beside Easy API, set `MISTRAL_API_KEY`, add
-`plugins: ['@open-wa/integration-voxtral']` to `config.js`, and run Easy API with
-`--config ./config.js`. The same process owns WhatsApp, provider requests,
-conversation state, and call audio. The package includes its voice-note encoder
+`plugins: ['@open-wa/integration-voxtral']` to `wa.config.mjs`, and run
+`npx @open-wa/wa-automate`. Easy API discovers the file automatically. The same
+process owns WhatsApp, provider requests, conversation state, and call audio.
+The package includes its voice-note encoder
 through `ffmpeg-static` and requires no separate service or system encoder.
 Calling uses the existing open-wa calling license and media host.
 
