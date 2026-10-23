@@ -31,6 +31,8 @@ export interface CallMediaOptions {
   speaker?: AudioOutput;
   camera?: VideoInput;
   onMediaFailure?: 'end' | 'keep-open';
+  /** Explicitly replace a server-owned source, or return a remote source to the host. */
+  takeover?: boolean;
 }
 export interface CallingOptions {
   defaults?: CallMediaOptions;

@@ -304,6 +304,8 @@ export function toCreateClientOptions(
 ): CreateClientOptions {
     return {
         sessionId: config.sessionId,
+        pluginRefs: config.plugins,
+        pluginConfig: config.pluginConfig,
         eventMode: config.eventMode,
         driver: driverSelection.driver,
         deleteSessionDataOnLogout: config.deleteSessionDataOnLogout,

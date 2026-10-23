@@ -132,6 +132,13 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
     this._bindMethods(utilitiesMethods, this);
     this._bindMethods(whatsappEventMethods, this);
 
+    this._client.plugins.bindRuntime(async (method, args) => {
+      if (method.startsWith('_') || method === 'constructor') throw new Error('Invalid host method.');
+      const fn = (this as unknown as Record<string, unknown>)[method];
+      if (typeof fn !== 'function') throw new Error(`Host method ${method} is unavailable.`);
+      return Reflect.apply(fn, this, args);
+    });
+
     this._client.registerFinalizationHook(() => this.loaded());
   }
   

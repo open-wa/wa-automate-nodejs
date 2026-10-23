@@ -401,7 +401,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     async start() {
       try {
       events.emit('core.starting', { config: {
-        ...options, sessionDataEncryptionKey: undefined, sessionDataEncryptionKeyFile: undefined,
+        ...options, sessionDataEncryptionKey: undefined, sessionDataEncryptionKeyFile: undefined, pluginConfig: undefined,
       } });
 
       if (options.sessionAdmission && !admissionAcquired) {

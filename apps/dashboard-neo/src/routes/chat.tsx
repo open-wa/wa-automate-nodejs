@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, type ReactNode } from "react"
 import { MessageSquare, ArrowLeft, Send, Loader2, Phone } from "lucide-react"
 import { isCallRecipient, useCalling } from "@/lib/hooks/use-calling"
 import { useSocket } from "@/lib/hooks/use-socket"
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useDemo } from "@/lib/demo/use-demo"
 import { cn } from "@/lib/utils"
+import { PluginChat, type ChatFeedAddition } from '@/components/plugin-chat'
 
 export const Route = createFileRoute("/chat")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -34,6 +35,18 @@ type MessageItem = {
   timestamp: number
   sender?: string
   type: string
+}
+
+type FeedItem = { kind: 'message'; id: string; at: number; message: MessageItem; additions: ChatFeedAddition[] } | { kind: 'plugin'; id: string; at: number; content: ReactNode };
+function mergeFeed(messages: MessageItem[], entries: ChatFeedAddition[]): FeedItem[] {
+  const attached = new Map<string, ChatFeedAddition[]>();
+  const loaded = new Set(messages.map(message => message.id));
+  const standalone: FeedItem[] = [];
+  for (const entry of entries) {
+    if (entry.messageId && loaded.has(entry.messageId)) attached.set(entry.messageId, [...(attached.get(entry.messageId) ?? []), entry]);
+    else standalone.push({ kind: 'plugin', ...entry });
+  }
+  return [...messages.map(message => ({ kind: 'message' as const, id: message.id, at: message.timestamp * 1000, message, additions: attached.get(message.id) ?? [] })), ...standalone].sort((a, b) => a.at - b.at || a.id.localeCompare(b.id));
 }
 
 function ChatPage() {
@@ -351,6 +364,8 @@ function ChatPage() {
         )}
       >
         {selectedChat ? (
+          <PluginChat chatId={selectedChat.id} enabled={!isDemo}>
+          {({ toolbar, entries }) => (
           <>
             <header className="flex shrink-0 items-center gap-3 border-b px-4 py-4">
               <Button
@@ -387,8 +402,9 @@ function ChatPage() {
                 {calling.active ? "Current call" : "Call"}
               </Button>
             </header>
+            {toolbar}
             <div className="min-h-0 flex-1 overflow-y-auto bg-muted/25 p-4 sm:p-6">
-              {messagesLoading ? (
+              {messagesLoading && (
                 <div
                   role="status"
                   aria-label="Loading messages"
@@ -397,7 +413,8 @@ function ChatPage() {
                   <div className="h-16 w-2/3 animate-pulse rounded-2xl bg-muted" />
                   <div className="ms-auto h-16 w-2/3 animate-pulse rounded-2xl bg-muted" />
                 </div>
-              ) : messageError ? (
+              )}
+              {messageError && (
                 <div
                   role="alert"
                   className="space-y-3 rounded-xl border bg-card p-5"
@@ -410,13 +427,17 @@ function ChatPage() {
                     Try again
                   </Button>
                 </div>
-              ) : !messages.length ? (
+              )}
+              {!messagesLoading && !messageError && !messages.length && !entries.length && (
                 <p className="p-6 text-center text-body-regular text-text-secondary">
                   No messages to display in this conversation.
                 </p>
-              ) : (
+              )}
                 <div className="space-y-3">
-                  {messages.map((message) => (
+                  {mergeFeed(messages, entries).map(item => {
+                    if (item.kind === 'plugin') return <div key={item.id}>{item.content}</div>;
+                    const { message, additions } = item;
+                    return (
                     <div
                       key={message.id}
                       className={
@@ -441,8 +462,9 @@ function ChatPage() {
                         <p className="break-words whitespace-pre-wrap">
                           {privacyMode
                             ? "Message hidden by privacy mode"
-                            : message.body || `[${message.type}]`}
+                            : message.type === 'ptt' ? 'Voice note' : message.body || `[${message.type}]`}
                         </p>
+                        {additions.map(entry => <div key={entry.id} className="mt-2 border-t border-current/20 pt-2">{entry.content}</div>)}
                         <p
                           className={cn(
                             "mt-1 text-end text-caption-2-regular",
@@ -460,9 +482,8 @@ function ChatPage() {
                         </p>
                       </div>
                     </div>
-                  ))}
+                  ); })}
                 </div>
-              )}
               <div ref={messagesEndRef} />
             </div>
             <form
@@ -506,6 +527,8 @@ function ChatPage() {
               )}
             </form>
           </>
+          )}
+          </PluginChat>
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
             <MessageSquare className="size-10 text-text-tertiary" />

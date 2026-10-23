@@ -5,9 +5,12 @@ import { useSocket } from './use-socket';
 import { usePrivacy } from './use-privacy';
 import { useDemo } from '../demo/use-demo';
 import { useHealth } from './use-health';
+import { pluginJson } from '../plugin-api';
+import { getApiKey, getApiUrl } from '../api-client';
 
 export type CallRecipient = { id: string; name: string; aliases: string[] };
-type AudioSource = 'microphone' | 'file' | 'url' | 'sample';
+type AudioSource = 'microphone' | 'file' | 'url' | 'sample' | 'voxtral';
+type AssistantState = { mode: string; configured: boolean; paused: boolean; call: null | { call?: { id: string; generation: string }; owner: 'assistant' | 'human'; stage: string; muted: boolean; error?: string } };
 const initialNotice = 'Choose a contact to call, or answer an incoming call from any page.';
 
 export function isCallRecipient(id: string) { return /@(c\.us|lid)$/.test(id); }
@@ -87,6 +90,29 @@ function useCallingController() {
   const [connectedAt, setConnectedAt] = useState<number | null>(null);
   const [expanded, setExpanded] = useState(false);
   const seenIncoming = useRef(new Set<string>());
+  const [assistant, setAssistant] = useState<AssistantState | null>(null);
+
+  useEffect(() => {
+    if (!connected || isDemo) return;
+    const controller = new AbortController(); let loaded = false; let polling = false; let discoveredAt = 0;
+    const poll = async () => {
+      if (polling) return; polling = true;
+      try {
+        if (!loaded) {
+          if (Date.now() - discoveredAt < 30_000) return;
+          discoveredAt = Date.now();
+          const key = getApiKey();
+          const response = await fetch(new URL('/plugins/manifest', getApiUrl()), { headers: key ? { 'X-API-Key': key } : {}, signal: controller.signal });
+          if (!response.ok) return;
+          const manifest = await response.json(); loaded = manifest.plugins?.some((plugin: { name: string }) => plugin.name === 'voxtral');
+        }
+        if (loaded) setAssistant(await pluginJson<AssistantState>('voxtral', 'status', { signal: controller.signal }));
+      } catch { if (!controller.signal.aborted) { setAssistant(null); loaded = false; } }
+      finally { polling = false; }
+    };
+    void poll(); const timer = setInterval(() => void poll(), 2000);
+    return () => { controller.abort(); clearInterval(timer); };
+  }, [connected, isDemo]);
 
   useEffect(() => {
     if (!connected || (!isDemo && !canInvokeRuntime)) return;
@@ -175,17 +201,37 @@ function useCallingController() {
     if (busyRef.current || active) { setExpanded(true); return; }
     if (!client || !connected || isDemo) { setNotice(isDemo ? 'Demo mode does not place real calls. Connect a session to call.' : 'Connect your session to start a call.'); return; }
     setRecipient(target); setPendingPeer(target); setExpanded(true);
-    await action(() => client.startCall(target.id, media()));
+    await action(() => source === 'voxtral'
+      ? pluginJson<CallActionResult>('voxtral', 'calls/start', { method: 'POST', body: JSON.stringify({ to: target.id }) })
+      : client.startCall(target.id, media()));
     setPendingPeer(null);
     // Read the authoritative state after dispatch without retrying the call.
     try { const value = await client.getActiveCall(); if (value && (!current.current || current.current.observedAt <= value.observedAt)) { current.current = value; setCall(value); } } catch { /* State events can still arrive. */ }
   };
   const dismiss = () => { if (!active) { current.current = null; setCall(null); setExpanded(false); } };
+  const assistantAction = (name: string, body: object = {}) => active && action(() => pluginJson<CallActionResult>('voxtral', `calls/${encodeURIComponent(active.id)}/${name}`, { method: 'POST', body: JSON.stringify({ generation: active.generation, ...body }) }));
+  const takeOverAssistant = () => active && action(async () => {
+    // Prepare the human's devices before the assistant releases its audio ownership.
+    const result = await active.setMedia({ takeover: true });
+    if (result.ok) await pluginJson('voxtral', `calls/${encodeURIComponent(active.id)}/takeover`, { method: 'POST', body: JSON.stringify({ generation: active.generation }) });
+    return result;
+  });
+  const assistantHandlesCall = Boolean(active && assistant?.call?.call?.id === active.id && assistant.call.call.generation === active.generation);
+  const assistantOwnsCall = assistantHandlesCall && assistant?.call?.owner === 'assistant';
   return { call, active, contacts, contactsLoading, contactsError, recipient, setRecipient, source, setSource, file, setFile, url, setUrl, record, setRecord, recording, notice,
-    busy, muted, history, connectedAt, expanded, setExpanded, connected: connected && !isDemo, error, pendingPeer, start, dismiss,
-    answer: () => active && action(() => active.accept(media())), reject: () => active && action(() => active.reject()), end: () => active && action(() => active.end()),
-    toggleMute: () => active && action(async () => { const result = await (muted ? active.unmute() : active.mute()); if (result.ok) setMuted(!muted); return result; }),
-    clearAudio: () => active && action(() => active.clearAudio()), applyMedia: () => active && action(() => active.setMedia(media())),
+    busy, muted: assistantOwnsCall ? assistant!.call!.muted : muted, history, connectedAt, expanded, setExpanded, connected: connected && !isDemo, error, pendingPeer, start, dismiss,
+    assistant, assistantHandlesCall, assistantOwnsCall, takeOverAssistant,
+    answerWithAssistant: () => assistantAction('answer'), returnToAssistant: () => assistantAction('resume'),
+    answerMyself: () => active && action(() => active.accept({})),
+    answer: () => source === 'voxtral' ? assistantAction('answer') : active && action(() => active.accept(media())),
+    reject: () => active && action(() => active.reject()), end: () => active && action(() => active.end()),
+    toggleMute: () => assistantOwnsCall ? assistantAction('mute', { muted: !assistant!.call!.muted }) : active && action(async () => { const result = await (muted ? active.unmute() : active.mute()); if (result.ok) setMuted(!muted); return result; }),
+    clearAudio: () => assistantOwnsCall ? assistantAction('clear') : active && action(() => active.clearAudio()),
+    applyMedia: () => source === 'voxtral' ? assistantAction('resume') : active && action(async () => {
+      const result = await active.setMedia({ ...media(), ...(assistantOwnsCall ? { takeover: true } : {}) });
+      if (result.ok && assistantOwnsCall) await pluginJson('voxtral', `calls/${encodeURIComponent(active.id)}/takeover`, { method: 'POST', body: JSON.stringify({ generation: active.generation }) });
+      return result;
+    }),
   };
 }
 const CallingContext = createContext<ReturnType<typeof useCallingController> | null>(null);
