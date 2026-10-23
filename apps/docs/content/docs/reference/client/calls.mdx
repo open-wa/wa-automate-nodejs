@@ -15,7 +15,7 @@ This page documents 11 schema-registry client methods in the `calls` namespace.
 
 Prepare media and accept this incoming call.
 
-**Signature** `client.acceptCall(call: { generation: string; id: string; sessionId: string }, media?: { camera?: any; microphone?: any; onMediaFailure?: "end" \| "keep-open"; speaker?: any }): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
+**Signature** `client.acceptCall(call: { generation: string; id: string; sessionId: string }, media?: { camera?: any; microphone?: any; onMediaFailure?: "end" \| "keep-open"; speaker?: any; takeover?: boolean }): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
 
 ### Usage
 
@@ -806,7 +806,7 @@ In-process Client resolves to `Promise<CallActionResult>`. The contract above is
 
 Prepare a replacement before releasing the working media.
 
-**Signature** `client.setCallMedia(call: { generation: string; id: string; sessionId: string }, media?: { camera?: any; microphone?: any; onMediaFailure?: "end" \| "keep-open"; speaker?: any }): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
+**Signature** `client.setCallMedia(call: { generation: string; id: string; sessionId: string }, media?: { camera?: any; microphone?: any; onMediaFailure?: "end" \| "keep-open"; speaker?: any; takeover?: boolean }): Promise<{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string>`
 
 ### Usage
 
