@@ -160,6 +160,6 @@ export function createPage(host) {
       status?.error && h('p', { className: 'vx-error', role: 'alert' }, status.error), list,
       snapshot?.usage && h('section', { className: 'vx-panel vx-pad vx-stack', 'aria-label': 'Mistral usage' }, h('div', { className: 'vx-row vx-between' }, h('h2', { className: 'vx-title' }, 'Usage'), h('span', { className: 'vx-muted' }, `Since ${new Date(snapshot.usage.since).toLocaleDateString()}`)),
         h('div', { className: 'vx-stats' }, ...[[`${(snapshot.usage.audioSeconds / 60).toFixed(1)} min`, 'Reported audio processed'], [snapshot.usage.speechCharacters.toLocaleString(), 'Speech characters generated'], [(snapshot.usage.inputTokens + snapshot.usage.outputTokens).toLocaleString(), 'Reported model tokens']].map(([value, label]) => h('div', { className: 'vx-stat', key: label }, h('strong', null, value), h('span', { className: 'vx-muted' }, label)))),
-        h('p', { className: 'vx-muted' }, 'Provider usage is separate from your OpenWA license. Live transcription duration and interrupted requests may be missing. ', h('a', { href: 'https://mistral.ai/pricing', target: '_blank', rel: 'noreferrer' }, 'Mistral pricing'))), settingsSheet);
+        h('p', { className: 'vx-muted' }, 'Provider usage is separate from your open-wa license. Live transcription duration and interrupted requests may be missing. ', h('a', { href: 'https://mistral.ai/pricing', target: '_blank', rel: 'noreferrer' }, 'Mistral pricing'))), settingsSheet);
   };
 }

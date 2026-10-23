@@ -1,4 +1,4 @@
-# Voxtral for OpenWA
+# Voxtral for open-wa
 
 The official Easy API plugin for conversational WhatsApp voice notes and live
 audio calls. Set `MISTRAL_API_KEY`, install the package next to
@@ -35,7 +35,7 @@ Open a person in Neo's normal Chat view for voice transcripts, replies, delivery
 states, call turns, and pause/takeover controls. Open `/dashboard/plugins/voxtral`
 to edit the assistant, choose Voice notes, Calls, or Both, preview a voice, and
 view usage. Its conversation list opens the same Chat feed.
-Calling requires an OpenWA calling-enabled license. Audio encoding is included
+Calling requires an open-wa calling-enabled license. Audio encoding is included
 through `ffmpeg-static`; a system FFmpeg installation is not required.
 
 Instructions accept either a string or an array. The plugin handles joining,

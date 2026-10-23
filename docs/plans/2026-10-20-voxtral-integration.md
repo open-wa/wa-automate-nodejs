@@ -16,7 +16,7 @@ Install `@open-wa/integration-voxtral` beside Easy API, set `MISTRAL_API_KEY`, a
 `--config ./config.js`. The same process owns WhatsApp, provider requests,
 conversation state, and call audio. The package includes its voice-note encoder
 through `ffmpeg-static` and requires no separate service or system encoder.
-Calling uses the existing OpenWA calling license and media host.
+Calling uses the existing open-wa calling license and media host.
 
 `mode` accepts `voice-notes` (default), `calls`, or `both`. Instructions accept a
 string or array; the plugin trims and joins arrays, removes blank entries, and

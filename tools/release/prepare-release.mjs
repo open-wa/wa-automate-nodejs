@@ -59,7 +59,7 @@ const previousMetadata = pr?.body?.match(/<!-- openwa-release\s+([\s\S]*?)-->/)?
 const metadata = previousMetadata ? JSON.parse(previousMetadata) : {};
 if (event.issue) metadata.issue = event.issue.number;
 const current = JSON.parse(readFileSync('packages/core/package.json', 'utf8')).version;
-const title = `🔖 chore(release): publish OpenWA ${current}`;
+const title = `🔖 chore(release): publish open-wa ${current}`;
 const details = `<!-- openwa-release-start -->\n## Packages\n\n${changed.map(pkg => `- \`${pkg.name}@${pkg.version}\``).join('\n')}\n\nVersions and package changelogs are committed on master. Merge this PR to publish. Availability tracking and commit-based release notes run separately afterward.\n\n[Preparation run](${runUrl})\n<!-- openwa-release ${JSON.stringify(metadata)} -->\n<!-- openwa-release-end -->`;
 const body = pr?.body?.includes('<!-- openwa-release-start -->')
   ? pr.body.replace(/<!-- openwa-release-start -->[\s\S]*?<!-- openwa-release-end -->/, details)

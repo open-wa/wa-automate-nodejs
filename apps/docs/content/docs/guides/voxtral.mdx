@@ -130,7 +130,7 @@ It doesn't send the incoming transcript back as the answer.
 
 ### Live audio calls
 
-Switch to `calls` or `both` and supply your calling-enabled OpenWA license in
+Switch to `calls` or `both` and supply your calling-enabled open-wa license in
 the top-level Easy API config:
 
 ```bash
@@ -160,7 +160,7 @@ export default {
 };
 ```
 
-Start Easy API with `--config ./config.js` as before. Calling uses OpenWA's
+Start Easy API with `--config ./config.js` as before. Calling uses open-wa's
 [licensed audio calling support](/docs/guides/calls).
 If calling isn't available, the dashboard shows the reason; the Easy API and
 any enabled voice-note handling continue running.
@@ -176,7 +176,7 @@ The caller can interrupt a spoken answer. The assistant stops its current
 speech, listens, and answers the new turn. **Take over** switches the live call
 to your microphone and speakers; **Return to assistant** gives the conversation
 back. These controls are also available in the dashboard's floating call
-control. OpenWA supports one active call per WhatsApp session.
+control. open-wa supports one active call per WhatsApp session.
 
 During human takeover, the assistant can keep transcribing the caller. Your
 microphone is not transcribed. Add an optional handoff summary before returning

@@ -1,7 +1,7 @@
 {
   "name": "@open-wa/integration-voxtral",
   "version": "5.7.0",
-  "description": "Voxtral conversational voice notes and live audio calls for OpenWA",
+  "description": "Voxtral conversational voice notes and live audio calls for open-wa",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
