@@ -74,14 +74,14 @@ Plugin logs flow through the host's logging system. Whether they are persisted d
 
 ## `config`: Validated Configuration
 
-The `config` field contains your plugin's configuration from `wa.config.mjs`. When you provide a `configSchema`, the host validates and parses the value before calling `init()`; without a schema, it passes the configured value through (or `{}` when it is absent).
+The `config` field contains your plugin's configuration from `wa.config.js` or `wa.config.ts`. When you provide a `configSchema`, the host validates and parses the value before calling `init()`; without a schema, it passes the configured value through (or `{}` when it is absent).
 
 ### Access Pattern
 
 Your plugin's config is accessed via the `pluginConfig` key in the global config file:
 
 ```js
-// wa.config.mjs
+// wa.config.js or wa.config.ts
 export default {
   pluginConfig: {
     'my-plugin': {

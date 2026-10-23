@@ -79,7 +79,7 @@ The important shape is `init: async (...) => ({ ... })`: event handlers, `routes
 
 ## Configure the plugin
 
-Create `wa.config.mjs` beside the `plugins` directory. The `plugins` entry is loaded with Node's dynamic `import()`, so the file must contain JavaScript that Node can execute. The loader does not compile TypeScript.
+Create `wa.config.js` or `wa.config.ts` beside the `plugins` directory. Either config accepts `export default`; a JavaScript config can also use `module.exports`. Local plugin modules are loaded with Node's dynamic `import()`, so the plugin file itself must contain JavaScript that Node can execute.
 
 ```js
 export default {
@@ -98,12 +98,26 @@ export default {
 
 The `pluginConfig` key is `meta.name` (`greeting-bot`), not the package name or file path. The loader accepts npm package names and importable local references, and it uses a module's default export or named `plugin` export.
 
+### Published plugins install on demand
+
+For a published plugin, put its npm package name in `plugins`. Easy API uses a
+package already installed in your project, or downloads it on the first start
+and reuses `.open-wa/plugins/packages/` on later starts. It only installs listed
+plugins and doesn't change your project's dependencies or lockfile. Local file
+references are never installed from npm.
+
+Official `@open-wa/integration-*` packages default to the running open-wa version.
+Other npm plugins use `latest` for the initial download. To choose a version,
+append `@<version>` to the package name in the reference.
+The cache is kept per package and requested version; a versioned reference uses
+that cache rather than an unversioned project installation.
+
 ## Run it
 
-Run the CLI from the directory containing `wa.config.mjs`:
+Run the CLI from the directory containing your config:
 
 ```bash
-npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --session-id my-session --host 127.0.0.1 --port 8080
+npx @open-wa/wa-automate
 ```
 
 This binds the API to loopback, so it is reachable only from this machine. If you choose another host, protect `/api` with `--api-key "your-secure-key"` and add a guard to plugin routes before exposing them. See [HTTP routes in plugins](/docs/plugins/hono-routes).
@@ -116,11 +130,11 @@ Open the [local dashboard](http://localhost:8080/dashboard/) and select Greeting
 
 ## If the plugin does not load
 
-- Confirm the CLI loaded the intended config file. Run with `--config ./wa.config.mjs` when in doubt.
+- Confirm the CLI loaded the intended `wa.config.js` or `wa.config.ts` file.
 - Confirm the plugin reference points to JavaScript that Node can import, such as `.mjs` or compiled `.js`.
 - Confirm the module exports `default createPlugin(...)` or a named `plugin` export.
 - Confirm `meta.name` is present and that `pluginConfig` uses the same name.
-- Check for `plugin_loaded`, `plugin_registered`, `plugin_config_invalid`, or `plugin_load_error` in the Easy API logs.
+- Check for `plugin_installing`, `plugin_installed`, `plugin_loaded`, `plugin_registered`, `plugin_config_invalid`, or `plugin_load_error` in the Easy API logs. A first-time npm install needs registry access; fix any npm error and restart Easy API to retry.
 
 If a hook never fires, check the exact hook name against the [Hooks reference](/docs/plugins/hooks-reference). The reference marks hooks that plugins can subscribe to.
 

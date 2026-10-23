@@ -15,16 +15,15 @@ The plugin handles transcription, conversation context, answer generation, and
 speech. Voice-note replies arrive as WhatsApp voice notes. Calls use a live
 audio connection, so callers can speak naturally and interrupt the assistant.
 
-## 1. Install the plugin
+## 1. Install Easy API
 
-Use Node.js **22.21.1 or newer**. Create a project and install Easy API and the
-plugin together:
+Use Node.js **22.21.1 or newer**. Create a project and install Easy API:
 
 ```bash
 mkdir whatsapp-voice-assistant
 cd whatsapp-voice-assistant
 npm init -y
-npm install @open-wa/wa-automate @open-wa/integration-voxtral
+npm install @open-wa/wa-automate
 ```
 
 Keep your [Mistral API key](https://console.mistral.ai/api-keys/) in your
@@ -37,16 +36,20 @@ export MISTRAL_API_KEY='YOUR_MISTRAL_API_KEY'
 Mistral bills transcription, answer generation, and speech separately. The
 plugin uses your own Mistral account; see [Mistral's current pricing](https://mistral.ai/pricing).
 
-## 2. Create wa.config.mjs
+## 2. Create wa.config.js
 
-Save this as `wa.config.mjs` in the project directory. Easy API loads it
+Save this as `wa.config.js` in the project directory. Easy API loads it
 automatically:
 
-```js title="wa.config.mjs"
+```js title="wa.config.js"
 export default {
   plugins: ['@open-wa/integration-voxtral'],
 };
 ```
+
+Prefer TypeScript? Save the same config as `wa.config.ts`. Both names are
+discovered automatically, and both accept `export default` without changing
+your project's module settings. JavaScript also accepts `module.exports`.
 
 If you already have an Easy API config, just add the package to its `plugins`
 array.
@@ -60,6 +63,10 @@ or add `pluginConfig.voxtral` settings to this file when you need them.
 ```bash
 npx @open-wa/wa-automate
 ```
+
+Easy API installs Voxtral and its dependencies on the first start if the package
+isn't already installed, then reuses the local plugin cache. Only plugins listed
+in your config are downloaded; Voxtral isn't included in every Easy API install.
 
 Link WhatsApp using the QR code shown by Easy API, then open the
 [dashboard](http://localhost:8080/dashboard/) and select **Plugins → Voxtral**.
@@ -119,7 +126,7 @@ the top-level Easy API config:
 export OPENWA_LICENSE_KEY='YOUR_CALLING_LICENSE'
 ```
 
-```js title="wa.config.mjs"
+```js title="wa.config.js"
 export default {
   licenseKey: process.env.OPENWA_LICENSE_KEY,
   plugins: ['@open-wa/integration-voxtral'],
@@ -195,7 +202,7 @@ changes affect new work; they don't silently hang up an active call.
 
 ## Configuration reference
 
-To customize the assistant in `wa.config.mjs`, add `pluginConfig`. For example:
+To customize the assistant in your config file, add `pluginConfig`. For example:
 
 ```js
 pluginConfig: {

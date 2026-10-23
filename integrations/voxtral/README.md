@@ -1,20 +1,26 @@
 # Voxtral for open-wa
 
 The official Easy API plugin for conversational WhatsApp voice notes and live
-audio calls. Set `MISTRAL_API_KEY`, install the package next to
-`@open-wa/wa-automate`, and save this as `wa.config.mjs`:
+audio calls. Set `MISTRAL_API_KEY` and save this as `wa.config.js` beside your
+Easy API project:
 
-```js title="wa.config.mjs"
+```js title="wa.config.js"
 export default {
   plugins: ['@open-wa/integration-voxtral'],
 };
 ```
 
-Easy API discovers the file automatically:
+Easy API discovers `wa.config.js` or `wa.config.ts` automatically. Both accept
+`export default`; JavaScript also accepts `module.exports`. Run:
 
 ```bash
 npx @open-wa/wa-automate
 ```
+
+The first start installs Voxtral on demand if it's missing, then reuses the
+project's `.open-wa/plugins/packages/` cache. You don't need a separate plugin
+install command. Only configured plugins are downloaded; Voxtral isn't bundled
+with Easy API.
 
 Open a person in Neo's normal Chat view for voice transcripts, replies, delivery
 states, call turns, and pause/takeover controls. Open `/dashboard/plugins/voxtral`
