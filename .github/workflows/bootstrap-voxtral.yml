@@ -1,0 +1,35 @@
+name: Bootstrap Voxtral package
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    environment: Release
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 44b5ecdd469ea4b139c4a8f426a39dd7c987e7fb
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+      - run: npm install --global npm@^11.5.1
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Build the exact Voxtral release artifact
+        run: pnpm exec turbo build --filter=@open-wa/integration-voxtral... --output-logs=errors-only
+      - name: Pack the new public package
+        run: pnpm --filter @open-wa/integration-voxtral pack --pack-destination '${{ runner.temp }}/voxtral'
+      - name: Register Voxtral with the existing publishing credential
+        run: npm publish '${{ runner.temp }}/voxtral/open-wa-integration-voxtral-5.7.0.tgz' --access public --tag latest --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
