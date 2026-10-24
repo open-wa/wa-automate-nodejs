@@ -16,6 +16,12 @@
 
 
 
+
+## 5.9.0
+<sub>2026-10-24</sub>
+
+- *(minor)* Version bump from group with `@open-wa/config` v5.9.0, `@open-wa/create` v5.9.0, `@open-wa/wa-automate` v5.9.0
+
 ## 5.8.0
 <sub>2026-10-23</sub>
 

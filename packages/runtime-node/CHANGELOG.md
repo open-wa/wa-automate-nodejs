@@ -14,6 +14,12 @@
 
 
 
+
+## 5.1.12
+<sub>2026-10-24</sub>
+
+- *(patch)* Updated dependency `@open-wa/core` v5.9.0
+
 ## 5.1.11
 <sub>2026-10-23</sub>
 
