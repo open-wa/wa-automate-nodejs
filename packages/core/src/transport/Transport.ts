@@ -613,13 +613,20 @@ export class Transport {
   async waitForInjectableSession(): Promise<boolean> {
     if (!this.page) return false;
 
-    const readyScript = `(() => Boolean(globalThis.OpenWA_PortableSession?.startupFailure()) || (${PRE_AUTH_SURFACE_READY_CHECK_SCRIPT}))()`;
+    const readyScript = `(() => globalThis.location.search.includes('post_logout=1') || Boolean(globalThis.OpenWA_PortableSession?.startupFailure()) || (${PRE_AUTH_SURFACE_READY_CHECK_SCRIPT}))()`;
     // A failed browser probe does not establish that saved credentials are invalid.
     // Preserve the checkpoint so startup can retry it after a transport failure.
     await this.page.waitForFunction(readyScript, {
       timeoutMs: 0,
       polling: 100,
     });
+    if (this.page.url().includes('post_logout=1') && this.portable.hasCheckpoint) {
+      // A native logout is explicit rejection, unlike a probe timeout. Stop
+      // replaying that checkpoint on each document and let WhatsApp pair afresh.
+      await this.resetSessionForPairing('native_logout');
+      await this.navigate();
+      return true;
+    }
     const portableFailure = await this.page.evaluateScript<string | null>('globalThis.OpenWA_PortableSession?.startupFailure() ?? null');
     if (portableFailure) {
       this.logger.warn('portable_session_bootstrap_failed', {
@@ -2297,7 +2304,9 @@ export class Transport {
         step: 'session_logout',
         details: { reason: 'post_logout=1' },
       });
-      this.requestSessionRecovery('logged_out');
+      // Startup owns its authentication wait and handles native logout there.
+      // Starting another client concurrently would race its browser and lease.
+      if (this.runtimeRecoveryEnabled) this.requestSessionRecovery('logged_out');
     });
 
     this.injectionController.registerNavigationObserver('runtime.navigation_recovery', (_frame, generation) => {

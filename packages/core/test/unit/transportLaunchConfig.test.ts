@@ -292,6 +292,21 @@ describe('Transport launch/config plumbing', () => {
     }
   });
 
+  it('returns a native logout during startup to fresh pairing instead of replaying the checkpoint', async () => {
+    const page = new TestPage();
+    const transport = new Transport({ driver: new CaptureDriver(new TestBrowser(page)),
+      events: createEvents(), logger: createLogger() });
+    (transport as any).page = page;
+    (transport as any).portable = { hasCheckpoint: true };
+    vi.spyOn(page, 'url').mockReturnValue('https://web.whatsapp.com/?post_logout=1');
+    const reset = vi.spyOn(transport, 'resetSessionForPairing').mockResolvedValue();
+    const navigate = vi.spyOn(transport, 'navigate').mockResolvedValue();
+
+    await expect(transport.waitForInjectableSession()).resolves.toBe(true);
+    expect(reset).toHaveBeenCalledWith('native_logout');
+    expect(navigate).toHaveBeenCalledOnce();
+  });
+
   it('retains a saved checkpoint when the startup probe fails', async () => {
     const page = new TestPage();
     const transport = new Transport({ driver: new CaptureDriver(new TestBrowser(page)),
