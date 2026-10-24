@@ -1,8 +1,20 @@
 # Voxtral for open-wa
 
+Create a new voice assistant through the open-wa setup wizard:
+
+```bash
+npm init @open-wa@latest voice-assistant -- --mode easy-api --plugins voxtral
+cd voice-assistant
+```
+
+Choose JS or TS, your browser, and Voice notes, Calls, or Both. Copy
+`.env.example` to `.env`, set `MISTRAL_API_KEY` and the calling license when
+needed, then run `npm start`. The [project builder](https://openwa.dev/new?plugins=voxtral)
+offers the same choices with file previews.
+
 The official Easy API plugin for conversational WhatsApp voice notes and live
-audio calls. Set `MISTRAL_API_KEY` and save this as `wa.config.js` beside your
-Easy API project:
+audio calls can also be added to an existing Easy API project. Set
+`MISTRAL_API_KEY` and add it to `wa.config.js` or `wa.config.ts`:
 
 ```js title="wa.config.js"
 export default {

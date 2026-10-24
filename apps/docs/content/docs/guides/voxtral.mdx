@@ -15,58 +15,46 @@ The plugin handles transcription, conversation context, answer generation, and
 speech. Voice-note replies arrive as WhatsApp voice notes. Calls use a live
 audio connection, so callers can speak naturally and interrupt the assistant.
 
-## 1. Install Easy API
+## 1. Create your voice assistant
 
-Use Node.js **22.21.1 or newer**. Create a project and install Easy API:
-
-```bash
-mkdir whatsapp-voice-assistant
-cd whatsapp-voice-assistant
-npm init -y
-npm install @open-wa/wa-automate
-```
-
-Keep your [Mistral API key](https://console.mistral.ai/api-keys/) in your
-environment:
+Use **Node.js 22.21.1 or newer** and npm:
 
 ```bash
-export MISTRAL_API_KEY='YOUR_MISTRAL_API_KEY'
+npm init @open-wa@latest voice-assistant -- --mode easy-api --plugins voxtral
+cd voice-assistant
 ```
 
-Mistral bills transcription, answer generation, and speech separately. The
-plugin uses your own Mistral account; see [Mistral's current pricing](https://mistral.ai/pricing).
+The wizard asks for JavaScript or TypeScript, your browser, and whether Voxtral
+should handle **voice notes**, **calls**, or **both**. Or use the
+[project builder](/new?mode=easy-api&plugins=voxtral) to choose visually, preview
+the files, and copy a complete command.
 
-## 2. Create wa.config.js
+The generated `wa.config.js` or `wa.config.ts` includes the plugin and your
+chosen mode. Easy API discovers it automatically; you don't need a config flag
+or a separate plugin installation command.
 
-Save this as `wa.config.js` in the project directory. Easy API loads it
-automatically:
+## 2. Add your key
 
-```js title="wa.config.js"
-export default {
-  plugins: ['@open-wa/integration-voxtral'],
-};
+Copy `.env.example` to `.env` and set your
+[Mistral API key](https://console.mistral.ai/api-keys/):
+
+```dotenv
+MISTRAL_API_KEY=YOUR_MISTRAL_API_KEY
 ```
 
-Prefer TypeScript? Save the same config as `wa.config.ts`. Both names are
-discovered automatically, and both accept `export default` without changing
-your project's module settings. JavaScript also accepts `module.exports`.
+For calls, also fill in `OPENWA_LICENSE_KEY` with your calling-enabled open-wa
+license. The generated config loads `.env`. Mistral bills transcription, answer
+generation, and speech separately through your account; see
+[Mistral's current pricing](https://mistral.ai/pricing).
 
-If you already have an Easy API config, just add the package to its `plugins`
-array.
-
-The plugin reads `MISTRAL_API_KEY` automatically and starts with the default
-voice-note assistant. Change its instructions, voice, and mode in the dashboard,
-or add `pluginConfig.voxtral` settings to this file when you need them.
-
-## 3. Start Easy API
+## 3. Start the assistant
 
 ```bash
-npx @open-wa/wa-automate
+npm start
 ```
 
-Easy API installs Voxtral and its dependencies on the first start if the package
-isn't already installed, then reuses the local plugin cache. Only plugins listed
-in your config are downloaded; Voxtral isn't included in every Easy API install.
+Only selected plugins are installed, on demand at startup, then reused from the
+project's cache. The browser follows your selected reuse/download policy.
 
 Link WhatsApp using the QR code shown by Easy API, then open the
 [dashboard](http://localhost:8080/dashboard/) and select **Plugins → Voxtral**.
@@ -76,6 +64,19 @@ keeps working when you close the dashboard.
 Send a voice note to the linked account from another WhatsApp account. The
 assistant answers with a voice note. Send a follow-up such as “Can you explain
 the second point?” and it uses the earlier conversation to answer.
+
+## Add Voxtral to an existing project
+
+Set `MISTRAL_API_KEY` in the environment that starts Easy API. Add the plugin to
+your existing `wa.config.js` or `wa.config.ts`:
+
+```js
+plugins: ['@open-wa/integration-voxtral'],
+```
+
+It starts with the default voice-note assistant. Add `pluginConfig.voxtral` to
+customize it, or edit its settings in Neo. Instructions accept a string or an
+array; the plugin joins array entries for you.
 
 ## Choose voice notes, calls, or both
 
@@ -138,7 +139,7 @@ export default {
 };
 ```
 
-Run `npx @open-wa/wa-automate` as before. Calling uses open-wa's
+Run `npm start` as before. Calling uses open-wa's
 [licensed audio calling support](/docs/guides/calls).
 If calling isn't available, the dashboard shows the reason; the Easy API and
 any enabled voice-note handling continue running.

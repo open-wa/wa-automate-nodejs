@@ -1,68 +1,118 @@
 ---
-title: Create a Bun project
-description: Generate a TypeScript application with open-wa installed and private session storage.
+title: Create a project
+description: Create an Easy API or SDK project with JavaScript or TypeScript, browser selection, and optional plugins.
 ---
 
-# Create a Bun project
+# Create a project
 
-With [Bun](https://bun.sh/docs/installation) installed, run:
+Use **Node.js 22.21.1 or newer** and npm. Run the interactive wizard:
 
 ```bash
-bunx --bun @open-wa/wa-automate init my-bot
+npm init @open-wa@latest my-bot
 cd my-bot
+npm start
 ```
 
-The initializer writes `index.ts`, a `package.json` with a `start` script,
-TypeScript settings, and ignore rules, then installs dependencies with Bun.
-The open-wa dependency is pinned to the initializer's version.
+The wizard asks for **Easy API or SDK**, **JavaScript or TypeScript**, a browser,
+and optional plugins. Use the [project builder](/new) to make the same choices
+on this site, preview every generated file, and copy a complete command or a
+shareable link. Both interfaces use the same options and templates.
 
-Set `recipient` in `index.ts` to an existing chat whose recipient expects your
-message. Use their international phone number without `+` or spaces, followed
-by `@c.us`: the fictional number +44 7700 900123 becomes
-`447700900123@c.us`. See the [chat ID guide](/docs/guides/chatid-primer).
+## Choose your project
 
-```bash
-bun run start
-```
+**Easy API** runs the HTTP server and Neo dashboard. It discovers
+`wa.config.js` or `wa.config.ts` automatically. Open
+[Neo](http://127.0.0.1:8080/dashboard/) after starting the project.
 
-[`create()`](/docs/reference/create) prepares the matched browser and displays
-a terminal QR code when login is needed. On the sending phone, open WhatsApp's
-**Linked Devices → Link a Device** and scan it. Once the session is ready, the
-starter submits one greeting, prints its confirmation, and closes the browser.
-Open the receiving chat to confirm receipt.
+**SDK** creates a persistent bot in `index.js` or `index.ts`. It imports your
+config and passes it to `create()`. Once connected, send `!ping` from another
+WhatsApp account to receive `pong`; add your own handlers in the entry file.
+SDK mode runs without an HTTP server or Neo. Choose Easy API for those controls.
 
-Each run sends another message. If a send fails with an uncertain result, check
-the chat before retrying.
+JavaScript projects use `.js` files. TypeScript projects use `.ts` files and
+include `tsconfig.json` and editor types. Node.js runs the generated TypeScript
+directly; you don't need a separate compile step or Bun.
 
-## Options and existing projects
+## Browser choices
 
-| Command | Behavior |
+| Choice | What happens |
 | --- | --- |
-| `bunx --bun @open-wa/wa-automate init .` | Scaffold in the current directory. |
-| `bunx --bun @open-wa/wa-automate init my-bot --no-install` | Write files, then let you run `bun install` later. |
-| `bunx --bun @open-wa/wa-automate init --help` | Show the initializer's options. |
+| Detect at startup | Reuse installed Chrome or a cached browser. Ask what to download if none is available. |
+| Use installed Chrome | Require a local Chrome installation. Never download a browser. |
+| Download Chrome | Use managed Chrome for Testing, downloading only when missing. Recommended for calls and media. |
+| Download Chromium | Use managed Chromium, downloading only when missing. Some audio/video codecs may be unavailable. |
 
-If any generated filename already exists, initialization stops before changing
-files and lists the conflicts. A second initialization preserves your edits.
-If dependency installation fails, keep the generated files and run `bun install`
-from that directory after resolving the reported problem.
+The terminal wizard shows the Chrome installation it detects. The website can't
+inspect installed applications, so its command performs that check locally.
+Browser downloads happen when you start the project and are cached for reuse.
+Choose an explicit download option for an unattended first start.
 
-For an existing application, install the library and use the
-[`create()` example](/docs/reference/create):
+## Plugins and credentials
+
+Select Voxtral, Webhooks, or Chatwoot. Chatwoot needs Easy API webhook routes and
+is unavailable in SDK mode. Selecting Voxtral also asks whether to handle voice
+notes, calls, or both. Calls need a calling-enabled open-wa license.
+
+The initializer writes plugin settings into the config and puts the required
+environment variable names in `.env.example`. Copy that file to `.env` and fill
+in your values before starting the integrations. The generated config loads
+`.env`; existing environment variables take precedence. Keys stay on your
+computer and aren't included in the builder's command or share link.
+
+Only selected plugins are downloaded, on demand at startup, then reused from
+the project's plugin cache. There is no separate plugin installation command.
+
+## Repeatable commands
+
+Pass flags to skip their questions. Partial flags leave the remaining questions
+interactive. Add `--yes` to use defaults for any missing choices:
 
 ```bash
-bun add @open-wa/wa-automate
+npm init @open-wa@latest my-api -- --mode easy-api --language js --browser chrome --plugins none --yes
 ```
 
-## Saved login
+For a TypeScript SDK voice assistant:
 
-The default browser profile is stored under `~/.open-wa/sessions`, outside the
-application. Its directories allow access only to your local user on systems
-that support Unix permissions. Each project directory and session name gets a
-separate profile. Running from the same directory reuses that connection while
-WhatsApp considers it valid. Moving the project or changing `sessionId` selects
-a different profile.
+```bash
+npm init @open-wa@latest voice-bot -- --mode sdk --language ts --browser chrome --plugins voxtral --voxtral-mode both --yes
+```
 
-The initializer also ignores common local session paths in case you later
-configure a project-local profile. Treat any explicit profile path as login
-credentials. See [session options](/docs/reference/create#session-and-login-options).
+| Flag | Values |
+| --- | --- |
+| `--mode` | `easy-api`, `sdk` |
+| `--language` | `js`, `ts` |
+| `--browser` | `auto`, `system-chrome`, `chrome`, `chromium` |
+| `--plugins` | `voxtral`, `webhook`, `chatwoot`, comma-separated; or `none` |
+| `--voxtral-mode` | `voice-notes`, `calls`, `both` |
+| `--no-install` | Write the files and let you run `npm install` later. |
+| `--yes` | Use defaults for unanswered choices. |
+| `--help` | Show usage without creating files. |
+
+Defaults are Easy API, JavaScript, browser detection, no plugins, voice-note
+mode when Voxtral is selected, and dependency installation enabled. Use `.` as
+the project directory to create files in the current folder.
+
+## Generated files
+
+Every project includes `package.json`, `wa.config.js` or `wa.config.ts`,
+`.gitignore`, and `README.md`. SDK projects also include their `index.js` or
+`index.ts` entry point. TypeScript adds `tsconfig.json`. Projects with API keys
+or integration settings include `.env.example`.
+
+The initializer checks for existing destination files before writing and refuses
+to overwrite them. If dependency installation fails, keep the generated files,
+resolve the npm error, and run `npm install` from the project directory.
+
+The existing `npx @open-wa/wa-automate init my-bot` entry point opens the same
+wizard and supports the same flags.
+
+## Link WhatsApp
+
+Run `npm start`, then open **WhatsApp → Linked devices → Link a device** on your
+phone and scan the QR code. Keep the project running to handle messages or
+calls. Stop with `Ctrl+C`; restart from the same project directory to reuse a
+valid saved login. Treat session storage and `.env` as private credentials.
+
+Next: [Easy API quick start](/docs/getting-started/easy-api),
+[SDK quick start](/docs/getting-started/custom-code), or the
+[Voxtral guide](/docs/guides/voxtral).
