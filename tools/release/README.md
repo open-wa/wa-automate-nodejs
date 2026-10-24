@@ -85,13 +85,17 @@ pnpm packages:onboard @open-wa/integration-voxtral
 # Reuse an already built publication artifact.
 pnpm packages:onboard @open-wa/integration-voxtral --tarball /absolute/path/package.tgz
 
+# Complete a batch from already prepared pnpm tarballs, without rebuilding
+# between maintainer authentication and trust configuration.
+pnpm packages:onboard @open-wa/create @open-wa/integration-voxtral --artifacts /absolute/path/artifacts
+
 # A CI job with package-creation credentials can stage only; finish locally.
 pnpm packages:onboard @open-wa/integration-voxtral --stage-only
 ```
 
 Run from an installed workspace with Node 22.21.1+ and npm 11.15+. The interactive command opens npm's maintainer sign-in when local authentication has expired or is missing; `--stage-only` never starts interactive login. You can also authenticate in advance using `npm login --registry=https://registry.npmjs.org`. Credentials must allow creating packages in the `@open-wa` scope. A granular token's **Organizations** permissions only manage organization settings, teams and users; its **Packages and scopes** permissions control publication. Stage-only CI can use its configured npm credential; use a maintainer session for the interactive completion. Tokens and npmrc files never belong in Git.
 
-The command discovers public workspace packages and builds/packs only their first publication artifacts. `--tarball` accepts an artifact matching the selected package and version. It stages absent package names, configures trust for this repository's `release.yml` and `Release` environment with `--allow-publish`, then approves the first staged versions. Existing, different trust settings are reported and left unchanged. npm requires maintainer 2FA for trust setup and initial approval; subsequent regular releases use OIDC without these onboarding steps. During trust configuration, npm offers a five-minute 2FA window for batching packages.
+The command discovers public workspace packages and builds/packs only their first publication artifacts. `--tarball` accepts an artifact matching the selected package and version. `--artifacts` accepts a batch directory containing the standard `pnpm pack` filenames, such as `open-wa-create-5.9.0.tgz`; each artifact's manifest and hash are checked before staging or approval. It stages absent package names, configures trust for this repository's `release.yml` and `Release` environment with `--allow-publish`, then approves the first staged versions. Existing, different trust settings are reported and left unchanged. npm requires maintainer 2FA for trust setup and initial approval; subsequent regular releases use OIDC without these onboarding steps. During trust configuration, npm offers a five-minute 2FA window for batching packages.
 
 Progress, stage IDs, artifact hashes and timestamps are saved under the ignored `.open-wa/package-onboarding/` directory. The command reconciles pending npm stages on every run and reuses matching stages after interruption. It does not re-upload accepted artifacts, approve a different saved artifact, or treat a registry/auth failure as a missing package. Preserve this directory until onboarding completes. When finishing a CI-created stage on another machine, download its publication artifact and pass `--tarball` so the command can confirm the staged hash before approval. npm can delay public metadata after approval; use the existing release availability workflow for manifest, tarball and dist-tag tracking.
 
