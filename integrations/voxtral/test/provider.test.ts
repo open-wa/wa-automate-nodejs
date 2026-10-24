@@ -45,3 +45,8 @@ test('provider errors report status and recovery without exposing response bodie
   const error = await provider.speech('Hello', settings, AbortSignal.timeout(1000)).then(() => undefined, error => error);
   expect(error?.message).toBe('Mistral returned HTTP 401. Check the API key and model access.');
 });
+test('a model with zero request quota explains how to select an available model', async () => {
+  globalThis.fetch = (async () => new Response('sensitive-provider-body', { status: 429, headers: { 'x-ratelimit-limit-req-minute': '0' } })) as typeof fetch;
+  const provider = new MistralProvider(() => 'test-only', () => {});
+  await expect(provider.answer([{ role: 'user', content: 'Hello' }], settings, AbortSignal.timeout(1000))).rejects.toThrow('Choose a model with available quota in agent.model');
+});
