@@ -18,6 +18,13 @@
 
 
 
+
+## 5.9.2
+<sub>2026-10-24</sub>
+
+-  *(patch)*
+  - 🐛 Report background session checkpoint failures through the SDK logger, including bounded schema-mismatch details without credential values. Track the persistence failure in [#3562](https://github.com/open-wa/wa-automate-nodejs/issues/3562).
+
 ## 5.9.1
 <sub>2026-10-24</sub>
 

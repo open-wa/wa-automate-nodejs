@@ -18,6 +18,12 @@
 
 
 
+
+## 5.9.2
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/core` v5.9.2, `@open-wa/decrypt` v5.9.2, `@open-wa/integration-voxtral` v5.9.2
+
 ## 5.9.1
 <sub>2026-10-24</sub>
 

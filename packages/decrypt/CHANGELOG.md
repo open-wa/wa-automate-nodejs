@@ -18,6 +18,13 @@
 
 
 
+
+## 5.9.2
+<sub>2026-10-24</sub>
+
+-  *(patch)*
+  Authenticate WhatsApp media envelopes before decryption, exclude their authentication tag from AES input, and remove standard PKCS#7 padding.
+
 ## 5.9.1
 <sub>2026-10-24</sub>
 

@@ -3,6 +3,12 @@
 
 
 
+
+## 5.9.2
+<sub>2026-10-24</sub>
+
+-  *(patch)* - Explain how to select an available answer model when Mistral reports zero request quota for the configured model.
+
 ## 5.9.1
 <sub>2026-10-24</sub>
 
