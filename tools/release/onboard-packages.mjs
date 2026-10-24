@@ -1,8 +1,9 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { resolve, join } from 'node:path';
-import { parseArgs } from 'node:util';
+import { parseArgs, stripVTControlCharacters } from 'node:util';
 import { pathToFileURL } from 'node:url';
 import { command, git, packages, repo } from './shared.mjs';
 
@@ -39,10 +40,28 @@ function npm(args, interactive = false) {
 }
 
 function trustConfigurations(name) {
-  // npm trust list emits one pretty-printed JSON object per connection,
-  // separated by blank lines, and no JSON when there are no connections.
-  const output = npm(['trust', 'list', name, '--json']);
-  return output ? output.split(/\r?\n\s*\r?\n/).map(item => JSON.parse(item)) : [];
+  // npm also requires interactive 2FA for GET /trust. Keep a real terminal
+  // while recording its machine-readable response; piping stdout disables
+  // npm's web authentication flow.
+  const directory = mkdtempSync(join(tmpdir(), 'open-wa-npm-trust-'));
+  const transcript = join(directory, 'output');
+  const args = ['npm', 'trust', 'list', name, '--json', `--registry=${registry}`, '--color=false'];
+  const quote = value => `'${value.replaceAll("'", "'\\''")}'`;
+  const scriptArgs = process.platform === 'darwin'
+    ? ['-q', transcript, ...args]
+    : ['--quiet', '--return', '--command', args.map(quote).join(' '), transcript];
+  try {
+    command('script', scriptArgs, { stdio: 'inherit' });
+    const output = stripVTControlCharacters(readFileSync(transcript, 'utf8')).replaceAll('\r', '');
+    // npm trust list emits one pretty-printed JSON object per connection,
+    // and no JSON when there are no connections. Authentication dialogue
+    // surrounds those top-level objects in the terminal transcript.
+    return [...output.matchAll(/^\{(?:\n[\s\S]*?^\}|\})[ \t]*$/gm)]
+      .map(item => JSON.parse(item[0]))
+      .filter(item => !(item.title === 'Authenticate your account at' && typeof item.url === 'string'));
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
 }
 
 function matchingTrust(config) {
