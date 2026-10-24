@@ -47,6 +47,20 @@ restored the binary; the lazy plugin installer already allows install scripts.
   `mistral-small-latest` quota is zero requests per minute; explicitly selecting
   `ministral-3b-latest` succeeds. The plugin now explains that zero-quota case
   and how to choose an available answer model.
+- The first automatic WhatsApp exchange correctly transcribed the human's
+  pineapple/seven note and submitted an audio reply, but the human rejected its
+  sound as inaudible. The downloaded sent attachment matched WhatsApp's file
+  hash. A real PCM response contained float32 little-endian samples; treating
+  those bytes as signed int16 caused distortion and doubled playback duration.
+  Provider output now converts float32 to int16 for both complete voice-note
+  speech and streaming calls, retaining split samples across event boundaries.
+  A corrected sample sent through the actual WhatsApp API was received and the
+  human confirmed “Yes, clear now.” This was a manual sample; the corrected
+  automatic exchange and physical calls have not yet passed acceptance.
+  All 18 focused Voxtral checks pass, including provider, encoding,
+  resampling, voice-note flow and simulated call behavior. The corrected real
+  provider loop also transcribes pineapple/seven and produces streamed call
+  frames; remote call quality remains a separate acceptance check.
 - The actual realtime STT WebSocket configured 16 kHz audio, detected spoken
   turns, generated an answer and produced non-silent output frames through
   LiveCall. This used a simulated call host; it does not establish physical
@@ -71,8 +85,10 @@ restored the binary; the lazy plugin installer already allows install scripts.
   and saved a 132,441-byte encrypted checkpoint with mode 0600. A separate
   protected snapshot was retained, and the current checkpoint's modification
   time advanced with subsequent automatic saves (139,461 bytes at the next
-  check). No restart was attempted after this verified save; the browser remains
-  running for the two-way voice-note and call acceptance checks.
+  check). Before loading the audio correction, a final native flush saved a
+  216,137-byte checkpoint and refreshed the protected snapshot. Cold restart
+  still failed at chat loading and later navigated to native logout; the saved
+  file remained intact. Automatic conversation and physical calls remain pending.
 - The recurring three-minute wait failure was reproduced as Puppeteer's protocol
   deadline interrupting a longer operation. Driver connections now defer to
   operation deadlines. Chrome also uses the existing native idle-QR renewal
