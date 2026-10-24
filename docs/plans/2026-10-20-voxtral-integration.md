@@ -66,15 +66,31 @@ restored the binary; the lazy plugin installer already allows install scripts.
   WhatsApp's chat-loading screen. A browser-probe timeout then incorrectly reset
   the checkpoint to a logout marker. Startup probe failures and authentication
   timeouts now preserve saved credentials; both focused regression checks pass.
-  Successful cold restoration and repeated automatic saves remain unverified.
+  Successful cold restoration remains unverified.
+- The latest repaired run paired the correct test account, reached library READY
+  and saved a 132,441-byte encrypted checkpoint with mode 0600. A separate
+  protected snapshot was retained, and the current checkpoint's modification
+  time advanced with subsequent automatic saves (139,461 bytes at the next
+  check). No restart was attempted after this verified save; the browser remains
+  running for the two-way voice-note and call acceptance checks.
+- The recurring three-minute wait failure was reproduced as Puppeteer's protocol
+  deadline interrupting a longer operation. Driver connections now defer to
+  operation deadlines. Chrome also uses the existing native idle-QR renewal
+  loop so an expired linking cycle can produce a fresh code. A single native
+  polling path supplies QR values; three focused host checks cover native QR
+  refresh/renewal and preservation of checkpoints on timeouts.
+- Health/dashboard requests arriving before plugin initialization froze Hono's
+  host matcher and made late route registration crash startup. A stable plugin
+  dispatcher now delegates to the initialized child router; four regression
+  cases cover early requests, GET/POST dispatch and host API-key authentication.
 - Running the exact documented `npm init @open-wa@latest my-bot` in a new folder
   under `projects/del` fails with `could not determine executable to run`.
   Public `@open-wa/create/latest` is currently the `0.0.0-stage` placeholder,
   with no executable. The real initializer version must become available before
   the published Easy API and SDK cleanroom flows can be accepted.
 
-Remaining live acceptance: pair the licensed test account again, complete actual
-two-way voice notes and context follow-ups, exercise incoming/outgoing calls,
+Remaining live acceptance: complete actual two-way voice notes and context
+follow-ups, exercise incoming/outgoing calls,
 interruption, takeover and assistant return with remote audio confirmation,
 and establish successful saved-login restoration. Publication remains held.
 
