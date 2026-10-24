@@ -614,18 +614,12 @@ export class Transport {
     if (!this.page) return false;
 
     const readyScript = `(() => Boolean(globalThis.OpenWA_PortableSession?.startupFailure()) || (${PRE_AUTH_SURFACE_READY_CHECK_SCRIPT}))()`;
-    try {
-      await this.page.waitForFunction(readyScript, {
-        timeoutMs: 0,
-        polling: 100,
-      });
-    } catch (error) {
-      if (this.closed || !this.portable.hasCheckpoint) throw error;
-      if (this.runtimeRecoveryEnabled) throw new SessionRecoveryRequired('session_restore_timeout');
-      await this.resetSessionForPairing('session_restore_timeout');
-      await this.navigate();
-      return true;
-    }
+    // A failed browser probe does not establish that saved credentials are invalid.
+    // Preserve the checkpoint so startup can retry it after a transport failure.
+    await this.page.waitForFunction(readyScript, {
+      timeoutMs: 0,
+      polling: 100,
+    });
     const portableFailure = await this.page.evaluateScript<string | null>('globalThis.OpenWA_PortableSession?.startupFailure() ?? null');
     if (portableFailure) {
       this.logger.warn('portable_session_bootstrap_failed', {
@@ -1944,12 +1938,6 @@ export class Transport {
       // WhatsApp has already returned to its login screen. Keep that page and QR.
       this.awaitingRecoveryPairing = true;
       await this.portable.beginPairing().catch(error => this.logger.warn('session_checkpoint_reset_failed', { error }));
-    }
-
-    if (authenticated === 'timeout' && this.portable.hasCheckpoint) {
-      await this.resetSessionForPairing('session_restore_timeout');
-      await this.navigate();
-      return this.waitForAuthentication();
     }
 
     if (authenticated === 'timeout') {

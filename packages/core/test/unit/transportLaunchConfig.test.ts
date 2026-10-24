@@ -265,6 +265,34 @@ afterEach(() => {
 });
 
 describe('Transport launch/config plumbing', () => {
+  it('retains a saved checkpoint when the startup probe fails', async () => {
+    const page = new TestPage();
+    const transport = new Transport({ driver: new CaptureDriver(new TestBrowser(page)),
+      events: createEvents(), logger: createLogger() });
+    const failure = new Error('Protocol wait timed out');
+    vi.spyOn(page, 'waitForFunction').mockRejectedValue(failure);
+    (transport as any).page = page;
+    (transport as any).portable = { hasCheckpoint: true };
+    const reset = vi.spyOn(transport, 'resetSessionForPairing').mockResolvedValue();
+    vi.spyOn(transport, 'navigate').mockResolvedValue();
+
+    await expect(transport.waitForInjectableSession()).rejects.toBe(failure);
+    expect(reset).not.toHaveBeenCalled();
+  });
+
+  it('retains a saved checkpoint when authentication times out', async () => {
+    const transport = new Transport({ driver: new CaptureDriver(new TestBrowser(new TestPage())),
+      events: createEvents(), logger: createLogger(), authTimeoutMs: 1 });
+    (transport as any).page = new TestPage();
+    (transport as any).portable = { hasCheckpoint: true };
+    vi.spyOn(transport, 'isAuthenticated').mockImplementation(() => new Promise(() => {}));
+    vi.spyOn(transport as any, 'waitForPhoneOutOfReach').mockResolvedValue(false);
+    const reset = vi.spyOn(transport, 'resetSessionForPairing').mockRejectedValue(new Error('Unexpected checkpoint reset'));
+
+    await expect(transport.waitForAuthentication()).resolves.toMatchObject({ outcome: 'auth_timeout', qrSeen: false });
+    expect(reset).not.toHaveBeenCalled();
+  });
+
   it('reads the host ID from the live patch when Store.Conn.me is unavailable', async () => {
     const page = new TestPage();
     const transport = new Transport({
