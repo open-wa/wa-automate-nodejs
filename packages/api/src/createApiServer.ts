@@ -59,6 +59,7 @@ export class ApiServer {
   private dashboardDevServer?: { close(): Promise<void> };
   private isDashboardActive: boolean = false;
   private pluginHost?: PluginHost;
+  private pluginApp = new Hono();
   private healthStore: HealthStore = new HealthStore();
   private diagnosticStore: DiagnosticStore = new DiagnosticStore();
   private eventBroadcaster: EventBroadcaster;
@@ -188,11 +189,12 @@ export class ApiServer {
    */
   public mountPlugins(pluginHost: PluginHost): void {
     this.pluginHost = pluginHost;
+    const pluginApp = new Hono();
 
     // Mount each plugin's routes at /plugins/<name>/
     for (const { name, router, routeAuth } of pluginHost.getRoutes()) {
       if (routeAuth === 'host') {
-        this.app.use(`/plugins/${name}/*`, async (c, next) => {
+        pluginApp.use(`/plugins/${name}/*`, async (c, next) => {
           if (this.config.apiKey) {
             if (c.req.header('X-API-Key') !== this.config.apiKey) return c.json({ error: 'Invalid or missing API key.' }, 401);
           } else {
@@ -206,8 +208,9 @@ export class ApiServer {
           await next();
         });
       }
-      this.app.route(`/plugins/${name}`, router);
+      pluginApp.route(`/plugins/${name}`, router);
     }
+    this.pluginApp = pluginApp;
   }
 
   public async start() {
@@ -353,6 +356,9 @@ export class ApiServer {
     this.app.get('/plugins/manifest', (c) =>
       c.json(this.pluginHost?.getManifest() ?? { plugins: [] }),
     );
+    // The host router can already be serving health/dashboard requests while
+    // plugins initialize. Swap the delegate instead of mutating its matcher.
+    this.app.all('/plugins/*', (c) => this.pluginApp.fetch(c.req.raw, c.env));
 
     this.app.get('/health', (c) => {
       const healthSnapshot = this.healthStore.getSnapshot();
