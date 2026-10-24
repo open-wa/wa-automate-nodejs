@@ -2,16 +2,19 @@
 
 Status: implemented on 20 October 2026; runtime checks and fixes added on
 24 October. Publication remains on hold for the requested live acceptance work.
-The actual Easy API process loads and registers the plugin in Both mode, but
-the current test session needs QR pairing and has no Mistral API key. The signed-in
-Mistral console disables key creation and requires an account upgrade, despite
-the public setup guide describing Free API access. No real Mistral exchange or
-WhatsApp voice-note/call conversation has been accepted in this run.
+The actual Easy API process loads and registers the plugin. A Mistral key has
+now been received through PearDrop and stored directly in macOS Keychain; the
+temporary plaintext file was removed. Real Mistral speech, file transcription,
+answer generation and realtime call-adapter traffic have been exercised.
+WhatsApp paired and reached READY, but the first voice note exposed a media
+decryption bug and restarting lost the saved login. Those findings and remaining
+physical voice-note/call acceptance are recorded below.
 
 ## Runtime evidence, 24 October 2026
 
-`bun test integrations/voxtral/test` passes 14 tests across four files, with
-44 assertions. `pnpm --filter @open-wa/integration-voxtral build` also succeeds.
+`bun test integrations/voxtral/test` passes 15 tests across four files, with
+45 assertions. `pnpm --filter @open-wa/decrypt test` passes 8 tests. Scoped
+Voxtral and decrypt package builds also succeed.
 These checks use simulated Mistral and WhatsApp boundaries; they do not prove
 live provider access, recipient playback, or physical call acceptance.
 
@@ -36,11 +39,37 @@ The first encoder attempt also exposed a local setup issue from the earlier
 script-skipping dependency install. Running ffmpeg-static's normal installer
 restored the binary; the lazy plugin installer already allows install scripts.
 
-Remaining live acceptance: load a Mistral key from Keychain, pair the licensed
-test account, exchange two-way voice notes and follow-ups with the test peer,
-then exercise incoming/outgoing calls, interruption, takeover and assistant
-return while confirming audio on the other phone. The fresh-folder published
-initializer/Easy API/SDK checks remain pending registry availability.
+## Live evidence and cleanroom, continued 24 October
+
+- The actual provider loop generated speech with the default TTS model/voice,
+  encoded Ogg Opus, transcribed the result, answered a contextual follow-up,
+  then streamed speech through the call-audio resampler. The key's
+  `mistral-small-latest` quota is zero requests per minute; explicitly selecting
+  `ministral-3b-latest` succeeds. The plugin now explains that zero-quota case
+  and how to choose an available answer model.
+- The actual realtime STT WebSocket configured 16 kHz audio, detected spoken
+  turns, generated an answer and produced non-silent output frames through
+  LiveCall. This used a simulated call host; it does not establish physical
+  WhatsApp call quality, remote playback or conversational accuracy.
+- The first real incoming WhatsApp PTT failed because the decryptor passed its
+  trailing 10-byte authentication tag to AES. The fix verifies the HMAC, excludes
+  that tag and removes standard PKCS#7 padding. The original encrypted blob was
+  8,138 bytes; decryption now produces 8,121 bytes matching WhatsApp's file hash,
+  and real Mistral transcription of that recovered voice note succeeds.
+- Restarting to load the fix did not restore the compact login, and no session
+  checkpoint file exists. The bounded diagnostics from issue #3562 are now
+  loaded to identify that failure on the next paired run. The persistence cause
+  and fix remain unverified; strict crypto-store validation is retained.
+- Running the exact documented `npm init @open-wa@latest my-bot` in a new folder
+  under `projects/del` fails with `could not determine executable to run`.
+  Public `@open-wa/create/latest` is currently the `0.0.0-stage` placeholder,
+  with no executable. The real initializer version must become available before
+  the published Easy API and SDK cleanroom flows can be accepted.
+
+Remaining live acceptance: pair the licensed test account again, complete actual
+two-way voice notes and context follow-ups, exercise incoming/outgoing calls,
+interruption, takeover and assistant return with remote audio confirmation,
+and establish successful saved-login restoration. Publication remains held.
 
 ## Customer contract
 

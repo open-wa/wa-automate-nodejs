@@ -266,6 +266,12 @@ limit, the dashboard shows the affected service and a recovery action. A failed
 reply isn't labelled as delivered, and the plugin doesn't automatically repeat
 a WhatsApp send whose result is uncertain.
 
+If answer generation reports that the selected model has zero request quota,
+open **Plugins → Voxtral → Edit assistant** and change **Answer model** to a
+model your Mistral account can use. In file config, set `agent.model` inside
+`pluginConfig.voxtral`; for example, use `ministral-3b-latest` when your account
+has quota for it. Waiting won't resolve a model whose allowed quota is zero.
+
 If a live call loses its AI audio connection, the call control offers **Take
 over**, **Reconnect assistant**, and **End call**. Reconnecting starts a fresh
 AI audio connection on the existing call; it doesn't redial the person.
