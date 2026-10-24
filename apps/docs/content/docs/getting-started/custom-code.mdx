@@ -1,181 +1,83 @@
 ---
-title: Custom code
-description: Install open-wa, create a complete Node.js consumer, and handle readiness, messages, and shutdown.
+title: SDK quick start
+description: Generate a persistent JavaScript or TypeScript WhatsApp bot with open-wa.
 ---
 
-Use embedded custom code when your Node.js process owns the browser and session lifecycle. The examples target the supported `5.1.0` packages; the [SocketClient](/docs/client-and-integrations/socket-client) path is separate and connects to an already running Easy API process.
+# SDK quick start
 
-Use **Node.js 22.21.1 or newer** with npm. Check your version with `node --version` before creating the project.
+Use the SDK when your application owns the browser and session. Use
+**Node.js 22.21.1 or newer** and npm.
 
-<Callout type="info" title="Supported release: 5.1.0">
-The npm registry reported `5.1.0` as `latest` on 2026-09-29. The generated reference remains the authority for exact method and type details in the package version you install.
-</Callout>
-
-## Minimal JavaScript project
-
-Create a project, install the runtime and Puppeteer driver, then create `index.mjs`:
+## Create the bot
 
 ```bash
-mkdir open-wa-bot
-cd open-wa-bot
-npm init -y
-npm pkg set type=module
-npm install @open-wa/wa-automate@5.1.0 @open-wa/driver-puppeteer@5.1.0
+npm init @open-wa@latest my-bot -- --mode sdk
+cd my-bot
+npm start
 ```
 
-Save this as `index.mjs`:
+Choose JavaScript or TypeScript, your browser, and any plugins in the wizard.
+You can also use the [project builder](/new?mode=sdk) to preview the generated
+files and copy a command with every choice filled in.
 
-```js
-import { Client, createClient } from '@open-wa/wa-automate';
-import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+The project includes `index.js` or `index.ts`, the matching `wa.config` file,
+a start script, and ignore rules. TypeScript projects include editor types and
+`tsconfig.json`; Node.js runs these starter files directly.
 
-const runtime = await createClient({
-  sessionId: 'hello-bot',
-  driver: new PuppeteerDriver(),
-  headless: false,
-});
+If you selected a plugin that needs credentials, copy `.env.example` to `.env`
+and fill it in before running `npm start`.
 
-const client = new Client({
-  client: runtime,
-  transport: runtime.getTransport(),
-});
+## Connect and handle messages
 
-await client.start();
-console.log('open-wa is ready:', runtime.getReadiness().ready);
+Scan the terminal QR code using **WhatsApp → Linked devices → Link a device**
+on your phone. Once ready, send `!ping` from another WhatsApp account. The
+starter responds `pong` and keeps running.
 
-client.onMessage(async (message) => {
-  if (message.body === 'Hi') {
-    const result = await client.sendText(message.from, '👋 Hello from custom code.');
-    console.log('reply sent:', result);
+The JavaScript entry point looks like this; the TypeScript choice uses the same
+flow and imports `wa.config.ts`:
+
+```js title="index.js"
+import { create } from '@open-wa/wa-automate';
+import config from './wa.config.js';
+
+const client = await create(config);
+console.log('WhatsApp is ready. Send !ping from another account.');
+
+client.onMessage(async message => {
+  if (!message.fromMe && message.body === '!ping') {
+    await client.sendText(message.from, 'pong');
   }
 });
 
-const shutdown = async (signal) => {
-  console.log(`Stopping after ${signal}...`);
-  await client.stop(signal);
-};
-
-process.once('SIGINT', () => void shutdown('SIGINT'));
-process.once('SIGTERM', () => void shutdown('SIGTERM'));
-```
-
-Run it with:
-
-```bash
-node index.mjs
-```
-
-On the first run, scan the QR code shown in the visible browser window. Successful startup is the log line `open-wa is ready: true`; then send `Hi` to the linked account and look for `reply sent:`. The listener reuses the exact `message.from` chat ID, so it also works when the runtime supplies an `@lid` identifier.
-
-## TypeScript project
-
-Install the TypeScript runner and types in the same project:
-
-```bash
-npm install --save-dev tsx typescript @types/node
-npm pkg set type=module
-mkdir -p src
-```
-
-Save this as `src/index.ts`:
-
-```ts
-import { Client, createClient } from '@open-wa/wa-automate';
-import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
-
-async function main(): Promise<void> {
-  const runtime = await createClient({
-    sessionId: 'hello-bot-ts',
-    driver: new PuppeteerDriver(),
-    headless: false,
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  process.once(signal, () => {
+    void client.stop(signal).catch(console.error);
   });
-
-  const client = new Client({
-    client: runtime,
-    transport: runtime.getTransport(),
-  });
-
-  await client.start();
-  const readiness = runtime.getReadiness();
-  if (!readiness.ready) {
-    throw new Error(`WhatsApp session is not ready: ${readiness.pending.join(', ') || 'unknown blocker'}`);
-  }
-
-  console.log(`open-wa is ready for ${runtime.sessionId}`);
-
-  client.onMessage(async (message) => {
-    if (message.body !== 'Hi') return;
-
-    const result = await client.sendText(message.from, '👋 Hello from TypeScript.');
-    console.log('reply sent:', result);
-  });
-
-  let stopping = false;
-  const shutdown = async (signal: string): Promise<void> => {
-    if (stopping) return;
-    stopping = true;
-    console.log(`Stopping after ${signal}...`);
-    await client.stop(signal);
-  };
-
-  process.once('SIGINT', () => void shutdown('SIGINT'));
-  process.once('SIGTERM', () => void shutdown('SIGTERM'));
 }
-
-main().catch((error: unknown) => {
-  console.error('open-wa failed to start:', error);
-  process.exitCode = 1;
-});
 ```
 
-Run the saved file with:
+The handler reuses `message.from`, including `@lid` identities. It sends only
+when someone types `!ping`; startup itself doesn't send a greeting. Add your
+own handlers here. See [`create()`](/docs/reference/create),
+[client methods](/docs/reference/client/client), and the
+[chat ID guide](/docs/guides/chatid-primer).
 
-```bash
-npx tsx src/index.ts
-```
+## Configure browsers and plugins
 
-This variant checks runtime readiness before registering the reply flow, stops the browser on signals, and reports startup failures through the process exit code.
+Edit `wa.config.js` or `wa.config.ts`. The entry point passes it to `create()`;
+it isn't implicitly loaded by the SDK. The generated config also loads `.env`
+when present. Browser selections and plugins use the same setup options as
+Easy API. They download only when needed and are cached.
 
-## Choose another browser driver
+SDK mode doesn't start an HTTP server or Neo dashboard. Use
+[Easy API](/docs/getting-started/easy-api) if you want those surfaces. Chatwoot
+requires Easy API webhook routes, so the initializer excludes it from SDK mode.
+Voxtral can run in the SDK using its file settings; see the
+[Voxtral guide](/docs/guides/voxtral).
 
-The examples use `PuppeteerDriver` so the install and run path is complete. To use Lightpanda, install the matching driver package and change only the driver import and constructor:
+## Stop and restart
 
-```bash
-npm install @open-wa/driver-lightpanda@5.1.0
-```
-
-```ts
-import { LightpandaDriver } from '@open-wa/driver-lightpanda';
-
-const runtime = await createClient({
-  sessionId: 'hello-bot',
-  driver: new LightpandaDriver(),
-});
-```
-
-Keep the rest of the lifecycle and readiness code unchanged. If you need to attach to an existing browser, set the driver and its connection options explicitly; do not mix embedded `createClient` ownership with `SocketClient` ownership in the same process.
-
-## Link-code authentication
-
-Pass `linkCode` to `createClient` when the account uses phone-number pairing:
-
-```ts
-const runtime = await createClient({
-  sessionId: 'hello-bot',
-  driver: new PuppeteerDriver(),
-  headless: false,
-  linkCode: '447123456789',
-});
-```
-
-Use digits only, and enter the generated code on the phone that owns that number. See **[Link-code login](/docs/getting-started/link-code)** for the two-device sequence and fallback behavior.
-
-## Embedded runtime versus SocketClient
-
-Embedded code creates the browser with `createClient`, wraps it in the exported `Client` facade, and calls `client.start()` and `client.stop()`. `SocketClient` connects to an Easy API process that owns the browser, so install and run that server separately and give the client its URL and API key. Choose one owner for each session so two processes do not compete for the same profile.
-
-## Next steps
-
-- Read **[Configuration and CLI](/docs/guides/configuration-and-cli)** for session paths, timeouts, and `WA_*` settings.
-- Read **[Session events](/docs/guides/session-events)** when you need lifecycle hooks.
-- Read **[Error handling](/docs/operations-and-troubleshooting/error-handling)** before building a long-running bot.
+Press `Ctrl+C` to stop the client and browser. Run `npm start` again from the
+same directory to reuse a valid saved session. Keep `.env` and session data
+private. If a send fails with an uncertain result, inspect the receiving chat
+before retrying it.

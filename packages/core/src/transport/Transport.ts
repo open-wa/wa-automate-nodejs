@@ -451,6 +451,7 @@ export class Transport {
     });
     this.portable = new PortableSessionController({
       onError: error => this.logger.warn('session_checkpoint_reset_failed', { error }),
+      onCheckpointError: diagnostic => this.logger.warn('session_checkpoint_save_failed', { ...diagnostic }),
       acquire: async sessionId => {
         const lease = await acquireSessionPersistence({ ...options, sessionId }, reason => {
           this.awaitingRecoveryPairing = true;
@@ -612,16 +613,17 @@ export class Transport {
   async waitForInjectableSession(): Promise<boolean> {
     if (!this.page) return false;
 
-    const readyScript = `(() => Boolean(globalThis.OpenWA_PortableSession?.startupFailure()) || (${PRE_AUTH_SURFACE_READY_CHECK_SCRIPT}))()`;
-    try {
-      await this.page.waitForFunction(readyScript, {
-        timeoutMs: 0,
-        polling: 100,
-      });
-    } catch (error) {
-      if (this.closed || !this.portable.hasCheckpoint) throw error;
-      if (this.runtimeRecoveryEnabled) throw new SessionRecoveryRequired('session_restore_timeout');
-      await this.resetSessionForPairing('session_restore_timeout');
+    const readyScript = `(() => globalThis.location.search.includes('post_logout=1') || Boolean(globalThis.OpenWA_PortableSession?.startupFailure()) || (${PRE_AUTH_SURFACE_READY_CHECK_SCRIPT}))()`;
+    // A failed browser probe does not establish that saved credentials are invalid.
+    // Preserve the checkpoint so startup can retry it after a transport failure.
+    await this.page.waitForFunction(readyScript, {
+      timeoutMs: 0,
+      polling: 100,
+    });
+    if (this.page.url().includes('post_logout=1') && this.portable.hasCheckpoint) {
+      // A native logout is explicit rejection, unlike a probe timeout. Stop
+      // replaying that checkpoint on each document and let WhatsApp pair afresh.
+      await this.resetSessionForPairing('native_logout');
       await this.navigate();
       return true;
     }
@@ -1747,22 +1749,8 @@ export class Transport {
       if (qrData && typeof qrData === 'string') {
         const watcher = this.qrWatcherAbort;
         if (!watcher || watcher.signal.aborted) return null;
-        await this.injectionController.registerPersistentBinding('OpenWA_QrChanged', (value: unknown) => {
-          if (!watcher?.signal.aborted && typeof value === 'string'
-            && value !== 'QR_CODE_SUCCESS' && value !== 'MULTI_DEVICE_DETECTED') {
-            this.emitQrData(value);
-          }
-        });
-        if (this.driver.name !== 'lightpanda') {
-          await this.page.evaluateScript(`(() => {
-            if (typeof window.smartQr !== 'function') throw new Error('QR refresh helper unavailable');
-            window.smartQr(window.OpenWA_QrChanged);
-          })()`).catch(error => this.logger.warn('qr_refresh_observer_failed', {
-            error: error instanceof Error ? error.message : String(error),
-          }));
-        }
         this.emitQrData(qrData);
-        if (this.driver.name === 'lightpanda') this.pollQrChanges(watcher);
+        this.pollQrChanges(watcher);
       }
       return qrData;
     } catch (error) {
@@ -1783,8 +1771,8 @@ export class Transport {
   }
 
   private pollQrChanges(watcher: AbortController): void {
-    // Lightpanda's DOM observer can miss QR updates and expiry. Use WA's
-    // native state and current linking action to renew an expired QR cycle.
+    // Native QR cycles expire even when the DOM observer is available. Use WA's
+    // current linking action to renew only an idle, unpaired QR cycle.
     const poll = async () => {
       if (watcher.signal.aborted || !this.page) return;
       try {
@@ -1943,12 +1931,6 @@ export class Transport {
       // WhatsApp has already returned to its login screen. Keep that page and QR.
       this.awaitingRecoveryPairing = true;
       await this.portable.beginPairing().catch(error => this.logger.warn('session_checkpoint_reset_failed', { error }));
-    }
-
-    if (authenticated === 'timeout' && this.portable.hasCheckpoint) {
-      await this.resetSessionForPairing('session_restore_timeout');
-      await this.navigate();
-      return this.waitForAuthentication();
     }
 
     if (authenticated === 'timeout') {
@@ -2322,7 +2304,9 @@ export class Transport {
         step: 'session_logout',
         details: { reason: 'post_logout=1' },
       });
-      this.requestSessionRecovery('logged_out');
+      // Startup owns its authentication wait and handles native logout there.
+      // Starting another client concurrently would race its browser and lease.
+      if (this.runtimeRecoveryEnabled) this.requestSessionRecovery('logged_out');
     });
 
     this.injectionController.registerNavigationObserver('runtime.navigation_recovery', (_frame, generation) => {

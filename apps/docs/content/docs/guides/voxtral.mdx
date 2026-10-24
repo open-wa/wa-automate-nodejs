@@ -15,78 +15,68 @@ The plugin handles transcription, conversation context, answer generation, and
 speech. Voice-note replies arrive as WhatsApp voice notes. Calls use a live
 audio connection, so callers can speak naturally and interrupt the assistant.
 
-## 1. Install the plugin
+## 1. Create your voice assistant
 
-Use Node.js **22.21.1 or newer**. Create a project and install Easy API and the
-plugin together:
-
-```bash
-mkdir whatsapp-voice-assistant
-cd whatsapp-voice-assistant
-npm init -y
-npm pkg set type=module
-npm install @open-wa/wa-automate @open-wa/integration-voxtral
-```
-
-Keep your [Mistral API key](https://console.mistral.ai/api-keys/) in your
-environment:
+Use **Node.js 22.21.1 or newer** and npm:
 
 ```bash
-export MISTRAL_API_KEY='YOUR_MISTRAL_API_KEY'
+npm init @open-wa@latest voice-assistant -- --mode easy-api --plugins voxtral
+cd voice-assistant
 ```
 
-Mistral bills transcription, answer generation, and speech separately. The
-plugin uses your own Mistral account; see [Mistral's current pricing](https://mistral.ai/pricing).
+The wizard asks for JavaScript or TypeScript, your browser, and whether Voxtral
+should handle **voice notes**, **calls**, or **both**. Or use the
+[project builder](/new?mode=easy-api&plugins=voxtral) to choose visually, preview
+the files, and copy a complete command.
 
-## 2. Create config.js
+The generated `wa.config.js` or `wa.config.ts` includes the plugin and your
+chosen mode. Easy API discovers it automatically; you don't need a config flag
+or a separate plugin installation command.
 
-Save this as `config.js` in the project directory:
+## 2. Add your key
 
-```js title="config.js"
-export default {
-  sessionId: 'voice-assistant',
-  host: '127.0.0.1',
-  port: 8080,
-  dashboard: true,
-  plugins: ['@open-wa/integration-voxtral'],
-  pluginConfig: {
-    voxtral: {
-      mode: 'voice-notes',
-      agent: {
-        instructions: [
-          'You are a helpful voice assistant.',
-          'Reply in the language the person uses.',
-          'Keep answers brief and easy to follow when spoken.',
-          'Ask when you need more information.',
-        ],
-      },
-    },
-  },
-};
+Copy `.env.example` to `.env` and set your
+[Mistral API key](https://console.mistral.ai/api-keys/):
+
+```dotenv
+MISTRAL_API_KEY=YOUR_MISTRAL_API_KEY
 ```
 
-If you already have an Easy API config, add the package to its `plugins` array
-and add `pluginConfig.voxtral` to its existing plugin settings.
+For calls, also fill in `OPENWA_LICENSE_KEY` with your calling-enabled open-wa
+license. The generated config loads `.env`. Mistral bills transcription, answer
+generation, and speech separately through your account; see
+[Mistral's current pricing](https://mistral.ai/pricing).
 
-The plugin reads `MISTRAL_API_KEY` automatically. Instructions can be a string
-or an array of strings; the plugin joins an array in order with line breaks.
-You can omit `pluginConfig.voxtral` entirely to use the default voice-note
-assistant. Add settings only when you want to change its behavior.
-
-## 3. Start Easy API
+## 3. Start the assistant
 
 ```bash
-npx @open-wa/wa-automate --config ./config.js
+npm start
 ```
+
+Only selected plugins are installed, on demand at startup, then reused from the
+project's cache. The browser follows your selected reuse/download policy.
 
 Link WhatsApp using the QR code shown by Easy API, then open the
-[dashboard](http://127.0.0.1:8080/dashboard/) and select **Plugins → Voxtral**.
+[dashboard](http://localhost:8080/dashboard/) and select **Plugins → Voxtral**.
 The plugin runs inside Easy API and uses its connected WhatsApp session. It
 keeps working when you close the dashboard.
 
 Send a voice note to the linked account from another WhatsApp account. The
 assistant answers with a voice note. Send a follow-up such as “Can you explain
 the second point?” and it uses the earlier conversation to answer.
+
+## Add Voxtral to an existing project
+
+Set `MISTRAL_API_KEY` in the environment that starts Easy API. Add the plugin to
+your existing `wa.config.js` or `wa.config.ts`:
+
+```js
+plugins: ['@open-wa/integration-voxtral'],
+```
+
+It starts with the default voice-note assistant. Add `pluginConfig.voxtral` to
+customize it, or edit its settings in Neo. Instructions accept a string or an
+array; the plugin joins array entries for you.
 
 ## Choose voice notes, calls, or both
 
@@ -137,30 +127,19 @@ the top-level Easy API config:
 export OPENWA_LICENSE_KEY='YOUR_CALLING_LICENSE'
 ```
 
-```js
+```js title="wa.config.js"
 export default {
-  sessionId: 'voice-assistant',
-  host: '127.0.0.1',
-  port: 8080,
-  dashboard: true,
   licenseKey: process.env.OPENWA_LICENSE_KEY,
   plugins: ['@open-wa/integration-voxtral'],
   pluginConfig: {
     voxtral: {
       mode: 'both',
-      agent: {
-        instructions: 'You are a helpful assistant. Give short, clear answers.',
-      },
-      calls: {
-        answer: 'auto',
-        greeting: 'Hello, you are speaking with our AI assistant. How can I help?',
-      },
     },
   },
 };
 ```
 
-Start Easy API with `--config ./config.js` as before. Calling uses open-wa's
+Run `npm start` as before. Calling uses open-wa's
 [licensed audio calling support](/docs/guides/calls).
 If calling isn't available, the dashboard shows the reason; the Easy API and
 any enabled voice-note handling continue running.
@@ -216,13 +195,28 @@ Live transcription duration and interrupted requests may be missing; these
 counters are not a Mistral invoice.
 
 Dashboard settings are saved for this session and override matching values in
-`config.js` after a restart. **Reset to config.js** removes those saved overrides.
+your config file after a restart. Resetting settings removes those saved overrides.
 Use **Copy config** to move the effective settings into your file; the exported
 example references environment variables instead of including API keys.
 Voice and instruction changes apply to the next conversation turn. Mode
 changes affect new work; they don't silently hang up an active call.
 
 ## Configuration reference
+
+To customize the assistant in your config file, add `pluginConfig`. For example:
+
+```js
+pluginConfig: {
+  voxtral: {
+    agent: {
+      instructions: [
+        'You are a patient language tutor.',
+        'Keep replies short and ask one question at a time.',
+      ],
+    },
+  },
+},
+```
 
 These fields belong in `pluginConfig.voxtral`:
 
@@ -271,6 +265,12 @@ to send it again or type their message. If Mistral rejects a key or reports a
 limit, the dashboard shows the affected service and a recovery action. A failed
 reply isn't labelled as delivered, and the plugin doesn't automatically repeat
 a WhatsApp send whose result is uncertain.
+
+If answer generation reports that the selected model has zero request quota,
+open **Plugins → Voxtral → Edit assistant** and change **Answer model** to a
+model your Mistral account can use. In file config, set `agent.model` inside
+`pluginConfig.voxtral`; for example, use `ministral-3b-latest` when your account
+has quota for it. Waiting won't resolve a model whose allowed quota is zero.
 
 If a live call loses its AI audio connection, the call control offers **Take
 over**, **Reconnect assistant**, and **End call**. Reconnecting starts a fresh

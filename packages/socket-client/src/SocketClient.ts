@@ -600,8 +600,16 @@ export class SocketClient {
             console.warn(capabilities.reason.message);
         }
     }
-    public async onIncomingCall(callback: (call: Call) => unknown): Promise<string> { await this.logCallingAvailability(); const id = uuidv4(); this.incomingCalls.set(id, callback); return id; }
-    public async onCallState(callback: (call: Call) => unknown): Promise<string> { await this.logCallingAvailability(); const id = uuidv4(); this.callStates.set(id, callback); return id; }
+    public async onIncomingCall(callback: (call: Call) => unknown): Promise<string> {
+        const id = uuidv4(); this.incomingCalls.set(id, callback);
+        void this.logCallingAvailability().catch(error => this.socket.emitLocal('call:error', error));
+        return id;
+    }
+    public async onCallState(callback: (call: Call) => unknown): Promise<string> {
+        const id = uuidv4(); this.callStates.set(id, callback);
+        void this.logCallingAvailability().catch(error => this.socket.emitLocal('call:error', error));
+        return id;
+    }
     public async startCall(to: string, microphone?: AudioInput | CallMediaOptions, speaker?: AudioOutput, camera?: VideoInput): Promise<CallActionResult> { return this.calls.start(to, normalizeCallMedia(microphone, speaker, camera)); }
 
     public async ask<M extends ClientMethods, P extends Parameters<Pick<Client, M>[M]>>(method: M, args?: any[] | P | {

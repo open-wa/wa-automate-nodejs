@@ -24,6 +24,7 @@ export class VoxtralService {
   private jobs: Job[] = [];
   private tasks = new Set<Promise<void>>();
   private running = new Map<string, Job>();
+  private acknowledgements = new Map<string, number>();
   private live?: LiveCall;
   private callBusy = false;
   private ready = false;
@@ -64,7 +65,7 @@ export class VoxtralService {
   }
   key() { return this.explicitKey || process.env.MISTRAL_API_KEY?.trim() || undefined; }
   settings() { return this.effective; }
-  settingsView() { return { settings: this.effective, revision: this.state.revision, overrides: Object.keys(this.state.overrides), keyConfigured: Boolean(this.key()), keySource: this.explicitKey ? 'config.js' : this.key() ? 'MISTRAL_API_KEY' : 'missing' }; }
+  settingsView() { return { settings: this.effective, revision: this.state.revision, overrides: Object.keys(this.state.overrides), keyConfigured: Boolean(this.key()), keySource: this.explicitKey ? 'config file' : this.key() ? 'MISTRAL_API_KEY' : 'missing' }; }
   status() {
     return { sessionId: this.input.sessionId, ready: this.ready, configured: Boolean(this.key()), mode: this.effective.mode, paused: this.state.paused,
       error: this.lastError, call: this.live?.snapshot() ?? null, queued: this.jobs.length, processing: this.running.size,
@@ -174,7 +175,7 @@ export class VoxtralService {
       stage('Sending'); reply.state = 'Sending'; sending = true;
       const audioId = await this.input.runtime.invoke<string | boolean>('sendPtt', [person.peer, `data:audio/ogg;base64,${audio.toString('base64')}`, { quotedMsgId: message.id }]);
       if (!audioId) throw new Error('WhatsApp did not confirm voice-note submission. Check the chat before sending again.');
-      reply.audioId = typeof audioId === 'string' ? audioId : undefined; reply.audioState = 'Submitted';
+      reply.audioId = typeof audioId === 'string' ? audioId : undefined; reply.audioState = this.deliveryState(reply.audioId);
       this.state.journal[message.id] = 'sent';
       // Record accepted speech before an optional text send can fail.
       if (text) this.remember(person, 'assistant', answer);
@@ -182,7 +183,7 @@ export class VoxtralService {
         reply.textState = 'Sending'; this.changed();
         const textId = await this.input.runtime.invoke<string | boolean>('reply', [person.peer, answer, message.id]);
         if (!textId) throw new Error('WhatsApp did not confirm text submission.');
-        reply.textId = typeof textId === 'string' ? textId : undefined; reply.textState = 'Submitted';
+        reply.textId = typeof textId === 'string' ? textId : undefined; reply.textState = this.deliveryState(reply.textId);
       }
       reply.state = 'Submitted'; turn.state = 'Processed'; person.state = 'Waiting'; this.lastError = undefined;
     } catch (error) {
@@ -194,11 +195,19 @@ export class VoxtralService {
       if (!cancelled) this.report(error);
     } finally { this.persist(); this.changed(); }
   }
+  private deliveryState(id?: string) {
+    const ack = id ? this.acknowledgements.get(id) : undefined;
+    return ack === undefined ? 'Submitted' : ack >= 3 ? 'Read' : ack === 2 ? 'Delivered' : ack >= 0 ? 'Submitted' : 'Failed';
+  }
   private ack(value: unknown) {
     const ack = value as { id?: string; messageId?: string; ack?: number } | null;
     const id = ack?.id || ack?.messageId;
     if (!id || typeof ack?.ack !== 'number') return;
-    const label = ack.ack >= 3 ? 'Read' : ack.ack === 2 ? 'Delivered' : ack.ack >= 0 ? 'Submitted' : 'Failed';
+    // Acknowledgements can arrive while sendPtt/reply is still resolving its ID.
+    this.acknowledgements.delete(id);
+    this.acknowledgements.set(id, ack.ack);
+    if (this.acknowledgements.size > 4000) this.acknowledgements.delete(this.acknowledgements.keys().next().value!);
+    const label = this.deliveryState(id);
     for (const person of this.conversations.values()) for (const turn of person.turns) {
       if (turn.audioId === id) turn.audioState = label;
       if (turn.textId === id) turn.textState = label;
@@ -268,10 +277,11 @@ export class VoxtralService {
     if (this.effective.mode === 'voice-notes') throw new Error('Choose Calls or Both mode first.');
     this.callBusy = true;
     let next: LiveCall | undefined;
+    let person: Conversation | undefined;
     try {
       const call = await this.input.runtime.invoke<Call | null>('getActiveCall');
       if (!call || call.id !== id || call.generation !== generation || call.terminal) throw new Error('This call is no longer current.');
-      const person = this.person(call.peer, 'calls');
+      person = this.person(call.peer, 'calls');
       if (!this.canRespond(person)) throw new Error('Resume AI for this conversation before attaching the assistant.');
       next = new LiveCall(this.liveOptions(person), action === 'answer'); next.call = call;
       await next.connect();
@@ -283,7 +293,7 @@ export class VoxtralService {
       if (!current || current.id !== id || current.generation !== generation) throw new Error('The call ended while audio was being attached.');
       next.update(current); this.lastError = undefined; this.changed();
       return { ok: true, status: 'requested' };
-    } catch (error) { next?.close(); if (this.live === next) this.live = undefined; this.report(error); throw error; }
+    } catch (error) { next?.close(); if (this.live === next) this.live = undefined; if (person) person.state = 'Call failed'; this.report(error); throw error; }
     finally { this.callBusy = false; }
   }
   async startCall(to: string) {
@@ -291,9 +301,10 @@ export class VoxtralService {
     if (this.effective.mode === 'voice-notes') throw new Error('Choose Calls or Both mode first.');
     this.callBusy = true;
     let next: LiveCall | undefined;
+    let person: Conversation | undefined;
     try {
       if ((this.live && !this.live.call) || await this.input.runtime.invoke('getActiveCall')) throw new Error('A call is already active or requested. Check Calls before starting another.');
-      const person = this.person(to, 'calls');
+      person = this.person(to, 'calls');
       if (!this.canRespond(person)) throw new Error('Resume AI for this person before calling.');
       next = new LiveCall(this.liveOptions(person)); await next.connect();
       this.live?.close(); this.live = next;
@@ -302,8 +313,8 @@ export class VoxtralService {
       const call = await this.input.runtime.invoke<Call | null>('getActiveCall');
       if (call) next.update(call);
       else { next.stage = 'Call requested · waiting for WhatsApp state'; this.changed(); }
-      this.changed(); return result;
-    } catch (error) { next?.close(); if (this.live === next) this.live = undefined; this.report(error); throw error; }
+      this.lastError = undefined; this.changed(); return result;
+    } catch (error) { next?.close(); if (this.live === next) this.live = undefined; if (person) person.state = 'Call failed'; this.report(error); throw error; }
     finally { this.callBusy = false; }
   }
   async takeover(id: string, generation: string) {

@@ -1,23 +1,32 @@
 ---
 title: Easy API quick start
-description: Run OpenWA's HTTP API, pair WhatsApp, and send requests from cURL, JavaScript, or Python.
+description: Run open-wa's HTTP API, pair WhatsApp, and send requests from cURL, JavaScript, or Python.
 ---
 
 # Easy API quick start
 
-Use Easy API to control WhatsApp from an HTTP client. This guide uses OpenWA 5.5.1 and Node.js 22.21.1 or later.
+Use Easy API to control WhatsApp from an HTTP client and manage the session in Neo. Use Node.js 22.21.1 or newer and npm.
 
 ## Start and pair the session
 
-Set an API key and start the server on a local address:
+Create your project, choosing JavaScript or TypeScript, a browser, and optional plugins:
+
+```bash
+npm init @open-wa@latest my-api -- --mode easy-api
+cd my-api
+```
+
+Use the [visual builder](/new?mode=easy-api) to preview the same choices and
+files. Easy API discovers the generated `wa.config.js` or `wa.config.ts` file
+automatically. If you selected integrations, copy `.env.example` to `.env` and
+fill in their settings.
+
+Set an API key and start the server:
 
 ```bash title="Terminal"
 export OPENWA_API_URL='http://127.0.0.1:8080'
 export WA_API_KEY='REPLACE_WITH_YOUR_API_KEY'
-
-npx @open-wa/wa-automate@5.5.1 \
-  --session-id sales --host 127.0.0.1 --port 8080 \
-  --api-key "$WA_API_KEY"
+npm start
 ```
 
 On the phone, open **WhatsApp → Linked devices → Link a device** and scan the QR code. Open `/dashboard/` on the printed server address to manage the session. Use `/api-docs/` for the API explorer.
@@ -28,7 +37,9 @@ The server can answer HTTP requests before WhatsApp is ready. Read `/health` and
 curl --fail-with-body "$OPENWA_API_URL/health"
 ```
 
-The session is saved in `sales.data.json` in the working directory. Restart with the same directory and session ID to reuse valid saved data. Invalid saved data is ignored, and pairing creates a new saved session. Protect this file as authentication material. Use a different session ID and port for another account.
+Restart from the same project directory with the same session ID to reuse a
+valid saved login. Treat session data as private authentication material. Use a
+different session ID and port for another account.
 
 ## Send a message
 
@@ -102,7 +113,7 @@ Each `data:` line contains a JSON envelope with `id`, `event`, `payload`, `ts`, 
 
 For a Node.js application, [SocketClient](/docs/client-and-integrations/socket-client) provides SDK-style methods and listeners over the remote API. For HTTP webhooks, configure the integration plugin in a config file:
 
-```js title="wa.config.mjs"
+```js title="wa.config.js"
 export default {
   host: '127.0.0.1',
   port: 8080,
@@ -120,7 +131,7 @@ export default {
 };
 ```
 
-Load it with `npx @open-wa/wa-automate@5.5.1 --config ./wa.config.mjs`. See [webhook payloads](/docs/client-and-integrations/webhook-payloads) for event bodies and delivery behavior.
+Run `npm start` to load the updated config. See [webhook payloads](/docs/client-and-integrations/webhook-payloads) for event bodies and delivery behavior.
 
 ## Use media, events, and calls
 

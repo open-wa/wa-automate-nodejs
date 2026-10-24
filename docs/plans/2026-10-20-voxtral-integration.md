@@ -1,20 +1,162 @@
 # Official Voxtral integration
 
-Status: implemented on 20 October 2026; prepared for publication on 23 October.
-The actual Easy API process loaded
-and registered the plugin, and Neo rendered its page and assistant settings
-sheet. The local preview has neither a paired WhatsApp session nor a Mistral
-key, so voice-note exchanges, provider audio, live calls, acknowledgements, and
-human takeover have not been exercised end to end. No tests, standalone typechecks, or lint checks were run. Publication artifact
-builds are part of the authorized release. Package and guide availability must
-be confirmed from the registry and live documentation after deployment.
+Status: implemented on 20 October 2026; runtime checks and fixes added on
+24 October. Publication remains on hold for the requested live acceptance work.
+The actual Easy API process loads and registers the plugin. A Mistral key has
+now been received through PearDrop and stored directly in macOS Keychain; the
+temporary plaintext file was removed. Real Mistral speech, file transcription,
+answer generation and realtime call-adapter traffic have been exercised.
+The human has now confirmed clear automatic voice replies, correct pineapple/seven
+recall, and clear outgoing and auto-answered incoming WhatsApp calls. Three
+interrupted assistant turns were captured. A protected cold restart restored
+the encrypted login into a fresh Chrome profile and reached READY without a QR.
+Neo call controls now observe the live call and successfully hang it up from the
+normal Chat view. Public npm acceptance is still pending publication.
+
+## Physical acceptance, 24 October 2026
+
+- Automatic voice-note replies now arrive and play clearly on the other phone;
+  the next spoken question correctly recalls pineapple and seven.
+- The outgoing call connected with clear two-way conversation. Three interrupted
+  assistant turns were recorded. The incoming call auto-answered and the human
+  confirmed clear two-way conversation.
+- The newly supplied license was accepted by live refresh; the server confirmed
+  call control and audio access. Credentials remain in macOS Keychain.
+- A final native flush saved a 216,621-byte encrypted checkpoint with owner-only
+  permissions. Restarting in a new Chrome profile restored the session to READY
+  without another scan. Protected encrypted and native-profile snapshots remain
+  local; no authentication material is committed.
+- All 20 focused Voxtral checks pass with 60 assertions. Three API query checks
+  cover Neo's boolean GET flags, literal string preservation and rejection of
+  invalid text. A private runtime regression checks canonical acknowledgement
+  message IDs and duplicate suppression.
+- The physical runs exposed additional UI correctness bugs: HTTP query flags
+  were rejected as strings, ended calls retained the Speaking stage, failed call
+  attempts left Connecting audio, and a successful retry retained its old error.
+  Those paths are fixed. Acknowledgements now retain the full serialized ID,
+  matching the voice-note send result instead of leaving its delivery status at
+  Submitted. The generated patch retains the existing events/message-options
+  feature bundles unchanged.
+- Neo’s End call control was missing because listener registration awaited a
+  capability RPC that could be rate limited. Registration now attaches locally
+  before checking availability. A regression reproduces the HTTP 429 case; the
+  repaired Chat control successfully ended a physical call and showed Call ended.
+  Session-control polling also shared the runtime limiter’s counter; each limiter
+  now owns its budget, with a regression preserving independent enforcement.
+- Published-package acceptance remains separate: the public initializer still
+  needs to be tested after a real release. Earlier placeholder registry results
+  are recorded locally; a local source run is not proof of npm availability.
+
+## Runtime evidence, 24 October 2026
+
+`bun test integrations/voxtral/test` now passes 20 tests across four files, with
+60 assertions. `pnpm --filter @open-wa/decrypt test` passes 8 tests. Scoped
+Voxtral and decrypt package builds also succeed.
+These checks use simulated Mistral and WhatsApp boundaries; they do not prove
+live provider access, recipient playback, or physical call acceptance.
+
+- Voice notes exercise the real service, provider request builder and bundled
+  encoder through transcription, contextual answer, Ogg Opus submission, delivery
+  events, duplicate suppression and an unknown send outcome.
+- Audio checks verify the actual Ogg Opus encoder and byte-identical 24 kHz to
+  16 kHz resampling across odd network chunk boundaries.
+- Calls use a real local WebSocket connection to exercise session configuration,
+  incoming PCM, turn completion, non-silent output frames, interruption, human
+  takeover/observer cleanup, and provider disconnect recovery state.
+- Provider checks exercise fragmented SSE audio, split Unicode answer text,
+  token accounting, and actionable errors without exposing provider bodies.
+
+Two failures reproduced before fixes and now pass as regressions: delivery
+events received before a send returns its message ID were lost, and interruption
+left old speech in the ReadableStream's internal queue. A bounded acknowledgement
+cache preserves early delivery state; demand-driven playback keeps all queued
+speech in the buffer that interruption clears.
+
+The first encoder attempt also exposed a local setup issue from the earlier
+script-skipping dependency install. Running ffmpeg-static's normal installer
+restored the binary; the lazy plugin installer already allows install scripts.
+
+## Live evidence and cleanroom, continued 24 October
+
+- The actual provider loop generated speech with the default TTS model/voice,
+  encoded Ogg Opus, transcribed the result, answered a contextual follow-up,
+  then streamed speech through the call-audio resampler. The key's
+  `mistral-small-latest` quota is zero requests per minute; explicitly selecting
+  `ministral-3b-latest` succeeds. The plugin now explains that zero-quota case
+  and how to choose an available answer model.
+- The first automatic WhatsApp exchange correctly transcribed the human's
+  pineapple/seven note and submitted an audio reply, but the human rejected its
+  sound as inaudible. The downloaded sent attachment matched WhatsApp's file
+  hash. A real PCM response contained float32 little-endian samples; treating
+  those bytes as signed int16 caused distortion and doubled playback duration.
+  Provider output now converts float32 to int16 for both complete voice-note
+  speech and streaming calls, retaining split samples across event boundaries.
+  A corrected sample sent through the actual WhatsApp API was received and the
+  human confirmed “Yes, clear now.” This was a manual sample; the corrected
+  automatic exchange and physical calls have not yet passed acceptance.
+  All 18 focused Voxtral checks pass, including provider, encoding,
+  resampling, voice-note flow and simulated call behavior. The corrected real
+  provider loop also transcribes pineapple/seven and produces streamed call
+  frames; remote call quality remains a separate acceptance check.
+- The actual realtime STT WebSocket configured 16 kHz audio, detected spoken
+  turns, generated an answer and produced non-silent output frames through
+  LiveCall. This used a simulated call host; it does not establish physical
+  WhatsApp call quality, remote playback or conversational accuracy.
+- The first real incoming WhatsApp PTT failed because the decryptor passed its
+  trailing 10-byte authentication tag to AES. The fix verifies the HMAC, excludes
+  that tag and removes standard PKCS#7 padding. The original encrypted blob was
+  8,138 bytes; decryption now produces 8,121 bytes matching WhatsApp's file hash,
+  and real Mistral transcription of that recovered voice note succeeds.
+- A new paired run identified two session-save failures: the native migration
+  getter was removed, and `identity-store` gained `accountEncryptionState`.
+  The private adapter now reads the native migration preference and preserves
+  that exact field, retaining strict rejection of unrelated fields. Applying
+  those repairs to the running document wrote a 215,009-byte encrypted checkpoint
+  with mode 0600. Three focused private adapter checks pass.
+- Cold restoration loaded the identity and 368 chat models but stalled at
+  WhatsApp's chat-loading screen. A browser-probe timeout then incorrectly reset
+  the checkpoint to a logout marker. Startup probe failures and authentication
+  timeouts now preserve saved credentials; both focused regression checks pass.
+  Successful cold restoration remains unverified.
+- The latest repaired run paired the correct test account, reached library READY
+  and saved a 132,441-byte encrypted checkpoint with mode 0600. A separate
+  protected snapshot was retained, and the current checkpoint's modification
+  time advanced with subsequent automatic saves (139,461 bytes at the next
+  check). Before loading the audio correction, a final native flush saved a
+  216,137-byte checkpoint and refreshed the protected snapshot. Cold restart
+  still failed at chat loading and later navigated to native logout; the saved
+  file remained intact. Automatic conversation and physical calls remain pending.
+- The recurring three-minute wait failure was reproduced as Puppeteer's protocol
+  deadline interrupting a longer operation. Driver connections now defer to
+  operation deadlines. Chrome also uses the existing native idle-QR renewal
+  loop so an expired linking cycle can produce a fresh code. A single native
+  polling path supplies QR values; three focused host checks cover native QR
+  refresh/renewal and preservation of checkpoints on timeouts.
+- Health/dashboard requests arriving before plugin initialization froze Hono's
+  host matcher and made late route registration crash startup. A stable plugin
+  dispatcher now delegates to the initialized child router; four regression
+  cases cover early requests, GET/POST dispatch and host API-key authentication.
+- Running the exact documented `npm init @open-wa@latest my-bot` in a new folder
+  under `projects/del` fails with `could not determine executable to run`.
+  Public `@open-wa/create/latest` is currently the `0.0.0-stage` placeholder,
+  with no executable. The real initializer version must become available before
+  the published Easy API and SDK cleanroom flows can be accepted.
+
+Remaining live acceptance: complete actual two-way voice notes and context
+follow-ups, exercise incoming/outgoing calls,
+interruption, takeover and assistant return with remote audio confirmation,
+and establish successful saved-login restoration. Publication remains held.
 
 ## Customer contract
 
-Install `@open-wa/integration-voxtral` beside Easy API, set `MISTRAL_API_KEY`, add
-`plugins: ['@open-wa/integration-voxtral']` to `config.js`, and run Easy API with
-`--config ./config.js`. The same process owns WhatsApp, provider requests,
-conversation state, and call audio. The package includes its voice-note encoder
+Install Easy API, set `MISTRAL_API_KEY`, add
+`plugins: ['@open-wa/integration-voxtral']` to `wa.config.js` or `wa.config.ts`,
+and run `npx @open-wa/wa-automate`. Easy API discovers either file automatically
+and lazily installs missing configured npm plugins in `.open-wa/plugins/packages/`.
+The JS and TS config loaders both accept `export default`; JS also accepts
+`module.exports`, independently of the project's package type. The same
+process owns WhatsApp, provider requests, conversation state, and call audio.
+The package includes its voice-note encoder
 through `ffmpeg-static` and requires no separate service or system encoder.
 Calling uses the existing open-wa calling license and media host.
 

@@ -187,6 +187,8 @@ export async function selectRuntimeDriver(
         nonInteractive?: boolean;
     }
 ): Promise<DriverSelection> {
+    const browserSource = config.browser?.source;
+    const promptForMissingBrowser = options.promptForMissingBrowser || browserSource === 'auto';
     const flags = [config.useChrome, config.useChromium, config.useLightpanda].filter(Boolean);
     if (flags.length > 1) throw new Error('Choose only one browser: useChrome, useChromium or useLightpanda.');
     let kind: BrowserChoice | undefined = config.useLightpanda ? 'lightpanda'
@@ -195,19 +197,24 @@ export async function selectRuntimeDriver(
         : config.browser?.kind;
     const explicitChoice = kind !== undefined || getExplicitUseChromePreference(options.rawConfigs) !== undefined
         || config.browser?.download === 'auto';
-    const preferLocalChrome = shouldPreferLocalChrome(config, options.rawConfigs, options.defaultPreferLocalChrome ?? true);
+    const preferLocalChrome = browserSource ? browserSource !== 'managed'
+        : shouldPreferLocalChrome(config, options.rawConfigs, options.defaultPreferLocalChrome ?? true);
     let executableResolution: ExecutablePathResolution = { source: 'driver_default' };
-    if (kind !== 'lightpanda') {
+    if (kind !== 'lightpanda' && browserSource === 'system') {
+        const executablePath = await findSystemBrowser(kind === 'chromium' ? 'chromium' : 'chrome');
+        if (!executablePath) throw new Error('The selected system browser was not found. Install it or change browser.source to managed to download a browser.');
+        executableResolution = { source: 'chrome_installation', executablePath };
+    } else if (kind !== 'lightpanda' && browserSource !== 'managed') {
         executableResolution = await resolveExecutablePath(config, {
             preferLocalChrome: kind === 'chromium' || preferLocalChrome,
             cacheFilePath: kind === 'chromium' ? `${options.cacheFilePath}.chromium` : options.cacheFilePath,
             kind: kind === 'chromium' ? 'chromium' : 'chrome',
         });
-    } else {
+    } else if (kind === 'lightpanda') {
         executableResolution = resolveLightpandaExecutablePath(config);
         executableResolution.executablePath ??= config.executablePath;
     }
-    if (!executableResolution.executablePath && (kind !== undefined || options.promptForMissingBrowser)
+    if (browserSource !== 'managed' && browserSource !== 'system' && !executableResolution.executablePath && (kind !== undefined || promptForMissingBrowser)
         && !(kind === 'lightpanda' && config.lightpanda?.experimentalWhatsApp !== false)) {
         const remembered = await readBrowserChoice();
         if (remembered && (kind === undefined || remembered.kind === kind)) {
@@ -215,7 +222,7 @@ export async function selectRuntimeDriver(
             executableResolution = { source: 'cache', executablePath: remembered.executablePath };
         }
     }
-    if (!kind && executableResolution.executablePath === undefined && options.promptForMissingBrowser) {
+    if (!kind && executableResolution.executablePath === undefined && promptForMissingBrowser) {
         // A pre-provisioned Chrome cache is usable even without a remembered choice.
         const { ensureBrowser } = await import('@open-wa/driver-puppeteer');
         try {
@@ -225,7 +232,7 @@ export async function selectRuntimeDriver(
             if (!(error instanceof Error) || !/missing from .* and browser downloads are disabled/.test(error.message)) throw error;
         }
     }
-    if (!kind && !executableResolution.executablePath && !explicitChoice && options.promptForMissingBrowser) {
+    if (!kind && !executableResolution.executablePath && !explicitChoice && promptForMissingBrowser) {
         if (config.browser?.download === 'never') {
             throw new Error('No browser is available and browser downloads are disabled. Configure executablePath or pre-provision a browser cache.');
         }
@@ -244,7 +251,7 @@ export async function selectRuntimeDriver(
     } };
     const browser = {
         ...config.browser,
-        ...(explicitChoice || options.promptForMissingBrowser ? { download: config.browser?.download ?? ('auto' as const) } : {}),
+        ...(explicitChoice || promptForMissingBrowser ? { download: config.browser?.download ?? ('auto' as const) } : {}),
         ...(kind !== 'lightpanda' ? { kind } : {}),
     };
     if (kind === 'lightpanda') {

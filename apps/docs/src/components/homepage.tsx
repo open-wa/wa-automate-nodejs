@@ -7,7 +7,7 @@ import { baseOptions } from '@/lib/layout.shared';
 import { CURRENT_VERSION, DOCS_PATHS, REPO_URL } from '@/lib/site';
 import { HOMEPAGE_DESCRIPTION, HOMEPAGE_FAQS } from '@/lib/homepage';
 
-const runCommand = `npx @open-wa/wa-automate@${CURRENT_VERSION} --host 127.0.0.1 --port 8080`;
+const runCommand = 'npm init @open-wa@latest my-bot';
 const examples = {
   HTTP: `curl -X POST http://localhost:8080/api/messages/sendText \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "to": "447123456789@c.us",\n    "content": "Your order is ready to collect!",\n    "options": {}\n  }'`,
   'Node.js': `await client.sendText(\n  '447123456789@c.us',\n  'Your order is ready to collect!'\n);`,
@@ -64,11 +64,11 @@ export function DocsHomepage() {
           <h1 id="landing-title">Self-hosted<br />WhatsApp API<br /><span>for developers.</span></h1>
           <p className="landing-lead">{HOMEPAGE_DESCRIPTION}</p>
           <p className="landing-requirements">You’ll need <a href={`${DOCS_PATHS.quickstart}#before-you-start`}>Node.js 22.21.1 or newer</a> and a phone with WhatsApp.</p>
-          <ol className="landing-steps" aria-label="Get started"><li><span>1</span> Start open-wa</li><li><span>2</span> Link WhatsApp</li><li><span>3</span> Send a message</li></ol>
-          <p className="landing-command-label">Start the <a href={DOCS_PATHS.easyApi}>Easy API</a>, open-wa’s HTTP server, in your terminal:</p>
+          <ol className="landing-steps" aria-label="Get started"><li><span>1</span> Create your project</li><li><span>2</span> Link WhatsApp</li><li><span>3</span> Send a message</li></ol>
+          <p className="landing-command-label">Create your project in the terminal, or <a href="/new">choose your setup visually</a>:</p>
           <div className="landing-command"><span aria-hidden="true">$</span><code>{runCommand}</code><CopyButton value={runCommand} label="Copy run command" /></div>
           <div className="landing-actions"><a className="landing-button landing-primary" href={DOCS_PATHS.quickstart}>Send your first message <ArrowRight size={17} /></a><a className="landing-button landing-secondary" href={DOCS_PATHS.referenceClient}>Explore the API</a></div>
-          <p className="landing-setup-link">Once it’s running, <a href="http://localhost:8080/dashboard/" target="_blank" rel="noreferrer">open your local dashboard</a>. The <a href={DOCS_PATHS.quickstart}>quick start</a> walks you through linking WhatsApp and sending a message.</p>
+          <p className="landing-setup-link">Then run <code>cd my-bot</code> and <code>npm start</code>. For Easy API, <a href="http://localhost:8080/dashboard/" target="_blank" rel="noreferrer">open your local dashboard</a>. The <a href={DOCS_PATHS.quickstart}>quick start</a> walks you through linking WhatsApp and sending a message.</p>
         </div>
         <MessageExample />
       </section>

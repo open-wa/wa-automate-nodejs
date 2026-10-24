@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { getHttpMethodDefinitions, type HttpMethodDefinition } from '@open-wa/schema';
+import { getHttpMethodDefinitions, z, type HttpMethodDefinition } from '@open-wa/schema';
 import '@open-wa/schema/methods';
 import { apiKeyMiddleware } from './auth/api-key';
 import { rateLimitMiddleware } from './middleware/rate-limit';
@@ -24,6 +24,23 @@ async function readRequestBody(c: any): Promise<Record<string, unknown>> {
 function readQueryParams(c: any): Record<string, unknown> {
   const url = new URL(c.req.url);
   return Object.fromEntries(url.searchParams.entries());
+}
+
+async function decodeQueryParams(definition: HttpMethodDefinition, query: Record<string, unknown>) {
+  const values = normalizeMethodPayload(definition, query);
+  if (!(definition.inputSchema instanceof z.ZodObject)) return values;
+  for (const [key, field] of Object.entries(definition.inputSchema.shape)) {
+    const value = values[key];
+    if (typeof value !== 'string') continue;
+    const schema = field as z.ZodType;
+    // Preserve strings, including identifiers and text such as "false".
+    if ((await schema.safeParseAsync(value)).success) continue;
+    try {
+      const decoded = JSON.parse(value);
+      if ((await schema.safeParseAsync(decoded)).success) values[key] = decoded;
+    } catch { /* Leave invalid text for the normal input validation response. */ }
+  }
+  return values;
 }
 
 function toLocalPath(path: string, basePath: string): string {
@@ -111,7 +128,7 @@ export function createApiMiddleware(clientSource: ClientSource, options: ApiMidd
     const result = await executeCapability({
       client: resolveClient(clientSource),
       definition,
-      payload,
+      payload: { ...body, ...await decodeQueryParams(definition, query) },
       elasticEmitter: options.elasticEmitter,
       sessionId: options.config.sessionId,
     });

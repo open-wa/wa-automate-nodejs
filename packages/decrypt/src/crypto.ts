@@ -4,7 +4,7 @@
  * Uses only `node:crypto` builtins — no external HKDF library needed.
  * `crypto.hkdfSync` landed in Node 15 and is available in Bun.
  */
-import { createDecipheriv, hkdfSync } from 'node:crypto';
+import { createDecipheriv, createHmac, hkdfSync, timingSafeEqual } from 'node:crypto';
 
 import { mediaTypes } from './constants';
 
@@ -19,6 +19,11 @@ export function decryptBuffer(
   expectedSize?: number,
   mimetype?: string,
 ): Buffer {
+  if (encryptedData.length < 26 || (encryptedData.length - 10) % 16 !== 0) {
+    throw new Error('Encrypted media has an invalid ciphertext or authentication tag length.');
+  }
+  const ciphertext = encryptedData.subarray(0, encryptedData.length - 10);
+  const tag = encryptedData.subarray(encryptedData.length - 10);
   const mediaKeyBytes = Buffer.from(mediaKeyBase64, 'base64');
 
   // Resolve the info string: "WhatsApp <Type> Keys"
@@ -39,33 +44,20 @@ export function decryptBuffer(
 
   const iv = expanded.subarray(0, 16);
   const cipherKey = expanded.subarray(16, 48);
+  const macKey = expanded.subarray(48, 80);
+  const expectedTag = createHmac('sha256', macKey).update(iv).update(ciphertext).digest().subarray(0, 10);
+  if (!timingSafeEqual(expectedTag, tag)) {
+    throw new Error('Encrypted media authentication failed.');
+  }
 
   const decipher = createDecipheriv('aes-256-cbc', cipherKey, iv);
-  // WhatsApp handles padding manually — disable OpenSSL auto-padding
-  decipher.setAutoPadding(false);
   const decrypted = Buffer.concat([
-    decipher.update(encryptedData),
+    decipher.update(ciphertext),
     decipher.final(),
   ]);
 
-  return expectedSize ? fixPadding(decrypted, expectedSize) : decrypted;
-}
-
-/**
- * Correct PKCS#7-style padding that WhatsApp applies inconsistently.
- */
-function fixPadding(data: Buffer, expectedSize: number): Buffer {
-  const padding = (16 - (expectedSize % 16)) & 0xf;
-  if (padding > 0) {
-    if (expectedSize + padding === data.length) {
-      // Trim trailing padding bytes
-      return data.subarray(0, data.length - padding);
-    }
-    if (data.length + padding === expectedSize) {
-      // Append missing padding
-      const pad = Buffer.alloc(padding, padding);
-      return Buffer.concat([data, pad]);
-    }
+  if (expectedSize !== undefined && decrypted.length !== expectedSize) {
+    throw new Error('Decrypted media size does not match the message.');
   }
-  return data;
+  return decrypted;
 }

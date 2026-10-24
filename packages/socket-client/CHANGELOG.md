@@ -15,6 +15,61 @@
 
 
 
+
+
+
+
+
+
+
+
+
+## 5.9.7
+<sub>2026-10-24</sub>
+
+-  *(patch)*
+  Register call event listeners even when a capability lookup fails, and keep session-control polling separate from the runtime request budget.
+
+## 5.9.6
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/api` v5.9.6, `@open-wa/core` v5.9.6, `@open-wa/integration-voxtral` v5.9.6
+
+## 5.9.5
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/core` v5.9.5
+
+## 5.9.4
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/api` v5.9.4, `@open-wa/core` v5.9.4, `@open-wa/driver-puppeteer` v5.9.4, `@open-wa/integration-voxtral` v5.9.4
+
+## 5.9.3
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/core` v5.9.3
+
+## 5.9.2
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/core` v5.9.2, `@open-wa/decrypt` v5.9.2, `@open-wa/integration-voxtral` v5.9.2
+
+## 5.9.1
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/integration-voxtral` v5.9.1
+
+## 5.9.0
+<sub>2026-10-24</sub>
+
+- *(minor)* Version bump from group with `@open-wa/config` v5.9.0, `@open-wa/create` v5.9.0, `@open-wa/wa-automate` v5.9.0
+
+## 5.8.0
+<sub>2026-10-23</sub>
+
+- *(minor)* Version bump from group with `@open-wa/core` v5.8.0
+
 ## 5.7.0
 <sub>2026-10-23</sub>
 

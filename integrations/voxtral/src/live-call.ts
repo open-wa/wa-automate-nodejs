@@ -96,7 +96,9 @@ export class LiveCall {
   }
   update(call: CallSnapshot) {
     this.call = call;
-    if (call.terminal) { this.close(); return; }
+    if (call.terminal) {
+      this.close(); this.interim = ''; this.muted = false; this.change('Call ended'); return;
+    }
     if (call.state === 'active' && !this.greeted && this.owner === 'assistant' && this.options.canRespond() && !this.muted) {
       this.greeted = true;
       const greeting = this.options.settings().calls.greeting;

@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync, mkdtempSync, rmSync } from 'node
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { command, git, api, repo, packages, output, summary, runUrl } from './shared.mjs';
+import { unregisteredPackages } from './onboard-packages.mjs';
 
 const publishing = process.argv.includes('--publishing');
 const event = process.env.GITHUB_EVENT_PATH ? JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')) : {};
@@ -60,7 +61,15 @@ const metadata = previousMetadata ? JSON.parse(previousMetadata) : {};
 if (event.issue) metadata.issue = event.issue.number;
 const current = JSON.parse(readFileSync('packages/core/package.json', 'utf8')).version;
 const title = `🔖 chore(release): publish open-wa ${current}`;
-const details = `<!-- openwa-release-start -->\n## Packages\n\n${changed.map(pkg => `- \`${pkg.name}@${pkg.version}\``).join('\n')}\n\nVersions and package changelogs are committed on master. Merge this PR to publish. Availability tracking and commit-based release notes run separately afterward.\n\n[Preparation run](${runUrl})\n<!-- openwa-release ${JSON.stringify(metadata)} -->\n<!-- openwa-release-end -->`;
+let onboarding = '';
+try {
+  const missing = await unregisteredPackages(changed);
+  if (missing.length) onboarding = `\n\n## New package onboarding\n\nThese names are not registered on npm: ${missing.map(pkg => `\`${pkg.name}\``).join(', ')}.\n\nRun \`pnpm packages:onboard ${missing.map(pkg => pkg.name).join(' ')}\` from master to create their initial versions and configure direct OIDC publishing. This is one-time package setup; normal releases stay on OIDC. See [package onboarding](https://github.com/${repo}/blob/master/tools/release/README.md#new-package-onboarding).`;
+} catch (error) {
+  onboarding = `\n\nPackage onboarding discovery was unavailable: ${error.message} Run \`pnpm packages:onboard --status\` to list new names.`;
+}
+if (onboarding) summary(onboarding.trim());
+const details = `<!-- openwa-release-start -->\n## Packages\n\n${changed.map(pkg => `- \`${pkg.name}@${pkg.version}\``).join('\n')}\n\nVersions and package changelogs are committed on master. Merge this PR to publish. Availability tracking and commit-based release notes run separately afterward.${onboarding}\n\n[Preparation run](${runUrl})\n<!-- openwa-release ${JSON.stringify(metadata)} -->\n<!-- openwa-release-end -->`;
 const body = pr?.body?.includes('<!-- openwa-release-start -->')
   ? pr.body.replace(/<!-- openwa-release-start -->[\s\S]*?<!-- openwa-release-end -->/, details)
   : `${pr?.body || 'Promote master to release.'}\n\n${details}`;

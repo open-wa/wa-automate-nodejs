@@ -17,8 +17,44 @@ export interface PortableSessionLease {
   release(): Promise<void>;
 }
 
+interface CheckpointDiagnostic {
+  code: string;
+  phase: string;
+  table?: string;
+  rowIndex?: number;
+  unexpectedFieldCount?: number;
+  unexpectedFields?: string[];
+}
+
+/** Only bounded schema metadata may cross from the page into ordinary logs. */
+function checkpointDiagnostic(input: unknown): CheckpointDiagnostic {
+  const value = input && typeof input === 'object' ? input as Record<string, unknown> : {};
+  const code = typeof value.code === 'string' ? value.code.split(':', 1)[0] : '';
+  const diagnostic: CheckpointDiagnostic = {
+    code: /^(?:PORTABLE_[A-Z_]{1,64}|UNSUPPORTED_[A-Z_]{1,64}|NATIVE_MODULE_[A-Z_]{1,64}|[A-Z_]{1,64}_SHAPE_CHANGED|ROW_OUTSIDE_CRYPTO_SCHEMA|INVALID_CRYPTO_ROW_KEY)$/.test(code)
+      ? code : 'PORTABLE_SESSION_CHECKPOINT_FAILED',
+    phase: typeof value.phase === 'string' && ['active', 'checkpoint-exporting-identity', 'checkpoint-reading-signal',
+      'checkpoint-exporting-data', 'checkpoint-committing'].includes(value.phase) ? value.phase : 'checkpoint',
+  };
+  if (diagnostic.code === 'ROW_OUTSIDE_CRYPTO_SCHEMA' || diagnostic.code === 'INVALID_CRYPTO_ROW_KEY') {
+    if (typeof value.table === 'string' && ['signal-meta-store', 'identity-store', 'prekey-store',
+      'signed-prekey-store', 'session-store', 'senderkey-store', 'kyber-prekey-store',
+      'kyber-last-resort-key-store'].includes(value.table)) diagnostic.table = value.table;
+    if (typeof value.rowIndex === 'number' && Number.isSafeInteger(value.rowIndex) && value.rowIndex >= 0) diagnostic.rowIndex = value.rowIndex;
+    if (typeof value.unexpectedFieldCount === 'number' && Number.isSafeInteger(value.unexpectedFieldCount) && value.unexpectedFieldCount >= 0) {
+      diagnostic.unexpectedFieldCount = value.unexpectedFieldCount;
+    }
+    if (Array.isArray(value.unexpectedFields)) {
+      diagnostic.unexpectedFields = value.unexpectedFields.slice(0, 16)
+        .filter((field): field is string => typeof field === 'string' && /^[A-Za-z_][A-Za-z0-9_]{0,63}$/.test(field));
+    }
+  }
+  return diagnostic;
+}
+
 interface SessionPersistence {
   onError?(error: unknown): void;
+  onCheckpointError?(diagnostic: CheckpointDiagnostic): void;
   /** Open session storage without excluding other processes using the same session. */
   acquire(sessionId: string): Promise<PortableSessionLease>;
 }
@@ -106,6 +142,12 @@ export class PortableSessionController {
             this.payload = payload;
             return ++this.revision;
           }))));
+      yield* portableIO('PORTABLE_SESSION_PROVISION_FAILED', () => page.exposeFunction('OpenWA_PortableCheckpointFailed',
+        (token: unknown, documentId: unknown, diagnostic: unknown) =>
+          this.serial(Effect.gen({ self: this }, function* () {
+            yield* authorize(token, documentId);
+            this.persistence.onCheckpointError?.(checkpointDiagnostic(diagnostic));
+          }))));
       // Credentials are provisioned only to the intended top-level origin. The
       // private artifact receives keys through the lexical bridge, never on window.
       yield* portableIO('PORTABLE_SESSION_PROVISION_FAILED', () => page.addInitScript(`(() => {
@@ -113,7 +155,8 @@ export class PortableSessionController {
         const token = ${JSON.stringify(capability)};
         const bridge = Object.freeze({
           bootstrap: () => globalThis.OpenWA_PortableBootstrap(token),
-          commit: (documentId, revision, payload) => globalThis.OpenWA_PortableCommit(token, documentId, revision, payload)
+          commit: (documentId, revision, payload) => globalThis.OpenWA_PortableCommit(token, documentId, revision, payload),
+          checkpointFailed: (documentId, diagnostic) => globalThis.OpenWA_PortableCheckpointFailed(token, documentId, diagnostic)
         });
         ${script}
       })();`));

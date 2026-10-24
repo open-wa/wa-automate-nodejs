@@ -1,5 +1,6 @@
 import type { Settings } from './config';
 import { normalizeSettings } from './config';
+import { SpeechPcmDecoder } from './pcm';
 
 export type ChatTurn = { role: 'user' | 'assistant'; content: string };
 export type ProviderUsage = { audioSeconds?: number; speechCharacters?: number; inputTokens?: number; outputTokens?: number };
@@ -48,6 +49,8 @@ export class MistralProvider {
     if (!response.ok) {
       await response.body?.cancel();
       const reason = response.status === 401 || response.status === 403 ? 'Check the API key and model access.'
+        : response.status === 429 && response.headers.get('x-ratelimit-limit-req-minute') === '0'
+          ? 'No requests are enabled for the selected model. Choose a model with available quota in agent.model, or enable its quota in your Mistral account.'
         : response.status === 429 ? 'Your Mistral account has reached a usage limit.' : 'Check the selected model and audio settings.';
       throw new Error(`Mistral returned HTTP ${response.status}. ${reason}`);
     }
@@ -99,17 +102,26 @@ export class MistralProvider {
       model: settings.models.speech, voice_id: settings.voice.id, input: text, response_format: format,
     }, signal)).json() as Json;
     if (typeof result.audio_data !== 'string' || !result.audio_data) throw new Error('Mistral did not return speech audio.');
+    const audio = Buffer.from(result.audio_data, 'base64');
+    const decoder = new SpeechPcmDecoder();
+    const output = format === 'pcm' ? decoder.write(audio) : audio;
+    if (format === 'pcm') decoder.finish();
     this.record({ speechCharacters: text.length });
-    return Buffer.from(result.audio_data, 'base64');
+    return output;
   }
   async *speechStream(text: string, settings: Settings, signal: AbortSignal): AsyncGenerator<Uint8Array> {
     const response = await this.request('/audio/speech', {
       model: settings.models.speech, voice_id: settings.voice.id, input: text, response_format: 'pcm', stream: true,
     }, signal);
+    const decoder = new SpeechPcmDecoder();
     for await (const { event, data } of readEvents(response)) {
-      if (event === 'speech.audio.delta' && typeof data.audio_data === 'string') yield Buffer.from(data.audio_data, 'base64');
+      if (event === 'speech.audio.delta' && typeof data.audio_data === 'string') {
+        const pcm = decoder.write(Buffer.from(data.audio_data, 'base64'));
+        if (pcm.length) yield pcm;
+      }
       if (event === 'speech.audio.done') break;
     }
+    decoder.finish();
     this.record({ speechCharacters: text.length });
   }
   async voices(signal: AbortSignal): Promise<unknown> {

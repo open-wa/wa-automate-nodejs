@@ -13,6 +13,60 @@
 
 
 
+
+
+
+
+
+
+
+
+
+## 5.1.19
+<sub>2026-10-24</sub>
+
+- *(patch)* Updated dependency `@open-wa/core` v5.9.7
+
+## 5.1.18
+<sub>2026-10-24</sub>
+
+- *(patch)* Updated dependency `@open-wa/core` v5.9.6
+
+## 5.1.17
+<sub>2026-10-24</sub>
+
+- *(patch)* Updated dependency `@open-wa/core` v5.9.5
+
+## 5.1.16
+<sub>2026-10-24</sub>
+
+- *(patch)* Updated dependency `@open-wa/core` v5.9.4
+
+## 5.1.15
+<sub>2026-10-24</sub>
+
+- *(patch)* Updated dependency `@open-wa/core` v5.9.3
+
+## 5.1.14
+<sub>2026-10-24</sub>
+
+- *(patch)* Updated dependency `@open-wa/core` v5.9.2
+
+## 5.1.13
+<sub>2026-10-24</sub>
+
+- *(patch)* Updated dependency `@open-wa/core` v5.9.1
+
+## 5.1.12
+<sub>2026-10-24</sub>
+
+- *(patch)* Updated dependency `@open-wa/core` v5.9.0
+
+## 5.1.11
+<sub>2026-10-23</sub>
+
+- *(patch)* Updated dependency `@open-wa/core` v5.8.0
+
 ## 5.1.10
 <sub>2026-10-23</sub>
 

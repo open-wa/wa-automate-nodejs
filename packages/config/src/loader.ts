@@ -40,12 +40,13 @@ const SYNC_SEARCH_PLACES = SEARCH_PLACES.filter(
 );
 
 /**
- * Create cosmiconfig explorer with TypeScript support
+ * Load JS and TS with the same module handling, independent of package type.
  */
 function createExplorer() {
   return cosmiconfig(MODULE_NAME, {
     searchPlaces: SEARCH_PLACES,
     loaders: {
+      '.js': TypeScriptLoader(),
       '.ts': TypeScriptLoader(),
       '.mts': TypeScriptLoader(),
       '.cts': TypeScriptLoader(),
@@ -60,6 +61,7 @@ function createExplorerSync() {
   return cosmiconfigSync(MODULE_NAME, {
     searchPlaces: SYNC_SEARCH_PLACES,
     loaders: {
+      '.js': TypeScriptLoaderSync(),
       '.ts': TypeScriptLoaderSync(),
       '.cts': TypeScriptLoaderSync(),
     },

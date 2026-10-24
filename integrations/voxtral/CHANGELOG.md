@@ -1,5 +1,65 @@
 # Changelog
 
+
+
+
+
+
+
+
+
+
+## 5.9.7
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/api` v5.9.7, `@open-wa/socket-client` v5.9.7
+
+## 5.9.6
+<sub>2026-10-24</sub>
+
+-  *(patch)* - Clear failed call errors after successful retry and show terminal calls as ended.
+
+## 5.9.5
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/core` v5.9.5
+
+## 5.9.4
+<sub>2026-10-24</sub>
+
+-  *(patch)*
+  Convert Mistral's float32 speech PCM to signed 16-bit audio before voice-note encoding and call playback. Preserve split samples across streaming chunks and reject malformed audio instead of sending distorted speech.
+
+## 5.9.3
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/core` v5.9.3
+
+## 5.9.2
+<sub>2026-10-24</sub>
+
+-  *(patch)* - Explain how to select an available answer model when Mistral reports zero request quota for the configured model.
+
+## 5.9.1
+<sub>2026-10-24</sub>
+
+-  *(patch)* - Retain voice-note and text delivery acknowledgements that arrive before submission returns a message ID.
+-  *(patch)* - Discard all queued assistant speech when a caller interrupts, including frames waiting for the call host to read them.
+
+## 5.9.0
+<sub>2026-10-24</sub>
+
+- *(minor)* Version bump from group with `@open-wa/config` v5.9.0, `@open-wa/create` v5.9.0, `@open-wa/wa-automate` v5.9.0
+
+## 5.8.0
+<sub>2026-10-23</sub>
+
+-  *(patch)*
+  Install missing configured npm plugins on demand and reuse their local cache.
+  Load JavaScript and TypeScript config files with the same module handling, and
+  simplify Voxtral setup to a config entry without a separate plugin installation.
+- *(minor)* Version bump from group with `@open-wa/core` v5.8.0
+
 ## 5.7.0
 <sub>2026-10-23</sub>
 
