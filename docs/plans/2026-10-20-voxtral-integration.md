@@ -6,14 +6,51 @@ The actual Easy API process loads and registers the plugin. A Mistral key has
 now been received through PearDrop and stored directly in macOS Keychain; the
 temporary plaintext file was removed. Real Mistral speech, file transcription,
 answer generation and realtime call-adapter traffic have been exercised.
-WhatsApp paired and reached READY, but the first voice note exposed a media
-decryption bug and restarting lost the saved login. Those findings and remaining
-physical voice-note/call acceptance are recorded below.
+The human has now confirmed clear automatic voice replies, correct pineapple/seven
+recall, and clear outgoing and auto-answered incoming WhatsApp calls. Three
+interrupted assistant turns were captured. A protected cold restart restored
+the encrypted login into a fresh Chrome profile and reached READY without a QR.
+Neo call controls now observe the live call and successfully hang it up from the
+normal Chat view. Public npm acceptance is still pending publication.
+
+## Physical acceptance, 24 October 2026
+
+- Automatic voice-note replies now arrive and play clearly on the other phone;
+  the next spoken question correctly recalls pineapple and seven.
+- The outgoing call connected with clear two-way conversation. Three interrupted
+  assistant turns were recorded. The incoming call auto-answered and the human
+  confirmed clear two-way conversation.
+- The newly supplied license was accepted by live refresh; the server confirmed
+  call control and audio access. Credentials remain in macOS Keychain.
+- A final native flush saved a 216,621-byte encrypted checkpoint with owner-only
+  permissions. Restarting in a new Chrome profile restored the session to READY
+  without another scan. Protected encrypted and native-profile snapshots remain
+  local; no authentication material is committed.
+- All 20 focused Voxtral checks pass with 60 assertions. Three API query checks
+  cover Neo's boolean GET flags, literal string preservation and rejection of
+  invalid text. A private runtime regression checks canonical acknowledgement
+  message IDs and duplicate suppression.
+- The physical runs exposed additional UI correctness bugs: HTTP query flags
+  were rejected as strings, ended calls retained the Speaking stage, failed call
+  attempts left Connecting audio, and a successful retry retained its old error.
+  Those paths are fixed. Acknowledgements now retain the full serialized ID,
+  matching the voice-note send result instead of leaving its delivery status at
+  Submitted. The generated patch retains the existing events/message-options
+  feature bundles unchanged.
+- Neo’s End call control was missing because listener registration awaited a
+  capability RPC that could be rate limited. Registration now attaches locally
+  before checking availability. A regression reproduces the HTTP 429 case; the
+  repaired Chat control successfully ended a physical call and showed Call ended.
+  Session-control polling also shared the runtime limiter’s counter; each limiter
+  now owns its budget, with a regression preserving independent enforcement.
+- Published-package acceptance remains separate: the public initializer still
+  needs to be tested after a real release. Earlier placeholder registry results
+  are recorded locally; a local source run is not proof of npm availability.
 
 ## Runtime evidence, 24 October 2026
 
-`bun test integrations/voxtral/test` passes 15 tests across four files, with
-45 assertions. `pnpm --filter @open-wa/decrypt test` passes 8 tests. Scoped
+`bun test integrations/voxtral/test` now passes 20 tests across four files, with
+60 assertions. `pnpm --filter @open-wa/decrypt test` passes 8 tests. Scoped
 Voxtral and decrypt package builds also succeed.
 These checks use simulated Mistral and WhatsApp boundaries; they do not prove
 live provider access, recipient playback, or physical call acceptance.
