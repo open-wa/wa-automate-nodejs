@@ -23,6 +23,13 @@
 
 
 
+
+## 5.9.7
+<sub>2026-10-24</sub>
+
+-  *(patch)*
+  Register call event listeners even when a capability lookup fails, and keep session-control polling separate from the runtime request budget.
+
 ## 5.9.6
 <sub>2026-10-24</sub>
 

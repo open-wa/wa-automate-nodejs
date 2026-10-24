@@ -8,6 +8,12 @@
 
 
 
+
+## 5.9.7
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/api` v5.9.7, `@open-wa/socket-client` v5.9.7
+
 ## 5.9.6
 <sub>2026-10-24</sub>
 

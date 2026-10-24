@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/wa-automate-types-only",
-  "version": "5.9.6",
+  "version": "5.9.7",
   "description": "Lightweight type-only re-exports from @open-wa/schema \u2014 zero runtime dependencies",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
