@@ -1,6 +1,8 @@
 import { afterEach, expect, mock, test } from 'bun:test';
 import WebSocket, { WebSocketServer } from 'ws';
 import { settingsSchema } from '../src/config';
+import { createHash, randomUUID } from 'node:crypto';
+import { rm } from 'node:fs/promises';
 
 let endpoint = '';
 let requestedEndpoint = '';
@@ -9,6 +11,7 @@ mock.module('ws', () => ({ default: class extends ActualWebSocket {
   constructor(url: string, options: any) { requestedEndpoint = url; super(endpoint, options); }
 } }));
 const { LiveCall } = await import('../src/live-call');
+const { VoxtralService } = await import('../src/service');
 const cleanups: Array<() => Promise<void>> = [];
 afterEach(async () => { for (const cleanup of cleanups.splice(0)) await cleanup(); });
 async function until(predicate: () => boolean) {
@@ -107,4 +110,43 @@ test('provider disconnect exposes a recoverable failure instead of continuing to
   await until(() => !!live.error);
   expect(live.stage).toBe('Audio disconnected');
   expect(live.error).toContain('Reconnect');
+});
+test('hangup clears interim speech and publishes the ended stage', async () => {
+  const { live, turn, speechSignals } = await setup({ slowSpeech: true }); turn();
+  await until(() => speechSignals.length === 1);
+  live.interim = 'unfinished speech'; live.muted = true;
+  live.update({ ...live.call!, state: 'ended', terminal: true });
+  expect(speechSignals[0].aborted).toBe(true);
+  expect(live.snapshot()).toMatchObject({ stage: 'Call ended', interim: '', muted: false, call: { terminal: true } });
+});
+test('a failed outgoing call leaves an honest state and a successful retry clears its error', async () => {
+  await setup(); // The local WebSocket server handles the actual provider handshake.
+  const sessionId = `voxtral-call-test-${randomUUID()}`;
+  let active: any = null, fail = true;
+  const service = await VoxtralService.create({
+    sessionId, config: { apiKey: 'test-only', mode: 'calls', calls: { greeting: '' } },
+    signal: new AbortController().signal, events: { on() {} }, logger: { error() {} },
+    runtime: { invoke: async (method: string) => {
+      if (method === 'getActiveCall') return active;
+      if (method === 'startCall') {
+        if (fail) return { ok: false, status: 'failed', reason: { message: 'Calling is unavailable.' } };
+        active = { id: 'retry-call', generation: 'retry-generation', peer: '447700900123@c.us', state: 'ringing', terminal: false, direction: 'outgoing' };
+        return { ok: true, status: 'requested' };
+      }
+      throw new Error(`Unexpected call method: ${method}`);
+    } },
+  } as any);
+  cleanups.push(async () => {
+    await service.dispose();
+    const scope = createHash('sha256').update(sessionId).digest('hex').slice(0, 24);
+    await rm(`.open-wa/plugins/voxtral/${scope}`, { recursive: true, force: true });
+  });
+  await expect(service.startCall('447700900123@c.us')).rejects.toThrow('Calling is unavailable.');
+  expect(service.list()[0].state).toBe('Call failed');
+  expect(service.status().error).toBe('Calling is unavailable.');
+  fail = false;
+  expect(await service.startCall('447700900123@c.us')).toMatchObject({ ok: true });
+  expect(service.status().error).toBeUndefined();
+  service.callState({ ...active, state: 'ended', terminal: true });
+  expect(service.status().call?.stage).toBe('Call ended');
 });

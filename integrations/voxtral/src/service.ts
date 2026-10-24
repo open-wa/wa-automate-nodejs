@@ -277,10 +277,11 @@ export class VoxtralService {
     if (this.effective.mode === 'voice-notes') throw new Error('Choose Calls or Both mode first.');
     this.callBusy = true;
     let next: LiveCall | undefined;
+    let person: Conversation | undefined;
     try {
       const call = await this.input.runtime.invoke<Call | null>('getActiveCall');
       if (!call || call.id !== id || call.generation !== generation || call.terminal) throw new Error('This call is no longer current.');
-      const person = this.person(call.peer, 'calls');
+      person = this.person(call.peer, 'calls');
       if (!this.canRespond(person)) throw new Error('Resume AI for this conversation before attaching the assistant.');
       next = new LiveCall(this.liveOptions(person), action === 'answer'); next.call = call;
       await next.connect();
@@ -292,7 +293,7 @@ export class VoxtralService {
       if (!current || current.id !== id || current.generation !== generation) throw new Error('The call ended while audio was being attached.');
       next.update(current); this.lastError = undefined; this.changed();
       return { ok: true, status: 'requested' };
-    } catch (error) { next?.close(); if (this.live === next) this.live = undefined; this.report(error); throw error; }
+    } catch (error) { next?.close(); if (this.live === next) this.live = undefined; if (person) person.state = 'Call failed'; this.report(error); throw error; }
     finally { this.callBusy = false; }
   }
   async startCall(to: string) {
@@ -300,9 +301,10 @@ export class VoxtralService {
     if (this.effective.mode === 'voice-notes') throw new Error('Choose Calls or Both mode first.');
     this.callBusy = true;
     let next: LiveCall | undefined;
+    let person: Conversation | undefined;
     try {
       if ((this.live && !this.live.call) || await this.input.runtime.invoke('getActiveCall')) throw new Error('A call is already active or requested. Check Calls before starting another.');
-      const person = this.person(to, 'calls');
+      person = this.person(to, 'calls');
       if (!this.canRespond(person)) throw new Error('Resume AI for this person before calling.');
       next = new LiveCall(this.liveOptions(person)); await next.connect();
       this.live?.close(); this.live = next;
@@ -311,8 +313,8 @@ export class VoxtralService {
       const call = await this.input.runtime.invoke<Call | null>('getActiveCall');
       if (call) next.update(call);
       else { next.stage = 'Call requested · waiting for WhatsApp state'; this.changed(); }
-      this.changed(); return result;
-    } catch (error) { next?.close(); if (this.live === next) this.live = undefined; this.report(error); throw error; }
+      this.lastError = undefined; this.changed(); return result;
+    } catch (error) { next?.close(); if (this.live === next) this.live = undefined; if (person) person.state = 'Call failed'; this.report(error); throw error; }
     finally { this.callBusy = false; }
   }
   async takeover(id: string, generation: string) {
