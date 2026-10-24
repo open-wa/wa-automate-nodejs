@@ -2,6 +2,13 @@
 
 
 
+
+## 5.9.1
+<sub>2026-10-24</sub>
+
+-  *(patch)* - Retain voice-note and text delivery acknowledgements that arrive before submission returns a message ID.
+-  *(patch)* - Discard all queued assistant speech when a caller interrupts, including frames waiting for the call host to read them.
+
 ## 5.9.0
 <sub>2026-10-24</sub>
 
