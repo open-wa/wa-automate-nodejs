@@ -56,10 +56,17 @@ restored the binary; the lazy plugin installer already allows install scripts.
   that tag and removes standard PKCS#7 padding. The original encrypted blob was
   8,138 bytes; decryption now produces 8,121 bytes matching WhatsApp's file hash,
   and real Mistral transcription of that recovered voice note succeeds.
-- Restarting to load the fix did not restore the compact login, and no session
-  checkpoint file exists. The bounded diagnostics from issue #3562 are now
-  loaded to identify that failure on the next paired run. The persistence cause
-  and fix remain unverified; strict crypto-store validation is retained.
+- A new paired run identified two session-save failures: the native migration
+  getter was removed, and `identity-store` gained `accountEncryptionState`.
+  The private adapter now reads the native migration preference and preserves
+  that exact field, retaining strict rejection of unrelated fields. Applying
+  those repairs to the running document wrote a 215,009-byte encrypted checkpoint
+  with mode 0600. Three focused private adapter checks pass.
+- Cold restoration loaded the identity and 368 chat models but stalled at
+  WhatsApp's chat-loading screen. A browser-probe timeout then incorrectly reset
+  the checkpoint to a logout marker. Startup probe failures and authentication
+  timeouts now preserve saved credentials; both focused regression checks pass.
+  Successful cold restoration and repeated automatic saves remain unverified.
 - Running the exact documented `npm init @open-wa@latest my-bot` in a new folder
   under `projects/del` fails with `could not determine executable to run`.
   Public `@open-wa/create/latest` is currently the `0.0.0-stage` placeholder,
