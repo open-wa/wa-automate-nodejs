@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/session-sync",
-  "version": "5.9.2",
+  "version": "5.9.3",
   "main": "dist/index.cjs",
   "types": "dist/index.d.cts",
   "scripts": {

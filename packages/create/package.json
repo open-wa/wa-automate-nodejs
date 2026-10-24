@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/create",
-  "version": "5.9.2",
+  "version": "5.9.3",
   "description": "Create an open-wa Easy API or SDK project",
   "type": "module",
   "bin": { "create-open-wa": "./bin/create.js" },

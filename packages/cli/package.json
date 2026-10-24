@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/cli",
-  "version": "5.9.2",
+  "version": "5.9.3",
   "description": "CLI for @open-wa WhatsApp automation - Easy API mode",
   "main": "./dist/index.cjs",
   "module": "./dist/index.cjs",

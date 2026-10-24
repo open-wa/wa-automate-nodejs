@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/stickers",
-  "version": "5.9.2",
+  "version": "5.9.3",
   "description": "Local sticker rendering with automatic browser or standalone WASM execution",
   "type": "module",
   "license": "SEE LICENSE IN LICENSE.md",
