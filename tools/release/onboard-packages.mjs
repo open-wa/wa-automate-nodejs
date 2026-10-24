@@ -62,21 +62,23 @@ function artifactHash(pkg, tarball) {
 async function main() {
   const { values, positionals } = parseArgs({
     allowPositionals: true,
-    options: { status: { type: 'boolean' }, 'stage-only': { type: 'boolean' }, tarball: { type: 'string' }, help: { type: 'boolean' } },
+    options: { status: { type: 'boolean' }, 'stage-only': { type: 'boolean' }, tarball: { type: 'string' }, artifacts: { type: 'string' }, help: { type: 'boolean' } },
   });
   if (values.help) {
-    console.log(`Usage: pnpm packages:onboard [package names] [--status | --stage-only] [--tarball path]
+    console.log(`Usage: pnpm packages:onboard [package names] [--status | --stage-only] [--tarball path | --artifacts directory]
 
 With no names, discover unregistered public workspace packages and resume saved onboarding.
 --status      Report unregistered names without staging or configuring trust.
 --stage-only  Create first staged versions using the current npm credential; suitable for CI.
 --tarball     Use an existing publication artifact instead of building (one package only).
+--artifacts   Use a directory of pnpm-packed publication artifacts for a batch.
 
 The default completes staging, package-specific OIDC trust, and first-version approval.
 Trust and approval use npm's interactive maintainer 2FA. Normal releases stay on OIDC.`);
     return;
   }
   if (values.status && values['stage-only']) throw new Error('Choose --status or --stage-only.');
+  if (values.tarball && values.artifacts) throw new Error('Choose --tarball or --artifacts.');
   const all = packages();
   for (const name of positionals) {
     if (!all.some(pkg => pkg.name === name)) throw new Error(`Not a public workspace package: ${name}`);
@@ -122,14 +124,18 @@ Trust and approval use npm's interactive maintainer 2FA. Normal releases stay on
   const entries = [];
   for (const pkg of candidates) {
     let entry = state[pkg.name];
-    if (entry && entry.version !== pkg.version && !entry.completedAt) {
+    if (entry && entry.version !== pkg.version && !entry.completedAt
+      && (entry.stageId || entry.submittedAt || entry.submissionStartedAt)) {
       throw new Error(`Finish saved onboarding for ${pkg.name}@${entry.version} before onboarding ${pkg.version}.`);
     }
     entry = entry?.version === pkg.version ? entry : { version: pkg.version };
     state[pkg.name] = entry;
     entries.push({ pkg, entry });
-    if (values.tarball) {
-      const tarball = resolve(values.tarball);
+    const providedTarball = values.tarball ? resolve(values.tarball) : values.artifacts
+      ? join(resolve(values.artifacts), `${pkg.name.replace(/^@/, '').replaceAll('/', '-')}-${pkg.version}.tgz`)
+      : undefined;
+    if (providedTarball) {
+      const tarball = providedTarball;
       const shasum = artifactHash(pkg, tarball);
       if (entry.shasum && entry.shasum !== shasum) throw new Error(`Provided artifact differs from saved onboarding for ${pkg.name}.`);
       entry.tarball = tarball;
@@ -161,10 +167,11 @@ Trust and approval use npm's interactive maintainer 2FA. Normal releases stay on
       console.log(`${pkg.name} already exists; configure its OIDC trust without uploading another version.`);
       continue;
     }
-    if (entry.stageId || entry.submittedAt) {
-      throw new Error(`Saved stage for ${pkg.name} is no longer pending and the name is not publicly visible. Inspect npm stage view ${entry.stageId || '<stage-id>'}; no duplicate upload was attempted.`);
+    if (entry.stageId || entry.submittedAt || entry.submissionStartedAt) {
+      const inspect = entry.stageId ? `npm stage view ${entry.stageId}` : `npm stage list ${pkg.name}`;
+      throw new Error(`A previous submission for ${pkg.name} is not in the pending list or publicly visible. Inspect ${inspect}; no duplicate upload was attempted.`);
     }
-    let tarball = values.tarball ? resolve(values.tarball) : entry.tarball;
+    let tarball = providedTarball || entry.tarball;
     if (!tarball) {
       const artifactDirectory = join(directory, pkg.name.replaceAll('/', '-').replace(/^@/, ''), pkg.version);
       mkdirSync(artifactDirectory, { recursive: true, mode: 0o700 });
@@ -177,10 +184,23 @@ Trust and approval use npm's interactive maintainer 2FA. Normal releases stay on
     }
     entry.tarball = tarball;
     entry.shasum = artifactHash(pkg, tarball);
-    entry.sourceSha = values.tarball ? null : git('rev-parse', 'HEAD');
+    entry.sourceSha = providedTarball ? null : git('rev-parse', 'HEAD');
+    entry.submissionStartedAt = new Date().toISOString();
+    delete entry.submissionErrorCode;
+    delete entry.submissionFailedAt;
     save();
     console.log(`Stage first version: ${pkg.name}@${pkg.version}`);
-    npm(['stage', 'publish', tarball, '--access', 'public', '--tag', pkg.version.includes('-') ? 'next' : 'latest', '--ignore-scripts'], true);
+    try {
+      // Staging never prompts for 2FA; capture its error code so a denied
+      // request is distinguishable from an uncertain upload interruption.
+      npm(['stage', 'publish', tarball, '--access', 'public', '--tag', pkg.version.includes('-') ? 'next' : 'latest', '--ignore-scripts', '--json']);
+    } catch (error) {
+      entry.submissionFailedAt = new Date().toISOString();
+      entry.submissionErrorCode = error.code || 'unknown';
+      if (['E401', 'E403', 'E404', 'ENEEDAUTH', 'EOTP'].includes(error.code)) delete entry.submissionStartedAt;
+      save();
+      throw error;
+    }
     entry.submittedAt = new Date().toISOString();
     save();
     staged = JSON.parse(npm(['stage', 'list', '--json']));
