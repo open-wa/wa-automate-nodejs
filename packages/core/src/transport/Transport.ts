@@ -451,6 +451,7 @@ export class Transport {
     });
     this.portable = new PortableSessionController({
       onError: error => this.logger.warn('session_checkpoint_reset_failed', { error }),
+      onCheckpointError: diagnostic => this.logger.warn('session_checkpoint_save_failed', { ...diagnostic }),
       acquire: async sessionId => {
         const lease = await acquireSessionPersistence({ ...options, sessionId }, reason => {
           this.awaitingRecoveryPairing = true;
