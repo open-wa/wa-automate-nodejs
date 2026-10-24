@@ -22,6 +22,12 @@
 
 
 
+
+## 5.9.6
+<sub>2026-10-24</sub>
+
+-  *(patch)* - Preserve serialized message IDs in acknowledgement events so voice-note delivery state updates correctly.
+
 ## 5.9.5
 <sub>2026-10-24</sub>
 

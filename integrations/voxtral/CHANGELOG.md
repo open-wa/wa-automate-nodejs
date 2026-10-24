@@ -7,6 +7,12 @@
 
 
 
+
+## 5.9.6
+<sub>2026-10-24</sub>
+
+-  *(patch)* - Clear failed call errors after successful retry and show terminal calls as ended.
+
 ## 5.9.5
 <sub>2026-10-24</sub>
 

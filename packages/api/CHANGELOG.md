@@ -22,6 +22,12 @@
 
 
 
+
+## 5.9.6
+<sub>2026-10-24</sub>
+
+-  *(patch)* - Decode HTTP query values against method schemas so Neo can load chat messages with boolean flags.
+
 ## 5.9.5
 <sub>2026-10-24</sub>
 
