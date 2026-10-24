@@ -24,6 +24,7 @@ export class VoxtralService {
   private jobs: Job[] = [];
   private tasks = new Set<Promise<void>>();
   private running = new Map<string, Job>();
+  private acknowledgements = new Map<string, number>();
   private live?: LiveCall;
   private callBusy = false;
   private ready = false;
@@ -174,7 +175,7 @@ export class VoxtralService {
       stage('Sending'); reply.state = 'Sending'; sending = true;
       const audioId = await this.input.runtime.invoke<string | boolean>('sendPtt', [person.peer, `data:audio/ogg;base64,${audio.toString('base64')}`, { quotedMsgId: message.id }]);
       if (!audioId) throw new Error('WhatsApp did not confirm voice-note submission. Check the chat before sending again.');
-      reply.audioId = typeof audioId === 'string' ? audioId : undefined; reply.audioState = 'Submitted';
+      reply.audioId = typeof audioId === 'string' ? audioId : undefined; reply.audioState = this.deliveryState(reply.audioId);
       this.state.journal[message.id] = 'sent';
       // Record accepted speech before an optional text send can fail.
       if (text) this.remember(person, 'assistant', answer);
@@ -182,7 +183,7 @@ export class VoxtralService {
         reply.textState = 'Sending'; this.changed();
         const textId = await this.input.runtime.invoke<string | boolean>('reply', [person.peer, answer, message.id]);
         if (!textId) throw new Error('WhatsApp did not confirm text submission.');
-        reply.textId = typeof textId === 'string' ? textId : undefined; reply.textState = 'Submitted';
+        reply.textId = typeof textId === 'string' ? textId : undefined; reply.textState = this.deliveryState(reply.textId);
       }
       reply.state = 'Submitted'; turn.state = 'Processed'; person.state = 'Waiting'; this.lastError = undefined;
     } catch (error) {
@@ -194,11 +195,19 @@ export class VoxtralService {
       if (!cancelled) this.report(error);
     } finally { this.persist(); this.changed(); }
   }
+  private deliveryState(id?: string) {
+    const ack = id ? this.acknowledgements.get(id) : undefined;
+    return ack === undefined ? 'Submitted' : ack >= 3 ? 'Read' : ack === 2 ? 'Delivered' : ack >= 0 ? 'Submitted' : 'Failed';
+  }
   private ack(value: unknown) {
     const ack = value as { id?: string; messageId?: string; ack?: number } | null;
     const id = ack?.id || ack?.messageId;
     if (!id || typeof ack?.ack !== 'number') return;
-    const label = ack.ack >= 3 ? 'Read' : ack.ack === 2 ? 'Delivered' : ack.ack >= 0 ? 'Submitted' : 'Failed';
+    // Acknowledgements can arrive while sendPtt/reply is still resolving its ID.
+    this.acknowledgements.delete(id);
+    this.acknowledgements.set(id, ack.ack);
+    if (this.acknowledgements.size > 4000) this.acknowledgements.delete(this.acknowledgements.keys().next().value!);
+    const label = this.deliveryState(id);
     for (const person of this.conversations.values()) for (const turn of person.turns) {
       if (turn.audioId === id) turn.audioState = label;
       if (turn.textId === id) turn.textState = label;
