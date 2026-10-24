@@ -1742,22 +1742,8 @@ export class Transport {
       if (qrData && typeof qrData === 'string') {
         const watcher = this.qrWatcherAbort;
         if (!watcher || watcher.signal.aborted) return null;
-        await this.injectionController.registerPersistentBinding('OpenWA_QrChanged', (value: unknown) => {
-          if (!watcher?.signal.aborted && typeof value === 'string'
-            && value !== 'QR_CODE_SUCCESS' && value !== 'MULTI_DEVICE_DETECTED') {
-            this.emitQrData(value);
-          }
-        });
-        if (this.driver.name !== 'lightpanda') {
-          await this.page.evaluateScript(`(() => {
-            if (typeof window.smartQr !== 'function') throw new Error('QR refresh helper unavailable');
-            window.smartQr(window.OpenWA_QrChanged);
-          })()`).catch(error => this.logger.warn('qr_refresh_observer_failed', {
-            error: error instanceof Error ? error.message : String(error),
-          }));
-        }
         this.emitQrData(qrData);
-        if (this.driver.name === 'lightpanda') this.pollQrChanges(watcher);
+        this.pollQrChanges(watcher);
       }
       return qrData;
     } catch (error) {
@@ -1778,8 +1764,8 @@ export class Transport {
   }
 
   private pollQrChanges(watcher: AbortController): void {
-    // Lightpanda's DOM observer can miss QR updates and expiry. Use WA's
-    // native state and current linking action to renew an expired QR cycle.
+    // Native QR cycles expire even when the DOM observer is available. Use WA's
+    // current linking action to renew only an idle, unpaired QR cycle.
     const poll = async () => {
       if (watcher.signal.aborted || !this.page) return;
       try {

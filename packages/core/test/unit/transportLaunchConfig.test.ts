@@ -265,6 +265,33 @@ afterEach(() => {
 });
 
 describe('Transport launch/config plumbing', () => {
+  it('publishes native QR refreshes and renews an expired linking cycle', async () => {
+    vi.useFakeTimers();
+    const page = new TestPage();
+    const events = createEvents();
+    const driver = new CaptureDriver(new TestBrowser(page));
+    Object.defineProperty(driver, 'name', { value: 'puppeteer' });
+    const transport = new Transport({ driver, events, logger: createLogger() });
+    (transport as any).page = page;
+    vi.spyOn(page, 'evaluateScript')
+      .mockResolvedValueOnce('native-first')
+      .mockResolvedValueOnce({ state: 'UNPAIRED', qr: 'native-second' })
+      .mockResolvedValueOnce({ state: 'UNPAIRED_IDLE', qr: null })
+      .mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ state: 'UNPAIRED', qr: 'native-third' });
+    try {
+      expect(await transport.waitForQr()).toBe('native-first');
+      await vi.advanceTimersByTimeAsync(3000);
+      const generated = (events.emit as any).mock.calls.filter(([event]: string[]) => event === 'launch.auth.qr.generated');
+      expect(generated.map(([, payload]: any[]) => payload.details.qr)).toEqual(['native-first', 'native-second', 'native-third']);
+      expect(events.emit).toHaveBeenCalledWith('launch.auth.qr.expired', expect.any(Object));
+      expect(page.evaluateScript).toHaveBeenCalledWith(expect.stringContaining('resetLinkDeviceState'));
+    } finally {
+      (transport as any).stopQrWatcher();
+      vi.useRealTimers();
+    }
+  });
+
   it('retains a saved checkpoint when the startup probe fails', async () => {
     const page = new TestPage();
     const transport = new Transport({ driver: new CaptureDriver(new TestBrowser(page)),
