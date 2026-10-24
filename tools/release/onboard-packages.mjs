@@ -81,14 +81,15 @@ function artifactHash(pkg, tarball) {
 async function main() {
   const { values, positionals } = parseArgs({
     allowPositionals: true,
-    options: { status: { type: 'boolean' }, 'stage-only': { type: 'boolean' }, tarball: { type: 'string' }, artifacts: { type: 'string' }, help: { type: 'boolean' } },
+    options: { status: { type: 'boolean' }, 'stage-only': { type: 'boolean' }, 'trust-only': { type: 'boolean' }, tarball: { type: 'string' }, artifacts: { type: 'string' }, help: { type: 'boolean' } },
   });
   if (values.help) {
-    console.log(`Usage: pnpm packages:onboard [package names] [--status | --stage-only] [--tarball path | --artifacts directory]
+    console.log(`Usage: pnpm packages:onboard [package names] [--status | --stage-only | --trust-only] [--tarball path | --artifacts directory]
 
 With no names, discover unregistered public workspace packages and resume saved onboarding.
 --status      Report unregistered names without staging or configuring trust.
 --stage-only  Create first staged versions using the current npm credential; suitable for CI.
+--trust-only  Configure OIDC for registered names without uploading or approving any version.
 --tarball     Use an existing publication artifact instead of building (one package only).
 --artifacts   Use a directory of pnpm-packed publication artifacts for a batch.
 
@@ -96,7 +97,8 @@ The default completes staging, package-specific OIDC trust, and first-version ap
 Trust and approval use npm's interactive maintainer 2FA. Normal releases stay on OIDC.`);
     return;
   }
-  if (values.status && values['stage-only']) throw new Error('Choose --status or --stage-only.');
+  if ([values.status, values['stage-only'], values['trust-only']].filter(Boolean).length > 1) throw new Error('Choose --status, --stage-only or --trust-only.');
+  if (values['trust-only'] && (!positionals.length || values.tarball || values.artifacts)) throw new Error('--trust-only requires explicit package names and accepts no artifacts.');
   if (values.tarball && values.artifacts) throw new Error('Choose --tarball or --artifacts.');
   const all = packages();
   for (const name of positionals) {
@@ -105,6 +107,7 @@ Trust and approval use npm's interactive maintainer 2FA. Normal releases stay on
   const selected = positionals.length ? all.filter(pkg => positionals.includes(pkg.name)) : all;
   if (values.tarball && selected.length !== 1) throw new Error('--tarball requires exactly one package name.');
   const missing = await unregisteredPackages(selected);
+  if (values['trust-only'] && missing.length) throw new Error(`Register these names with --stage-only before configuring trust: ${missing.map(pkg => pkg.name).join(', ')}`);
   if (values.status) {
     console.log(missing.length ? `New npm packages:\n${missing.map(pkg => `  ${pkg.name}@${pkg.version}`).join('\n')}\n\nRun pnpm packages:onboard ${missing.map(pkg => pkg.name).join(' ')}` : 'All selected package names exist on npm.');
     return;
@@ -139,10 +142,18 @@ Trust and approval use npm's interactive maintainer 2FA. Normal releases stay on
   }
   // Always reconcile the account's pending stages before attempting an upload,
   // including after an interrupted/uncertain previous submission.
-  let staged = JSON.parse(npm(['stage', 'list', '--json']));
+  let staged = values['trust-only'] ? [] : JSON.parse(npm(['stage', 'list', '--json']));
   const entries = [];
   for (const pkg of candidates) {
     let entry = state[pkg.name];
+    if (values['trust-only']) {
+      // Registration may precede fixes and a new release version. Keep the
+      // original staged artifact/ID/hash and let OIDC publish the newer version.
+      entry ??= { version: pkg.version };
+      state[pkg.name] = entry;
+      entries.push({ pkg, entry });
+      continue;
+    }
     if (entry && entry.version !== pkg.version && !entry.completedAt
       && (entry.stageId || entry.submittedAt || entry.submissionStartedAt)) {
       throw new Error(`Finish saved onboarding for ${pkg.name}@${entry.version} before onboarding ${pkg.version}.`);
@@ -247,7 +258,7 @@ Trust and approval use npm's interactive maintainer 2FA. Normal releases stay on
     save();
   }
   for (const { pkg, entry } of entries) {
-    if (entry.stageId && !entry.approvedAt) {
+    if (!values['trust-only'] && entry.stageId && !entry.approvedAt) {
       npm(['stage', 'approve', entry.stageId], true);
       entry.approvedAt = new Date().toISOString();
       save();
@@ -255,8 +266,11 @@ Trust and approval use npm's interactive maintainer 2FA. Normal releases stay on
     const configs = trustConfigurations(pkg.name);
     if (!configs.some(matchingTrust)) throw new Error(`Direct OIDC trust was not confirmed for ${pkg.name}.`);
     entry.completedAt = new Date().toISOString();
+    if (values['trust-only']) entry.completion = 'trust-only';
     save();
-    console.log(`Onboarded ${pkg.name}@${pkg.version}. Subsequent releases use OIDC. npm availability is tracked separately.`);
+    console.log(values['trust-only']
+      ? `Configured direct OIDC trust for ${pkg.name}. Existing staged versions are unchanged.`
+      : `Onboarded ${pkg.name}@${pkg.version}. Subsequent releases use OIDC. npm availability is tracked separately.`);
   }
 }
 
