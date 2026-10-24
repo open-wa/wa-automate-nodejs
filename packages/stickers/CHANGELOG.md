@@ -15,6 +15,12 @@
 
 
 
+
+## 5.9.4
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/api` v5.9.4, `@open-wa/core` v5.9.4, `@open-wa/driver-puppeteer` v5.9.4, `@open-wa/integration-voxtral` v5.9.4
+
 ## 5.9.3
 <sub>2026-10-24</sub>
 

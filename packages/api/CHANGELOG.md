@@ -20,6 +20,13 @@
 
 
 
+
+## 5.9.4
+<sub>2026-10-24</sub>
+
+-  *(patch)*
+  Allow plugins to finish loading after the dashboard or health endpoint is opened without crashing route registration. Preserve plugin host authentication when dispatching requests.
+
 ## 5.9.3
 <sub>2026-10-24</sub>
 

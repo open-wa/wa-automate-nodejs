@@ -20,6 +20,13 @@
 
 
 
+
+## 5.9.4
+<sub>2026-10-24</sub>
+
+-  *(patch)*
+  Let authentication and QR waits use their configured deadlines instead of failing at Puppeteer's default three-minute protocol timeout. Use one native QR stream and renew expired linking cycles in Chrome as well as Lightpanda.
+
 ## 5.9.3
 <sub>2026-10-24</sub>
 

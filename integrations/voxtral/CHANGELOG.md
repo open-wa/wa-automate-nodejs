@@ -5,6 +5,13 @@
 
 
 
+
+## 5.9.4
+<sub>2026-10-24</sub>
+
+-  *(patch)*
+  Convert Mistral's float32 speech PCM to signed 16-bit audio before voice-note encoding and call playback. Preserve split samples across streaming chunks and reject malformed audio instead of sending distorted speech.
+
 ## 5.9.3
 <sub>2026-10-24</sub>
 
