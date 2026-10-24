@@ -28,6 +28,7 @@ export async function encodeVoiceNote(pcm: Uint8Array, signal: AbortSignal): Pro
 export class CallPlayback {
   readonly stream: ReadableStream<Uint8Array>;
   private controller?: ReadableStreamDefaultController<Uint8Array>;
+  private frameRequested = false;
   private frames: Uint8Array[] = [];
   private waiters = new Set<() => void>();
   private timer: ReturnType<typeof setInterval>;
@@ -41,10 +42,13 @@ export class CallPlayback {
   constructor() {
     this.stream = new ReadableStream({
       start: controller => { this.controller = controller; },
+      pull: () => { this.frameRequested = true; },
       cancel: () => this.close(),
-    }, { highWaterMark: 2 });
+    }, { highWaterMark: 0 });
     this.timer = setInterval(() => {
-      if (this.closed || !this.controller || (this.controller.desiredSize ?? 0) <= 0) return;
+      if (this.closed || !this.controller || !this.frameRequested) return;
+      // Keep queued speech in frames, where clear() can discard all of it.
+      this.frameRequested = false;
       this.controller.enqueue(this.frames.shift() ?? new Uint8Array(640));
       for (const wake of this.waiters) wake();
       this.waiters.clear();
