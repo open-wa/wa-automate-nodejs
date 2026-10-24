@@ -1,0 +1,20 @@
+{
+  "name": "@open-wa/create",
+  "version": "5.8.0",
+  "description": "Create an open-wa Easy API or SDK project",
+  "type": "module",
+  "bin": { "create-open-wa": "./bin/create.js" },
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": { "types": "./src/index.d.ts", "default": "./src/index.js" },
+    "./options": { "types": "./src/options.d.ts", "default": "./src/options.js" },
+    "./templates": { "types": "./src/templates.d.ts", "default": "./src/templates.js" },
+    "./browser": { "types": "./src/browser.d.ts", "default": "./src/browser.js" }
+  },
+  "files": ["bin", "src", "LICENSE.md", "README.md"],
+  "engines": { "node": ">=22.21.1" },
+  "dependencies": { "@clack/prompts": "1.8.1" },
+  "publishConfig": { "access": "public" },
+  "repository": { "type": "git", "url": "https://github.com/open-wa/wa-automate-nodejs.git" },
+  "license": "SEE LICENSE IN LICENSE.md"
+}

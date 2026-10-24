@@ -36,6 +36,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@open-wa/create": "workspace:*",
     "@elastic/elasticsearch": "catalog:",
     "@hono/node-server": "catalog:",
     "@open-wa/api": "workspace:*",

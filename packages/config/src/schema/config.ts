@@ -283,6 +283,7 @@ export const ConfigSchema = z.object({
   executablePath: z.string().optional().describe('Path to chrome instance.'),
 
   browser: z.object({
+    source: z.enum(['auto', 'system', 'managed']).optional().describe('Detect a browser and ask when missing, require a system installation, or use only a managed download/cache.'),
     kind: z.enum(['chrome', 'chromium']).optional().describe('Managed browser to download and reuse when no executable path is supplied.'),
     download: z.enum(['auto', 'never']).optional().describe('Automatically provision a missing browser, or require a cached browser for offline deployments.'),
     cacheDirectory: z.string().optional().describe('Browser cache directory. Defaults to Puppeteer configuration and PUPPETEER_CACHE_DIR.'),

@@ -89,6 +89,8 @@ packages/*/generated/
 # Compiled JavaScript files in source directories
 # packages/*/src/**/*.js
 packages/*/src/**/*.d.ts
+# Hand-authored declarations for the JavaScript initializer are source files.
+!/packages/create/src/*.d.ts
 packages/*/src/**/*.map
 apps/*/src/**/*.js
 apps/*/src/**/*.d.ts
