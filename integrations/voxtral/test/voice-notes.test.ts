@@ -18,8 +18,8 @@ async function setup(options: { earlyAck?: boolean; sendError?: boolean; include
   const events = new Map<string, (payload: any) => void>();
   const requests: Array<{ path: string; body: any }> = [];
   const sent: any[][] = [];
-  const pcm = Buffer.alloc(4800);
-  for (let i = 0; i < pcm.length / 2; i++) pcm.writeInt16LE(Math.round(8000 * Math.sin(i / 8)), i * 2);
+  const pcm = Buffer.alloc(9600);
+  for (let i = 0; i < pcm.length / 4; i++) pcm.writeFloatLE(0.25 * Math.sin(i / 8), i * 4);
   globalThis.fetch = (async (input: any, init: any) => {
     const path = new URL(String(input)).pathname;
     const body = init.body instanceof FormData ? init.body : JSON.parse(init.body);

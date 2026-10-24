@@ -12,19 +12,55 @@ function fragmentedSSE(value: string) {
     controller.close();
   } }), { headers: { 'Content-Type': 'text/event-stream' } });
 }
-test('speech streaming decodes split SSE events into unchanged PCM bytes', async () => {
-  const audio = Buffer.from([0, 2, 255, 127, 0, 128]);
+function floatPcm(samples: number[]) {
+  const bytes = Buffer.alloc(samples.length * 4);
+  samples.forEach((sample, index) => bytes.writeFloatLE(sample, index * 4));
+  return bytes;
+}
+const speechSamples = [-2, -1, -0.5, 0, 0.5, 1, 2];
+const speechIntegers = [-32768, -32768, -16384, 0, 16384, 32767, 32767];
+function intSamples(bytes: Buffer) {
+  return Array.from({ length: bytes.length / 2 }, (_, index) => bytes.readInt16LE(index * 2));
+}
+test('speech converts provider float32 PCM into signed 16-bit samples for voice notes', async () => {
+  globalThis.fetch = (async () => Response.json({ audio_data: floatPcm(speechSamples).toString('base64') })) as typeof fetch;
+  const provider = new MistralProvider(() => 'test-only', () => {});
+  const pcm = await provider.speech('Hello', settings, AbortSignal.timeout(1000));
+  expect(intSamples(pcm)).toEqual(speechIntegers);
+});
+test('speech preserves the WAV container returned by the provider', async () => {
+  const wav = Buffer.from('RIFF-test-WAVE');
+  globalThis.fetch = (async () => Response.json({ audio_data: wav.toString('base64') })) as typeof fetch;
+  const provider = new MistralProvider(() => 'test-only', () => {});
+  expect(await provider.speech('Hello', settings, AbortSignal.timeout(1000), 'wav')).toEqual(wav);
+});
+test('speech streaming converts float32 samples split across SSE audio chunks for calls', async () => {
+  const audio = floatPcm(speechSamples);
   let request: any;
   globalThis.fetch = (async (_url: any, init: any) => {
     request = JSON.parse(init.body);
-    return fragmentedSSE(`event: speech.audio.delta\r\ndata: ${JSON.stringify({ audio_data: audio.subarray(0, 3).toString('base64') })}\r\n\r\nevent: speech.audio.delta\r\ndata: ${JSON.stringify({ audio_data: audio.subarray(3).toString('base64') })}\r\n\r\nevent: speech.audio.done\r\ndata: {"usage":{}}\r\n\r\n`);
+    let events = '';
+    for (let at = 0; at < audio.length; at += 3) {
+      events += `event: speech.audio.delta\r\ndata: ${JSON.stringify({ audio_data: audio.subarray(at, at + 3).toString('base64') })}\r\n\r\n`;
+    }
+    return fragmentedSSE(events + 'event: speech.audio.done\r\ndata: {"usage":{}}\r\n\r\n');
   }) as typeof fetch;
   const provider = new MistralProvider(() => 'test-only', () => {});
   const chunks: Uint8Array[] = [];
   for await (const chunk of provider.speechStream('Hello', settings, AbortSignal.timeout(1000))) chunks.push(chunk);
-  expect(Buffer.concat(chunks).equals(audio)).toBe(true);
+  expect(intSamples(Buffer.concat(chunks))).toEqual(speechIntegers);
   expect(request.response_format).toBe('pcm');
   expect(request.stream).toBe(true);
+});
+test('speech rejects invalid float samples and truncated audio instead of sending noise', async () => {
+  const provider = new MistralProvider(() => 'test-only', () => {});
+  for (const audio of [floatPcm([NaN]), floatPcm([Infinity]), Buffer.from([0, 0, 0])]) {
+    globalThis.fetch = (async () => Response.json({ audio_data: audio.toString('base64') })) as typeof fetch;
+    await expect(provider.speech('Hello', settings, AbortSignal.timeout(1000))).rejects.toThrow('PCM');
+  }
+  globalThis.fetch = (async () => fragmentedSSE('event: speech.audio.delta\ndata: {"audio_data":"AAAA"}\n\nevent: speech.audio.done\ndata: {}\n\n')) as typeof fetch;
+  const consume = async () => { for await (const _chunk of provider.speechStream('Hello', settings, AbortSignal.timeout(1000))) {} };
+  await expect(consume()).rejects.toThrow('PCM');
 });
 test('answer streaming preserves split Unicode text and records token usage', async () => {
   const usage: any[] = [];
