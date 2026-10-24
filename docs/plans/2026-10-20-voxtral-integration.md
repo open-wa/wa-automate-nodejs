@@ -1,13 +1,46 @@
 # Official Voxtral integration
 
-Status: implemented on 20 October 2026; prepared for publication on 23 October.
-The actual Easy API process loaded
-and registered the plugin, and Neo rendered its page and assistant settings
-sheet. The local preview has neither a paired WhatsApp session nor a Mistral
-key, so voice-note exchanges, provider audio, live calls, acknowledgements, and
-human takeover have not been exercised end to end. No tests, standalone typechecks, or lint checks were run. Publication artifact
-builds are part of the authorized release. Package and guide availability must
-be confirmed from the registry and live documentation after deployment.
+Status: implemented on 20 October 2026; runtime checks and fixes added on
+24 October. Publication remains on hold for the requested live acceptance work.
+The actual Easy API process loads and registers the plugin in Both mode, but
+the current test session needs QR pairing and has no Mistral API key. The signed-in
+Mistral console disables key creation and requires an account upgrade, despite
+the public setup guide describing Free API access. No real Mistral exchange or
+WhatsApp voice-note/call conversation has been accepted in this run.
+
+## Runtime evidence, 24 October 2026
+
+`bun test integrations/voxtral/test` passes 14 tests across four files, with
+44 assertions. `pnpm --filter @open-wa/integration-voxtral build` also succeeds.
+These checks use simulated Mistral and WhatsApp boundaries; they do not prove
+live provider access, recipient playback, or physical call acceptance.
+
+- Voice notes exercise the real service, provider request builder and bundled
+  encoder through transcription, contextual answer, Ogg Opus submission, delivery
+  events, duplicate suppression and an unknown send outcome.
+- Audio checks verify the actual Ogg Opus encoder and byte-identical 24 kHz to
+  16 kHz resampling across odd network chunk boundaries.
+- Calls use a real local WebSocket connection to exercise session configuration,
+  incoming PCM, turn completion, non-silent output frames, interruption, human
+  takeover/observer cleanup, and provider disconnect recovery state.
+- Provider checks exercise fragmented SSE audio, split Unicode answer text,
+  token accounting, and actionable errors without exposing provider bodies.
+
+Two failures reproduced before fixes and now pass as regressions: delivery
+events received before a send returns its message ID were lost, and interruption
+left old speech in the ReadableStream's internal queue. A bounded acknowledgement
+cache preserves early delivery state; demand-driven playback keeps all queued
+speech in the buffer that interruption clears.
+
+The first encoder attempt also exposed a local setup issue from the earlier
+script-skipping dependency install. Running ffmpeg-static's normal installer
+restored the binary; the lazy plugin installer already allows install scripts.
+
+Remaining live acceptance: load a Mistral key from Keychain, pair the licensed
+test account, exchange two-way voice notes and follow-ups with the test peer,
+then exercise incoming/outgoing calls, interruption, takeover and assistant
+return while confirming audio on the other phone. The fresh-folder published
+initializer/Easy API/SDK checks remain pending registry availability.
 
 ## Customer contract
 
