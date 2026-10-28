@@ -24,6 +24,14 @@
 
 
 
+
+## 5.10.0
+<sub>2026-10-28</sub>
+
+-  *(patch)*
+  Let authentication and QR waits use their configured deadlines instead of failing at Puppeteer's default three-minute protocol timeout. Use one native QR stream and renew expired linking cycles in Chrome as well as Lightpanda.
+- *(minor)* Version bump from group with `@open-wa/api` v5.10.0, `@open-wa/client` v5.10.0, `@open-wa/config` v5.10.0, `@open-wa/core` v5.10.0, `@open-wa/create` v5.10.0, `@open-wa/integration-jev` v5.7.0, `@open-wa/integration-voxtral` v5.10.0, `@open-wa/plugin-sdk` v5.10.0, `@open-wa/schema` v5.10.0, `@open-wa/socket-client` v5.10.0, `@open-wa/wa-automate` v5.10.0
+
 ## 5.9.7
 <sub>2026-10-24</sub>
 

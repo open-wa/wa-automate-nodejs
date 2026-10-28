@@ -24,6 +24,23 @@
 
 
 
+
+## 5.10.0
+<sub>2026-10-28</sub>
+
+-  *(minor)*
+  Add host hooks before plugin event handlers and action dispatch. Use hooks.chatFilter.allow to restrict named callbacks, catch-all callbacks, direct subscriptions, messages, interactive replies and calls to explicit chat IDs. Validate scope in SDK and Easy API mode, retain it on bound call methods, and reject unknown operations under a chat restriction. Replace the unused messagePreprocessor and preprocFilter options with hooks.
+
+  Forward existing patch-cache and patch-source configuration through the Easy API launcher so cached runtime patches remain usable during a download outage.
+-  *(minor)*
+  Create Easy API and SDK projects through npm init @open-wa with shared JS/TS,
+  browser, plugin and Voxtral options. Add the matching docs-site project builder
+  with copyable commands, file previews and shareable settings.
+-  *(patch)*
+  Install missing configured npm plugins on demand and reuse their local cache.
+  Load JavaScript and TypeScript config files with the same module handling, and
+  simplify Voxtral setup to a config entry without a separate plugin installation.
+
 ## 5.9.7
 <sub>2026-10-24</sub>
 

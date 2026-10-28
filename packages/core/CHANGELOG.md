@@ -24,6 +24,51 @@
 
 
 
+
+## 5.10.0
+<sub>2026-10-28</sub>
+
+-  *(minor)*
+  Install missing configured npm plugins on demand and reuse their local cache.
+  Load JavaScript and TypeScript config files with the same module handling, and
+  simplify Voxtral setup to a config entry without a separate plugin installation.
+-  *(minor)*
+  Add a standalone Jev chat assistant and share its decision/action engine with Voxtral. Enforce booking correction masks, retain literal source spans and decision distributions, and resolve dates in the agreed timezone from a captured turn instant. Add Neo controls, shared conversation services, and matching terminal/docs builder options.
+
+  Export the plugin SDK for both ESM and CommonJS consumers. Treat recorded conversation memory as valid reply evidence and remove submitted formats from the current turn’s action choices so completed requests finish without duplicate attempts. Classify each requested message format independently and retain unfinished formats across the turn, while keeping irrelevant fan-out facts out of conversational prompts. Retire superseded call responses before new playback and queue a bounded two-packet lead to absorb brief browser RPC stalls.
+
+  Make decision routing aware of the response channel, retain explicit AM/PM punctuation from speech, give multi-format requests bounded repair capacity per format, and narrow correction fields again during proposal review. Preserve hydrated call method descriptors when applying chat-scope hooks.
+
+  After an interruption or changed question, answer the latest request without resuming the interrupted explanation.
+-  *(minor)*
+  Add host hooks before plugin event handlers and action dispatch. Use hooks.chatFilter.allow to restrict named callbacks, catch-all callbacks, direct subscriptions, messages, interactive replies and calls to explicit chat IDs. Validate scope in SDK and Easy API mode, retain it on bound call methods, and reject unknown operations under a chat restriction. Replace the unused messagePreprocessor and preprocFilter options with hooks.
+
+  Forward existing patch-cache and patch-source configuration through the Easy API launcher so cached runtime patches remain usable during a download outage.
+-  *(minor)*
+  Add the official Voxtral assistant for conversational WhatsApp voice notes and
+  live audio calls, with a plugin-provided Neo dashboard page, saved settings,
+  voice preview, conversation context, and shared call controls.
+
+  Show transcripts, assistant status, and per-chat controls in Neo's normal Chat
+  feed through plugin-provided chat components.
+
+  Load configured plugins in Easy API and expose host-side media/calling services
+  to plugins. Plugin pages can supply native page modules and request host route
+  authentication.
+-  *(patch)* - Preserve serialized message IDs in acknowledgement events so voice-note delivery state updates correctly.
+-  *(patch)*
+  Allow plugins to receive interactive button, list and form replies through the public event gateway, so Voxtral can acknowledge a recipient's selection in a voice note or active call.
+-  *(patch)*
+  Let authentication and QR waits use their configured deadlines instead of failing at Puppeteer's default three-minute protocol timeout. Use one native QR stream and renew expired linking cycles in Chrome as well as Lightpanda.
+-  *(patch)*
+  - 🐛 Report background session checkpoint failures through the SDK logger, including bounded schema-mismatch details without credential values. Track the persistence failure in [#3562](https://github.com/open-wa/wa-automate-nodejs/issues/3562).
+-  *(patch)*
+  Restore native initial-history completion before socket launch so a completed saved history does not wait for a second initial transfer. [#3562](https://github.com/open-wa/wa-automate-nodejs/issues/3562)
+-  *(patch)*
+  Fix session saves on the current WhatsApp build by reading native migration state directly and preserving the identity store's account encryption state. Preserve saved sessions when startup probes or authentication time out. [#3562](https://github.com/open-wa/wa-automate-nodejs/issues/3562)
+-  *(patch)*
+  Return a native logout during startup to fresh WhatsApp pairing instead of replaying the rejected checkpoint. Keep startup authentication as the single owner of its browser reset. [#3550](https://github.com/open-wa/wa-automate-nodejs/issues/3550), [#3562](https://github.com/open-wa/wa-automate-nodejs/issues/3562)
+
 ## 5.9.7
 <sub>2026-10-24</sub>
 
