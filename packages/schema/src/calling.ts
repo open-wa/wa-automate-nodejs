@@ -10,6 +10,7 @@ export const MediaDescriptorSchema = Schema.Struct({
 export const CallMediaOptionsSchema = Schema.Struct({
   microphone: Schema.optional(Schema.Unknown), speaker: Schema.optional(Schema.Unknown), camera: Schema.optional(Schema.Unknown),
   onMediaFailure: Schema.optional(Schema.Literals(['end', 'keep-open'])),
+  takeover: Schema.optional(Schema.Boolean),
 });
 export const CallIdentitySchema = Schema.Struct({
   id: Schema.String,

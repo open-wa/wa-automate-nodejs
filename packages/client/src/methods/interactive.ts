@@ -1,11 +1,11 @@
 import type { Client } from '../Client';
 import {
   SendInteractiveInputSchema, SendRawMessageInputSchema, fileToDataUrlCodec,
-  type InteractiveContent, type InteractiveHeader, type JsonValue, type MessageId,
+  type InteractiveContent, type DecodedInteractiveContent, type InteractiveHeader, type JsonValue, type MessageId,
 } from '@open-wa/schema';
 
 declare const WAPI: {
-  sendInteractive?: (to: string, content: InteractiveContent) => Promise<string>;
+  sendInteractive?: (to: string, content: DecodedInteractiveContent) => Promise<string>;
   sendRawMessage?: (to: string, payload: Record<string, JsonValue>) => Promise<string>;
 };
 
@@ -21,7 +21,7 @@ function containsSticker(value: JsonValue | undefined): boolean {
 }
 
 async function invokeSender(client: Client, request:
-  | { method: 'sendInteractive'; to: string; content: InteractiveContent }
+  | { method: 'sendInteractive'; to: string; content: DecodedInteractiveContent }
   | { method: 'sendRawMessage'; to: string; payload: Record<string, JsonValue> }
 ): Promise<MessageId> {
   const result = await client.evaluate(async input => {
@@ -61,7 +61,6 @@ export function interactiveMethods(client: Client): InteractiveMethods {
   return {
     async sendInteractive(to, content) {
       const input = SendInteractiveInputSchema.parse({ to, content });
-      // Work on parsed copies so callers can reuse their builder documents.
       if ('header' in input.content && input.content.header) {
         input.content.header = await resolveHeader(input.content.header, 'content.header');
       }

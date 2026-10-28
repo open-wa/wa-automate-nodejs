@@ -103,14 +103,14 @@ function uniqueStrings(values: Array<string | undefined>): string[] {
 
 function schemaToJsonSchema(schema: z.ZodTypeAny): JsonSchema {
   const serializableSchema = schema as z.ZodTypeAny & {
-    toJSONSchema?: (params?: { target?: string }) => unknown;
+    toJSONSchema?: (params?: { target?: string; io?: 'input' | 'output'; unrepresentable?: 'any' }) => unknown;
   };
 
   if (typeof serializableSchema.toJSONSchema !== 'function') {
     return {};
   }
 
-  return serializableSchema.toJSONSchema({ target: 'openapi-3.0' }) as JsonSchema;
+  return serializableSchema.toJSONSchema({ target: 'openapi-3.0', io: 'input', unrepresentable: 'any' }) as JsonSchema;
 }
 
 function getInputShape(def: MethodDefinition): Record<string, z.ZodTypeAny> {
@@ -258,7 +258,7 @@ function summarizeZodType(schema: z.ZodTypeAny, depth = 0): string {
   if (depth > 6 || !schema) return 'any';
   const def = ((schema as { def?: unknown; _def?: unknown }).def ??
     (schema as { _def?: unknown })._def) as
-    | { type?: string; options?: z.ZodTypeAny[]; element?: z.ZodTypeAny; innerType?: z.ZodTypeAny; shape?: Record<string, z.ZodTypeAny>; values?: unknown[] }
+    | { type?: string; options?: z.ZodTypeAny[]; element?: z.ZodTypeAny; innerType?: z.ZodTypeAny; in?: z.ZodTypeAny; shape?: Record<string, z.ZodTypeAny>; values?: unknown[] }
     | undefined;
   const type = def?.type;
 
@@ -285,9 +285,12 @@ function summarizeZodType(schema: z.ZodTypeAny, depth = 0): string {
     case 'nullable':
     case 'default':
     case 'brand':
-    case 'pipe':
     case 'readonly':
       return def?.innerType ? summarizeZodType(def.innerType, depth + 1) : 'any';
+    case 'pipe':
+      return def?.in ? summarizeZodType(def.in, depth + 1) : 'unknown';
+    case 'custom':
+      return schema._zod.bag.Class === Buffer ? 'Buffer' : 'unknown';
     case 'enum':
       return (def?.values ?? []).map((v) => JSON.stringify(v)).join(' | ') || 'string';
     default:
@@ -505,6 +508,7 @@ function responseValue(schema: z.ZodType, depth = 0): unknown {
     case 'literal': return [...def.values][0];
     case 'enum': return Object.values(def.entries)[0];
     case 'union': return responseValue(def.options[0], depth + 1);
+    case 'pipe': return responseValue(def.out, depth + 1);
     case 'optional': case 'nullable': case 'default': case 'readonly': return responseValue(def.innerType, depth + 1);
     case 'object': return Object.fromEntries(Object.entries(def.shape).filter(([, value]) => !(value as z.ZodType).isOptional()).map(([key, value]) => [key, responseValue(value as z.ZodType, depth + 1)]));
     case 'record': return {};
@@ -1251,7 +1255,8 @@ console.log(`Successfully generated Client API reference docs: ${methods.length}
 const modelPages = Object.entries(namedSchemas).map(([name, schema]) => {
   const def = schema._zod.def as any;
   const related = Object.entries(typeLinks(describeType(schema, true))).filter(([n]) => n !== name).map(([n, url]) => `[${n}](${url})`).join(', ');
-  const lines = [`## ${name}`, '', schema.description ?? '', '', '<details>', '<summary>Type declaration</summary>', '', '```ts', `type ${name} = ${describeType(schema, true)}`, '```', '', '</details>', '', related ? `Related types: ${related}` : '', ''];
+  const description = schema.description ?? z.toJSONSchema(schema, { unrepresentable: 'any' }).description ?? '';
+  const lines = [`## ${name}`, '', description, '', '<details>', '<summary>Type declaration</summary>', '', '```ts', `type ${name} = ${describeType(schema, true)}`, '```', '', '</details>', '', related ? `Related types: ${related}` : '', ''];
   if (def.type === 'object') {
     lines.push('| Field | Type | Required |', '| --- | --- | --- |');
     for (const [field, value] of Object.entries(def.shape)) {

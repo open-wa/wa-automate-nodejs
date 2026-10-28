@@ -1,12 +1,12 @@
 import { Schema } from 'effect';
 import { z } from 'zod';
 import { defineMethodV2 } from '../registry';
-import { projectEffectSchema } from '../effect-projection';
+import { projectEffectSchema, type SyncEffectSchema } from '../effect-projection';
 import { CallActionResultSchema, CallCapabilitiesSchema, CallMediaOptionsSchema, CallIdentitySchema, CallSnapshotSchema } from '../calling';
 
 const media = Schema.optional(Schema.Unknown);
 const actionInput = Schema.Struct({ call: CallIdentitySchema, media: Schema.optional(CallMediaOptionsSchema) });
-const register = (name: string, input: Schema.Top, output: Schema.Top, parameters: string[], description: string) => defineMethodV2(name, {
+const register = (name: string, input: SyncEffectSchema, output: SyncEffectSchema, parameters: string[], description: string) => defineMethodV2(name, {
   meta: { namespace: 'calls', action: 'update', httpMethod: 'POST', license: name === 'getCallCapabilities' ? 'none' : 'restricted', functionality: 'both', description },
   input: projectEffectSchema(input) as z.ZodObject<any>, parameterOrder: parameters, output: projectEffectSchema(output),
 });
