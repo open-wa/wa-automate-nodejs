@@ -81,12 +81,12 @@ type ContactId = string
 <summary>Type declaration</summary>
 
 ```ts
-type Contact = { id: ContactId; name?: string; shortName?: string; pushname?: string; formattedName?: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; msgs?: unknown[] | null; profilePicThumbObj?: { eurl?: string; id?: Id; img?: string; imgFull?: string; tag?: string }; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string; isOnline?: boolean; lastSeen?: number }
+type Contact = { id: ContactId; name?: string; shortName?: string; pushname?: string; formattedName?: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; msgs?: unknown[] | null; profilePicThumbObj?: { eurl?: string; id?: ContactId; img?: string; imgFull?: string; tag?: string }; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string; isOnline?: boolean; lastSeen?: number }
 ```
 
 </details>
 
-Related types: [ContactId](/docs/reference/client/return-types#contactid), [Id](/docs/reference/client/return-types#id)
+Related types: [ContactId](/docs/reference/client/return-types#contactid)
 
 | Field | Type | Required |
 | --- | --- | --- |
@@ -104,7 +104,7 @@ Related types: [ContactId](/docs/reference/client/return-types#contactid), [Id](
 | `isWAContact` | `boolean` | No |
 | `labels` | `string[]` | No |
 | `msgs` | `unknown[] \| null` | No |
-| `profilePicThumbObj` | `{ eurl?: string; id?: Id; img?: string; imgFull?: string; tag?: string }` — [Id](/docs/reference/client/return-types#id) | No |
+| `profilePicThumbObj` | `{ eurl?: string; id?: ContactId; img?: string; imgFull?: string; tag?: string }` — [ContactId](/docs/reference/client/return-types#contactid) | No |
 | `statusMute` | `boolean` | No |
 | `type` | `string` | No |
 | `verifiedLevel` | `number` | No |
@@ -785,12 +785,12 @@ Provisional number profile based on the public Contact fields. Fields are option
 <summary>Type declaration</summary>
 
 ```ts
-type NumberProfile = { id?: ContactId; name?: string | undefined; shortName?: string | undefined; pushname?: string | undefined; formattedName?: string | undefined; isBusiness?: boolean | undefined; isEnterprise?: boolean | undefined; isMe?: boolean | undefined; isMyContact?: boolean | undefined; isPSA?: boolean | undefined; isUser?: boolean | undefined; isWAContact?: boolean | undefined; labels?: string[] | undefined; msgs?: unknown[] | null | undefined; profilePicThumbObj?: { eurl?: string; id?: Id; img?: string; imgFull?: string; tag?: string } | undefined; statusMute?: boolean | undefined; type?: string | undefined; verifiedLevel?: number | undefined; verifiedName?: string | undefined; isOnline?: boolean | undefined; lastSeen?: number | undefined }
+type NumberProfile = { id?: ContactId; name?: string | undefined; shortName?: string | undefined; pushname?: string | undefined; formattedName?: string | undefined; isBusiness?: boolean | undefined; isEnterprise?: boolean | undefined; isMe?: boolean | undefined; isMyContact?: boolean | undefined; isPSA?: boolean | undefined; isUser?: boolean | undefined; isWAContact?: boolean | undefined; labels?: string[] | undefined; msgs?: unknown[] | null | undefined; profilePicThumbObj?: { eurl?: string; id?: ContactId; img?: string; imgFull?: string; tag?: string } | undefined; statusMute?: boolean | undefined; type?: string | undefined; verifiedLevel?: number | undefined; verifiedName?: string | undefined; isOnline?: boolean | undefined; lastSeen?: number | undefined }
 ```
 
 </details>
 
-Related types: [ContactId](/docs/reference/client/return-types#contactid), [Id](/docs/reference/client/return-types#id)
+Related types: [ContactId](/docs/reference/client/return-types#contactid)
 
 | Field | Type | Required |
 | --- | --- | --- |
@@ -808,7 +808,7 @@ Related types: [ContactId](/docs/reference/client/return-types#contactid), [Id](
 | `isWAContact` | `boolean \| undefined` | No |
 | `labels` | `string[] \| undefined` | No |
 | `msgs` | `unknown[] \| null \| undefined` | No |
-| `profilePicThumbObj` | `{ eurl?: string; id?: Id; img?: string; imgFull?: string; tag?: string } \| undefined` — [Id](/docs/reference/client/return-types#id) | No |
+| `profilePicThumbObj` | `{ eurl?: string; id?: ContactId; img?: string; imgFull?: string; tag?: string } \| undefined` — [ContactId](/docs/reference/client/return-types#contactid) | No |
 | `statusMute` | `boolean \| undefined` | No |
 | `type` | `string \| undefined` | No |
 | `verifiedLevel` | `number \| undefined` | No |

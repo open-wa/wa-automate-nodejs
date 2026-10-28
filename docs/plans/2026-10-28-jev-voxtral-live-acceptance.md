@@ -141,3 +141,25 @@ The actual received PCM recording is `final-call-outgoing-received.wav`.
 `outgoing-reconnect-after-provider-tls.json` preserves the manual recovery.
 Do not replay the whole batch to address those limits; repeat only the directly
 affected response-failure/recovery or interruption check after its fix.
+
+## Release follow-up
+
+The answer-failure fix now keeps the transcription socket open, reports the
+failed answer, and permits a new caller turn without reconnecting or replaying
+an action. The focused WebSocket regression was observed failing before the fix
+and passing afterward; the directly affected recovery/interruption checks passed
+(4 tests, 16 assertions). Existing client fixtures were updated for the current
+transport-owned session finalization/logout contract (23 client tests passed).
+
+The initial latest-turn instruction alone did not stop the answer model from
+appending old preparation advice. Jev response review now evaluates the whole
+reply against the latest request, including abandoned explanations. A real Jev
+provider check rejected the captured stale continuation with probability 1 and
+accepted the concise drinks-only reply with probability 1. This provider check
+is distinct from a new physical-call listening result; no claim of perfect ASR
+or human-verified sound quality is made for this build. Receiver recordings and
+prior call interaction receipts remain the native transport evidence.
+
+The protected runtime was uploaded and selected in production, and the live
+license endpoint returned that release. Public packages are prepared as 5.10.0;
+registry publication and editorial publication must be recorded separately.
