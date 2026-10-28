@@ -6,6 +6,45 @@ import { createPlugin } from '@open-wa/plugin-sdk';
 import type { PluginClient, PluginInput } from '../../src/plugins/types';
 import type { OpenWAEventMap } from '../../src/events/eventMap';
 
+describe('shared plugin service lifetime', () => {
+  it('shares one instance across plugins and disposes it after both consumers', async () => {
+    const host = new PluginHost(createTestEvents(), createTestLogger());
+    const options = createRegisterOptions(), order: string[] = [], values: unknown[] = [];
+    let serviceSignal: AbortSignal | undefined;
+    const factory = vi.fn(async (signal: AbortSignal) => {
+      serviceSignal = signal;
+      return { value: { journal: new Map() }, dispose: () => { order.push('shared'); } };
+    });
+    for (const name of ['jev-consumer', 'voice-consumer']) {
+      await host.register(createTestPlugin(name, async input => {
+        values.push(await input.services.getOrCreate('conversation', factory));
+        return { dispose: () => { order.push(name); expect(input.signal.aborted).toBe(true); } };
+      }), options);
+    }
+    expect(factory).toHaveBeenCalledTimes(1);
+    expect(values[0]).toBe(values[1]);
+    await host.dispose();
+    expect(serviceSignal?.aborted).toBe(true);
+    expect(order).toEqual(['voice-consumer', 'jev-consumer', 'shared']);
+  });
+
+  it('removes a failed initialization so a later consumer can create the service', async () => {
+    const host = new PluginHost(createTestEvents(), createTestLogger()), options = createRegisterOptions();
+    await expect(host.register(createTestPlugin('bad-consumer', async input => {
+      await input.services.getOrCreate('conversation', async () => { throw new Error('Initialization failed'); });
+      return {};
+    }), options)).rejects.toThrow('Initialization failed');
+    const dispose = vi.fn();
+    await host.register(createTestPlugin('good-consumer', async input => {
+      const value = await input.services.getOrCreate('conversation', async () => ({ value: 'ready', dispose }));
+      expect(value).toBe('ready');
+      return {};
+    }), options);
+    await host.dispose();
+    expect(dispose).toHaveBeenCalledTimes(1);
+  });
+});
+
 function createTestEvents(): HyperEmitter<OpenWAEventMap> {
   return new HyperEmitter<OpenWAEventMap>({ delimiter: '.', captureRejections: true });
 }

@@ -1,7 +1,7 @@
 import { SessionScope } from '@open-wa/runtime-core';
 import type { CallIdentity, CallMediaOptions } from '@open-wa/schema';
 
-export interface RemoteMediaRequest { call?: CallIdentity; to?: string; mode: 'accept' | 'start' | 'replace' | 'observe'; microphone: boolean; speaker: boolean; replacesId?: string; onMediaFailure?: 'end' | 'keep-open'; }
+export interface RemoteMediaRequest { call?: CallIdentity; to?: string; mode: 'accept' | 'start' | 'replace' | 'observe'; microphone: boolean; speaker: boolean; replacesId?: string; takeover?: boolean; onMediaFailure?: 'end' | 'keep-open'; }
 export interface RemoteAudioConnection { send(bytes: Uint8Array, timestampMs?: number): Promise<void>; activate(callId: string): void; close(): void; }
 const INPUT_BUFFER_BYTES = 16_000 * 2 * 0.2;
 export class RemoteMediaReservation {
@@ -12,6 +12,7 @@ export class RemoteMediaReservation {
   readonly output: WritableStream<Uint8Array>;
   consumed = false;
   claimed = false;
+  replacesAttachmentId?: string;
   connection?: RemoteAudioConnection;
   outputTimestampMs?: number;
   private controller?: ReadableStreamDefaultController<Uint8Array>;

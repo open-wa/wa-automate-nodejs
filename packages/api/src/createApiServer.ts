@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { createAdaptorServer, upgradeWebSocket } from '@hono/node-server';
+import { getConnInfo } from '@hono/node-server/conninfo';
 import { createServer, type Server } from 'node:http';
 import { WebSocketServer } from 'ws';
 import { getHttpMethodDefinitions, type Config } from '@open-wa/schema';
@@ -58,6 +59,7 @@ export class ApiServer {
   private dashboardDevServer?: { close(): Promise<void> };
   private isDashboardActive: boolean = false;
   private pluginHost?: PluginHost;
+  private pluginApp = new Hono();
   private healthStore: HealthStore = new HealthStore();
   private diagnosticStore: DiagnosticStore = new DiagnosticStore();
   private eventBroadcaster: EventBroadcaster;
@@ -187,11 +189,28 @@ export class ApiServer {
    */
   public mountPlugins(pluginHost: PluginHost): void {
     this.pluginHost = pluginHost;
+    const pluginApp = new Hono();
 
     // Mount each plugin's routes at /plugins/<name>/
-    for (const { name, router } of pluginHost.getRoutes()) {
-      this.app.route(`/plugins/${name}`, router);
+    for (const { name, router, routeAuth } of pluginHost.getRoutes()) {
+      if (routeAuth === 'host') {
+        pluginApp.use(`/plugins/${name}/*`, async (c, next) => {
+          if (this.config.apiKey) {
+            if (c.req.header('X-API-Key') !== this.config.apiKey) return c.json({ error: 'Invalid or missing API key.' }, 401);
+          } else {
+            const address = getConnInfo(c).remote.address;
+            if (!['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address ?? '')) {
+              return c.json({ error: 'Configure an Easy API key for remote plugin access.' }, 401);
+            }
+            const origin = c.req.header('Origin');
+            if (origin && origin !== new URL(c.req.url).origin) return c.json({ error: 'Cross-origin plugin access requires an API key.' }, 403);
+          }
+          await next();
+        });
+      }
+      pluginApp.route(`/plugins/${name}`, router);
     }
+    this.pluginApp = pluginApp;
   }
 
   public async start() {
@@ -337,6 +356,9 @@ export class ApiServer {
     this.app.get('/plugins/manifest', (c) =>
       c.json(this.pluginHost?.getManifest() ?? { plugins: [] }),
     );
+    // The host router can already be serving health/dashboard requests while
+    // plugins initialize. Swap the delegate instead of mutating its matcher.
+    this.app.all('/plugins/*', (c) => this.pluginApp.fetch(c.req.raw, c.env));
 
     this.app.get('/health', (c) => {
       const healthSnapshot = this.healthStore.getSnapshot();

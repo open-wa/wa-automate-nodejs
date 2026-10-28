@@ -265,6 +265,76 @@ afterEach(() => {
 });
 
 describe('Transport launch/config plumbing', () => {
+  it('publishes native QR refreshes and renews an expired linking cycle', async () => {
+    vi.useFakeTimers();
+    const page = new TestPage();
+    const events = createEvents();
+    const driver = new CaptureDriver(new TestBrowser(page));
+    Object.defineProperty(driver, 'name', { value: 'puppeteer' });
+    const transport = new Transport({ driver, events, logger: createLogger() });
+    (transport as any).page = page;
+    vi.spyOn(page, 'evaluateScript')
+      .mockResolvedValueOnce('native-first')
+      .mockResolvedValueOnce({ state: 'UNPAIRED', qr: 'native-second' })
+      .mockResolvedValueOnce({ state: 'UNPAIRED_IDLE', qr: null })
+      .mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ state: 'UNPAIRED', qr: 'native-third' });
+    try {
+      expect(await transport.waitForQr()).toBe('native-first');
+      await vi.advanceTimersByTimeAsync(3000);
+      const generated = (events.emit as any).mock.calls.filter(([event]: string[]) => event === 'launch.auth.qr.generated');
+      expect(generated.map(([, payload]: any[]) => payload.details.qr)).toEqual(['native-first', 'native-second', 'native-third']);
+      expect(events.emit).toHaveBeenCalledWith('launch.auth.qr.expired', expect.any(Object));
+      expect(page.evaluateScript).toHaveBeenCalledWith(expect.stringContaining('resetLinkDeviceState'));
+    } finally {
+      (transport as any).stopQrWatcher();
+      vi.useRealTimers();
+    }
+  });
+
+  it('returns a native logout during startup to fresh pairing instead of replaying the checkpoint', async () => {
+    const page = new TestPage();
+    const transport = new Transport({ driver: new CaptureDriver(new TestBrowser(page)),
+      events: createEvents(), logger: createLogger() });
+    (transport as any).page = page;
+    (transport as any).portable = { hasCheckpoint: true };
+    vi.spyOn(page, 'url').mockReturnValue('https://web.whatsapp.com/?post_logout=1');
+    const reset = vi.spyOn(transport, 'resetSessionForPairing').mockResolvedValue();
+    const navigate = vi.spyOn(transport, 'navigate').mockResolvedValue();
+
+    await expect(transport.waitForInjectableSession()).resolves.toBe(true);
+    expect(reset).toHaveBeenCalledWith('native_logout');
+    expect(navigate).toHaveBeenCalledOnce();
+  });
+
+  it('retains a saved checkpoint when the startup probe fails', async () => {
+    const page = new TestPage();
+    const transport = new Transport({ driver: new CaptureDriver(new TestBrowser(page)),
+      events: createEvents(), logger: createLogger() });
+    const failure = new Error('Protocol wait timed out');
+    vi.spyOn(page, 'waitForFunction').mockRejectedValue(failure);
+    (transport as any).page = page;
+    (transport as any).portable = { hasCheckpoint: true };
+    const reset = vi.spyOn(transport, 'resetSessionForPairing').mockResolvedValue();
+    vi.spyOn(transport, 'navigate').mockResolvedValue();
+
+    await expect(transport.waitForInjectableSession()).rejects.toBe(failure);
+    expect(reset).not.toHaveBeenCalled();
+  });
+
+  it('retains a saved checkpoint when authentication times out', async () => {
+    const transport = new Transport({ driver: new CaptureDriver(new TestBrowser(new TestPage())),
+      events: createEvents(), logger: createLogger(), authTimeoutMs: 1 });
+    (transport as any).page = new TestPage();
+    (transport as any).portable = { hasCheckpoint: true };
+    vi.spyOn(transport, 'isAuthenticated').mockImplementation(() => new Promise(() => {}));
+    vi.spyOn(transport as any, 'waitForPhoneOutOfReach').mockResolvedValue(false);
+    const reset = vi.spyOn(transport, 'resetSessionForPairing').mockRejectedValue(new Error('Unexpected checkpoint reset'));
+
+    await expect(transport.waitForAuthentication()).resolves.toMatchObject({ outcome: 'auth_timeout', qrSeen: false });
+    expect(reset).not.toHaveBeenCalled();
+  });
+
   it('reads the host ID from the live patch when Store.Conn.me is unavailable', async () => {
     const page = new TestPage();
     const transport = new Transport({

@@ -37,6 +37,7 @@ import {
 
 import type { SessionPersistenceConfig } from './transport/sessionPersistence';
 import type { SessionEncryptionOptions } from './transport/sessionEncryption';
+import type { HostHooks } from '@open-wa/config';
 
 export interface CreateClientOptions extends SessionPersistenceConfig, SessionEncryptionOptions {
   driver: IDriver;
@@ -68,6 +69,8 @@ export interface CreateClientOptions extends SessionPersistenceConfig, SessionEn
    * @example { "chatwoot": { apiUrl: "...", token: "..." } }
    */
   pluginConfig?: Record<string, unknown>;
+  /** Operator-owned pre-dispatch hooks and plugin chat restrictions. */
+  hooks?: HostHooks;
 
   sessionStore?: SessionStore;
   debug?: boolean;
@@ -286,7 +289,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     callMediaHost: options.callMediaHost,
   });
 
-  const pluginHost = new PluginHost(events, logger);
+  const pluginHost = new PluginHost(events, logger, options.hooks);
   const resourceScope = await SessionScope.make({
     observability,
     metricAttributes: { session: sessionId },
@@ -401,7 +404,7 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
     async start() {
       try {
       events.emit('core.starting', { config: {
-        ...options, sessionDataEncryptionKey: undefined, sessionDataEncryptionKeyFile: undefined,
+        ...options, sessionDataEncryptionKey: undefined, sessionDataEncryptionKeyFile: undefined, pluginConfig: undefined,
       } });
 
       if (options.sessionAdmission && !admissionAcquired) {
@@ -438,8 +441,8 @@ export async function createClient(options: CreateClientOptions): Promise<OpenWA
       }
 
       await transport.injectWapi({ reuseCachedPatches: false });
-      const account = await transport.getSessionDebugInfo().catch(() => undefined);
       const installation = await installDocumentRuntime(transport, earlyLivePatchPreload, async () => {
+        const account = await transport.getSessionDebugInfo().catch(() => undefined);
         const key = transport.getEffectiveLicenseKey() ?? earlyLicensePreload.artifact?.key ?? options.licenseKey;
         return account?.hostNumber
           ? transport.preloadLicenseArtifact({ sessionId, licenseKey: key, sessionInfo: account })

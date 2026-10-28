@@ -359,7 +359,7 @@ export const OpenWAEventMetaMap: Record<keyof OpenWAEventMap, OpenWAEventMeta> =
 
   'message.received': { internal: false, sensitive: false },
   'message.any': { internal: false, sensitive: false },
-  'interactive.response': { internal: false, sensitive: true },
+  'interactive.response': { internal: false, sensitive: false },
   'poll.vote': { internal: false, sensitive: true },
   'event.changed': { internal: false, sensitive: true },
   'event.response': { internal: false, sensitive: true },

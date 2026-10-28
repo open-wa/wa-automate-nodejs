@@ -1,7 +1,5 @@
 import type { Context, Next } from 'hono';
 
-const requests = new Map<string, number[]>();
-
 function getRequestKey(c: Context): string {
   const forwarded = c.req.header('x-forwarded-for');
 
@@ -13,6 +11,7 @@ function getRequestKey(c: Context): string {
 }
 
 export function rateLimitMiddleware(maxRequests = 100, windowMs = 60000) {
+  const requests = new Map<string, number[]>();
   return async (c: Context, next: Next) => {
     const requestKey = getRequestKey(c);
     const now = Date.now();

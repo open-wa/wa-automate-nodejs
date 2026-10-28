@@ -58,6 +58,8 @@ export class PuppeteerDriver implements IDriver {
                 defaultViewport: options?.defaultViewport,
                 userDataDir: options?.userDataDir,
                 timeout: options?.timeoutMs,
+                // Long-lived QR/auth waits use their own operation deadlines.
+                protocolTimeout: 0,
             });
         } catch (cause) {
             const detail = cause instanceof Error ? cause.message : String(cause);
@@ -84,6 +86,7 @@ export class PuppeteerDriver implements IDriver {
         const browser = await this.puppeteer.connect({
             browserWSEndpoint: options.wsEndpoint,
             timeout: options?.timeoutMs,
+            protocolTimeout: 0,
         });
         
         return new PuppeteerBrowser(browser, this.capabilities);

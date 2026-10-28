@@ -553,6 +553,9 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
 
     const openwaClient = await createClient({
         sessionId: config.sessionId,
+        pluginRefs: config.plugins,
+        pluginConfig: config.pluginConfig,
+        hooks: config.hooks,
         eventMode: config.eventMode,
         driver,
         deleteSessionDataOnLogout: config.deleteSessionDataOnLogout,
@@ -583,6 +586,7 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         lightpanda: config.useLightpanda ? { experimentalWhatsApp: true, ...config.lightpanda } : undefined,
         licenseKey: config.licenseKey as any,
         licenseConfig: config.licenseConfig,
+        patchConfig: { ghPatch: config.ghPatch, cachedPatch: config.cachedPatch },
         calling: config.calling,
         callMediaHost: makeDefaultCallMediaHost(),
         sandboxPolicy,
@@ -638,6 +642,7 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
     });
 
     server.setClient(client as any);
+    server.mountPlugins(openwaClient.plugins);
 
     const runtimeBridgeListeners = new Set<(event: string, value: any) => void>();
     const runtimeEventPublishers: RuntimeEventPublisher[] = [

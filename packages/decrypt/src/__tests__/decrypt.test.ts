@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createCipheriv, randomBytes, hkdfSync } from 'node:crypto';
+import { createCipheriv, createHmac, randomBytes, hkdfSync } from 'node:crypto';
 
 import {
   decryptMedia,
@@ -12,7 +12,7 @@ import { decryptBuffer } from '../crypto';
 
 /**
  * Build a synthetic encrypted payload matching WhatsApp's scheme:
- * HKDF → AES-256-CBC → ciphertext that decryptBuffer can reverse.
+ * HKDF → AES-256-CBC → ciphertext with WhatsApp's 10-byte authentication tag.
  */
 function encryptTestPayload(
   plaintext: Buffer,
@@ -38,7 +38,9 @@ function encryptTestPayload(
     Buffer.alloc(padding, padding),
   ]);
 
-  return Buffer.concat([cipher.update(padded), cipher.final()]);
+  const ciphertext = Buffer.concat([cipher.update(padded), cipher.final()]);
+  const mac = createHmac('sha256', expanded.subarray(48, 80)).update(iv).update(ciphertext).digest().subarray(0, 10);
+  return Buffer.concat([ciphertext, mac]);
 }
 
 describe('decryptBuffer', () => {
@@ -75,6 +77,21 @@ describe('decryptBuffer', () => {
 
       expect(result.toString()).toBe(`test-${type}`);
     }
+  });
+  it('removes a complete block of PKCS#7 padding and works without an expected size', () => {
+    const key = randomBytes(32).toString('base64');
+    const plain = Buffer.alloc(16, 7);
+    const encrypted = encryptTestPayload(plain, key, 'PTT');
+    expect(decryptBuffer(encrypted, key, 'ptt', plain.length, 'audio/ogg').equals(plain)).toBe(true);
+    expect(decryptBuffer(encrypted, key, 'ptt', undefined, 'audio/ogg').equals(plain)).toBe(true);
+  });
+  it('rejects corrupted ciphertext and authentication tags', () => {
+    const key = randomBytes(32).toString('base64');
+    const encrypted = encryptTestPayload(Buffer.from('voice note'), key, 'PTT');
+    const badCiphertext = Buffer.from(encrypted); badCiphertext[0] ^= 1;
+    const badTag = Buffer.from(encrypted); badTag[badTag.length - 1] ^= 1;
+    expect(() => decryptBuffer(badCiphertext, key, 'ptt')).toThrow('authentication');
+    expect(() => decryptBuffer(badTag, key, 'ptt')).toThrow('authentication');
   });
 });
 

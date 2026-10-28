@@ -5,6 +5,7 @@
  * Schemas are the single source of truth for both TypeScript types and runtime validation.
  */
 import { z } from 'zod';
+import { HooksConfigSchema } from '../hooks';
 
 const CallingDescriptorSchema = z.union([z.string(), z.object({
   kind: z.enum(['file', 'url', 'device', 'remote']), path: z.string().optional(), url: z.string().optional(), deviceId: z.string().optional(),
@@ -283,6 +284,7 @@ export const ConfigSchema = z.object({
   executablePath: z.string().optional().describe('Path to chrome instance.'),
 
   browser: z.object({
+    source: z.enum(['auto', 'system', 'managed']).optional().describe('Detect a browser and ask when missing, require a system installation, or use only a managed download/cache.'),
     kind: z.enum(['chrome', 'chromium']).optional().describe('Managed browser to download and reuse when no executable path is supplied.'),
     download: z.enum(['auto', 'never']).optional().describe('Automatically provision a missing browser, or require a cached browser for offline deployments.'),
     cacheDirectory: z.string().optional().describe('Browser cache directory. Defaults to Puppeteer configuration and PUPPETEER_CACHE_DIR.'),
@@ -458,10 +460,8 @@ export const ConfigSchema = z.object({
 
   linkParser: z.string().default('https://link.openwa.cloud/api').describe('URL of serverless meta grabber.'),
 
-  // Preprocessors & Cloud Upload
-  messagePreprocessor: z.any().optional().describe('Message preprocessor options.'),
-
-  preprocFilter: z.string().optional().describe('Filter for message preprocessor.'),
+  // Host hooks run before plugin event handlers and actions.
+  hooks: HooksConfigSchema.optional().describe('Host hooks and chat restrictions for plugins.'),
 
   cloudUploadOptions: CloudUploadOptionsSchema.optional().describe('Options for cloud upload preprocessor.'),
 

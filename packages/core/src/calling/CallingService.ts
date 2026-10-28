@@ -117,10 +117,12 @@ export class CallingService {
     try { this.require('calls.audio', request.call); } catch { return { ok: false, status: 'unavailable', reason: { code: 'STALE_CALL', message: 'This call is no longer active.', status: 409 } }; }
     const owner = [this.attachment?.options.microphone, this.attachment?.options.speaker].find(value => value && typeof value === 'object' && 'remoteId' in value);
     const ownedRemote = owner && typeof owner === 'object' && 'remoteId' in owner ? owner.remoteId : undefined;
-    if (this.remotes.size >= 12 || (request.mode === 'observe' && (request.microphone || !request.speaker)) || (!['replace', 'observe'].includes(request.mode) && (this.attachment || this.pending || this.writing)) || (request.mode === 'replace' && (this.writing || this.pending || (this.attachment && (!ownedRemote || ownedRemote !== request.replacesId))))) return { ok: false, status: 'unavailable', reason: { code: 'MEDIA_OWNED', message: 'This call already has a media owner, or the observer request is invalid.', status: 409 } };
+    const takingServerSource = request.takeover === true && Boolean(this.attachment) && !ownedRemote;
+    if (this.remotes.size >= 12 || (request.mode === 'observe' && (request.microphone || !request.speaker)) || (!['replace', 'observe'].includes(request.mode) && (this.attachment || this.pending || this.writing)) || (request.mode === 'replace' && (this.writing || this.pending || (this.attachment && !takingServerSource && (!ownedRemote || ownedRemote !== request.replacesId))))) return { ok: false, status: 'unavailable', reason: { code: 'MEDIA_OWNED', message: 'This call already has a media owner, or the observer request is invalid.', status: 409 } };
     const reservation = await RemoteMediaReservation.make(request, this.generation, stats => {
       this.options.logger.warn('Call audio input trimmed stale samples; the call remains open.', { callId: this.active?.id, ...stats });
     });
+    if (request.mode === 'replace') reservation.replacesAttachmentId = this.attachment?.id;
     this.remotes.set(reservation.id, reservation);
     await reservation.scope.addFinalizer('reservation', () => { this.remotes.delete(reservation.id); });
     return { ok: true, ticket: reservation.id, expiresAt: reservation.expiresAt, media: reservation.media };
@@ -206,7 +208,7 @@ export class CallingService {
       if (this.writing || this.pending) throw new CallingFailure({ code: 'MEDIA_OWNED', message: 'This call’s media is already being prepared.', status: 409 });
       this.writing = true;
       const previous = this.attachment;
-      if (previous?.remoteId && ![media.microphone, media.speaker].some(source => source && typeof source === 'object' && 'remoteId' in source && source.remoteId)) { this.writing = false; throw new CallingFailure({ code: 'MEDIA_OWNED', message: 'Change this call’s media from its owning helper.', status: 409 }); }
+      if (previous?.remoteId && !media.takeover && ![media.microphone, media.speaker].some(source => source && typeof source === 'object' && 'remoteId' in source && source.remoteId)) { this.writing = false; throw new CallingFailure({ code: 'MEDIA_OWNED', message: 'Change this call’s media from its owning helper.', status: 409 }); }
       let replacement: Attachment | undefined;
       try {
         replacement = await this.prepare({ ...previous?.options, ...media }, this.active?.video === true, { mode: 'replace', call });
@@ -285,6 +287,7 @@ export class CallingService {
         const remote = this.remotes.get(remoteId);
         if (!remote?.connection || remote.claimed || remote.generation !== this.generation || (remote.request.call && remote.request.call.id !== this.active?.id)) throw new CallingFailure({ code: 'MEDIA_ADMISSION_INVALID', message: 'Call media admission is invalid or no longer current.', status: 403 });
         if (remote.request.mode !== action.mode || remote.request.to !== action.to || (action.call && (!remote.request.call || remote.request.call.id !== action.call.id || remote.request.call.generation !== action.call.generation || remote.request.call.sessionId !== action.call.sessionId))) throw new CallingFailure({ code: 'MEDIA_ADMISSION_INVALID', message: 'This media admission belongs to a different call action.', status: 403 });
+        if (action.mode === 'replace' && remote.replacesAttachmentId !== this.attachment?.id) throw new CallingFailure({ code: 'MEDIA_OWNED', message: 'The audio owner changed while this replacement was preparing. Choose Take over again.', status: 409 });
         remote.claimed = true;
         await scope.addFinalizer('remote-media', () => this.closeScope(remote.scope));
         localOptions = { ...options, microphone: remote.request.microphone ? remote.input : null, speaker: remote.request.speaker ? remote.output : null };

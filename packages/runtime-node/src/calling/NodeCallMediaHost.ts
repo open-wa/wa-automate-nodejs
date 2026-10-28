@@ -13,7 +13,7 @@ export class CallMediaError extends Error {
   readonly code = 'MEDIA_SOURCE_FAILED'; readonly status = 422;
 }
 
-type Source = { stream: Stream.Stream<Uint8Array, unknown>; format: RawAudioFormat; finite?: boolean; realtime?: boolean; clear?: () => void };
+type Source = { stream: Stream.Stream<Uint8Array, unknown>; format: RawAudioFormat; finite?: boolean; realtime?: boolean; clear?: () => void; cancel?: () => Promise<void> };
 type Output = ((bytes: Uint8Array) => Promise<void>) & { clear?: () => void };
 const isReadable = (value: unknown): value is ReadableStream<Uint8Array> => !!value && typeof (value as ReadableStream<Uint8Array>).getReader === 'function';
 const isWritable = (value: unknown): value is WritableStream<Uint8Array> => !!value && typeof (value as WritableStream<Uint8Array>).getWriter === 'function';
@@ -59,10 +59,18 @@ export function makeNodeCallMediaHost(options: { log?: (message: string) => void
           const width = (source.format.encoding === 'float32le' ? 4 : 2) * source.format.channels;
           let remainder = new Uint8Array(0);
           let audio = new Float32Array(0);
-          let deadline = Date.now();
-          // Admitted live PCM is already clocked by the sender. Batch 80 ms per
-          // browser hop instead of adding a second timer and 50 RPCs per second.
-          const frameSize = source.realtime ? 3840 : 960;
+          // Batch streams into 80 ms browser hops, so an individual RPC can
+          // exceed 20 ms without starving audio. Unclocked streams use this
+          // host's clock; admitted live PCM is already paced by its sender.
+          const frameSize = 3840;
+          const frameDurationMs = frameSize * 1000 / HOST_AUDIO_RATE;
+          // Keep two packets ahead for unclocked live streams. The browser's
+          // 400 ms queue then absorbs short RPC/scheduler stalls instead of
+          // rendering silence between packets. Already-clocked inputs must
+          // retain their own pacing. Decoded files need the same RPC buffer
+          // as unclocked live streams or each slow hop inserts a silence gap.
+          const lookAheadMs = !source.realtime ? 2 * frameDurationMs : 0;
+          let deadline = Date.now() - lookAheadMs;
           const pump = Stream.runForEach(source.stream, chunk => Effect.gen(function* () {
             if (sourceCleared) yield* Effect.interrupt;
             const combined = new Uint8Array(remainder.length + chunk.length); combined.set(remainder); combined.set(chunk, remainder.length);
@@ -76,7 +84,7 @@ export function makeNodeCallMediaHost(options: { log?: (message: string) => void
               const epoch = clearSequence;
               if (!source!.realtime) {
                 yield* Effect.sleep(Math.max(0, deadline - Date.now()));
-                deadline = Math.max(deadline + 20, Date.now() - 100);
+                deadline = Math.max(deadline + frameDurationMs, Date.now() - 100);
               }
               const frame = samples.slice(offset, offset + frameSize); offset += frameSize;
               if (epoch !== clearSequence) { audio = new Float32Array(0); offset = samples.length; frame.fill(0); }
@@ -99,6 +107,9 @@ export function makeNodeCallMediaHost(options: { log?: (message: string) => void
             if (!onFailure) options.onFailure?.(error instanceof Error ? error : new Error(String(error)));
           })));
           await scope.fork(pump);
+          // Scope finalizers run in reverse order. Release a pending read
+          // before joining the pump, so replacing idle live media can finish.
+          if (source.cancel) await scope.addFinalizer('microphone-pump-reader', source.cancel);
         },
         async receive(frame, receiveOptions) {
           if (!output) return;
@@ -126,10 +137,12 @@ function isEncodedAudio(prefix: Uint8Array): boolean {
 async function prepareReadable(input: ReadableStream<Uint8Array>, scope: SessionScope, format?: RawAudioFormat): Promise<Source> {
   const reader = input.getReader();
   const readyBy = Date.now() + 15_000;
-  await scope.addFinalizer('microphone-stream', async () => { try { await within(reader.cancel(), 3000, 'The microphone stream did not close.'); } finally { reader.releaseLock(); } });
+  let cancelled = false;
+  const cancel = async () => { if (cancelled) return; cancelled = true; try { await within(reader.cancel(), 3000, 'The microphone stream did not close.'); } finally { reader.releaseLock(); } };
+  await scope.addFinalizer('microphone-stream', cancel);
   if (format) {
     async function* chunks() { while (true) { const next = await reader.read(); if (next.done) break; yield next.value; } }
-    return { stream: streamFrom(chunks()), format, realtime: true };
+    return { stream: streamFrom(chunks()), format, realtime: true, cancel };
   }
   let timer: ReturnType<typeof setTimeout> | undefined;
   const first = await Promise.race([reader.read(), new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new CallMediaError('Microphone stream did not become ready within 15 seconds.')), 15_000); })]).finally(() => clearTimeout(timer));
@@ -150,7 +163,7 @@ async function prepareReadable(input: ReadableStream<Uint8Array>, scope: Session
   }
   async function* bufferedChunks() { yield* leading; while (true) { const next = await reader.read(); if (next.done) break; yield next.value; } }
   const stream = streamFrom(bufferedChunks());
-  return isEncodedAudio(prefix.subarray(0, prefixLength)) ? decodeSource('pipe:0', scope, { kind: 'url' }, undefined, stream) : { stream, format: RAW_AUDIO_DEFAULT };
+  return isEncodedAudio(prefix.subarray(0, prefixLength)) ? { ...await decodeSource('pipe:0', scope, { kind: 'url' }, undefined, stream), cancel } : { stream, format: RAW_AUDIO_DEFAULT, cancel };
 }
 
 async function prepareSource(input: MediaDescriptor, scope: SessionScope): Promise<Source> {
