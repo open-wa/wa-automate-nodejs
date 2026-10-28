@@ -163,3 +163,12 @@ prior call interaction receipts remain the native transport evidence.
 The protected runtime was uploaded and selected in production, and the live
 license endpoint returned that release. Public packages are prepared as 5.10.0;
 registry publication and editorial publication must be recorded separately.
+
+The follow-up ran the real standalone ActionAgent, Jev and Mistral against the
+captured interruption history, with WhatsApp sends forbidden. Jev rejected the
+old continuation, Mistral returned exactly “You chose tea and water.”, and Jev
+accepted that repaired answer. Receipt: `release-interruption-answer.json`.
+The focused client typecheck also passes after deriving collector emitter types
+from the domain constructor/function signatures, avoiding duplicate ESM/CJS
+private-class identities. Aggregate release 5.10.0 prepares the first Jev
+package as 5.7.0; inspect each registry version separately.
