@@ -24,6 +24,34 @@
 
 
 
+
+## 5.10.0
+<sub>2026-10-28</sub>
+
+-  *(minor)*
+  Add a standalone Jev chat assistant and share its decision/action engine with Voxtral. Enforce booking correction masks, retain literal source spans and decision distributions, and resolve dates in the agreed timezone from a captured turn instant. Add Neo controls, shared conversation services, and matching terminal/docs builder options.
+
+  Export the plugin SDK for both ESM and CommonJS consumers. Treat recorded conversation memory as valid reply evidence and remove submitted formats from the current turn’s action choices so completed requests finish without duplicate attempts. Classify each requested message format independently and retain unfinished formats across the turn, while keeping irrelevant fan-out facts out of conversational prompts. Retire superseded call responses before new playback and queue a bounded two-packet lead to absorb brief browser RPC stalls.
+
+  Make decision routing aware of the response channel, retain explicit AM/PM punctuation from speech, give multi-format requests bounded repair capacity per format, and narrow correction fields again during proposal review. Preserve hydrated call method descriptors when applying chat-scope hooks.
+
+  After an interruption or changed question, answer the latest request without resuming the interrupted explanation.
+-  *(minor)*
+  Share an OpenUI component catalogue across agent plugins, native WhatsApp sends and Neo Chat previews. Add message and reply previews to Voxtral, validate booking destinations, and preserve Jev format selection and correlated voice responses.
+-  *(minor)*
+  Add the official Voxtral assistant for conversational WhatsApp voice notes and
+  live audio calls, with a plugin-provided Neo dashboard page, saved settings,
+  voice preview, conversation context, and shared call controls.
+
+  Show transcripts, assistant status, and per-chat controls in Neo's normal Chat
+  feed through plugin-provided chat components.
+
+  Load configured plugins in Easy API and expose host-side media/calling services
+  to plugins. Plugin pages can supply native page modules and request host route
+  authentication.
+-  *(patch)*
+  Validate and normalize booking timestamps with a shared branded Effect codec so Android displays the appointment date and time alongside its location. Preserve Effect decoding, encoding and schema metadata in the serving projection, and describe request inputs separately from normalized outputs in the API reference. Reject invalid dates and ranges that collapse at whole-second precision before sending.
+
 ## 5.9.7
 <sub>2026-10-24</sub>
 

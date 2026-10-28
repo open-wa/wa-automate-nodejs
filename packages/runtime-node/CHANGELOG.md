@@ -22,6 +22,27 @@
 
 
 
+
+## 5.1.20
+<sub>2026-10-28</sub>
+
+-  *(patch)*
+  Add a standalone Jev chat assistant and share its decision/action engine with Voxtral. Enforce booking correction masks, retain literal source spans and decision distributions, and resolve dates in the agreed timezone from a captured turn instant. Add Neo controls, shared conversation services, and matching terminal/docs builder options.
+
+  Export the plugin SDK for both ESM and CommonJS consumers. Treat recorded conversation memory as valid reply evidence and remove submitted formats from the current turn’s action choices so completed requests finish without duplicate attempts. Classify each requested message format independently and retain unfinished formats across the turn, while keeping irrelevant fan-out facts out of conversational prompts. Retire superseded call responses before new playback and queue a bounded two-packet lead to absorb brief browser RPC stalls.
+
+  Make decision routing aware of the response channel, retain explicit AM/PM punctuation from speech, give multi-format requests bounded repair capacity per format, and narrow correction fields again during proposal review. Preserve hydrated call method descriptors when applying chat-scope hooks.
+
+  After an interruption or changed question, answer the latest request without resuming the interrupted explanation.
+-  *(patch)*
+  Keep live-call speech continuous with one playback clock, a bounded speech prebuffer and 80 ms browser packets. Prevent browser request latency from stretching audio into repeated gaps, flush final speech packets, and retain immediate interruption clearing.
+
+  Use the same buffered packet clock for file microphones. Wait for the realtime transcription delay after a turn ends before acting on its final words, and retain redacted provider error details for diagnosis.
+
+  Reconnect dropped transcription sessions on the existing call with bounded retries. Cancel idle microphone readers before joining their audio pumps so replacing call media cannot hang during recovery.
+
+  Keep live transcription listening when an individual answer or speech request fails. Show the error without disconnecting the call; a new caller turn clears it and can respond without reconnecting or replaying actions.
+
 ## 5.1.19
 <sub>2026-10-24</sub>
 

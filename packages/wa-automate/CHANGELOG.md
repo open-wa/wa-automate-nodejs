@@ -24,6 +24,30 @@
 
 
 
+
+## 5.10.0
+<sub>2026-10-28</sub>
+
+-  *(minor)*
+  Create Easy API and SDK projects through npm init @open-wa with shared JS/TS,
+  browser, plugin and Voxtral options. Add the matching docs-site project builder
+  with copyable commands, file previews and shareable settings.
+-  *(minor)*
+  Add the official Voxtral assistant for conversational WhatsApp voice notes and
+  live audio calls, with a plugin-provided Neo dashboard page, saved settings,
+  voice preview, conversation context, and shared call controls.
+
+  Show transcripts, assistant status, and per-chat controls in Neo's normal Chat
+  feed through plugin-provided chat components.
+
+  Load configured plugins in Easy API and expose host-side media/calling services
+  to plugins. Plugin pages can supply native page modules and request host route
+  authentication.
+-  *(patch)*
+  Add host hooks before plugin event handlers and action dispatch. Use hooks.chatFilter.allow to restrict named callbacks, catch-all callbacks, direct subscriptions, messages, interactive replies and calls to explicit chat IDs. Validate scope in SDK and Easy API mode, retain it on bound call methods, and reject unknown operations under a chat restriction. Replace the unused messagePreprocessor and preprocFilter options with hooks.
+
+  Forward existing patch-cache and patch-source configuration through the Easy API launcher so cached runtime patches remain usable during a download outage.
+
 ## 5.9.7
 <sub>2026-10-24</sub>
 
