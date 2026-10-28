@@ -120,6 +120,7 @@ allowBuilds:
   vue-demi: false
   # optional native accelerator for msgpackr; JS fallback is sufficient
   msgpackr-extract: false
+  '@openuidev/lang-core': false
 minimumReleaseAgeExclude:
   - '@effect/platform-browser@4.0.2'
   - '@effect/platform-bun@4.0.2'

@@ -7,7 +7,14 @@
     ".": {
       "bun": "./src/index.ts",
       "import": "./dist/index.mjs",
-      "types": "./dist/index.d.mts"
+      "types": "./dist/index.d.mts",
+      "require": "./dist/index.cjs"
+    },
+    "./openui": {
+      "bun": "./src/openui.ts",
+      "import": "./dist/openui.mjs",
+      "types": "./dist/openui.d.mts",
+      "require": "./dist/openui.cjs"
     }
   },
   "files": [
@@ -16,13 +23,14 @@
     "skills"
   ],
   "scripts": {
-    "build": "tsdown src/index.ts --format esm --dts",
-    "dev": "tsdown src/index.ts --format esm --dts --watch",
+    "build": "tsdown src/index.ts src/openui.ts --format esm --format cjs --dts",
+    "dev": "tsdown src/index.ts src/openui.ts --format esm --format cjs --watch",
     "lint": "oxlint src",
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@open-wa/schema": "workspace:*",
+    "@openuidev/lang-core": "1.0.1",
     "hono": "catalog:",
     "zod": "catalog:"
   },
@@ -35,7 +43,13 @@
     "exports": {
       ".": {
         "import": "./dist/index.mjs",
-        "types": "./dist/index.d.mts"
+        "types": "./dist/index.d.mts",
+        "require": "./dist/index.cjs"
+      },
+      "./openui": {
+        "import": "./dist/openui.mjs",
+        "types": "./dist/openui.d.mts",
+        "require": "./dist/openui.cjs"
       }
     }
   },
