@@ -1,0 +1,75 @@
+import { expect, test } from 'bun:test';
+import { encodeVoiceNote, CallPlayback } from '../src/audio';
+
+function tone() {
+  const pcm = Buffer.alloc(48000);
+  for (let i = 0; i < 24000; i++) pcm.writeInt16LE(Math.round(8000 * Math.sin(i / 8)), i * 2);
+  return pcm;
+}
+async function render(chunks: Uint8Array[]) {
+  const playback = new CallPlayback();
+  const frames: Uint8Array[] = [];
+  const reader = playback.stream.getReader();
+  const reading = (async () => { for (;;) { const next = await reader.read(); if (next.done) return; frames.push(next.value); } })();
+  try {
+    for (const chunk of chunks) await playback.write24k(chunk, AbortSignal.timeout(4000));
+    await playback.drain(AbortSignal.timeout(4000));
+  } finally { playback.close(); await reading; }
+  return Buffer.concat(frames.filter(frame => frame.some(Boolean)));
+}
+
+test('bundled encoder creates an actual Ogg Opus voice note from PCM', async () => {
+  const encoded = await encodeVoiceNote(tone(), AbortSignal.timeout(10000));
+  expect(encoded.subarray(0, 4).toString()).toBe('OggS');
+  expect(encoded.includes(Buffer.from('OpusHead'))).toBe(true);
+  expect(encoded.length).toBeGreaterThan(100);
+});
+test('24 kHz speech resamples identically across odd byte boundaries with a padded final packet', async () => {
+  const pcm = tone();
+  const complete = await render([pcm]);
+  const chunks: Uint8Array[] = [];
+  for (let at = 0; at < pcm.length; at += 701) chunks.push(pcm.subarray(at, at + 701));
+  const fragmented = await render(chunks);
+  expect(complete.length).toBe(33280);
+  expect(complete.subarray(32000).some(Boolean)).toBe(false);
+  expect(fragmented.equals(complete)).toBe(true);
+}, 10000);
+test('clearing interrupted speech also removes audio not yet read by the call host', async () => {
+  const playback = new CallPlayback();
+  try {
+    await playback.write24k(tone().subarray(0, 4800), AbortSignal.timeout(1000));
+    await Bun.sleep(65);
+    playback.clear();
+    const reader = playback.stream.getReader();
+    const next = await reader.read();
+    expect(next.value?.some(Boolean)).toBe(false);
+    reader.releaseLock();
+  } finally { playback.close(); }
+});
+
+test('short speech starts on drain instead of waiting for the prebuffer', async () => {
+  const result = await render([tone().subarray(0, 4800)]);
+  expect(result.length).toBe(5120);
+  expect(result.some(Boolean)).toBe(true);
+});
+
+test('interruption discards buffered speech and unblocks a backpressured producer', async () => {
+  const playback = new CallPlayback();
+  const reader = playback.stream.getReader();
+  try {
+    await reader.read(); // Host preparation consumes the initial silence packet.
+    const writing = playback.write24k(Buffer.concat([tone(), tone(), tone()]), AbortSignal.timeout(1000));
+    const interrupted = writing.then(() => null, error => error);
+    await Bun.sleep(10);
+    playback.clear();
+    expect((await interrupted)?.message).toBe('Call playback was interrupted.');
+    const next = reader.read();
+    const draining = (async () => {
+      await playback.write24k(Buffer.alloc(4800, 7), AbortSignal.timeout(1000));
+      await playback.drain(AbortSignal.timeout(1000));
+    })();
+    expect((await next).value?.every(value => value === 0 || value === 7)).toBe(true);
+    await reader.read();
+    await draining;
+  } finally { playback.close(); reader.releaseLock(); }
+});

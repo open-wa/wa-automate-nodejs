@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { getApiKey, getApiUrl } from '@/lib/api-client';
 import { SessionStatusBadge } from "@/components/session-status-badge"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { PrivacyToggle } from "@/components/privacy-toggle"
@@ -55,10 +56,8 @@ function usePluginManifest() {
   useEffect(() => {
     const fetchManifest = async () => {
       try {
-        const base =
-          (window as unknown as { __OPENWA_API_BASE__?: string })
-            .__OPENWA_API_BASE__ ?? ""
-        const res = await fetch(`${base}/plugins/manifest`)
+        const key = getApiKey();
+        const res = await fetch(new URL('/plugins/manifest', getApiUrl()), { headers: key ? { 'X-API-Key': key } : {} })
         if (res.ok) {
           const data = await res.json()
           setPlugins(data.plugins ?? [])
