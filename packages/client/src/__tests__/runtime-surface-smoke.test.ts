@@ -11,7 +11,7 @@ function createTestClient() {
     events,
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } as any,
     session: {} as any,
-    plugins: {} as any,
+    plugins: { bindRuntime: vi.fn() } as any,
     config: {},
     registerFinalizationHook: vi.fn(() => () => undefined),
     start: vi.fn(),

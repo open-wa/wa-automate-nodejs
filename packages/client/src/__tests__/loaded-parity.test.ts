@@ -22,7 +22,7 @@ function createTestClient() {
     events: events as any,
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } as any,
     session: {} as any,
-    plugins: {} as any,
+    plugins: { bindRuntime: vi.fn() } as any,
     config: {},
     registerFinalizationHook: vi.fn((hook: () => Promise<void> | void) => {
       finalizationHook = hook;
@@ -76,11 +76,7 @@ describe('Client.loaded contract', () => {
     const { client, events, transport, openwaClient, getFinalizationHook } = createTestClient();
     const evaluate = vi.mocked(transport.evaluate as any);
 
-    evaluate
-      .mockResolvedValueOnce(false)
-      .mockResolvedValueOnce(false)
-      .mockResolvedValueOnce(true)
-      .mockResolvedValueOnce('2.26.3');
+    evaluate.mockResolvedValueOnce('2.26.3');
 
     const finalizationHook = getFinalizationHook();
     expect(openwaClient.registerFinalizationHook).toHaveBeenCalledTimes(1);
@@ -97,6 +93,6 @@ describe('Client.loaded contract', () => {
     expect(events.listenerCount('session.state.changed')).toBeGreaterThan(0);
     expect(events.listenerCount('message.deleted')).toBeGreaterThan(0);
     expect(events.listenerCount('session.logout')).toBeGreaterThan(0);
-    expect(evaluate).toHaveBeenCalledTimes(4);
+    expect(evaluate).toHaveBeenCalledTimes(1);
   });
 });
