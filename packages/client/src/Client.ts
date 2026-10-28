@@ -29,7 +29,6 @@ import type {
 import { groupIdParam } from '@open-wa/schema';
 import {
   MessageCollector,
-  MessageCollectorEvents,
   MessageCollectorOptions,
   AwaitMessagesOptions,
   awaitMessages,
@@ -297,7 +296,7 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
       this.sessionId,
       chatId,
       filter,
-      this.events as unknown as HyperEmitter<MessageCollectorEvents>,
+      this.events as unknown as ConstructorParameters<typeof MessageCollector>[3],
       collectorOptions
     );
   }
@@ -326,7 +325,7 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
     return awaitMessages(
       this.sessionId,
       chatId,
-      this.events as unknown as HyperEmitter<MessageCollectorEvents>,
+      this.events as unknown as Parameters<typeof awaitMessages>[2],
       filter,
       awaitOptions
     );
