@@ -80,7 +80,7 @@ for (const record of log.split('\x1e')) {
     });
   }
 }
-const lines = [`# OpenWA ${version}`, ''];
+const lines = [`# open-wa ${version}`, ''];
 for (const heading of ['Breaking changes', 'Features', 'Fixes', 'Performance', 'Changes', 'Documentation', 'Tests', 'Maintenance', 'Other changes']) {
   const groups = new Map();
   for (const entry of entries.values()) {
@@ -111,6 +111,6 @@ const notes = lines.join('\n');
 if (output === '-') process.stdout.write(notes);
 else writeFileSync(output, notes);
 if (!requestedOutput) writeFileSync(join(source, 'release-notes-detailed.md'), notes);
-const message = `Wrote OpenWA ${version} release notes from ${entries.size} distinct commit messages.`;
+const message = `Wrote open-wa ${version} release notes from ${entries.size} distinct commit messages.`;
 if (output === '-') console.error(message);
 else console.log(message);

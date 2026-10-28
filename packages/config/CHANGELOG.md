@@ -13,6 +13,79 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+## 5.9.7
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/api` v5.9.7, `@open-wa/socket-client` v5.9.7
+
+## 5.9.6
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/api` v5.9.6, `@open-wa/core` v5.9.6, `@open-wa/integration-voxtral` v5.9.6
+
+## 5.9.5
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/core` v5.9.5
+
+## 5.9.4
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/api` v5.9.4, `@open-wa/core` v5.9.4, `@open-wa/driver-puppeteer` v5.9.4, `@open-wa/integration-voxtral` v5.9.4
+
+## 5.9.3
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/core` v5.9.3
+
+## 5.9.2
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/core` v5.9.2, `@open-wa/decrypt` v5.9.2, `@open-wa/integration-voxtral` v5.9.2
+
+## 5.9.1
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/integration-voxtral` v5.9.1
+
+## 5.9.0
+<sub>2026-10-24</sub>
+
+-  *(minor)*
+  Create Easy API and SDK projects through npm init @open-wa with shared JS/TS,
+  browser, plugin and Voxtral options. Add the matching docs-site project builder
+  with copyable commands, file previews and shareable settings.
+
+## 5.8.0
+<sub>2026-10-23</sub>
+
+-  *(patch)*
+  Install missing configured npm plugins on demand and reuse their local cache.
+  Load JavaScript and TypeScript config files with the same module handling, and
+  simplify Voxtral setup to a config entry without a separate plugin installation.
+- *(minor)* Version bump from group with `@open-wa/core` v5.8.0
+
+## 5.7.0
+<sub>2026-10-23</sub>
+
+- *(minor)* Version bump from group with `@open-wa/api` v5.7.0, `@open-wa/client` v5.7.0, `@open-wa/core` v5.7.0, `@open-wa/integration-voxtral` v5.7.0, `@open-wa/plugin-sdk` v5.7.0, `@open-wa/schema` v5.7.0, `@open-wa/socket-client` v5.7.0, `@open-wa/wa-automate` v5.7.0
+
+## 5.6.7
+<sub>2026-10-22</sub>
+
+- *(patch)* Version bump from group with `@open-wa/core` v5.6.7
+
 ## 5.6.6
 <sub>2026-10-16</sub>
 

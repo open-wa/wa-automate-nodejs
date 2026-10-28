@@ -94,8 +94,8 @@ shared call controller. Its `chat.js` module contributes to the existing Chat
 toolbar and timeline through the same host, with transcripts attached to their
 original WhatsApp messages where available.
 
-See the [guide](../../apps/docs/content/docs/guides/voxtral.mdx) and
-[implementation contract](../../docs/plans/2026-10-20-voxtral-integration.md).
+See the [guide](https://openwa.dev/docs/guides/voxtral) and
+[implementation contract](https://github.com/open-wa/wa-automate-nodejs/blob/master/docs/plans/2026-10-20-voxtral-integration.md).
 
 ## Text conversations with Jev
 
@@ -103,5 +103,5 @@ Voxtral uses the shared Jev decision and action engine. Add
 `@open-wa/integration-jev` to `plugins` to also answer ordinary text messages,
 or select Jev alongside Voxtral in the setup wizard. They share recent context,
 booking cards and send outcomes. During a live call, button and form replies
-return through call audio. See the [Jev guide](/docs/guides/jev) for setup,
+return through call audio. See the [Jev guide](https://openwa.dev/docs/guides/jev) for setup,
 correction rules, dates and decision evidence.

@@ -6,7 +6,7 @@
 
 export interface AcceptCallParams {
   call: { generation: string; id: string; sessionId: string };
-  media?: { camera?: any; microphone?: any; onMediaFailure?: "end" | "keep-open"; speaker?: any };
+  media?: { camera?: any; microphone?: any; onMediaFailure?: "end" | "keep-open"; speaker?: any; takeover?: boolean };
 }
 
 export interface AddLabelParams {
@@ -1436,7 +1436,7 @@ export interface SendYouTubeLinkParams {
 
 export interface SetCallMediaParams {
   call: { generation: string; id: string; sessionId: string };
-  media?: { camera?: any; microphone?: any; onMediaFailure?: "end" | "keep-open"; speaker?: any };
+  media?: { camera?: any; microphone?: any; onMediaFailure?: "end" | "keep-open"; speaker?: any; takeover?: boolean };
 }
 
 export interface SetChatEphemeralParams {

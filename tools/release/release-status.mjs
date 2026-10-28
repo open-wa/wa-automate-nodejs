@@ -111,7 +111,7 @@ while (Date.now() < deadline) {
     if (!current.completedAt) {
       api(`repos/${repo}/actions/workflows/release-notes.yml/dispatches`, { ref: 'release', inputs: { version: v } });
     }
-    summary(`## OpenWA ${v} is available\n\nAll ${registry.length} package manifests, dist-tags and tarballs are public. [Documentation deployed](${docsRun.html_url}). Release notes and the announcement run in their own action.`);
+    summary(`## open-wa ${v} is available\n\nAll ${registry.length} package manifests, dist-tags and tarballs are public. [Documentation deployed](${docsRun.html_url}). Release notes and the announcement run in their own action.`);
     process.exit(0);
   }
   console.log(`${remaining.length ? `Waiting for npm: ${remaining.map(pkg => `${pkg.name}@${pkg.version} (${pkg.reason})`).join(', ')}` : 'All npm packages are available.'} Documentation: ${docsRun?.conclusion || docsRun?.status || 'queued'}.`);

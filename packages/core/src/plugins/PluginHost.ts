@@ -83,6 +83,11 @@ export class PluginHost {
     this.runtimeInvoker = invoke;
   }
 
+  /** Bound by the public Client facade; core never imports that package. */
+  bindRuntime(invoke: (method: string, args: unknown[]) => Promise<unknown>): void {
+    this.runtimeInvoker = invoke;
+  }
+
   /**
    * Register a plugin with security-filtered input.
    *

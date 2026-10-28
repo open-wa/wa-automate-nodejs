@@ -13,6 +13,92 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+## 5.9.7
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/api` v5.9.7, `@open-wa/socket-client` v5.9.7
+
+## 5.9.6
+<sub>2026-10-24</sub>
+
+-  *(patch)* - Preserve serialized message IDs in acknowledgement events so voice-note delivery state updates correctly.
+
+## 5.9.5
+<sub>2026-10-24</sub>
+
+-  *(patch)*
+  Return a native logout during startup to fresh WhatsApp pairing instead of replaying the rejected checkpoint. Keep startup authentication as the single owner of its browser reset. [#3550](https://github.com/open-wa/wa-automate-nodejs/issues/3550), [#3562](https://github.com/open-wa/wa-automate-nodejs/issues/3562)
+-  *(patch)*
+  Restore native initial-history completion before socket launch so a completed saved history does not wait for a second initial transfer. [#3562](https://github.com/open-wa/wa-automate-nodejs/issues/3562)
+
+## 5.9.4
+<sub>2026-10-24</sub>
+
+-  *(patch)*
+  Let authentication and QR waits use their configured deadlines instead of failing at Puppeteer's default three-minute protocol timeout. Use one native QR stream and renew expired linking cycles in Chrome as well as Lightpanda.
+
+## 5.9.3
+<sub>2026-10-24</sub>
+
+-  *(patch)*
+  Fix session saves on the current WhatsApp build by reading native migration state directly and preserving the identity store's account encryption state. Preserve saved sessions when startup probes or authentication time out. [#3562](https://github.com/open-wa/wa-automate-nodejs/issues/3562)
+
+## 5.9.2
+<sub>2026-10-24</sub>
+
+-  *(patch)*
+  - 🐛 Report background session checkpoint failures through the SDK logger, including bounded schema-mismatch details without credential values. Track the persistence failure in [#3562](https://github.com/open-wa/wa-automate-nodejs/issues/3562).
+
+## 5.9.1
+<sub>2026-10-24</sub>
+
+- *(patch)* Version bump from group with `@open-wa/integration-voxtral` v5.9.1
+
+## 5.9.0
+<sub>2026-10-24</sub>
+
+- *(minor)* Version bump from group with `@open-wa/config` v5.9.0, `@open-wa/create` v5.9.0, `@open-wa/wa-automate` v5.9.0
+
+## 5.8.0
+<sub>2026-10-23</sub>
+
+-  *(minor)*
+  Install missing configured npm plugins on demand and reuse their local cache.
+  Load JavaScript and TypeScript config files with the same module handling, and
+  simplify Voxtral setup to a config entry without a separate plugin installation.
+
+## 5.7.0
+<sub>2026-10-23</sub>
+
+-  *(minor)*
+  Add the official Voxtral assistant for conversational WhatsApp voice notes and
+  live audio calls, with a plugin-provided Neo dashboard page, saved settings,
+  voice preview, conversation context, and shared call controls.
+
+  Show transcripts, assistant status, and per-chat controls in Neo's normal Chat
+  feed through plugin-provided chat components.
+
+  Load configured plugins in Easy API and expose host-side media/calling services
+  to plugins. Plugin pages can supply native page modules and request host route
+  authentication.
+
+## 5.6.7
+<sub>2026-10-22</sub>
+
+-  *(patch)*
+  - 🐛 Activate configured licenses after pairing by reading the host identity after public patch installation, so licensed calling is available on startup. Refs [#3480](https://github.com/open-wa/wa-automate-nodejs/issues/3480).
+
 ## 5.6.6
 <sub>2026-10-16</sub>
 

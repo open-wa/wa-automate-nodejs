@@ -27,7 +27,7 @@
       },
       {
         "name": "media",
-        "type": "{ camera?: any; microphone?: any; onMediaFailure?: \"end\" | \"keep-open\"; speaker?: any }",
+        "type": "{ camera?: any; microphone?: any; onMediaFailure?: \"end\" | \"keep-open\"; speaker?: any; takeover?: boolean }",
         "required": false,
         "description": "",
         "aliases": [],
@@ -7382,7 +7382,7 @@
       },
       {
         "name": "media",
-        "type": "{ camera?: any; microphone?: any; onMediaFailure?: \"end\" | \"keep-open\"; speaker?: any }",
+        "type": "{ camera?: any; microphone?: any; onMediaFailure?: \"end\" | \"keep-open\"; speaker?: any; takeover?: boolean }",
         "required": false,
         "description": "",
         "aliases": [],
