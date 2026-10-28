@@ -1,0 +1,105 @@
+---
+title: Jev chat assistant
+description: Answer WhatsApp text messages and choose chat actions, sharing context with optional Voxtral calls and voice notes.
+---
+
+# Jev chat assistant
+
+Use `@open-wa/integration-jev` for a text assistant in ordinary WhatsApp chats.
+Jev chooses the next action, Mistral composes the wording, and open-wa sends the
+message. It supports text, labelled confirmations, buttons, lists, forms and
+native booking cards.
+
+## Create a project
+
+```bash
+npm init @open-wa@latest chat-assistant -- --plugins jev
+cd chat-assistant
+```
+
+Choose **Easy API** for Neo, or **SDK** to run your own code, then JavaScript or
+TypeScript. The [project builder](/new?plugins=jev) offers the same choices.
+Copy `.env.example` to `.env` and fill in:
+
+```dotenv
+MISTRAL_API_KEY=YOUR_MISTRAL_API_KEY
+JEV_API_KEY=YOUR_JEV_API_KEY
+```
+
+Run `npm start`. Your generated `wa.config.js` or `wa.config.ts` is discovered
+automatically, and the configured plugin is installed when needed. Pair
+WhatsApp, then send a text message from another account.
+
+## Configure the assistant
+
+For an existing project, add the plugin and optional settings:
+
+```js
+plugins: ['@open-wa/integration-jev'],
+hooks: {
+  chatFilter: { allow: ['447123456789@c.us'] },
+},
+pluginConfig: {
+  jev: {
+    agent: {
+      instructions: [
+        'Help people arrange demo appointments.',
+        'Send requested confirmations and choices in this chat.',
+      ],
+    },
+    conversation: { timeZone: 'Europe/London' },
+  },
+},
+```
+
+Instructions accept a string or an array. `conversation.timeZone` sets the
+agreed timezone; without it, the conversation must supply one. The answer model
+defaults to `mistral-small-latest`, and the classifier to `jev-latest`.
+
+Replace the example chat ID with the chats the assistant may operate in.
+`hooks.chatFilter` applies before every plugin receives chat events and before
+plugin actions run, including calls and interactive replies. Include the known
+phone-number ID and LID explicitly when the same person uses both. An empty
+`allow` array blocks every chat; omitting `chatFilter` leaves chats unrestricted.
+
+In Neo, **Plugins → Jev** edits these settings. The normal **Chat** view shows
+pause controls, OpenUI previews, action outcomes and expandable decision
+evidence. Keys stay on the host. SDK mode uses the same engine without Neo.
+
+## Add voice
+
+Select both **Jev** and **Voxtral** in the wizard, or configure both packages:
+
+```js
+plugins: ['@open-wa/integration-jev', '@open-wa/integration-voxtral'],
+pluginConfig: { voxtral: { mode: 'both' } },
+```
+
+Jev handles plain text; Voxtral handles voice notes and calls. They share recent
+context, submitted booking cards and send outcomes. Button and form replies
+during a call are acknowledged through its audio. Otherwise, a selection
+returns to the adapter that sent the control. Typed messages wait while the
+same person's call is active. See the [Voxtral guide](/docs/guides/voxtral) for
+voice settings and call licensing.
+
+Voxtral already installs the shared engine as a dependency. Add Jev to
+`plugins` when you also want ordinary text conversations to trigger the assistant.
+
+## Corrections and dates
+
+“No, I said 2 pm” can correct the time on the latest booking card while keeping
+its date, duration and location. The host restricts the correction to the fields
+Jev selected, copies recognizable literal values from recorded source spans,
+and calculates timestamps itself. Missing or ambiguous facts prompt a question.
+
+“Tomorrow” uses the captured turn instant in the agreed timezone. A bare weekday
+means its next occurrence on or after that day; “this Friday” means the current
+Monday-based week and “next Friday” the following week. A month/day without a
+year means its next occurrence. Invalid dates and ambiguous DST times require
+clarification. A wrong transcription can still supply the wrong source value.
+
+These actions change chat messages, not an external booking system. Interactive
+formats need their licensed capability; text and formatted text confirmations
+remain available without it. Unknown sends aren't retried automatically.
+Settings and the send journal persist locally; recent conversation context
+expires in memory and clears on restart.

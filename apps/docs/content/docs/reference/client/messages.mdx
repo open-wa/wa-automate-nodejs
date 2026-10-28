@@ -1728,7 +1728,7 @@ Submitted album parent and child message IDs, in input order. Submission does no
 
 Sends an audio attachment with an optional quoted message. Use sendPtt for voice notes and view-once audio.
 
-**Signature** `client.sendAudio(to: string, file: string, filename?: string, options?: { quotedMsgId?: string }): Promise<MessageIdReturn \| boolean>`
+**Signature** `client.sendAudio(to: string, file: string \| Buffer, filename?: string, options?: { quotedMsgId?: string }): Promise<MessageIdReturn \| boolean>`
 
 ### Usage
 
@@ -2098,7 +2098,7 @@ In-process Client resolves to `Promise<MessageId \| boolean \| (MessageId \| boo
 
 Sends an image, video, audio file or document using MIME detection or an explicit typed presentation. Incompatible options are rejected before sending. Media is not transcoded.
 
-**Signature** `client.sendFile(to: string, file: string, filename?: string, options?: { caption?: string; quotedMsgId?: string; type?: "auto"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "image"; viewOnce?: boolean } \| { caption?: string; isGif?: boolean; quotedMsgId?: string; type: "video"; videoNote?: boolean; viewOnce?: boolean } \| { ptt?: boolean; quotedMsgId?: string; type: "audio"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "document" }): Promise<MessageIdReturn \| boolean>`
+**Signature** `client.sendFile(to: string, file: string \| Buffer, filename?: string, options?: { caption?: string; quotedMsgId?: string; type?: "auto"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "image"; viewOnce?: boolean } \| { caption?: string; isGif?: boolean; quotedMsgId?: string; type: "video"; videoNote?: boolean; viewOnce?: boolean } \| { ptt?: boolean; quotedMsgId?: string; type: "audio"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "document" }): Promise<MessageIdReturn \| boolean>`
 
 ### Usage
 
@@ -2282,7 +2282,7 @@ Message ID or success status
 
 Sends media through the native attachment pipeline, including images and videos. Options select presentation, view once, GIF playback or circular video notes; media is not transcoded. Returns submission status, not a delivery receipt.
 
-**Signature** `client.sendImage(to: string, file: string, filename?: string, options?: { caption?: string; quotedMsgId?: string; type?: "auto"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "image"; viewOnce?: boolean } \| { caption?: string; isGif?: boolean; quotedMsgId?: string; type: "video"; videoNote?: boolean; viewOnce?: boolean } \| { ptt?: boolean; quotedMsgId?: string; type: "audio"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "document" }): Promise<MessageIdReturn \| boolean>`
+**Signature** `client.sendImage(to: string, file: string \| Buffer, filename?: string, options?: { caption?: string; quotedMsgId?: string; type?: "auto"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "image"; viewOnce?: boolean } \| { caption?: string; isGif?: boolean; quotedMsgId?: string; type: "video"; videoNote?: boolean; viewOnce?: boolean } \| { ptt?: boolean; quotedMsgId?: string; type: "audio"; viewOnce?: boolean } \| { caption?: string; quotedMsgId?: string; type: "document" }): Promise<MessageIdReturn \| boolean>`
 
 ### Usage
 
@@ -2379,7 +2379,7 @@ In-process Client resolves to `Promise<MediaSendResult>`. The contract above is 
 
 Send a portable interactive message document (Insiders and above)
 
-**Signature** `client.sendInteractive(to: string, content: { actions: ({ id: string; label: string; type: "reply" } \| { label: string; type: "url"; url: string } \| { label: string; phoneNumber: string; type: "call" } \| { code: string; label: string; type: "copy" })[]; body: string; footer?: string; header?: { text: string; type: "text" } \| { filename?: string; source: string; title?: string; type: "image" } \| { filename?: string; source: string; title?: string; type: "video" } \| { filename?: string; source: string; title?: string; type: "document" }; type: "buttons"; version?: 1 } \| { body: string; buttonLabel: string; footer?: string; sections: { rows: { description?: string; id: string; title: string }[]; title?: string }[]; title?: string; type: "list"; version?: 1 } \| { body: string; footer?: string; questions: ({ allowCustomAnswer?: boolean; id: string; label: string; options: { id: string; label: string }[]; type: "singleSelect" \| "multiSelect" })[]; title?: string; type: "form"; version?: 1 } \| { body: string; cards: ({ actions: ({ id: string; label: string; type: "reply" } \| { label: string; type: "url"; url: string } \| { label: string; phoneNumber: string; type: "call" } \| { code: string; label: string; type: "copy" })[]; body: string; header: { filename?: string; source: string; title?: string; type: "image" } })[]; footer?: string; type: "carousel"; version?: 1 } \| { actions?: ({ label: string; type: "url"; url: string } \| { label: string; phoneNumber: string; type: "call" } \| { code: string; label: string; type: "copy" })[]; body: string; booking: { description?: string; email?: string; endAt?: string; labels?: { addToCalendar?: string; detailsTitle?: string; language?: string; manageBooking?: string; meetingType?: string; viewOnMap?: string }; location?: string; managementUrl?: string; phoneNumber?: string; startAt: string; url?: string }; buttonLabel: string; footer?: string; title?: string; type: "booking"; version?: 1 } \| { actions: { name: string; parameters?: object }[]; body: string; footer?: string; header?: { text: string; type: "text" } \| { filename?: string; source: string; title?: string; type: "image" } \| { filename?: string; source: string; title?: string; type: "video" } \| { filename?: string; source: string; title?: string; type: "document" }; parameters?: object; type: "native"; version?: 1 }): Promise<string>`
+**Signature** `client.sendInteractive(to: string, content: { actions: ({ id: string; label: string; type: "reply" } \| { label: string; type: "url"; url: string } \| { label: string; phoneNumber: string; type: "call" } \| { code: string; label: string; type: "copy" })[]; body: string; footer?: string; header?: { text: string; type: "text" } \| { filename?: string; source: string; title?: string; type: "image" } \| { filename?: string; source: string; title?: string; type: "video" } \| { filename?: string; source: string; title?: string; type: "document" }; type: "buttons"; version?: 1 } \| { body: string; buttonLabel?: string; footer?: string; sections: { rows: { description?: string; id: string; title: string }[]; title?: string }[]; title?: string; type: "list"; version?: 1 } \| { body: string; footer?: string; questions: ({ allowCustomAnswer?: boolean; id: string; label: string; options: { id: string; label: string }[]; type: "singleSelect" \| "multiSelect" })[]; title?: string; type: "form"; version?: 1 } \| { body: string; cards: ({ actions: ({ id: string; label: string; type: "reply" } \| { label: string; type: "url"; url: string } \| { label: string; phoneNumber: string; type: "call" } \| { code: string; label: string; type: "copy" })[]; body: string; header: { filename?: string; source: string; title?: string; type: "image" } })[]; footer?: string; type: "carousel"; version?: 1 } \| { actions?: ({ label: string; type: "url"; url: string } \| { label: string; phoneNumber: string; type: "call" } \| { code: string; label: string; type: "copy" })[]; body: string; booking: { description?: string; email?: string; endAt?: string; labels?: { addToCalendar?: string; detailsTitle?: string; language?: string; manageBooking?: string; meetingType?: string; viewOnMap?: string }; location?: string; managementUrl?: string; phoneNumber?: string; startAt: string; url?: string }; buttonLabel?: string; footer?: string; title?: string; type: "booking"; version?: 1 } \| { actions: { name: string; parameters?: object }[]; body: string; footer?: string; header?: { text: string; type: "text" } \| { filename?: string; source: string; title?: string; type: "image" } \| { filename?: string; source: string; title?: string; type: "video" } \| { filename?: string; source: string; title?: string; type: "document" }; parameters?: object; type: "native"; version?: 1 }): Promise<string>`
 
 ### Usage
 
@@ -3148,7 +3148,7 @@ In-process Client resolves to `Promise<MessageId \| boolean>`. The contract abov
 
 Sends prepared audio as a voice note, optionally view once. It does not transcode the input; use suitable voice-note audio such as Ogg Opus.
 
-**Signature** `client.sendPtt(to: string, file: string, options?: { quotedMsgId?: string; viewOnce?: boolean }): Promise<MessageIdReturn \| boolean>`
+**Signature** `client.sendPtt(to: string, file: string \| Buffer, options?: { quotedMsgId?: string; viewOnce?: boolean }): Promise<MessageIdReturn \| boolean>`
 
 ### Usage
 
@@ -3900,7 +3900,7 @@ In-process Client resolves to `Promise<MessageId \| boolean>`. The contract abov
 
 Sends MP4 video with WhatsApp GIF playback. GIF is a video presentation flag; this method does not convert a GIF image or transcode video.
 
-**Signature** `client.sendVideoAsGif(to: string, file: string, filename?: string, options?: { caption?: string; quotedMsgId?: string }): Promise<MessageIdReturn \| boolean>`
+**Signature** `client.sendVideoAsGif(to: string, file: string \| Buffer, filename?: string, options?: { caption?: string; quotedMsgId?: string }): Promise<MessageIdReturn \| boolean>`
 
 ### Usage
 

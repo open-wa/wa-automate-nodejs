@@ -904,10 +904,10 @@ export interface SendAudioParams {
    */
   to: string;
   /**
-   * Audio file (path, URL, DataURL, or Base64) Branded type: DataURL Pattern: ^data:.+;base64,.+$
+   * Audio file (path, URL, DataURL, or Base64) Branded type: DataURL
    * @example "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA..."
    */
-  file: string;
+  file: string | Buffer;
   /**
    * Filename with extension
    * @example "document.pdf"
@@ -985,10 +985,10 @@ export interface SendFileParams {
    */
   to: string;
   /**
-   * File (path, URL, DataURL, Base64, or Buffer) Branded type: DataURL Pattern: ^data:.+;base64,.+$
+   * File (path, URL, DataURL, Base64, or Buffer) Branded type: DataURL
    * @example "data:application/pdf;base64,JVBERi0xLjQK..."
    */
-  file: string;
+  file: string | Buffer;
   /**
    * Filename with extension
    * @example "document.pdf"
@@ -1028,10 +1028,10 @@ export interface SendImageParams {
    */
   to: string;
   /**
-   * File (path, URL, DataURL, Base64, or Buffer) Branded type: DataURL Pattern: ^data:.+;base64,.+$
+   * File (path, URL, DataURL, Base64, or Buffer) Branded type: DataURL
    * @example "data:application/pdf;base64,JVBERi0xLjQK..."
    */
-  file: string;
+  file: string | Buffer;
   /**
    * Filename with extension
    * @example "document.pdf"
@@ -1047,7 +1047,7 @@ export interface SendInteractiveParams {
    * @remarks Key aliases: 'chatId'
    */
   to: string;
-  content: { actions: ({ id: string; label: string; type: "reply" } | { label: string; type: "url"; url: string } | { label: string; phoneNumber: string; type: "call" } | { code: string; label: string; type: "copy" })[]; body: string; footer?: string; header?: { text: string; type: "text" } | { filename?: string; source: string; title?: string; type: "image" } | { filename?: string; source: string; title?: string; type: "video" } | { filename?: string; source: string; title?: string; type: "document" }; type: "buttons"; version?: 1 } | { body: string; buttonLabel: string; footer?: string; sections: { rows: { description?: string; id: string; title: string }[]; title?: string }[]; title?: string; type: "list"; version?: 1 } | { body: string; footer?: string; questions: ({ allowCustomAnswer?: boolean; id: string; label: string; options: { id: string; label: string }[]; type: "singleSelect" | "multiSelect" })[]; title?: string; type: "form"; version?: 1 } | { body: string; cards: ({ actions: ({ id: string; label: string; type: "reply" } | { label: string; type: "url"; url: string } | { label: string; phoneNumber: string; type: "call" } | { code: string; label: string; type: "copy" })[]; body: string; header: { filename?: string; source: string; title?: string; type: "image" } })[]; footer?: string; type: "carousel"; version?: 1 } | { actions?: ({ label: string; type: "url"; url: string } | { label: string; phoneNumber: string; type: "call" } | { code: string; label: string; type: "copy" })[]; body: string; booking: { description?: string; email?: string; endAt?: string; labels?: { addToCalendar?: string; detailsTitle?: string; language?: string; manageBooking?: string; meetingType?: string; viewOnMap?: string }; location?: string; managementUrl?: string; phoneNumber?: string; startAt: string; url?: string }; buttonLabel: string; footer?: string; title?: string; type: "booking"; version?: 1 } | { actions: { name: string; parameters?: object }[]; body: string; footer?: string; header?: { text: string; type: "text" } | { filename?: string; source: string; title?: string; type: "image" } | { filename?: string; source: string; title?: string; type: "video" } | { filename?: string; source: string; title?: string; type: "document" }; parameters?: object; type: "native"; version?: 1 };
+  content: { actions: ({ id: string; label: string; type: "reply" } | { label: string; type: "url"; url: string } | { label: string; phoneNumber: string; type: "call" } | { code: string; label: string; type: "copy" })[]; body: string; footer?: string; header?: { text: string; type: "text" } | { filename?: string; source: string; title?: string; type: "image" } | { filename?: string; source: string; title?: string; type: "video" } | { filename?: string; source: string; title?: string; type: "document" }; type: "buttons"; version?: 1 } | { body: string; buttonLabel?: string; footer?: string; sections: { rows: { description?: string; id: string; title: string }[]; title?: string }[]; title?: string; type: "list"; version?: 1 } | { body: string; footer?: string; questions: ({ allowCustomAnswer?: boolean; id: string; label: string; options: { id: string; label: string }[]; type: "singleSelect" | "multiSelect" })[]; title?: string; type: "form"; version?: 1 } | { body: string; cards: ({ actions: ({ id: string; label: string; type: "reply" } | { label: string; type: "url"; url: string } | { label: string; phoneNumber: string; type: "call" } | { code: string; label: string; type: "copy" })[]; body: string; header: { filename?: string; source: string; title?: string; type: "image" } })[]; footer?: string; type: "carousel"; version?: 1 } | { actions?: ({ label: string; type: "url"; url: string } | { label: string; phoneNumber: string; type: "call" } | { code: string; label: string; type: "copy" })[]; body: string; booking: { description?: string; email?: string; endAt?: string; labels?: { addToCalendar?: string; detailsTitle?: string; language?: string; manageBooking?: string; meetingType?: string; viewOnMap?: string }; location?: string; managementUrl?: string; phoneNumber?: string; startAt: string; url?: string }; buttonLabel?: string; footer?: string; title?: string; type: "booking"; version?: 1 } | { actions: { name: string; parameters?: object }[]; body: string; footer?: string; header?: { text: string; type: "text" } | { filename?: string; source: string; title?: string; type: "image" } | { filename?: string; source: string; title?: string; type: "video" } | { filename?: string; source: string; title?: string; type: "document" }; parameters?: object; type: "native"; version?: 1 };
 }
 
 export interface SendLinkWithAutoPreviewParams {
@@ -1245,10 +1245,10 @@ export interface SendPttParams {
    */
   to: string;
   /**
-   * Audio file (path, URL, DataURL, or Base64) Branded type: DataURL Pattern: ^data:.+;base64,.+$
+   * Audio file (path, URL, DataURL, or Base64) Branded type: DataURL
    * @example "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA..."
    */
-  file: string;
+  file: string | Buffer;
   options?: { quotedMsgId?: string; viewOnce?: boolean };
 }
 
@@ -1388,10 +1388,10 @@ export interface SendVideoAsGifParams {
    */
   to: string;
   /**
-   * Video file (path, URL, DataURL, or Base64) Branded type: DataURL Pattern: ^data:.+;base64,.+$
+   * Video file (path, URL, DataURL, or Base64) Branded type: DataURL
    * @example "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21..."
    */
-  file: string;
+  file: string | Buffer;
   /**
    * Filename with extension
    * @example "document.pdf"
@@ -1544,10 +1544,10 @@ export interface SetMyStatusParams {
 
 export interface SetProfilePictureParams {
   /**
-   * Image file (path, URL, DataURL, or Base64) Branded type: DataURL Pattern: ^data:.+;base64,.+$
+   * Image file (path, URL, DataURL, or Base64) Branded type: DataURL
    * @example "data:image/png;base64,iVBORw0KGgo..."
    */
-  image: string;
+  image: string | Buffer;
 }
 
 export interface SharePhoneNumberParams {

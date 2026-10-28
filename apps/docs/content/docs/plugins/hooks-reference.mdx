@@ -9,6 +9,48 @@ Hooks connect your plugin to the open-wa host. Your plugin's `init()` function r
 
 All hooks are optional. Use only the hook your task needs.
 
+## Host hooks before plugin dispatch
+
+Set `hooks` in the host config to restrict plugins before their handlers run:
+
+```js
+export default {
+  hooks: {
+    chatFilter: {
+      allow: ['447123456789@c.us', '123456789@lid'],
+    },
+    beforeEvent: async ({ plugin, event, payload, sessionId }) => {
+      // Return false to skip this plugin handler.
+      return true;
+    },
+    beforeAction: async ({ plugin, method, args, sessionId }) => {
+      // Return false to block this plugin invocation before dispatch.
+      return true;
+    },
+  },
+};
+```
+
+`chatFilter.allow` contains exact chat IDs. Include verified phone-number and
+LID IDs explicitly; the filter does not guess whether two IDs are the same
+person. An empty list blocks all chats. Omit `chatFilter` to leave chats
+unrestricted.
+
+The filter covers named plugin callbacks, catch-all callbacks and direct
+`input.events` subscriptions, including `once`. A blocked event does not consume
+a once subscription. Lifecycle events still reach plugins. Chat events without
+a resolvable chat ID are blocked when a chat filter is configured.
+
+Plugin `runtime.invoke`, client methods and `client.ask` also pass through the
+action hook. The host checks schema-registered recipient parameters, and bound
+call methods retain the call's chat scope. Unknown operations and chatless writes
+are blocked under a chat restriction. A rejected invocation throws
+`PLUGIN_HOOK_REJECTED` with outcome `not_sent`; an event hook failure prevents
+the handler from running. Custom hooks cannot override `chatFilter`.
+
+These host hooks apply to plugins. The following sections describe the listener
+hooks returned by a plugin's `init()` function.
+
 ## Lifecycle hooks
 
 ### `core.starting`

@@ -15,6 +15,8 @@ interface PluginInput<TConfig = unknown> {
   sessionId: string;
   signal: AbortSignal;
   client: PluginClient;
+  runtime: PluginRuntime;
+  services: PluginServices;
 }
 ```
 
@@ -73,14 +75,14 @@ Plugin logs flow through the host's logging system. Whether they are persisted d
 
 ## `config`: Validated Configuration
 
-The `config` field contains your plugin's configuration from `wa.config.mjs`. When you provide a `configSchema`, the host validates and parses the value before calling `init()`; without a schema, it passes the configured value through (or `{}` when it is absent).
+The `config` field contains your plugin's configuration from `wa.config.js` or `wa.config.ts`. When you provide a `configSchema`, the host validates and parses the value before calling `init()`; without a schema, it passes the configured value through (or `{}` when it is absent).
 
 ### Access Pattern
 
 Your plugin's config is accessed via the `pluginConfig` key in the global config file:
 
 ```js
-// wa.config.mjs
+// wa.config.js or wa.config.ts
 export default {
   pluginConfig: {
     'my-plugin': {
@@ -144,6 +146,22 @@ init: async ({ signal, logger }) => {
 }
 ```
 
+## `runtime`: Host Client methods
+
+`runtime.invoke()` calls the attached high-level Client facade on the Easy API
+host. Use it for prepared media, decryption, and calling with streams; these
+operations need host services that a raw browser method cannot provide.
+
+```ts
+const audio = await runtime.invoke<string>('decryptMedia', [message]);
+const call = await runtime.invoke<Call | null>('getActiveCall');
+```
+
+The facade must be attached before invocation, so start runtime work from
+`client.ready` or a later event rather than `init()`. Calls return hydrated local
+objects and can accept Web streams; don't JSON-serialize those values. This
+bridge has the same process trust as the installed plugin.
+
 ## `client`: WhatsApp Method Proxy
 
 The `client` is a host-managed proxy for calling methods exposed by `window.WAPI` in the connected runtime. Its `ask()` method forwards method names and arguments; the SDK does not apply a safe-method allowlist. The proxy does not restrict Node.js imports or replace process isolation.
@@ -162,3 +180,13 @@ See the **[PluginClient reference](/docs/plugins/plugin-client)** for the comple
 - **[Hooks reference](/docs/plugins/hooks-reference):** What your plugin can return
 - **[PluginClient reference](/docs/plugins/plugin-client):** Available client methods
 - **[Plugin security model](/docs/plugins/security-model):** What plugins can and cannot do
+
+## `services`: Shared host services
+
+Cooperating plugins can use `services.getOrCreate(name, factory)` for one
+instance per session host. The factory receives a host lifetime signal and
+returns `{ value, dispose }`. Concurrent acquisitions share the same promise; a
+failed creation is removed so a later acquisition can try again. The host aborts
+these services when shutting down, disposes plugins, then disposes the shared
+services. Do not bind a shared service to the first acquiring plugin's signal.
+Jev and Voxtral use this for their common conversation state and send journal.

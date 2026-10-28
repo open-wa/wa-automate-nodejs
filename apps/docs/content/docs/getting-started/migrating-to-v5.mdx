@@ -186,7 +186,8 @@ some different names and units.
 | `userDataDir`, `ephemeral` | Remove assumptions that these control saved login. The browser profile is disposable. | Same behavior. |
 | `skipSessionSave` | Disables the local session file and requires a durable remote store. | Same behavior. |
 | `sessionDataEncryptionKey`, `sessionDataEncryptionKeyFile` | Optional custom key or mounted key file; choose one. | Same behavior. |
-| `onError`, `pQueueDefault`, `messagePreprocessor` | Do not assume the shared schema wires their v4 behavior. Handle errors explicitly and configure listeners individually. | No direct equivalent options. |
+| `onError`, `pQueueDefault` | Handle errors explicitly and configure listeners individually. | No direct equivalent options. |
+| `messagePreprocessor`, `preprocFilter` | Use host `hooks.beforeEvent` for pre-dispatch filtering and `hooks.chatFilter.allow` to restrict plugin chats. | `hooks` |
 
 For example, one minute is `authTimeout: 60` with `create()` and
 `authTimeoutMs: 60_000` with `createClient()`. Copying the number `60` into the

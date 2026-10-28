@@ -1,0 +1,376 @@
+---
+title: Voxtral voice assistant
+seoTitle: "WhatsApp AI voice notes and calls with Mistral Voxtral | open-wa"
+description: Add open-wa's Voxtral plugin to Easy API for two-way WhatsApp voice-note conversations and live AI audio calls, with controls in the dashboard.
+---
+
+# Voxtral voice assistant
+
+Use the official `@open-wa/integration-voxtral` plugin to answer WhatsApp voice
+notes and audio calls with a conversational assistant. Add it to your Easy API
+configuration, supply a Mistral API key, and describe how the assistant should
+respond.
+
+The plugin handles transcription, conversation context, answer generation, and
+speech. Voice-note replies arrive as WhatsApp voice notes. Calls use a live
+audio connection, so callers can speak naturally and interrupt the assistant.
+
+## 1. Create your voice assistant
+
+Use **Node.js 22.21.1 or newer** and npm:
+
+```bash
+npm init @open-wa@latest voice-assistant -- --mode easy-api --plugins voxtral
+cd voice-assistant
+```
+
+The wizard asks for JavaScript or TypeScript, your browser, and whether Voxtral
+should handle **voice notes**, **calls**, or **both**. Or use the
+[project builder](/new?mode=easy-api&plugins=voxtral) to choose visually, preview
+the files, and copy a complete command.
+
+The generated `wa.config.js` or `wa.config.ts` includes the plugin and your
+chosen mode. Easy API discovers it automatically; you don't need a config flag
+or a separate plugin installation command.
+
+## 2. Add your keys
+
+Copy `.env.example` to `.env` and set your
+[Mistral API key](https://console.mistral.ai/api-keys/):
+
+```dotenv
+MISTRAL_API_KEY=YOUR_MISTRAL_API_KEY
+# Enable intent-based chat actions with Jev
+JEV_API_KEY=YOUR_JEV_API_KEY
+```
+
+Get a Jev key from [TypeSafe](https://typesafe.ai/) to let the assistant choose
+chat actions. Without it, voice conversations continue and chat actions are
+unavailable. The plugin reads both keys from the environment.
+
+For calls, also fill in `OPENWA_LICENSE_KEY` with your calling-enabled open-wa
+license. The generated config loads `.env`. Mistral bills transcription, answer
+generation, and speech separately through your account; see
+[Mistral's current pricing](https://mistral.ai/pricing).
+
+## 3. Start the assistant
+
+```bash
+npm start
+```
+
+Only selected plugins are installed, on demand at startup, then reused from the
+project's cache. The browser follows your selected reuse/download policy.
+
+Link WhatsApp using the QR code shown by Easy API, then open the
+[dashboard](http://localhost:8080/dashboard/) and select **Plugins → Voxtral**.
+The plugin runs inside Easy API and uses its connected WhatsApp session. It
+keeps working when you close the dashboard.
+
+Send a voice note to the linked account from another WhatsApp account. The
+assistant answers with a voice note. Send a follow-up such as “Can you explain
+the second point?” and it uses the earlier conversation to answer.
+
+## Add Voxtral to an existing project
+
+Set `MISTRAL_API_KEY` in the environment that starts Easy API. Add the plugin to
+your existing `wa.config.js` or `wa.config.ts`:
+
+```js
+plugins: ['@open-wa/integration-voxtral'],
+```
+
+It starts with the default voice-note assistant. Add `pluginConfig.voxtral` to
+customize it, or edit its settings in Neo. Instructions accept a string or an
+array; the plugin joins array entries for you.
+
+## Choose voice notes, calls, or both
+
+Set `mode` in `pluginConfig.voxtral`, or change **Conversation mode** on the
+Voxtral dashboard page:
+
+| Mode | Behavior |
+| --- | --- |
+| `voice-notes` | Answer incoming voice notes with voice notes. This is the default. |
+| `calls` | Answer incoming WhatsApp audio calls with a live voice assistant. Voice notes remain in the ordinary inbox. |
+| `both` | Handle voice notes and audio calls with the same assistant settings. |
+
+The assistant handles direct conversations. It ignores groups, broadcasts,
+status updates, and its own messages. In `voice-notes` or `both` mode, you can
+also enable `voiceNotes.acceptText` to answer ordinary direct text messages.
+
+### Voice-note conversations
+
+Each completed recording becomes a conversation turn. The plugin decrypts it,
+recognizes the speech, generates an answer, and sends prepared Ogg Opus audio
+using WhatsApp's voice-note presentation. You don't need to install FFmpeg or
+write a media handler.
+
+The assistant remembers recent turns for the same person in the same WhatsApp
+session. Context expires after 30 minutes without activity by default and is
+cleared when Easy API restarts. Choose **Clear AI context** in the person's Chat view to
+clear a person's current context immediately.
+
+To include a readable copy of the assistant's reply and let people type their
+follow-ups, add these settings inside `voxtral`:
+
+```js
+voiceNotes: {
+  includeText: true,
+  acceptText: true,
+},
+```
+
+`includeText` sends the assistant's answer as text alongside its voice note.
+It doesn't send the incoming transcript back as the answer.
+
+### Live audio calls
+
+Switch to `calls` or `both` and supply your calling-enabled open-wa license in
+the top-level Easy API config:
+
+```bash
+export OPENWA_LICENSE_KEY='YOUR_CALLING_LICENSE'
+```
+
+```js title="wa.config.js"
+export default {
+  licenseKey: process.env.OPENWA_LICENSE_KEY,
+  plugins: ['@open-wa/integration-voxtral'],
+  pluginConfig: {
+    voxtral: {
+      mode: 'both',
+    },
+  },
+};
+```
+
+Run `npm start` as before. Calling uses open-wa's
+[licensed audio calling support](/docs/guides/calls).
+If calling isn't available, the dashboard shows the reason; the Easy API and
+any enabled voice-note handling continue running.
+
+With `answer: 'auto'`, the assistant answers incoming calls and plays the
+greeting after the call connects. With `answer: 'manual'`, incoming calls ring
+in the dashboard and you choose **Answer with Voxtral**, **Answer myself**, or
+**Reject**. To place a call, choose a contact in **Calls**, select
+**Voxtral assistant** as the audio source, and choose **Call**. In **Chat**, open
+the person and choose **Call with Voxtral**.
+
+The caller can interrupt a spoken answer. The assistant stops its current
+speech, listens, and answers the new turn. **Take over** switches the live call
+to your microphone and speakers; **Return to assistant** gives the conversation
+back. These controls are also available in the dashboard's floating call
+control. open-wa supports one active call per WhatsApp session.
+
+During human takeover, the assistant can keep transcribing the caller. Your
+microphone is not transcribed. Add an optional handoff summary before returning
+the call to Voxtral if it needs facts from your side of the conversation.
+
+In `both` mode, a person's voice notes and calls share recent conversation
+context. Voice notes received from that person during their call wait until
+the call ends, so the assistant doesn't answer them in two places at once.
+
+## Choose chat actions with Jev
+
+During a call or voice-note exchange, the person can ask: “Send me the booking
+confirmation in this WhatsApp chat.” Jev classifies that request in the recent
+conversation context and chooses the appropriate format. Voxtral fills the
+selected format with known details, sends it to the same person, then uses the
+actual send result for its spoken acknowledgement.
+
+| Intent | Available action |
+| --- | --- |
+| A written answer, summary or link | Text message |
+| An order confirmation or receipt | Formatted confirmation template |
+| A few quick choices or link/call/copy actions | Button message |
+| Several known choices, such as services | Choice list |
+| Collect several answers | Form |
+| Appointment or reservation details | Native booking card |
+| “No, I said 2 pm” after a booking card | Corrected card replacing the previous one |
+| Ordinary conversation | No chat action |
+| An unclear chat request | Ask a clarifying question |
+
+You can correct the latest booking card during the call or with another voice
+note. Voxtral changes only the corrected fields and keeps the other details.
+It sends the replacement before removing the old card, and reports if the old
+card couldn't be removed. This corrects the message in the chat; it doesn't
+change a reservation in an external booking system. The original card must
+still be in the assistant's recent conversation context.
+
+Set `JEV_API_KEY` on the Easy API host. The classifier model defaults to
+`jev-latest`; change it under **Edit assistant → Chat actions**. Rich formats
+require an Insiders or higher license with interactive messaging. Jev is given
+only the formats the session supports. A confirmation template here is formatted
+WhatsApp text, not a Meta-approved business template.
+
+Jev reviews each user turn, proposed message content, action result and spoken reply.
+It uses the conversation and observed outcomes to choose the next step: continue
+speaking, perform an unfinished action, repair rejected arguments, ask for a
+missing fact or reconcile an uncertain send. A request can produce several
+messages, such as a booking card followed by buttons, without repeating the
+completed action. The same loop handles voice notes, calls and interactive
+replies. Message contents are built from the shared OpenUI schemas.
+
+Chat actions are enabled by default. Turn **Send messages when asked** off under
+**Plugins → Voxtral → Edit assistant → Chat actions**, or set
+`actions: { sendMessage: false }` inside `pluginConfig.voxtral`. **Choose format**
+previews Jev's decision using your saved model without sending a WhatsApp message.
+
+The normal Chat feed uses the shared [OpenUI catalogue](/docs/guides/openui) for
+message previews. **Plugins → Voxtral → Preview messages** lets you try cards,
+buttons, lists, forms and their replies without sending a WhatsApp message.
+The feed shows the selected format, a details preview and the
+message's submission and observed delivery state. Button, list and form replies
+to the assistant's own messages become conversation turns. During a call, the
+assistant responds through call audio; in voice-note mode it sends a voice note.
+In calls-only mode, selections made outside a call remain in context for the
+next call. These reply controls don't require `voiceNotes.acceptText`.
+
+The assistant asks only for missing required details. A booking card needs a
+date, local time, timezone and a location, booking URL or phone number; it does
+not require a name or email. The plugin
+calculates timestamps and the displayed date/time using the timezone rules for
+the appointment date, including daylight saving. If the clocks make a local
+time ambiguous or nonexistent, it asks for clarification. Forms and buttons
+do not require booking details.
+Sending a card, template or button doesn't create, verify or cancel a reservation
+in a booking system. An uncertain send isn't retried automatically; pausing the
+assistant or taking over a call stops new actions. If Jev is unavailable, the
+assistant continues speaking but explains that it can't perform chat actions.
+The selected answer model must support [Mistral function calling](https://docs.mistral.ai/studio/conversations/function-calling).
+
+## Manage the assistant in the dashboard
+
+Open a person in **Chat** to see transcripts under their voice notes, assistant
+replies and delivery states, and call turns in the ordinary message timeline.
+The conversation toolbar shows the current assistant state and controls.
+Open **Plugins → Voxtral** for session settings, mode, voice preview, and usage;
+its conversation list links into the same Chat view.
+
+| Control | What it does |
+| --- | --- |
+| **Conversation mode** | Choose Voice notes, Calls, or Both. |
+| **Pause AI** | Stop new automatic responses across the session. Active calls remain available for takeover or ending. |
+| **Edit assistant** | Change instructions, voice, language, and reply settings. |
+| **Send messages when asked** | Let Jev choose the chat format and the assistant send agreed details during calls and voice notes. |
+| **Choose format** | Preview the Jev action decision without sending a WhatsApp message. |
+| **Preview voice** | Play a sample locally without sending a WhatsApp message. This uses your Mistral account. |
+| **Open chat** | Open the person's normal Chat feed from the plugin's conversation list. |
+| **Pause AI here** | Leave this chat to a human while the assistant handles others. |
+| **Clear AI context** | Clear this person's current assistant context without deleting WhatsApp messages. |
+| **Usage** | See processed audio duration, generated speech characters, and reported model token usage. |
+
+The voice-note activity view shows **Queued**, **Transcribing**, **Thinking**,
+**Generating voice**, **Sending**, and the observed message acknowledgement.
+Calls show their connection state separately from **Listening**, **Thinking**,
+and **Speaking**, so you can tell whether the call connected and whether the
+assistant is producing audio.
+
+Usage counters show the reporting period and provider values where available.
+Live transcription duration and interrupted requests may be missing; these
+counters are not a Mistral invoice.
+
+Dashboard settings are saved for this session and override matching values in
+your config file after a restart. Resetting settings removes those saved overrides.
+Use **Copy config** to move the effective settings into your file; the exported
+example references environment variables instead of including API keys.
+Voice and instruction changes apply to the next conversation turn. Mode
+changes affect new work; they don't silently hang up an active call.
+
+## Configuration reference
+
+To customize the assistant in your config file, add `pluginConfig`. For example:
+
+```js
+pluginConfig: {
+  voxtral: {
+    agent: {
+      instructions: [
+        'You are a patient language tutor.',
+        'Keep replies short and ask one question at a time.',
+      ],
+    },
+  },
+},
+```
+
+These fields belong in `pluginConfig.voxtral`:
+
+| Field | Default | Purpose |
+| --- | --- | --- |
+| `apiKey` | `MISTRAL_API_KEY` environment variable | Optional explicit Mistral API key; normally the plugin reads the environment itself. |
+| `jevApiKey` | `JEV_API_KEY` environment variable | Optional explicit Jev key for chat action classification. |
+| `mode` | `'voice-notes'` | `'voice-notes'`, `'calls'`, or `'both'`. |
+| `agent.instructions` | A brief, helpful assistant | A string or array of strings. The plugin joins array entries in order with line breaks. |
+| `agent.model` | `'mistral-small-latest'` | The Mistral language model that generates answers. |
+| `voice.id` | `'voice_478'` | Speech voice; use **Preview voice** to hear it. |
+| `language` | `'auto'` | Detect the person's language, or use a supported language code. |
+| `voiceNotes.includeText` | `false` | Send the assistant's answer as text as well as audio. |
+| `voiceNotes.acceptText` | `false` | Treat incoming direct text messages as assistant turns too. |
+| `calls.answer` | `'auto'` | Answer incoming calls automatically, or wait for a dashboard action with `'manual'`. |
+| `calls.greeting` | An introduction identifying the AI assistant | The first spoken message after a call connects. |
+| `actions.sendMessage` | `true` | Allow Jev-selected chat actions for the person in the current conversation. |
+| `actions.classifierModel` | `'jev-latest'` | Jev model for turn planning, action selection and response review. |
+| `conversation.idleTimeoutSeconds` | `1800` | How long recent conversation context remains after the last turn. |
+| `models.transcription` | `'voxtral-mini-transcribe-3-0'` | Transcription model for completed voice notes. |
+| `models.realtimeTranscription` | `'voxtral-mini-transcribe-realtime-3-0'` | Transcription model for live calls. |
+| `models.speech` | `'voxtral-mini-tts-3-0'` | Speech model used to produce replies. |
+| `contextBias` | `[]` | Names and specialist terms to help the transcription model recognize. |
+
+Partial settings inherit defaults for omitted fields, including fields inside
+`agent`, `voiceNotes`, `calls`, and `actions`. You don't need to copy a complete settings
+object to change one option. With `language: 'auto'`, the plugin configures
+language detection for each provider request.
+
+For better recognition of difficult recordings, set `models.transcription` to
+`'voxtral-small-transcribe-3-0'`. Choose a voice suitable for the response
+language from [Mistral's voice library](https://docs.mistral.ai/studio/audio/text-to-speech/voices).
+Model access and supported languages follow your Mistral account and the
+selected models. See the
+[speech-to-text](https://docs.mistral.ai/studio/audio/speech-to-text/overview)
+and [text-to-speech](https://docs.mistral.ai/studio/audio/text-to-speech/overview)
+references.
+
+## Conversation data and recovery
+
+Recent transcripts and answers are held in memory for the conversation's idle
+timeout. The plugin doesn't save raw voice notes or call recordings by default.
+Settings, pause choices, usage counters, and message-processing identifiers are
+saved locally for the WhatsApp session. Audio and conversation text needed for
+responses are sent to Mistral. When chat actions are enabled, Jev receives the
+latest request, a bounded excerpt of recent conversation, proposed message
+content, action outcomes and proposed replies to choose the next action and
+review its response. Jev classification uses your TypeSafe account separately from Mistral.
+
+If a voice note contains no recognizable speech, the assistant asks the person
+to send it again or type their message. If Mistral rejects a key or reports a
+limit, the dashboard shows the affected service and a recovery action. A failed
+reply isn't labelled as delivered, and the plugin doesn't automatically repeat
+a WhatsApp send whose result is uncertain.
+
+If answer generation reports that the selected model has zero request quota,
+open **Plugins → Voxtral → Edit assistant** and change **Answer model** to a
+model your Mistral account can use. In file config, set `agent.model` inside
+`pluginConfig.voxtral`; for example, use `ministral-3b-latest` when your account
+has quota for it. Waiting won't resolve a model whose allowed quota is zero.
+
+If a live call loses its AI audio connection, the call control offers **Take
+over**, **Reconnect assistant**, and **End call**. Reconnecting starts a fresh
+AI audio connection on the existing call; it doesn't redial the person.
+
+## Related guides
+
+- [Easy API quick start](/docs/getting-started/easy-api)
+- [Calls](/docs/guides/calls)
+- [Media handling](/docs/guides/media)
+- [Plugin configuration](/docs/plugins/getting-started#configure-the-plugin)
+
+## Text conversations with Jev
+
+Voxtral uses the shared Jev decision and action engine. Add
+`@open-wa/integration-jev` to `plugins` to also answer ordinary text messages,
+or select Jev alongside Voxtral in the setup wizard. They share recent context,
+booking cards and send outcomes. During a live call, button and form replies
+return through call audio. See the [Jev guide](/docs/guides/jev) for setup,
+correction rules, dates and decision evidence.

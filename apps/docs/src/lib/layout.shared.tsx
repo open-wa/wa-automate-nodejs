@@ -17,6 +17,7 @@ export function baseOptions(): BaseLayoutProps {
       url: '/',
     },
     links: [
+      { text: 'Create a project', url: '/new' },
       { type: 'custom', secondary: true, children: <GetLicenseButton className="license-header-button" /> },
       { text: 'Docs', url: DOCS_PATHS.overview },
       { text: 'API reference', url: DOCS_PATHS.referenceClient },

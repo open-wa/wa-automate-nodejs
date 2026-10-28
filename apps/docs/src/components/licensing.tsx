@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ArrowRight, ExternalLink, Info, Ticket } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@open-wa/ui-components/dialog';
 import { GENERIC_LICENSE_URL, getLicenseTierHref, getLicenseTierLabel, getLicenseTierSummary, type LicenseTier } from '@/lib/site';
-import { LicenseCheckoutTrigger } from '@/components/license-checkout';
+import { LicenseCheckoutTrigger, useLicenseAccount } from '@/components/license-checkout';
 
 function joinClasses(...classes: Array<string | undefined>): string {
   return classes.filter(Boolean).join(' ');
@@ -11,9 +11,10 @@ function joinClasses(...classes: Array<string | undefined>): string {
 export function GetLicenseButton({ href = GENERIC_LICENSE_URL, tier, className, label = 'Get a license', subtle = false, onClick }: {
   href?: string; tier?: LicenseTier; className?: string; label?: string; subtle?: boolean; onClick?: () => void;
 }) {
+  const account = useLicenseAccount();
   const requestedTier = new URL(href, GENERIC_LICENSE_URL).searchParams.get('tier');
   const selectedTier = tier ?? (requestedTier === 'insiders' || requestedTier === 'restricted' ? requestedTier : undefined);
-  return <LicenseCheckoutTrigger tier={selectedTier} onClick={onClick} className={joinClasses('inline-flex min-h-10 items-center justify-center gap-2 rounded-[10px] border px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring', subtle ? 'ow-license-foil' : 'border-primary bg-primary text-primary-foreground hover:opacity-90', className)}><Ticket size={16} aria-hidden="true" />{label}<ArrowRight size={16} aria-hidden="true" /></LicenseCheckoutTrigger>;
+  return <LicenseCheckoutTrigger tier={selectedTier} onClick={onClick} className={joinClasses('inline-flex min-h-10 items-center justify-center gap-2 rounded-[10px] border px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring', subtle ? 'ow-license-foil' : 'border-primary bg-primary text-primary-foreground hover:opacity-90', className)}><Ticket size={16} aria-hidden="true" />{account?.signedIn ? 'Manage licenses' : label}<ArrowRight size={16} aria-hidden="true" /></LicenseCheckoutTrigger>;
 }
 
 export function LicenseBadge({ tier, className }: { tier: LicenseTier; className?: string }) {

@@ -962,12 +962,12 @@ Additional provider fields may be present; narrow them before use.
 <summary>Type declaration</summary>
 
 ```ts
-type BookingContent = { version?: 1; body: string; footer?: string; type: "booking"; title?: string; buttonLabel?: string; booking: { startAt: string; endAt?: string; location?: string; url?: string; managementUrl?: string; phoneNumber?: string; email?: string; description?: string; labels?: { language?: string; meetingType?: string; detailsTitle?: string; addToCalendar?: string; viewOnMap?: string; manageBooking?: string } }; actions?: (LinkAction | CallAction | CopyAction)[] }
+type BookingContent = { version?: 1; body: string; footer?: string; type: "booking"; title?: string; buttonLabel?: string; booking: { startAt: BookingTimestamp; endAt?: BookingTimestamp; location?: string; url?: string; managementUrl?: string; phoneNumber?: string; email?: string; description?: string; labels?: { language?: string; meetingType?: string; detailsTitle?: string; addToCalendar?: string; viewOnMap?: string; manageBooking?: string } }; actions?: (LinkAction | CallAction | CopyAction)[] }
 ```
 
 </details>
 
-Related types: [CallAction](/docs/reference/client/return-types#callaction), [CopyAction](/docs/reference/client/return-types#copyaction), [LinkAction](/docs/reference/client/return-types#linkaction)
+Related types: [BookingTimestamp](/docs/reference/client/return-types#bookingtimestamp), [CallAction](/docs/reference/client/return-types#callaction), [CopyAction](/docs/reference/client/return-types#copyaction), [LinkAction](/docs/reference/client/return-types#linkaction)
 
 | Field | Type | Required |
 | --- | --- | --- |
@@ -977,10 +977,25 @@ Related types: [CallAction](/docs/reference/client/return-types#callaction), [Co
 | `type` | `"booking"` | Yes |
 | `title` | `string` | No |
 | `buttonLabel` | `string` | No |
-| `booking` | `{ startAt: string; endAt?: string; location?: string; url?: string; managementUrl?: string; phoneNumber?: string; email?: string; description?: string; labels?: { language?: string; meetingType?: string; detailsTitle?: string; addToCalendar?: string; viewOnMap?: string; manageBooking?: string } }` | Yes |
+| `booking` | `{ startAt: BookingTimestamp; endAt?: BookingTimestamp; location?: string; url?: string; managementUrl?: string; phoneNumber?: string; email?: string; description?: string; labels?: { language?: string; meetingType?: string; detailsTitle?: string; addToCalendar?: string; viewOnMap?: string; manageBooking?: string } }` — [BookingTimestamp](/docs/reference/client/return-types#bookingtimestamp) | Yes |
 | `actions` | `(LinkAction \| CallAction \| CopyAction)[]` — [CallAction](/docs/reference/client/return-types#callaction), [CopyAction](/docs/reference/client/return-types#copyaction), [LinkAction](/docs/reference/client/return-types#linkaction) | No |
 
 Additional provider fields may be present; narrow them before use.
+## BookingTimestamp
+
+Validated native booking timestamp, encoded as UTC ISO 8601 with whole seconds and no fractional seconds.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type BookingTimestamp = import('@open-wa/schema/interactive').BookingTimestamp
+```
+
+</details>
+
+
+
 ## ButtonsContent
 
 

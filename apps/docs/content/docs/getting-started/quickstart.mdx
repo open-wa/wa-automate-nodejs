@@ -1,187 +1,89 @@
 ---
 title: Quick start
-description: Start the Easy API, connect WhatsApp, check readiness, and send a test message.
+description: Generate an open-wa project, link WhatsApp, and send your first message.
 ---
 
-<span id="prerequisites" aria-hidden="true"></span>
-
-**QR pairing is the default login method.** Scan the QR code from **Linked
-Devices** on your phone to link the account.
-
-This page uses `5.1.0` and describes that version's saved browser profile.
-For current v5 session files and release status, see the
-[v4-to-v5 migration guide](/docs/getting-started/migrating-to-v5).
-The change to saved login data does not replace QR pairing.
+# Quick start
 
 ## Before you start
 
-- **Node.js 22.21.1 or newer.** Install it from [nodejs.org](https://nodejs.org/en/download), then check with `node --version`.
-- **npm or pnpm.** The commands below use `npx`, which is included with npm; use `pnpm dlx` if pnpm is your package manager.
-- **A phone that already runs WhatsApp.** The guide links that phone to the browser session on your computer; it does not automate the WhatsApp mobile app.
-- **A terminal.** The shell examples are written for Bash-compatible terminals. PowerShell and CMD variants are included where quoting or environment assignment differs.
+Use **Node.js 22.21.1 or newer**, npm, and a phone running WhatsApp.
 
-**Prepare your terminal**
-
-Open Terminal on macOS/Linux or PowerShell on Windows, change to a folder where you want the session profile saved, and run the command for your shell:
-
-<Tabs items={['macOS/Linux (Bash)', 'Windows PowerShell', 'Windows CMD']}>
-<Tab value="macOS/Linux (Bash)">
+## 1. Create your project
 
 ```bash
-mkdir open-wa-quickstart && cd open-wa-quickstart
+npm init @open-wa@latest my-bot
+cd my-bot
 ```
 
-</Tab>
-<Tab value="Windows PowerShell">
+Choose **Easy API** to use HTTP requests and the Neo dashboard, or **SDK** to
+write your own bot. The wizard also lets you choose JavaScript or TypeScript,
+use installed Chrome or download a browser, and select plugins.
 
-```powershell
-New-Item -ItemType Directory open-wa-quickstart | Out-Null
-Set-Location open-wa-quickstart
-```
+Prefer a visual setup? Use the [project builder](/new) to choose your options,
+preview the files, and copy a complete setup command. See the
+[initializer guide](/docs/getting-started/initializer) for all flags.
 
-</Tab>
-<Tab value="Windows CMD">
+If you selected integrations, copy `.env.example` to `.env` and fill in their
+settings. Selected plugins and any needed browser download are installed at
+startup and cached for reuse.
 
-```cmd
-mkdir open-wa-quickstart
-cd open-wa-quickstart
-```
-
-</Tab>
-</Tabs>
-
-Keep this terminal open while the runtime is running. Stop it with `Ctrl+C` after the session has been tested.
-
-## 1. Start the Easy API
-
-Run supported **5.1.0** in your terminal. This starts a session called `quickstart` on port `8080`:
+## 2. Start and link WhatsApp
 
 ```bash
-npx @open-wa/wa-automate@5.1.0 --session-id quickstart --host 127.0.0.1 --port 8080
+npm start
 ```
 
-The session profile is persisted under `_IGNORE_quickstart` in the current directory unless you set `userDataDir` in a config file. `--host 127.0.0.1` keeps the API on this computer. The terminal should show the browser starting, then a QR code or another authentication prompt, and the local API address `http://localhost:8080`. When the dashboard is enabled, open [the local dashboard](http://localhost:8080/dashboard/) to view the session; use `/health` below for the explicit readiness fields.
+On your phone, open **WhatsApp → Linked devices → Link a device** and scan the QR
+code shown in the terminal. Keep the terminal open; stop the project with
+`Ctrl+C`. Restart from the same project directory to reuse a valid saved login.
 
-The API process can be listening before WhatsApp authentication completes. Continue to **Authenticate**, then use `/health` in **Check readiness**.
+## 3. Use your project
 
-## 2. Authenticate the session
+### Easy API
 
-For a QR login, open WhatsApp on the phone that owns the account:
-
-1. Open **Settings** on iPhone, or **Menu** then **Linked devices** on Android.
-2. Tap **Linked devices** and then **Link a device**.
-3. Scan the QR code shown by open-wa in the computer terminal.
-
-The Easy API CLI uses QR authentication. For an embedded Node.js app that requests a link code, follow **[Link-code login](/docs/getting-started/link-code)**; the computer runs open-wa and generates the code, and the phone enters it in its **Linked devices** flow.
-
-On later starts, the runtime restores the saved portable session data. Authentication is complete only when the readiness check reports `connected: true` and `session.ready: true`.
-
-## 3. Check readiness
-
-Open the API docs page to discover the running HTTP surface:
-
-```text
-http://localhost:8080/api-docs/
-```
-
-That page proves that the HTTP process and docs route respond. It does not prove that WhatsApp is authenticated or that a message can be sent. Check the session separately:
+Open [Neo](http://127.0.0.1:8080/dashboard/) to manage the session and
+[the API explorer](http://127.0.0.1:8080/api-docs/) to browse available requests.
+The HTTP process can start before WhatsApp connects. Check readiness before
+sending:
 
 ```bash
-curl http://localhost:8080/health
+curl http://127.0.0.1:8080/health
 ```
 
-In Windows PowerShell, use `curl.exe` for the same request so PowerShell does not resolve its older `curl` alias:
+Look for `connected: true` and `session.ready: true`. If either is false, finish
+pairing and inspect the reported pending steps before sending.
 
-```powershell
-curl.exe http://localhost:8080/health
-```
-
-After authentication, the response includes these readiness fields:
-
-```json
-{
-  "status": "ok",
-  "connected": true,
-  "session": {
-    "status": "ready",
-    "ready": true,
-    "state": "READY",
-    "pending": [],
-    "blockers": []
-  }
-}
-```
-
-The complete response also includes launch, patch, license, and reconnection details, including QR data while pairing. `/health` is public in the current release and does not require or check `X-API-Key`, so keep the server on loopback or a private network. If `connected` or `session.ready` is `false`, keep the runtime open, finish the QR or link-code flow, and inspect `session.pending` and `session.blockers` before trying to send. A page response with HTTP 200 is process liveness, not WhatsApp readiness.
-
-## 4. Send your first message
-
-Use a chat ID for a known recipient. Replace `447123456789@c.us` with the recipient's full international number followed by `@c.us`; do not include `+`, spaces, brackets, or dashes. For a group, use its `@g.us` ID. If an incoming message gives you a `message.from` value, reuse that exact ID, including an `@lid` suffix when the runtime supplies one, instead of converting it to a phone number.
-
-<Tabs items={['API docs UI', 'curl (Bash)', 'curl (PowerShell)']}>
-<Tab value="API docs UI">
-
-1. Open `http://localhost:8080/api-docs/`.
-2. Find `POST /api/messages/sendText` (the `/api/sendText` route is a compatibility alias).
-3. Enter `447123456789@c.us` in `to` and your message in `content`.
-4. Execute the request.
-
-</Tab>
-<Tab value="curl (Bash)">
+Use an existing conversation whose recipient expects your message. Replace
+the example chat ID, then run this in another terminal:
 
 ```bash
-curl -X POST http://localhost:8080/api/messages/sendText \
-  -H "Content-Type: application/json" \
-  -d '{"to":"447123456789@c.us","content":"Hello from open-wa!","options":{}}'
+curl --fail-with-body http://127.0.0.1:8080/api/messages/sendText \
+  -H 'Content-Type: application/json' \
+  --data '{"to":"447700900123@c.us","content":"Hello from open-wa","options":{}}'
 ```
 
-If you started the API with `--api-key`, send the same value in `X-API-Key`:
+If you set `WA_API_KEY`, also send an `X-API-Key` header with that value. A
+successful response returns the submitted message ID; check the receiving chat
+for delivery. In PowerShell, use `curl.exe` for these curl commands.
 
-```bash
-curl -X POST http://localhost:8080/api/messages/sendText \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: your-secure-key" \
-  -d '{"to":"447123456789@c.us","content":"Hello from open-wa!","options":{}}'
-```
+Continue with the [Easy API guide](/docs/getting-started/easy-api) for HTTP
+authentication, events, and media.
 
-The successful response is an envelope with `success: true` and a runtime `data` value. Treat `data` as an opaque send result and retain it when you need the message identifier; the exact value is runtime-dependent.
+### SDK
 
-```json
-{
-  "success": true,
-  "data": "<runtime-dependent send result>"
-}
-```
+The generated `index.js` or `index.ts` connects and keeps the bot running.
+Send `!ping` to the linked account from another account; it replies `pong`.
+Edit that file to add your own handlers. The generated config is imported and
+passed to `create()` explicitly.
 
-</Tab>
-<Tab value="curl (PowerShell)">
+Continue with the [SDK guide](/docs/getting-started/custom-code).
 
-```powershell
-curl.exe -X POST http://localhost:8080/api/messages/sendText -H 'Content-Type: application/json' --data-raw '{"to":"447123456789@c.us","content":"Hello from open-wa!","options":{}}'
-```
+### Voxtral
 
-</Tab>
-</Tabs>
-
-The recipient’s phone should receive the message. That first received message, together with `connected: true` and `session.ready: true`, is the end of this onboarding path.
-
-## Where next?
-
-- **I want to build a bot** → Read **[Messages and events](/docs/guides/messages)**
-- **I want to connect my CRM** → Read **[Chatwoot integration](/docs/client-and-integrations/chatwoot)**
-- **I want AI agents to access WhatsApp** → Read **[MCP integration](/docs/guides/mcp)**
-- **I want to build a plugin** → Read **[Plugin getting started](/docs/plugins/getting-started)**
-- **I want to deploy to production** → Read **[Security & deployment](/docs/operations/security-and-deployment)**
-- **I want to write custom code** → Read **[Custom code](/docs/getting-started/custom-code)**
-
-## Common next commands
-
-```bash
-# Protect with an API key
-npx @open-wa/wa-automate@5.1.0 --session-id quickstart --host 127.0.0.1 --port 8080 --api-key "your-secure-key"
-
-# Run a second named session on another port
-npx @open-wa/wa-automate@5.1.0 --session-id sales --host 127.0.0.1 --port 8081
-```
-
-For Docker, use the complete [Docker baseline](/docs/getting-started/docker) with the same explicit `WA_*` settings; Docker Hub currently publishes only a moving image tag.
+If you selected Voxtral, set `MISTRAL_API_KEY` in `.env` before starting. It
+answers voice notes, calls, or both according to your selection. Set `JEV_API_KEY`
+to enable chat actions such as booking cards and buttons. Calls also
+need `OPENWA_LICENSE_KEY` with calling enabled. In Easy API, use **Plugins →
+Voxtral** for settings and a person's normal **Chat** view for transcripts and
+controls. See the [Voxtral guide](/docs/guides/voxtral).
