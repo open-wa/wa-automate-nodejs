@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.10.0
+
+- Align the public package version with the OpenWA 5.10.0 release.
+
 ## 5.7.0
 <sub>2026-10-28</sub>
 

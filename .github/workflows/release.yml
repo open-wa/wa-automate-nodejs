@@ -4,6 +4,11 @@ on:
   push:
     branches: [release]
   workflow_dispatch:
+    inputs:
+      align_versions:
+        description: Complete version alignment for an already published release
+        type: boolean
+        default: false
 
 concurrency:
   group: publish-release
@@ -23,6 +28,7 @@ jobs:
     env:
       PUPPETEER_SKIP_DOWNLOAD: '1'
       GH_TOKEN: ${{ github.token }}
+      RELEASE_ALIGN_VERSIONS: ${{ inputs.align_versions || 'false' }}
     steps:
       - uses: actions/checkout@v4
         with:

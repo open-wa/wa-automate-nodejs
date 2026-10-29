@@ -10,7 +10,7 @@ Development lands directly on `master`. Bumpy manages package bump intent and ve
 4. **Release availability** runs separately. It deploys documentation from the release tag and tracks that exact deployment. It checks each public package's version manifest, dist-tag and tarball until npm validation finishes, for up to two hours. A newer stable dist-tag can supersede the release being tracked without making the older version uninstallable. Existing Bumpy package release metadata is reconciled to successful publication while retaining its changelog.
 5. **Release notes** generates the grouped commit changelog from the immutable release tag and updates the GitHub release. After availability and documentation are confirmed, it posts one concise Discord announcement and updates the originating issue with completion. Reruns edit the saved Discord message rather than starting another announcement.
 
-The 28 fixed-group packages share a version. Independently versioned public packages retain their own versions. Stable packages use npm's `latest` tag. `release-state.json`, attached to the aggregate GitHub release, records source SHA, package versions, publication progress, docs run, and the confirmed Discord message ID. It contains no credentials.
+All 36 public packages share one fixed release version, including Jev and the runtime adapters. Preparation aligns a newly added member with the highest stable version in its group. Stable packages use npm's `latest` tag. `release-state.json`, attached to the aggregate GitHub release, records source SHA, package versions, publication progress, docs run, and the confirmed Discord message ID. It contains no credentials.
 
 Accepted npm uploads can remain unavailable during npm's automated validation. An E409 for a previously staged version is tracked as pending availability, not uploaded again. The package publishing action does not wait for validation, documentation, release notes or Discord. A failure in a follow-up action does not undo package publication or require another release PR.
 
@@ -125,3 +125,13 @@ pnpm publish-packages             # publish unpublished versions locally
 `publish-github-packages.sh` reconciles public workspace versions, skipping existing versions and building/packing missing packages with pnpm. `publish-packages-local.sh` is intentionally gitignored and must not be committed.
 
 [gh-signoff](https://github.com/basecamp/gh-signoff) remains optional for recording checks Mohammed requested and actually performed. It does not execute checks or speed up npm validation. Do not install its required-status ruleset or make it a release requirement.
+
+### Complete an existing release after version alignment
+
+When lower-version packages must join an already published aggregate version, align their manifests and changelogs on master, promote the normal master → release PR, then run:
+
+```sh
+gh workflow run release.yml --ref release -f align_versions=true
+```
+
+This records the follow-up source SHA and previous package versions in `release-state.json`, publishes only missing versions through Bumpy/OIDC, and resumes availability tracking. The original aggregate tag and already published npm artifacts are retained. Repeating the completed alignment is a no-op.
