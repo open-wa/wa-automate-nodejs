@@ -18,6 +18,7 @@ git('config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.c
 const pending = readdirSync('.bumpy').some(name => name.endsWith('.md') && name !== 'README.md');
 if (pending) {
   command('pnpm', ['exec', 'bumpy', 'version'], { stdio: 'inherit' });
+  command('node', ['tools/release/align-fixed-versions.mjs'], { stdio: 'inherit' });
   const paths = ['.bumpy/', 'pnpm-lock.yaml'];
   for (const pkg of packages('.', true)) {
     paths.push(`${pkg.directory}/package.json`);

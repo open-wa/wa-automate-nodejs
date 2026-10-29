@@ -4,6 +4,7 @@ import { command, git, api, repo, packages, output, summary, release, state, che
 
 const v = version(JSON.parse(readFileSync('packages/core/package.json', 'utf8')).version);
 const mode = process.argv[2];
+const alignVersions = process.env.RELEASE_ALIGN_VERSIONS === 'true';
 
 if (mode === 'open') {
   let existing = release(v, false);
@@ -35,14 +36,27 @@ if (mode === 'open') {
       publisherRun: runUrl,
     });
   }
-  const current = state(v);
+  let current = state(v);
+  if (alignVersions) {
+    const planned = packages().map(({ name, version }) => ({ name, version }));
+    if (planned.some(pkg => pkg.version !== v)) throw new Error(`Version alignment requires every public package to be ${v}.`);
+    const changed = planned.filter(pkg => !current.packages.some(previous => previous.name === pkg.name && previous.version === pkg.version));
+    if (changed.length) {
+      current = checkpoint(v, {
+        alignment: { sourceSha: git('rev-parse', 'HEAD'), previousPackages: current.packages, packages: changed, publisherRun: runUrl },
+        packages: planned, npmSubmittedAt: null, npmAvailableAt: null,
+        availabilityCompletedAt: null, completedAt: null,
+      });
+    }
+  }
   if (current.completedAt) {
     output('active', false);
     summary(`open-wa ${v} is already complete: ${existing.html_url}`);
     process.exit(0);
   }
-  if (current.sourceSha !== git('rev-parse', 'HEAD')) {
-    git('checkout', '--detach', current.sourceSha);
+  const publicationSha = alignVersions ? current.alignment?.sourceSha || current.sourceSha : current.sourceSha;
+  if (publicationSha !== git('rev-parse', 'HEAD')) {
+    git('checkout', '--detach', publicationSha);
     command('pnpm', ['install', '--frozen-lockfile'], { stdio: 'inherit' });
   }
   output('active', true);
