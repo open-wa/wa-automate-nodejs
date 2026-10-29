@@ -1,5 +1,9 @@
 # @open-wa/runtime-bun
 
+## 5.10.0
+
+- Align the public package version with the OpenWA 5.10.0 release.
+
 
 
 ## 5.0.2

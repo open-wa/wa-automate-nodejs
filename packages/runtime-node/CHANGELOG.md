@@ -1,5 +1,9 @@
 # @open-wa/runtime-node
 
+## 5.10.0
+
+- Align the public package version with the OpenWA 5.10.0 release.
+
 
 
 
