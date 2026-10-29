@@ -1,3 +1,4 @@
+import { makeServices } from '../../jev/test/fixtures';
 import { afterEach, expect, mock, test } from 'bun:test';
 import WebSocket, { WebSocketServer } from 'ws';
 import { settingsSchema } from '../src/config';
@@ -10,7 +11,7 @@ const ActualWebSocket = WebSocket;
 mock.module('ws', () => ({ default: class extends ActualWebSocket {
   constructor(url: string, options: any) { requestedEndpoint = url; super(endpoint, options); }
 } }));
-const { LiveCall } = await import('../src/live-call');
+const { LiveCall } = await import(process.env.OPENWA_LIVECALL_IMPLEMENTATION ?? '../src/live-call');
 const { VoxtralService } = await import('../src/service');
 const cleanups: Array<() => Promise<void>> = [];
 afterEach(async () => { for (const cleanup of cleanups.splice(0)) await cleanup(); });
@@ -19,7 +20,7 @@ async function until(predicate: () => boolean) {
   while (!predicate()) { if (Date.now() > deadline) throw new Error('Timed out waiting for call state'); await Bun.sleep(10); }
 }
 
-async function setup(options: { slowSpeech?: boolean } = {}) {
+async function setup(options: { slowSpeech?: boolean; slowClassifier?: boolean; expectedInput?: string; longSpeech?: boolean; pacedPlayback?: boolean; clearDelay?: number; failFirstAnswer?: boolean } = {}) {
   const server = new WebSocketServer({ port: 0, host: '127.0.0.1' });
   await new Promise<void>(resolve => server.once('listening', resolve));
   const address = server.address() as { port: number };
@@ -38,21 +39,32 @@ async function setup(options: { slowSpeech?: boolean } = {}) {
   const history: Array<{ role: string; content: string }> = [];
   const answers: string[] = [];
   const speechSignals: AbortSignal[] = [];
-  let answerRequests = 0, clearRequests = 0, observerStopped = 0;
+  const classificationSignals: AbortSignal[] = [];
+  const selectionIds: Array<string | undefined> = [];
+  let answerRequests = 0, clearRequests = 0, clearCompleted = 0, observerStopped = 0;
+  const clearsBeforeSpeech: number[] = [];
   const snapshot = { id: 'call-1', generation: 'generation-1', peer: '447700900123@c.us', state: 'active', terminal: false, direction: 'incoming' };
-  const call = { ...snapshot, clearAudio: async () => { clearRequests++; return { ok: true }; }, observeAudio: async () => ({ ok: true, stop: async () => { observerStopped++; } }) };
-  const pcm = Buffer.alloc(4800);
+  const call = { ...snapshot, clearAudio: async () => { clearRequests++; if (options.clearDelay) await Bun.sleep(options.clearDelay); clearCompleted++; return { ok: true }; }, observeAudio: async () => ({ ok: true, stop: async () => { observerStopped++; } }) };
+  const pcm = Buffer.alloc(options.longSpeech ? 384000 : 4800);
   for (let i = 0; i < pcm.length / 2; i++) pcm.writeInt16LE(Math.round(8000 * Math.sin(i / 8)), i * 2);
   const live = new LiveCall({
     runtime: { invoke: async () => call } as any,
     key: () => 'test-only', settings: () => settings, signal: new AbortController().signal,
     canRespond: () => true, history: () => history as any,
-    user: text => { history.push({ role: 'user', content: text }); },
+    user: (text, selectionId) => { history.push({ role: 'user', content: text }); selectionIds.push(selectionId); return selectionId ?? `turn-${history.length}`; },
+    actions: async (_id, _current, signal) => {
+      classificationSignals.push(signal);
+      if (options.slowClassifier) await new Promise<void>((_resolve, reject) => {
+        const aborted = () => reject(signal.reason);
+        if (signal.aborted) aborted(); else signal.addEventListener('abort', aborted, { once: true });
+      });
+      return { tools: [], instructions: 'No chat action is needed.', execute: async () => ({ status: 'failed' }) };
+    },
     assistant: text => { answers.push(text); history.push({ role: 'assistant', content: text }); }, changed() {},
     provider: {
-      answerStream: async function* (turns: any[]) { expect(turns.at(-1)?.content).toBe('Remember blue.'); answerRequests++; yield 'I will remember blue.'; },
+      answerStream: async function* (turns: any[]) { expect(turns.at(-1)?.content).toBe(options.expectedInput ?? 'Remember blue.'); answerRequests++; if (options.failFirstAnswer && answerRequests === 1) throw new Error('unknown certificate verification error'); yield 'I will remember blue.'; },
       speechStream: async function* (_text: string, _settings: any, signal: AbortSignal) {
-        speechSignals.push(signal); yield pcm;
+        speechSignals.push(signal); clearsBeforeSpeech.push(clearCompleted); yield pcm;
         if (options.slowSpeech) await new Promise<void>((_resolve, reject) => {
           const aborted = () => reject(signal.reason);
           if (signal.aborted) aborted(); else signal.addEventListener('abort', aborted, { once: true });
@@ -63,12 +75,12 @@ async function setup(options: { slowSpeech?: boolean } = {}) {
   const media = live.media();
   const reader = media.microphone.getReader();
   const frames: Uint8Array[] = [];
-  const consuming = (async () => { while (true) { const next = await reader.read(); if (next.done) return; frames.push(next.value); } })();
+  const consuming = (async () => { while (true) { const next = await reader.read(); if (next.done) return; frames.push(next.value); if (options.pacedPlayback) await Bun.sleep(80); } })();
   await live.connect(); live.update(snapshot as any);
   cleanups.push(async () => { live.close(); await consuming; for (const client of server.clients) client.terminate(); await new Promise<void>(resolve => server.close(() => resolve())); });
   const emit = (event: any) => peer!.send(JSON.stringify(event));
   const turn = () => { emit({ type: 'turn.start', time_s: 0 }); emit({ type: 'transcription.text.delta', text: 'Remember blue.' }); emit({ type: 'turn.end', time_s: 1, end_reason: 'threshold' }); };
-  return { live, media, received, emit, turn, answers, speechSignals, frames, history,
+  return { live, media, received, emit, turn, answers, speechSignals, classificationSignals, selectionIds, frames, history, clearsBeforeSpeech,
     counts: () => ({ answerRequests, clearRequests, observerStopped }), disconnect: () => peer!.close() };
 }
 
@@ -80,12 +92,51 @@ test('real WebSocket handshake configures 16 kHz audio before accepting caller s
   await until(() => received.length === 2);
   expect(received[1]).toEqual({ type: 'input_audio.append', audio: pcm.toString('base64') });
 });
+
+test('turn end waits for the delayed final words before asking Jev or answering', async () => {
+  const { emit, history, counts } = await setup({ expectedInput: 'What time is the appointment?' });
+  emit({ type: 'turn.start', time_s: 0 });
+  emit({ type: 'transcription.text.delta', text: 'What time is the' });
+  emit({ type: 'turn.end', time_s: 1 });
+  await Bun.sleep(400);
+  expect(counts().answerRequests).toBe(0);
+  expect(history).toHaveLength(0);
+  emit({ type: 'transcription.text.delta', text: ' appointment?' });
+  await until(() => counts().answerRequests === 1);
+  expect(history[0].content).toBe('What time is the appointment?');
+});
+
+test('realtime errors retain the provider reason without exposing the API key', async () => {
+  const { live, emit } = await setup();
+  emit({ type: 'error', error: { code: 3051, message: 'Audio limit reached for test-only' } });
+  await until(() => Boolean(live.error));
+  expect(live.error).toContain('3051');
+  expect(live.error).toContain('Audio limit reached');
+  expect(live.error).not.toContain('test-only');
+});
+
+test('a disconnected transcription socket reattaches to the same native call', async () => {
+  const { disconnect } = await setup();
+  const sessionId = 'voxtral-reconnect-' + randomUUID();
+  let attachments = 0;
+  const snapshot = { id: 'recover-call', generation: 'recover-generation', peer: '447700900123@c.us', state: 'active', terminal: false, direction: 'incoming' };
+  const call = { ...snapshot, accept: async () => ({ ok: true }), setMedia: async () => { attachments++; return { ok: true }; } };
+  const service = await VoxtralService.create({ services: makeServices(), sessionId, config: { apiKey: 'test-only', mode: 'calls', calls: { greeting: '' } }, signal: new AbortController().signal, events: { on() {} }, logger: { error() {} }, runtime: { invoke: async (method: string) => { if (method === 'getActiveCall') return call; throw new Error('Recovery attempted an unexpected action: ' + method); } } } as any);
+  cleanups.push(async () => { await service.dispose(); const hash = createHash('sha256').update(sessionId).digest('hex').slice(0, 24); await rm('.open-wa/plugins/voxtral/' + hash, { recursive: true, force: true }); });
+  service.clientReady();
+  await service.incoming(snapshot as any);
+  disconnect();
+  await until(() => attachments === 1);
+  expect(service.status().call?.call?.id).toBe(snapshot.id);
+  expect(service.status().call?.error).toBeUndefined();
+  expect(service.status().call?.stage).toBe('Listening');
+});
 test('a completed caller turn produces a contextual answer and non-silent 16 kHz frames', async () => {
   const { live, turn, answers, frames } = await setup(); turn();
   await until(() => answers.length === 1);
   expect(answers[0]).toBe('I will remember blue.');
   expect(frames.some(frame => frame.some(Boolean))).toBe(true);
-  expect(frames.every(frame => frame.length === 640)).toBe(true);
+  expect(frames.every(frame => frame.length === 2560)).toBe(true);
   expect(live.stage).toBe('Listening');
 });
 test('caller interruption aborts speech and clears the current call audio', async () => {
@@ -123,7 +174,7 @@ test('a failed outgoing call leaves an honest state and a successful retry clear
   await setup(); // The local WebSocket server handles the actual provider handshake.
   const sessionId = `voxtral-call-test-${randomUUID()}`;
   let active: any = null, fail = true;
-  const service = await VoxtralService.create({
+  const service = await VoxtralService.create({ services: makeServices(),
     sessionId, config: { apiKey: 'test-only', mode: 'calls', calls: { greeting: '' } },
     signal: new AbortController().signal, events: { on() {} }, logger: { error() {} },
     runtime: { invoke: async (method: string) => {
@@ -149,4 +200,62 @@ test('a failed outgoing call leaves an honest state and a successful retry clear
   expect(service.status().error).toBeUndefined();
   service.callState({ ...active, state: 'ended', terminal: true });
   expect(service.status().call?.stage).toBe('Call ended');
+});
+
+test('caller interruption aborts an in-flight Jev decision before the answer or send begins', async () => {
+  const { live, turn, emit, classificationSignals, counts, answers } = await setup({ slowClassifier: true });
+  turn(); await until(() => classificationSignals.length === 1);
+  emit({ type: 'turn.start', time_s: 2 });
+  await until(() => classificationSignals[0].aborted);
+  expect(counts().answerRequests).toBe(0);
+  expect(answers).toHaveLength(0);
+  expect(live.stage).toBe('Listening');
+});
+test('a correlated chat selection becomes a call turn and responds through call audio', async () => {
+  const { live, answers, frames, selectionIds, history } = await setup({ expectedInput: 'Selected button: Yes please' });
+  await live.respondToSelection('Selected button: Yes please', 'incoming-selection');
+  expect(selectionIds).toEqual(['incoming-selection']);
+  expect(history[0]).toEqual({ role: 'user', content: 'Selected button: Yes please' });
+  expect(answers).toHaveLength(1);
+  expect(frames.some(frame => frame.some(Boolean))).toBe(true);
+  expect(live.stage).toBe('Listening');
+});
+
+
+test('overlapping caller turns cannot let stale playback disconnect the current call', async () => {
+  const { live, turn, emit, speechSignals } = await setup({ longSpeech: true, pacedPlayback: true });
+  turn(); await until(() => speechSignals.length === 1); await Bun.sleep(30);
+  // The next completed utterance arrives without a VAD start. The previous
+  // producer is still backpressured inside the real CallPlayback queue.
+  emit({ type: 'transcription.text.delta', text: 'Remember blue.' });
+  emit({ type: 'turn.end', time_s: 3 });
+  await until(() => speechSignals.length === 2);
+  emit({ type: 'turn.start', time_s: 4 }); await Bun.sleep(100);
+  expect(live.error).toBeUndefined();
+  expect(speechSignals[0].aborted).toBe(true);
+  expect(speechSignals[1].aborted).toBe(true);
+  expect(live.stage).toBe('Listening');
+});
+
+test('a delayed browser clear settles before the next reply starts producing audio', async () => {
+  const { live, clearsBeforeSpeech } = await setup({ clearDelay: 120, expectedInput: 'Selected button: Confirm' });
+  await live.respondToSelection('Selected button: Confirm', 'confirm-1');
+  expect(clearsBeforeSpeech).toEqual([1]);
+  expect(live.error).toBeUndefined();
+});
+
+
+test('a failed answer keeps transcription open and the next caller turn can respond', async () => {
+  const { live, turn, answers, received, media } = await setup({ failFirstAnswer: true });
+  turn();
+  await until(() => Boolean(live.snapshot().error));
+  expect(live.stage).toBe('Listening');
+  expect(live.snapshot().error).toContain('certificate verification');
+  const writer = media.speaker.getWriter();
+  await writer.write(Buffer.alloc(640, 3)); writer.releaseLock();
+  await until(() => received.some(event => event.type === 'input_audio.append'));
+  turn();
+  await until(() => answers.length === 1);
+  expect(live.snapshot().error).toBeUndefined();
+  expect(live.stage).toBe('Listening');
 });

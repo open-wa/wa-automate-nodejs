@@ -1,3 +1,4 @@
+import { makeServices } from '../../jev/test/fixtures';
 import { afterEach, describe, expect, test } from 'bun:test';
 import { createHash, randomUUID } from 'node:crypto';
 import { rm } from 'node:fs/promises';
@@ -30,7 +31,7 @@ async function setup(options: { earlyAck?: boolean; sendError?: boolean; include
     throw new Error(`Unexpected request ${path}`);
   }) as typeof fetch;
   const sessionId = `voxtral-voice-test-${randomUUID()}`;
-  const service = await VoxtralService.create({
+  const service = await VoxtralService.create({ services: makeServices(),
     sessionId, config: { apiKey: 'test-only', agent: { instructions: [' Be brief. ', '', ' Remember context. '] }, voiceNotes: { includeText: options.includeText ?? false } },
     signal: new AbortController().signal,
     events: { on: (name: string, fn: (value: any) => void) => { events.set(name, fn); } },
@@ -75,7 +76,8 @@ describe('voice-note processing through the service, provider and real encoder',
     expect(sent[0][2]).toEqual({ quotedMsgId: message.id });
     expect(requests[0].body.get('file').name).toBe('voice.ogg');
     expect(requests[0].body.has('language')).toBe(false);
-    expect(requests[1].body.messages[0].content).toBe('Be brief.\nRemember context.');
+    expect(requests[1].body.messages[0].content).toStartWith('Be brief.\nRemember context.\n');
+    expect(requests[1].body.messages[0].content).toContain('Do not claim a send');
     expect(requests[1].body.messages[1].content).toBe('Remember the number seven.');
     events.get('ack.changed')?.({ ack: { id: 'outgoing-1', ack: 2 } });
     expect(service.conversation(service.list()[0].id).turns[1].audioState).toBe('Delivered');

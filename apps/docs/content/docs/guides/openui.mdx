@@ -1,0 +1,124 @@
+---
+title: OpenUI chat messages
+description: Share one component catalogue between agent plugins, Neo Chat and native WhatsApp messages.
+---
+
+# OpenUI chat messages
+
+OpenWA's OpenUI adapter gives agent plugins one message document for Neo and
+WhatsApp. Its catalogue contains `TextMessage`, `Receipt`, `BookingCard`,
+`ReplyButtons`, `ChoiceList` and `Form`. Neo renders the document in the existing
+Chat feed; the server compiles it to `sendText` or `sendInteractive`.
+
+This integration is available in the development source and is not part of the
+published 5.9.7 packages.
+
+## Use it with Voxtral
+
+No additional plugin or configuration flag is needed. Voxtral uses Jev to choose
+the format, validates the answer model's structured arguments, and creates an
+OpenUI document from them. The compiler validates that document before sending.
+The same document supplies the preview in Chat.
+
+Under **Plugins → Voxtral → Preview messages**, try the examples, edit a
+document, and submit simulated replies. This preview sends no WhatsApp messages.
+The normal Chat feed shows recipient controls as read-only, so the dashboard
+operator can't accidentally answer on the recipient's behalf.
+
+WhatsApp button, list and form replies keep their stable IDs. Voxtral correlates
+each response with its own sent message in the same chat and treats it as a
+conversation turn. During a call it answers through call audio; in voice-note
+mode it sends a voice note. See [Voxtral](/docs/guides/voxtral) for setup.
+
+## Use the adapter in another plugin
+
+The helpers are exported from `@open-wa/plugin-sdk/openui` and work in JavaScript
+and TypeScript. Use your existing plugin runtime and the peer from its event:
+
+```ts
+import { createOpenUIMessage, sendOpenUI } from '@open-wa/plugin-sdk/openui';
+
+const source = createOpenUIMessage('ReplyButtons', {
+  body: 'Would you like directions?',
+  actions: [
+    { type: 'reply', id: 'directions', label: 'Yes please' },
+    { type: 'reply', id: 'no_directions', label: 'No thanks' },
+  ],
+});
+
+const messageId = await sendOpenUI(runtime, peer, source);
+```
+
+`runtime` is supplied to the plugin's `init` function. A returned message ID
+confirms submission; use observed acknowledgements for delivery status.
+`sendOpenUI` makes one attempt and doesn't retry an uncertain send.
+
+For an agent that generates OpenUI Lang directly, supply `openUIPrompt` with
+the allowed components, then pass the same list to the compiler:
+
+```ts
+import { compileOpenUI, openUIPrompt, sendOpenUI } from '@open-wa/plugin-sdk/openui';
+
+const allowed = ['BookingCard'] as const;
+const instructions = openUIPrompt(allowed);
+// Give instructions to your model and collect its complete output in source.
+const message = compileOpenUI(source, allowed);
+await sendOpenUI(runtime, peer, message.source, allowed);
+```
+
+The host supplies the recipient separately. The document cannot select another
+chat or invoke a client method. The compiler rejects incomplete messages,
+unresolved references, unsupported components, queries, mutations, state
+declarations and invalid message fields. Rendering partial output never sends it.
+Normal runtime licensing and message validation still apply.
+
+## Render in a Neo plugin
+
+Neo supplies OpenUI and its own React instance to `createChat(host)` and
+`createPage(host)`, so browser modules need no separate React or OpenUI bundle:
+
+```js
+export function createChat({ React, openui }) {
+  return function AssistantChat({ children }) {
+    const source = openui.createMessage('Receipt', {
+      title: 'Appointment summary',
+      fields: [{ label: 'Time', value: '2 pm' }],
+    });
+    return children({ entries: [{
+      id: 'appointment-summary',
+      at: Date.now(),
+      content: React.createElement(openui.Message, { source }),
+    }] });
+  };
+}
+```
+
+Use a stable event ID and timestamp from your own conversation state in a real
+plugin. Supply `messageId` on a feed entry to attach it to the corresponding
+WhatsApp message. Respect the host's privacy setting before rendering content.
+
+`openui.Message` is read-only by default. An interactive application can supply
+`onAction(selection)`, which receives `{ type: 'reply', id }`,
+`{ type: 'list', id }`, or `{ type: 'form', answers }` after validating the choice
+against the document. The application owns authentication, correlation and any
+subsequent action. Local preview clicks aren't WhatsApp recipient responses.
+
+## Booking dates and native rendering
+
+`BookingCard` uses the shared [interactive-message schema](/docs/guides/interactive-messages):
+`booking.startAt` and optional `endAt` are ISO timestamps with an offset.
+WhatsApp also requires a location, booking URL or phone number. The optional
+`timeZone` property controls Neo's display and is removed before native sending.
+Voxtral accepts civil dates and IANA timezones and computes these timestamps.
+
+OpenUI controls Neo's presentation. WhatsApp renders native messages using its
+own phone UI; a successful preview doesn't prove phone rendering. The shared
+Effect booking codec normalizes timestamps to UTC whole seconds during validation;
+the live Android check confirmed that this displays the date, time and location
+in the native details panel. The same codec handles SDK and HTTP sends, rejects
+invalid calendar dates and rejects ranges that collapse to the same second.
+
+The adapter uses OpenUI's [catalogue and renderer APIs](https://www.openui.com/docs/api-reference/react-lang)
+and its [framework-independent parser](https://github.com/thesysdev/openui/tree/main/packages/lang-core).
+The native booking mapping follows the documented
+[ISO date payload](https://wppconnect.io/wa-js/functions/chat.sendBookingMessage.html).

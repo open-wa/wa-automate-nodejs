@@ -643,7 +643,7 @@
     "parameters": [
       {
         "name": "message",
-        "type": "{ ack: -1 | 0 | 1 | 2 | 3 | 4; associationType?: string; author?: string; body: string; broadcast?: boolean; caption?: string; chat: { ack?: any; contact: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; formattedTitle?: string; groupMetadata?: { announce?: boolean; creation: number; desc?: string; descOwner?: string; descTime?: number; id: string; owner?: string; participants: { id: string; isAdmin: boolean; isSuperAdmin?: boolean }[]; restrict?: boolean; subject: string }; id: string; isGroup: boolean; isReadOnly?: boolean; lastReceivedKey?: any; msgs?: any[]; muteExpiration?: number; name?: string; notSpam?: boolean; pin?: number; presence?: object; t?: number; unreadCount?: number }; chatId: string; clientUrl?: string; content: string; deprecatedMms3Url?: string; event?: { chatId: string; creatorId: string; description?: string; endTime?: number; extraGuestsAllowed?: boolean; fromMe: boolean; id: string; isCanceled: boolean; isScheduledCall?: boolean; joinLink?: string; location?: { latitude?: number | \"Infinity\" | \"-Infinity\" | \"NaN\"; longitude?: number | \"Infinity\" | \"-Infinity\" | \"NaN\"; name?: string }; name: string; startTime: number; timestamp: number }; expectedImageCount?: number; expectedVideoCount?: number; from: string; fromMe: boolean; id: string; invis?: boolean; isForwarded?: boolean; isGif?: boolean; isGroupMsg: boolean; isMedia: boolean; isMMS?: boolean; isNewMsg?: boolean; isNotification: boolean; isPSA?: boolean; isQuotedMsgAvailable: boolean; labels?: string[]; mentionedJidList?: string[]; notifyName?: string; parentMsgKey?: string; quotedMsg?: any; quotedMsgObj?: any; recvFresh?: boolean; self: \"in\" | \"out\"; sender: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; senderId?: string; star?: boolean; t: number; timestamp: number; to: string; type: \"chat\" | \"audio\" | \"ptt\" | \"image\" | \"video\" | \"album\" | \"event_creation\" | \"event_response\" | \"document\" | \"sticker\" | \"location\" | \"vcard\" | \"multi_vcard\" | \"revoked\" | \"order\" | \"buttons_response\" | \"list_response\" | \"unknown\" }",
+        "type": "{ ack: -1 | 0 | 1 | 2 | 3 | 4; associationType?: string; author?: string; body: string; broadcast?: boolean; caption?: string; chat: { ack?: any; contact: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: string; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; formattedTitle?: string; groupMetadata?: { announce?: boolean; creation: number; desc?: string; descOwner?: string; descTime?: number; id: string; owner?: string; participants: { id: string; isAdmin: boolean; isSuperAdmin?: boolean }[]; restrict?: boolean; subject: string }; id: string; isGroup: boolean; isReadOnly?: boolean; lastReceivedKey?: any; msgs?: any[]; muteExpiration?: number; name?: string; notSpam?: boolean; pin?: number; presence?: object; t?: number; unreadCount?: number }; chatId: string; clientUrl?: string; content: string; deprecatedMms3Url?: string; event?: { chatId: string; creatorId: string; description?: string; endTime?: number; extraGuestsAllowed?: boolean; fromMe: boolean; id: string; isCanceled: boolean; isScheduledCall?: boolean; joinLink?: string; location?: { latitude?: number | \"Infinity\" | \"-Infinity\" | \"NaN\"; longitude?: number | \"Infinity\" | \"-Infinity\" | \"NaN\"; name?: string }; name: string; startTime: number; timestamp: number }; expectedImageCount?: number; expectedVideoCount?: number; from: string; fromMe: boolean; id: string; invis?: boolean; isForwarded?: boolean; isGif?: boolean; isGroupMsg: boolean; isMedia: boolean; isMMS?: boolean; isNewMsg?: boolean; isNotification: boolean; isPSA?: boolean; isQuotedMsgAvailable: boolean; labels?: string[]; mentionedJidList?: string[]; notifyName?: string; parentMsgKey?: string; quotedMsg?: any; quotedMsgObj?: any; recvFresh?: boolean; self: \"in\" | \"out\"; sender: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: string; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; senderId?: string; star?: boolean; t: number; timestamp: number; to: string; type: \"chat\" | \"audio\" | \"ptt\" | \"image\" | \"video\" | \"album\" | \"event_creation\" | \"event_response\" | \"document\" | \"sticker\" | \"location\" | \"vcard\" | \"multi_vcard\" | \"revoked\" | \"order\" | \"buttons_response\" | \"list_response\" | \"unknown\" }",
         "required": true,
         "description": "Message object containing media",
         "aliases": [],
@@ -944,7 +944,7 @@
     "parameters": [
       {
         "name": "message",
-        "type": "{ ack: -1 | 0 | 1 | 2 | 3 | 4; associationType?: string; author?: string; body: string; broadcast?: boolean; caption?: string; chat: { ack?: any; contact: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; formattedTitle?: string; groupMetadata?: { announce?: boolean; creation: number; desc?: string; descOwner?: string; descTime?: number; id: string; owner?: string; participants: { id: string; isAdmin: boolean; isSuperAdmin?: boolean }[]; restrict?: boolean; subject: string }; id: string; isGroup: boolean; isReadOnly?: boolean; lastReceivedKey?: any; msgs?: any[]; muteExpiration?: number; name?: string; notSpam?: boolean; pin?: number; presence?: object; t?: number; unreadCount?: number }; chatId: string; clientUrl?: string; content: string; deprecatedMms3Url?: string; event?: { chatId: string; creatorId: string; description?: string; endTime?: number; extraGuestsAllowed?: boolean; fromMe: boolean; id: string; isCanceled: boolean; isScheduledCall?: boolean; joinLink?: string; location?: { latitude?: number | \"Infinity\" | \"-Infinity\" | \"NaN\"; longitude?: number | \"Infinity\" | \"-Infinity\" | \"NaN\"; name?: string }; name: string; startTime: number; timestamp: number }; expectedImageCount?: number; expectedVideoCount?: number; from: string; fromMe: boolean; id: string; invis?: boolean; isForwarded?: boolean; isGif?: boolean; isGroupMsg: boolean; isMedia: boolean; isMMS?: boolean; isNewMsg?: boolean; isNotification: boolean; isPSA?: boolean; isQuotedMsgAvailable: boolean; labels?: string[]; mentionedJidList?: string[]; notifyName?: string; parentMsgKey?: string; quotedMsg?: any; quotedMsgObj?: any; recvFresh?: boolean; self: \"in\" | \"out\"; sender: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: { _serialized: string; server: string; user: string }; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; senderId?: string; star?: boolean; t: number; timestamp: number; to: string; type: \"chat\" | \"audio\" | \"ptt\" | \"image\" | \"video\" | \"album\" | \"event_creation\" | \"event_response\" | \"document\" | \"sticker\" | \"location\" | \"vcard\" | \"multi_vcard\" | \"revoked\" | \"order\" | \"buttons_response\" | \"list_response\" | \"unknown\" }",
+        "type": "{ ack: -1 | 0 | 1 | 2 | 3 | 4; associationType?: string; author?: string; body: string; broadcast?: boolean; caption?: string; chat: { ack?: any; contact: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: string; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; formattedTitle?: string; groupMetadata?: { announce?: boolean; creation: number; desc?: string; descOwner?: string; descTime?: number; id: string; owner?: string; participants: { id: string; isAdmin: boolean; isSuperAdmin?: boolean }[]; restrict?: boolean; subject: string }; id: string; isGroup: boolean; isReadOnly?: boolean; lastReceivedKey?: any; msgs?: any[]; muteExpiration?: number; name?: string; notSpam?: boolean; pin?: number; presence?: object; t?: number; unreadCount?: number }; chatId: string; clientUrl?: string; content: string; deprecatedMms3Url?: string; event?: { chatId: string; creatorId: string; description?: string; endTime?: number; extraGuestsAllowed?: boolean; fromMe: boolean; id: string; isCanceled: boolean; isScheduledCall?: boolean; joinLink?: string; location?: { latitude?: number | \"Infinity\" | \"-Infinity\" | \"NaN\"; longitude?: number | \"Infinity\" | \"-Infinity\" | \"NaN\"; name?: string }; name: string; startTime: number; timestamp: number }; expectedImageCount?: number; expectedVideoCount?: number; from: string; fromMe: boolean; id: string; invis?: boolean; isForwarded?: boolean; isGif?: boolean; isGroupMsg: boolean; isMedia: boolean; isMMS?: boolean; isNewMsg?: boolean; isNotification: boolean; isPSA?: boolean; isQuotedMsgAvailable: boolean; labels?: string[]; mentionedJidList?: string[]; notifyName?: string; parentMsgKey?: string; quotedMsg?: any; quotedMsgObj?: any; recvFresh?: boolean; self: \"in\" | \"out\"; sender: { formattedName?: string; id: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isOnline?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; lastSeen?: number; msgs?: any[]; name?: string; profilePicThumbObj?: { eurl?: string; id?: string; img?: string; imgFull?: string; tag?: string }; pushname?: string; shortName?: string; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string }; senderId?: string; star?: boolean; t: number; timestamp: number; to: string; type: \"chat\" | \"audio\" | \"ptt\" | \"image\" | \"video\" | \"album\" | \"event_creation\" | \"event_response\" | \"document\" | \"sticker\" | \"location\" | \"vcard\" | \"multi_vcard\" | \"revoked\" | \"order\" | \"buttons_response\" | \"list_response\" | \"unknown\" }",
         "required": true,
         "description": "Message object containing media",
         "aliases": [],
@@ -4988,7 +4988,7 @@
       "nodeCall": "const result = await client.requestPhoneNumber({\n  to: \"447123456789@c.us\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.requestPhoneNumber({\n  to: \"447123456789@c.us\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/contacts/requestPhoneNumber\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\"\n  }'",
-      "response": "{\n  \"success\": true\n}"
+      "response": "{\n  \"success\": true,\n  \"data\": \"example\"\n}"
     }
   },
   {
@@ -5315,9 +5315,9 @@
       },
       {
         "name": "file",
-        "type": "string",
+        "type": "string | Buffer",
         "required": true,
-        "description": "Audio file (path, URL, DataURL, or Base64) Branded type: DataURL Pattern: ^data:.+;base64,.+$",
+        "description": "Audio file (path, URL, DataURL, or Base64) Branded type: DataURL",
         "aliases": [],
         "deprecatedAliases": [],
         "example": "`\"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\"`",
@@ -5622,7 +5622,7 @@
       "nodeCall": "const result = await client.sendEvent({\n  to: \"447123456789@c.us\",\n  event: {\"name\":\"Community meetup\",\"startTime\":1893456000,\"description\":\"Meet the community\"},\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendEvent({\n  to: \"447123456789@c.us\",\n  event: {\"name\":\"Community meetup\",\"startTime\":1893456000,\"description\":\"Meet the community\"},\n});",
       "http": "curl -X POST \"http://localhost:8080/api/events/sendEvent\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"event\": {\n      \"name\": \"Community meetup\",\n      \"startTime\": 1893456000,\n      \"description\": \"Meet the community\"\n    }\n  }'",
-      "response": "{\n  \"success\": true\n}"
+      "response": "{\n  \"success\": true,\n  \"data\": \"example\"\n}"
     }
   },
   {
@@ -5658,9 +5658,9 @@
       },
       {
         "name": "file",
-        "type": "string",
+        "type": "string | Buffer",
         "required": true,
-        "description": "File (path, URL, DataURL, Base64, or Buffer) Branded type: DataURL Pattern: ^data:.+;base64,.+$",
+        "description": "File (path, URL, DataURL, Base64, or Buffer) Branded type: DataURL",
         "aliases": [],
         "deprecatedAliases": [],
         "example": "`\"data:application/pdf;base64,JVBERi0xLjQK...\"`",
@@ -5826,9 +5826,9 @@
       },
       {
         "name": "file",
-        "type": "string",
+        "type": "string | Buffer",
         "required": true,
-        "description": "File (path, URL, DataURL, Base64, or Buffer) Branded type: DataURL Pattern: ^data:.+;base64,.+$",
+        "description": "File (path, URL, DataURL, Base64, or Buffer) Branded type: DataURL",
         "aliases": [],
         "deprecatedAliases": [],
         "example": "`\"data:application/pdf;base64,JVBERi0xLjQK...\"`",
@@ -5903,7 +5903,7 @@
       },
       {
         "name": "content",
-        "type": "{ actions: ({ id: string; label: string; type: \"reply\" } | { label: string; type: \"url\"; url: string } | { label: string; phoneNumber: string; type: \"call\" } | { code: string; label: string; type: \"copy\" })[]; body: string; footer?: string; header?: { text: string; type: \"text\" } | { filename?: string; source: string; title?: string; type: \"image\" } | { filename?: string; source: string; title?: string; type: \"video\" } | { filename?: string; source: string; title?: string; type: \"document\" }; type: \"buttons\"; version?: 1 } | { body: string; buttonLabel: string; footer?: string; sections: { rows: { description?: string; id: string; title: string }[]; title?: string }[]; title?: string; type: \"list\"; version?: 1 } | { body: string; footer?: string; questions: ({ allowCustomAnswer?: boolean; id: string; label: string; options: { id: string; label: string }[]; type: \"singleSelect\" | \"multiSelect\" })[]; title?: string; type: \"form\"; version?: 1 } | { body: string; cards: ({ actions: ({ id: string; label: string; type: \"reply\" } | { label: string; type: \"url\"; url: string } | { label: string; phoneNumber: string; type: \"call\" } | { code: string; label: string; type: \"copy\" })[]; body: string; header: { filename?: string; source: string; title?: string; type: \"image\" } })[]; footer?: string; type: \"carousel\"; version?: 1 } | { actions?: ({ label: string; type: \"url\"; url: string } | { label: string; phoneNumber: string; type: \"call\" } | { code: string; label: string; type: \"copy\" })[]; body: string; booking: { description?: string; email?: string; endAt?: string; labels?: { addToCalendar?: string; detailsTitle?: string; language?: string; manageBooking?: string; meetingType?: string; viewOnMap?: string }; location?: string; managementUrl?: string; phoneNumber?: string; startAt: string; url?: string }; buttonLabel: string; footer?: string; title?: string; type: \"booking\"; version?: 1 } | { actions: { name: string; parameters?: object }[]; body: string; footer?: string; header?: { text: string; type: \"text\" } | { filename?: string; source: string; title?: string; type: \"image\" } | { filename?: string; source: string; title?: string; type: \"video\" } | { filename?: string; source: string; title?: string; type: \"document\" }; parameters?: object; type: \"native\"; version?: 1 }",
+        "type": "{ actions: ({ id: string; label: string; type: \"reply\" } | { label: string; type: \"url\"; url: string } | { label: string; phoneNumber: string; type: \"call\" } | { code: string; label: string; type: \"copy\" })[]; body: string; footer?: string; header?: { text: string; type: \"text\" } | { filename?: string; source: string; title?: string; type: \"image\" } | { filename?: string; source: string; title?: string; type: \"video\" } | { filename?: string; source: string; title?: string; type: \"document\" }; type: \"buttons\"; version?: 1 } | { body: string; buttonLabel?: string; footer?: string; sections: { rows: { description?: string; id: string; title: string }[]; title?: string }[]; title?: string; type: \"list\"; version?: 1 } | { body: string; footer?: string; questions: ({ allowCustomAnswer?: boolean; id: string; label: string; options: { id: string; label: string }[]; type: \"singleSelect\" | \"multiSelect\" })[]; title?: string; type: \"form\"; version?: 1 } | { body: string; cards: ({ actions: ({ id: string; label: string; type: \"reply\" } | { label: string; type: \"url\"; url: string } | { label: string; phoneNumber: string; type: \"call\" } | { code: string; label: string; type: \"copy\" })[]; body: string; header: { filename?: string; source: string; title?: string; type: \"image\" } })[]; footer?: string; type: \"carousel\"; version?: 1 } | { actions?: ({ label: string; type: \"url\"; url: string } | { label: string; phoneNumber: string; type: \"call\" } | { code: string; label: string; type: \"copy\" })[]; body: string; booking: { description?: string; email?: string; endAt?: string; labels?: { addToCalendar?: string; detailsTitle?: string; language?: string; manageBooking?: string; meetingType?: string; viewOnMap?: string }; location?: string; managementUrl?: string; phoneNumber?: string; startAt: string; url?: string }; buttonLabel?: string; footer?: string; title?: string; type: \"booking\"; version?: 1 } | { actions: { name: string; parameters?: object }[]; body: string; footer?: string; header?: { text: string; type: \"text\" } | { filename?: string; source: string; title?: string; type: \"image\" } | { filename?: string; source: string; title?: string; type: \"video\" } | { filename?: string; source: string; title?: string; type: \"document\" }; parameters?: object; type: \"native\"; version?: 1 }",
         "required": true,
         "description": "",
         "aliases": [],
@@ -6615,9 +6615,9 @@
       },
       {
         "name": "file",
-        "type": "string",
+        "type": "string | Buffer",
         "required": true,
-        "description": "Audio file (path, URL, DataURL, or Base64) Branded type: DataURL Pattern: ^data:.+;base64,.+$",
+        "description": "Audio file (path, URL, DataURL, or Base64) Branded type: DataURL",
         "aliases": [],
         "deprecatedAliases": [],
         "example": "`\"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\"`",
@@ -7194,9 +7194,9 @@
       },
       {
         "name": "file",
-        "type": "string",
+        "type": "string | Buffer",
         "required": true,
-        "description": "Video file (path, URL, DataURL, or Base64) Branded type: DataURL Pattern: ^data:.+;base64,.+$",
+        "description": "Video file (path, URL, DataURL, or Base64) Branded type: DataURL",
         "aliases": [],
         "deprecatedAliases": [],
         "example": "`\"data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...\"`",
@@ -7884,9 +7884,9 @@
     "parameters": [
       {
         "name": "image",
-        "type": "string",
+        "type": "string | Buffer",
         "required": true,
-        "description": "Image file (path, URL, DataURL, or Base64) Branded type: DataURL Pattern: ^data:.+;base64,.+$",
+        "description": "Image file (path, URL, DataURL, or Base64) Branded type: DataURL",
         "aliases": [],
         "deprecatedAliases": [],
         "example": "`\"data:image/png;base64,iVBORw0KGgo...\"`",
@@ -7956,7 +7956,7 @@
       "nodeCall": "const result = await client.sharePhoneNumber({\n  to: \"447123456789@c.us\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sharePhoneNumber({\n  to: \"447123456789@c.us\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/contacts/sharePhoneNumber\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\"\n  }'",
-      "response": "{\n  \"success\": true\n}"
+      "response": "{\n  \"success\": true,\n  \"data\": \"example\"\n}"
     }
   },
   {

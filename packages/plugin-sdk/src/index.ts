@@ -37,6 +37,7 @@ export type {
   // Client interface
   PluginClient,
   PluginRuntime,
+  PluginServices,
 
   // Events & Logger
   PluginEventEmitter,

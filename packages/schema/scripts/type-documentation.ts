@@ -8,7 +8,9 @@ import * as eventProjections from '../src/whatsapp-event-registry';
 import { SendTextResultSchema, AlbumMediaSchema, AlbumSendResultSchema } from '../src/methods/messaging';
 
 export const namedSchemas = Object.fromEntries(
-  [...Object.entries(common), ...Object.entries(returns), ...Object.entries(interactive), ...Object.entries(mediaOptions), ...Object.entries(polls),
+  [...Object.entries(common), ...Object.entries(returns),
+    ...Object.entries(interactive).map(([name, schema]) => [name.replace('RegistrySchema', 'Schema'), schema]),
+    ...Object.entries(mediaOptions), ...Object.entries(polls),
     ...Object.entries({ AlbumMediaSchema, AlbumSendResultSchema }),
     ...Object.entries(eventProjections).map(([name, schema]) => [name.replace('RegistrySchema', 'Schema'), schema])]
     .filter(([name, value]) => name.endsWith('Schema') && value instanceof z.ZodType)
@@ -21,6 +23,7 @@ names.set(SendTextResultSchema, 'MessageId');
 export function describeType(schema: z.ZodType, inline = false): string {
   const name = names.get(schema);
   if (!inline && name && schema._zod.def.type !== 'unknown') return name;
+  if (schema === interactive.BookingTimestampRegistrySchema) return "import('@open-wa/schema/interactive').BookingTimestamp";
   const def = schema._zod.def as any;
   switch (def.type) {
     case 'any': case 'unknown': return 'unknown';

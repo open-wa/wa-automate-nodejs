@@ -28,6 +28,7 @@ export function createEventGateway(
   pluginName: string,
   logger: Logger,
   signal?: AbortSignal,
+  filter?: (event: string, payload: unknown) => Promise<boolean>,
 ): PluginEventEmitter {
   const isBlocked = (event: string): boolean => {
     const meta = OpenWAEventMetaMap[event as keyof OpenWAEventMap];
@@ -35,33 +36,40 @@ export function createEventGateway(
     return meta.internal || meta.sensitive;
   };
 
+  const subscriptions = new Map<string, Map<(payload: unknown) => void, Array<(payload: unknown) => Promise<void>>>>();
+  const remove = (event: string, handler: (payload: unknown) => void) => {
+    for (const wrapped of subscriptions.get(event)?.get(handler) ?? []) emitter.off(event as keyof OpenWAEventMap, wrapped as never);
+    subscriptions.get(event)?.delete(handler);
+  };
+  const subscribe = (event: string, handler: (payload: unknown) => void, once: boolean) => {
+    if (isBlocked(event)) {
+      logger.warn('plugin_event_blocked', { plugin: pluginName, event, reason: 'internal or sensitive' });
+      return;
+    }
+    let consumed = false;
+    const wrapped = async (payload: unknown) => {
+      if (consumed || signal?.aborted) return;
+      if (filter && !await filter(event, payload)) return;
+      if (consumed || signal?.aborted) return;
+      if (once) { consumed = true; emitter.off(event as keyof OpenWAEventMap, wrapped as never); }
+      await handler(payload);
+    };
+    let handlers = subscriptions.get(event);
+    if (!handlers) { handlers = new Map(); subscriptions.set(event, handlers); }
+    handlers.set(handler, [...handlers.get(handler) ?? [], wrapped]);
+    emitter.on(event as keyof OpenWAEventMap, wrapped as never, { signal });
+  };
   return {
     on(event: string, handler: (payload: unknown) => void) {
-      if (isBlocked(event)) {
-        logger.warn('plugin_event_blocked', {
-          plugin: pluginName,
-          event,
-          reason: 'internal or sensitive',
-        });
-        return;
-      }
-      emitter.on(event as keyof OpenWAEventMap, handler as never, { signal });
+      subscribe(event, handler, false);
     },
 
     once(event: string, handler: (payload: unknown) => void) {
-      if (isBlocked(event)) {
-        logger.warn('plugin_event_blocked', {
-          plugin: pluginName,
-          event,
-          reason: 'internal or sensitive',
-        });
-        return;
-      }
-      emitter.once(event as keyof OpenWAEventMap, handler as never, { signal });
+      subscribe(event, handler, true);
     },
 
     off(event: string, handler: (payload: unknown) => void) {
-      emitter.off(event as keyof OpenWAEventMap, handler as never);
+      remove(event, handler);
     },
   };
 }

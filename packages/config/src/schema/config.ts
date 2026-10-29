@@ -5,6 +5,7 @@
  * Schemas are the single source of truth for both TypeScript types and runtime validation.
  */
 import { z } from 'zod';
+import { HooksConfigSchema } from '../hooks';
 
 const CallingDescriptorSchema = z.union([z.string(), z.object({
   kind: z.enum(['file', 'url', 'device', 'remote']), path: z.string().optional(), url: z.string().optional(), deviceId: z.string().optional(),
@@ -459,10 +460,8 @@ export const ConfigSchema = z.object({
 
   linkParser: z.string().default('https://link.openwa.cloud/api').describe('URL of serverless meta grabber.'),
 
-  // Preprocessors & Cloud Upload
-  messagePreprocessor: z.any().optional().describe('Message preprocessor options.'),
-
-  preprocFilter: z.string().optional().describe('Filter for message preprocessor.'),
+  // Host hooks run before plugin event handlers and actions.
+  hooks: HooksConfigSchema.optional().describe('Host hooks and chat restrictions for plugins.'),
 
   cloudUploadOptions: CloudUploadOptionsSchema.optional().describe('Options for cloud upload preprocessor.'),
 

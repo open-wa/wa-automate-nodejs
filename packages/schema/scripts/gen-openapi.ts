@@ -13,7 +13,7 @@ if (!fs.existsSync(generatedDir)) {
 
 function schemaToOpenApi(schema: { toJSONSchema?: (params?: unknown) => unknown }) {
   if (typeof schema?.toJSONSchema === 'function') {
-    return schema.toJSONSchema({ target: 'openapi-3.0' });
+    return schema.toJSONSchema({ target: 'openapi-3.0', io: 'input', unrepresentable: 'any' });
   }
 
   return { type: 'object', additionalProperties: true };

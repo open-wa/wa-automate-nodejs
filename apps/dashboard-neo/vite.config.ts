@@ -25,6 +25,7 @@ const config = defineConfig({
       { find: /^@open-wa\/socket-client\/calling-platform$/, replacement: resolve(repoRoot, 'packages/socket-client/src/calling-platform.browser.ts') },
       { find: /^@open-wa\/schema\/calling-media$/, replacement: resolve(repoRoot, 'packages/schema/src/calling-media.ts') },
       { find: /^@open-wa\/schema\/interactive$/, replacement: resolve(repoRoot, 'packages/schema/src/interactive.ts') },
+      { find: /^@open-wa\/plugin-sdk\/openui$/, replacement: resolve(repoRoot, 'packages/plugin-sdk/src/openui.ts') },
       { find: /^@open-wa\/runtime-core$/, replacement: resolve(repoRoot, 'packages/runtime-core/src/index.ts') },
       { find: /^@open-wa\/socket-client$/, replacement: resolve(repoRoot, "packages/socket-client/src/index.ts") },
       { find: "react/jsx-runtime", replacement: resolvePackageExport("react/jsx-runtime") },

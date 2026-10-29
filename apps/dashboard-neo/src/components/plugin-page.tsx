@@ -8,6 +8,8 @@ import * as table from '@/components/boardui/table';
 import { Textarea } from '@/components/ui/textarea';
 import { useCalling } from '@/lib/hooks/use-calling';
 import { usePrivacy } from '@/lib/hooks/use-privacy';
+import { OpenUIMessage, OpenUIWorkbench } from '@open-wa/ui-components/openui';
+import { compileOpenUI, createOpenUIMessage, openUIPrompt } from '@open-wa/plugin-sdk/openui';
 import { pluginJson, pluginRequest, watchPlugin } from '@/lib/plugin-api';
 
 class PluginPageBoundary extends React.Component<{ children: React.ReactNode }, { failed: boolean }> {
@@ -28,6 +30,7 @@ export async function loadPluginComponent(name: string, module: string, factory:
     signal.throwIfAborted();
     if (typeof entry[factory] !== 'function') throw new Error(`A plugin module must export ${factory}(host).`);
     const component = entry[factory]({
+      openui: { Message: OpenUIMessage, Workbench: OpenUIWorkbench, compile: compileOpenUI, createMessage: createOpenUIMessage, prompt: openUIPrompt },
       React, ui: { Button, Input, Textarea, PageHeader, DetailSheet, ...table }, useCalling, usePrivacy,
       chatUrl: (peer: string) => { const url = new URL('chat', new URL(import.meta.env.BASE_URL, location.origin)); url.searchParams.set('chatId', peer); return url.pathname + url.search; },
       request: (path: string, init?: RequestInit) => pluginRequest(name, path, init),

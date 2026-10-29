@@ -124,6 +124,13 @@ Real reference plugins in this repo:
 - [`integrations/webhook/src/plugin.ts`](https://github.com/open-wa/wa-automate-nodejs/blob/master/integrations/webhook/src/plugin.ts)
 - [`integrations/chatwoot/src/plugin.ts`](https://github.com/open-wa/wa-automate-nodejs/blob/master/integrations/chatwoot/src/plugin.ts)
 
+## OpenUI messages
+
+`@open-wa/plugin-sdk/openui` supplies a shared component catalogue, agent prompts,
+`createOpenUIMessage`, `compileOpenUI`, `sendOpenUI` and response validation.
+Neo supplies its renderer as `host.openui.Message` to plugin pages and Chat
+extensions. See the [OpenUI guide](https://openwa.dev/docs/guides/openui).
+
 ## License
 
 [H-DNH 1.1](https://github.com/open-wa/wa-automate-nodejs/blob/master/LICENSE.md) — Hippocratic + Do Not Harm

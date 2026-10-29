@@ -2,10 +2,9 @@ import { createPlugin } from '@open-wa/plugin-sdk';
 import { configSchema } from './config';
 import { VoxtralService } from './service';
 import { createVoxtralRoutes } from './routes';
-import { version } from '../package.json';
 
 export const voxtralPlugin = createPlugin({
-  meta: { name: 'voxtral', version, description: 'Conversational WhatsApp voice notes and live calls with Mistral Voxtral.' },
+  meta: { name: 'voxtral', version: '5.6.6', description: 'Conversational WhatsApp voice notes and live calls with Mistral Voxtral.' },
   configSchema,
   init: async input => {
     const service = await VoxtralService.create(input);

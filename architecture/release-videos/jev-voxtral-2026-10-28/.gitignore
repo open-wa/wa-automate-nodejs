@@ -1,0 +1,4 @@
+/marketing/node_modules/
+/marketing/.cache/
+/marketing/exports/
+/marketing/public/*.wav

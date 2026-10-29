@@ -8,7 +8,7 @@
       "thankContributors": false
     }
   ],
-  "versionCommitMessage": "🔖 chore(release): version packages",
+  "versionCommitMessage": "\ud83d\udd16 chore(release): version packages",
   "fixed": [
     [
       "@open-wa/api",
@@ -27,6 +27,7 @@
       "@open-wa/integration-chatwoot",
       "@open-wa/integration-cloudflare",
       "@open-wa/integration-s3",
+      "@open-wa/integration-jev",
       "@open-wa/integration-voxtral",
       "@open-wa/integration-webhook",
       "@open-wa/logger",

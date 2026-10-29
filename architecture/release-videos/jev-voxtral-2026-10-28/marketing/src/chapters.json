@@ -1,0 +1,139 @@
+{
+  "voxtral": [
+    {
+      "id": "intro",
+      "duration": 5,
+      "eyebrow": "VOXTRAL FOR WHATSAPP",
+      "title": "Give your assistant\na voice.",
+      "subtitle": "Voice notes. Live calls. Useful actions in the chat."
+    },
+    {
+      "id": "notes",
+      "duration": 6,
+      "eyebrow": "VOICE NOTES, BOTH WAYS",
+      "title": "Send a voice note.\nGet a voice reply.",
+      "subtitle": "Keep the conversation going, one message at a time."
+    },
+    {
+      "id": "calls",
+      "duration": 8,
+      "eyebrow": "LIVE AUDIO CALLS",
+      "title": "Talk. Interrupt.\nAsk something new.",
+      "subtitle": "Auto-answer incoming calls or start one from Neo."
+    },
+    {
+      "id": "booking",
+      "duration": 7,
+      "eyebrow": "VOICE BECOMES ACTION",
+      "title": "\u201cSend that\nin the chat.\u201d",
+      "subtitle": "Jev chooses a booking card from the details you discussed."
+    },
+    {
+      "id": "correction",
+      "duration": 7,
+      "eyebrow": "CORRECT IT IN CONVERSATION",
+      "title": "\u201cNo, I said\n2 pm.\u201d",
+      "subtitle": "Keep the other details. Replace the card. Remove the old one."
+    },
+    {
+      "id": "form",
+      "duration": 7,
+      "eyebrow": "TAP AN ANSWER",
+      "title": "Buttons. Forms.\nSame conversation.",
+      "subtitle": "Selections during a call are acknowledged through its audio."
+    },
+    {
+      "id": "recovery",
+      "duration": 6,
+      "eyebrow": "KEEP THE CALL OPEN",
+      "title": "One answer fails.\nYou can keep talking.",
+      "subtitle": "A failed answer request no longer closes live transcription."
+    },
+    {
+      "id": "neo",
+      "duration": 6,
+      "eyebrow": "IN YOUR NORMAL CHAT VIEW",
+      "title": "See what happened.\nStay in control.",
+      "subtitle": "Transcripts, chat cards, pause and human takeover in Neo."
+    },
+    {
+      "id": "setup",
+      "duration": 7,
+      "eyebrow": "ONE SHARED SETUP",
+      "title": "Your project.\nYour choices.",
+      "subtitle": "Easy API or SDK. JavaScript or TypeScript. Pick your plugins."
+    },
+    {
+      "id": "cta",
+      "duration": 12,
+      "eyebrow": "MEET VOXTRAL",
+      "title": "Let\u2019s talk.\nThen do something.",
+      "subtitle": "Explore the guide and build your WhatsApp assistant."
+    }
+  ],
+  "jev": [
+    {
+      "id": "intro",
+      "duration": 5,
+      "eyebrow": "JEV FOR WHATSAPP",
+      "title": "A text assistant\nthat can act.",
+      "subtitle": "Chat, send cards and collect replies. No voice plugin needed."
+    },
+    {
+      "id": "text",
+      "duration": 7,
+      "eyebrow": "JEV, ON ITS OWN",
+      "title": "Start with\na normal message.",
+      "subtitle": "Jev handles text chat without Voxtral or speech services."
+    },
+    {
+      "id": "routing",
+      "duration": 7,
+      "eyebrow": "INTENT \u2192 ACTION \u2192 RESULT",
+      "title": "Ask for an outcome.\nJev picks the format.",
+      "subtitle": "The host validates and sends. Jev reviews the actual result."
+    },
+    {
+      "id": "correction",
+      "duration": 8,
+      "eyebrow": "BOOKING DETAILS THAT CAN CHANGE",
+      "title": "Correct the time.\nKeep the context.",
+      "subtitle": "A replacement card preserves the date, duration and location."
+    },
+    {
+      "id": "form",
+      "duration": 7,
+      "eyebrow": "REPLIES HAVE CONTEXT",
+      "title": "Collect the choices.\nRead them back.",
+      "subtitle": "Buttons and forms keep their original message references."
+    },
+    {
+      "id": "scope",
+      "duration": 7,
+      "eyebrow": "YOU CHOOSE THE CHATS",
+      "title": "Set the scope.\nKeep the control.",
+      "subtitle": "A shared host hook limits which chats plugins can operate in."
+    },
+    {
+      "id": "bridge",
+      "duration": 6,
+      "eyebrow": "ADD VOICE WHEN YOU WANT IT",
+      "title": "Text today.\nVoice when you\u2019re ready.",
+      "subtitle": "Jev and Voxtral share recent context in the same host."
+    },
+    {
+      "id": "setup",
+      "duration": 6,
+      "eyebrow": "TERMINAL OR VISUAL BUILDER",
+      "title": "Build it\nyour way.",
+      "subtitle": "Choose the same options in the wizard or at openwa.dev/new."
+    },
+    {
+      "id": "cta",
+      "duration": 12,
+      "eyebrow": "MEET JEV",
+      "title": "Start a chat.\nMake it useful.",
+      "subtitle": "Explore the guide and create a text assistant."
+    }
+  ]
+}

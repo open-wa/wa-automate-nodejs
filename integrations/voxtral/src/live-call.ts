@@ -5,6 +5,8 @@ import type { Settings } from './config';
 import { normalizeSettings } from './config';
 import { CallPlayback } from './audio';
 import type { ChatTurn, MistralProvider } from './provider';
+import type { AgentActions } from '@open-wa/integration-jev/agent';
+const transcriptionDelayMs = 480;
 
 type LiveOptions = {
   runtime: PluginRuntime;
@@ -14,8 +16,9 @@ type LiveOptions = {
   signal: AbortSignal;
   canRespond: () => boolean;
   history: () => ChatTurn[];
-  user: (text: string) => void;
+  user: (text: string, selectionId?: string) => string;
   assistant: (text: string, interrupted: boolean) => void;
+  actions?: (turnId: string, current: () => boolean, signal: AbortSignal) => Promise<AgentActions | undefined>;
   changed: () => void;
 };
 
@@ -24,6 +27,8 @@ export class LiveCall {
   owner: 'assistant' | 'human' = 'assistant';
   stage = 'Connecting audio';
   error?: string;
+  private responseError?: string;
+  reconnectable = false;
   interim = '';
   muted = false;
   private playback = new CallPlayback();
@@ -31,6 +36,7 @@ export class LiveCall {
   private observer?: CallAudioObserver;
   private controller = new AbortController();
   private response?: AbortController;
+  private clearing: Promise<void> = Promise.resolve();
   private endTimer?: ReturnType<typeof setTimeout>;
   private configured = false;
   private stopped = false;
@@ -42,7 +48,7 @@ export class LiveCall {
     this.greeted = !greet;
     options.signal.addEventListener('abort', this.abortListener, { once: true });
   }
-  snapshot() { return { call: this.call, owner: this.owner, stage: this.stage, error: this.error, interim: this.interim, muted: this.muted }; }
+  snapshot() { return { call: this.call, owner: this.owner, stage: this.stage, error: this.error ?? this.responseError, reconnectable: this.reconnectable, interim: this.interim, muted: this.muted }; }
   private change(stage?: string) { if (stage) this.stage = stage; this.options.changed(); }
   private signal() { return AbortSignal.any([this.controller.signal, this.options.signal]); }
   async connect() {
@@ -59,7 +65,7 @@ export class LiveCall {
           const event = JSON.parse(String(raw));
           if (event.type === 'session.created') {
             ws.send(JSON.stringify({ type: 'session.update', session: {
-              audio_format: { encoding: 'pcm_s16le', sample_rate: 16000 }, target_streaming_delay_ms: 480,
+              audio_format: { encoding: 'pcm_s16le', sample_rate: 16000 }, target_streaming_delay_ms: transcriptionDelayMs,
               turn_detection: {}, context_bias: settings.contextBias,
               ...(settings.language !== 'auto' ? { language: settings.language } : {}),
             } }));
@@ -71,17 +77,27 @@ export class LiveCall {
             if (this.interim.length > 32_000) throw new Error('The current spoken turn is too long.');
             this.change();
           } else if (event.type === 'turn.start' || event.type === 'turn.resume') {
-            clearTimeout(this.endTimer); this.interrupt();
+            const completing = event.type === 'turn.start' && this.endTimer;
+            clearTimeout(this.endTimer); this.endTimer = undefined;
+            if (completing) void this.finishTurn();
+            this.interrupt();
           } else if (event.type === 'turn.end') {
             clearTimeout(this.endTimer);
-            this.endTimer = setTimeout(() => void this.finishTurn(), 160);
+            // Turn events lead text deltas. Wait for the configured transcript
+            // delay plus a small delivery margin before acting on the words.
+            this.endTimer = setTimeout(() => { this.endTimer = undefined; void this.finishTurn(); }, transcriptionDelayMs + 160);
           } else if (event.type === 'error') {
-            throw new Error('Mistral realtime transcription failed. Check the key, selected model, and account limits.');
+            const detail = [event.error?.code, event.error?.message].filter(value => typeof value === 'string' || typeof value === 'number').join(': ').replaceAll(key, '[redacted]').slice(0, 400);
+            throw new Error(`Mistral realtime transcription failed${detail ? `: ${detail}` : '. Check the key, selected model, and account limits.'}`);
           }
         } catch (error) { clearTimeout(timeout); reject(error); this.failed(error); }
       });
-      ws.on('error', () => { clearTimeout(timeout); const error = new Error('Mistral realtime audio connection failed.'); reject(error); this.failed(error); });
-      ws.on('close', () => { clearTimeout(timeout); reject(new Error('Mistral audio connection closed.')); if (!this.stopped) this.failed(new Error('AI audio disconnected. Reconnect the assistant or take over this call.')); });
+      ws.on('error', () => { clearTimeout(timeout); const error = new Error('Mistral realtime audio connection failed.'); reject(error); this.failed(error, this.configured); });
+      ws.on('close', (code, reason) => {
+        clearTimeout(timeout); reject(new Error('Mistral audio connection closed.'));
+        const detail = String(reason).replaceAll(key, '[redacted]').slice(0, 300);
+        if (!this.stopped) this.failed(new Error(`AI audio disconnected (${code})${detail ? `: ${detail}` : '.'}`), this.configured && [1000, 1001, 1005, 1006, 1011, 1012, 1013].includes(code));
+      });
     });
   }
   media() {
@@ -116,31 +132,43 @@ export class LiveCall {
     this.response?.abort(); this.response = undefined;
     this.playback.clear();
     if (this.call && !this.call.terminal && this.owner === 'assistant') {
-      void this.current().then(call => call.clearAudio()).catch(() => {});
+      // A delayed browser clear must settle before a newer utterance is queued.
+      this.clearing = this.clearing.then(() => this.current()).then(call => call.clearAudio()).then(() => {}, () => {});
     }
     this.change(this.owner === 'human' ? 'Human takeover' : !this.options.canRespond() ? 'AI paused · listening' : this.muted ? 'Muted · listening' : 'Listening');
   }
   private async greet(text: string) {
     const controller = this.response = new AbortController();
     try { await this.speak(text, this.options.settings(), AbortSignal.any([controller.signal, this.signal()])); this.options.assistant(text, false); }
-    catch (error) { if (!controller.signal.aborted && !this.stopped) this.failed(error); }
-    finally { if (this.response === controller && !this.error && !this.stopped) this.change('Listening'); }
+    catch (error) { if (this.response === controller && !controller.signal.aborted && !this.stopped) this.responseFailed(error); }
+    finally { if (this.response === controller) { this.response = undefined; if (!this.error && !this.stopped) this.change('Listening'); } }
   }
   private async speak(text: string, settings: Settings, signal: AbortSignal) {
+    await this.clearing;
+    signal.throwIfAborted();
     this.change(this.muted ? 'Muted · listening' : 'Speaking');
     for await (const bytes of this.options.provider.speechStream(text, settings, signal)) {
       if (!this.muted) await this.playback.write24k(bytes, signal);
     }
     if (!this.muted) await this.playback.drain(signal);
   }
-  private async finishTurn() {
-    const text = this.interim.trim(); this.interim = '';
+  async respondToSelection(text: string, messageId: string) {
+    this.interrupt();
+    await this.finishTurn({ text, messageId });
+  }
+  private async finishTurn(selection?: { text: string; messageId: string }) {
+    const text = selection?.text ?? this.interim.trim(); this.interim = '';
     if (!text || this.stopped) return;
-    this.options.user(text);
+    this.responseError = undefined;
+    const sourceId = this.options.user(text, selection?.messageId);
     if (this.owner !== 'assistant' || !this.options.canRespond() || this.muted) {
       this.change(this.owner === 'human' ? 'Human takeover' : this.muted ? 'Muted · listening' : 'AI paused · listening'); return;
     }
     const revision = this.options.settings();
+    // Turn-end events can overlap even when the provider omits a turn-start.
+    // Explicitly retire the previous response instead of relying on VAD order.
+    if (this.response) this.interrupt();
+    this.playback.clear();
     const controller = this.response = new AbortController();
     const signal = AbortSignal.any([controller.signal, this.signal()]);
     const generation = ++this.generation;
@@ -157,7 +185,9 @@ export class LiveCall {
       speech.catch(() => {});
     };
     try {
-      for await (const delta of this.options.provider.answerStream(this.options.history(), revision, signal)) {
+      const actions = await this.options.actions?.(sourceId, () => !this.stopped && this.owner === 'assistant' && !this.muted && this.generation === generation, signal);
+      signal.throwIfAborted();
+      for await (const delta of this.options.provider.answerStream(this.options.history(), revision, signal, actions)) {
         generated += delta; pending += delta;
         const match = /^([\s\S]*?[.!?؟。]\s+)([\s\S]*)$/.exec(pending);
         if (match) { enqueue(match[1]); pending = match[2]; }
@@ -171,8 +201,9 @@ export class LiveCall {
       controller.abort();
       await speech.catch(() => {});
       if (spoken.trim()) this.options.assistant(spoken.trim(), true);
-      if (!interrupted && !this.stopped) this.failed(error);
+      if (generation === this.generation && !interrupted && !this.stopped) this.responseFailed(error);
     } finally {
+      if (this.response === controller) this.response = undefined;
       if (generation === this.generation && !this.stopped && !this.error) this.change('Listening');
     }
   }
@@ -189,9 +220,19 @@ export class LiveCall {
     if (muted) this.interrupt();
     this.change(muted ? 'Muted · listening' : 'Listening');
   }
-  private failed(error: unknown) {
+  private responseFailed(error: unknown) {
+    // A failed chat/TTS request does not invalidate the live transcription
+    // socket. Keep listening, expose the failure, and let the next turn recover
+    // without replaying a chat action or weakening TLS verification.
+    const key = this.options.key();
+    const message = error instanceof Error ? error.message : 'The assistant could not answer.';
+    this.responseError = (key ? message.replaceAll(key, '[redacted]') : message).slice(0, 400);
+    this.interrupt();
+  }
+  private failed(error: unknown, reconnectable = false) {
     if (this.stopped || this.error) return;
     this.error = error instanceof Error ? error.message : 'AI audio disconnected.';
+    this.reconnectable = reconnectable;
     this.response?.abort(); this.playback.clear(); this.ws?.close();
     this.change('Audio disconnected');
   }

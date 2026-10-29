@@ -195,6 +195,18 @@ await client.sendInteractive(to, {
 });
 ```
 
+The shared Effect codec validates booking dates and normalizes offsets and fractional
+seconds to UTC whole seconds, so Android renders the date and time in the native
+details panel. For example, `2026-07-26T14:00:00.000+01:00` becomes
+`2026-07-26T13:00:00Z`. This happens automatically in `defineInteractiveMessage`,
+the SDK, HTTP API and OpenUI; don't format dates separately. Invalid calendar
+dates and an `endAt` that isn't after `startAt` at whole-second precision are rejected.
+
+Parsed booking dates have the branded TypeScript type `BookingTimestamp`, so
+unchecked strings can't be assigned to `DecodedInteractiveContent`. Use
+`normalizeBookingTimestamp(value)` when constructing a typed timestamp yourself.
+At least one of `location`, `url` or `phoneNumber` is required.
+
 Optional booking fields include `url`, `phoneNumber`, `email` and `labels` (`language`, `meetingType`, `detailsTitle`, `addToCalendar`, `viewOnMap`, `manageBooking`). The recipient app controls the details UI and icon; custom logos/header images are not supported by this contract.
 
 ## Advanced and future payloads

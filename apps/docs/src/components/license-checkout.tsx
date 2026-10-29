@@ -1,15 +1,16 @@
 import * as React from 'react';
 import { ArrowUpRight, Ticket } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@open-wa/ui-components/dialog';
-import { buildGumroadCheckoutUrl, emptyLicenseDetails, type LicenseCheckoutDetails } from '@/lib/license-checkout';
+import { buildLicenseCheckoutUrl, LICENSE_DASHBOARD_URL, emptyLicenseDetails, type LicenseCheckoutDetails } from '@/lib/license-checkout';
 
-type CheckoutContext = { openCheckout: (details: Partial<LicenseCheckoutDetails>, trigger: HTMLElement) => void };
+type CheckoutContext = { signedIn: boolean; openCheckout: (details: Partial<LicenseCheckoutDetails>, trigger: HTMLElement) => void };
 const LicenseCheckoutContext = React.createContext<CheckoutContext | null>(null);
+export function useLicenseAccount() { return React.useContext(LicenseCheckoutContext); }
 
 function CheckoutIntroduction() {
   return <div className="license-config-intro">
     <img src="/mascots/wally-quickstart-transparent.png" width="92" height="92" alt="Wally, the open-wa mascot" />
-    <p>Add your details once. Wally will have them ready for you at checkout!</p>
+    <p>Add your details once, then sign in to your open-wa account to finish checkout.</p>
   </div>;
 }
 
@@ -25,12 +26,12 @@ export function LicenseCheckoutForm({ details, onChange }: {
   }
   return <form className="license-config-form" onSubmit={(event) => {
     event.preventDefault();
-    if (!/^[+\d ()-]+$/.test(details.phone) || !/^[1-9]\d{6,14}$/.test(details.phone.replace(/\D/g, ''))) {
+    if (!/^[+\d ()-]+$/.test(details.phone) || !/^[1-9]\d{7,14}$/.test(details.phone.replace(/\D/g, ''))) {
       setError('Enter an international WhatsApp number, including its country code.');
       event.currentTarget.querySelector<HTMLInputElement>('[name="phone"]')?.focus();
       return;
     }
-    window.location.assign(buildGumroadCheckoutUrl(details));
+    window.location.assign(buildLicenseCheckoutUrl(details));
   }}>
     <label htmlFor={`${id}-tier`}>License</label>
     <select id={`${id}-tier`} value={details.tier} required onChange={(event) => update('tier', event.target.value)}>
@@ -47,12 +48,37 @@ export function LicenseCheckoutForm({ details, onChange }: {
     <textarea id={`${id}-use-case`} name="useCase" value={details.useCase} onChange={(event) => update('useCase', event.target.value)} placeholder="e.g. Send order updates from our shop" required maxLength={1000} rows={3} />
     {details.session ? <p className="license-config-help">Session: <code>{details.session}</code>. This reference will be included with your use case.</p> : null}
     {error ? <p id={`${id}-error`} role="alert" className="license-config-error">{error}</p> : null}
-    <button type="submit" className="license-config-submit">Continue to Gumroad <ArrowUpRight size={18} aria-hidden="true" /></button>
+    <button type="submit" className="license-config-submit">Continue to open-wa <ArrowUpRight size={18} aria-hidden="true" /></button>
     <p className="license-config-help license-config-footer">Your details will be prefilled. Review the license and current price before paying.</p>
   </form>;
 }
 
 export function LicenseCheckoutProvider({ children }: { children: React.ReactNode }) {
+  const [signedIn, setSignedIn] = React.useState(false);
+  React.useEffect(() => {
+    let active = true;
+    let pending = false;
+    const refresh = async () => {
+      if (pending || document.visibilityState !== 'visible') return;
+      pending = true;
+      try {
+        const response = await fetch('/api/license-session', { cache: 'no-store' });
+        const status = response.ok ? await response.json() as { signedIn: boolean } : null;
+        if (active) setSignedIn(status?.signedIn === true);
+      } catch { if (active) setSignedIn(false); }
+      finally { pending = false; }
+    };
+    void refresh();
+    window.addEventListener('pageshow', refresh);
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      active = false;
+      window.removeEventListener('pageshow', refresh);
+      window.removeEventListener('focus', refresh);
+      document.removeEventListener('visibilitychange', refresh);
+    };
+  }, []);
   const [open, setOpen] = React.useState(false);
   const [details, setDetails] = React.useState<LicenseCheckoutDetails>(emptyLicenseDetails);
   const trigger = React.useRef<HTMLElement | null>(null);
@@ -61,13 +87,13 @@ export function LicenseCheckoutProvider({ children }: { children: React.ReactNod
     setDetails((current) => ({ ...current, ...initial }));
     setOpen(true);
   }, []);
-  const context = React.useMemo(() => ({ openCheckout }), [openCheckout]);
+  const context = React.useMemo(() => ({ openCheckout, signedIn }), [openCheckout, signedIn]);
   return <LicenseCheckoutContext.Provider value={context}>
     {children}
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="license-config-popup" finalFocus={() => trigger.current?.isConnected ? trigger.current : document.querySelector<HTMLElement>('[data-license-trigger]')}>
         <div className="license-config-heading"><Ticket size={21} aria-hidden="true" /><DialogTitle>Configure your license</DialogTitle></div>
-        <DialogDescription className="sr-only">Fill in your license details, then continue to a prefilled Gumroad checkout.</DialogDescription>
+        <DialogDescription className="sr-only">Fill in your license details, then sign in to finish checkout in your open-wa account.</DialogDescription>
         <CheckoutIntroduction />
         <LicenseCheckoutForm details={details} onChange={setDetails} />
       </DialogContent>
@@ -77,9 +103,12 @@ export function LicenseCheckoutProvider({ children }: { children: React.ReactNod
 
 export function LicenseCheckoutTrigger({ tier, onClick, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { tier?: LicenseCheckoutDetails['tier'] }) {
   const context = React.useContext(LicenseCheckoutContext);
-  return <button {...props} data-license-trigger type="button" aria-haspopup="dialog" onClick={(event) => {
+  return <button {...props} data-license-trigger type="button" aria-label={context?.signedIn ? 'Manage licenses' : props['aria-label']} title={context?.signedIn ? 'Manage licenses' : props.title} aria-haspopup={context?.signedIn ? undefined : 'dialog'} onClick={(event) => {
     onClick?.(event);
-    if (!event.defaultPrevented) context?.openCheckout(tier ? { tier } : {}, event.currentTarget);
+    if (!event.defaultPrevented) {
+      if (context?.signedIn) window.location.assign(LICENSE_DASHBOARD_URL + '?view=licenses');
+      else context?.openCheckout(tier ? { tier } : {}, event.currentTarget);
+    }
   }} />;
 }
 

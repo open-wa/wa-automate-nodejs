@@ -1,4 +1,10 @@
 import { z } from 'zod';
+import { BookingTimestampSchema } from './booking-time';
+import { projectEffectSchema } from './effect-projection';
+
+export { BookingTimestampSchema, normalizeBookingTimestamp, type BookingTimestamp } from './booking-time';
+/** Serving projection of the canonical Effect booking codec. */
+export const BookingTimestampRegistrySchema = projectEffectSchema(BookingTimestampSchema);
 
 /** A portable JSON document shared by the SDK, HTTP API and message builders. */
 export type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
@@ -78,7 +84,7 @@ export const CarouselContentSchema = z.object({
 export const BookingContentSchema = z.object({
   ...base, type: z.literal('booking'), title: z.string().optional(), buttonLabel: text.default('View booking'),
   booking: z.object({
-    startAt: z.iso.datetime({ offset: true }), endAt: z.iso.datetime({ offset: true }).optional(),
+    startAt: BookingTimestampRegistrySchema, endAt: BookingTimestampRegistrySchema.optional(),
     location: z.string().optional(), url: url.optional(), managementUrl: url.optional(),
     phoneNumber: z.string().optional(), email: z.email().optional(), description: z.string().optional(),
     labels: z.object({
@@ -120,9 +126,14 @@ export const InteractiveContentSchema = z.discriminatedUnion('type', [
   if (content.type === 'booking' && content.booking.endAt && Date.parse(content.booking.endAt) <= Date.parse(content.booking.startAt)) {
     ctx.addIssue({ code: 'custom', path: ['booking', 'endAt'], message: 'Booking end must be after its start' });
   }
+  if (content.type === 'booking' && ![content.booking.location, content.booking.url, content.booking.phoneNumber].some(value => value?.trim())) {
+    ctx.addIssue({ code: 'custom', path: ['booking', 'location'], message: 'A booking needs a location, booking URL or phone number' });
+  }
 });
 
 export type InteractiveContent = z.input<typeof InteractiveContentSchema>;
+/** Parsed documents contain validated, normalized booking timestamps. */
+export type DecodedInteractiveContent = z.output<typeof InteractiveContentSchema>;
 export type InteractiveAction = z.infer<typeof InteractiveActionSchema>;
 export type InteractiveHeader = z.infer<typeof InteractiveHeaderSchema>;
 export type FormQuestion = z.infer<typeof FormQuestionSchema>;

@@ -12,10 +12,7 @@ export const emptyLicenseDetails: LicenseCheckoutDetails = {
   tier: '', github: '', phone: '', useCase: '', session: '',
 };
 
-const productTiers: Record<LicenseTier, string> = {
-  insiders: 'Insiders Program',
-  restricted: '1 Restricted License Key',
-};
+export const LICENSE_DASHBOARD_URL = 'https://app.openwa.cloud/dashboard';
 
 export function readLicenseCheckoutDetails(search: Record<string, unknown>): LicenseCheckoutDetails {
   // TanStack parses digit-only query values as numbers, including phone numbers.
@@ -35,14 +32,13 @@ export function readLicenseCheckoutDetails(search: Record<string, unknown>): Lic
   };
 }
 
-export function buildGumroadCheckoutUrl(details: LicenseCheckoutDetails): string {
-  const url = new URL('https://smashah.gumroad.com/l/open-wa');
-  url.searchParams.set('wanted', 'true');
-  // Gumroad resolves variant names to product options; legacy tier= is ignored.
-  if (details.tier) url.searchParams.set('variant', productTiers[details.tier]);
-  // Custom fields are matched by their exact configured labels.
-  url.searchParams.set('Github Username', details.github.trim().replace(/^@/, ''));
-  url.searchParams.set('Number (e.g 447712345678)', details.phone.replace(/\D/g, ''));
-  url.searchParams.set('Reason/Use case', [details.useCase.trim().replace(/\s+/g, ' '), details.session ? `Session: ${details.session}` : ''].filter(Boolean).join(' | '));
+export function buildLicenseCheckoutUrl(details: LicenseCheckoutDetails): string {
+  const url = new URL(LICENSE_DASHBOARD_URL);
+  url.searchParams.set('view', 'billing');
+  url.searchParams.set('license_checkout', JSON.stringify({
+    ...details,
+    github: details.github.trim().replace(/^@/, ''),
+    phone: details.phone.replace(/\D/g, ''),
+  }));
   return url.toString();
 }

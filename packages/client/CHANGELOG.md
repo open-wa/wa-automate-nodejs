@@ -24,6 +24,24 @@
 
 
 
+
+## 5.10.0
+<sub>2026-10-28</sub>
+
+-  *(minor)*
+  Add the official Voxtral assistant for conversational WhatsApp voice notes and
+  live audio calls, with a plugin-provided Neo dashboard page, saved settings,
+  voice preview, conversation context, and shared call controls.
+
+  Show transcripts, assistant status, and per-chat controls in Neo's normal Chat
+  feed through plugin-provided chat components.
+
+  Load configured plugins in Easy API and expose host-side media/calling services
+  to plugins. Plugin pages can supply native page modules and request host route
+  authentication.
+-  *(patch)*
+  Validate and normalize booking timestamps with a shared branded Effect codec so Android displays the appointment date and time alongside its location. Preserve Effect decoding, encoding and schema metadata in the serving projection, and describe request inputs separately from normalized outputs in the API reference. Reject invalid dates and ranges that collapse at whole-second precision before sending.
+
 ## 5.9.7
 <sub>2026-10-24</sub>
 

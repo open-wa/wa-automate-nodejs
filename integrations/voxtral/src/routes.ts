@@ -24,6 +24,10 @@ export function createVoxtralRoutes(service: VoxtralService): Hono {
     const audio = await service.provider.speech(body.text, { ...settings, voice: { id: body.voiceId ?? settings.voice.id } }, service.input.signal, 'wav');
     return c.body(new Uint8Array(audio), 200, { 'Content-Type': 'audio/wav', 'Cache-Control': 'no-store' });
   });
+  app.post('/actions/preview', async c => {
+    const { text } = z.object({ text: z.string().trim().min(1).max(3000) }).strict().parse(await c.req.json());
+    return c.json(await service.previewAction(text, AbortSignal.any([service.input.signal, c.req.raw.signal])));
+  });
   app.get('/conversations', c => {
     const offset = Math.max(0, Math.min(10_000, Number(c.req.query('offset')) || 0));
     const limit = Math.max(1, Math.min(100, Number(c.req.query('limit')) || 30));

@@ -8,12 +8,12 @@ function createTestClient(killClientOnLogout: boolean) {
   const openwaClient = {
     sessionId: 'logout-parity', events,
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
-    session: {}, plugins: {}, config: { killClientOnLogout },
+    session: {}, plugins: { bindRuntime: vi.fn() }, config: { killClientOnLogout },
     registerFinalizationHook: vi.fn(), start: vi.fn(), stop: vi.fn(),
     getState: vi.fn(() => 'READY' as STATE), getReadiness: vi.fn(),
   } as unknown as OpenWAClient;
   const transport = {
-    evaluate: vi.fn().mockResolvedValueOnce(true).mockResolvedValueOnce('2.26.3'),
+    evaluate: vi.fn().mockResolvedValueOnce('2.26.3'),
     setPortableMessageHandler: vi.fn((handler) => {
       const listener = ({ message }: any) => handler(message);
       events.on('message.received', listener);
@@ -26,24 +26,21 @@ function createTestClient(killClientOnLogout: boolean) {
 }
 
 describe('Client logout cleanup', () => {
-  it('delegates portable invalidation to Transport before stopping the client', async () => {
+  it('stops after the transport-owned logout without repeating native invalidation', async () => {
     const { client, events, transport, openwaClient } = createTestClient(true);
-    let finish!: () => void;
-    transport.invalidatePortableSession.mockImplementation(() => new Promise<void>(resolve => { finish = resolve; }));
     await client.loaded();
     events.emit('session.logout', { correlationId: 'logout', ts: Date.now(), step: 'session_logout', details: { reason: 'post_logout=1' } });
-    await vi.waitFor(() => expect(transport.invalidatePortableSession).toHaveBeenCalledTimes(1));
-    expect(openwaClient.stop).not.toHaveBeenCalled();
-    finish();
     await vi.waitFor(() => expect(openwaClient.stop).toHaveBeenCalledWith('LOGGED_OUT'));
+    expect(transport.invalidatePortableSession).not.toHaveBeenCalled();
     await client.stop();
   });
 
-  it('invalidates portable authorization without stopping when logout shutdown is disabled', async () => {
+  it('retains the client after transport-owned logout when shutdown is disabled', async () => {
     const { client, events, transport, openwaClient } = createTestClient(false);
     await client.loaded();
     events.emit('session.logout', { correlationId: 'logout', ts: Date.now(), step: 'session_logout', details: { reason: 'post_logout=1' } });
-    await vi.waitFor(() => expect(transport.invalidatePortableSession).toHaveBeenCalledTimes(1));
+    await vi.waitFor(() => expect(client.phoneVersion).toBeUndefined());
+    expect(transport.invalidatePortableSession).not.toHaveBeenCalled();
     expect(openwaClient.stop).not.toHaveBeenCalled();
     await client.stop();
   });

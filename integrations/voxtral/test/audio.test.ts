@@ -24,13 +24,14 @@ test('bundled encoder creates an actual Ogg Opus voice note from PCM', async () 
   expect(encoded.includes(Buffer.from('OpusHead'))).toBe(true);
   expect(encoded.length).toBeGreaterThan(100);
 });
-test('24 kHz speech becomes exactly one second of 16 kHz call audio across odd byte boundaries', async () => {
+test('24 kHz speech resamples identically across odd byte boundaries with a padded final packet', async () => {
   const pcm = tone();
   const complete = await render([pcm]);
   const chunks: Uint8Array[] = [];
   for (let at = 0; at < pcm.length; at += 701) chunks.push(pcm.subarray(at, at + 701));
   const fragmented = await render(chunks);
-  expect(complete.length).toBe(32000);
+  expect(complete.length).toBe(33280);
+  expect(complete.subarray(32000).some(Boolean)).toBe(false);
   expect(fragmented.equals(complete)).toBe(true);
 }, 10000);
 test('clearing interrupted speech also removes audio not yet read by the call host', async () => {
@@ -44,4 +45,31 @@ test('clearing interrupted speech also removes audio not yet read by the call ho
     expect(next.value?.some(Boolean)).toBe(false);
     reader.releaseLock();
   } finally { playback.close(); }
+});
+
+test('short speech starts on drain instead of waiting for the prebuffer', async () => {
+  const result = await render([tone().subarray(0, 4800)]);
+  expect(result.length).toBe(5120);
+  expect(result.some(Boolean)).toBe(true);
+});
+
+test('interruption discards buffered speech and unblocks a backpressured producer', async () => {
+  const playback = new CallPlayback();
+  const reader = playback.stream.getReader();
+  try {
+    await reader.read(); // Host preparation consumes the initial silence packet.
+    const writing = playback.write24k(Buffer.concat([tone(), tone(), tone()]), AbortSignal.timeout(1000));
+    const interrupted = writing.then(() => null, error => error);
+    await Bun.sleep(10);
+    playback.clear();
+    expect((await interrupted)?.message).toBe('Call playback was interrupted.');
+    const next = reader.read();
+    const draining = (async () => {
+      await playback.write24k(Buffer.alloc(4800, 7), AbortSignal.timeout(1000));
+      await playback.drain(AbortSignal.timeout(1000));
+    })();
+    expect((await next).value?.every(value => value === 0 || value === 7)).toBe(true);
+    await reader.read();
+    await draining;
+  } finally { playback.close(); reader.releaseLock(); }
 });

@@ -92,3 +92,4 @@ export {
 
 // Re-export zod for consumers who want to extend schemas
 export { z } from 'zod';
+export { HooksConfigSchema, type HostHooks, type EventHook, type ActionHook, type EventHookContext, type ActionHookContext } from './hooks';

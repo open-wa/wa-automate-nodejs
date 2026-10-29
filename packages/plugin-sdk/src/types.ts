@@ -57,6 +57,13 @@ export interface PluginInput<TConfig = unknown> {
 
   /** Host-side facade, including local media preparation and stream-capable calls. */
   runtime: PluginRuntime;
+
+  /** Session-host services shared by cooperating plugins, disposed after plugins. */
+  services: PluginServices;
+}
+
+export interface PluginServices {
+  getOrCreate<T>(name: string, create: (signal: AbortSignal) => Promise<{ value: T; dispose: () => void | Promise<void> }>): Promise<T>;
 }
 
 export interface PluginRuntime {
@@ -278,6 +285,14 @@ export interface DashboardPage {
 
 /** Browser module contract. React and UI components are supplied by Neo, not bundled twice. */
 export interface PluginPageHost {
+  /** Shared OpenWA OpenUI catalogue; Message renders read-only unless onAction is supplied. */
+  openui: {
+    Message: unknown;
+    Workbench: unknown;
+    compile: typeof import('./openui').compileOpenUI;
+    createMessage: typeof import('./openui').createOpenUIMessage;
+    prompt: typeof import('./openui').openUIPrompt;
+  };
   React: unknown;
   ui: Record<string, unknown>;
   useCalling: () => unknown;

@@ -81,12 +81,12 @@ type ContactId = string
 <summary>Type declaration</summary>
 
 ```ts
-type Contact = { id: ContactId; name?: string; shortName?: string; pushname?: string; formattedName?: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; msgs?: unknown[] | null; profilePicThumbObj?: { eurl?: string; id?: Id; img?: string; imgFull?: string; tag?: string }; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string; isOnline?: boolean; lastSeen?: number }
+type Contact = { id: ContactId; name?: string; shortName?: string; pushname?: string; formattedName?: string; isBusiness?: boolean; isEnterprise?: boolean; isMe?: boolean; isMyContact?: boolean; isPSA?: boolean; isUser?: boolean; isWAContact?: boolean; labels?: string[]; msgs?: unknown[] | null; profilePicThumbObj?: { eurl?: string; id?: ContactId; img?: string; imgFull?: string; tag?: string }; statusMute?: boolean; type?: string; verifiedLevel?: number; verifiedName?: string; isOnline?: boolean; lastSeen?: number }
 ```
 
 </details>
 
-Related types: [ContactId](/docs/reference/client/return-types#contactid), [Id](/docs/reference/client/return-types#id)
+Related types: [ContactId](/docs/reference/client/return-types#contactid)
 
 | Field | Type | Required |
 | --- | --- | --- |
@@ -104,7 +104,7 @@ Related types: [ContactId](/docs/reference/client/return-types#contactid), [Id](
 | `isWAContact` | `boolean` | No |
 | `labels` | `string[]` | No |
 | `msgs` | `unknown[] \| null` | No |
-| `profilePicThumbObj` | `{ eurl?: string; id?: Id; img?: string; imgFull?: string; tag?: string }` — [Id](/docs/reference/client/return-types#id) | No |
+| `profilePicThumbObj` | `{ eurl?: string; id?: ContactId; img?: string; imgFull?: string; tag?: string }` — [ContactId](/docs/reference/client/return-types#contactid) | No |
 | `statusMute` | `boolean` | No |
 | `type` | `string` | No |
 | `verifiedLevel` | `number` | No |
@@ -785,12 +785,12 @@ Provisional number profile based on the public Contact fields. Fields are option
 <summary>Type declaration</summary>
 
 ```ts
-type NumberProfile = { id?: ContactId; name?: string | undefined; shortName?: string | undefined; pushname?: string | undefined; formattedName?: string | undefined; isBusiness?: boolean | undefined; isEnterprise?: boolean | undefined; isMe?: boolean | undefined; isMyContact?: boolean | undefined; isPSA?: boolean | undefined; isUser?: boolean | undefined; isWAContact?: boolean | undefined; labels?: string[] | undefined; msgs?: unknown[] | null | undefined; profilePicThumbObj?: { eurl?: string; id?: Id; img?: string; imgFull?: string; tag?: string } | undefined; statusMute?: boolean | undefined; type?: string | undefined; verifiedLevel?: number | undefined; verifiedName?: string | undefined; isOnline?: boolean | undefined; lastSeen?: number | undefined }
+type NumberProfile = { id?: ContactId; name?: string | undefined; shortName?: string | undefined; pushname?: string | undefined; formattedName?: string | undefined; isBusiness?: boolean | undefined; isEnterprise?: boolean | undefined; isMe?: boolean | undefined; isMyContact?: boolean | undefined; isPSA?: boolean | undefined; isUser?: boolean | undefined; isWAContact?: boolean | undefined; labels?: string[] | undefined; msgs?: unknown[] | null | undefined; profilePicThumbObj?: { eurl?: string; id?: ContactId; img?: string; imgFull?: string; tag?: string } | undefined; statusMute?: boolean | undefined; type?: string | undefined; verifiedLevel?: number | undefined; verifiedName?: string | undefined; isOnline?: boolean | undefined; lastSeen?: number | undefined }
 ```
 
 </details>
 
-Related types: [ContactId](/docs/reference/client/return-types#contactid), [Id](/docs/reference/client/return-types#id)
+Related types: [ContactId](/docs/reference/client/return-types#contactid)
 
 | Field | Type | Required |
 | --- | --- | --- |
@@ -808,7 +808,7 @@ Related types: [ContactId](/docs/reference/client/return-types#contactid), [Id](
 | `isWAContact` | `boolean \| undefined` | No |
 | `labels` | `string[] \| undefined` | No |
 | `msgs` | `unknown[] \| null \| undefined` | No |
-| `profilePicThumbObj` | `{ eurl?: string; id?: Id; img?: string; imgFull?: string; tag?: string } \| undefined` — [Id](/docs/reference/client/return-types#id) | No |
+| `profilePicThumbObj` | `{ eurl?: string; id?: ContactId; img?: string; imgFull?: string; tag?: string } \| undefined` — [ContactId](/docs/reference/client/return-types#contactid) | No |
 | `statusMute` | `boolean \| undefined` | No |
 | `type` | `string \| undefined` | No |
 | `verifiedLevel` | `number \| undefined` | No |
@@ -962,12 +962,12 @@ Additional provider fields may be present; narrow them before use.
 <summary>Type declaration</summary>
 
 ```ts
-type BookingContent = { version?: 1; body: string; footer?: string; type: "booking"; title?: string; buttonLabel?: string; booking: { startAt: string; endAt?: string; location?: string; url?: string; managementUrl?: string; phoneNumber?: string; email?: string; description?: string; labels?: { language?: string; meetingType?: string; detailsTitle?: string; addToCalendar?: string; viewOnMap?: string; manageBooking?: string } }; actions?: (LinkAction | CallAction | CopyAction)[] }
+type BookingContent = { version?: 1; body: string; footer?: string; type: "booking"; title?: string; buttonLabel?: string; booking: { startAt: BookingTimestamp; endAt?: BookingTimestamp; location?: string; url?: string; managementUrl?: string; phoneNumber?: string; email?: string; description?: string; labels?: { language?: string; meetingType?: string; detailsTitle?: string; addToCalendar?: string; viewOnMap?: string; manageBooking?: string } }; actions?: (LinkAction | CallAction | CopyAction)[] }
 ```
 
 </details>
 
-Related types: [CallAction](/docs/reference/client/return-types#callaction), [CopyAction](/docs/reference/client/return-types#copyaction), [LinkAction](/docs/reference/client/return-types#linkaction)
+Related types: [BookingTimestamp](/docs/reference/client/return-types#bookingtimestamp), [CallAction](/docs/reference/client/return-types#callaction), [CopyAction](/docs/reference/client/return-types#copyaction), [LinkAction](/docs/reference/client/return-types#linkaction)
 
 | Field | Type | Required |
 | --- | --- | --- |
@@ -977,10 +977,25 @@ Related types: [CallAction](/docs/reference/client/return-types#callaction), [Co
 | `type` | `"booking"` | Yes |
 | `title` | `string` | No |
 | `buttonLabel` | `string` | No |
-| `booking` | `{ startAt: string; endAt?: string; location?: string; url?: string; managementUrl?: string; phoneNumber?: string; email?: string; description?: string; labels?: { language?: string; meetingType?: string; detailsTitle?: string; addToCalendar?: string; viewOnMap?: string; manageBooking?: string } }` | Yes |
+| `booking` | `{ startAt: BookingTimestamp; endAt?: BookingTimestamp; location?: string; url?: string; managementUrl?: string; phoneNumber?: string; email?: string; description?: string; labels?: { language?: string; meetingType?: string; detailsTitle?: string; addToCalendar?: string; viewOnMap?: string; manageBooking?: string } }` — [BookingTimestamp](/docs/reference/client/return-types#bookingtimestamp) | Yes |
 | `actions` | `(LinkAction \| CallAction \| CopyAction)[]` — [CallAction](/docs/reference/client/return-types#callaction), [CopyAction](/docs/reference/client/return-types#copyaction), [LinkAction](/docs/reference/client/return-types#linkaction) | No |
 
 Additional provider fields may be present; narrow them before use.
+## BookingTimestamp
+
+Validated native booking timestamp, encoded as UTC ISO 8601 with whole seconds and no fractional seconds.
+
+<details>
+<summary>Type declaration</summary>
+
+```ts
+type BookingTimestamp = import('@open-wa/schema/interactive').BookingTimestamp
+```
+
+</details>
+
+
+
 ## ButtonsContent
 
 

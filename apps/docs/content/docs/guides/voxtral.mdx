@@ -33,14 +33,20 @@ The generated `wa.config.js` or `wa.config.ts` includes the plugin and your
 chosen mode. Easy API discovers it automatically; you don't need a config flag
 or a separate plugin installation command.
 
-## 2. Add your key
+## 2. Add your keys
 
 Copy `.env.example` to `.env` and set your
 [Mistral API key](https://console.mistral.ai/api-keys/):
 
 ```dotenv
 MISTRAL_API_KEY=YOUR_MISTRAL_API_KEY
+# Enable intent-based chat actions with Jev
+JEV_API_KEY=YOUR_JEV_API_KEY
 ```
+
+Get a Jev key from [TypeSafe](https://typesafe.ai/) to let the assistant choose
+chat actions. Without it, voice conversations continue and chat actions are
+unavailable. The plugin reads both keys from the environment.
 
 For calls, also fill in `OPENWA_LICENSE_KEY` with your calling-enabled open-wa
 license. The generated config loads `.env`. Mistral bills transcription, answer
@@ -165,6 +171,75 @@ In `both` mode, a person's voice notes and calls share recent conversation
 context. Voice notes received from that person during their call wait until
 the call ends, so the assistant doesn't answer them in two places at once.
 
+## Choose chat actions with Jev
+
+During a call or voice-note exchange, the person can ask: “Send me the booking
+confirmation in this WhatsApp chat.” Jev classifies that request in the recent
+conversation context and chooses the appropriate format. Voxtral fills the
+selected format with known details, sends it to the same person, then uses the
+actual send result for its spoken acknowledgement.
+
+| Intent | Available action |
+| --- | --- |
+| A written answer, summary or link | Text message |
+| An order confirmation or receipt | Formatted confirmation template |
+| A few quick choices or link/call/copy actions | Button message |
+| Several known choices, such as services | Choice list |
+| Collect several answers | Form |
+| Appointment or reservation details | Native booking card |
+| “No, I said 2 pm” after a booking card | Corrected card replacing the previous one |
+| Ordinary conversation | No chat action |
+| An unclear chat request | Ask a clarifying question |
+
+You can correct the latest booking card during the call or with another voice
+note. Voxtral changes only the corrected fields and keeps the other details.
+It sends the replacement before removing the old card, and reports if the old
+card couldn't be removed. This corrects the message in the chat; it doesn't
+change a reservation in an external booking system. The original card must
+still be in the assistant's recent conversation context.
+
+Set `JEV_API_KEY` on the Easy API host. The classifier model defaults to
+`jev-latest`; change it under **Edit assistant → Chat actions**. Rich formats
+require an Insiders or higher license with interactive messaging. Jev is given
+only the formats the session supports. A confirmation template here is formatted
+WhatsApp text, not a Meta-approved business template.
+
+Jev reviews each user turn, proposed message content, action result and spoken reply.
+It uses the conversation and observed outcomes to choose the next step: continue
+speaking, perform an unfinished action, repair rejected arguments, ask for a
+missing fact or reconcile an uncertain send. A request can produce several
+messages, such as a booking card followed by buttons, without repeating the
+completed action. The same loop handles voice notes, calls and interactive
+replies. Message contents are built from the shared OpenUI schemas.
+
+Chat actions are enabled by default. Turn **Send messages when asked** off under
+**Plugins → Voxtral → Edit assistant → Chat actions**, or set
+`actions: { sendMessage: false }` inside `pluginConfig.voxtral`. **Choose format**
+previews Jev's decision using your saved model without sending a WhatsApp message.
+
+The normal Chat feed uses the shared [OpenUI catalogue](/docs/guides/openui) for
+message previews. **Plugins → Voxtral → Preview messages** lets you try cards,
+buttons, lists, forms and their replies without sending a WhatsApp message.
+The feed shows the selected format, a details preview and the
+message's submission and observed delivery state. Button, list and form replies
+to the assistant's own messages become conversation turns. During a call, the
+assistant responds through call audio; in voice-note mode it sends a voice note.
+In calls-only mode, selections made outside a call remain in context for the
+next call. These reply controls don't require `voiceNotes.acceptText`.
+
+The assistant asks only for missing required details. A booking card needs a
+date, local time, timezone and a location, booking URL or phone number; it does
+not require a name or email. The plugin
+calculates timestamps and the displayed date/time using the timezone rules for
+the appointment date, including daylight saving. If the clocks make a local
+time ambiguous or nonexistent, it asks for clarification. Forms and buttons
+do not require booking details.
+Sending a card, template or button doesn't create, verify or cancel a reservation
+in a booking system. An uncertain send isn't retried automatically; pausing the
+assistant or taking over a call stops new actions. If Jev is unavailable, the
+assistant continues speaking but explains that it can't perform chat actions.
+The selected answer model must support [Mistral function calling](https://docs.mistral.ai/studio/conversations/function-calling).
+
 ## Manage the assistant in the dashboard
 
 Open a person in **Chat** to see transcripts under their voice notes, assistant
@@ -178,6 +253,8 @@ its conversation list links into the same Chat view.
 | **Conversation mode** | Choose Voice notes, Calls, or Both. |
 | **Pause AI** | Stop new automatic responses across the session. Active calls remain available for takeover or ending. |
 | **Edit assistant** | Change instructions, voice, language, and reply settings. |
+| **Send messages when asked** | Let Jev choose the chat format and the assistant send agreed details during calls and voice notes. |
+| **Choose format** | Preview the Jev action decision without sending a WhatsApp message. |
 | **Preview voice** | Play a sample locally without sending a WhatsApp message. This uses your Mistral account. |
 | **Open chat** | Open the person's normal Chat feed from the plugin's conversation list. |
 | **Pause AI here** | Leave this chat to a human while the assistant handles others. |
@@ -223,6 +300,7 @@ These fields belong in `pluginConfig.voxtral`:
 | Field | Default | Purpose |
 | --- | --- | --- |
 | `apiKey` | `MISTRAL_API_KEY` environment variable | Optional explicit Mistral API key; normally the plugin reads the environment itself. |
+| `jevApiKey` | `JEV_API_KEY` environment variable | Optional explicit Jev key for chat action classification. |
 | `mode` | `'voice-notes'` | `'voice-notes'`, `'calls'`, or `'both'`. |
 | `agent.instructions` | A brief, helpful assistant | A string or array of strings. The plugin joins array entries in order with line breaks. |
 | `agent.model` | `'mistral-small-latest'` | The Mistral language model that generates answers. |
@@ -232,6 +310,8 @@ These fields belong in `pluginConfig.voxtral`:
 | `voiceNotes.acceptText` | `false` | Treat incoming direct text messages as assistant turns too. |
 | `calls.answer` | `'auto'` | Answer incoming calls automatically, or wait for a dashboard action with `'manual'`. |
 | `calls.greeting` | An introduction identifying the AI assistant | The first spoken message after a call connects. |
+| `actions.sendMessage` | `true` | Allow Jev-selected chat actions for the person in the current conversation. |
+| `actions.classifierModel` | `'jev-latest'` | Jev model for turn planning, action selection and response review. |
 | `conversation.idleTimeoutSeconds` | `1800` | How long recent conversation context remains after the last turn. |
 | `models.transcription` | `'voxtral-mini-transcribe-3-0'` | Transcription model for completed voice notes. |
 | `models.realtimeTranscription` | `'voxtral-mini-transcribe-realtime-3-0'` | Transcription model for live calls. |
@@ -239,7 +319,7 @@ These fields belong in `pluginConfig.voxtral`:
 | `contextBias` | `[]` | Names and specialist terms to help the transcription model recognize. |
 
 Partial settings inherit defaults for omitted fields, including fields inside
-`agent`, `voiceNotes`, and `calls`. You don't need to copy a complete settings
+`agent`, `voiceNotes`, `calls`, and `actions`. You don't need to copy a complete settings
 object to change one option. With `language: 'auto'`, the plugin configures
 language detection for each provider request.
 
@@ -258,7 +338,10 @@ Recent transcripts and answers are held in memory for the conversation's idle
 timeout. The plugin doesn't save raw voice notes or call recordings by default.
 Settings, pause choices, usage counters, and message-processing identifiers are
 saved locally for the WhatsApp session. Audio and conversation text needed for
-responses are sent to Mistral.
+responses are sent to Mistral. When chat actions are enabled, Jev receives the
+latest request, a bounded excerpt of recent conversation, proposed message
+content, action outcomes and proposed replies to choose the next action and
+review its response. Jev classification uses your TypeSafe account separately from Mistral.
 
 If a voice note contains no recognizable speech, the assistant asks the person
 to send it again or type their message. If Mistral rejects a key or reports a
@@ -282,3 +365,12 @@ AI audio connection on the existing call; it doesn't redial the person.
 - [Calls](/docs/guides/calls)
 - [Media handling](/docs/guides/media)
 - [Plugin configuration](/docs/plugins/getting-started#configure-the-plugin)
+
+## Text conversations with Jev
+
+Voxtral uses the shared Jev decision and action engine. Add
+`@open-wa/integration-jev` to `plugins` to also answer ordinary text messages,
+or select Jev alongside Voxtral in the setup wizard. They share recent context,
+booking cards and send outcomes. During a live call, button and form replies
+return through call audio. See the [Jev guide](/docs/guides/jev) for setup,
+correction rules, dates and decision evidence.

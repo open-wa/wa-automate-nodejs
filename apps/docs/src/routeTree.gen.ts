@@ -24,6 +24,7 @@ import { Route as DotwellKnownOauthAuthorizationServerRouteImport } from './rout
 import { Route as DotwellKnownOauthProtectedResourceRouteImport } from './routes/[.]well-known.oauth-protected-resource'
 import { Route as ApiChatRouteImport } from './routes/api.chat'
 import { Route as ApiFeedbackRouteImport } from './routes/api.feedback'
+import { Route as ApiLicenseSessionRouteImport } from './routes/api.license-session'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
@@ -113,6 +114,11 @@ const ApiFeedbackRoute = ApiFeedbackRouteImport.update({
   path: '/api/feedback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiLicenseSessionRoute = ApiLicenseSessionRouteImport.update({
+  id: '/api/license-session',
+  path: '/api/license-session',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiSearchRoute = ApiSearchRouteImport.update({
   id: '/api/search',
   path: '/api/search',
@@ -187,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
   '/api/feedback': typeof ApiFeedbackRoute
+  '/api/license-session': typeof ApiLicenseSessionRoute
   '/api/search': typeof ApiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/changelog/$version': typeof ChangelogVersionRoute
@@ -215,6 +222,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
   '/api/feedback': typeof ApiFeedbackRoute
+  '/api/license-session': typeof ApiLicenseSessionRoute
   '/api/search': typeof ApiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/changelog/$version': typeof ChangelogVersionRoute
@@ -244,6 +252,7 @@ export interface FileRoutesById {
   '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
   '/api/feedback': typeof ApiFeedbackRoute
+  '/api/license-session': typeof ApiLicenseSessionRoute
   '/api/search': typeof ApiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/changelog/$version': typeof ChangelogVersionRoute
@@ -274,6 +283,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
     | '/api/feedback'
+    | '/api/license-session'
     | '/api/search'
     | '/blog/$slug'
     | '/changelog/$version'
@@ -302,6 +312,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
     | '/api/feedback'
+    | '/api/license-session'
     | '/api/search'
     | '/blog/$slug'
     | '/changelog/$version'
@@ -330,6 +341,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
     | '/api/feedback'
+    | '/api/license-session'
     | '/api/search'
     | '/blog/$slug'
     | '/changelog/$version'
@@ -359,6 +371,7 @@ export interface RootRouteChildren {
   DotwellKnownOauthProtectedResourceRoute: typeof DotwellKnownOauthProtectedResourceRoute
   ApiChatRoute: typeof ApiChatRoute
   ApiFeedbackRoute: typeof ApiFeedbackRoute
+  ApiLicenseSessionRoute: typeof ApiLicenseSessionRoute
   ApiSearchRoute: typeof ApiSearchRoute
   BlogSlugRoute: typeof BlogSlugRoute
   ChangelogVersionRoute: typeof ChangelogVersionRoute
@@ -479,6 +492,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiFeedbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/license-session': {
+      id: '/api/license-session'
+      path: '/api/license-session'
+      fullPath: '/api/license-session'
+      preLoaderRoute: typeof ApiLicenseSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/search': {
       id: '/api/search'
       path: '/api/search'
@@ -577,6 +597,7 @@ const rootRouteChildren: RootRouteChildren = {
     DotwellKnownOauthProtectedResourceRoute,
   ApiChatRoute: ApiChatRoute,
   ApiFeedbackRoute: ApiFeedbackRoute,
+  ApiLicenseSessionRoute: ApiLicenseSessionRoute,
   ApiSearchRoute: ApiSearchRoute,
   BlogSlugRoute: BlogSlugRoute,
   ChangelogVersionRoute: ChangelogVersionRoute,

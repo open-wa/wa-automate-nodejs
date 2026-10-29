@@ -1,0 +1,800 @@
+{
+  "scope": {
+    "mode": "features",
+    "repository": "https://github.com/open-wa/wa-automate-nodejs",
+    "baselineRef": "v5.9.7",
+    "targetRef": "0beef5323c6adecfd3467f138cb0f1e6462d8331",
+    "version": "5.10.0 (Jev initial package 5.7.0)",
+    "releaseStatus": "prepared; npm first-publication authentication pending",
+    "sessionRefs": [
+      "This conversation: user request for Jev/Voxtral marketing videos, 29 October 2026"
+    ],
+    "sourceRefs": [
+      "integrations/voxtral/src/service.ts",
+      "integrations/voxtral/src/live-call.ts",
+      "integrations/voxtral/src/audio.ts",
+      "apps/docs/content/docs/guides/voxtral.mdx",
+      "integrations/jev/src/engine.ts",
+      "integrations/jev/src/jev.ts",
+      "integrations/jev/src/hub.ts",
+      "apps/docs/content/docs/guides/jev.mdx",
+      "apps/dashboard-neo/src/components/plugin-chat.tsx",
+      "apps/dashboard-neo/src/routes/chat.tsx",
+      "packages/plugin-sdk/src/openui.ts",
+      "packages/ui-components/src/openui.tsx",
+      "packages/config/src/hooks.ts",
+      "packages/core/src/plugins/HookPipeline.ts",
+      "packages/create/src/options.js",
+      "packages/create/src/templates.js",
+      "apps/docs/src/routes/new.tsx"
+    ]
+  },
+  "product": {
+    "name": "OpenWA",
+    "wordmark": "open-wa",
+    "siteUrl": "https://openwa.dev",
+    "purpose": "Build WhatsApp assistants and integrations.",
+    "brandingSourceRefs": [
+      "apps/docs/src/lib/site.ts",
+      "Approved OpenWA Lightpanda release film retained by release-video skill"
+    ]
+  },
+  "items": [
+    {
+      "id": "V1",
+      "kind": "feature",
+      "title": "Two-way voice notes",
+      "userAction": "Send a WhatsApp voice note",
+      "mechanism": "Voxtral transcribes, answers and sends a playable voice note",
+      "benefit": "Continue a recent conversation in audio",
+      "packages": [
+        "@open-wa/integration-voxtral"
+      ],
+      "sourceRefs": [
+        "integrations/voxtral/src/service.ts",
+        "integrations/voxtral/src/live-call.ts",
+        "integrations/voxtral/src/audio.ts",
+        "apps/docs/content/docs/guides/voxtral.mdx"
+      ],
+      "availability": "implemented",
+      "evidence": [
+        "Source at 0beef5323c6adecfd3467f138cb0f1e6462d8331",
+        "Finite live batch and focused provider/regression observations: docs/plans/2026-10-28-jev-voxtral-live-acceptance.md"
+      ],
+      "claims": [
+        "Send a WhatsApp voice note \u2192 Voxtral transcribes, answers and sends a playable voice note \u2192 Continue a recent conversation in audio"
+      ],
+      "qualifications": [
+        "Mistral API key and model quota required.",
+        "Recent conversation context expires and clears on restart."
+      ],
+      "visualTreatment": "Illustrated demo; no private chat or live customer footage.",
+      "sceneIds": [
+        "voxtral.notes"
+      ],
+      "disposition": "scene",
+      "exclusionReason": null
+    },
+    {
+      "id": "V2",
+      "kind": "feature",
+      "title": "Incoming and outgoing audio calls",
+      "userAction": "Call the assistant or start a call from Neo",
+      "mechanism": "Incoming auto-answer or outgoing call control attaches AI audio",
+      "benefit": "Have a live two-way conversation",
+      "packages": [
+        "@open-wa/integration-voxtral"
+      ],
+      "sourceRefs": [
+        "integrations/voxtral/src/service.ts",
+        "integrations/voxtral/src/live-call.ts",
+        "integrations/voxtral/src/audio.ts",
+        "apps/docs/content/docs/guides/voxtral.mdx"
+      ],
+      "availability": "implemented",
+      "evidence": [
+        "Source at 0beef5323c6adecfd3467f138cb0f1e6462d8331",
+        "Finite live batch and focused provider/regression observations: docs/plans/2026-10-28-jev-voxtral-live-acceptance.md"
+      ],
+      "claims": [
+        "Call the assistant or start a call from Neo \u2192 Incoming auto-answer or outgoing call control attaches AI audio \u2192 Have a live two-way conversation"
+      ],
+      "qualifications": [
+        "Audio calling capability/license required; video calls are outside this scope.",
+        "No claim of perfect ASR, error-free calls, measured latency or human acceptance for the final build."
+      ],
+      "visualTreatment": "Illustrated demo; no private chat or live customer footage.",
+      "sceneIds": [
+        "voxtral.calls"
+      ],
+      "disposition": "scene",
+      "exclusionReason": null
+    },
+    {
+      "id": "V3",
+      "kind": "feature",
+      "title": "Interrupt the assistant",
+      "userAction": "Ask a new question while it speaks",
+      "mechanism": "Abort old generation, clear playback and review the new answer",
+      "benefit": "Switch the conversation without waiting for the old explanation",
+      "packages": [
+        "@open-wa/integration-jev",
+        "@open-wa/integration-voxtral"
+      ],
+      "sourceRefs": [
+        "integrations/voxtral/src/service.ts",
+        "integrations/voxtral/src/live-call.ts",
+        "integrations/voxtral/src/audio.ts",
+        "apps/docs/content/docs/guides/voxtral.mdx",
+        "integrations/jev/src/engine.ts",
+        "integrations/jev/src/jev.ts",
+        "integrations/jev/src/hub.ts",
+        "apps/docs/content/docs/guides/jev.mdx"
+      ],
+      "availability": "implemented",
+      "evidence": [
+        "Source at 0beef5323c6adecfd3467f138cb0f1e6462d8331",
+        "Finite live batch and focused provider/regression observations: docs/plans/2026-10-28-jev-voxtral-live-acceptance.md"
+      ],
+      "claims": [
+        "Ask a new question while it speaks \u2192 Abort old generation, clear playback and review the new answer \u2192 Switch the conversation without waiting for the old explanation"
+      ],
+      "qualifications": [
+        "Native interruption was observed; final stale-continuation repair was validated through real Jev and Mistral with WhatsApp sends forbidden."
+      ],
+      "visualTreatment": "Illustrated demo; no private chat or live customer footage.",
+      "sceneIds": [
+        "voxtral.calls"
+      ],
+      "disposition": "scene",
+      "exclusionReason": null
+    },
+    {
+      "id": "V4",
+      "kind": "fix",
+      "title": "Recover after an answer failure",
+      "userAction": "Speak again after an answer request fails",
+      "mechanism": "Leave transcription open, expose the error and accept a new caller turn",
+      "benefit": "Continue without reconnecting or replaying chat actions",
+      "packages": [
+        "@open-wa/integration-voxtral"
+      ],
+      "sourceRefs": [
+        "integrations/voxtral/src/service.ts",
+        "integrations/voxtral/src/live-call.ts",
+        "integrations/voxtral/src/audio.ts",
+        "apps/docs/content/docs/guides/voxtral.mdx"
+      ],
+      "availability": "implemented",
+      "evidence": [
+        "Source at 0beef5323c6adecfd3467f138cb0f1e6462d8331",
+        "Finite live batch and focused provider/regression observations: docs/plans/2026-10-28-jev-voxtral-live-acceptance.md"
+      ],
+      "claims": [
+        "Speak again after an answer request fails \u2192 Leave transcription open, expose the error and accept a new caller turn \u2192 Continue without reconnecting or replaying chat actions"
+      ],
+      "qualifications": [
+        "Focused WebSocket regression; illustration is not a recording of an injected real-provider failure.",
+        "This covers individual answer/TTS failures, not every network outage."
+      ],
+      "visualTreatment": "Illustrated demo; no private chat or live customer footage.",
+      "sceneIds": [
+        "voxtral.recovery"
+      ],
+      "disposition": "scene",
+      "exclusionReason": null
+    },
+    {
+      "id": "S1",
+      "kind": "feature",
+      "title": "Intent-based chat actions",
+      "userAction": "Ask for a confirmation or choices",
+      "mechanism": "Jev selects one or more formats; the host validates and sends",
+      "benefit": "Receive a native card and separate controls",
+      "packages": [
+        "@open-wa/integration-jev",
+        "@open-wa/integration-voxtral"
+      ],
+      "sourceRefs": [
+        "integrations/jev/src/engine.ts",
+        "integrations/jev/src/jev.ts",
+        "integrations/jev/src/hub.ts",
+        "apps/docs/content/docs/guides/jev.mdx",
+        "integrations/voxtral/src/service.ts",
+        "integrations/voxtral/src/live-call.ts",
+        "integrations/voxtral/src/audio.ts",
+        "apps/docs/content/docs/guides/voxtral.mdx"
+      ],
+      "availability": "implemented",
+      "evidence": [
+        "Source at 0beef5323c6adecfd3467f138cb0f1e6462d8331",
+        "Finite live batch and focused provider/regression observations: docs/plans/2026-10-28-jev-voxtral-live-acceptance.md"
+      ],
+      "claims": [
+        "Ask for a confirmation or choices \u2192 Jev selects one or more formats; the host validates and sends \u2192 Receive a native card and separate controls"
+      ],
+      "qualifications": [
+        "JEV_API_KEY and TypeSafe usage credits required for routing.",
+        "Rich formats require licensed capabilities; a template is formatted text, not a Meta-approved business template."
+      ],
+      "visualTreatment": "Illustrated demo; no private chat or live customer footage.",
+      "sceneIds": [
+        "voxtral.booking",
+        "jev.routing"
+      ],
+      "disposition": "scene",
+      "exclusionReason": null
+    },
+    {
+      "id": "S2",
+      "kind": "feature",
+      "title": "Booking correction and date integrity",
+      "userAction": "Correct the time on a sent card",
+      "mechanism": "Preserve unchanged details, submit the replacement and remove the predecessor",
+      "benefit": "Keep one current confirmation in the chat",
+      "packages": [
+        "@open-wa/integration-jev"
+      ],
+      "sourceRefs": [
+        "integrations/jev/src/engine.ts",
+        "integrations/jev/src/jev.ts",
+        "integrations/jev/src/hub.ts",
+        "apps/docs/content/docs/guides/jev.mdx"
+      ],
+      "availability": "implemented",
+      "evidence": [
+        "Source at 0beef5323c6adecfd3467f138cb0f1e6462d8331",
+        "Finite live batch and focused provider/regression observations: docs/plans/2026-10-28-jev-voxtral-live-acceptance.md"
+      ],
+      "claims": [
+        "Correct the time on a sent card \u2192 Preserve unchanged details, submit the replacement and remove the predecessor \u2192 Keep one current confirmation in the chat"
+      ],
+      "qualifications": [
+        "A card displays details and does not reserve or modify an external booking system.",
+        "Uncertain old-card removal is reported rather than claimed successful.",
+        "A wrong transcription can still supply a wrong source value."
+      ],
+      "visualTreatment": "Illustrated demo; no private chat or live customer footage.",
+      "sceneIds": [
+        "voxtral.correction",
+        "jev.correction"
+      ],
+      "disposition": "scene",
+      "exclusionReason": null
+    },
+    {
+      "id": "S3",
+      "kind": "feature",
+      "title": "Correlated buttons and forms",
+      "userAction": "Confirm a choice and submit several selections",
+      "mechanism": "Correlate native replies to original controls and acknowledge through the active adapter",
+      "benefit": "Keep replies in the same conversation and audio channel",
+      "packages": [
+        "@open-wa/integration-jev",
+        "@open-wa/integration-voxtral"
+      ],
+      "sourceRefs": [
+        "integrations/jev/src/engine.ts",
+        "integrations/jev/src/jev.ts",
+        "integrations/jev/src/hub.ts",
+        "apps/docs/content/docs/guides/jev.mdx",
+        "integrations/voxtral/src/service.ts",
+        "integrations/voxtral/src/live-call.ts",
+        "integrations/voxtral/src/audio.ts",
+        "apps/docs/content/docs/guides/voxtral.mdx"
+      ],
+      "availability": "implemented",
+      "evidence": [
+        "Source at 0beef5323c6adecfd3467f138cb0f1e6462d8331",
+        "Finite live batch and focused provider/regression observations: docs/plans/2026-10-28-jev-voxtral-live-acceptance.md"
+      ],
+      "claims": [
+        "Confirm a choice and submit several selections \u2192 Correlate native replies to original controls and acknowledge through the active adapter \u2192 Keep replies in the same conversation and audio channel"
+      ],
+      "qualifications": [
+        "Live-call acknowledgements use call audio; no separate voice note is sent for those selections.",
+        "Choice acknowledgements record preferences rather than perform external transactions."
+      ],
+      "visualTreatment": "Illustrated demo; no private chat or live customer footage.",
+      "sceneIds": [
+        "voxtral.form",
+        "jev.form"
+      ],
+      "disposition": "scene",
+      "exclusionReason": null
+    },
+    {
+      "id": "S4",
+      "kind": "feature",
+      "title": "Neo plugin controls in ordinary Chat",
+      "userAction": "View transcripts, decisions and cards; pause or take over",
+      "mechanism": "Plugin extensions render within the Chat feed and expose separate settings pages",
+      "benefit": "Manage the assistant where the conversation is",
+      "packages": [
+        "@open-wa/integration-jev",
+        "@open-wa/integration-voxtral"
+      ],
+      "sourceRefs": [
+        "apps/dashboard-neo/src/components/plugin-chat.tsx",
+        "apps/dashboard-neo/src/routes/chat.tsx",
+        "packages/plugin-sdk/src/openui.ts",
+        "packages/ui-components/src/openui.tsx",
+        "integrations/voxtral/src/service.ts",
+        "integrations/voxtral/src/live-call.ts",
+        "integrations/voxtral/src/audio.ts",
+        "apps/docs/content/docs/guides/voxtral.mdx",
+        "integrations/jev/src/engine.ts",
+        "integrations/jev/src/jev.ts",
+        "integrations/jev/src/hub.ts",
+        "apps/docs/content/docs/guides/jev.mdx"
+      ],
+      "availability": "implemented",
+      "evidence": [
+        "Source at 0beef5323c6adecfd3467f138cb0f1e6462d8331",
+        "Finite live batch and focused provider/regression observations: docs/plans/2026-10-28-jev-voxtral-live-acceptance.md"
+      ],
+      "claims": [
+        "View transcripts, decisions and cards; pause or take over \u2192 Plugin extensions render within the Chat feed and expose separate settings pages \u2192 Manage the assistant where the conversation is"
+      ],
+      "qualifications": [
+        "The film recreates a simplified Neo interface and labels it as an illustration."
+      ],
+      "visualTreatment": "Illustrated demo; no private chat or live customer footage.",
+      "sceneIds": [
+        "voxtral.neo",
+        "jev.scope"
+      ],
+      "disposition": "scene",
+      "exclusionReason": null
+    },
+    {
+      "id": "J1",
+      "kind": "feature",
+      "title": "Standalone Jev text assistant",
+      "userAction": "Send ordinary WhatsApp text messages",
+      "mechanism": "Jev runs its shared action engine with Mistral wording, without Voxtral",
+      "benefit": "Use chat actions without any voice integration",
+      "packages": [
+        "@open-wa/integration-jev"
+      ],
+      "sourceRefs": [
+        "integrations/jev/src/engine.ts",
+        "integrations/jev/src/jev.ts",
+        "integrations/jev/src/hub.ts",
+        "apps/docs/content/docs/guides/jev.mdx"
+      ],
+      "availability": "implemented",
+      "evidence": [
+        "Source at 0beef5323c6adecfd3467f138cb0f1e6462d8331",
+        "Finite live batch and focused provider/regression observations: docs/plans/2026-10-28-jev-voxtral-live-acceptance.md"
+      ],
+      "claims": [
+        "Send ordinary WhatsApp text messages \u2192 Jev runs its shared action engine with Mistral wording, without Voxtral \u2192 Use chat actions without any voice integration"
+      ],
+      "qualifications": [
+        "Mistral generates wording and Jev/TypeSafe classifies; both accounts have separate usage costs."
+      ],
+      "visualTreatment": "Illustrated demo; no private chat or live customer footage.",
+      "sceneIds": [
+        "jev.intro",
+        "jev.text"
+      ],
+      "disposition": "scene",
+      "exclusionReason": null
+    },
+    {
+      "id": "J2",
+      "kind": "feature",
+      "title": "Review observed action results",
+      "userAction": "Request a useful outcome",
+      "mechanism": "Review intent, selected action, send outcome and final reply",
+      "benefit": "Acknowledge actual outcomes and reconcile uncertain sends",
+      "packages": [
+        "@open-wa/integration-jev"
+      ],
+      "sourceRefs": [
+        "integrations/jev/src/engine.ts",
+        "integrations/jev/src/jev.ts",
+        "integrations/jev/src/hub.ts",
+        "apps/docs/content/docs/guides/jev.mdx"
+      ],
+      "availability": "implemented",
+      "evidence": [
+        "Source at 0beef5323c6adecfd3467f138cb0f1e6462d8331",
+        "Finite live batch and focused provider/regression observations: docs/plans/2026-10-28-jev-voxtral-live-acceptance.md"
+      ],
+      "claims": [
+        "Request a useful outcome \u2192 Review intent, selected action, send outcome and final reply \u2192 Acknowledge actual outcomes and reconcile uncertain sends"
+      ],
+      "qualifications": [
+        "No guarantee of perfect decisions or delivery is asserted."
+      ],
+      "visualTreatment": "Illustrated demo; no private chat or live customer footage.",
+      "sceneIds": [
+        "jev.routing"
+      ],
+      "disposition": "scene",
+      "exclusionReason": null
+    },
+    {
+      "id": "J3",
+      "kind": "feature",
+      "title": "Shared recent text and voice context",
+      "userAction": "Add Voxtral to a Jev project",
+      "mechanism": "Both adapters use the same session-host conversation service",
+      "benefit": "Recall recent choices across text, notes and calls",
+      "packages": [
+        "@open-wa/integration-jev",
+        "@open-wa/integration-voxtral"
+      ],
+      "sourceRefs": [
+        "integrations/jev/src/engine.ts",
+        "integrations/jev/src/jev.ts",
+        "integrations/jev/src/hub.ts",
+        "apps/docs/content/docs/guides/jev.mdx",
+        "integrations/voxtral/src/service.ts",
+        "integrations/voxtral/src/live-call.ts",
+        "integrations/voxtral/src/audio.ts",
+        "apps/docs/content/docs/guides/voxtral.mdx"
+      ],
+      "availability": "implemented",
+      "evidence": [
+        "Source at 0beef5323c6adecfd3467f138cb0f1e6462d8331",
+        "Finite live batch and focused provider/regression observations: docs/plans/2026-10-28-jev-voxtral-live-acceptance.md"
+      ],
+      "claims": [
+        "Add Voxtral to a Jev project \u2192 Both adapters use the same session-host conversation service \u2192 Recall recent choices across text, notes and calls"
+      ],
+      "qualifications": [
+        "Recent context is in memory and clears on restart."
+      ],
+      "visualTreatment": "Illustrated demo; no private chat or live customer footage.",
+      "sceneIds": [
+        "jev.bridge"
+      ],
+      "disposition": "scene",
+      "exclusionReason": null
+    },
+    {
+      "id": "H1",
+      "kind": "feature",
+      "title": "Limit the chats plugins can operate in",
+      "userAction": "Choose verified allowed chat IDs",
+      "mechanism": "Host hooks filter both events and plugin actions",
+      "benefit": "Keep the demo assistant scoped to intended chats",
+      "packages": [],
+      "sourceRefs": [
+        "packages/config/src/hooks.ts",
+        "packages/core/src/plugins/HookPipeline.ts"
+      ],
+      "availability": "implemented",
+      "evidence": [
+        "Source at 0beef5323c6adecfd3467f138cb0f1e6462d8331",
+        "Finite live batch and focused provider/regression observations: docs/plans/2026-10-28-jev-voxtral-live-acceptance.md"
+      ],
+      "claims": [
+        "Choose verified allowed chat IDs \u2192 Host hooks filter both events and plugin actions \u2192 Keep the demo assistant scoped to intended chats"
+      ],
+      "qualifications": [
+        "Include both verified phone-number IDs and LIDs when applicable.",
+        "Omitting chatFilter leaves chats unrestricted."
+      ],
+      "visualTreatment": "Illustrated demo; no private chat or live customer footage.",
+      "sceneIds": [
+        "jev.scope"
+      ],
+      "disposition": "scene",
+      "exclusionReason": null
+    },
+    {
+      "id": "I1",
+      "kind": "feature",
+      "title": "Shared terminal wizard and visual builder",
+      "userAction": "Choose Easy API or SDK, JS or TS, browser and plugins",
+      "mechanism": "Shared options generate the files; config discovery and lazy plugin installation simplify startup",
+      "benefit": "Start with a project suited to the integration",
+      "packages": [],
+      "sourceRefs": [
+        "packages/create/src/options.js",
+        "packages/create/src/templates.js",
+        "apps/docs/src/routes/new.tsx"
+      ],
+      "availability": "implemented",
+      "evidence": [
+        "Source at 0beef5323c6adecfd3467f138cb0f1e6462d8331",
+        "Finite live batch and focused provider/regression observations: docs/plans/2026-10-28-jev-voxtral-live-acceptance.md"
+      ],
+      "claims": [
+        "Choose Easy API or SDK, JS or TS, browser and plugins \u2192 Shared options generate the files; config discovery and lazy plugin installation simplify startup \u2192 Start with a project suited to the integration"
+      ],
+      "qualifications": [
+        "The expanded integration release is not yet published to npm; preview command is for use after release.",
+        "Node.js 22.21.1 or newer is required."
+      ],
+      "visualTreatment": "Illustrated demo; no private chat or live customer footage.",
+      "sceneIds": [
+        "voxtral.setup",
+        "jev.setup",
+        "voxtral.cta",
+        "jev.cta"
+      ],
+      "disposition": "scene",
+      "exclusionReason": null
+    }
+  ],
+  "scenes": [
+    {
+      "id": "voxtral.intro",
+      "film": "voxtral",
+      "startSeconds": 0,
+      "endSeconds": 5,
+      "itemIds": [],
+      "copy": "Give your assistant a voice.",
+      "visual": "Voice notes. Live calls. Useful actions in the chat."
+    },
+    {
+      "id": "voxtral.notes",
+      "film": "voxtral",
+      "startSeconds": 5,
+      "endSeconds": 11,
+      "itemIds": [
+        "V1"
+      ],
+      "copy": "Send a voice note. Get a voice reply.",
+      "visual": "Keep the conversation going, one message at a time."
+    },
+    {
+      "id": "voxtral.calls",
+      "film": "voxtral",
+      "startSeconds": 11,
+      "endSeconds": 19,
+      "itemIds": [
+        "V2",
+        "V3"
+      ],
+      "copy": "Talk. Interrupt. Ask something new.",
+      "visual": "Auto-answer incoming calls or start one from Neo."
+    },
+    {
+      "id": "voxtral.booking",
+      "film": "voxtral",
+      "startSeconds": 19,
+      "endSeconds": 26,
+      "itemIds": [
+        "S1"
+      ],
+      "copy": "\u201cSend that in the chat.\u201d",
+      "visual": "Jev chooses a booking card from the details you discussed."
+    },
+    {
+      "id": "voxtral.correction",
+      "film": "voxtral",
+      "startSeconds": 26,
+      "endSeconds": 33,
+      "itemIds": [
+        "S2"
+      ],
+      "copy": "\u201cNo, I said 2 pm.\u201d",
+      "visual": "Keep the other details. Replace the card. Remove the old one."
+    },
+    {
+      "id": "voxtral.form",
+      "film": "voxtral",
+      "startSeconds": 33,
+      "endSeconds": 40,
+      "itemIds": [
+        "S3"
+      ],
+      "copy": "Buttons. Forms. Same conversation.",
+      "visual": "Selections during a call are acknowledged through its audio."
+    },
+    {
+      "id": "voxtral.recovery",
+      "film": "voxtral",
+      "startSeconds": 40,
+      "endSeconds": 46,
+      "itemIds": [
+        "V4"
+      ],
+      "copy": "One answer fails. You can keep talking.",
+      "visual": "A failed answer request no longer closes live transcription."
+    },
+    {
+      "id": "voxtral.neo",
+      "film": "voxtral",
+      "startSeconds": 46,
+      "endSeconds": 52,
+      "itemIds": [
+        "S4"
+      ],
+      "copy": "See what happened. Stay in control.",
+      "visual": "Transcripts, chat cards, pause and human takeover in Neo."
+    },
+    {
+      "id": "voxtral.setup",
+      "film": "voxtral",
+      "startSeconds": 52,
+      "endSeconds": 59,
+      "itemIds": [
+        "I1"
+      ],
+      "copy": "Your project. Your choices.",
+      "visual": "Easy API or SDK. JavaScript or TypeScript. Pick your plugins."
+    },
+    {
+      "id": "voxtral.cta",
+      "film": "voxtral",
+      "startSeconds": 59,
+      "endSeconds": 71,
+      "itemIds": [
+        "I1"
+      ],
+      "copy": "Let\u2019s talk. Then do something.",
+      "visual": "Explore the guide and build your WhatsApp assistant."
+    },
+    {
+      "id": "jev.intro",
+      "film": "jev",
+      "startSeconds": 0,
+      "endSeconds": 5,
+      "itemIds": [
+        "J1"
+      ],
+      "copy": "A text assistant that can act.",
+      "visual": "Chat, send cards and collect replies. No voice plugin needed."
+    },
+    {
+      "id": "jev.text",
+      "film": "jev",
+      "startSeconds": 5,
+      "endSeconds": 12,
+      "itemIds": [
+        "J1"
+      ],
+      "copy": "Start with a normal message.",
+      "visual": "Jev handles text chat without Voxtral or speech services."
+    },
+    {
+      "id": "jev.routing",
+      "film": "jev",
+      "startSeconds": 12,
+      "endSeconds": 19,
+      "itemIds": [
+        "S1",
+        "J2"
+      ],
+      "copy": "Ask for an outcome. Jev picks the format.",
+      "visual": "The host validates and sends. Jev reviews the actual result."
+    },
+    {
+      "id": "jev.correction",
+      "film": "jev",
+      "startSeconds": 19,
+      "endSeconds": 27,
+      "itemIds": [
+        "S2"
+      ],
+      "copy": "Correct the time. Keep the context.",
+      "visual": "A replacement card preserves the date, duration and location."
+    },
+    {
+      "id": "jev.form",
+      "film": "jev",
+      "startSeconds": 27,
+      "endSeconds": 34,
+      "itemIds": [
+        "S3"
+      ],
+      "copy": "Collect the choices. Read them back.",
+      "visual": "Buttons and forms keep their original message references."
+    },
+    {
+      "id": "jev.scope",
+      "film": "jev",
+      "startSeconds": 34,
+      "endSeconds": 41,
+      "itemIds": [
+        "S4",
+        "H1"
+      ],
+      "copy": "Set the scope. Keep the control.",
+      "visual": "A shared host hook limits which chats plugins can operate in."
+    },
+    {
+      "id": "jev.bridge",
+      "film": "jev",
+      "startSeconds": 41,
+      "endSeconds": 47,
+      "itemIds": [
+        "J3"
+      ],
+      "copy": "Text today. Voice when you\u2019re ready.",
+      "visual": "Jev and Voxtral share recent context in the same host."
+    },
+    {
+      "id": "jev.setup",
+      "film": "jev",
+      "startSeconds": 47,
+      "endSeconds": 53,
+      "itemIds": [
+        "I1"
+      ],
+      "copy": "Build it your way.",
+      "visual": "Choose the same options in the wizard or at openwa.dev/new."
+    },
+    {
+      "id": "jev.cta",
+      "film": "jev",
+      "startSeconds": 53,
+      "endSeconds": 65,
+      "itemIds": [
+        "I1"
+      ],
+      "copy": "Start a chat. Make it useful.",
+      "visual": "Explore the guide and create a text assistant."
+    }
+  ],
+  "cta": {
+    "availabilityCopy": "Release preview; npm publication pending",
+    "commandOrAction": {
+      "voxtral": "https://openwa.dev/docs/guides/voxtral",
+      "jev": "https://openwa.dev/docs/guides/jev"
+    },
+    "prerequisites": [
+      "Node.js >=22.21.1",
+      "Mistral API key/model quota",
+      "Jev API key/TypeSafe credits for decisions and chat actions",
+      "Calling and rich message capabilities when those features are used"
+    ],
+    "steps": [
+      "Choose Easy API or SDK",
+      "Choose JavaScript or TypeScript",
+      "Choose plugins"
+    ],
+    "sourceRefs": [
+      "packages/create/src/options.js",
+      "packages/create/src/templates.js",
+      "apps/docs/src/routes/new.tsx"
+    ],
+    "settledHoldSeconds": 11
+  },
+  "excluded": [
+    {
+      "feature": "Unrelated licensing checkout, older release changes and the complete historical bootstrap migration",
+      "reason": "Outside the requested Jev/Voxtral product films."
+    },
+    {
+      "feature": "Instruction array joining, internal package alignment and session checkpoint details",
+      "reason": "Implementation maintenance, represented by simpler setup rather than separate marketing claims."
+    },
+    {
+      "feature": "Usage counters and the OpenUI authoring workbench",
+      "reason": "Secondary dashboard tools; the films demonstrate generated chat messages and normal Chat controls, without implying the entire product UI was filmed."
+    },
+    {
+      "feature": "Formatted confirmation templates and list pickers",
+      "reason": "Supported format variants documented in the guide; these two films demonstrate native bookings, reply buttons and forms rather than duplicate every format workflow."
+    }
+  ],
+  "exports": {
+    "width": 1080,
+    "height": 1350,
+    "fps": 30,
+    "gifWidth": 648,
+    "gifHeight": 810,
+    "gifFps": 15,
+    "files": {
+      "voxtral": [
+        "marketing/exports/openwa-voxtral-preview.mp4",
+        "marketing/exports/openwa-voxtral-preview.gif",
+        "marketing/exports/openwa-voxtral-preview-poster.png"
+      ],
+      "jev": [
+        "marketing/exports/openwa-jev-preview.mp4",
+        "marketing/exports/openwa-jev-preview.gif",
+        "marketing/exports/openwa-jev-preview-poster.png"
+      ]
+    }
+  },
+  "privacy": "All people, messages and appointment details in the visuals are synthetic. No private audio, chat logs, QR codes, phone numbers, keys or license values are included."
+}

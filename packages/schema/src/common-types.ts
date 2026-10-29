@@ -235,7 +235,7 @@ export const ContactSchema = z.object({
     msgs: z.array(z.unknown()).nullable().optional(), // Raw nested messages avoid recursive serialization
     profilePicThumbObj: z.object({
         eurl: z.string().optional(),
-        id: IdSchema.optional(),
+        id: ContactIdSchema.optional().describe('Serialized contact ID returned by the profile-picture serializer'),
         img: z.string().optional(),
         imgFull: z.string().optional(),
         tag: z.string().optional(),

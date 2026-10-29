@@ -27,6 +27,7 @@ export const choices = {
 };
 
 export const pluginChoices = [
+  { value: 'jev', label: 'Jev chat assistant', description: 'Choose chat actions and respond to text messages, with shared context for Voxtral.', package: '@open-wa/integration-jev', modes: ['easy-api', 'sdk'] },
   { value: 'voxtral', label: 'Voxtral', description: 'A conversational voice assistant using your Mistral account.', package: '@open-wa/integration-voxtral', modes: ['easy-api', 'sdk'] },
   { value: 'webhook', label: 'Webhooks', description: 'Forward WhatsApp events to your HTTP endpoint.', package: '@open-wa/integration-webhook', modes: ['easy-api', 'sdk'] },
   { value: 'chatwoot', label: 'Chatwoot', description: 'Connect a Chatwoot inbox through Easy API webhook routes.', package: '@open-wa/integration-chatwoot', modes: ['easy-api'] },
@@ -39,7 +40,7 @@ export const flags = {
   mode: { key: 'mode', description: 'easy-api or sdk' },
   language: { key: 'language', description: 'js or ts' },
   browser: { key: 'browser', description: 'auto, system-chrome, chrome or chromium' },
-  plugins: { key: 'plugins', description: 'Comma-separated voxtral, webhook, chatwoot; or none' },
+  plugins: { key: 'plugins', description: 'Comma-separated jev, voxtral, webhook, chatwoot; or none' },
   'voxtral-mode': { key: 'voxtralMode', description: 'voice-notes, calls or both' },
 };
 

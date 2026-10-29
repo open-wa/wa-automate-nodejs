@@ -1,6 +1,6 @@
 /** Plugin-owned Neo page. The host supplies its React instance, BoardUI, and API boundary. */
 export function createPage(host) {
-  const { React, ui, json, request, watch, chatUrl, usePrivacy } = host;
+  const { React, ui, json, request, watch, chatUrl, usePrivacy, openui } = host;
   const { createElement: h, useEffect, useRef, useState } = React;
   const css = `
     .voxtral{display:flex;flex-direction:column;gap:24px;color:var(--text-primary,var(--foreground))}
@@ -41,10 +41,13 @@ export function createPage(host) {
     const [query, setQuery] = useState('');
     const [page, setPage] = useState(0);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [messagePreviewOpen, setMessagePreviewOpen] = useState(false);
     const [settings, setSettings] = useState(null);
     const [draft, setDraft] = useState(null);
     const [voices, setVoices] = useState([]);
     const [audioUrl, setAudioUrl] = useState('');
+    const [actionRequest, setActionRequest] = useState('Send me the confirmation of the booking in this chat.');
+    const [actionPreview, setActionPreview] = useState(null);
     const settingsButton = useRef(null);
     const sample = useRef(null);
     const alive = useRef(true);
@@ -78,9 +81,12 @@ export function createPage(host) {
     const loadSettings = async () => {
       const view = await json('settings'); setSettings(view); setDraft(structuredClone(view.settings)); setSettingsOpen(true);
       if (view.keyConfigured) {
-        const library = await json('voices').catch(() => null);
-        const entries = library?.items || [];
-        setVoices(Array.isArray(entries) ? entries : []);
+        // The optional voice library must not hold the settings controls busy.
+        void json('voices').then(library => {
+          if (!alive.current) return;
+          const entries = library?.items || [];
+          setVoices(Array.isArray(entries) ? entries : []);
+        }).catch(() => { if (alive.current) setVoices([]); });
       }
     };
     const saveSettings = async patch => {
@@ -107,6 +113,7 @@ export function createPage(host) {
 
     const header = h(ui.PageHeader, { title: 'Voxtral', description: 'Configure your assistant and view usage. Conversations stay in Chat.',
       actions: h(React.Fragment, null,
+        button('Preview messages', () => setMessagePreviewOpen(true)),
         button(status?.paused ? 'Resume AI' : 'Pause AI', () => run(() => post(status.paused ? 'resume' : 'pause')), { disabled: busy || !status }),
         button('Edit assistant', () => run(loadSettings), { ref: settingsButton, variant: 'default', disabled: busy })) });
 
@@ -131,6 +138,14 @@ export function createPage(host) {
         h('div', { className: 'vx-muted' }, `Mistral key: ${settings.keyConfigured ? `configured through ${settings.keySource}` : 'missing — set MISTRAL_API_KEY on the Easy API host'}`),
         field('Assistant instructions', h(ui.Textarea, { rows: 7, value: Array.isArray(draft.agent.instructions) ? draft.agent.instructions.join('\n') : draft.agent.instructions, onChange: event => change('agent', 'instructions', event.target.value.split('\n')) }), 'Write naturally, one instruction per line. The plugin combines them for the model.'),
         field('Conversation mode', select(draft.mode, modes, value => setDraft(current => ({ ...current, mode: value })))),
+        h('fieldset', { className: 'vx-stack' }, h('legend', { className: 'vx-title' }, 'Chat actions'),
+          h('label', { className: 'vx-check' }, h('input', { type: 'checkbox', checked: draft.actions.sendMessage, onChange: event => change('actions', 'sendMessage', event.target.checked) }), 'Send messages when asked'),
+          h('p', { className: 'vx-muted' }, 'Jev chooses text, a confirmation template, buttons, a list, a form or a booking card. Voxtral fills the chosen format with agreed details. Messages and their delivery status appear in Chat.'),
+          h('p', { className: 'vx-muted' }, settings.jevConfigured ? `Jev key: configured through ${settings.jevKeySource}` : 'Add JEV_API_KEY on the Easy API host to enable chat actions. Voice conversations remain available.'),
+          field('Jev classifier model', h(ui.Input, { value: draft.actions.classifierModel, onChange: event => change('actions', 'classifierModel', event.target.value) })),
+          field('Example chat request', h(ui.Textarea, { rows: 2, value: actionRequest, onChange: event => { setActionRequest(event.target.value); setActionPreview(null); } }), 'Preview the format using your saved classifier model and available license features. This uses Jev and sends no WhatsApp message.'),
+          button('Choose format', () => run(async () => setActionPreview(await post('actions/preview', { text: actionRequest }))), { disabled: busy || !settings.jevConfigured || !actionRequest.trim() }),
+          actionPreview && h('p', { className: 'vx-muted', role: 'status' }, `Jev selected: ${actionPreview.label} · ${Math.round(actionPreview.confidence * 100)}% · ${actionPreview.model}`)),
         field('Voice', voices.length ? select(draft.voice.id, [...(!voices.some(voice => (voice.id || voice.voice_id) === draft.voice.id) ? [[draft.voice.id, draft.voice.id]] : []), ...voices.map(voice => [voice.id || voice.voice_id, `${voice.name || voice.id || voice.voice_id}${voice.language ? ` · ${voice.language}` : ''}`])], value => change('voice', 'id', value)) : h(ui.Input, { value: draft.voice.id, onChange: event => change('voice', 'id', event.target.value) })),
         h('div', { className: 'vx-row' }, button('Preview voice', () => run(preview), { disabled: busy || !settings.keyConfigured }), h('span', { className: 'vx-muted' }, 'Plays here and uses your Mistral account.')),
         field('Language', h(ui.Input, { value: draft.language, onChange: event => setDraft(current => ({ ...current, language: event.target.value })), placeholder: 'auto' }), 'Use auto to follow the person, or a supported language code such as en or ar.'),
@@ -151,12 +166,14 @@ export function createPage(host) {
         error && h('p', { className: 'vx-error', role: 'alert' }, error)));
 
     return h('div', { className: 'dashboard-page voxtral' }, h('style', null, css), header,
+      h(ui.DetailSheet, { title: 'Preview messages', description: 'Try booking cards, buttons, lists, forms and confirmations.', open: messagePreviewOpen, onOpenChange: setMessagePreviewOpen }, h(openui.Workbench)),
       connectionError && h('p', { className: 'vx-error', role: 'status' }, `Disconnected · ${connectionError}`),
       error && !settingsOpen && h('p', { className: 'vx-error', role: 'alert' }, error),
       status && !status.configured && h('div', { className: 'vx-panel vx-pad vx-stack' }, h('h2', { className: 'vx-title' }, 'Add your Mistral key'), h('p', { className: 'vx-muted' }, 'Set MISTRAL_API_KEY in the environment that starts Easy API, then restart it. Your WhatsApp session continues to work while the assistant is unconfigured.')),
       h('section', { className: 'vx-panel vx-pad vx-row vx-between', 'aria-label': 'Assistant controls' },
         h('div', { className: 'vx-modes', role: 'group', 'aria-label': 'Conversation mode' }, modes.map(([id, label]) => button(label, () => switchMode(id), { key: id, variant: status?.mode === id ? 'default' : 'outline', 'aria-pressed': status?.mode === id, disabled: busy || !status }))),
-        h('div', { className: 'vx-row', role: 'status' }, badge(status?.ready ? 'WhatsApp connected' : 'WhatsApp disconnected', status?.ready), badge(status?.configured ? status.paused ? 'AI paused' : 'Mistral configured' : 'Mistral key missing', status?.configured && !status.paused))),
+        h('div', { className: 'vx-row', role: 'status' }, badge(status?.ready ? 'WhatsApp connected' : 'WhatsApp disconnected', status?.ready), badge(status?.configured ? status.paused ? 'AI paused' : 'Mistral configured' : 'Mistral key missing', status?.configured && !status.paused), status?.actions?.sendMessage && badge(status.classifier?.configured ? 'Jev configured' : 'Jev key missing', status.classifier?.configured))),
+      status?.classifier?.error && h('p', { className: 'vx-error', role: 'alert' }, status.classifier.error),
       status?.error && h('p', { className: 'vx-error', role: 'alert' }, status.error), list,
       snapshot?.usage && h('section', { className: 'vx-panel vx-pad vx-stack', 'aria-label': 'Mistral usage' }, h('div', { className: 'vx-row vx-between' }, h('h2', { className: 'vx-title' }, 'Usage'), h('span', { className: 'vx-muted' }, `Since ${new Date(snapshot.usage.since).toLocaleDateString()}`)),
         h('div', { className: 'vx-stats' }, ...[[`${(snapshot.usage.audioSeconds / 60).toFixed(1)} min`, 'Reported audio processed'], [snapshot.usage.speechCharacters.toLocaleString(), 'Speech characters generated'], [(snapshot.usage.inputTokens + snapshot.usage.outputTokens).toLocaleString(), 'Reported model tokens']].map(([value, label]) => h('div', { className: 'vx-stat', key: label }, h('strong', null, value), h('span', { className: 'vx-muted' }, label)))),
