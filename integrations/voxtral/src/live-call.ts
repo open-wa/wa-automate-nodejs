@@ -18,6 +18,7 @@ type LiveOptions = {
   history: () => ChatTurn[];
   user: (text: string, selectionId?: string) => string;
   assistant: (text: string, interrupted: boolean) => void;
+  failed?: (message: string, turnId?: string) => void;
   actions?: (turnId: string, current: () => boolean, signal: AbortSignal) => Promise<AgentActions | undefined>;
   changed: () => void;
 };
@@ -201,7 +202,7 @@ export class LiveCall {
       controller.abort();
       await speech.catch(() => {});
       if (spoken.trim()) this.options.assistant(spoken.trim(), true);
-      if (generation === this.generation && !interrupted && !this.stopped) this.responseFailed(error);
+      if (generation === this.generation && !interrupted && !this.stopped) this.responseFailed(error, sourceId);
     } finally {
       if (this.response === controller) this.response = undefined;
       if (generation === this.generation && !this.stopped && !this.error) this.change('Listening');
@@ -220,13 +221,14 @@ export class LiveCall {
     if (muted) this.interrupt();
     this.change(muted ? 'Muted · listening' : 'Listening');
   }
-  private responseFailed(error: unknown) {
+  private responseFailed(error: unknown, turnId?: string) {
     // A failed chat/TTS request does not invalidate the live transcription
     // socket. Keep listening, expose the failure, and let the next turn recover
     // without replaying a chat action or weakening TLS verification.
     const key = this.options.key();
     const message = error instanceof Error ? error.message : 'The assistant could not answer.';
     this.responseError = (key ? message.replaceAll(key, '[redacted]') : message).slice(0, 400);
+    this.options.failed?.(this.responseError, turnId);
     this.interrupt();
   }
   private failed(error: unknown, reconnectable = false) {

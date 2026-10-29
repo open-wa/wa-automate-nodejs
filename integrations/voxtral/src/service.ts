@@ -262,6 +262,12 @@ export class VoxtralService {
       actions: (turnId: string, current: () => boolean, signal: AbortSignal) => this.actions(person, turnId, this.effective, current, signal),
       user: (text: string, selectionId?: string) => { person.channel = 'calls'; const turn = this.addTurn(person, 'user', text, selectionId ? 'Selected in chat' : 'Recognized', selectionId); this.remember(person, 'user', text, turn); turn.selection = Boolean(selectionId); turn.messageId = selectionId; this.changed(); return turn.id; },
       assistant: (text: string, interrupted: boolean) => { person.channel = 'calls'; this.remember(person, 'assistant', interrupted ? `${text} [interrupted]` : text); this.addTurn(person, 'assistant', text, interrupted ? 'Interrupted' : 'Sent to call audio').interrupted = interrupted; this.changed(); },
+      failed: (message: string, turnId?: string) => {
+        const turn = turnId && person.turns.find(turn => turn.id === turnId);
+        if (turn) { turn.state = 'Answer failed'; turn.error = message; }
+        this.input.logger.error('Voxtral call response failed', { reason: message });
+        this.persist(); this.changed();
+      },
       changed: () => { person.state = this.live?.stage ?? 'Connecting audio'; person.updatedAt = Date.now(); this.changed(); this.reconnectAudio(); },
     };
   }
