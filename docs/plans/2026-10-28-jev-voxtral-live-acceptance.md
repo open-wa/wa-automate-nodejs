@@ -16,7 +16,7 @@ interaction was repeated. Do not report that reconnect as automatic recovery or
 publish on the strength of a fully clean batch. No package was published.
 
 Use the bot account ending **5810** and the phone ending **1345**.
-Neo: <http://127.0.0.1:8122/dashboard/chat?chatId=57484010074259%40lid&demo=false>.
+Neo: <http://127.0.0.1:8122/dashboard/chat?chatId=YOUR_TEST_CHAT_ID&demo=false>.
 All appointment times below are **London time on 29 October 2026** (GMT).
 These are demo chat cards and preferences, not reservations in a booking system.
 
