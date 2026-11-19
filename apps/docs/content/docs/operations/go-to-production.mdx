@@ -1,0 +1,42 @@
+---
+title: Go to production
+description: A checklist for moving an open-wa session from your laptop to a server that real users depend on.
+---
+
+# Go to production
+
+Work through this list before customers depend on your session. Each item links to the page with the details.
+
+## Run it somewhere that stays up
+
+- **Use a long-running server or container**, not a serverless function. A session is a browser that stays logged in, so it needs a process that runs continuously with about 1 GB of memory per session. [Docker](/docs/getting-started/docker) packages the browser and its dependencies for you.
+- **Restart it automatically.** Run it under Docker's restart policy, systemd or your platform's process manager, so a crash or a server reboot brings it back with the same `sessionId`.
+- **Run one process per session.** Two processes on the same session fight over the login. See [best practices](/docs/operations/best-practices) and [multiple sessions](/docs/sessions/multiple-sessions).
+
+## Keep the login safe
+
+- **Store the session file on durable storage.** The login is saved in `<sessionId>.data.json`; put it on a persistent volume (`sessionDataPath` or `WA_SESSION_DATA_PATH`) so a redeploy doesn't ask for a new QR code. See [log in and keep a session](/docs/sessions/authentication).
+- **Treat it like a password.** Anyone with the file can use the account. Keep it out of version control, restrict its permissions and back it up.
+- **Alert when the session drops.** Watch for disconnects and logouts so someone can link the account again quickly. See [detect logouts](/docs/sessions/detect-logouts).
+
+## Lock down the Easy API
+
+- **Set an API key** with `WA_API_KEY` (at least 8 characters) and send it as `X-API-Key` on every request.
+- **Keep the port private.** The Easy API listens on `localhost:8080` by default. Expose it only through HTTPS or a private network, and never publish `/health`, which can show the QR code. See [security and deployment](/docs/operations/security-and-deployment).
+- **Keep secrets in your platform's secret store**, not in config files. See [configuration secrets](/docs/guides/config-secrets).
+
+## Send responsibly
+
+- **Pace outgoing messages** with a queue, and message only people who expect to hear from you. Bursts to new contacts are the quickest way to get an account restricted. See [rate limits](/docs/operations/rate-limits).
+- **Don't resend blindly.** When a send's outcome is unknown, check the chat before trying again. See [error handling](/docs/operations/error-handling).
+- **Apply your license** if you message new numbers or use other [licensed features](/docs/licensing/licensed-features), and check `/health` shows `"status": "valid"` for it.
+
+## Watch it
+
+- **Check readiness, not just the port.** Your health check should require `"connected": true` and `"session": { "ready": true }` from `/health`; a responding port only means the HTTP server is up.
+- **Keep logs.** Capture open-wa's output and keep a minimal record of the messages your app handled. See [logging and audit trails](/docs/operations/logging-and-audit).
+- **Receive events durably.** If a missed message matters, turn on webhook durability and make your receiver ignore duplicates. See [receive webhooks](/docs/guides/receive-webhooks).
+
+## Plan for upgrades
+
+Pin the `@open-wa/wa-automate` version in your `package.json` or image, and try new releases on a staging session before production. Release notes are on [GitHub](https://github.com/open-wa/wa-automate-nodejs/releases).

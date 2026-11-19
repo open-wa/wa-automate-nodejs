@@ -1,0 +1,59 @@
+---
+title: Rate limits and account risk
+description: Pace outgoing messages with a queue and respond safely when WhatsApp restricts an account.
+---
+
+# Rate limits and account risk
+
+WhatsApp doesn't publish its limits for automated sending and can change them without notice, so no setting in open-wa guarantees an account won't be restricted. A send queue paces your traffic; it doesn't make a risky pattern safe.
+
+<Callout type="warning">
+open-wa is unofficial and has no affiliation with WhatsApp or Meta. Any automation can be restricted or banned. Messaging only people who agreed to hear from you, pacing sends and handling failures reduce the risk but don't remove it.
+</Callout>
+
+## Pace sends with a queue
+
+`concurrency` limits how many sends run at once, not how far apart they are. To space them out, set an interval as well. This example uses [`p-queue`](https://github.com/sindresorhus/p-queue#options) to allow at most one send in any 15-second window:
+
+```ts
+import PQueue from 'p-queue';
+import { create, SendTextError } from '@open-wa/wa-automate';
+
+const client = await create({ sessionId: 'paced-sender' });
+
+const sendQueue = new PQueue({ concurrency: 1, intervalCap: 1, interval: 15_000, strict: true });
+
+async function enqueueSend(chatId: string, text: string) {
+  try {
+    return await sendQueue.add(() => client.sendText(chatId, text));
+  } catch (error) {
+    if (error instanceof SendTextError) console.error('Send failed', { chatId, code: error.code, outcome: error.outcome });
+    throw error;
+  }
+}
+
+await enqueueSend('447700900000@c.us', 'Hello');
+```
+
+Install the dependencies with `npm install @open-wa/wa-automate p-queue`. The schedule applies only to this process, so it doesn't coordinate with other sessions or senders. Choose the interval to fit your workflow and the people you message, and stop the queue when WhatsApp restricts the account.
+
+To pace work triggered by incoming messages, listeners also accept `interval` and `intervalCap` options; see [best practices](/docs/operations/best-practices#queue-your-work).
+
+## Keep the workflow bounded
+
+- Take jobs only from a bounded source, so a spike can't build an endless backlog.
+- Store consent and opt-out state with each job, and drop opted-out recipients before queueing.
+- Let one place own retries. A queue retry and an application retry acting on the same failure multiply traffic.
+- Log the chat ID, operation, result and error, but not message text or credentials.
+- Pause the queue after repeated failures and have a person decide when to resume.
+- Never retry in a tight loop, and don't assume a random delay makes a pattern safe.
+
+## If the account is restricted
+
+There's no standard wait time. Stop the automation, keep the warning or error, and review consent, queue depth, duplicate sends and retry behaviour. Resume only with a slower, bounded plan, because waiting alone doesn't mean the account is clear.
+
+## Related
+
+- [AI agent patterns](/docs/guides/ai-agent-patterns)
+- [Messages and message events](/docs/guides/messages)
+- [Best practices](/docs/operations/best-practices)
