@@ -11,10 +11,10 @@ const register = (name: string, input: SyncEffectSchema, output: SyncEffectSchem
   input: projectEffectSchema(input) as z.ZodObject<any>, parameterOrder: parameters, output: projectEffectSchema(output),
 });
 export const getCallCapabilities = register('getCallCapabilities', Schema.Struct({}), CallCapabilitiesSchema, [], 'Optional calling availability for UI and diagnostics. Actions perform admission automatically.');
-export const getActiveCall = register('getActiveCall', Schema.Struct({}), Schema.NullOr(CallSnapshotSchema), [], 'Get the current call snapshot. SDK clients hydrate its bound methods.');
+export const getActiveCall = register('getActiveCall', Schema.Struct({}), Schema.NullOr(CallSnapshotSchema), [], 'Get the current call, if there is one. In the SDK the result also has methods to control the call.');
 export const acceptCall = register('acceptCall', actionInput, CallActionResultSchema, ['call', 'media'], 'Prepare media and accept this incoming call.');
 export const startCall = register('startCall', Schema.Struct({ to: Schema.String, microphone: media, speaker: media, camera: media }), CallActionResultSchema, ['to', 'microphone', 'speaker', 'camera'], 'Prepare media and place an outgoing audio or video call.');
-export const rejectCall = register('rejectCall', Schema.Struct({ call: CallIdentitySchema }), CallActionResultSchema, ['call'], 'Reject this call with native state confirmation.');
+export const rejectCall = register('rejectCall', Schema.Struct({ call: CallIdentitySchema }), CallActionResultSchema, ['call'], 'Reject an incoming call and wait for WhatsApp to confirm it.');
 export const endCall = register('endCall', Schema.Struct({ call: CallIdentitySchema }), CallActionResultSchema, ['call'], 'Request hangup for this call.');
 export const muteCall = register('muteCall', Schema.Struct({ call: CallIdentitySchema, muted: Schema.Boolean }), CallActionResultSchema, ['call', 'muted'], 'Mute or unmute the microphone without ending reception.');
 export const clearCallAudio = register('clearCallAudio', Schema.Struct({ call: CallIdentitySchema }), CallActionResultSchema, ['call'], 'Discard queued outgoing audio.');

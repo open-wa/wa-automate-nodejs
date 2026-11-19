@@ -30,6 +30,6 @@ export const cancelEvent = defineMethodV2('cancelEvent', {
   input: z.object({ eventId: messageIdParam }), parameterOrder: ['eventId'], output: z.boolean(),
 });
 export const respondToEvent = defineMethodV2('respondToEvent', {
-  meta: { ...meta, action: 'send', httpMethod: 'POST', description: 'RSVP through WhatsApp’s native encrypted event-response action.' },
+  meta: { ...meta, action: 'send', httpMethod: 'POST', description: 'Send your RSVP to a WhatsApp event.' },
   input: z.object({ eventId: messageIdParam, response: z.enum(['going', 'notGoing', 'maybe']).meta({ examples: ['going'] }) }), parameterOrder: ['eventId', 'response'], output: z.boolean(),
 });

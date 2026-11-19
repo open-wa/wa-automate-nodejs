@@ -5,7 +5,7 @@ export const pollVoteEvent = defineListenerV2('pollVote', {
   legacyName: 'onPollVote',
   meta: {
     namespace: 'messages', license: 'none', status: 'beta',
-    description: 'A decrypted poll vote added or changed in the synced store. Hydration can emit old votes. Hidden-voter polls omit sender and message identifiers. Deduplicate ordinary votes by id and timestamp; refresh getPollResults for current totals.',
+    description: 'Someone voted on a poll or changed their vote. Older votes can arrive again after the session starts, so deduplicate by id and timestamp and call getPollResults for current totals. Polls with hidden voters leave out sender and message IDs.',
   },
   payload: PollVoteSchema, defaultQueueOptions: { concurrency: 1 },
 });

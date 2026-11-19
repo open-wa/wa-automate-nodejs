@@ -53,12 +53,12 @@ export const getGroupMembersId = defineMethodV2('getGroupMembersId', {
 export const GroupInfoSchema = z.object({
     title: z.string(),
     description: z.string().nullish(),
-}).passthrough().describe('Group title and description returned by the private getGroupInfo patch.');
+}).passthrough().describe('The group title and description.');
 export type GroupInfo = z.infer<typeof GroupInfoSchema>;
 
 export const getGroupInfo = defineMethodV2('getGroupInfo', {
     meta: {
-        description: 'Get the group title and description through the installed private patch',
+        description: 'Get a group title and description',
         action: 'read',
         namespace: 'groups',
         license: 'none',

@@ -39,7 +39,7 @@ export const HostAccountSchema = z.object({ me: z.union([IdSchema, ContactIdSche
     .describe('Host account attributes plus the current account ID. Additional WhatsApp Web attributes vary by version.');
 export const HealthCheckSchema = z.object({
     queuedMessages: z.number().optional(), state: z.string().optional(), isPhoneDisconnected: z.boolean().optional(),
-    isHere: z.boolean().optional(), wapiInjected: z.boolean().optional(), online: z.boolean().optional(),
+    isHere: z.boolean().optional(), online: z.boolean().optional(),
     tryingToReachPhone: z.boolean().optional(), retryingIn: z.number().optional(), batteryLow: z.boolean().optional(),
 }).passthrough().describe('Browser health diagnostics. This is not the Easy API /health HTTP envelope.');
 export const LicenseTypeSchema = z.enum(['CUSTOM', 'B2B_RESTRICTED_VOLUME_LICENSE', 'Insiders Program', 'Text Story License Key', 'Image Story License Key', 'Video Story License Key', 'Premium License Key', 'NONE']);
