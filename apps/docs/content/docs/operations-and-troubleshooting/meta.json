@@ -1,9 +1,0 @@
-{
-  "title": "Troubleshooting",
-  "icon": "CircleAlert",
-  "pages": [
-    "best-practices",
-    "error-handling",
-    "detect-logouts"
-  ]
-}
