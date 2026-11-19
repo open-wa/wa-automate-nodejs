@@ -754,7 +754,7 @@ body { background-color: var(--background); color: var(--foreground); }
   .docs-hub-wally { flex: none; width: 84px; height: 78px; border-radius: 12px; }
   .docs-hub-wally img { width: 80px; height: 80px; }
   .docs-hub-intro { font-size: 16px; line-height: 25px; }
-  .docs-hub-command { font-size: 14px; padding-left: 12px; }
+  .docs-hub-command { font-size: 13px; gap: 8px; padding-left: 12px; }
   .docs-hub-command button { padding: 0 10px; }
   .docs-hub-command button span { display: none; }
   .docs-hub-job-grid, .docs-hub-lookups { grid-template-columns: minmax(0, 1fr); }
