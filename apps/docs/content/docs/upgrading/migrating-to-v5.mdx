@@ -7,7 +7,7 @@ description: Upgrade an existing open-wa application, with before-and-after exam
 
 This guide uses Bun and TypeScript to move an existing v4 application to v5.
 If you are starting a new application, use the
-[project initializer](/docs/getting-started/initializer) instead.
+[project initializer](/docs/getting-started/quickstart/generator-options) instead.
 
 **QR codes are still the default way to link your WhatsApp account.** Scan the
 terminal QR code from **Linked Devices** on your phone. Link-code login is an
@@ -30,12 +30,6 @@ The migration involves more than changing a version number. Some familiar
 methods remain, some have different inputs or results, and some v4 features
 have no supported replacement yet. Start with the changes below, then check
 the [known gaps](#known-gaps) before moving a workflow that depends on them.
-
-> **Release status:** The CLI startup fix and restored client methods and
-> listeners described here are changes for the next package release. They are
-> not included in 5.4.0. That release can fail during startup before printing a
-> QR code. Follow these examples with a release that includes the fixes.
-> `@latest` selects the published npm release, not the code on `master`.
 
 ## What needs to change?
 
@@ -64,8 +58,8 @@ Use a separate session-data directory for v5 and scan a QR code to link the acco
 Running both bots against the same conversations with reply handlers enabled
 can produce duplicate replies.
 
-Once the release containing these fixes is available, run this in your existing
-application directory with [Bun installed](https://bun.sh/docs/installation):
+Run this in your existing application directory with
+[Bun installed](https://bun.sh/docs/installation):
 
 ```bash
 bun add @open-wa/wa-automate@latest
@@ -155,49 +149,37 @@ does not install missing operating-system libraries.
 [`stop()`](/docs/reference/create#stop) closes the browser and leaves its saved
 login available for the next run. It does not log the account out of WhatsApp.
 
-### When createClient is useful
-
-Use [`createClient()`](/docs/reference/core) when you need to supply a driver, control
-startup explicitly, or load plugins through the core runtime.
-It returns an unstarted runtime, not the messaging `Client`. Register startup
-handlers first, wrap it in `new Client({ client: runtime, transport:
-runtime.getTransport() })`, then call `await client.start()`.
-
-That lower-level API is optional. Keep `create()` for a straightforward bot.
-You can subscribe to the shared `ev` before calling it to observe startup; see
+Keep `create()` for a bot. If you need to pass your own browser driver or run
+each startup step yourself, see
+[createClient and drivers](/docs/concepts/create-client-and-drivers). You can
+subscribe to the shared `ev` before calling `create()` to observe startup; see
 [global events](#keep-the-global-ev-import) below.
 
 ## 3. Review configuration and saved sessions
 
-Use [`CreateOptions`](/docs/reference/create) with `create()`. The low-level
-[`CreateClientOptions`](/docs/reference/core#createclientoptions) type uses
-some different names and units.
+Use [`CreateOptions`](/docs/reference/create) with `create()`. Most v4 option
+names carry over; these are the ones to check.
 
-| Setting | With `create()` | With low-level `createClient()` |
-| --- | --- | --- |
-| `sessionId`, `headless`, `executablePath` | Keep these names. | Keep these names; also supply a `driver`. |
-| `qrTimeout`, `authTimeout`, `oorTimeout` | Values are in seconds. `create()` defaults `qrTimeout` to `0`, with no QR scan deadline. | Use `qrTimeoutMs`, `authTimeoutMs`, `oorTimeoutMs`, in milliseconds. |
-| `chromiumArgs` | Keep this name. | Use `browserArgs`. |
-| `linkCode`, `qrMax`, `licenseKey` | Keep these names. | Keep these names. |
-| `eventMode` | Defaults to `true`, forwarding supported listener events to `ev`. | Same behavior. |
-| `multiDevice` | Remove it. It no longer selects an authentication mode. | No such option. |
-| `sessionDataPath` | Directory or explicit `.data.json` file for compact session storage. | Same behavior. |
-| `sessionData` | An encrypted compact session exported by current v5, as an object, JSON, or base64 JSON. | Same behavior. |
-| `userDataDir`, `ephemeral` | Remove assumptions that these control saved login. The browser profile is disposable. | Same behavior. |
-| `skipSessionSave` | Disables the local session file and requires a durable remote store. | Same behavior. |
-| `sessionDataEncryptionKey`, `sessionDataEncryptionKeyFile` | Optional custom key or mounted key file; choose one. | Same behavior. |
-| `onError`, `pQueueDefault` | Handle errors explicitly and configure listeners individually. | No direct equivalent options. |
-| `messagePreprocessor`, `preprocFilter` | Use host `hooks.beforeEvent` for pre-dispatch filtering and `hooks.chatFilter.allow` to restrict plugin chats. | `hooks` |
-
-For example, one minute is `authTimeout: 60` with `create()` and
-`authTimeoutMs: 60_000` with `createClient()`. Copying the number `60` into the
-millisecond option would allow only 60 milliseconds.
+| Setting | What to do in v5 |
+| --- | --- |
+| `sessionId`, `headless`, `executablePath`, `chromiumArgs` | Keep these names. |
+| `qrTimeout`, `authTimeout`, `oorTimeout` | Keep them, in seconds. `create()` defaults `qrTimeout` to `0`, with no QR scan deadline. |
+| `linkCode`, `qrMax`, `licenseKey` | Keep these names. |
+| `eventMode` | Defaults to `true`, forwarding supported listener events to `ev`. |
+| `multiDevice` | Remove it. It no longer selects an authentication mode. |
+| `sessionDataPath` | A folder or an explicit `.data.json` file for the saved login. |
+| `sessionData` | An encrypted session exported by v5, as an object, JSON, or base64 JSON. |
+| `userDataDir`, `ephemeral` | Don't rely on them to keep the login. The browser profile is rebuilt on each start. |
+| `skipSessionSave` | Disables the local session file and requires a durable remote store. |
+| `sessionDataEncryptionKey`, `sessionDataEncryptionKeyFile` | Optional custom key or mounted key file; choose one. |
+| `onError`, `pQueueDefault` | Handle errors explicitly and pass queue options to each listener. |
+| `messagePreprocessor`, `preprocFilter` | Use `hooks.beforeEvent` for pre-dispatch filtering and `hooks.chatFilter.allow` to restrict plugin chats. |
 
 ### Keep the saved login for later runs
 
 After pairing, v5 saves your login in `<sessionId>.data.json`, in the directory
 selected by `sessionDataPath`. The example above saves `support.data.json` in
-`./v5-sessions`. The documentation calls this encrypted file a compact session.
+`./v5-sessions`. The file is encrypted.
 
 Restart with the same session ID, storage path, and custom encryption key, if
 you supplied one. The saved login lets v5 reconnect without another QR scan.
@@ -221,8 +203,7 @@ QR pairing has not been removed.
 
 An unusable session file can cause `PORTABLE_SESSION_PROVISION_FAILED` before
 the QR code appears. Use the separate v5 folder shown above to keep old files
-out of the new login path. Published 5.4.0 also has the startup issue described
-in the release notice at the start of this guide.
+out of the new login path.
 
 ### Pass configuration to an embedded application
 
@@ -268,7 +249,7 @@ subscription.off();
 ```
 
 Adding `await` to registration is unnecessary. Pass
-[queue options](/docs/guides/messages#listener-queues) to the individual listener
+[queue options](/docs/operations/best-practices#queue-your-work) to the individual listener
 rather than expecting the v4 `pQueueDefault` option to configure it.
 
 ### Keep the full acknowledgement message
@@ -297,7 +278,7 @@ for the delivery states.
 The v5 core lifecycle uses `STARTING`, `AUTHENTICATING`, `READY`,
 `DISCONNECTED`, and `STOPPED`. Use `client.getState()` to read that lifecycle
 rather than treating a raw WhatsApp Web `CONNECTED` notification as proof of
-readiness. The runtime bridge can also forward browser state notifications.
+readiness.
 Do not carry over calls to `forceRefocus()` without a supported equivalent.
 
 ```ts
@@ -309,8 +290,8 @@ client.onStateChanged(() => {
 ```
 
 Because `create()` resolves after startup, a listener added afterward observes
-future state changes. Use `runtime.events` before starting when you need the
-initial transition. [`onLogout`](/docs/guides/session-events) also changed:
+future state changes. Subscribe to the shared `ev` before calling `create()`
+when you need the initial transition. [`onLogout`](/docs/sessions/session-events) also changed:
 its callback receives `{ reason?, timestamp }`, rather than v4's optional
 boolean.
 
@@ -354,7 +335,7 @@ such as `qr.**`, `linkCode.**`, and `sessionData.**` call the listener with
 `(data, sessionId, namespace)`. `*` matches one name segment and `**` matches
 zero or more, including patterns such as `**.support`.
 
-`sessionData` now contains the encrypted compact session object, not v4's
+`sessionData` now contains the encrypted session object, not v4's
 obsolete token fields. QR values are pairing strings for your private UI.
 Do not send QR values, session data, or link codes to shared logs.
 
@@ -362,7 +343,7 @@ Do not send QR values, session data, or link codes to shared logs.
 and custom events remain available. Keep `client.events` when you want one
 client's native event stream. Use `ev.off(name, callback)` to remove one global
 subscription; stopping a session removes its forwarding connection without
-removing another module's global listeners. See [session events](/docs/guides/session-events)
+removing another module's global listeners. See [session events](/docs/sessions/session-events)
 for native event names and optional Effect-scoped subscriptions.
 
 ## 5. Review the message and group data you read
@@ -382,7 +363,7 @@ optional fields and the object passed to each kind of listener.
 | Group metadata | `message.chat.groupMetadata` can be absent or `null`; check it before reading `subject` or `participants`. |
 | Contact details on a chat | `chat.contact` can be `null`. |
 
-The [message guide](/docs/guides/messages#message-object-shape) and
+The [message guide](/docs/guides/messages#message-object) and
 [Chat ID guide](/docs/guides/chatid-primer) cover these fields. Preserve IDs with
 an `@lid` suffix when WhatsApp provides them. Message, contact, chat, and group
 IDs have distinct TypeScript types; use values returned by the corresponding
@@ -435,10 +416,10 @@ SocketClient, and Easy API examples because their contracts can differ.
 | `archiveChat(chatId, true)` / `archiveChat(chatId, false)` | Call [`archiveChat(chatId)` / `unarchiveChat(chatId)`](/docs/reference/client/chats#archivechat). |
 | `getProfilePicFromServer(contactId)` | Use [`getProfilePic(contactId)`](/docs/reference/client/contacts#getprofilepicture) on the embedded client. |
 | `sendLocation(to, '51.5', '-0.1', label)` | Pass numeric coordinates: [`sendLocation(to, 51.5, -0.1, label)`](/docs/reference/client/messages#sendlocation). |
-| `sendImage(to, localPathOrUrl, filename, caption)` | Supply image data as base64 or a data URL; the embedded method does not load a local path or fetch a URL for you. See [media](/docs/guides/media). |
-| `sendImageAsSticker(...)` | Review [`sendSticker(...)`](/docs/guides/media#stickers), which accepts prepared sticker data. It is not the old general image-conversion helper. |
+| `sendImage(to, localPathOrUrl, filename, caption)` | Call `sendImage(to, file, filename, { caption })`. The file can be a local path, URL, data URL, base64 string or `Buffer`. See [media](/docs/guides/media). |
+| `sendImageAsSticker(...)` | Review [`sendSticker(...)`](/docs/guides/media), which accepts prepared sticker data. It is not the old general image-conversion helper. |
 | Package-level `decryptMedia(message)` | Use [`client.decryptMedia(message)`](/docs/guides/media) for a data URL, or `client.downloadMedia(message, path)` to save the bytes. The return is not a `Buffer`. |
-| `sendText(...)` returns `false` on failure | Catch [`SendTextError`](/docs/guides/messages#send-messages). A successful call returns a validated message ID. |
+| `sendText(...)` returns `false` on failure | Catch [`SendTextError`](/docs/guides/messages#send-text-and-replies). A successful call returns a validated message ID. |
 
 ### A send failure may have an uncertain outcome
 
@@ -485,10 +466,10 @@ bunx --bun @open-wa/wa-automate@latest --session-id migration --host 127.0.0.1 -
 
 Scan the terminal QR code from **Linked Devices** on your phone. Keep the new
 session file and use this same folder for later starts. Link-code login is
-optional. The release notice above also applies to this CLI example.
+optional.
 
 For an existing deployment, review its `wa.config.ts`, session-data path, API key,
-and [CLI flags](/docs/guides/configuration-and-cli#full-cli-reference) before
+and [CLI flags](/docs/guides/configuration-and-cli#command-line-flags) before
 switching traffic. Finish the [pairing and readiness steps](/docs/getting-started/quickstart)
 first. `/health` must report `connected: true` and `session.ready: true` before
 messaging; an HTTP listener alone does not mean WhatsApp is ready.
@@ -526,7 +507,7 @@ must change `client.sendText(...)` to `client.messages.sendText(...)`.
 
 ### Replace the old remote transport
 
-v5 [`SocketClient`](/docs/client-and-integrations/socket-client) uses HTTP for
+v5 [`SocketClient`](/docs/guides/socket-client) uses HTTP for
 commands and Server-Sent Events for events. It is not a Socket.IO connection.
 Update any reverse proxy rules or custom Socket.IO code accordingly.
 
@@ -555,54 +536,49 @@ The remote event payload wraps the message under `message`; the embedded
 
 Keep server and client releases aligned. Closing a remote consumer ends its
 connection; it does not stop the server's WhatsApp browser. For webhook
-integrations, review the v5 [envelope](/docs/client-and-integrations/webhook-payloads#envelope):
+integrations, review the v5 [envelope](/docs/guides/receive-webhooks#the-envelope):
 the event-specific value is under `payload`, and an incoming message is under
-`payload.message`, instead of the v4 `data` field. A configured `--webhook`
-flag alone does not establish v5 delivery. The v5 CLI also does not load the
-shared plugin configuration; use the [core plugin-loading path](/docs/guides/configuration-and-cli#plugins-field-docs)
-when migrating a webhook integration.
+`payload.message`, instead of the v4 `data` field. The `--webhook` flag no
+longer sets up delivery; load `@open-wa/integration-webhook` through the
+config file's `plugins` and `pluginConfig` instead, as shown in
+[Receive webhooks](/docs/guides/receive-webhooks).
 
 ## Keep the file, message, and group methods
 
-The client binds these methods through the schema system to their existing
-private patch implementations. Keep the flat client names below. Their absence
-from the bundled `wapi.js` does not mean they were removed from the patches.
-The restored bindings are part of the next package release described above.
+These methods keep their v4 names on the client:
 
 | Method | v5 client behavior |
 | --- | --- |
-| `sendFile(to, file, filename, caption)` | Sends through the existing private `WAPI.sendFile` implementation. The file schema accepts a file path, URL, data URL, base64, or bytes. |
-| `sendFileFromUrl(to, url, filename, caption, headers)` | Downloads the file on the host and delegates to `sendFile`. |
-| `editMessage(messageId, newContent)` | Calls the existing private editing method. |
-| `react(messageId, emoji)` | Calls the existing private reaction method. |
-| `getGroupInfo(groupId)` | Returns the patch's group title and description. Check for a returned error string before reading the result. |
-| `setGroupTitle(groupId, title)` | Calls the existing private group-title method. |
-| `setGroupDescription(groupId, description)` | Calls the existing private group-description method. |
+| `sendFile(to, file, filename, options)` | Accepts a file path, URL, data URL, base64 string or `Buffer`. Put the caption in `options.caption`. |
+| `sendFileFromUrl(to, url, filename, caption, headers)` | Downloads the file on the host, then sends it like `sendFile`. |
+| `editMessage(messageId, newContent)` | Edits a message this account sent. |
+| `react(messageId, emoji)` | Adds a reaction to a message. |
+| `getGroupInfo(groupId)` | Returns the group title and description. Check for a returned error string before reading the result. |
+| `setGroupTitle(groupId, title)` | Renames the group. |
+| `setGroupDescription(groupId, description)` | Changes the group description. |
 | `onParticipantsChanged(groupId, callback)` | Subscribes to participant changes for one group. Use `handle.off()` to remove the subscription. |
 | `onGlobalParticipantsChanged(callback)` | Subscribes to participant changes across the session's groups. |
 
-Participant callbacks retain the patch's `who`, `chat`, `action`, and `by`
-fields. The schema also supplies `groupId` and `participantIds`.
+Participant callbacks keep the v4 `who`, `chat`, `action`, and `by` fields, and
+also include `groupId` and `participantIds`.
 The same change is available as `group.participants.changed.global` on
 `client.events` and through the shared `ev` listener aliases.
 
 ## Known gaps
 
-Stable v5 does not mean that every v4 feature has parity. These limitations
-describe the v5 embedded client and its shipped browser runtime. A method or
-event appearing in a generated schema is not proof that the running integration
-implements it.
+Not every v4 feature has a v5 replacement yet. These limits apply to the v5
+client. A method or event name appearing in a schema doesn't mean the client
+supports it.
 
 | Feature your application may use | v5 limitation |
 | --- | --- |
 | Other group methods | `getGroupAdmins` is not an embedded `Client` method. |
 | Added-to-group notifications | `onAddedToGroup` is not an embedded convenience method. The optional `client.events` event `group.addedToGroup` supplies a `groupId`, not the full v4 chat object. |
-| Message deletion notifications | `onMessageDeleted` throws an unsupported-listener error; there is no shipped deletion bridge. |
-| Other v4 listeners | Do not assume call, battery, poll, reaction, label, or commerce listeners work because their names remain in an event schema. They are not among the embedded client's supported listeners. |
-| Chat settings and session diagnostics | Embedded `pinChat`, `unpinChat`, `muteChat`, `unmuteChat`, `getBlockedContacts`, `getCommonGroups`, `getFeatures`, and `getProcessStats` are unsupported. |
-| v4 media and interactive helpers | Helpers such as `sendPtt`, `sendAudio`, `sendAdvancedButtons`, and `sendListMessage` are not drop-in embedded methods. Review the [interactive API](/docs/guides/interactive-messages) and its license requirements for a supported interactive workflow. |
-| Config-driven plugins | Neither the ready `create()` wrapper nor the v5 CLI forwards shared `plugins` / `pluginConfig` into core startup. Use the [core plugin options](/docs/guides/configuration-and-cli#plugins-field-docs) when you need to load plugins. |
-| Old CLI integrations | `--webhook`, `--ready-webhook`, `--tunnel`, and the legacy Chatwoot, Twilio, and BotPress flags do not restore their v4 behavior just because the CLI accepts or warns about them. |
+| Message deletion notifications | `onMessageDeleted` throws an unsupported-listener error. |
+| Other v4 listeners | Battery, reaction, label and commerce listeners aren't client methods. Polls use `onPollVote`, and calls use `onIncomingCall` and `onCallState`. |
+| Chat settings and session diagnostics | `pinChat`, `unpinChat`, `muteChat`, `unmuteChat`, `getBlockedContacts`, `getCommonGroups`, `getConnectionState`, `getFeatures` and `getProcessStats` throw an unsupported-method error. |
+| v4 button and list helpers | `sendAdvancedButtons` and `sendListMessage` aren't client methods. Use [`sendInteractive`](/docs/guides/interactive-messages), which needs a license. |
+| Old CLI integrations | `--webhook`, `--ready-webhook`, `--tunnel`, and the legacy Chatwoot, Twilio, and BotPress flags only print a warning. Load the webhook and Chatwoot plugins from the config file instead. |
 
 If a required workflow hits one of these gaps, identify that dependency before
 switching it. A return to v4 is not a compatibility guarantee: the same WhatsApp
@@ -616,7 +592,7 @@ Exclude session files, QR codes, API keys, and private message content.
 Use your application's actual workflows to finish the migration:
 
 1. **Start and restart the session.** Pair v5, stop it, and restart with the
-   same session ID, compact session file, and encryption key if configured.
+   same session ID, session file, and encryption key if configured.
    Confirm that WhatsApp restores the session.
 2. **Receive a message and send a reply.** Confirm the reply in the receiving
    chat. Check the identifiers and optional fields your handler depends on.
@@ -625,7 +601,7 @@ Use your application's actual workflows to finish the migration:
    successful text reply does not establish those features' availability.
 4. **Move traffic once the replacements work.** Stop the old reply handlers,
    switch to the v5 deployment, and retain the old configuration and profile
-   backup for investigation. Keep the new compact session storage separate.
+   backup for investigation. Keep the new session file separate.
 
-Use [release status](/docs/releases/v5-alpha) and the API reference for the
-version you install to follow further changes.
+Follow later changes in the
+[release notes on GitHub](https://github.com/open-wa/wa-automate-nodejs/releases).

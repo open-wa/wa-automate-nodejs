@@ -1,0 +1,98 @@
+---
+title: createClient and drivers
+description: Start the open-wa runtime yourself when you need to choose the browser driver or control each startup step.
+---
+
+# createClient and drivers
+
+Most programs should use [`create()`](/docs/getting-started/custom-code). It
+picks a browser, downloads one if needed, prints the QR code and resolves with a
+ready client. Use the lower-level `createClient()` only when you need something
+`create()` doesn't give you, such as passing your own driver instance or
+handling the QR code and startup events yourself.
+
+## What changes with createClient
+
+`createClient()` returns an unstarted runtime, not the messaging client. You
+then:
+
+1. pass a `driver`, which is required;
+2. listen for the QR code or link code yourself, because nothing prints it;
+3. wrap the runtime in a `Client` and call `start()`.
+
+Some option names differ from `create()`: timeouts are in milliseconds
+(`qrTimeoutMs`, `authTimeoutMs`), and browser flags are `browserArgs` instead of
+`chromiumArgs`. Like `create()`, it doesn't read `WA_*` environment variables
+or a config file.
+
+## Example with Puppeteer
+
+```bash
+npm install @open-wa/wa-automate @open-wa/driver-puppeteer
+```
+
+```ts title="index.ts"
+import { Client, createClient } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+const runtime = await createClient({
+  sessionId: 'support',
+  driver: new PuppeteerDriver(),
+  // Download Chrome for Testing the first time, then reuse the cached copy.
+  // Set executablePath instead to use a browser you installed yourself.
+  browser: { kind: 'chrome', download: 'auto' },
+  headless: true,
+  licenseKey: process.env.WA_LICENSE_KEY,
+});
+
+runtime.events.on('launch.auth.qr.generated', event => {
+  // `qr` is the raw QR string; render it with any QR library.
+  console.log(event.details?.ascii ?? event.details?.qr);
+});
+
+const client = new Client({ client: runtime, transport: runtime.getTransport() });
+
+client.onMessage(async message => {
+  if (!message.fromMe && message.body === '!ping') {
+    await client.sendText(message.from, 'pong');
+  }
+});
+
+await client.start();
+if (runtime.getState() !== 'READY') throw new Error('WhatsApp did not become ready');
+
+process.once('SIGINT', () => void client.stop('SIGINT'));
+```
+
+`client.start()` runs startup and returns when it finishes. Check
+`runtime.getState()` for `READY` before you send, as above. `client.stop()`
+closes the browser and keeps the saved login, exactly as with `create()`.
+
+## Choose a driver
+
+| Driver | Package | Notes |
+| --- | --- | --- |
+| Puppeteer | `@open-wa/driver-puppeteer` | Chrome or Chromium. The default for `create()` and Easy API, and the best supported. It provisions Chrome or Chromium from the `browser` option when it launches. |
+| Lightpanda | `@open-wa/driver-lightpanda` | Experimental. Low memory, but no video, screenshots, rendering or Live Portal. |
+| Playwright | `@open-wa/driver-playwright` | `new PlaywrightDriver('chromium')` for projects that already manage browsers with Playwright. |
+
+You can also hand a driver to `create()` through its `driver` option and keep
+everything else `create()` does:
+
+```ts
+import { create } from '@open-wa/wa-automate';
+import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+
+const client = await create({ sessionId: 'support', driver: new PuppeteerDriver() });
+```
+
+To use Lightpanda without writing driver code, set `useLightpanda: true` on
+`create()`, or start Easy API with `--use-lightpanda`. open-wa downloads the
+Lightpanda binary when it's missing.
+
+## Related
+
+- [`create()` reference](/docs/reference/create) for every option.
+- [Sessions and login](/docs/sessions) for QR codes, link codes and session
+  events.
+- [Choose a package](/docs/concepts/packages) for the other packages.
