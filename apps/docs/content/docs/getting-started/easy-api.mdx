@@ -1,79 +1,88 @@
 ---
-title: Easy API quick start
-description: Run open-wa's HTTP API, pair WhatsApp, and send requests from cURL, JavaScript, or Python.
+title: Easy API
+description: Run open-wa as an HTTP server, link WhatsApp, then send messages and receive events from any language.
 ---
 
-# Easy API quick start
+# Easy API
 
-Use Easy API to control WhatsApp from an HTTP client and manage the session in Neo. Use Node.js 22.21.1 or newer and npm.
+Easy API runs the WhatsApp session in one Node.js process and lets any program
+control it over HTTP. Use it when your application isn't written in Node.js,
+runs on another machine, or when you want the Neo dashboard. You need
+**Node.js 22.21.1 or newer**.
 
-## Start and pair the session
+## Start the server
 
-Create your project, choosing JavaScript or TypeScript, a browser, and optional plugins:
+Generate a project and set an API key before the first start:
 
 ```bash
 npm init @open-wa@latest my-api -- --mode easy-api
 cd my-api
+cp .env.example .env
 ```
 
-Use the [visual builder](/new?mode=easy-api) to preview the same choices and
-files. Easy API discovers the generated `wa.config.js` or `wa.config.ts` file
-automatically. If you selected integrations, copy `.env.example` to `.env` and
-fill in their settings.
+Put a long random value in `.env` as `WA_API_KEY` (at least 8 characters), then
+start it:
 
-Set an API key and start the server:
-
-```bash title="Terminal"
-export OPENWA_API_URL='http://127.0.0.1:8080'
-export WA_API_KEY='REPLACE_WITH_YOUR_API_KEY'
+```bash
 npm start
 ```
 
-On the phone, open **WhatsApp → Linked devices → Link a device** and scan the QR code. Open `/dashboard/` on the printed server address to manage the session. Use `/api-docs/` for the API explorer.
+Scan the QR code from **WhatsApp → Linked devices → Link a device**. The server
+listens on `127.0.0.1:8080` and prints the addresses of the dashboard and API
+explorer:
 
-The server can answer HTTP requests before WhatsApp is ready. Read `/health` and check `connected` and `session.ready` before sending:
+- Neo dashboard: [http://127.0.0.1:8080/dashboard/](http://127.0.0.1:8080/dashboard/) (on your machine)
+- API explorer: [http://127.0.0.1:8080/api-docs/](http://127.0.0.1:8080/api-docs/) (on your machine)
+
+Without a generated project, `npx @open-wa/wa-automate --session-id my-api --api-key "<key>"`
+starts the same server. See [configuration](/docs/guides/configuration-and-cli)
+for every flag, the config file and the `WA_*` environment variables.
+
+## Wait for readiness
+
+The HTTP server answers before WhatsApp has finished linking. Check `/health`
+and wait until `connected` and `session.ready` are both `true`:
 
 ```bash
-curl --fail-with-body "$OPENWA_API_URL/health"
+curl http://127.0.0.1:8080/health
 ```
 
-Restart from the same project directory with the same session ID to reuse a
-valid saved login. Treat session data as private authentication material. Use a
-different session ID and port for another account.
+```json
+{
+  "status": "ok",
+  "connected": true,
+  "session": { "state": "READY", "status": "ready", "ready": true, "pending": [], "blockers": [] }
+}
+```
+
+Until then, method calls return `503` with
+`{ "error": "API not available until the session is truly ready", "status": 503 }`.
+`/health` doesn't need the API key.
 
 ## Send a message
 
-Use a chat ID from a conversation already available to the linked account. Starting a new chat requires an applied restricted or premium license. Replace the example destination before sending.
-
-The examples use the same URL and key variables as the startup command. Run them in another terminal with those variables set. JavaScript uses Node.js and its built-in `fetch`. For Python, install `requests` with `python -m pip install requests`.
+Every method has a `POST` route under `/api/<namespace>/<method>` that takes
+the method's parameters as a JSON object. Send the key in the `X-API-Key`
+header; the examples read it from a `WA_API_KEY` variable in your shell, so run
+`export WA_API_KEY='<your key>'` first. Use a chat ID from a conversation the linked account already has;
+starting a chat with a new number needs a [license](/docs/licensing/pricing).
 
 ```bash tab="cURL" tab-group="openwa-http-language" title="HTTP request"
-curl --fail-with-body "$OPENWA_API_URL/api/messages/sendText" \
+curl --fail-with-body http://127.0.0.1:8080/api/messages/sendText \
   -H "X-API-Key: $WA_API_KEY" \
   -H 'Content-Type: application/json' \
-  --data '{
-    "to": "447700900123@c.us",
-    "content": "Hello from Easy API",
-    "options": {}
-  }'
+  --data '{"to": "447700900123@c.us", "content": "Hello from Easy API"}'
 ```
 
 ```js tab="JavaScript" title="Node.js fetch"
-const response = await fetch(
-  `${process.env.OPENWA_API_URL}/api/messages/sendText`,
-  {
-    method: 'POST',
-    headers: {
-      'X-API-Key': process.env.WA_API_KEY,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      to: '447700900123@c.us',
-      content: 'Hello from Easy API',
-      options: {},
-    }),
+const response = await fetch('http://127.0.0.1:8080/api/messages/sendText', {
+  method: 'POST',
+  headers: {
+    'X-API-Key': process.env.WA_API_KEY,
+    'Content-Type': 'application/json',
   },
-);
+  body: JSON.stringify({ to: '447700900123@c.us', content: 'Hello from Easy API' }),
+});
 if (!response.ok) throw new Error(await response.text());
 const { data: messageId } = await response.json();
 console.log(messageId);
@@ -84,66 +93,65 @@ import os
 import requests
 
 response = requests.post(
-    os.environ["OPENWA_API_URL"].rstrip("/") + "/api/messages/sendText",
+    "http://127.0.0.1:8080/api/messages/sendText",
     headers={"X-API-Key": os.environ["WA_API_KEY"]},
-    json={
-        "to": "447700900123@c.us",
-        "content": "Hello from Easy API",
-        "options": {},
-    },
+    json={"to": "447700900123@c.us", "content": "Hello from Easy API"},
     timeout=30,
 )
 response.raise_for_status()
 print(response.json()["data"])
 ```
 
-Method routes return `{ "success": true, "data": ... }`. For `sendText`, `data` is the submitted message ID. It does not confirm delivery or reading. An HTTP failure returns an error response. Inspect the conversation before repeating a request whose outcome is unknown.
+A successful call returns `{ "success": true, "data": ... }`. For `sendText`,
+`data` is the new message ID:
 
-## Receive events
+```json
+{ "success": true, "data": "true_447700900123@c.us_3EB0C767D1D7E8A2F1C4" }
+```
 
-Open the Server-Sent Events stream before sending messages:
+That ID means WhatsApp accepted the message, not that it was delivered. A
+failure returns an HTTP error with `{ "error": "..." }`. If the error says the
+outcome is unknown, check the chat before sending again, because the message
+may already be there.
 
-```bash title="Incoming messages and acknowledgements"
-curl --no-buffer --fail-with-body \
-  "$OPENWA_API_URL/api/events?topics=message.received,ack.changed" \
+## Receive messages
+
+Open the event stream before you need it. It's a Server-Sent Events stream
+filtered by `topics`:
+
+```bash
+curl --no-buffer 'http://127.0.0.1:8080/api/events?topics=message.received,ack.changed' \
   -H "X-API-Key: $WA_API_KEY"
 ```
 
-Each `data:` line contains a JSON envelope with `id`, `event`, `payload`, `ts`, and `sessionId`. Incoming messages are at `payload.message`; ACK snapshots are at `payload.ack`. Close the connection to stop listening. Reconnect after a disconnect; this stream does not replay missed events.
+Each `data:` line is a JSON envelope with `id`, `event`, `payload`, `ts` and
+`sessionId`. An incoming message is at `payload.message`. The stream doesn't
+replay events you missed while disconnected.
 
-For a Node.js application, [SocketClient](/docs/client-and-integrations/socket-client) provides SDK-style methods and listeners over the remote API. For HTTP webhooks, configure the integration plugin in a config file:
+For a server that should receive messages without holding a connection open,
+use a webhook. [Receive messages](/docs/guides/receive-messages) compares the
+stream, webhooks and `onMessage`, and
+[Receive webhooks](/docs/guides/receive-webhooks) sets one up. A Node.js
+program on another machine can use [SocketClient](/docs/guides/socket-client)
+to call methods and listen as if it ran the SDK.
 
-```js title="wa.config.js"
-export default {
-  host: '127.0.0.1',
-  port: 8080,
-  apiKey: process.env.WA_API_KEY,
-  plugins: ['@open-wa/integration-webhook'],
-  pluginConfig: {
-    webhook: {
-      url: 'https://your-app.example/webhooks/open-wa',
-      events: ['message.received'],
-      headers: {
-        'X-Webhook-Secret': process.env.OPEN_WA_WEBHOOK_SECRET,
-      },
-    },
-  },
-};
-```
+## Media and other methods
 
-Run `npm start` to load the updated config. See [webhook payloads](/docs/client-and-integrations/webhook-payloads) for event bodies and delivery behavior.
+File paths in a request are read on the Easy API machine, so send a public URL
+or a data URL when the file lives elsewhere. The [API explorer](http://127.0.0.1:8080/api-docs/)
+(on your machine) and the [API reference](/docs/reference/client/client) list
+each method's fields. Start with [media](/docs/guides/media),
+[interactive messages](/docs/guides/interactive-messages) and
+[calendar events](/docs/guides/whatsapp-events).
 
-## Use media, events, and calls
+## Keep it private
 
-- [Media](/docs/guides/media) explains images, videos, voice notes, view-once options, and albums.
-- [Events and RSVPs](/docs/guides/whatsapp-events) explains native event cards and attendance responses.
-- [Calls](/docs/guides/calls) explains the licensed audio preview, files, streams, and the Calls dashboard.
-- [Session refresh](/docs/operations/session-refresh) explains patch and license operations without restarting the API host.
+`/health` is public and can include the pairing QR code, so keep the server on
+`127.0.0.1` or a private network and don't expose `/health` through a public
+proxy. Send `X-API-Key` on every other request and use HTTPS for anything that
+leaves the machine. [Docker](/docs/getting-started/docker) runs the same server
+in a container, and [Cloudflare session proxy](/docs/guides/cf-proxy) reaches
+it without opening a port.
 
-For direct HTTP media requests, file paths belong to the Easy API host. Use an accessible URL or complete data URL to supply an attachment from another machine. SDK methods and Web streams cannot be serialized into JSON; use the wire fields listed in `/api-docs/`.
-
-## Remote access
-
-Send `X-API-Key` on protected API requests. Keep the key on your application server and use HTTPS for remote access. `/health` is public and can contain pairing or diagnostic data, so keep the server on a private address and exclude it from a public proxy.
-
-Use [Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy) for remote consumers, [Docker](/docs/getting-started/docker) for a container setup, or [custom code](/docs/getting-started/custom-code) to own the browser directly.
+Before customers depend on it, work through
+[go to production](/docs/operations/go-to-production).

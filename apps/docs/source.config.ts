@@ -230,14 +230,6 @@ export const docs = defineDocs({
             seoTitle: z.string().optional(),
             // Number the H2 sections ("01", "02"). Off unless a page is a sequence.
             numberedSections: z.boolean().optional(),
-            release: z.object({
-                version: z.string(),
-                date: z.string().datetime(),
-                headline: z.string(),
-                highlights: z.array(z.string()),
-                image: z.string().url().optional(),
-                audience: z.string().optional(),
-            }).optional(),
         }),
         postprocess: {
             includeProcessedMarkdown: true,

@@ -1,20 +1,20 @@
 ---
-title: Plugin getting started
+title: Build your first plugin
 description: Build a small JavaScript plugin that listens for a message, serves a health route, and appears in the dashboard.
 ---
 
-# Plugin getting started
+# Build your first plugin
 
-Use a plugin when you want reusable logic to run inside the Easy API process. A plugin can listen for events, call client methods, mount HTTP routes, add dashboard metadata, or register AI tools.
+Use a plugin when you want reusable logic to run inside the open-wa process, alongside the Easy API or an SDK app. A plugin can listen for events, call client methods, mount HTTP routes, add dashboard metadata, or register AI tools.
 
 Plugins are trusted, dynamically imported modules in the host process. The SDK filters the event emitter and exposes a client proxy, but it does not sandbox Node.js code. Review a plugin and its dependencies before loading it; see the [security model](/docs/plugins/security-model) for the boundary that actually exists.
 
 ## Install the SDK
 
 ```bash
-pnpm add @open-wa/plugin-sdk@5.1.0 hono
+pnpm add @open-wa/plugin-sdk hono
 # or
-npm install @open-wa/plugin-sdk@5.1.0 hono
+npm install @open-wa/plugin-sdk hono
 ```
 
 The SDK provides `createPlugin()`, `defineConfig()`, `z`, and the plugin contract types. The starter below imports `Hono` separately because the route is a regular Hono app.
@@ -142,6 +142,6 @@ If a hook never fires, check the exact hook name against the [Hooks reference](/
 
 - **[Hooks reference](/docs/plugins/hooks-reference)**: Complete hooks API
 - **[PluginClient reference](/docs/plugins/plugin-client)**: Available client methods
-- **[PluginInput breakdown](/docs/plugins/plugin-input)**: What `init()` receives
+- **[PluginInput](/docs/plugins/plugin-input)**: What `init()` receives
 - **[Plugin security model](/docs/plugins/security-model)**: Runtime boundary and restrictions
 - **[Publishing a plugin](/docs/plugins/publishing)**: How to share your plugin

@@ -1,0 +1,74 @@
+---
+title: Link with a code
+description: Link a WhatsApp account by typing a code on the phone instead of scanning a QR code.
+---
+
+# Link with a code
+
+A link code is an alternative to the QR code when you can't point the phone's
+camera at the screen, for example on a remote server. You give open-wa the
+account's phone number, open-wa prints a short code, and you type it
+into WhatsApp on that phone.
+
+<Callout type="warning" title="Keep the code private">
+Anyone who enters the code on the phone links your account. open-wa prints it
+only to the local terminal. Don't forward it to HTTP routes, shared logs, chat
+or issue reports.
+</Callout>
+
+## Set the phone number
+
+Set `linkCode` to the account's full international number, digits only: no
+`+`, spaces, brackets or dashes. Use `447123456789`, not `+44 7123 456789`. A
+chat ID such as `447123456789@c.us` is for sending messages, not for
+`linkCode`.
+
+**SDK:** pass it to `create()`, which prints the code and resolves once the
+session is ready.
+
+```js title="index.mjs"
+import { create } from '@open-wa/wa-automate';
+
+const client = await create({
+  sessionId: 'link-code-demo',
+  linkCode: '447123456789',
+});
+
+console.log('WhatsApp session ready');
+```
+
+```bash
+npm install @open-wa/wa-automate
+node index.mjs
+```
+
+**Easy API:** there's no command-line flag. Set `linkCode` in your
+`wa.config.js`, or set the `WA_LINK_CODE` environment variable:
+
+```bash
+WA_LINK_CODE=447123456789 npx @open-wa/wa-automate --session-id sales
+```
+
+The terminal prints the code on a line that starts with
+`Link code (local console only):`.
+
+## Enter the code on your phone
+
+On the phone that owns the number:
+
+1. Open WhatsApp.
+2. Open **Settings** on iPhone, or the **⋮** menu on Android, then **Linked devices**.
+3. Tap **Link a device**.
+4. Choose **Link with phone number instead**.
+5. Type the code from the terminal and confirm.
+
+## Check the session is ready
+
+`create()` only returns once the session can send. For the Easy API, wait until
+`/health` reports `connected: true` and `session.ready: true`. Printing a code
+doesn't mean the phone finished linking.
+
+Codes expire. If the phone rejects the code or login times out, stop open-wa
+and start it again to get a fresh code. Once linked, later starts reuse the
+saved login and don't print a code; see
+[Log in and keep a session](/docs/sessions/authentication).

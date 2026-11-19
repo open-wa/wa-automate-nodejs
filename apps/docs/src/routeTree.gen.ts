@@ -28,8 +28,6 @@ import { Route as ApiLicenseSessionRouteImport } from './routes/api.license-sess
 import { Route as ApiSearchRouteImport } from './routes/api/search'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
-import { Route as ChangelogIndexRouteImport } from './routes/changelog/index'
-import { Route as ChangelogVersionRouteImport } from './routes/changelog/$version'
 import { Route as DocsSplatRouteImport } from './routes/docs/$'
 import { Route as DotwellKnownAgentSkillsIndexDotjsonRouteImport } from './routes/[.]well-known.agent-skills.index[.]json'
 import { Route as DotwellKnownMcpServerCardDotjsonRouteImport } from './routes/[.]well-known.mcp.server-card[.]json'
@@ -134,16 +132,6 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ChangelogIndexRoute = ChangelogIndexRouteImport.update({
-  id: '/changelog/',
-  path: '/changelog/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChangelogVersionRoute = ChangelogVersionRouteImport.update({
-  id: '/changelog/$version',
-  path: '/changelog/$version',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DocsSplatRoute = DocsSplatRouteImport.update({
   id: '/docs/$',
   path: '/docs/$',
@@ -196,10 +184,8 @@ export interface FileRoutesByFullPath {
   '/api/license-session': typeof ApiLicenseSessionRoute
   '/api/search': typeof ApiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
-  '/changelog/$version': typeof ChangelogVersionRoute
   '/docs/$': typeof DocsSplatRoute
   '/blog/': typeof BlogIndexRoute
-  '/changelog/': typeof ChangelogIndexRoute
   '/.well-known/agent-skills/index.json': typeof DotwellKnownAgentSkillsIndexDotjsonRoute
   '/.well-known/mcp/server-card.json': typeof DotwellKnownMcpServerCardDotjsonRoute
   '/api/editorial-media/$': typeof ApiEditorialMediaSplatRoute
@@ -225,10 +211,8 @@ export interface FileRoutesByTo {
   '/api/license-session': typeof ApiLicenseSessionRoute
   '/api/search': typeof ApiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
-  '/changelog/$version': typeof ChangelogVersionRoute
   '/docs/$': typeof DocsSplatRoute
   '/blog': typeof BlogIndexRoute
-  '/changelog': typeof ChangelogIndexRoute
   '/.well-known/agent-skills/index.json': typeof DotwellKnownAgentSkillsIndexDotjsonRoute
   '/.well-known/mcp/server-card.json': typeof DotwellKnownMcpServerCardDotjsonRoute
   '/api/editorial-media/$': typeof ApiEditorialMediaSplatRoute
@@ -255,10 +239,8 @@ export interface FileRoutesById {
   '/api/license-session': typeof ApiLicenseSessionRoute
   '/api/search': typeof ApiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
-  '/changelog/$version': typeof ChangelogVersionRoute
   '/docs/$': typeof DocsSplatRoute
   '/blog/': typeof BlogIndexRoute
-  '/changelog/': typeof ChangelogIndexRoute
   '/.well-known/agent-skills/index.json': typeof DotwellKnownAgentSkillsIndexDotjsonRoute
   '/.well-known/mcp/server-card.json': typeof DotwellKnownMcpServerCardDotjsonRoute
   '/api/editorial-media/$': typeof ApiEditorialMediaSplatRoute
@@ -286,10 +268,8 @@ export interface FileRouteTypes {
     | '/api/license-session'
     | '/api/search'
     | '/blog/$slug'
-    | '/changelog/$version'
     | '/docs/$'
     | '/blog/'
-    | '/changelog/'
     | '/.well-known/agent-skills/index.json'
     | '/.well-known/mcp/server-card.json'
     | '/api/editorial-media/$'
@@ -315,10 +295,8 @@ export interface FileRouteTypes {
     | '/api/license-session'
     | '/api/search'
     | '/blog/$slug'
-    | '/changelog/$version'
     | '/docs/$'
     | '/blog'
-    | '/changelog'
     | '/.well-known/agent-skills/index.json'
     | '/.well-known/mcp/server-card.json'
     | '/api/editorial-media/$'
@@ -344,10 +322,8 @@ export interface FileRouteTypes {
     | '/api/license-session'
     | '/api/search'
     | '/blog/$slug'
-    | '/changelog/$version'
     | '/docs/$'
     | '/blog/'
-    | '/changelog/'
     | '/.well-known/agent-skills/index.json'
     | '/.well-known/mcp/server-card.json'
     | '/api/editorial-media/$'
@@ -374,10 +350,8 @@ export interface RootRouteChildren {
   ApiLicenseSessionRoute: typeof ApiLicenseSessionRoute
   ApiSearchRoute: typeof ApiSearchRoute
   BlogSlugRoute: typeof BlogSlugRoute
-  ChangelogVersionRoute: typeof ChangelogVersionRoute
   DocsSplatRoute: typeof DocsSplatRoute
   BlogIndexRoute: typeof BlogIndexRoute
-  ChangelogIndexRoute: typeof ChangelogIndexRoute
   DotwellKnownAgentSkillsIndexDotjsonRoute: typeof DotwellKnownAgentSkillsIndexDotjsonRoute
   DotwellKnownMcpServerCardDotjsonRoute: typeof DotwellKnownMcpServerCardDotjsonRoute
   ApiEditorialMediaSplatRoute: typeof ApiEditorialMediaSplatRoute
@@ -520,20 +494,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/changelog/': {
-      id: '/changelog/'
-      path: '/changelog'
-      fullPath: '/changelog/'
-      preLoaderRoute: typeof ChangelogIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/changelog/$version': {
-      id: '/changelog/$version'
-      path: '/changelog/$version'
-      fullPath: '/changelog/$version'
-      preLoaderRoute: typeof ChangelogVersionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/docs/$': {
       id: '/docs/$'
       path: '/docs/$'
@@ -600,10 +560,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLicenseSessionRoute: ApiLicenseSessionRoute,
   ApiSearchRoute: ApiSearchRoute,
   BlogSlugRoute: BlogSlugRoute,
-  ChangelogVersionRoute: ChangelogVersionRoute,
   DocsSplatRoute: DocsSplatRoute,
   BlogIndexRoute: BlogIndexRoute,
-  ChangelogIndexRoute: ChangelogIndexRoute,
   DotwellKnownAgentSkillsIndexDotjsonRoute:
     DotwellKnownAgentSkillsIndexDotjsonRoute,
   DotwellKnownMcpServerCardDotjsonRoute: DotwellKnownMcpServerCardDotjsonRoute,

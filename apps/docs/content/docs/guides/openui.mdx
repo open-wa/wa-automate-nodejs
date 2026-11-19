@@ -1,17 +1,14 @@
 ---
 title: OpenUI chat messages
-description: Share one component catalogue between agent plugins, Neo Chat and native WhatsApp messages.
+description: Describe a chat message once and have it render in Neo and send to WhatsApp as text, buttons, a list, a form or a booking card.
 ---
 
 # OpenUI chat messages
 
-OpenWA's OpenUI adapter gives agent plugins one message document for Neo and
+open-wa's OpenUI adapter gives agent plugins one message document for Neo and
 WhatsApp. Its catalogue contains `TextMessage`, `Receipt`, `BookingCard`,
 `ReplyButtons`, `ChoiceList` and `Form`. Neo renders the document in the existing
 Chat feed; the server compiles it to `sendText` or `sendInteractive`.
-
-This integration is available in the development source and is not part of the
-published 5.9.7 packages.
 
 ## Use it with Voxtral
 
@@ -107,18 +104,15 @@ subsequent action. Local preview clicks aren't WhatsApp recipient responses.
 
 `BookingCard` uses the shared [interactive-message schema](/docs/guides/interactive-messages):
 `booking.startAt` and optional `endAt` are ISO timestamps with an offset.
-WhatsApp also requires a location, booking URL or phone number. The optional
+A booking also needs a location, booking URL or phone number. The optional
 `timeZone` property controls Neo's display and is removed before native sending.
 Voxtral accepts civil dates and IANA timezones and computes these timestamps.
 
-OpenUI controls Neo's presentation. WhatsApp renders native messages using its
-own phone UI; a successful preview doesn't prove phone rendering. The shared
-Effect booking codec normalizes timestamps to UTC whole seconds during validation;
-the live Android check confirmed that this displays the date, time and location
-in the native details panel. The same codec handles SDK and HTTP sends, rejects
-invalid calendar dates and rejects ranges that collapse to the same second.
+OpenUI controls how Neo shows the message; the recipient's WhatsApp app draws
+its own version, so a good preview doesn't prove how it looks on the phone.
+Booking timestamps are normalised to UTC whole seconds during validation, the
+same way as SDK and HTTP sends, and invalid dates or ranges that collapse to the
+same second are rejected.
 
 The adapter uses OpenUI's [catalogue and renderer APIs](https://www.openui.com/docs/api-reference/react-lang)
 and its [framework-independent parser](https://github.com/thesysdev/openui/tree/main/packages/lang-core).
-The native booking mapping follows the documented
-[ISO date payload](https://wppconnect.io/wa-js/functions/chat.sendBookingMessage.html).

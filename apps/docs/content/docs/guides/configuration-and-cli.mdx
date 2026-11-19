@@ -1,116 +1,37 @@
 ---
 title: Configuration and CLI
-description: Core runtime settings for custom code and the most important Easy API CLI flags.
+description: Configure a session with a config file, WA_ environment variables or Easy API command-line flags, and load plugins.
 ---
 
 # Configuration and CLI
 
-Use this page to choose runtime settings, CLI flags, environment variables, and plugin configuration that match the way you start open-wa.
+open-wa takes the same settings everywhere: as an object passed to `create()` in the SDK, or, for the Easy API, from a config file, `WA_*` environment variables and command-line flags. This page shows where each one applies and which wins.
 
-## Common config fields
+## Common settings
 
-Use the config object passed to `createClient()` or exported from `wa.config.*` for library/runtime behavior such as:
+- `sessionId`: names the session and keeps its login separate from other sessions.
+- `sessionDataPath`: where the encrypted login file, `<sessionId>.data.json`, is saved. It defaults to the working directory.
+- `headless`: run the browser in the background (default) or visibly.
+- `useChrome` / `executablePath`: which browser to run.
+- `qrTimeout` / `authTimeout`: how long to wait for a QR scan and for login.
+- `licenseKey`: unlocks [licensed features](/docs/licensing/pricing).
+- `chromiumArgs`: extra browser arguments, such as an outbound proxy; see [use an outbound proxy](/docs/guides/proxying-a-session).
+- `linkCode`: log in with a [link code](/docs/sessions/link-code) instead of a QR code.
+- `port`, `host`, `apiKey`: where the Easy API listens and the key it requires. The defaults are port `8080` on `localhost`, with no key.
 
-- `sessionId`: stable session naming
-- `userDataDir`: persistent browser profile directory
-- `headless`: visible vs background browser
-- `useChrome` / `executablePath`: browser selection
-- `qrTimeout` / `authTimeout`: authentication timing
-- `maxQr`: limit QR emission count
-- `cacheEnabled`: page/runtime memory trade-off
-- `licenseKey`: feature unlocks where applicable
-- `proxyServerCredentials`: outbound proxy support
-- `linkCode`: link-code login for embedded `createClient` applications
-
-## Full Configuration Reference
-
-The reference below lists supported configuration fields, types, defaults, and descriptions.
+## Every setting
 
 <AutoTypeTable path="../../../../../packages/config/src/schema/config.ts" name="Config" />
 
-## Example
+## In the SDK
+
+Pass settings straight to `create()`:
 
 ```ts
-import { createClient } from '@open-wa/wa-automate';
+import { create } from '@open-wa/wa-automate';
 
-const client = await createClient({
+const client = await create({
   sessionId: 'sales',
-  useChrome: true,
-  headless: true,
-  qrTimeout: 0,
-  authTimeout: 60,
-});
-```
-
-## Config file discovery
-
-The CLI loads configuration through the shared config package before applying CLI overrides. By default, discovery starts from the current working directory.
-
-Discovery order is:
-
-1. The `wa` key in `package.json`
-2. `wa.config.js`
-3. `wa.config.cjs`
-4. `wa.config.mjs`
-5. `wa.config.ts`
-6. `wa.config.mts`
-7. `wa.config.cts`
-8. `wa.config.json`
-9. `.warc`
-10. `.warc.json`
-11. `cli.config.js` legacy compatibility
-12. `cli.config.json` legacy compatibility
-
-The first matching file wins. Use `--config ./path/to/config` when you want to load a specific file instead of relying on discovery.
-
-The config loader merges values in this order:
-
-1. schema defaults
-2. config file
-3. `WA_*` environment variables
-4. CLI flags
-5. programmatic overrides, mainly for tests and embedding
-
-The config loader replaces arrays instead of concatenating them. A later `plugins` value replaces the earlier value.
-
-Config files can export a plain object or a function that returns an object. The config loader supports TypeScript config files.
-
-## JSON/TS examples
-
-These config fields are available to embedded `createClient` applications. In the published Easy API CLI `5.1.0`, startup applies `host: 0.0.0.0` and `port: 8002` after config and environment loading, so pass `--host` and `--port` explicitly when starting the CLI.
-
-<Tabs items={['JSON', 'TypeScript']}>
-<Tab value="JSON">
-
-Use JSON when your config is static:
-
-```json
-{
-  "sessionId": "sales",
-  "port": 8080,
-  "host": "0.0.0.0",
-  "apiKey": "replace-with-env-in-production",
-  "headless": true,
-  "qrTimeout": 0,
-  "authTimeout": 60,
-  "licenseKey": "YOUR-LICENSE-KEY"
-}
-```
-
-</Tab>
-<Tab value="TypeScript">
-
-Use TypeScript or JavaScript when you need environment variables or computed values:
-
-```ts
-import { defineConfig } from '@open-wa/config';
-
-export default defineConfig({
-  sessionId: process.env.WA_SESSION_ID ?? 'sales',
-  port: Number(process.env.WA_PORT ?? 8080),
-  host: '0.0.0.0',
-  apiKey: process.env.WA_API_KEY,
-  userDataDir: process.env.WA_USER_DATA_DIR,
   headless: true,
   qrTimeout: 0,
   authTimeout: 60,
@@ -118,67 +39,160 @@ export default defineConfig({
 });
 ```
 
-In v5 config examples, use the `WA_*` environment names that the config loader reads. If your platform uses different secret names, map them in the config. Names such as `PORT` and `API_KEY` are not automatic runtime config variables.
+`create()` uses only the object you pass. It doesn't read `WA_*` environment variables or look for a config file, so read your environment yourself, as above, or import your config file and pass it in. Projects made with `npm init @open-wa` do exactly that.
+
+## In the Easy API
+
+The Easy API (`npx @open-wa/wa-automate`) combines four sources, later ones winning:
+
+1. schema defaults
+2. a config file
+3. `WA_*` environment variables
+4. command-line flags
+
+Arrays are replaced rather than merged, so a later `plugins` list replaces an earlier one.
+
+### Config files
+
+The CLI looks for a config file in the current directory and uses the first match:
+
+1. the `wa` key in `package.json`
+2. `wa.config.js`, `wa.config.cjs`, `wa.config.mjs`
+3. `wa.config.ts`, `wa.config.mts`, `wa.config.cts`
+4. `wa.config.json`
+5. `.warc`, `.warc.json`
+6. `cli.config.js`, `cli.config.json`
+
+Use `--config ./path/to/file` to load a specific file. A config file can export an object or a function that returns one, and TypeScript files work directly.
+
+<Tabs items={['TypeScript', 'JSON']}>
+<Tab value="TypeScript">
+
+```ts title="wa.config.ts"
+import { defineConfig } from '@open-wa/config';
+
+export default defineConfig({
+  sessionId: 'sales',
+  host: '127.0.0.1',
+  port: 8080,
+  apiKey: process.env.WA_API_KEY,
+  sessionDataPath: process.env.WA_SESSION_DATA_PATH,
+  licenseKey: process.env.WA_LICENSE_KEY,
+  qrTimeout: 0,
+});
+```
+
+</Tab>
+<Tab value="JSON">
+
+```json title="wa.config.json"
+{
+  "sessionId": "sales",
+  "host": "127.0.0.1",
+  "port": 8080,
+  "qrTimeout": 0
+}
+```
+
+Keep secrets such as `apiKey` and `licenseKey` out of JSON files and supply them as environment variables instead.
 
 </Tab>
 </Tabs>
 
-## Env vars
+### Environment variables
 
-Supply runtime config with `WA_*` environment variables. The loader converts snake-case names to config keys. For example, `WA_SESSION_ID` becomes `sessionId`.
+Every setting can be set with a `WA_` variable: drop the prefix, and the rest is converted from `SNAKE_CASE` to the camelCase setting name, so `WA_SESSION_ID` sets `sessionId`. Values are converted to match the setting:
 
-The config loader converts values when possible:
+- `true`, `1`, `yes` and `on` become `true`; `false`, `0`, `no` and `off` become `false`.
+- Numeric strings become numbers for numeric settings.
+- Values starting with `{` or `[` are parsed as JSON for object and array settings.
 
-- `true`, `1`, `yes`, and `on` become `true`
-- `false`, `0`, `no`, and `off` become `false`
-- numeric strings become numbers for numeric schema fields
-- the loader parses JSON values such as `{...}` or `[...]` for object and array fields
+| Variable | Setting |
+| --- | --- |
+| `WA_SESSION_ID` | `sessionId` |
+| `WA_PORT` | `port` |
+| `WA_HOST` | `host` |
+| `WA_API_KEY` | `apiKey` |
+| `WA_SESSION_DATA_PATH` | `sessionDataPath` |
+| `WA_LICENSE_KEY` | `licenseKey` |
+| `WA_LINK_CODE` | `linkCode` |
+| `WA_HEADLESS` | `headless` |
+| `WA_USE_CHROME` | `useChrome` |
+| `WA_QR_TIMEOUT` | `qrTimeout` |
+| `WA_AUTH_TIMEOUT` | `authTimeout` |
+| `WA_PLUGINS` | `plugins` (JSON array) |
+| `WA_PLUGIN_CONFIG` | `pluginConfig` (JSON object) |
 
-Common runtime environment variables:
+A few names don't follow the rule: `WA_DEBUG` sets `devtools`, `WA_BROWSER_WS_ENDPOINT` sets `browserWSEndpoint`, `WA_BYPASS_CSP` sets `bypassCSP`, and `WA_USE_LIGHTPANDA` sets `useLightpanda`. The session encryption key also accepts `OPENWA_SESSION_DATA_ENCRYPTION_KEY` and `OPENWA_SESSION_DATA_ENCRYPTION_KEY_FILE`. Other names, such as `PORT` or `API_KEY`, are ignored; map them in a config file if your platform uses them.
 
-| Environment variable | Config field | Notes |
+### Command-line flags
+
+| Flag | Setting | Description |
 | --- | --- | --- |
-| `WA_SESSION_ID` | `sessionId` | Stable session name |
-| `WA_PORT` | `port` | The shared config loader reads this value, but the published CLI `5.1.0` applies `port: 8002` after environment variables. Pass `--port` to choose another port. |
-| `WA_HOST` | `host` | The shared config loader reads this value, but the published CLI `5.1.0` applies `host: 0.0.0.0` after environment variables. Pass `--host` to choose another bind address. |
-| `WA_API_KEY` | `apiKey` | API authentication key |
-| `WA_USER_DATA_DIR` | `userDataDir` | Persistent browser profile directory |
-| `WA_LICENSE_KEY` | `licenseKey` | License key where applicable |
-| `WA_LINK_CODE` | `linkCode` | The shared config loader maps this variable. The published CLI `5.1.0` does not forward the field into startup; pass `linkCode` explicitly to embedded `createClient`. |
-| `WA_HEADLESS` | `headless` | Browser visibility |
-| `WA_USE_CHROME` | `useChrome` | Prefer local Chrome |
-| `WA_QR_TIMEOUT` | `qrTimeout` | QR wait time |
-| `WA_AUTH_TIMEOUT` | `authTimeout` | Auth wait time |
-| `WA_WEBHOOK` | `webhook` | Webhook target URL |
-| `WA_PLUGINS` | `plugins` | JSON array of plugin refs |
-| `WA_PLUGIN_CONFIG` | `pluginConfig` | JSON object keyed by plugin name |
+| `--session-id sales` | `sessionId` | Names the session. |
+| `--port 8080`, `-p` | `port` | Port to listen on. |
+| `--host 127.0.0.1`, `-h` | `host` | Address to bind to. |
+| `--api-key "key"`, `--key`, `-k` | `apiKey` | Requires an `X-API-Key` header on API requests. Set one before exposing the API beyond your machine. |
+| `--license-key "key"`, `-l` | `licenseKey` | License key for licensed features. |
+| `--config ./wa.config.ts`, `-c` | — | Loads a specific config file. |
+| `--headless`, `--headful` | `headless` | Runs the browser hidden or visible. |
+| `--use-chrome`, `--use-chromium`, `--use-lightpanda` | browser | Picks the browser to run. |
+| `--qr-timeout 0` | `qrTimeout` | Seconds to wait for a QR scan; `0` waits forever. |
+| `--no-dashboard`, `--dashboard-port` | `dashboard`, `dashboardPort` | Turns off the dashboard or moves it. |
+| `--no-ezqr` | `ezqr` | Turns off the `/qr` endpoint. |
+| `--ephemeral` | `ephemeral` | Has no effect on the login: it is always saved to the session file. |
+| `--log-console`, `--log-level`, `--verbose` | logging | Prints browser logs, sets the level, or turns on debug output. |
+| `--sandbox-chats`, `--sandbox-isolation` | `sandboxChats` | Isolates code run on behalf of a chat; see below. |
+| `--pm2`, `--name` | — | Runs under PM2 with the given process name. |
 
-There are also compatibility aliases for a few browser-related settings, including `WA_DEBUG` for `devtools`, `WA_BROWSER_WS_ENDPOINT` for `browserWSEndpoint`, `WA_BYPASS_CSP` for `bypassCSP`, and `WA_USE_LIGHTPANDA` for `useLightpanda`.
+There's no flag for a link code; set `linkCode` in a config file or `WA_LINK_CODE`, and the code is printed in the terminal.
 
-## High-value CLI flags
+For example, this command:
 
 ```bash
-# networking (pass explicit values to override published CLI 5.1.0 defaults)
---host "127.0.0.1"
---port 8080
---api-key "your-secure-key"
-
-# session identity
---session-id sales
-
-# runtime helpers
---pm2
---tunnel
-
-# licensing
---license-key "YOUR-LICENSE-KEY"
-
-# isolate explicit chat-triggered code/tool execution
---sandbox-chats
---sandbox-isolation container
+npx @open-wa/wa-automate \
+  --session-id sales \
+  --api-key "$WA_API_KEY" \
+  --license-key "$WA_LICENSE_KEY"
 ```
 
-Pass `linkCode` explicitly in an embedded `createClient` configuration. The shared config loader maps `WA_LINK_CODE`, but direct `createClient` calls do not load environment variables automatically. The published Easy API CLI `5.1.0` does not forward link-code settings and has no `--link-code` flag, so use its QR flow. Select a config file with `--config` when you need to choose it explicitly. `sandboxChats` applies only to code or tools explicitly sent through `executeInChatSandbox`; it does not create a Chromium session per chat or change ordinary message handlers. The boolean form uses the process policy, while the object form controls the isolation boundary and resource access:
+is equivalent to this config file:
+
+```ts
+export default {
+  sessionId: 'sales',
+  apiKey: process.env.WA_API_KEY,
+  licenseKey: process.env.WA_LICENSE_KEY,
+};
+```
+
+### Choose a browser
+
+The CLI downloads no browser when it installs. It uses an installed Google Chrome by default, and if none is found it asks which browser to download:
+
+- **Chrome for Testing** works with everything, including video and media.
+- **Chromium** may lack some proprietary audio and video codecs.
+- **Lightpanda** is light but experimental for WhatsApp, and has no rendering, video or screenshots.
+
+`--use-chrome`, `--use-chromium` and `--use-lightpanda` (or `--lightpanda`) choose directly and download on demand. Downloads are cached per user, and your choice is remembered. A first start with no browser and no terminal to ask in needs one of these flags. Set `browser.download: 'never'` to forbid downloads.
+
+Lightpanda mode downloads Lightpanda 1.0.0 the first time and keeps the `/qr` endpoint and terminal QR working. It's experimental: recovering after a reload, sending reliably and long-running sessions aren't confirmed, and Live Portal and screenshots aren't available.
+
+### Flags that do nothing yet
+
+These older flags are accepted but only print a warning:
+
+| Flag | Instead |
+| --- | --- |
+| `--webhook`, `-w` | Load `@open-wa/integration-webhook`; see [receive webhooks](/docs/guides/receive-webhooks). |
+| `--ready-webhook`, `--stats`, `--generate-api-docs`, `--tunnel` | No replacement yet. API docs are always served at `/api-docs/`. |
+| `--chatwoot-url`, `--twilio-webhook`, `--bot-press-url` | Use the [Chatwoot integration](/docs/guides/chatwoot) or another plugin. |
+
+`--mcp` and `--api-host` aren't recognised: enable MCP with `mcp: { enabled: true }` in a config file, and use `--host` for the bind address. The `sessionData`, `sessionDataPath` and `skipSessionSave` settings are deprecated in favour of the browser profile in `userDataDir`.
+
+## Sandboxed chat code
+
+`sandboxChats` isolates code or tools that a chat explicitly asks to run through `executeInChatSandbox`. It doesn't change ordinary message handlers or start a browser per chat. `true` uses the process policy; an object sets the boundary and limits:
 
 ```ts
 export default defineConfig({
@@ -197,110 +211,11 @@ export default defineConfig({
 });
 ```
 
-Container mode is the strong boundary for hostile code. Process mode strips ambient globals, environment, and filesystem permission and applies time/memory/output limits, but Node's permission model is defense in depth rather than a complete security boundary. Worker mode is intended for availability isolation around trusted code. Worker and process policies fail closed if they request filesystem, network, or environment access; those host-access policies require container mode.
+Use `container` for code you don't trust. `process` removes globals, environment and filesystem access and limits time, memory and output, but Node's permission model is a second line of defence rather than a complete boundary. `worker` only protects availability around trusted code. Worker and process policies refuse filesystem, network or environment access, so those need `container`.
 
-## Full CLI reference
+## Plugins
 
-These are the major flags most users need when starting the Easy API from the command line.
-
-| Flag | Maps to | Description |
-| --- | --- | --- |
-| `--port 8080`, `-p 8080` | `port` | Port for the Easy API server. |
-| `--api-key "key"`, `--key "key"`, `-k "key"` | `apiKey` | Protects API requests. Use this before exposing the API beyond localhost. |
-| `--session-id sales` | `sessionId` | Names the session and keeps auth state separate from other sessions. |
-| `--webhook "https://..."`, `-w "https://..."` | `webhook` | Parsed as a webhook target URL, but current v5 source warns that CLI webhook registration parity is not restored. Use `@open-wa/integration-webhook` in `plugins` plus `pluginConfig.webhook` for source-backed delivery. |
-| `--pm2` | PM2 wrapper | Starts the CLI under PM2 instead of running directly. |
-| `--license-key "key"`, `-l "key"` | `licenseKey` | Supplies a license key for licensed features where applicable. |
-| `linkCode` in library config | `linkCode` | Embedded `createClient` in `5.1.0` supports link-code login. The published Easy API CLI does not forward this setting and has no `--link-code` flag. |
-| `--tunnel` | transitional | Legacy tunnel flag. v5 currently warns that tunnel setup parity is not restored. |
-| `--mcp` | unsupported by the current v5 CLI | The CLI does not parse this flag. Configure `mcp: { enabled: true }` in `wa.config.*`, keep `apiKey` enabled, and use `--config ./wa.config.mjs` when selecting that file explicitly. |
-| `--host "0.0.0.0"`, `-h "0.0.0.0"` | `host` | Local bind host for the Easy API server. |
-| `--sandbox-chats` | `sandboxChats: true` | Enables isolated execution for explicit per-chat code/tool calls. |
-| `--sandbox-isolation process` | `sandboxChats.isolation` | Selects `worker`, `process`, or `container`; use container for hostile code. |
-
-Other useful runtime flags include `--host`, `--headless`, `--headful`, `--use-chrome`, `--use-chromium`, `--use-lightpanda` (also `--lightpanda`), `--qr-timeout`, `--dashboard-port`, `--no-dashboard`, `--no-ezqr`, `--ephemeral`, `--sandbox-chats`, `--sandbox-isolation`, `--log-console`, `--log-level`, and `--verbose`.
-
-The CLI package installs without downloading browsers. Startup prefers installed
-Google Chrome by default. If Chrome and a previously selected browser are missing,
-the terminal asks which browser to download:
-
-- **Chrome for Testing** provides the highest compatibility, including video and media.
-- **Chromium** is the middle ground; proprietary video/audio codecs may be unavailable.
-- **Lightpanda** is lightweight for basic automation, with low compatibility and experimental WhatsApp support. It does not render pages or support video or screenshots.
-
-`--use-chrome`, `--use-chromium`, and `--use-lightpanda` select a browser directly,
-reuse it if available, and download it on demand if missing. Downloads are cached
-per user, outside the temporary `npx` installation, and the terminal choice is
-remembered for later runs. A non-interactive first start with no available browser
-requires an explicit browser flag. `browser.download: 'never'` disables downloads.
-
-After the next minor release, start the experimental Lightpanda Easy API with:
-
-```bash
-npx @open-wa/wa-automate --lightpanda
-```
-
-Lightpanda mode downloads and caches the pinned 1.0.0 executable on first use, prepares a separate WhatsApp-capable copy, and enables the worker, service worker, and crypto bridges automatically. The original executable and existing installations are preserved. The normal terminal QR output and `/qr` endpoint remain available. Use `--qr-timeout 0` to keep waiting for a scan. A custom `lightpanda.executablePath` is still supported; that executable must honor the Chrome user agent override.
-
-This mode remains experimental. Custom native Debug runs reached authenticated library READY and loaded chats/contacts, but subsequent reload recovery failed with session takeover and initialization errors. The stock download has not been replaced. Reliable recovery, outbound delivery, long-session durability and full Chrome parity remain unconfirmed. Lightpanda has no graphical renderer, so screenshots, PDF rendering and Live Portal are unavailable. The controlled browser benchmark does not measure authenticated WhatsApp performance.
-
-The standalone `@open-wa/cli` entrypoint also accepts output-mode flags such as `--interactive`, `--non-interactive`, and `--output-mode plain`. Those affect terminal output before the runtime config is parsed.
-
-## CLI-to-schema mapping
-
-Most CLI flags are thin aliases over config schema fields. For example:
-
-```bash
-npx @open-wa/wa-automate@5.1.0 \
-  --session-id sales \
-  --host 127.0.0.1 \
-  --port 8080 \
-  --api-key "$WA_API_KEY" \
-  --license-key "$WA_LICENSE_KEY"
-```
-
-is equivalent to these config fields:
-
-```ts
-export default {
-  sessionId: 'sales',
-  port: 8080,
-  apiKey: process.env.WA_API_KEY,
-  licenseKey: process.env.WA_LICENSE_KEY,
-};
-```
-
-Explicit CLI flags win over config-file and environment values. The published CLI `5.1.0` also applies its `0.0.0.0` and `8002` startup defaults after config loading, so always pass `--host` and `--port` when those values matter.
-
-Not every flag is a schema field. `--config` selects which file to load, `--pm2` controls process management, and `--name` controls the PM2 process name.
-
-## Deprecated flags
-
-Some v4-era flags remain as compatibility warnings in v5. Replace them with the documented v5 settings below.
-
-<Accordions type="single">
-<Accordion title="Deprecated and transitional flags" id="deprecated-and-transitional-flags">
-
-| Flag or field | Status in v5 |
-| --- | --- |
-| `--ready-webhook` | Warns that ready-webhook delivery is not yet wired in the v5 CLI. |
-| `--stats` | Warns that swagger-stats parity is not restored. |
-| `--generate-api-docs` | Warns that runtime docs are always served from the shared API layer. |
-| `--tunnel` | Warns that tunnel setup parity is not yet restored in the v5 CLI. |
-| `--mcp` | The current source does not parse this flag. Configure `mcp: { enabled: true }` in `wa.config.*` and select the file with `--config ./wa.config.mjs` if needed. |
-| `--api-host` | Not parsed by the current v5 CLI. Use `--host`/`-h` for the local bind host and configure any public origin in the integration that needs it. |
-| `--chatwoot-url`, `--twilio-webhook`, `--bot-press-url` | Legacy integration flags that are not yet wired into the v5 CLI boot path. Prefer plugins and config files. |
-| `sessionData`, `sessionDataPath`, `skipSessionSave` | Deprecated MD-obsolete JSON session fields. Prefer `userDataDir` managed persistence. |
-| `popup`, `qrPopUpOnly`, `autoRefresh`, `qrRefreshS` | Legacy QR/popup behavior. Do not treat these as stable v5 runtime contracts. |
-
-</Accordion>
-</Accordions>
-
-When in doubt, prefer the config schema and the flags in this page over older v4 examples.
-
-## Plugins field docs
-
-Use `plugins` to load reusable integrations into the runtime process.
+`plugins` lists the plugins to load, as npm package names or file paths. Each module must have a default export or a named `plugin` export.
 
 ```ts
 export default {
@@ -308,18 +223,11 @@ export default {
     '@open-wa/integration-webhook',
     '@open-wa/integration-chatwoot',
     './plugins/my-local-plugin',
-    '/absolute/path/to/plugin.js',
   ],
 };
 ```
 
-Each item is a plugin reference. It can be an npm package name, a scoped package name, or a file path. The module must export a default plugin or a named `plugin` export.
-
-Plugins loaded from `plugins` are imported during `createClient()` startup. If a plugin does not expose `meta.name`, it cannot be registered correctly.
-
-## PluginConfig docs
-
-Use `pluginConfig` for plugin-specific settings. The object is keyed by each plugin's `meta.name`, not necessarily by the package name.
+`pluginConfig` holds each plugin's settings, keyed by the plugin's name (`meta.name`), which isn't always the package name. If the plugin defines a config schema, open-wa validates its settings before starting it.
 
 ```ts
 export default {
@@ -327,60 +235,19 @@ export default {
   pluginConfig: {
     webhook: {
       url: 'https://your-app.example/webhooks/open-wa',
-      headers: {
-        'X-Webhook-Secret': process.env.WEBHOOK_SECRET,
-      },
+      headers: { 'X-Webhook-Secret': process.env.WEBHOOK_SECRET },
     },
-    moderation: {
-      enabled: true,
-      apiKey: process.env.MODERATION_API_KEY,
-    },
+    moderation: { apiKey: process.env.MODERATION_API_KEY },
   },
 };
 ```
 
-At startup, open-wa looks up `pluginConfig[plugin.meta.name]`. If the plugin defines a config schema, that value is validated before it is passed to the plugin's `init()` function.
+## Keep secrets out of config
 
-## Example with plugin
+Read `apiKey`, `licenseKey`, webhook secrets and plugin tokens from the environment rather than writing them into files you commit. Keep `.env` in `.gitignore`, use your platform's secret store in production, and don't log whole config objects, because `pluginConfig` often contains tokens. [Configuration secrets](/docs/guides/config-secrets) has worked examples.
 
-```ts
-import { defineConfig } from '@open-wa/config';
+## Related
 
-export default defineConfig({
-  sessionId: 'support',
-  port: 8080,
-  host: '0.0.0.0',
-  apiKey: process.env.WA_API_KEY,
-  webhook: process.env.WA_WEBHOOK,
-  plugins: [
-    '@open-wa/integration-webhook',
-    './plugins/internal-audit-plugin',
-  ],
-  pluginConfig: {
-    webhook: {
-      url: process.env.WA_WEBHOOK,
-      headers: {
-        'X-Webhook-Secret': process.env.WEBHOOK_SECRET,
-      },
-    },
-    'internal-audit': {
-      enabled: true,
-      logLevel: 'info',
-    },
-  },
-});
-```
-
-## Secret management
-
-Keep secrets out of committed config files. Use environment variables for `apiKey`, `licenseKey`, webhook secrets, Chatwoot tokens, and plugin API keys.
-
-For local development, keep the `.env` file in `.gitignore`. In production, use the platform secret store or a secret manager. Do not log complete config objects. Nested `pluginConfig` values frequently contain tokens.
-
-## Session events worth knowing about
-
-If you need QR images, session-data capture, or low-level launch state, read **[Session events](/docs/guides/session-events)**.
-
-## One important caveat
-
-The old Docusaurus site generated a complete CLI options table at build time. This page gives the common flags first. The detailed config surface must agree with the generated reference and runtime schema.
+- [Config explorer](/docs/guides/config-explorer)
+- [Session events](/docs/sessions/session-events)
+- [Go to production](/docs/operations/go-to-production)

@@ -1,0 +1,8 @@
+{
+  "title": "Upgrading",
+  "icon": "CircleArrowUp",
+  "pages": [
+    "migrating-to-v5",
+    "[Release notes on GitHub](https://github.com/open-wa/wa-automate-nodejs/releases)"
+  ]
+}

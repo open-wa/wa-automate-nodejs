@@ -38,7 +38,7 @@ const loader = createServerFn({
       const image = getPageImage(slugs);
       const imageUrl = getAbsoluteDocsUrl(image.url);
       const description = getOgDescription(page.data);
-      const canonical = getAbsoluteDocsUrl(page.data.release ? `/changelog/${page.data.release.version}` : page.url);
+      const canonical = getAbsoluteDocsUrl(page.url);
       const crumbs: Crumb[] = folderCrumbs(source.pageTree, page.url);
       const breadcrumbs = [
         { name: 'Docs', url: getAbsoluteDocsUrl('/docs') },

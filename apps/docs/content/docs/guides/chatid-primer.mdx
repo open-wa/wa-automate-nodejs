@@ -1,124 +1,82 @@
 ---
-title: Understanding Chat IDs
+title: Chat IDs
 seoTitle: "WhatsApp IDs explained: chat, contact and group IDs | open-wa"
-description: Learn which chat identifiers the API accepts and how to preserve identifiers received in message events.
+description: Address the right person or group by turning phone numbers into chat IDs and reusing the IDs messages give you.
 ---
 
-# Understanding Chat IDs
+# Chat IDs
 
-Every conversation is addressed with a chat ID. Use the identifier returned by
-an event or lookup when you have one; only construct an ID from a phone number
-when you are deliberately addressing a direct contact.
+Every open-wa method addresses a conversation by its chat ID. When a message or lookup gives you an ID, reuse it exactly; build one from a phone number only when you're messaging a person directly.
 
-## Accepted API formats
-
-The current `ChatId` schema accepts these forms:
+## ID formats
 
 | Form | Meaning | Example |
 |---|---|---|
-| `<digits>@c.us` | A direct-contact JID | `447700900000@c.us` |
-| `<digits>(-<digits>)?@g.us` | A group JID | `447123456789-1445627445@g.us` |
-| `<digits>@lid` | A numeric LID JID accepted by the API | `12345678901234@lid` |
+| `<digits>@c.us` | A person, by phone number | `447700900000@c.us` |
+| `<digits>(-<digits>)?@g.us` | A group | `447123456789-1445627445@g.us` |
+| `<digits>@lid` | A person whose phone number is hidden | `12345678901234@lid` |
 
-The schema is a validation contract for method inputs. It does not prove that
-every WhatsApp account, device, or incoming payload uses every form shown here.
-In particular, a LID is an opaque WhatsApp identifier: this guide does
-not claim that all LIDs are colon-separated or that a LID can be derived from a
-phone number.
+A LID is an opaque identifier. You can't derive one from a phone number or a phone number from one, so pass it through unchanged.
 
-## Phone numbers and direct-contact IDs
+## Turn a phone number into a chat ID
 
-For a direct contact, use the country code, remove the leading `+`, spaces,
-dashes, and parentheses, then append `@c.us`:
+Use the country code, drop the `+`, spaces, dashes and brackets, then add `@c.us`:
 
 ```ts
 function phoneToChatId(phone: string): string {
-  const digits = phone.replace(/\D/g, '');
-  return `${digits}@c.us`;
+  return `${phone.replace(/\D/g, '')}@c.us`;
 }
 
 phoneToChatId('+44 7700 900000'); // '447700900000@c.us'
 ```
 
-The runtime also has a codec for bare numeric input. It preserves already
-formatted IDs; for bare digits it applies heuristic rules, including a special
-case for 18 digits as a group ID and 14 digits (except numbers beginning with
-`62`) as a LID. Prefer an explicit suffix when you know the identifier because
-those heuristics cannot establish what a real WhatsApp account represents.
+Methods also accept bare digits and guess the type from the length, but the guess can be wrong, so add the suffix yourself whenever you know it.
 
 ## Group IDs
 
-Group IDs are assigned by WhatsApp. Keep the full value exactly as returned by
-`message.from`, `message.chatId`, a group lookup, or a group method; do not
-rebuild one from a group name, participant numbers, or a timestamp assumption.
+WhatsApp assigns group IDs. Keep the full value from `message.from`, `message.chatId` or a group method, and never rebuild one from a group name or its members.
 
 ```ts
 client.onMessage((message) => {
-  if (message.isGroupMsg) {
-    console.log('Group ID:', message.chatId);
-  }
+  if (message.isGroupMsg) console.log('Group ID:', message.chatId);
 });
 ```
 
-An invite URL is an invite token, not a group ID. If the workflow is to join a
-group, pass the URL to [`joinGroupViaLink`](/docs/reference/client/groups#joingroupvialink)
-and keep the returned identifier only after checking the method's result. The
-method is license-gated and can return a failure value, so a successful HTTP
-request alone is not proof that a group was joined.
+An invite link isn't a group ID. To join from a link, pass it to [`joinGroupViaLink`](/docs/reference/client/groups#joingroupvialink), which needs a license and returns the group ID when it succeeds:
 
 ```ts
-const result = await client.joinGroupViaLink(
-  'https://chat.whatsapp.com/REDACTED_INVITE_TOKEN'
-);
-
-if (typeof result === 'string') {
-  console.log('Joined group:', result);
-} else {
-  console.error('The invite could not be resolved:', result);
-}
+const result = await client.joinGroupViaLink('https://chat.whatsapp.com/REDACTED_INVITE_TOKEN');
+if (typeof result === 'string') console.log('Joined group:', result);
+else console.error('The invite could not be used:', result);
 ```
 
-## Incoming fields and LIDs
+## IDs on incoming messages
 
-Message events expose the conversation through fields such as `from` and
-`chatId`. Representative sanitized payloads for the documented contact and
-group forms look like this:
+Messages carry the conversation in `from` and `chatId`:
 
 ```json
-{
-  "from": "447700900000@c.us",
-  "chatId": "447700900000@c.us",
-  "isGroupMsg": false
-}
+{ "from": "447700900000@c.us", "chatId": "447700900000@c.us", "isGroupMsg": false }
 ```
 
 ```json
-{
-  "from": "447123456789-1445627445@g.us",
-  "chatId": "447123456789-1445627445@g.us",
-  "isGroupMsg": true
-}
+{ "from": "447123456789-1445627445@g.us", "chatId": "447123456789-1445627445@g.us", "isGroupMsg": true }
 ```
 
-The supported source and schema do not establish one universal incoming LID
-representation beyond the numeric `@lid` input accepted by the current API.
-When an event contains a LID, pass the exact `from` or `chatId` value to the
-next method and record the release and event payload before documenting a new
-shape. Do not split, rewrite, or infer a phone number from it.
+When `from` ends in `@lid`, reply to that exact value. Don't split it or try to recover a phone number from it; if you need the number, ask the person with [`requestPhoneNumber`](/docs/guides/phone-number-sharing).
 
 ## Common mistakes
 
 | Mistake | Wrong | Correct |
 |---|---|---|
 | Missing country code | `7700900000@c.us` | `447700900000@c.us` |
-| Wrong suffix for a contact | `1234567890@g.us` | `1234567890@c.us` |
+| Wrong suffix for a person | `447700900000@g.us` | `447700900000@c.us` |
 | Display name instead of ID | `John Doe@c.us` | `447700900000@c.us` |
-| Keeping the `+` sign | `+447700900000@c.us` | `447700900000@c.us` |
-| Treating an invite URL as a group ID | `ABCdef...@g.us` | Resolve it through the group method |
-| Reconstructing an opaque ID | A guessed LID or group suffix | Reuse the returned identifier |
+| Keeping the `+` | `+447700900000@c.us` | `447700900000@c.us` |
+| Using an invite link as a group ID | `ABCdef...@g.us` | Join with `joinGroupViaLink` |
+| Guessing an ID | A made-up LID or group ID | Reuse the ID you received |
 
 ## Related
 
-- **[Messages guide](/docs/guides/messages):** Send and receive messages with chat IDs
-- **[Groups guide](/docs/guides/groups):** Work with group chats and invite links
-- **[Client messages reference](/docs/reference/client/messages):** Exact method parameters and return types
+- [Messages and message events](/docs/guides/messages)
+- [Groups](/docs/guides/groups)
+- [Message methods reference](/docs/reference/client/messages)

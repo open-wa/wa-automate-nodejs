@@ -9,6 +9,8 @@ newsession/
 # ...but wa-automate's source `session` directory is real code, not data:
 !packages/wa-automate/src/session/
 !packages/wa-automate/src/session/**
+# ...and neither is the docs "Sessions and login" section.
+!apps/docs/content/docs/sessions/
 **buttons.js
 **req.ts
 **qr_code_session.png
@@ -43,6 +45,8 @@ node_modules/
 .turbo/
 dist/
 build/
+# The docs "Build" recipes section is content, not build output.
+!apps/docs/content/docs/build/
 *.log
 .env
 .env.*

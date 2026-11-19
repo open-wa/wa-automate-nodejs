@@ -1,0 +1,29 @@
+---
+title: Sessions and login
+description: Link a WhatsApp account to open-wa, keep it logged in, notice when it drops, and run several accounts.
+---
+
+# Sessions and login
+
+A session is one linked WhatsApp account, named by its `sessionId`. You link it once by scanning a QR code or typing a code on the phone, and open-wa saves the login so later starts reconnect without asking again. These pages cover the whole life of a session:
+
+| Task | Page |
+| --- | --- |
+| Link an account with a QR code, keep the login between restarts, and check that it's ready | [Log in and keep a session](/docs/sessions/authentication) |
+| Link without a camera, by typing a code on the phone | [Link with a code](/docs/sessions/link-code) |
+| Watch startup, the QR code and state changes from code | [Session events](/docs/sessions/session-events) |
+| Notice when the phone unlinks the session and alert someone | [Detect logouts](/docs/sessions/detect-logouts) |
+| Reload a running session or apply a license without restarting | [Refresh a session](/docs/sessions/refresh) |
+| Run several accounts side by side | [Multiple sessions](/docs/sessions/multiple-sessions) |
+
+## Is my session ready?
+
+The Easy API answers HTTP requests before WhatsApp has finished connecting, so check readiness before you send:
+
+```bash
+curl http://127.0.0.1:8080/health
+```
+
+Send only when the response has `"connected": true` and `"session": { "ready": true, ... }`. Until then, method calls return `503`. In the SDK, `create()` resolves only once the session is ready, so you can send as soon as it returns.
+
+Keep the saved login private: anyone who copies it can use the account. [Go to production](/docs/operations/go-to-production) covers where to store it and how to back it up.

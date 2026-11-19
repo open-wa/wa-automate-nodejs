@@ -1,17 +1,17 @@
 ---
-title: External API Patterns
-description: Handle HTTP responses, retries, timeouts, and concurrency in plugins.
+title: External API patterns
+description: Call other services from a plugin without blocking messages, with retries, timeouts and concurrency limits.
 ---
 
-# External API Patterns
+# External API patterns
 
 Use this guide when a plugin calls an HTTP service, such as an LLM or CRM. It covers response handling, timeouts, retries, and bounded concurrency.
 
-## Making HTTP Requests
+## Making HTTP requests
 
 ### Use fetch
 
-Node.js 22+ includes native `fetch`:
+Node.js 22.21.1 or newer, which open-wa requires, includes native `fetch`:
 
 ```ts
 events.on('message.received', async ({ message }) => {
@@ -28,7 +28,7 @@ events.on('message.received', async ({ message }) => {
 });
 ```
 
-### Adding Peer Dependencies
+### Adding peer dependencies
 
 If you need axios or other HTTP libraries, add them as peer dependencies:
 
@@ -46,9 +46,9 @@ Users install them separately:
 npm install axios
 ```
 
-## Error Handling
+## Error handling
 
-### HTTP Status Codes
+### HTTP status codes
 
 ```ts
 try {
@@ -91,7 +91,7 @@ try {
 }
 ```
 
-### Retry with Exponential Backoff
+### Retry with exponential backoff
 
 ```ts
 async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3) {
@@ -141,7 +141,7 @@ events.on('message.received', async ({ message }) => {
 });
 ```
 
-### Queue-Based Processing
+### Queue-based processing
 
 Use a queue to control concurrency:
 
@@ -177,7 +177,7 @@ events.on('message.received', async ({ message }) => {
 
 ## Performance
 
-### Concurrent Call Limits
+### Concurrent call limits
 
 Set reasonable concurrency limits:
 
@@ -208,7 +208,7 @@ async function setCached(key: string, data: unknown) {
 }
 ```
 
-### Memory Management
+### Memory management
 
 Clear caches periodically:
 
@@ -226,6 +226,6 @@ setInterval(() => {
 
 ## Related
 
-- **[Plugin getting started](/docs/plugins/getting-started)** - Build your first plugin
+- **[Build your first plugin](/docs/plugins/getting-started)** - Build your first plugin
 - **[Plugin security model](/docs/plugins/security-model)** - Security boundaries
 - **[Hooks reference](/docs/plugins/hooks-reference)** - Available hooks

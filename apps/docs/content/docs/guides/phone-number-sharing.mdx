@@ -1,18 +1,20 @@
 ---
-title: Voluntary phone-number sharing
-description: Request a number or share the signed-in account's own number in a direct chat.
+title: Phone number sharing
+description: Ask a contact who messages you from a hidden number to share it, or share this account's own number with them.
 ---
 
-# Voluntary phone-number sharing
+# Phone number sharing
+
+Some contacts reach you through a LID chat, where their phone number is hidden. You can ask them to share it, or share this account's number with them.
 
 ```ts
-const requestId = await client.requestPhoneNumber('447700900123@c.us');
-// Only when your application intends to disclose its own account number:
-const shareId = await client.sharePhoneNumber('447700900123@c.us');
+const requestId = await client.requestPhoneNumber('123456789012345@lid');
+// Only when you mean to disclose this account's own number:
+const shareId = await client.sharePhoneNumber('123456789012345@lid');
 ```
 
-`requestPhoneNumber` sends WhatsApp's native share-number request to a direct LID chat. The recipient decides whether to share. It does not look up a hidden number or force the recipient to disclose it.
+`requestPhoneNumber` sends WhatsApp's share-number request to a direct chat. The recipient decides whether to share; the request can't look up or reveal a hidden number.
 
-`sharePhoneNumber` sends the native protocol message for sharing the signed-in account's own number and updates WhatsApp's per-contact sharing metadata. It accepts a destination only, never an arbitrary number to disclose. Both methods return a submitted message ID; ACKs indicate delivery, and recipient sharing is a separate action.
+`sharePhoneNumber` shares the signed-in account's own number with that contact. It takes only the destination, so it can never disclose any other number.
 
-Receiver behavior depends on WhatsApp's account and client support. Receiving a request does not confirm that the recipient's share response succeeded. Inspect the chat before retrying an uncertain submission.
+Both return the message ID. Use `onAck` for delivery, and treat the recipient's reply to a request as a separate event. Check the chat before retrying an uncertain send.

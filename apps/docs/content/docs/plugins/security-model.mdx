@@ -1,15 +1,15 @@
 ---
-title: Plugin Security Model
-description: Understand what plugins can and cannot do, how config validation works, and how to handle secrets safely.
+title: Plugin security model
+description: Decide whether a plugin is safe to load, what it can reach, and how to keep its secrets out of logs and source.
 ---
 
-# Plugin Security Model
+# Plugin security model
 
 Plugins load as JavaScript modules in the open-wa Node.js process and run with that process's operating-system permissions. The SDK does not create a filesystem, network, or process sandbox, so review a plugin and its dependencies before loading it.
 
 ## API restrictions
 
-### Cannot Emit Events
+### Plugins can't emit events
 
 The `events` object supplied to `init()` exposes `on()`, `once()`, and `off()`; it has no `emit()` method. This limits access through that object, but it does not prevent plugin code from importing Node.js modules or using other host-process capabilities.
 
@@ -24,12 +24,12 @@ The gateway checks the event metadata registered by the host. Events marked `int
 
 ### No direct browser access through the SDK
 
-`PluginInput` includes a **client proxy**, not a browser or CDP handle. The client can call WhatsApp methods exposed by `window.WAPI`; `ask(method, args)` forwards the requested method name to that runtime, so it is not a method allowlist. The SDK client interface does not expose methods to:
+`PluginInput` includes a **client proxy**, not a browser or CDP handle. The client calls the connected session's client methods; `ask(method, args)` forwards any method name, so it isn't an allowlist. The client interface has no methods to:
 
 - Execute CDP commands
 - Manipulate the browser DOM directly
 - Access browser cookies or storage directly
-- Inject scripts into the WhatsApp Web page
+- Run scripts in the WhatsApp Web page
 
 ## What the SDK does not isolate
 
@@ -37,18 +37,18 @@ Node's dynamic `import()` runs both a plugin's top-level code and `init()` in th
 
 Review the plugin source, transitive dependencies, and requested permissions before installation. If code must be treated as untrusted, run it in a separately managed service with an operating-system or container boundary and communicate through an external API. Configure that isolation in your deployment environment; open-wa does not provide a plugin sandbox.
 
-## What Plugins Can Do
+## What plugins can do
 
-### Subscribe to Events Allowed by the Gateway
+### Subscribe to events the gateway allows
 
 ```ts
 events.on('message.received', (payload) => { ... });
 events.once('client.ready', () => { ... });
 ```
 
-### Call WhatsApp Methods Through the Client Proxy
+### Call WhatsApp methods through the client proxy
 
-The convenience methods and `ask()` call methods provided by the connected WhatsApp runtime:
+The convenience methods and `ask()` call the connected session's methods:
 
 ```ts
 await client.sendText('123@c.us', 'Hello');
@@ -70,7 +70,7 @@ init: async () => ({
 
 The host mounts the returned Hono app at `/plugins/<name>/`.
 
-### Declare AI Tools
+### Declare AI tools
 
 ```ts
 init: async () => ({
@@ -84,7 +84,7 @@ init: async () => ({
 })
 ```
 
-This declares a tool in the plugin hooks. The current MCP endpoint does not expose plugin-declared tools; see [AI Tools](/docs/plugins/ai-tools) for the host integration requirement.
+This declares a tool in the plugin hooks. The current MCP endpoint does not expose plugin-declared tools; see [AI tools](/docs/plugins/ai-tools) for the host integration requirement.
 
 ### Add dashboard pages
 
@@ -96,9 +96,9 @@ init: async () => ({
 
 The dashboard reads these declarations from the plugin manifest and renders its standard plugin status view. They do not grant a plugin a custom React component or a separate process.
 
-## Config Validation
+## Config validation
 
-### How It Works
+### How it works
 
 If you provide a `configSchema` in your plugin definition, the host validates the configuration **before** calling `init()`.
 
@@ -115,13 +115,13 @@ export default createPlugin({
 });
 ```
 
-### If Validation Fails
+### If validation fails
 
 - The plugin will **not** register
 - An error is logged with details about what failed
 - During client creation, the registration error aborts plugin setup and the client start path; the current host does not skip the invalid plugin and continue with the remaining list
 
-### Handling Missing Config Gracefully
+### Handling missing config gracefully
 
 Use Zod defaults and optional fields:
 
@@ -143,9 +143,9 @@ init: async ({ config }) => {
 }
 ```
 
-## Secret Management
+## Secret management
 
-### Environment Variables
+### Environment variables
 
 Reference environment variables in your `wa.config.js`:
 
@@ -170,7 +170,7 @@ MY_PLUGIN_API_KEY=sk-abc123...
 
 The config file can read from `process.env` which picks up `.env` values if your setup loads them.
 
-### Are Config Values Logged?
+### Are config values logged?
 
 Plugin config values are **not** automatically logged. But if your plugin logs the config object directly, secrets will appear in the logs. Always redact sensitive fields:
 
@@ -182,7 +182,7 @@ logger.info('Config loaded', { config });
 logger.info('Config loaded', { apiUrl: config.apiUrl, hasKey: !!config.apiKey });
 ```
 
-### Validating API Keys Are Present
+### Validating API keys are present
 
 ```ts
 const configSchema = z.object({
@@ -192,7 +192,7 @@ const configSchema = z.object({
 
 This will fail validation with a clear error message if the key is missing or empty.
 
-### Rotating Keys Without Restart
+### Rotating keys without restart
 
 Currently, config is validated once at plugin initialization. To replace keys:
 
@@ -200,9 +200,9 @@ Currently, config is validated once at plugin initialization. To replace keys:
 2. Restart the session
 3. The plugin will reload with the new key
 
-## Error Handling Patterns
+## Error handling patterns
 
-### API Failures (Rate Limits, Timeouts, 401)
+### API failures (rate limits, timeouts, 401)
 
 ```ts
 'message.received': async ({ message }) => {
@@ -223,7 +223,7 @@ Currently, config is validated once at plugin initialization. To replace keys:
 }
 ```
 
-### Network Errors
+### Network errors
 
 ```ts
 try {
@@ -237,7 +237,7 @@ try {
 }
 ```
 
-### Malformed Messages
+### Malformed messages
 
 Always validate message data before processing:
 
@@ -252,7 +252,7 @@ Always validate message data before processing:
 }
 ```
 
-### WhatsApp Connection Drops
+### WhatsApp connection drops
 
 Use lifecycle hooks to detect connection state:
 
@@ -278,6 +278,6 @@ Use lifecycle hooks to detect connection state:
 
 ## Related
 
-- **[Plugin getting started](/docs/plugins/getting-started):** Build your first plugin
-- **[PluginInput breakdown](/docs/plugins/plugin-input):** What your plugin receives
+- **[Build your first plugin](/docs/plugins/getting-started):** Build your first plugin
+- **[PluginInput](/docs/plugins/plugin-input):** What your plugin receives
 - **[External API patterns](/docs/plugins/external-api-patterns):** Calling external services from plugins

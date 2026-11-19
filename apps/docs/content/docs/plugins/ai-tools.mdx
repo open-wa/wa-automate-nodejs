@@ -1,11 +1,11 @@
 ---
-title: AI Tools
-description: Declare custom plugin tools and understand the host integration needed to expose them to agents.
+title: AI tools
+description: Declare AI tools in a plugin, and know which hosts can call them today.
 ---
 
-# AI Tools
+# AI tools
 
-Plugins can declare tools in the `tool` hook returned by `init()`. The current open-wa MCP endpoint does not discover or invoke plugin-declared tools, so use these examples only when you are building a host integration that connects the hook to an agent.
+Plugins can declare tools in the `tool` hook returned by `init()`. open-wa's [MCP server](/docs/guides/mcp) doesn't discover or call plugin-declared tools, so these examples are for when you build your own host integration that connects the hook to an agent.
 
 <Callout type="warning">
 The declaration alone does not make a tool available to an agent. Connect it to a tool host before advertising it.
@@ -60,7 +60,7 @@ execute: async (args, context) => {
 
 The tool context does **not** include `client`. If a tool needs to call WhatsApp methods, capture `client` from the plugin `init()` input and use it inside the returned `tool` handlers.
 
-## Example: Lookup Contact Tool
+## Example: look up a contact
 
 ```ts
 export default createPlugin({
@@ -88,7 +88,7 @@ export default createPlugin({
 });
 ```
 
-## Example: Send Message Tool
+## Example: send a message
 
 ```ts
 init: async ({ client }) => ({
@@ -116,11 +116,11 @@ init: async ({ client }) => ({
 
 ## Write a useful tool contract
 
-### Descriptive Names
+### Descriptive names
 
 Use a name that says what the action does, such as `lookupContact` or `sendMessage`.
 
-### Clear Descriptions
+### Clear descriptions
 
 Describe when to use the tool and what it returns:
 
@@ -128,7 +128,7 @@ Describe when to use the tool and what it returns:
 description: 'Look up a contact by phone number. Returns the contact name and profile info.'
 ```
 
-### Argument Descriptions
+### Argument descriptions
 
 Describe each argument, including its expected format:
 
@@ -138,7 +138,7 @@ args: {
 }
 ```
 
-### Error Handling
+### Error handling
 
 Return useful errors to the caller and log the failure:
 
@@ -159,7 +159,7 @@ execute: async (args, context) => {
 }
 ```
 
-### Return Structured Data
+### Return structured data
 
 Tool handlers return strings. If you want to return structured data to an agent, serialize a JSON object:
 
@@ -172,6 +172,6 @@ return JSON.stringify({
 
 ## Related
 
-- **[Plugin getting started](/docs/plugins/getting-started)** - Build your first plugin
+- **[Build your first plugin](/docs/plugins/getting-started)** - Build your first plugin
 - **[MCP Integration](/docs/guides/mcp)** - AI agent integration
 - **[Hooks reference](/docs/plugins/hooks-reference)** - Available hooks

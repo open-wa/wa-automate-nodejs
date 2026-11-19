@@ -1,11 +1,11 @@
 ---
 title: Data models
-description: Generated type tables for the most important open-wa runtime models.
+description: Look up the exact shape of messages, chats, contacts and group metadata.
 ---
 
 # Data models
 
-These are the core runtime models that show up across the client surface,
+These are the core runtime models that show up in client methods,
 listeners, webhooks, and generated reference pages.
 
 <Callout type="info" title="Use this page as the data-shape companion to the guides">
@@ -87,16 +87,15 @@ Common media fields include:
 | `mediaData` | Runtime metadata used to locate and decrypt the encrypted media. |
 | `clientUrl` / `deprecatedMms3Url` | Media URLs that can be present on some payloads. Treat them as runtime details. |
 
-To access the raw bytes, pass the whole message to `decryptMedia` after you
-have checked that the message has media metadata.
+To get the content, pass the whole message to `client.decryptMedia` after you
+have checked that the message has media metadata. It returns a data URL;
+`client.downloadMedia(message, path)` saves the file instead.
 
 ```ts
-import { decryptMedia } from '@open-wa/wa-automate';
-
 client.onMessage(async (message) => {
   if (!message.isMedia && !message.mimetype) return;
 
-  const media = await decryptMedia(message);
+  const dataUrl = await client.decryptMedia(message);
   // Save, inspect, or forward the decrypted data from here.
 });
 ```

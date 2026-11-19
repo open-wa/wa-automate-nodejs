@@ -3,8 +3,9 @@
   "icon": "BookOpen",
   "pages": [
     "how-it-works",
-    "data-models",
     "packages",
+    "data-models",
+    "create-client-and-drivers",
     "glossary"
   ]
 }

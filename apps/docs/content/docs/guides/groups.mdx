@@ -1,105 +1,60 @@
 ---
 title: Groups
-description: Create groups, manage participants, and handle invite links with the account permissions and license checks those actions require.
+description: Create groups, add and manage participants, share invite links, and react when people join or leave.
 ---
 
 # Groups
 
-Group IDs are assigned by WhatsApp. Keep the complete ID returned by a method
-or message event; do not derive it from a group name or participant numbers.
-See the [Chat ID guide](/docs/guides/chatid-primer) for accepted identifier
-forms and invite-token handling.
+WhatsApp assigns group IDs, so keep the full ID that a method or message gives you rather than building one from a name or participant numbers. The [chat ID primer](/docs/guides/chatid-primer) covers ID formats and invite links. The examples assume a `client` from `create()`.
 
 ## Create a group
 
-`createGroup` requires a Restricted license. It returns a group object with a
-`gid`, or `null` if creation did not return a group. The connected account must
-also be able to create the group and add the listed contacts.
+`createGroup` needs a [license](/docs/licensing/pricing). It returns an object with the new group's `gid`, or `null` if no group was created. The account must also be allowed to add each contact you list.
 
 ```ts
-const created = await client.createGroup('Support updates', [
-  '447700900000@c.us',
-]);
-
-if (!created?.gid) {
-  throw new Error('The group was not created');
-}
+const created = await client.createGroup('Support updates', ['447700900000@c.us']);
+if (!created?.gid) throw new Error('The group was not created');
 
 const groupId = created.gid;
 ```
 
-See the exact [`createGroup` contract](/docs/reference/client/client#creategroup)
-and [license guidance](/docs/licensing/pricing) before using this method.
+## Manage participants
 
-## Participants and permissions
-
-The embedded `Client` supports adding, removing, promoting, and demoting one
-participant at a time. These operations require group-administrator
-permissions, and each call returns `true` only when the runtime reports
-success.
+`addParticipant`, `removeParticipant`, `promoteParticipant` and `demoteParticipant` change one participant at a time. They need the account to be a group admin, and each returns `true` only when the change succeeded.
 
 ```ts
-const changed = await client.addParticipant(groupId, '447700900000@c.us');
-if (!changed) {
-  console.error('The participant was not added');
-}
+const added = await client.addParticipant(groupId, '447700900000@c.us');
+if (!added) console.error('The participant was not added');
 ```
 
-Use the [participant method reference](/docs/reference/client/groups#addparticipant)
-for the other operations and their exact signatures. Keep the returned contact
-IDs intact; see [group filtering](/docs/guides/group-filtering) for matching
-incoming messages to a group allowlist.
+The [group method reference](/docs/reference/client/groups#addparticipant) lists the exact signatures. To act only on messages from certain groups, see [group filtering](/docs/guides/group-filtering).
 
 ## Invite links
 
-`getGroupInviteLink` and `revokeGroupInviteLink` operate on a group ID. The
-returned invite URL is a token for joining, not the group ID. Joining through a
-link requires a Restricted license. The embedded `Client` returns a group ID
-or `false`; the Easy API also accepts an option to return a chat object.
+`getGroupInviteLink` returns a link that lets people join; the link isn't the group ID. `revokeGroupInviteLink` invalidates the current link so you can share a new one. Joining a group through a link with `joinGroupViaLink` needs a [license](/docs/licensing/pricing) and resolves to the group ID on success.
 
 ```ts
 const inviteUrl = await client.getGroupInviteLink(groupId);
 const result = await client.joinGroupViaLink(inviteUrl);
 
-if (typeof result === 'string') {
-  console.log('Joined group:', result);
-} else {
-  console.error('The invite did not return a group ID:', result);
-}
+if (typeof result === 'string') console.log('Joined group:', result);
+else console.error('The invite did not return a group ID:', result);
 ```
 
-The [`joinGroupViaLink` contract](/docs/reference/client/client#joingroupvialink)
-includes its license tier and Easy API option. Check the result for your
-selected surface before treating the join as complete. Revoking an invite
-invalidates the old URL; retrieve and share the replacement only when your
-workflow needs one.
+Over the Easy API, `joinGroupViaLink` also accepts `returnChatObj` to return the chat instead of the ID.
 
-## Other group operations
+## Read and change group details
 
-The generated Easy API catalog includes group reads and settings updates such
-as `getGroupMembers`, `getGroupAdmins`, and `setGroupDescription`. Method
-availability differs by client surface: the current embedded `Client` does not
-declare every Easy API group method, and its `getGroupInfo`, `setGroupTitle`,
-and `setGroupDescription` entries are unsupported. Check the exact method
-reference for your deployed surface before calling one:
+`getGroupInfo`, `getGroupMembers`, `getGroupAdmins`, `setGroupTitle`, `setGroupDescription`, `setGroupIcon` and the admin-only settings are listed in the [group method reference](/docs/reference/client/groups), with their Easy API routes.
 
-- [Group methods](/docs/reference/client/groups)
-- [Licensed features](/docs/licensing/licensed-features)
+## React to membership changes
 
-## Membership events
-
-The runtime event map exposes `group.participants.changed.global`. Its
-`change` payload contains the group ID, action, affected participant IDs, and
-the actor when available:
+`onParticipantsChanged` watches one group, and `onGlobalParticipantsChanged` watches every group the account is in:
 
 ```ts
-import { ev } from '@open-wa/wa-automate';
-
-ev.on('group.participants.changed.global', ({ change }) => {
+client.onGlobalParticipantsChanged((change) => {
   console.log(change.groupId, change.action, change.participantIds, change.by);
 });
 ```
 
-The event is a change notification, not a complete membership snapshot. Keep
-an application-owned group record if later actions depend on current state.
-See the [event reference](/docs/reference/events) for its full type.
+`action` is one of `add`, `remove`, `promote`, `demote`, `invite` or `leave`, and `by` is the participant who made the change when it's known. Each callback describes one change rather than the full member list, so keep your own record of a group if later steps depend on who is in it. Over HTTP, the same change arrives as the `group.participants.changed.global` event; see [receive messages](/docs/guides/receive-messages).

@@ -1,0 +1,115 @@
+---
+title: Quick start
+description: Create an open-wa project, link a WhatsApp account and send your first message.
+---
+
+# Quick start
+
+You need **Node.js 22.21.1 or newer**, npm, and a phone with WhatsApp.
+
+## 1. Create your project
+
+```bash
+npm init @open-wa@latest my-bot
+cd my-bot
+```
+
+The wizard asks two things that matter here. Choose **Easy API** if you want to
+send messages over HTTP from any language, or **SDK** if you want to write the
+bot in Node.js. Pick JavaScript or TypeScript, and leave the browser on
+**Detect at startup** unless you know you want a download.
+
+To script these choices, or to see every flag and generated file, read
+[generator options](/docs/getting-started/quickstart/generator-options). The
+[project builder](/new) makes the same choices on this site and gives you a
+command to copy.
+
+## 2. Start and link WhatsApp
+
+```bash
+npm start
+```
+
+On your phone, open **WhatsApp → Linked devices → Link a device** and scan the
+QR code in the terminal. Keep the terminal open. Stop the project with
+`Ctrl+C`; starting it again from the same folder reuses the saved login, so you
+only scan once.
+
+## 3. Send a message
+
+Use a chat with someone who expects your message. Replace `447700900123` with
+their full international number, without `+` or spaces.
+
+### Easy API
+
+Check that the session is ready from another terminal:
+
+```bash
+curl http://127.0.0.1:8080/health
+```
+
+The response is long. The fields to look at are these:
+
+```json
+{
+  "status": "ok",
+  "version": "<installed version>",
+  "connected": true,
+  "session": {
+    "state": "READY",
+    "status": "ready",
+    "ready": true,
+    "exposureSafe": true,
+    "pending": [],
+    "blockers": []
+  }
+}
+```
+
+`status: "ok"` only means the HTTP server is up. Wait until `connected` and
+`session.ready` are both `true`, then send:
+
+```bash
+curl --fail-with-body http://127.0.0.1:8080/api/messages/sendText \
+  -H 'Content-Type: application/json' \
+  --data '{"to":"447700900123@c.us","content":"Hello from open-wa"}'
+```
+
+A successful send returns the new message ID:
+
+```json
+{
+  "success": true,
+  "data": "true_447700900123@c.us_3EB0C767D1D7E8A2F1C4"
+}
+```
+
+The ID confirms that WhatsApp accepted the message, not that it was delivered or
+read. If you set `WA_API_KEY` in `.env`, add `-H "X-API-Key: <your key>"` to
+both requests. In PowerShell, type `curl.exe` instead of `curl`.
+
+While the project runs you also get the Neo dashboard at
+[http://127.0.0.1:8080/dashboard/](http://127.0.0.1:8080/dashboard/) (on your
+machine) and the API explorer at
+[http://127.0.0.1:8080/api-docs/](http://127.0.0.1:8080/api-docs/) (on your
+machine).
+
+### SDK
+
+The generated `index.js` or `index.ts` already handles messages. From another
+WhatsApp account, send `!ping` to the linked number. The bot replies `pong`.
+Add your own handlers in that file; the [SDK page](/docs/getting-started/custom-code)
+walks through it.
+
+## Next steps
+
+- [Easy API](/docs/getting-started/easy-api) covers API keys, events and
+  sending from JavaScript or Python.
+- [SDK](/docs/getting-started/custom-code) covers handlers, configuration and
+  shutdown.
+- [Build](/docs/build/send-otp) has complete recipes for one-time codes,
+  booking confirmations and support bots.
+- [Voxtral](/docs/guides/voxtral) adds a voice assistant if you selected it in
+  the wizard.
+- [Go to production](/docs/operations/go-to-production) is the checklist to run
+  before real customers depend on the bot.

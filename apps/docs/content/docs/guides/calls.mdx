@@ -1,26 +1,26 @@
 ---
 title: Calls
-description: Answer and start WhatsApp audio calls, play greetings, capture received audio, and use the Calls dashboard.
+description: Answer and place WhatsApp audio calls, play a greeting, record the caller, and handle calls from the dashboard.
 ---
 
 # Calls
 
-WhatsApp audio calling is a licensed preview included with active Insiders, Restricted and Premium licenses, including Gumroad purchases. Patches Only does not include calling. Use the latest package and configure your license key; OpenWA activates calling after pairing. Camera calls and provider adapters are still in development.
+Audio calling is a preview that needs a [license key](/docs/licensing/pricing). Configure the key and calling becomes available once the session is linked. Video calls aren't available yet.
 
 ## Answer with a greeting and record the caller
 
 Install the main package, which includes its browser driver and audio decoder:
 
 ```sh
-npm install @open-wa/wa-automate@latest
+npm install @open-wa/wa-automate
 ```
 
-Create a client with your license key inline, then handle incoming calls:
+Create a client with your license key, then handle incoming calls:
 
 ```ts
 import { create } from '@open-wa/wa-automate';
 
-const client = await create({ licenseKey: 'YOUR_CALLING_LICENSE' });
+const client = await create({ licenseKey: process.env.WA_LICENSE_KEY });
 
 await client.onIncomingCall(async call => {
   await call.accept('greeting.pcm', 'received.pcm');
@@ -29,9 +29,9 @@ await client.onIncomingCall(async call => {
 
 The first argument supplies the microphone audio; the second receives the caller's audio. File paths resolve on the machine running this client. Encoded audio files are detected automatically. Raw `.pcm` defaults to signed 16-bit little-endian, 16 kHz, mono. Change the filenames to `.wav` to play a WAV greeting and save a WAV recording.
 
-OpenWA prepares the source and recording before answering. The greeting begins when the call becomes active, plays once, and then sends silence while the call stays open. Returning from your callback keeps the call media alive. When the peer hangs up, OpenWA stops the source, closes its resources and finishes the recording. Existing recordings are preserved by choosing a new filename.
+open-wa prepares the source and recording before answering. The greeting begins when the call becomes active, plays once, and then sends silence while the call stays open. Returning from your callback keeps the call media alive. When the caller hangs up, open-wa stops the source, closes its resources and finishes the recording. Existing recordings are preserved by choosing a new filename.
 
-There is no capability-check step. Without an enabled license or supported browser, OpenWA logs the reason and calling actions return an unavailable result; your messaging session continues.
+You don't need to check for calling support first. Without a license that covers calls, or in a browser that can't handle call audio, open-wa logs the reason and calling actions return an unavailable result while messaging carries on.
 
 ## Use devices, URLs or streams
 
@@ -65,7 +65,7 @@ await client.onIncomingCall(async call => {
 });
 ```
 
-Raw application input and received output use 16-bit little-endian PCM at 16 kHz mono. Encoded input is detected from its container header. OpenWA owns the stream readers and writers for the attachment and releases them when its call ends. Its Effect scopes and decoders are internal; applications don't need to set up Effect or attachment IDs.
+Raw application input and received output use 16-bit little-endian PCM at 16 kHz mono. Encoded input is detected from its container header. open-wa reads and writes the streams for you and releases them when the call ends.
 
 Pass `null` to disable a role:
 
@@ -88,7 +88,7 @@ await call.accept({
 });
 ```
 
-A compatible `wss://` source or sink announces its format using the OpenWA audio protocol. Arbitrary provider sockets need a protocol adapter; a URL alone does not identify a proprietary wire format.
+A `wss://` source or sink must speak the open-wa audio protocol, which announces the audio format. Other providers' sockets need an adapter, because a URL alone doesn't say what format they use.
 
 ## Start, reject or end a call
 
@@ -105,7 +105,7 @@ await client.onCallState(async call => {
 });
 ```
 
-Actions return `{ ok: true, status: 'requested' }` when the request was accepted. Watch `onCallState` for the observed call state. A requested or active state does not itself prove that a person heard your audio. OpenWA never automatically redials an uncertain request.
+Actions return `{ ok: true, status: 'requested' }` when the request was accepted. Watch `onCallState` for the observed call state. A requested or active state does not itself prove that a person heard your audio. open-wa never redials an uncertain request on its own.
 
 Use the current `Call` object from a callback or `await client.getActiveCall()` for controls:
 
@@ -148,25 +148,25 @@ An API on another machine uses its configured API authentication and an HTTPS/WS
 
 ## Try the shipped Calls dashboard
 
-Start the Easy API with your license and dashboard enabled:
+Start the Easy API with your license key. The dashboard is on by default:
 
 ```sh
-npx @open-wa/wa-automate@latest --license-key YOUR_CALLING_LICENSE --dashboard
+npx @open-wa/wa-automate --license-key "$WA_LICENSE_KEY"
 ```
 
-Open `/dashboard/calls` on the API's address. Search for a contact by name, phone number or LID and select the result, or enter an international number or full contact ID and select it. Choose **Bundled OpenWA greeting**, select **Record received audio** and choose **Start audio call**. The speech starts after the peer answers. End the call from either side; the page shows the terminal state and offers **Download received audio**.
+Open `/dashboard/calls` on the API's address. Search for a contact by name, phone number or LID and select the result, or enter an international number or full contact ID and select it. Choose the bundled greeting, select **Record received audio** and choose **Start audio call**. The speech starts after the peer answers. End the call from either side; the page shows the terminal state and offers **Download received audio**.
 
 For an incoming call, choose **Answer** or **Reject**. Choose **My microphone** for a conversation, **An audio file** for a local file, or **An HTTP audio URL** for a supported URL. The browser owns these local sources and asks for device permission when needed.
 
 You can also open an individual conversation in **Chat** and choose **Call** in its header. It uses the same audio settings. During a call, a compact control at the top of the dashboard shows ringing, connection progress and connected time. Hover over it or click to expand it, then answer, reject, mute or end the call from any page. Navigation preserves the call, audio settings and completed recording; reloading the browser closes its media attachment.
 
-The session's licence menu lists enabled and disabled features. Applications can read the same access list with `await client.getLicenseFeatures()`, which returns `status`, `keyType`, `expiresAt` and a boolean `features` map. For example, `features['calls.audio']` reports licensed call audio access. This is optional information for your UI; calling actions handle admission themselves, so you don't need a capability check before making a call.
+The dashboard's license menu lists which features are enabled. Your code can read the same list with `await client.getLicenseFeatures()`, which returns `status`, `keyType`, `expiresAt` and a `features` map of booleans. That's only useful for your own UI; calling actions check access themselves.
 
 ## When media stops
 
 Expected license, stale-call and source failures return `{ ok: false, status, reason }` and log an actionable message. Authentication and unexpected programming failures remain ordinary API errors.
 
-Audio pauses and buffer overload do not hang up the call. The microphone sends silence while it waits for more data, then resumes when the same stream supplies it. A finished file leaves the microphone silent and received audio keeps playing or recording. If a microphone source fails, the call and received-audio sink stay open; attach a new source with `call.setMedia(...)`. Other media failures also keep the call open by default, although a failed attachment must be replaced. Applications can explicitly choose `onMediaFailure: 'end'` to hang up on a source or sink failure. Browser recovery and expired calling access close devices, sockets and recordings; `onCallState` can report `call.media.state === 'ended'` with a reason while the native call's state remains separate. Old Call objects cannot control a new browser generation.
+Audio pauses and buffer overload do not hang up the call. The microphone sends silence while it waits for more data, then resumes when the same stream supplies it. A finished file leaves the microphone silent and received audio keeps playing or recording. If a microphone source fails, the call and received-audio sink stay open; attach a new source with `call.setMedia(...)`. Other media failures also keep the call open by default, although a failed attachment must be replaced. Applications can explicitly choose `onMediaFailure: 'end'` to hang up on a source or sink failure. If the browser page reloads or calling access expires, open-wa closes devices, sockets and recordings, and `onCallState` reports `call.media.state === 'ended'` with a reason while the call's own state is tracked separately. After a reload, get a fresh `Call` object; old ones can't control the new page.
 
 Terminal snapshots include `call.endReason` with a `code`, readable `message` and `source` (`local`, `media`, `license`, `session` or `whatsapp`). The dashboard shows that message in the floating call control and recent call states. Media errors retain the audio source, queue or WebSocket failure that caused the shutdown. If WhatsApp ends a call without a reported cause, the message says so; it does not assume that the peer hung up or that the network failed.
 
@@ -174,4 +174,4 @@ Live input keeps at most 200 ms of queued audio. If processing falls behind, bou
 
 The current dashboard carries audio. Incoming video offers are labelled and can be answered with audio; live camera and received video are not available in this dashboard yet.
 
-See the [generated calls reference](/docs/reference/client/calls) for the wire methods and exact parameter schemas.
+The [calls reference](/docs/reference/client/calls) lists every method and its parameters.

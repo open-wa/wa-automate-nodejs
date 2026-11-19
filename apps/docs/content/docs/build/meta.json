@@ -1,0 +1,10 @@
+{
+  "title": "Build",
+  "icon": "Hammer",
+  "pages": [
+    "send-otp",
+    "booking-confirmation",
+    "support-bot",
+    "whatsapp-bot-python"
+  ]
+}

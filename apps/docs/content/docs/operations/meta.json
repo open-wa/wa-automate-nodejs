@@ -2,10 +2,11 @@
   "title": "Operations",
   "icon": "ShieldCheck",
   "pages": [
+    "go-to-production",
     "security-and-deployment",
-    "session-refresh",
-    "[Best practices](/docs/operations-and-troubleshooting/best-practices)",
-    "[Error handling](/docs/operations-and-troubleshooting/error-handling)",
-    "[Detect logouts](/docs/operations-and-troubleshooting/detect-logouts)"
+    "best-practices",
+    "rate-limits",
+    "logging-and-audit",
+    "error-handling"
   ]
 }
