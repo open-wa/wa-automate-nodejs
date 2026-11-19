@@ -1,0 +1,41 @@
+---
+title: Integrations
+seoTitle: "WhatsApp API integrations: webhooks, Chatwoot, Node-RED, S3, MCP | open-wa"
+description: Find the integration for the job, from a shared support inbox to no-code flows, media storage, AI agents and your own backend.
+---
+
+# Integrations
+
+Each integration below does one job. Most are plugins you add to `plugins` in `wa.config.js` (or pass to `create()`), with their settings under `pluginConfig`; the rest are separate packages that talk to a running Easy API.
+
+| Job | Use | Runs as |
+| --- | --- | --- |
+| Send WhatsApp events to your own backend, CRM or Zapier | [Webhooks](/docs/guides/receive-webhooks) | Plugin `@open-wa/integration-webhook` |
+| Answer WhatsApp from a shared support inbox | [Chatwoot](/docs/guides/chatwoot) | Plugin `@open-wa/integration-chatwoot` (Easy API only) |
+| Build flows without code | [Node-RED](/docs/guides/node-red) | `@open-wa/node-red` nodes that call your Easy API |
+| Keep incoming media in your own S3 bucket | [S3 media](/docs/guides/s3-media) | `@open-wa/integration-s3` |
+| Let an AI assistant read and send messages | [MCP server](/docs/guides/mcp) | Built into the Easy API |
+| Run an AI chat assistant that replies for you | [Jev](/docs/guides/jev) | Plugin `@open-wa/integration-jev` |
+| Answer voice notes and calls with a voice assistant | [Voxtral](/docs/guides/voxtral) | Plugin `@open-wa/integration-voxtral` |
+| Control a session from another Node.js app | [SocketClient](/docs/guides/socket-client) | `@open-wa/socket-client` |
+| Reach a session from anywhere without opening a port | [Cloudflare session proxy](/docs/guides/cf-proxy) | `@open-wa/cli` with a Cloudflare Worker |
+| Build your own integration | [Plugins](/docs/plugins/getting-started) | `@open-wa/plugin-sdk` |
+
+## Add a plugin
+
+The project generator can add Webhooks, Chatwoot, Jev and Voxtral for you: run `npm init @open-wa@latest` and pick them, or see [generator options](/docs/getting-started/quickstart/generator-options). To add one by hand, install it and list it in your config:
+
+```js title="wa.config.js"
+export default {
+  plugins: ['@open-wa/integration-webhook'],
+  pluginConfig: {
+    webhook: { url: 'https://receiver.example/webhooks/open-wa', events: ['message.received'] },
+  },
+};
+```
+
+Restart the Easy API to load the change. Each integration's page lists its settings.
+
+## Licenses
+
+Integrations don't need a license of their own. They need one only when they call a [licensed feature](/docs/licensing/licensed-features), for example a Chatwoot agent starting a chat with a new number, or Jev sending booking cards.

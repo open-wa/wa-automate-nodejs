@@ -1,96 +1,47 @@
 ---
 title: S3 media storage
-description: Copy received WhatsApp media to a supported object store and read its cloudUrl field.
+description: Copy the photos, voice notes and documents people send you to your own object storage and keep a lasting URL for each.
 ---
 
 # S3 media storage
 
-`@open-wa/integration-s3@5.1.0` listens for `message.received`, decrypts media that has a `deprecatedMms3Url`, uploads it through `pico-s3`, and adds `cloudUrl` to the message object. It does not remove or replace the original WhatsApp fields. This package exports the `s3Plugin(config)` factory; it is registered directly with `createClient()` rather than loaded from the CLI's string-based `plugins` list.
+WhatsApp media links expire. `@open-wa/integration-s3` decrypts incoming media
+and uploads it to your object storage (AWS S3, Google Cloud Storage,
+DigitalOcean Spaces, Wasabi or Backblaze), then gives you a `cloudUrl` you can
+store with the message.
 
-## Configure the plugin
+## Upload media from your message handler
 
-Install the public client, Puppeteer driver, and integration in the Node.js project:
+Install the SDK and the integration:
 
 ```bash
-npm install @open-wa/wa-automate@5.1.0 @open-wa/driver-puppeteer@5.1.0 @open-wa/integration-s3@5.1.0
+npm install @open-wa/wa-automate @open-wa/integration-s3
 ```
 
-Use a provider value accepted by the integration source. `provider`, `accessKeyId`, `secretAccessKey`, and `bucket` are required; `region` is optional.
+Create an `S3Uploader` and call it from `onMessage`. The upload is awaited, so
+you have the URL before you hand the message on:
 
-```js
-// app.mjs
-import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
-import { createClient } from '@open-wa/wa-automate';
-import { s3Plugin } from '@open-wa/integration-s3';
-
-const client = await createClient({
-  sessionId: 'sales',
-  driver: new PuppeteerDriver(),
-  plugins: [s3Plugin({
-    provider: 'aws',
-    bucket: process.env.OPENWA_MEDIA_BUCKET,
-    region: process.env.OPENWA_MEDIA_REGION || 'eu-west-2',
-    accessKeyId: process.env.OPENWA_MEDIA_ACCESS_KEY_ID,
-    secretAccessKey: process.env.OPENWA_MEDIA_SECRET_ACCESS_KEY,
-    public: false,
-    directory: 'DATE_CHAT',
-    ignoreHostAccount: true,
-    headers: { 'Cache-Control': 'private, max-age=3600' },
-  })],
-});
-
-await client.start();
-```
-
-The `provider` union currently contains `aws`, `gcp`, `do`, `wasabi`, and `backblaze`. The integration source has no `endpoint` option, so do not copy an endpoint-based configuration from a generic S3 SDK. Provider credentials, region rules, bucket policy, and object URL behavior still belong to the provider you select.
-
-## What changes on a message
-
-The plugin runs only when all of these conditions are true:
-
-1. The message has `deprecatedMms3Url` and `mimetype`.
-2. A `decryptMedia` client is available to the plugin.
-3. `ignoreHostAccount` does not exclude a message sent by the host account.
-4. Decryption and upload succeed.
-
-On success, the plugin keeps the original WhatsApp fields and assigns `cloudUrl` to the same message object after its asynchronous decrypt and upload finish. It does not emit a separate upload-complete event. Since event listeners run independently of that asynchronous hook, a `message.received` listener must not assume `cloudUrl` is already set when it runs.
-
-## Await a URL in your own message handler
-
-Use one upload path for a message. If later work needs the URL immediately, use the integration's exported `S3Uploader` in your own awaited handler instead of registering `s3Plugin` for the same messages:
-
-```js
-import { Client, createClient } from '@open-wa/wa-automate';
-import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
+```js title="app.mjs"
+import { create } from '@open-wa/wa-automate';
 import { S3Uploader } from '@open-wa/integration-s3';
 
-const mediaConfig = {
+const uploader = new S3Uploader({
   provider: 'aws',
-  bucket: process.env.OPENWA_MEDIA_BUCKET,
-  region: process.env.OPENWA_MEDIA_REGION || 'eu-west-2',
-  accessKeyId: process.env.OPENWA_MEDIA_ACCESS_KEY_ID,
-  secretAccessKey: process.env.OPENWA_MEDIA_SECRET_ACCESS_KEY,
+  bucket: process.env.MEDIA_BUCKET,
+  region: process.env.MEDIA_REGION || 'eu-west-2',
+  accessKeyId: process.env.MEDIA_ACCESS_KEY_ID,
+  secretAccessKey: process.env.MEDIA_SECRET_ACCESS_KEY,
   public: false,
   directory: 'DATE_CHAT',
   ignoreHostAccount: true,
-};
-
-const runtime = await createClient({
-  sessionId: 'sales',
-  driver: new PuppeteerDriver(),
-});
-const client = new Client({
-  client: runtime,
-  transport: runtime.getTransport(),
-});
-const uploader = new S3Uploader(mediaConfig, {
+}, {
   error: (message) => console.error('S3 upload failed', message),
 });
 
-function getBase64Payload(dataUrl) {
-  const match = typeof dataUrl === 'string'
-    ? /^data:[^,]+;base64,([A-Za-z0-9+/]+={0,2})$/.exec(dataUrl)
-    : null;
+const client = await create({ sessionId: 'sales' });
+
+function base64Payload(dataUrl) {
+  const match = /^data:[^,]+;base64,([A-Za-z0-9+/]+={0,2})$/.exec(String(dataUrl));
   if (!match) throw new Error('decryptMedia did not return a base64 data URL');
   return match[1];
 }
@@ -99,54 +50,68 @@ client.onMessage(async (message) => {
   if (!message.deprecatedMms3Url || !message.mimetype) return;
 
   const cloudUrl = await uploader.uploadMedia(message, {
-    decryptMedia: async (mediaMessage) => {
-      return getBase64Payload(await client.decryptMedia(mediaMessage));
-    },
+    decryptMedia: async (media) => base64Payload(await client.decryptMedia(media)),
   });
 
-  if (cloudUrl) {
-    console.info('media copy ready', { messageId: message.id, cloudUrl });
-  }
+  if (cloudUrl) console.info('media stored', { messageId: message.id, cloudUrl });
 });
 
-await client.start();
+process.once('SIGTERM', async () => {
+  await uploader.waitForQueue();
+  await uploader.close();
+  await client.stop('SIGTERM');
+});
 ```
 
-This path awaits `uploadMedia()` and receives either the generated URL or `null`; the uploader logs decryption and upload failures. During application shutdown, wait for `uploader.waitForQueue()` and then call `uploader.close()`.
+The `MEDIA_*` names are this example's own variables. `provider`,
+`accessKeyId`, `secretAccessKey` and `bucket` are required; `region` is
+optional. `provider` is one of `aws`, `gcp`, `do`, `wasabi` or `backblaze`.
+There is no `endpoint` option, so a generic S3-compatible endpoint
+configuration won't carry over.
 
-`cloudUrl` is the URL generated by `pico-s3` for the configured provider, bucket, directory, and object name. The original `deprecatedMms3Url` may expire or require WhatsApp access, so consumers that need later access should store `cloudUrl` together with the message ID and the access policy they use.
+`uploadMedia()` returns the URL, or `null` when decryption or upload fails. It
+logs the failure through the `error` callback and doesn't retry, so record
+failed copies yourself if you need every file archived.
 
-## Directory and throughput options
+<Callout type="info" title="Register it as a plugin instead">
+`s3Plugin(config)` adds `cloudUrl` to each received message in the background,
+without awaiting. It's a plugin object rather than a package name, so it needs
+the lower-level `createClient`; see
+[createClient and drivers](/docs/concepts/create-client-and-drivers). Your
+listeners can't rely on `cloudUrl` being set yet when they run, which is why the
+handler above is usually the better choice.
+</Callout>
 
-`directory` accepts one of these built-in strategies:
+## Folder layout and throughput
 
-| Value | Example key prefix |
+`directory` sets the key prefix:
+
+| Value | Example prefix |
 | --- | --- |
-| `DATE` | `2026-09-29/` |
+| `DATE` | `YYYY-MM-DD/` |
 | `CHAT` | `1234567890/` |
-| `DATE_CHAT` | `2026-09-29/1234567890/` |
-| `CHAT_DATE` | `1234567890/2026-09-29/` |
+| `DATE_CHAT` | `YYYY-MM-DD/1234567890/` |
+| `CHAT_DATE` | `1234567890/YYYY-MM-DD/` |
 
-An arbitrary string is used as a literal directory value. The upload queue has capacity for 64 files, runs at most two uploads concurrently, and is rate-limited to two submissions per second. A busy session can therefore queue work rather than complete the upload inline.
+Any other string is used as a literal folder name. Uploads queue up to 64
+files, run two at a time and start at most two per second, so a busy session
+queues work instead of uploading inline.
 
-If decryption or upload fails, the plugin logs `Upload error` and leaves `cloudUrl` unset for that message. It does not provide a durable retry journal or a separate failure event. If your workflow must track unsuccessful copies, add an application-owned record and recovery path; the integration alone does not guarantee archival.
+## Who can read `cloudUrl`
 
-## Access control for `cloudUrl`
+`public: false` keeps the object private, and the URL won't open without your
+provider's credentials or a signed URL. `public: true` asks for a public object
+URL; use it only when the bucket policy allows public reads, because anyone who
+gets the URL can read the file. Signed-URL expiry and bucket policies are set
+at your provider.
 
-The plugin passes `public` to `pico-s3` when uploading and generating the URL, but that option alone does not establish effective access control. Keep the bucket and object policy private where required, and verify how your selected provider serves the generated URL before exposing it to a CRM or browser. Provider-specific signed URL expiry and scope must be configured with that provider.
-
-`public: true` asks the upload library for a public object URL. Use it only when the bucket policy, object metadata, and retention policy explicitly allow public access, because anyone who obtains that URL may be able to read the media.
-
-## Provider support boundary
-
-The integration advertises the five provider identifiers above through its type contract. Exact endpoint, ACL, signed URL, egress, and lifecycle behavior is provider-specific and is not established by this integration alone. Confirm a provider with a representative upload, private read, expiry, and deletion exercise before making it part of a production workflow.
-
-## Compliance boundary
-
-Uploading media to object storage gives you a copy and a place to apply storage controls. It does not by itself establish healthcare, financial, GDPR, legal-hold, or other regulatory compliance. Your deployment must define retention, deletion, access review, encryption, audit evidence, regional residency, and incident response for the data and provider you choose.
+Test your provider with a real upload, a private read and a deletion before you
+rely on it. Storing media in your own bucket gives you a place to apply
+retention, access and residency rules, but it doesn't make you compliant with
+any regulation by itself.
 
 ## Related
 
-- [Plugin getting started](/docs/plugins/getting-started)
-- [Logging and audit trails](/docs/guides/logging-and-audit)
+- [Media](/docs/guides/media)
+- [Receive messages](/docs/guides/receive-messages)
 - [Security and deployment](/docs/operations/security-and-deployment)

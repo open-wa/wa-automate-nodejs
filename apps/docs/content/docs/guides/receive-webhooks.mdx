@@ -1,0 +1,218 @@
+---
+title: Receive webhooks
+seoTitle: "WhatsApp webhooks: setup, payloads and a receiver | open-wa"
+description: Forward incoming WhatsApp messages and other events to your own backend over HTTP, and store them safely.
+---
+
+# Receive webhooks
+
+Use a webhook when a backend, CRM, helpdesk or no-code tool should receive WhatsApp events over HTTP. open-wa `POST`s each event to your URL; your receiver checks the secret, stores the event and returns `2xx`. If your code runs in Node.js next to the session, `onMessage` is simpler; see [receive messages](/docs/guides/receive-messages) for the choice.
+
+## Turn on delivery
+
+Webhooks come from the `@open-wa/integration-webhook` plugin, loaded from your config file. The `--webhook` command-line flag is accepted but doesn't set up delivery, so use the config below.
+
+If you generated your project with `npm init @open-wa@latest` and chose **Webhooks**, the plugin is already in `wa.config.js` and reads `WEBHOOK_URL` from `.env`. Otherwise install it next to the Easy API:
+
+```bash
+npm install @open-wa/wa-automate @open-wa/integration-webhook
+```
+
+Then add it to `wa.config.js` in the directory you start the Easy API from:
+
+```js title="wa.config.js"
+const webhookSecret = process.env.WEBHOOK_SECRET?.trim();
+if (!webhookSecret) throw new Error('Set WEBHOOK_SECRET before starting open-wa');
+
+export default {
+  sessionId: 'sales',
+  host: '127.0.0.1',
+  apiKey: process.env.WA_API_KEY,
+  plugins: ['@open-wa/integration-webhook'],
+  pluginConfig: {
+    webhook: {
+      url: 'https://receiver.example/webhooks/open-wa',
+      events: ['message.received', 'session.state.changed'],
+      headers: { 'X-Webhook-Secret': webhookSecret },
+    },
+  },
+};
+```
+
+Start your receiver first, then open-wa:
+
+```bash
+export WEBHOOK_SECRET='use-a-long-random-value'
+npx @open-wa/wa-automate
+```
+
+The Easy API finds `wa.config.js` on its own and listens on port 8080. The same `plugins` and `pluginConfig` options work when you pass them to `create()` in the SDK.
+
+## The envelope
+
+Every delivery is a JSON body with the same outer fields. `payload` holds the event itself.
+
+```json
+{
+  "webhookId": "0f5d6a52-2ff2-43d5-9d0d-9c0c8dd5f9d1",
+  "sessionId": "sales",
+  "event": "message.received",
+  "payload": {
+    "message": {
+      "id": "false_447700900123@c.us_3EB0C7D5E4A1B2",
+      "from": "447700900123@c.us",
+      "body": "Hello, I need help with my order",
+      "type": "chat",
+      "timestamp": 1763560000,
+      "fromMe": false,
+      "isGroupMsg": false
+    }
+  },
+  "timestamp": 1763560000123
+}
+```
+
+| You want | Read |
+| --- | --- |
+| The sender, to reply to | `payload.message.from` |
+| The text | `payload.message.body`, or `payload.message.caption` for media |
+| A key to ignore duplicates | `payload.message.id`, or the `Idempotency-Key` header when durability is on |
+
+`webhookId` is fixed for the life of the process, so it can't tell two events apart. These events are the ones most integrations use:
+
+| Event | Payload |
+| --- | --- |
+| `message.received` | `payload.message` for an incoming message |
+| `message.any` | `payload.message` for incoming and outgoing messages |
+| `message.deleted` | `payload.messageId`, `payload.chatId` and optional `payload.by` |
+| `ack.changed` | `payload.ack` with the delivery or read state |
+| `session.state.changed` | `payload.details.prev` and `payload.details.next` |
+| `group.participants.changed.global` | `payload.change` with who joined or left |
+
+The [event contracts](/docs/reference/event-contracts) and the [AsyncAPI document](/asyncapi.json) describe every event.
+
+## Run a receiver
+
+This Express receiver checks the secret before it reads the body, limits the body to 2 MB, stores each event once in SQLite and returns `204`. Do slower work, such as calling an AI model or a CRM, after the response.
+
+```js title="receiver.mjs"
+import express from 'express';
+import Database from 'better-sqlite3';
+import { createHash, timingSafeEqual } from 'node:crypto';
+
+const secret = process.env.WEBHOOK_SECRET?.trim();
+if (!secret) throw new Error('Set WEBHOOK_SECRET before starting the receiver');
+const secretBytes = Buffer.from(secret, 'utf8');
+
+const db = new Database('./webhook-inbox.sqlite');
+db.exec(`CREATE TABLE IF NOT EXISTS inbox (
+  idempotency_key TEXT PRIMARY KEY,
+  session_id TEXT NOT NULL,
+  event TEXT NOT NULL,
+  received_at INTEGER NOT NULL,
+  envelope TEXT NOT NULL
+)`);
+const insert = db.prepare('INSERT OR IGNORE INTO inbox VALUES (?, ?, ?, ?, ?)');
+
+function checkSecret(req, res, next) {
+  const supplied = Buffer.from(req.get('X-Webhook-Secret') ?? '', 'utf8');
+  if (supplied.length !== secretBytes.length || !timingSafeEqual(supplied, secretBytes)) {
+    return res.status(401).send('Unauthorized');
+  }
+  next();
+}
+
+function isEnvelope(value) {
+  return value && typeof value === 'object'
+    && typeof value.sessionId === 'string' && value.sessionId
+    && typeof value.event === 'string' && value.event
+    && typeof value.timestamp === 'number'
+    && 'payload' in value;
+}
+
+const app = express();
+
+app.post('/webhooks/open-wa', checkSecret, express.json({ limit: '2mb' }), (req, res) => {
+  const envelope = req.body;
+  if (!isEnvelope(envelope)) return res.status(400).send('Not an open-wa webhook');
+
+  const messageId = envelope.payload?.message?.id;
+  const key = req.get('Idempotency-Key')
+    ?? (messageId
+      ? `${envelope.sessionId}:${envelope.event}:${messageId}`
+      : createHash('sha256').update(JSON.stringify(envelope)).digest('hex'));
+
+  // Store the event before acknowledging it. A repeated key is ignored.
+  insert.run(key, envelope.sessionId, envelope.event, Date.now(), JSON.stringify(envelope));
+  res.sendStatus(204);
+});
+
+app.use((error, _req, res, _next) => {
+  if (error?.type === 'entity.too.large') return res.status(413).send('Body too large');
+  if (error?.type === 'entity.parse.failed') return res.status(400).send('Malformed JSON');
+  res.status(500).send('Receiver error');
+});
+
+app.listen(3000, () => console.log('Receiver listening on http://localhost:3000 (on your machine)'));
+```
+
+```bash
+npm install express better-sqlite3
+export WEBHOOK_SECRET='use-a-long-random-value'
+node receiver.mjs
+```
+
+Before you connect WhatsApp, check that it rejects bad requests and accepts a good one:
+
+```bash
+# Missing secret: 401
+curl -i -X POST http://localhost:3000/webhooks/open-wa -H 'Content-Type: application/json' -d '{}'
+
+# Valid envelope: 204
+curl -i -X POST http://localhost:3000/webhooks/open-wa \
+  -H 'Content-Type: application/json' \
+  -H "X-Webhook-Secret: $WEBHOOK_SECRET" \
+  -d '{"webhookId":"test","sessionId":"sales","event":"message.received","payload":{"message":{"id":"local-1","from":"447700900123@c.us","body":"Hello"}},"timestamp":1763560000123}'
+```
+
+The plugin sends your configured headers as they are and doesn't sign the body. If your gateway adds an HMAC signature, verify it against the raw body before parsing. For Zapier, Make or n8n, point the webhook URL at the tool's webhook trigger and map the fields from the table above.
+
+## Delivery and retries
+
+A delivery succeeds when your receiver returns any `2xx` status. Network errors, timeouts and other statuses are retried with exponential backoff. These are the defaults, all set under `pluginConfig.webhook`:
+
+| Setting | Default | What it does |
+| --- | --- | --- |
+| `events` | `'all'` | Event names to forward, or `'all'` |
+| `concurrency` | `10` | Requests in flight at once |
+| `queueCapacity` | `1000` | Deliveries waiting in memory |
+| `overload` | `'backpressure'` | `backpressure` waits for room when the queue is full; `dropping` rejects new deliveries |
+| `timeout` | `30000` | Milliseconds before a request is abandoned |
+| `retries` | `3` | Retries after the first attempt, at 1, 2 and 4 seconds with the default `retryDelay` of `1000` |
+| `durability.enabled` | `false` | Keep pending deliveries in SQLite across restarts |
+
+By default the queue lives in memory, so deliveries still waiting when the process stops are lost, and a delivery that fails every retry is logged and dropped. Turn on durability when you can't lose events:
+
+```js
+durability: { enabled: true, path: '.openwa/webhook-deliveries.sqlite', replayLimit: 1000 },
+```
+
+open-wa then replays pending deliveries after a restart, sends each with an `Idempotency-Key` header, and marks deliveries that exhaust their retries as dead letters in the same file. Duplicates can still arrive if your receiver stored an event but its response was lost, so always store the key before you return `2xx`, as the receiver above does.
+
+## Troubleshooting
+
+| Problem | Fix |
+| --- | --- |
+| The receiver gets nothing | Check that `@open-wa/integration-webhook` is in `plugins` and the event name is in `events`. The `--webhook` flag alone does nothing. |
+| The log shows connection errors | Start the receiver before open-wa, and check that the open-wa host can reach the `url`. |
+| The receiver returns `401` | Use the same `WEBHOOK_SECRET` for open-wa and the receiver. |
+| The same event arrives twice | Return `2xx` quickly and ignore keys you've already stored. |
+| Events are lost after a restart | Set `durability.enabled: true`. |
+
+For a full bot built on webhooks, see the [Python bot](/docs/build/whatsapp-bot-python).
+
+## Configuration types
+
+<AutoTypeTable path="../../../../../integrations/webhook/src/config.ts" name="WebhookConfig" />
+
+<AutoTypeTable path="../../../../../integrations/webhook/src/config.ts" name="WebhookPayload" />

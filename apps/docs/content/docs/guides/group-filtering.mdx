@@ -1,9 +1,9 @@
 ---
-title: Group vs DM Handling
-description: Use message fields and stored group IDs to route group and direct-message automation.
+title: Groups and direct messages
+description: Handle group chats and direct messages differently, and limit a bot to the groups you choose.
 ---
 
-# Group vs DM Handling
+# Groups and direct messages
 
 Use `isGroupMsg` to distinguish group traffic from direct messages, then use
 the complete `chatId` value for routing. Do not rebuild a group ID from its
@@ -43,11 +43,11 @@ For a blocklist, replace the condition with
 ## Sender and administrator rules
 
 In group messages, `author` identifies the participant when WhatsApp provides
-it. Compare full contact IDs, not a bare number stripped from the ID. The
-current embedded `Client` does not expose `getGroupAdmins`; the generated Easy
-API has a [`getGroupAdmins` method](/docs/reference/client/groups#getgroupadmins).
-If your workflow uses that API, compare its returned contact IDs with
-`message.author` and handle missing authors or lookup failures explicitly.
+it. Compare full contact IDs, not a bare number stripped from the ID. The SDK
+client doesn't have `getGroupAdmins`; the Easy API does, as
+[`getGroupAdmins`](/docs/reference/client/groups#getgroupadmins). Compare the
+IDs it returns with `message.author`, and handle a missing author or a failed
+lookup explicitly.
 
 ```ts
 const adminsByGroup = new Map<string, Set<string>>();
@@ -62,8 +62,7 @@ client.onMessage(async (message) => {
 });
 ```
 
-This example uses application-owned admin data. Refresh it from the supported
-Easy API method when permissions change; do not treat a cached list as current
-membership state. See the [groups guide](/docs/guides/groups) for method
+This example keeps its own admin list. Refresh it from the Easy API when
+permissions change; a cached list isn't current membership. See the [groups guide](/docs/guides/groups) for method
 availability and the [event reference](/docs/reference/events) for group
 membership events.

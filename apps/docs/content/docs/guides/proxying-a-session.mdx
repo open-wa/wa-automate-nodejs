@@ -1,0 +1,47 @@
+---
+title: Use an outbound proxy
+description: Send a session's browser traffic through an HTTP or SOCKS proxy when your network or provider requires it.
+---
+
+# Use an outbound proxy
+
+To send the session's browser traffic through a proxy, pass Chromium's `--proxy-server` option in `chromiumArgs`. open-wa doesn't yet apply a proxy username and password, so use a proxy that authenticates by source IP or sits on a protected network.
+
+## Configure the proxy
+
+Create `wa.config.mjs` with the address from your provider:
+
+```js title="wa.config.mjs"
+export default {
+  sessionId: 'sales',
+  chromiumArgs: ['--proxy-server=http://proxy.example:1234'],
+};
+```
+
+Start the Easy API with it:
+
+```bash
+npx @open-wa/wa-automate --config ./wa.config.mjs
+```
+
+In the SDK, pass the same `chromiumArgs` to `create()`. For a SOCKS proxy, use the scheme your provider supports, such as `--proxy-server=socks5://proxy.example:1080`. The proxy must be reachable from the machine or container running the browser.
+
+## Check the connection
+
+From the open-wa host, check that the proxy accepts a request:
+
+```bash
+curl -x 'http://proxy.example:1234' https://api.ipify.org
+```
+
+That only tests the route from the shell. Once the session is up, link it and try the things your application relies on, including reconnecting and sending media, and watch the logs for network errors.
+
+## Proxy credentials
+
+The `proxyServerCredentials` setting exists in the config schema, but open-wa doesn't pass its username or password to the browser yet. Don't put credentials in the `--proxy-server` URL or in committed config either. Use a provider that allowlists your server's IP, a proxy on a private network, or authentication handled outside open-wa.
+
+## Related
+
+- [Configuration and CLI](/docs/guides/configuration-and-cli)
+- [Cloudflare session proxy](/docs/guides/cf-proxy), for reaching a session remotely without opening an inbound port
+- [Security and deployment](/docs/operations/security-and-deployment)

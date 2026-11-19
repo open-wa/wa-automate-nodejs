@@ -1,7 +1,7 @@
 ---
 title: Build a WhatsApp bot
 seoTitle: "WhatsApp bot and automation with Node.js, self-hosted | open-wa"
-description: Build a self-hosted WhatsApp bot in Node.js. Reply to commands, automate replies, and send events to your backend with webhooks.
+description: Build a WhatsApp bot in Node.js that replies to commands, looks up your own data and hands events to your backend.
 ---
 
 # Build a WhatsApp bot
@@ -22,10 +22,10 @@ The bot process must stay running to receive messages. Run it as a service, in D
 
 ## Create the project
 
-Run the initializer to create a project with the library and a start script:
+Generate an SDK project with the library and a start script:
 
 ```bash
-bunx --bun @open-wa/wa-automate init my-bot
+npm init @open-wa@latest my-bot -- --mode sdk
 ```
 
 For an existing Node.js project, install the library:
@@ -34,11 +34,11 @@ For an existing Node.js project, install the library:
 npm install @open-wa/wa-automate
 ```
 
-Read the [initializer guide](/docs/getting-started/initializer) for the generated files.
+Read [generator options](/docs/getting-started/quickstart/generator-options) for the generated files.
 
 ## Reply to commands
 
-Replace `index.ts` with this example. It replies to three commands and ignores all other messages.
+Replace `index.js` or `index.ts` with this example. It replies to three commands and ignores all other messages.
 
 ```ts
 import { create } from '@open-wa/wa-automate';
@@ -67,7 +67,7 @@ Start the bot. On the first run, scan the QR code with WhatsApp on your phone. T
 
 ## Ignore groups and your own messages
 
-`onMessage` does not include messages that your account sends. To ignore group chats, check `isGroupMsg`.
+`onMessage` receives incoming messages; use `onAnyMessage` if you also need the ones your account sends. To ignore group chats, check `isGroupMsg`.
 
 ```ts
 client.onMessage(async (message) => {
@@ -102,7 +102,7 @@ Keep each handler short. For slow work, put the message in a queue and reply whe
 
 ## Send events to another backend
 
-Your bot can also run without custom code in the session process. The webhook integration sends each WhatsApp event to an HTTP endpoint. Your backend then calls the Easy API to reply. This pattern lets you write the bot logic in any language.
+Your bot logic doesn't have to run in the session process. The webhook integration sends each WhatsApp event to an HTTP endpoint. Your backend then calls the Easy API to reply. This pattern lets you write the bot logic in any language.
 
 ```text
 WhatsApp -> open-wa Easy API -> webhook -> your backend -> POST /api/messages/sendText
@@ -110,9 +110,8 @@ WhatsApp -> open-wa Easy API -> webhook -> your backend -> POST /api/messages/se
 
 Read these guides to set up this pattern:
 
-- [WhatsApp webhooks](/docs/client-and-integrations/webhook-payloads) shows the setup and the event payload.
-- [Webhooks for business](/docs/guides/webhooks-for-business) shows a receiver with authentication.
-- [Build a WhatsApp bot in Python](/docs/guides/whatsapp-bot-python) shows a complete Python receiver.
+- [Receive webhooks](/docs/guides/receive-webhooks) shows the setup, the payload and a receiver with authentication.
+- [Build a WhatsApp bot in Python](/docs/build/whatsapp-bot-python) shows a complete Python receiver.
 
 ## Add buttons, lists, and polls
 
@@ -120,7 +119,7 @@ Interactive messages make a bot faster to use. Read [interactive messages](/docs
 
 ## Connect an AI agent
 
-To let an AI model read and send WhatsApp messages, use the open-wa MCP server. Read the [MCP guide](/docs/guides/mcp) and [AI agent patterns](/docs/guides/ai-agent-patterns).
+To let an AI model read and send WhatsApp messages, use the MCP server built into the Easy API. Read the [MCP guide](/docs/guides/mcp) and [AI agent patterns](/docs/guides/ai-agent-patterns).
 
 To add a conversational voice assistant through an Easy API plugin, follow
 [Voxtral voice assistant](/docs/guides/voxtral) for two-way voice notes and calls.
@@ -141,12 +140,13 @@ process.once('SIGTERM', () => void shutdown());
 ```
 
 <Callout type="warning">
-WhatsApp can restrict an account that sends unwanted messages. To decrease this risk, reply only to users that contact the bot, and obey the [rate limits](/docs/guides/rate-limits).
+WhatsApp can restrict an account that sends unwanted messages. To decrease this risk, reply only to users that contact the bot, and obey the [rate limits](/docs/operations/rate-limits).
 </Callout>
 
 ## Related
 
 - [Send a WhatsApp message with the API](/docs/guides/send-message-api)
 - [Messages and message events](/docs/guides/messages)
-- [WhatsApp events](/docs/guides/whatsapp-events)
-- [Best practices](/docs/operations-and-troubleshooting/best-practices)
+- [Receive messages](/docs/guides/receive-messages)
+- [Run a support bot](/docs/build/support-bot)
+- [Best practices](/docs/operations/best-practices)

@@ -1,18 +1,18 @@
 ---
-title: Socket Client
-description: Connect an app to a remote open-wa Easy API instance.
+title: SocketClient
+description: Call methods and listen for messages from another Node.js app, against an Easy API running elsewhere.
 ---
 
-# Socket Client
+# SocketClient
 
-Use `@open-wa/socket-client` in a separate Node.js app when Easy API owns the WhatsApp browser session. In the current v5 runtime, commands use HTTP RPC and events use Server-Sent Events (SSE); the package keeps the familiar `Client` method and listener surface.
+Use `@open-wa/socket-client` when the WhatsApp session runs in an Easy API on another machine or process and your Node.js app wants the same methods and listeners as the SDK. Commands travel as HTTP requests and events arrive over Server-Sent Events (SSE).
 
 ## Install and connect
 
 Install the client and `tsx` in the Node.js app that will consume Easy API:
 
 ```bash
-npm install @open-wa/socket-client@5.1.0
+npm install @open-wa/socket-client
 npm install --save-dev tsx
 ```
 
@@ -21,7 +21,7 @@ Start or locate an Easy API session, then connect using its base URL. Pass the A
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
 
-const client = await SocketClient.connect('http://127.0.0.1:8080', process.env.OPENWA_API_KEY);
+const client = await SocketClient.connect('http://localhost:8080', process.env.WA_API_KEY);
 ```
 
 Keep the key in server-side configuration. The client sends it as `X-API-Key` on command requests and as `api_key` on the SSE URL because the standard `EventSource` API cannot set custom headers.
@@ -33,9 +33,9 @@ Save this as `consumer.ts`. It logs incoming messages and does not send a WhatsA
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
 
-const url = process.env.OPENWA_API_URL;
-const apiKey = process.env.OPENWA_API_KEY;
-if (!url) throw new Error('Set OPENWA_API_URL to the Easy API base URL');
+const url = process.env.EASY_API_URL;
+const apiKey = process.env.WA_API_KEY;
+if (!url) throw new Error('Set EASY_API_URL to the Easy API base URL');
 
 const client = await SocketClient.connect(url, apiKey);
 
@@ -57,10 +57,10 @@ process.once('SIGTERM', () => {
 Run it with the address of your Easy API instance:
 
 ```bash
-OPENWA_API_URL='http://127.0.0.1:8080' npx tsx consumer.ts
+EASY_API_URL='http://localhost:8080' npx tsx consumer.ts
 ```
 
-If Easy API requires an API key, add `OPENWA_API_KEY='your-key'` to the command. For any example that calls `sendText`, replace the destination with a chat you control and run it only when you intend to send that message.
+`EASY_API_URL` is this example's own variable. If the Easy API has an API key, also set `WA_API_KEY` to the same value. For any example that calls `sendText`, replace the destination with a chat you control and run it only when you intend to send that message.
 
 ## Call commands and listen for events
 
@@ -101,18 +101,19 @@ client.close();
 
 If the first stream connection fails, `connect()` rejects with `Unable to establish SSE connection`. A stopped event stream does not by itself mean the WhatsApp session stopped; check Easy API health before restarting its runtime.
 
-## Cloudflare Session Proxy
+## Cloudflare session proxy
 
-For remote access without opening an inbound port to Easy API, use the [Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy). `SocketClient.connect()` accepts its `cf-proxy://` URL format.
+For remote access without opening an inbound port to the Easy API, use the [Cloudflare session proxy](/docs/guides/cf-proxy). `SocketClient.connect()` accepts its `cf-proxy://` URL format.
 
-## Compatibility and security
+## Versions and security
 
-This page covers the v5 HTTP RPC and SSE transport. Older v4 deployments and socket.io examples use a different transport; keep the client package aligned with the Easy API release you operate.
+v4 used socket.io, so v4 SocketClient examples don't work against a v5 Easy API. Install the same version of `@open-wa/socket-client` as the Easy API you connect to.
 
-The consumer can call methods exposed by Easy API and receive runtime events. It cannot inspect the browser page or run browser-side code. Treat the API key as a server secret and restrict network access to the API.
+The consumer can call Easy API methods and receive session events. It can't reach the browser. Treat the API key as a server secret and restrict network access to the API.
 
 ## Related
 
 - [Easy API quick start](/docs/getting-started/easy-api)
 - [Configuration and CLI](/docs/guides/configuration-and-cli)
-- [Webhook payloads](/docs/client-and-integrations/webhook-payloads)
+- [Receive messages](/docs/guides/receive-messages)
+- [Receive webhooks](/docs/guides/receive-webhooks)

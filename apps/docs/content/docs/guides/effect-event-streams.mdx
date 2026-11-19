@@ -1,6 +1,6 @@
 ---
 title: Consume events with Effect
-description: Keep immediate callbacks and add scoped, queued event consumers with HyperEmitter.
+description: Process WhatsApp events in order, in batches or with automatic cleanup, using Effect alongside ordinary callbacks.
 ---
 
 # Consume events with Effect
@@ -9,15 +9,16 @@ Use ordinary listeners for immediate application reactions. Add an Effect
 subscription when a separate consumer needs sequential work, batching, or
 automatic cleanup. Each PubSub subscriber receives the feed independently.
 
-These APIs are available from OpenWA 5.6.0. The examples use Effect 4, matching
-OpenWA's pinned `effect@4.0.2`.
+The examples use Effect 4. Install the same `effect` version that
+`@open-wa/hyperemitter` depends on (`npm view @open-wa/hyperemitter dependencies`
+shows it), so both share one Effect runtime.
 
 ## Run a callback and a queued consumer
 
 Install the standalone emitter and matching Effect version:
 
 ```sh
-npm install @open-wa/hyperemitter@5.6.0 effect@4.0.2
+npm install @open-wa/hyperemitter effect@4.0.2
 ```
 
 Save this as `events.mjs`. It doesn't require a WhatsApp session:
@@ -54,7 +55,7 @@ The callback runs inside `emit()`. The queued reader sees the same payload
 object through `args[0]`. Closing the consumer scope removes its subscription
 and scoped callback; the finalizer closes this application-owned emitter.
 
-## Use OpenWA's shared feed
+## Use open-wa's shared feed
 
 Replace the standalone emitter with `ev` from `@open-wa/wa-automate` when
 observing sessions or sharing events across files. Acquire the subscription

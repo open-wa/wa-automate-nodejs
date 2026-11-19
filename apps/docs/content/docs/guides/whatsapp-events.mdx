@@ -1,11 +1,11 @@
 ---
-title: WhatsApp events and RSVPs
-description: Create events, update their details, read invitations and observe RSVPs.
+title: Calendar events and RSVPs
+description: Invite a chat to an event or scheduled call, update or cancel it, and track who is going.
 ---
 
-# WhatsApp events and RSVPs
+# Calendar events and RSVPs
 
-Use a ready client to send native WhatsApp event cards and handle attendance responses. Events use the common live patch and don't require a licence. The SDK exposes seven methods and two listeners.
+WhatsApp events are calendar cards people can RSVP to. open-wa lets you send them, edit or cancel them, and read the responses, with seven methods and two listeners. Events need no license. The examples assume a `client` from `create()`.
 
 ## Create and update an event
 
@@ -49,9 +49,9 @@ const callEventId = await client.sendEvent(chatId, {
 console.log((await client.getEvent(callEventId))?.joinLink);
 ```
 
-WhatsApp's current Web scheduled-call flow creates an event with a native call link and the scheduled-call flag. `callType` generates that link; `isScheduledCall` requires a call type. `requireApproval` can be passed to native link creation. If link creation fails, the API rejects before sending the event. A call link does not start a call. Receiving an event card or RSVP does not confirm that the receiving client exposes a Join control.
+`callType` creates a WhatsApp call link for the event, and `isScheduledCall` requires a call type. Pass `requireApproval` to make joiners wait for approval. If the link can't be created, `sendEvent` fails before anything is sent. A call link doesn't start a call, and older WhatsApp apps may not show a Join button.
 
-`sendEvent` returns the submitted message ID. `editEvent`, `cancelEvent` and `respondToEvent` return `true` after WhatsApp's native send action completes. These results aren't recipient delivery receipts: use `onAck` for delivery and read status. The SDK doesn't retry mutations automatically. If a browser connection drops during a send, inspect the chat and current event before retrying.
+`sendEvent` returns the message ID, and `editEvent`, `cancelEvent` and `respondToEvent` return `true` once the change is sent. None of these confirm delivery, so use `onAck` for delivery and read status. open-wa doesn't retry these calls; if the connection drops mid-send, check the chat and the current event before trying again.
 
 ## Read invitations and attendance
 
@@ -70,9 +70,9 @@ if (invitation) {
 }
 ```
 
-Outgoing RSVP choices are `going`, `notGoing` and `maybe`. Reads can also return `unknown` when WhatsApp supplies an unfamiliar value. `getEventResponses` returns the latest explicit RSVP per participant, including decrypted responses hydrated from local history. The creator's implicit attendance isn't added as an invented response.
+You can respond with `going`, `notGoing` or `maybe`, and reads can also return `unknown` for a value open-wa doesn't recognise. `getEventResponses` returns each participant's latest RSVP from the history this session has synced. The creator counts as attending only if they actually responded.
 
-History is the linked Web device's locally synced history, newest first. Page limits are 1–100, and cursors must belong to the same chat. `getEvent` returns `null` for an event absent from available history; event mutations reject when their target can't be found.
+`getEvents` pages through the chat history this session has synced, newest first. Page limits are 1–100, and a cursor only works for the chat it came from. `getEvent` returns `null` for an event that isn't in that history, and edits fail when the event can't be found.
 
 ## Listen for event changes and RSVPs
 
@@ -90,15 +90,15 @@ eventListener.off();
 attendanceListener.off();
 ```
 
-`onEvent` reports native event additions and changes, including this account's sends. `onEventResponse` observes WhatsApp's decrypted RSVP collection. Loading history may emit callbacks, so keep response IDs and timestamps if processing attendance changes must be idempotent. Runtime reinjection disposes browser listeners before binding the new generation.
+`onEvent` reports new and changed events, including ones this account sends, and `onEventResponse` reports RSVPs. Both can fire for older items while history loads, so keep response IDs and timestamps if you need to process each change once.
 
-Structured message snapshots also expose the event under `message.event`. The per-client event stream uses `event.changed` with `{ event, ctx }` and `event.response` with `{ response, ctx }`; the shared emitter uses the aliases `onEvent` and `onEventResponse` with its usual session namespace.
+Event messages also carry the event as `message.event`. On `client.events`, the same updates arrive as `event.changed` with `{ event, ctx }` and `event.response` with `{ response, ctx }`.
 
-## Times, schemas and persistence
+## Times, validation and storage
 
-Event start/end times and event creation timestamps are **Unix seconds**. RSVP timestamps are **milliseconds**. Event creation needs a nonblank name and a future start time; an end time must be at or after the start time.
+Event start/end times and event creation timestamps are **Unix seconds**. RSVP timestamps are **milliseconds**. A new event needs a name and a future start time, and an end time can't be before the start.
 
-Effect schemas are exported from `@open-wa/schema` and `@open-wa/client`: `EventInputSchema`, `EventUpdateSchema`, `WhatsAppEventSchema`, `EventResponseSchema`, `EventResponseTypeSchema`, `EventListOptionsSchema` and `EventPageSchema`. The method and listener registries derive their serving schemas from these contracts.
+To validate or store events yourself, `@open-wa/wa-automate` exports `EventInputSchema`, `EventUpdateSchema`, `WhatsAppEventSchema`, `EventResponseSchema`, `EventResponseTypeSchema`, `EventListOptionsSchema` and `EventPageSchema`, plus JSON serializers:
 
 ```ts
 import {
@@ -106,7 +106,7 @@ import {
   deserializeWhatsAppEvent,
   serializeEventResponse,
   deserializeEventResponse,
-} from '@open-wa/client';
+} from '@open-wa/wa-automate';
 
 const snapshot = await client.getEvent(eventId);
 if (!snapshot) throw new Error('Event not found in synced history');
@@ -118,13 +118,13 @@ const savedResponses = responses.map(serializeEventResponse);
 const restoredResponses = savedResponses.map(deserializeEventResponse);
 ```
 
-These JSON serializers validate the event contracts and exclude message secrets, encryption keys and encrypted RSVP bytes.
+The serializers validate the data and leave out message secrets and encryption keys, so the output is safe to store.
 
 ## API methods
 
 | Method | Result | Purpose |
 | --- | --- | --- |
-| `sendEvent(to, event)` | `MessageId` | Create a native event card. |
+| `sendEvent(to, event)` | `MessageId` | Send an event card. |
 | `getEvent(eventId)` | `WhatsAppEvent \| null` | Read one event. |
 | `getEvents(chatId, options?)` | `EventPage` | Page through synced event history. |
 | `getEventResponses(eventId)` | `EventResponse[]` | Read the latest explicit RSVP per participant. |
@@ -132,4 +132,4 @@ These JSON serializers validate the event contracts and exclude message secrets,
 | `cancelEvent(eventId)` | `boolean` | Cancel an event created by this account. |
 | `respondToEvent(eventId, response)` | `boolean` | Submit or change this account's RSVP. |
 
-The [generated method reference](/docs/reference/client/whatsapp-events) includes Easy API routes under `/api/events`, SocketClient examples, parameters and return models. The [listener reference](/docs/reference/client/events) lists `onEvent` and `onEventResponse`.
+The [method reference](/docs/reference/client/whatsapp-events) has the Easy API routes, SocketClient examples, parameters and return types. The [listener reference](/docs/reference/client/events) lists `onEvent` and `onEventResponse`.
