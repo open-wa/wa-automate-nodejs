@@ -1,0 +1,98 @@
+---
+title: Detect logouts
+description: Notice when a session disconnects or the phone unlinks it, pause sending, and alert someone who can link it again.
+---
+
+# Detect logouts
+
+A session can stop working while the Node.js process keeps running: the
+network drops, or someone unlinks the device from the phone. Watch the
+session's state and logout events so you notice, pause sending and bring a
+person in when the account needs linking again.
+
+```ts
+import { create } from '@open-wa/wa-automate';
+
+const client = await create({ sessionId: 'sales' });
+
+client.onStateChanged((state) => {
+  console.log('Session state:', state);
+});
+
+client.onLogout(({ reason }) => {
+  console.error('WhatsApp unlinked this session', reason);
+});
+```
+
+## Session states
+
+`onStateChanged` receives one of these values, and `client.getState()` returns
+the current one:
+
+| State | Meaning |
+| --- | --- |
+| `STARTING` | The browser and WhatsApp Web are loading. |
+| `AUTHENTICATING` | Waiting for a QR scan or link code, or restoring the saved login. |
+| `READY` | The session can send and receive. |
+| `DISCONNECTED` | The connection dropped after startup. It can come back, or the device may have been unlinked. |
+| `STOPPED` | The client shut down. Start it again to reconnect. |
+
+`onLogout` fires when the phone unlinks the device. That needs a new QR scan or
+link code; waiting won't fix it.
+
+For the Easy API, read the same information from `/health`: `connected`,
+`session.state` and `session.ready`.
+
+## Recover in this order
+
+1. Record the change with the session ID, previous and next state, reason and time.
+2. Pause outbound sends for that session so your queue stops retrying against a dead session.
+3. If the state is `DISCONNECTED`, wait briefly and let open-wa reconnect from the saved login.
+4. If the session returns to `READY`, drain the paused queue slowly and close the incident.
+5. If `onLogout` fired, or the session sits in `AUTHENTICATING` waiting for a QR code, stop automatic sends and alert someone who can link the account again.
+6. If it keeps disconnecting, keep the session offline until someone has looked at it.
+
+Keep the loop small: one reconnect window, one delayed restart, then an alert.
+
+## When you need to link again
+
+A restart reuses the saved login when the phone still lists the device. You
+need a new QR scan or link code when the saved session file is missing or the device
+was unlinked from the phone. See
+[Log in and keep a session](/docs/sessions/authentication).
+
+Don't delete session data as the first response to a disconnect. Most network
+drops recover from the existing login, and deleting it forces a new link.
+
+## Alert on state, not only on process exits
+
+This catches a session that is alive as a Node.js process but no longer linked:
+
+```ts
+const lastState = new Map<string, string>();
+
+function report(sessionId: string, next: string, reason?: string) {
+  const previous = lastState.get(sessionId) ?? 'unknown';
+  lastState.set(sessionId, next);
+  console.log('session_state_changed', { sessionId, previous, next, reason, at: new Date().toISOString() });
+
+  if (next === 'DISCONNECTED' || next === 'LOGGED_OUT') {
+    notifyOps(`WhatsApp session ${sessionId} moved from ${previous} to ${next}`);
+  }
+}
+
+client.onStateChanged((state) => report(client.sessionId, state));
+client.onLogout(({ reason }) => report(client.sessionId, 'LOGGED_OUT', reason));
+```
+
+`notifyOps` stands for your own paging or chat alert. Useful counters are
+`session_state_change_total`, `session_disconnect_total` and
+`session_relink_required_total`.
+
+## What not to retry automatically
+
+- Don't keep sending while the session is logged out or stuck waiting for a QR code.
+- Don't regenerate QR codes forever; alert someone who can scan one.
+- Don't delete and recreate session data on every disconnect.
+- Don't replay a large outbound queue straight after repeated disconnects. A burst like that raises the risk of the account being restricted.
+- Don't hide repeated login failures behind a supervisor restart loop. Treat them as an incident.

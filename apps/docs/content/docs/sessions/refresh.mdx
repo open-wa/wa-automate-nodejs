@@ -1,0 +1,76 @@
+---
+title: Refresh a session
+description: Reload a running WhatsApp session or apply a license key without restarting the process or linking again.
+---
+
+# Refresh a session
+
+A refresh reloads WhatsApp inside the running session. The Node.js process,
+the browser, the Easy API server, your client object and its listeners, and the
+saved login all stay as they are, so you don't need to restart or link the
+account again. Use it after applying a license key, or when the session
+misbehaves and a reload is cheaper than a restart.
+
+<Callout type="warning" title="Messages can be missed during a refresh">
+WhatsApp reloads, so calls in progress end and operations interrupted by the
+reload aren't replayed. Refresh doesn't wait for pending sends. Pause outbound
+work first if that matters.
+</Callout>
+
+## From the dashboard
+
+- To reload the session, use the refresh action on the Neo **Health** page.
+  **Refresh status** only reloads the health information on screen.
+- To apply a license, open the license badge, enter your key and choose
+  **Apply license**. open-wa checks the key for the connected number and
+  reloads the session in the background.
+
+If the key is rejected, the dashboard says so and the session keeps running
+with unlicensed features. A key entered in the dashboard lasts until the
+process stops; set `licenseKey` in config, `WA_LICENSE_KEY` or
+`--license-key` so it survives a restart.
+
+## From code
+
+The SDK client and SocketClient expose the same controls:
+
+```ts
+// Reload and wait for the result.
+const result = await client.refresh();
+
+// Apply a key through the same operation.
+const activation = await client.refresh({ licenseKey: process.env.WA_LICENSE_KEY });
+
+// Start a refresh without waiting, then poll.
+const { operationId } = await client.requestRefresh();
+const status = await client.getRefreshStatus();
+```
+
+The status has `phase`, `running`, `runtimeUsable`, `restored` and `error`:
+
+| Result | Meaning |
+| --- | --- |
+| `phase: 'ready'` | The refresh finished and the session is usable. |
+| `phase: 'failed'`, `error.code: 'SESSION_REFRESH_LICENSE_REJECTED'`, `runtimeUsable: true` | The key was rejected. The session keeps running without licensed features. |
+| `phase: 'failed'`, `restored: true` | The reload failed and open-wa restored the previous working state. |
+| `runtimeUsable: false` | The session is unavailable. Check the logs and restart it. |
+| `phase: 'needs_auth'` | WhatsApp needs the account linked again. Scan the QR code; the refresh continues after linking. |
+
+## Over HTTP
+
+Both routes follow your API key setting, so send `X-API-Key` when one is
+configured.
+
+| Method | Route | Body | Response |
+| --- | --- | --- | --- |
+| `POST` | `/api/session/refresh` | `{}` or `{ "licenseKey": "YOUR_KEY" }` | `202 { "operationId": "…" }` |
+| `GET` | `/api/session/refresh` | None | The current status, as above |
+
+A `202` means the refresh started, not that it succeeded. Poll the `GET` route,
+or listen for `session.refresh.progress` on the
+[event stream](/docs/guides/receive-messages). Closing the dashboard or client
+that asked for the refresh doesn't cancel it.
+
+Asking again while a refresh with the same intent is running returns the same
+operation ID. A different key while one is running returns `409`, an empty key
+returns `400`, and `503` means the session isn't available for refresh.
