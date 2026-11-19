@@ -16,7 +16,7 @@ type EditorialBinding = {fetch(request: Request): Promise<Response>};
 
 // Cloudflare service bindings are server-only. Forward no browser credentials,
 // query filters, preview tokens, or user-controlled upstream URLs.
-export async function getEditorialSource(collection: 'posts' | 'changelog') {
+export async function getEditorialSource(collection: 'posts') {
   const binding = (env as unknown as {OPENWA_CMS?: EditorialBinding}).OPENWA_CMS;
   if (!binding) throw new Error('Editorial content service is not configured');
   const entries: EditorialEntry[] = [];
@@ -31,7 +31,7 @@ export async function getEditorialSource(collection: 'posts' | 'changelog') {
     entries.push(...feed.entries);
     cursor = feed.nextCursor;
     if (!cursor) return loader({
-      baseUrl: collection === 'posts' ? '/blog' : '/changelog',
+      baseUrl: '/blog',
       source: {files: entries.map(data => ({type:'page' as const,path:`${data.slug}.md`,slugs:[data.slug],data}))},
     });
     if (seen.has(cursor)) throw new Error('Editorial pagination did not advance');
