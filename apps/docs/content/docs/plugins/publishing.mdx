@@ -1,13 +1,13 @@
 ---
-title: Publishing a Plugin
-description: How to package, version, and share your plugin with the community.
+title: Publishing a plugin
+description: Package, version and publish a plugin on npm so other people can load it.
 ---
 
-# Publishing a Plugin
+# Publishing a plugin
 
 Package your plugin as an npm module so users can install it and load it from their open-wa configuration.
 
-## How to Share a Plugin
+## How to share a plugin
 
 <Callout type="info">
 **There is no public plugin marketplace.** Sharing a plugin means publishing it as an npm package that users can install and load.
@@ -19,7 +19,7 @@ The workflow is:
 3. Users install it with `npm install` or `pnpm add`
 4. Users load it via the `plugins` array in `wa.config.js`
 
-## Package Structure
+## Package structure
 
 ### package.json
 
@@ -49,7 +49,7 @@ The workflow is:
 }
 ```
 
-### Key Fields
+### Key fields
 
 - **`name`**: Use a scoped name such as `@myorg/my-plugin` to reduce naming collisions.
 - **`main`**: Set the package entry point for tools that read this legacy field.
@@ -58,7 +58,7 @@ The workflow is:
 - **`files`**: Publish only the files users need, such as `dist`.
 - **`peerDependencies`**: Declare the SDK versions your plugin supports.
 
-### TypeScript Compilation
+### TypeScript compilation
 
 Compile your plugin before publishing:
 
@@ -81,7 +81,7 @@ Compile your plugin before publishing:
 
 ## Versioning
 
-### Semantic Versioning
+### Semantic versioning
 
 Follow semver (`MAJOR.MINOR.PATCH`):
 
@@ -89,7 +89,7 @@ Follow semver (`MAJOR.MINOR.PATCH`):
 - **MINOR**: Backward-compatible features, such as adding an optional config field.
 - **PATCH**: Backward-compatible fixes.
 
-### Compatibility with open-wa Versions
+### Compatibility with open-wa versions
 
 Note which versions of open-wa your plugin is compatible with:
 
@@ -104,11 +104,11 @@ Note which versions of open-wa your plugin is compatible with:
 }
 ```
 
-### Communicating Breaking Changes
+### Communicating breaking changes
 
 For a major release, include migration instructions in the README and changelog. If you plan to remove a feature, give users a deprecation period where practical.
 
-## Telling Users How to Load It
+## Telling users how to load it
 
 ### Installation
 
@@ -141,9 +141,9 @@ export default {
 
 Use the package name in `plugins`; the `pluginConfig` key must match the plugin's `meta.name`.
 
-## Documenting Your Plugin
+## Documenting your plugin
 
-### README Template
+### README template
 
 The plugin README must include:
 
@@ -222,15 +222,15 @@ export default {
 Use a named session while trying the plugin:
 
 ```bash
-npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --session-id plugin-test --host 127.0.0.1 --port 8080
+npx @open-wa/wa-automate --config ./wa.config.mjs --session-id plugin-test
 ```
 
-### Multi-Session Compatibility
+### Multi-session compatibility
 
 If your plugin stores session-specific data, run two named sessions and verify each plugin instance reads and writes data for its own session.
 
 ## Related
 
-- **[Plugin getting started](/docs/plugins/getting-started)**, Build your first plugin
+- **[Build your first plugin](/docs/plugins/getting-started)**, Build your first plugin
 - **[Hooks reference](/docs/plugins/hooks-reference)**, Available hooks
 - **[Plugin security model](/docs/plugins/security-model)**, Plugin permissions and isolation
