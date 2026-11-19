@@ -179,6 +179,19 @@ function rankResults(query: string, results: SortedResult<string>[], pages: Sear
     .map(({ result }) => result);
 }
 
+/** Matches `slugForNamespace` in packages/schema/scripts/gen-client-reference-docs.ts. */
+function namespaceSlug(namespace: string): string {
+  return namespace.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
+}
+
+/**
+ * A method's block on its namespace page, built the way the reference
+ * generator builds it, from the namespace each method record carries.
+ */
+export function methodReferenceUrl(record: Pick<MethodRecord, 'namespace' | 'anchor'>): string {
+  return `/docs/reference/client/${namespaceSlug(record.namespace || 'core')}#${record.anchor}`;
+}
+
 export function createCanonicalMethods(
   records: ReadonlyArray<MethodRecord>,
   version: string,
@@ -195,7 +208,7 @@ export function createCanonicalMethods(
 
     return {
       name: record.name,
-      url: `/docs/reference/client/client#${record.anchor}`,
+      url: methodReferenceUrl(record),
       summary: record.description || `Reference for the ${record.name} client method.`,
       signature: `client.${record.name}(${signatureParameters.join(', ')}): ${returnType}`,
       aliases: record.aliases ?? [],
@@ -225,8 +238,9 @@ function isReferenceResult(result: SortedResult<string>): boolean {
   return result.url.startsWith('/docs/reference/');
 }
 
-function isGeneratedMethodReference(result: SortedResult<string>): boolean {
-  return GENERATED_METHOD_REFERENCE_PATHS.has(result.url.split('#')[0]);
+function isGeneratedMethodReference(result: SortedResult<string>, methodPages: ReadonlySet<string>): boolean {
+  const url = pageUrlOf(result);
+  return GENERATED_METHOD_REFERENCE_PATHS.has(url) || methodPages.has(url);
 }
 
 function isAliasReference(result: SortedResult<string>): boolean {
@@ -380,6 +394,7 @@ export function searchCanonical(
     .slice(0, 8)
     .map(({ method }) => methodResult(method, 'related'));
 
+  const methodPages = new Set(methods.map((method) => method.url.split('#')[0]));
   const methodNames = descriptiveMethods
     .map((method) => normalizeSearchTerm(method.method ?? ''))
     .filter(Boolean);
@@ -387,7 +402,7 @@ export function searchCanonical(
     rankResults(
       query,
       results.filter((result) => {
-        if (isGeneratedMethodReference(result) && !(aliasIntent && isAliasReference(result))) return false;
+        if (isGeneratedMethodReference(result, methodPages) && !(aliasIntent && isAliasReference(result))) return false;
         const anchor = normalizeSearchTerm(result.url.split('#')[1] ?? '');
         const content = normalizeSearchTerm(result.content);
         return !methodNames.some((name) => anchor === name || content.includes(name));
