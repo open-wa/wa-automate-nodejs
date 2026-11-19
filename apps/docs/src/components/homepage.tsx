@@ -52,7 +52,7 @@ function MessageExample() {
 
 const guideGroups = [
   { title: 'Send messages and files', icon: MessageSquare, description: 'Send an update, share a document, or reply when a message arrives.', links: [['Send a message', DOCS_PATHS.messages], ['Send images and files', DOCS_PATHS.media], ['Explore Client methods', DOCS_PATHS.referenceClient]] },
-  { title: 'Connect your tools', icon: Zap, description: 'Pass incoming messages to your application or bring conversations into your helpdesk.', links: [['Handle incoming events', DOCS_PATHS.sessionEvents], ['Receive webhooks', '/docs/guides/webhooks-for-business'], ['Connect Chatwoot', DOCS_PATHS.chatwoot]] },
+  { title: 'Connect your tools', icon: Zap, description: 'Pass incoming messages to your application or bring conversations into your helpdesk.', links: [['Handle incoming events', DOCS_PATHS.sessionEvents], ['Receive webhooks', '/docs/guides/receive-webhooks'], ['Connect Chatwoot', DOCS_PATHS.chatwoot]] },
   { title: 'Manage your sessions', icon: Server, description: 'Run more than one account, adjust settings, and work through connection problems.', links: [['Run multiple accounts', DOCS_PATHS.multiSession], ['Configure your runtime', DOCS_PATHS.configuration], ['Troubleshoot a session', DOCS_PATHS.errorHandling]] },
 ];
 

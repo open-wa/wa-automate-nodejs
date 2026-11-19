@@ -55,7 +55,7 @@ function ProjectBuilder() {
   }
   return <HomeLayout {...baseOptions()}><main className="setup-builder">
     <header className="setup-heading"><div><h1>Create your open-wa project</h1><p>Choose your setup, copy one command, then link WhatsApp. You’ll need Node.js 22.21.1 or newer.</p></div>
-      <a href="/docs/getting-started/initializer">Setup guide <ArrowRight size={16} /></a>
+      <a href="/docs/getting-started/quickstart/generator-options">Setup guide <ArrowRight size={16} /></a>
     </header>
     <div className="setup-layout"><section className="setup-form" aria-label="Project choices">
       <div className="setup-section"><label className="setup-label" htmlFor="setup-directory">Project folder</label><input id="setup-directory" value={options.directory} onChange={event => update('directory', event.target.value)} autoComplete="off" spellCheck={false} /></div>
