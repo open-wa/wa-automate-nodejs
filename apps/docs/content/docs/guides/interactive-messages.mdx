@@ -218,9 +218,3 @@ Optional booking fields include `url`, `phoneNumber`, `email` and `labels` (`lan
 No automatic retry is added around a failed send because an ambiguous result may already have reached the recipient. `defineInteractiveMessage` validates a document only; it does not check recipient capability, resolve media or send it.
 
 Validation errors identify the invalid JSON field. Media-loading errors identify the header or carousel card, for example `content.cards[1].header.source`. Send errors expose the failure message directly; SDK errors retain the browser stack in `cause` for diagnosis.
-
-## When WhatsApp refuses a send
-
-If WhatsApp's server refuses a message, the send fails with `message_sent_ack_error` and an `ackErrorCode`, for example `Native send failed: {"messageSendResult":"ERROR_UNKNOWN","failureReason":"message_sent_ack_error","ackErrorCode":405}`. The code comes from WhatsApp. It usually means the server no longer accepts that form of message from linked devices, not that your content or license is wrong.
-
-WhatsApp changes what it accepts without notice. In November 2026, it began refusing reply, copy and call buttons with 405 and carousels with 473 ([#3574](https://github.com/open-wa/wa-automate-nodejs/issues/3574)). OpenWA handles changes like this in the licensed runtime, which your session downloads from the license server each time it launches. Restart the session to pick up a fix; you don't need to wait for a new package version. If a send still fails after a restart, open an issue with the `ackErrorCode`, the content type and the WhatsApp Web version from your logs.
