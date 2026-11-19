@@ -9,7 +9,7 @@ import { HOMEPAGE_DESCRIPTION, HOMEPAGE_FAQS } from '@/lib/homepage';
 
 const runCommand = 'npm init @open-wa@latest my-bot';
 const examples = {
-  HTTP: `curl -X POST http://localhost:8080/api/messages/sendText \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "to": "447123456789@c.us",\n    "content": "Your order is ready to collect!",\n    "options": {}\n  }'`,
+  HTTP: `curl -X POST http://localhost:8080/api/messages/sendText \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "to": "447123456789@c.us",\n    "content": "Your order is ready to collect!"\n  }'`,
   'Node.js': `await client.sendText(\n  '447123456789@c.us',\n  'Your order is ready to collect!'\n);`,
 };
 
