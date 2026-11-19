@@ -84,7 +84,7 @@ export function DocsHomepage() {
         <div className="landing-section-heading"><h2 id="faq-heading">Questions about the WhatsApp API</h2><a className="landing-arrow-link" href="/docs/licensing/pricing">Pricing and licensing <ArrowRight size={16} /></a></div>
         <div className="landing-faq">{HOMEPAGE_FAQS.map(({ question, answer, href, label }) => <article key={question}><h3>{question}</h3><p>{answer}</p><a className="landing-arrow-link" href={href}>{label}<ArrowRight size={15} /></a></article>)}</div>
       </section>
-      <footer className="landing-footer"><div><strong>open-wa</strong><span>WhatsApp automation on your own infrastructure. <a href={DOCS_PATHS.changelog}>Version {CURRENT_VERSION}</a></span></div><nav aria-label="Footer"><a href={DOCS_PATHS.overview}>Documentation</a><a href={REPO_URL}>GitHub ↗</a><a href="https://discord.gg/dpan7EYE3t">Community ↗</a><a href={DOCS_PATHS.licensedFeatures}>Licensing</a></nav></footer>
+      <footer className="landing-footer"><div><strong>open-wa</strong><span>WhatsApp automation on your own infrastructure. <a href={DOCS_PATHS.releases}>Version {CURRENT_VERSION}</a></span></div><nav aria-label="Footer"><a href={DOCS_PATHS.overview}>Documentation</a><a href={REPO_URL}>GitHub ↗</a><a href="https://discord.gg/dpan7EYE3t">Community ↗</a><a href={DOCS_PATHS.licensedFeatures}>Licensing</a></nav></footer>
     </main>
   </HomeLayout>;
 }

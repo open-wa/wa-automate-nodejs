@@ -13,7 +13,7 @@ export const HOMEPAGE_FAQS = [
   {
     question: 'Who is open-wa best for?',
     answer: 'Developers who want to connect an existing WhatsApp account to their own applications, support tools, or automation workflows through HTTP or Node.js.',
-    href: DOCS_PATHS.integrationsOverview,
+    href: DOCS_PATHS.integrations,
     label: 'Explore integrations',
   },
   {

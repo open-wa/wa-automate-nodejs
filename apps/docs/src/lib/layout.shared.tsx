@@ -21,13 +21,13 @@ export function baseOptions(): BaseLayoutProps {
       { type: 'custom', secondary: true, children: <GetLicenseButton className="license-header-button" /> },
       { text: 'Docs', url: DOCS_PATHS.overview },
       { text: 'API reference', url: DOCS_PATHS.referenceClient },
-      { text: 'Integrations', url: DOCS_PATHS.integrationsOverview },
-      { text: 'Changelog', url: DOCS_PATHS.changelog },
+      { text: 'Integrations', url: DOCS_PATHS.integrations },
       { text: 'Blog', url: DOCS_PATHS.blog, active: 'nested-url' },
       {
         text: 'Resources', type: 'menu', items: [
           { text: 'API Explorer', url: DOCS_PATHS.apiExplorer },
-          { text: 'Licensing', url: DOCS_PATHS.licensedFeatures },
+          { text: 'Pricing', url: DOCS_PATHS.pricing },
+          { text: 'Releases', url: DOCS_PATHS.releases, external: true },
           { text: 'GitHub', url: REPO_URL, external: true },
           { text: 'Discord', url: 'https://discord.gg/dpan7EYE3t', external: true },
         ],
