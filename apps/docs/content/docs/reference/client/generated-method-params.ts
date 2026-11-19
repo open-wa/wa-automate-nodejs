@@ -1330,7 +1330,7 @@ export interface SendTextParams {
    */
   content: string;
   /**
-   * Reserved for compatibility with legacy request shapes. The current sendText Client implementation ignores this argument; use reply() or sendTextWithMentions() for quoted replies and mentions. Accepted as unknown for compatibility; currently ignored by sendText. Use reply() or sendTextWithMentions() for supported reply and mention behavior.
+   * Not used. Leave it out; use reply() for quoted replies and sendTextWithMentions() for mentions. sendText ignores this value.
    */
   options?: unknown;
 }

@@ -1,21 +1,21 @@
 ---
-title: "Communities Client API"
-description: "Generated client method reference for the communities namespace."
+title: "Communities"
+description: "List communities and read their details, members and admins."
 icon: "BookOpen"
 ---
 
-# Communities Client API
-
-This page documents 6 schema-registry client methods in the `communities` namespace.
+# Communities
 
 
 ## `getAllCommunities`
 
 Get all communities
 
-**Signature** `client.getAllCommunities(): Promise<GroupChatId[]>`
+```ts
+client.getAllCommunities(): Promise<GroupChatId[]>
+```
 
-### Usage
+### Usage [!toc] [#getallcommunities-usage]
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
@@ -28,7 +28,7 @@ const result = await client.getAllCommunities();
 ```
 
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
 
 ```bash
 curl -X GET "http://localhost:8080/api/communities/getAll" \
@@ -37,7 +37,7 @@ curl -X GET "http://localhost:8080/api/communities/getAll" \
   --data '{}'
 ```
 
-Example response envelope:
+Response:
 
 ```json
 {
@@ -49,40 +49,31 @@ Example response envelope:
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+### Parameters [!toc] [#getallcommunities-parameters]
 
 This method does not define input parameters.
 
-### Returns
+### Returns [!toc] [#getallcommunities-returns]
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<GroupChatId[]>` |
-| GroupChatId | [View fields](/docs/reference/client/return-types#groupchatid) |
+Resolves to `GroupChatId[]`. See [GroupChatId](/docs/reference/client/return-types#groupchatid) for its fields.
 
-Resolves to `GroupChatId[]`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 Opaque group conversation identifier returned by a group lookup or join method.
 
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
+
 <details>
-<summary>Advanced method metadata</summary>
+<summary>Aliases and HTTP routes</summary>
 
-### Overview
-
-| Prop | Value |
+| Name | Value |
 | --- | --- |
 | Namespace | `communities` |
-| Action | `read` |
-| Functionality | `both` |
 | Positional parameter order | - |
 | Aliases | `communities.all`, `communities.getAll`, `communities.list`, `listCommunities` |
 | Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
+| License | Not needed |
 | Deprecated | No |
 
-### Routes
+**HTTP routes**
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
@@ -95,179 +86,15 @@ Opaque group conversation identifier returned by a group lookup or join method.
 </details>
 
 
-## `getCommunityAdminIds`
-
-Get community admin IDs
-
-**Signature** `client.getCommunityAdminIds(communityId: string): Promise<CommunityAdminIds[]>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getCommunityAdminIds({
-  communityId: "447123456789-1445627445@g.us",
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -G "http://localhost:8080/api/communities/getAdminIds" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data-urlencode "communityId=447123456789-1445627445@g.us"
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": []
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="GetCommunityAdminIdsParams" />
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<CommunityAdminIds[]>` |
-| CommunityAdminIds | [View fields](/docs/reference/client/return-types#communityadminids) |
-
-Resolves to `CommunityAdminIds[]`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `communities` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | `communityId` |
-| Aliases | `communities.getAdminIds` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/communities/getAdminIds` | `getCommunityAdminIds` | Active |
-| Alias | `GET` | `/api/getCommunityAdminIds` | `getCommunityAdminIds` | Active |
-
-</details>
-
-
-## `getCommunityAdmins`
-
-Get community admins
-
-**Signature** `client.getCommunityAdmins(communityId: string): Promise<CommunityAdmins[]>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getCommunityAdmins({
-  communityId: "447123456789-1445627445@g.us",
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -G "http://localhost:8080/api/communities/getAdmins" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data-urlencode "communityId=447123456789-1445627445@g.us"
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": []
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="GetCommunityAdminsParams" />
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<CommunityAdmins[]>` |
-| CommunityAdmins | [View fields](/docs/reference/client/return-types#communityadmins) |
-
-Resolves to `CommunityAdmins[]`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `communities` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | `communityId` |
-| Aliases | `communities.getAdmins` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/communities/getAdmins` | `getCommunityAdmins` | Active |
-| Alias | `GET` | `/api/getCommunityAdmins` | `getCommunityAdmins` | Active |
-
-</details>
-
-
 ## `getCommunityInfo`
 
 Get community metadata
 
-**Signature** `client.getCommunityInfo(communityId: string): Promise<CommunityMetadata>`
+```ts
+client.getCommunityInfo(communityId: string): Promise<CommunityMetadata>
+```
 
-### Usage
+### Usage [!toc] [#getcommunityinfo-usage]
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
@@ -282,7 +109,7 @@ const result = await client.getCommunityInfo({
 ```
 
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
 
 ```bash
 curl -G "http://localhost:8080/api/communities/getInfo" \
@@ -290,7 +117,7 @@ curl -G "http://localhost:8080/api/communities/getInfo" \
   --data-urlencode "communityId=447123456789-1445627445@g.us"
 ```
 
-Example response envelope:
+Response:
 
 ```json
 {
@@ -308,39 +135,29 @@ Example response envelope:
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+### Parameters [!toc] [#getcommunityinfo-parameters]
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetCommunityInfoParams" />
 
-### Returns
+### Returns [!toc] [#getcommunityinfo-returns]
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<CommunityMetadata>` |
-| CommunityMetadata | [View fields](/docs/reference/client/return-types#communitymetadata) |
+Resolves to [`CommunityMetadata`](/docs/reference/client/return-types#communitymetadata).
 
-Resolves to `CommunityMetadata`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
 <details>
-<summary>Advanced method metadata</summary>
+<summary>Aliases and HTTP routes</summary>
 
-### Overview
-
-| Prop | Value |
+| Name | Value |
 | --- | --- |
 | Namespace | `communities` |
-| Action | `read` |
-| Functionality | `both` |
 | Positional parameter order | `communityId` |
 | Aliases | `communities.getInfo` |
 | Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
+| License | Not needed |
 | Deprecated | No |
 
-### Routes
+**HTTP routes**
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
@@ -350,96 +167,15 @@ This method is not declared on the in-process Client facade. Use the remote Node
 </details>
 
 
-## `getCommunityParticipantIds`
-
-Get community participant IDs
-
-**Signature** `client.getCommunityParticipantIds(communityId: string): Promise<CommunityParticipantIds[]>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getCommunityParticipantIds({
-  communityId: "447123456789-1445627445@g.us",
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -G "http://localhost:8080/api/communities/getParticipantIds" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data-urlencode "communityId=447123456789-1445627445@g.us"
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": []
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="GetCommunityParticipantIdsParams" />
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<CommunityParticipantIds[]>` |
-| CommunityParticipantIds | [View fields](/docs/reference/client/return-types#communityparticipantids) |
-
-Resolves to `CommunityParticipantIds[]`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `communities` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | `communityId` |
-| Aliases | `communities.getParticipantIds` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/communities/getParticipantIds` | `getCommunityParticipantIds` | Active |
-| Alias | `GET` | `/api/getCommunityParticipantIds` | `getCommunityParticipantIds` | Active |
-
-</details>
-
-
 ## `getCommunityParticipants`
 
 Get community participants
 
-**Signature** `client.getCommunityParticipants(communityId: string): Promise<CommunityParticipants[]>`
+```ts
+client.getCommunityParticipants(communityId: string): Promise<CommunityParticipants[]>
+```
 
-### Usage
+### Usage [!toc] [#getcommunityparticipants-usage]
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
@@ -454,7 +190,7 @@ const result = await client.getCommunityParticipants({
 ```
 
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
 
 ```bash
 curl -G "http://localhost:8080/api/communities/getParticipants" \
@@ -462,7 +198,7 @@ curl -G "http://localhost:8080/api/communities/getParticipants" \
   --data-urlencode "communityId=447123456789-1445627445@g.us"
 ```
 
-Example response envelope:
+Response:
 
 ```json
 {
@@ -474,43 +210,258 @@ Example response envelope:
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+### Parameters [!toc] [#getcommunityparticipants-parameters]
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetCommunityParticipantsParams" />
 
-### Returns
+### Returns [!toc] [#getcommunityparticipants-returns]
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<CommunityParticipants[]>` |
-| CommunityParticipants | [View fields](/docs/reference/client/return-types#communityparticipants) |
+Resolves to `CommunityParticipants[]`. See [CommunityParticipants](/docs/reference/client/return-types#communityparticipants) for its fields.
 
-Resolves to `CommunityParticipants[]`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
 <details>
-<summary>Advanced method metadata</summary>
+<summary>Aliases and HTTP routes</summary>
 
-### Overview
-
-| Prop | Value |
+| Name | Value |
 | --- | --- |
 | Namespace | `communities` |
-| Action | `read` |
-| Functionality | `both` |
 | Positional parameter order | `communityId` |
 | Aliases | `communities.getParticipants` |
 | Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
+| License | Not needed |
 | Deprecated | No |
 
-### Routes
+**HTTP routes**
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
 | Primary | `GET` | `/api/communities/getParticipants` | `getCommunityParticipants` | Active |
 | Alias | `GET` | `/api/getCommunityParticipants` | `getCommunityParticipants` | Active |
+
+</details>
+
+
+## `getCommunityParticipantIds`
+
+Get community participant IDs
+
+```ts
+client.getCommunityParticipantIds(communityId: string): Promise<CommunityParticipantIds[]>
+```
+
+### Usage [!toc] [#getcommunityparticipantids-usage]
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getCommunityParticipantIds({
+  communityId: "447123456789-1445627445@g.us",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+```bash
+curl -G "http://localhost:8080/api/communities/getParticipantIds" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "communityId=447123456789-1445627445@g.us"
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters [!toc] [#getcommunityparticipantids-parameters]
+
+<AutoTypeTable path="./generated-method-params.ts" name="GetCommunityParticipantIdsParams" />
+
+### Returns [!toc] [#getcommunityparticipantids-returns]
+
+Resolves to `CommunityParticipantIds[]`. See [CommunityParticipantIds](/docs/reference/client/return-types#communityparticipantids) for its fields.
+
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
+
+<details>
+<summary>Aliases and HTTP routes</summary>
+
+| Name | Value |
+| --- | --- |
+| Namespace | `communities` |
+| Positional parameter order | `communityId` |
+| Aliases | `communities.getParticipantIds` |
+| Deprecated aliases | - |
+| License | Not needed |
+| Deprecated | No |
+
+**HTTP routes**
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/communities/getParticipantIds` | `getCommunityParticipantIds` | Active |
+| Alias | `GET` | `/api/getCommunityParticipantIds` | `getCommunityParticipantIds` | Active |
+
+</details>
+
+
+## `getCommunityAdmins`
+
+Get community admins
+
+```ts
+client.getCommunityAdmins(communityId: string): Promise<CommunityAdmins[]>
+```
+
+### Usage [!toc] [#getcommunityadmins-usage]
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getCommunityAdmins({
+  communityId: "447123456789-1445627445@g.us",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+```bash
+curl -G "http://localhost:8080/api/communities/getAdmins" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "communityId=447123456789-1445627445@g.us"
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters [!toc] [#getcommunityadmins-parameters]
+
+<AutoTypeTable path="./generated-method-params.ts" name="GetCommunityAdminsParams" />
+
+### Returns [!toc] [#getcommunityadmins-returns]
+
+Resolves to `CommunityAdmins[]`. See [CommunityAdmins](/docs/reference/client/return-types#communityadmins) for its fields.
+
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
+
+<details>
+<summary>Aliases and HTTP routes</summary>
+
+| Name | Value |
+| --- | --- |
+| Namespace | `communities` |
+| Positional parameter order | `communityId` |
+| Aliases | `communities.getAdmins` |
+| Deprecated aliases | - |
+| License | Not needed |
+| Deprecated | No |
+
+**HTTP routes**
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/communities/getAdmins` | `getCommunityAdmins` | Active |
+| Alias | `GET` | `/api/getCommunityAdmins` | `getCommunityAdmins` | Active |
+
+</details>
+
+
+## `getCommunityAdminIds`
+
+Get community admin IDs
+
+```ts
+client.getCommunityAdminIds(communityId: string): Promise<CommunityAdminIds[]>
+```
+
+### Usage [!toc] [#getcommunityadminids-usage]
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getCommunityAdminIds({
+  communityId: "447123456789-1445627445@g.us",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+```bash
+curl -G "http://localhost:8080/api/communities/getAdminIds" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "communityId=447123456789-1445627445@g.us"
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters [!toc] [#getcommunityadminids-parameters]
+
+<AutoTypeTable path="./generated-method-params.ts" name="GetCommunityAdminIdsParams" />
+
+### Returns [!toc] [#getcommunityadminids-returns]
+
+Resolves to `CommunityAdminIds[]`. See [CommunityAdminIds](/docs/reference/client/return-types#communityadminids) for its fields.
+
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
+
+<details>
+<summary>Aliases and HTTP routes</summary>
+
+| Name | Value |
+| --- | --- |
+| Namespace | `communities` |
+| Positional parameter order | `communityId` |
+| Aliases | `communities.getAdminIds` |
+| Deprecated aliases | - |
+| License | Not needed |
+| Deprecated | No |
+
+**HTTP routes**
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/communities/getAdminIds` | `getCommunityAdminIds` | Active |
+| Alias | `GET` | `/api/getCommunityAdminIds` | `getCommunityAdminIds` | Active |
 
 </details>

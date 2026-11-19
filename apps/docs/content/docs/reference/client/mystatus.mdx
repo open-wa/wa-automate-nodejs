@@ -1,12 +1,10 @@
 ---
-title: "Mystatus Client API"
-description: "Generated client method reference for the mystatus namespace."
+title: "Contact status"
+description: "Read the about text a contact has set."
 icon: "BookOpen"
 ---
 
-# Mystatus Client API
-
-This page documents 1 schema-registry client methods in the `mystatus` namespace.
+# Contact status
 
 <LicensedMethodSection tier="insiders">
 
@@ -15,9 +13,13 @@ This page documents 1 schema-registry client methods in the `mystatus` namespace
 
 Get specific status
 
-**Signature** `client.getStatus(contactId: string): Promise<ContactStatus>`
+Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
-### Usage
+```ts
+client.getStatus(contactId: string): Promise<ContactStatus>
+```
+
+### Usage [!toc] [#getstatus-usage]
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
@@ -32,7 +34,7 @@ const result = await client.getStatus({
 ```
 
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
 
 ```bash
 curl -G "http://localhost:8080/api/mystatus/getStatus" \
@@ -40,7 +42,7 @@ curl -G "http://localhost:8080/api/mystatus/getStatus" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
-Example response envelope:
+Response:
 
 ```json
 {
@@ -55,39 +57,29 @@ Example response envelope:
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+### Parameters [!toc] [#getstatus-parameters]
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetStatusParams" />
 
-### Returns
+### Returns [!toc] [#getstatus-returns]
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<ContactStatus>` |
-| ContactStatus | [View fields](/docs/reference/client/return-types#contactstatus) |
+Resolves to [`ContactStatus`](/docs/reference/client/return-types#contactstatus).
 
-Resolves to `ContactStatus`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
 <details>
-<summary>Advanced method metadata</summary>
+<summary>Aliases and HTTP routes</summary>
 
-### Overview
-
-| Prop | Value |
+| Name | Value |
 | --- | --- |
 | Namespace | `mystatus` |
-| Action | `read` |
-| Functionality | `both` |
 | Positional parameter order | `contactId` |
 | Aliases | `mystatus.getStatus` |
 | Deprecated aliases | - |
 | License | `insiders` |
-| WAPI override | - |
 | Deprecated | No |
 
-### Routes
+**HTTP routes**
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |

@@ -1,12 +1,12 @@
 ---
-title: "Events"
-description: "Generated reference for registered client events and their payloads."
+title: "Event listeners"
+description: "Every event you can listen for, with its listener name and payload."
 icon: "BookOpen"
 ---
 
-# Events
+# Event listeners
 
-open-wa emits **17** events. Subscribe with the client helper (`client.onMessage`), the legacy listener name, or the event bus wildcard. Payload types are derived from each event's registered schema.
+Subscribe with a client helper such as `client.onMessage`, the listener name in the second column, or the event bus wildcard.
 
 | Event | Legacy listener | Description | Payload | Status | License |
 | --- | --- | --- | --- | --- | --- |
@@ -24,6 +24,6 @@ open-wa emits **17** events. Subscribe with the client helper (`client.onMessage
 | <span id="message"></span>`message` | `onMessage` | Fired when a new message is received (excluding own messages) | `Message` | stable | - |
 | <span id="messagedeleted"></span>`messageDeleted` | `onMessageDeleted` | Fired when a message is deleted | `Message` | stable | - |
 | <span id="participantschanged"></span>`participantsChanged` | `onParticipantsChanged` | Fired when group participants change | `{ groupId: GroupId; action: "add" \| "remove" \| "promote" \| "demote" \| "invite" \| "leave"; participantIds: ContactId[]; by?: string; who?: ContactId; chat?: GroupId \| { _serialized: GroupId } }` | stable | - |
-| <span id="pollvote"></span>`pollVote` | `onPollVote` | A decrypted poll vote added or changed in the synced store. Hydration can emit old votes. Hidden-voter polls omit sender and message identifiers. Deduplicate ordinary votes by id and timestamp; refresh getPollResults for current totals. | `PollVote` | beta | - |
+| <span id="pollvote"></span>`pollVote` | `onPollVote` | Someone voted on a poll or changed their vote. Older votes can arrive again after the session starts, so deduplicate by id and timestamp and call getPollResults for current totals. Polls with hidden voters leave out sender and message IDs. | `PollVote` | beta | - |
 | <span id="reaction"></span>`reaction` | `onReaction` | Fired when a reaction is added to a message | `{ messageId: string; reaction: string; senderId: string; timestamp: number }` | stable | - |
 | <span id="statechanged"></span>`stateChanged` | `onStateChanged` | Fired when connection state changes | `{ state: "STARTING" \| "AUTHENTICATING" \| "READY" \| "STOPPED" \| "CONNECTED" \| "DISCONNECTED" \| "SYNCING" \| "CONFLICT" \| "UNLAUNCHED" \| "PAIRING" \| "TIMEOUT"; previousState?: "STARTING" \| "AUTHENTICATING" \| "READY" \| "STOPPED" \| "CONNECTED" \| "DISCONNECTED" \| "SYNCING" \| "CONFLICT" \| "UNLAUNCHED" \| "PAIRING" \| "TIMEOUT" }` | stable | - |

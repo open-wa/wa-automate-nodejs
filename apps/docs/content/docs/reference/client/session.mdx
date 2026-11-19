@@ -1,112 +1,24 @@
 ---
-title: "Session Client API"
-description: "Generated client method reference for the session namespace."
+title: "Session"
+description: "Check the connection, read details about the logged-in account, and change its name, about text and picture."
 icon: "BookOpen"
 ---
 
-# Session Client API
-
-This page documents 17 schema-registry client methods in the `session` namespace.
-
-
-## `getBatteryLevel`
-
-Get phone battery level
-
-**Signature** `client.getBatteryLevel(): Promise<number>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getBatteryLevel();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getBatteryLevel();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X GET "http://localhost:8080/api/session/getBatteryLevel" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{}'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": 0
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-This method does not define input parameters.
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<number>` |
-
-Resolves to `number`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<number>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `session` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `session.getBatteryLevel` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getBatteryLevel` | `getBatteryLevel` | Active |
-| Alias | `GET` | `/api/getBatteryLevel` | `getBatteryLevel` | Active |
-
-</details>
+# Session
 
 
 ## `getConnectionState`
 
 Get connection state
 
-**Signature** `client.getConnectionState(): Promise<string>`
+```ts
+client.getConnectionState(): Promise<string>
+```
 
-### Usage
+### Usage [!toc] [#getconnectionstate-usage]
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
+  <InterfaceTab value="SDK">
 
 ```ts
 const result = await client.getConnectionState();
@@ -123,7 +35,7 @@ const result = await client.getConnectionState();
 ```
 
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getConnectionState" \
@@ -132,7 +44,7 @@ curl -X GET "http://localhost:8080/api/session/getConnectionState" \
   --data '{}'
 ```
 
-Example response envelope:
+Response:
 
 ```json
 {
@@ -144,38 +56,27 @@ Example response envelope:
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+### Parameters [!toc] [#getconnectionstate-parameters]
 
 This method does not define input parameters.
 
-### Returns
+### Returns [!toc] [#getconnectionstate-returns]
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<string>` |
-
-Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<string>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+Resolves to `string`.
 
 <details>
-<summary>Advanced method metadata</summary>
+<summary>Aliases and HTTP routes</summary>
 
-### Overview
-
-| Prop | Value |
+| Name | Value |
 | --- | --- |
 | Namespace | `session` |
-| Action | `read` |
-| Functionality | `both` |
 | Positional parameter order | - |
 | Aliases | `session.getConnectionState` |
 | Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
+| License | Not needed |
 | Deprecated | No |
 
-### Routes
+**HTTP routes**
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
@@ -185,42 +86,37 @@ In-process Client resolves to `Promise<string>`. The contract above is for the r
 </details>
 
 
-## `getFeatures`
+## `healthCheck`
 
-Get enabled features
-
-**Signature** `client.getFeatures(): Promise<FeatureFlags>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
+Health check
 
 ```ts
-const result = await client.getFeatures();
+client.healthCheck(): Promise<HealthCheck>
 ```
 
-  </InterfaceTab>
+### Usage [!toc] [#healthcheck-usage]
+
+<InterfaceTabs>
   <InterfaceTab value="SocketClient">
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getFeatures();
+const result = await client.healthCheck();
 ```
 
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
 
 ```bash
-curl -X GET "http://localhost:8080/api/session/getFeatures" \
+curl -X GET "http://localhost:8080/api/session/healthCheck" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{}'
 ```
 
-Example response envelope:
+Response:
 
 ```json
 {
@@ -232,398 +128,36 @@ Example response envelope:
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+### Parameters [!toc] [#healthcheck-parameters]
 
 This method does not define input parameters.
 
-### Returns
+### Returns [!toc] [#healthcheck-returns]
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<FeatureFlags>` |
-| FeatureFlags | [View fields](/docs/reference/client/return-types#featureflags) |
+Resolves to [`HealthCheck`](/docs/reference/client/return-types#healthcheck).
 
-WhatsApp feature flags keyed by name. Values are provider-defined and must be narrowed before use.
+Browser health diagnostics. This is not the Easy API /health HTTP envelope.
 
-In-process Client resolves to `Promise<Record<string, unknown>>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
-WhatsApp feature flags keyed by name. Values are provider-defined and must be narrowed before use.
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
 <details>
-<summary>Advanced method metadata</summary>
+<summary>Aliases and HTTP routes</summary>
 
-### Overview
-
-| Prop | Value |
+| Name | Value |
 | --- | --- |
 | Namespace | `session` |
-| Action | `read` |
-| Functionality | `both` |
 | Positional parameter order | - |
-| Aliases | `session.getFeatures` |
+| Aliases | `session.healthCheck` |
 | Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
+| License | Not needed |
 | Deprecated | No |
 
-### Routes
+**HTTP routes**
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getFeatures` | `getFeatures` | Active |
-| Alias | `GET` | `/api/getFeatures` | `getFeatures` | Active |
-
-</details>
-
-
-## `getHostNumber`
-
-Get host phone number
-
-**Signature** `client.getHostNumber(): Promise<string>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getHostNumber();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getHostNumber();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X GET "http://localhost:8080/api/session/getHostNumber" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{}'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": "example"
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-This method does not define input parameters.
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<string>` |
-
-Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<string>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `session` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `session.getHostNumber` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getHostNumber` | `getHostNumber` | Active |
-| Alias | `GET` | `/api/getHostNumber` | `getHostNumber` | Active |
-
-</details>
-
-
-## `getLicenseFeatures`
-
-Get enabled and disabled licensed features from the accepted licence patch. This reports licence access; actions check runtime availability automatically.
-
-**Signature** `client.getLicenseFeatures(): Promise<{ status: "valid" \| "missing" \| "invalid" \| "expired" \| "metadata_only"; keyType: string \| null; expiresAt: number \| "Infinity" \| "-Infinity" \| "NaN" \| null; features: Record<string, boolean> }>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getLicenseFeatures();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getLicenseFeatures();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X GET "http://localhost:8080/api/session/getLicenseFeatures" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{}'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": {
-    "status": "valid",
-    "keyType": "example",
-    "expiresAt": 0,
-    "features": {}
-  }
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-This method does not define input parameters.
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<{ status: "valid" \| "missing" \| "invalid" \| "expired" \| "metadata_only"; keyType: string \| null; expiresAt: number \| "Infinity" \| "-Infinity" \| "NaN" \| null; features: Record<string, boolean> }>` |
-
-Resolves to `{ status: "valid" \| "missing" \| "invalid" \| "expired" \| "metadata_only"; keyType: string \| null; expiresAt: number \| "Infinity" \| "-Infinity" \| "NaN" \| null; features: Record<string, boolean> }`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<LicenseFeatures>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `session` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `session.getLicenseFeatures` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getLicenseFeatures` | `getLicenseFeatures` | Active |
-| Alias | `GET` | `/api/getLicenseFeatures` | `getLicenseFeatures` | Active |
-
-</details>
-
-
-## `getLicenseType`
-
-Get license type
-
-**Signature** `client.getLicenseType(): Promise<LicenseType \| false>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getLicenseType();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X GET "http://localhost:8080/api/session/getLicenseType" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{}'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": "CUSTOM"
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-This method does not define input parameters.
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<LicenseType \| false>` |
-| LicenseType | [View fields](/docs/reference/client/return-types#licensetype) |
-
-Resolves to `LicenseType \| false`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `session` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `session.getLicenseType` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getLicenseType` | `getLicenseType` | Active |
-| Alias | `GET` | `/api/getLicenseType` | `getLicenseType` | Active |
-
-</details>
-
-
-## `getLoadedMessageCount`
-
-Get loaded message count
-
-**Signature** `client.getLoadedMessageCount(): Promise<number>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getAmountOfLoadedMessages();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getLoadedMessageCount();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X GET "http://localhost:8080/api/session/getLoadedMessageCount" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{}'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": 0
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-This method does not define input parameters.
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<number>` |
-
-Resolves to `number`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<number>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `session` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `getAmountOfLoadedMessages`, `session.getAmountOfLoadedMessages`, `session.getLoadedMessageCount` |
-| Deprecated aliases | `getAmountOfLoadedMessages`, `session.getAmountOfLoadedMessages` |
-| License | `none` |
-| WAPI override | `getAmountOfLoadedMessages` |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getLoadedMessageCount` | `getLoadedMessageCount` | Active |
-| Deprecated alias | `GET` | `/api/getAmountOfLoadedMessages` | `getAmountOfLoadedMessages` | **Deprecated** |
-| Alias | `GET` | `/api/getLoadedMessageCount` | `getLoadedMessageCount` | Active |
-| Deprecated alias | `GET` | `/api/session/getAmountOfLoadedMessages` | `session.getAmountOfLoadedMessages` | **Deprecated** |
+| Primary | `GET` | `/api/session/healthCheck` | `healthCheck` | Active |
+| Alias | `GET` | `/api/healthCheck` | `healthCheck` | Active |
 
 </details>
 
@@ -632,12 +166,14 @@ In-process Client resolves to `Promise<number>`. The contract above is for the r
 
 Get host account info
 
-**Signature** `client.getMe(): Promise<HostAccount>`
+```ts
+client.getMe(): Promise<HostAccount>
+```
 
-### Usage
+### Usage [!toc] [#getme-usage]
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
+  <InterfaceTab value="SDK">
 
 ```ts
 const result = await client.getMe();
@@ -654,7 +190,7 @@ const result = await client.getMe();
 ```
 
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getMe" \
@@ -663,7 +199,7 @@ curl -X GET "http://localhost:8080/api/session/getMe" \
   --data '{}'
 ```
 
-Example response envelope:
+Response:
 
 ```json
 {
@@ -681,40 +217,29 @@ Example response envelope:
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+### Parameters [!toc] [#getme-parameters]
 
 This method does not define input parameters.
 
-### Returns
+### Returns [!toc] [#getme-returns]
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<HostAccount>` |
-| HostAccount | [View fields](/docs/reference/client/return-types#hostaccount) |
+Resolves to [`HostAccount`](/docs/reference/client/return-types#hostaccount).
 
-Host account attributes plus the current account ID. Additional WhatsApp Web attributes vary by version.
-
-In-process Client resolves to `Promise<HostAccount>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 Host account attributes plus the current account ID. Additional WhatsApp Web attributes vary by version.
 
 <details>
-<summary>Advanced method metadata</summary>
+<summary>Aliases and HTTP routes</summary>
 
-### Overview
-
-| Prop | Value |
+| Name | Value |
 | --- | --- |
 | Namespace | `session` |
-| Action | `read` |
-| Functionality | `both` |
 | Positional parameter order | - |
 | Aliases | `session.getMe` |
 | Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
+| License | Not needed |
 | Deprecated | No |
 
-### Routes
+**HTTP routes**
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
@@ -724,19 +249,21 @@ Host account attributes plus the current account ID. Additional WhatsApp Web att
 </details>
 
 
-## `getProcessStats`
+## `getHostNumber`
 
-Get process statistics
-
-**Signature** `client.getProcessStats(): Promise<ProcessStats>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
+Get host phone number
 
 ```ts
-const result = await client.getProcessStats();
+client.getHostNumber(): Promise<string>
+```
+
+### Usage [!toc] [#gethostnumber-usage]
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+```ts
+const result = await client.getHostNumber();
 ```
 
   </InterfaceTab>
@@ -746,103 +273,20 @@ const result = await client.getProcessStats();
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getProcessStats();
+const result = await client.getHostNumber();
 ```
 
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
 
 ```bash
-curl -X GET "http://localhost:8080/api/session/getProcessStats" \
+curl -X GET "http://localhost:8080/api/session/getHostNumber" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{}'
 ```
 
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": {}
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-This method does not define input parameters.
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<ProcessStats>` |
-| ProcessStats | [View fields](/docs/reference/client/return-types#processstats) |
-
-Process diagnostics keyed by process ID. The provider controls each entry; no stable entry shape is guaranteed.
-
-In-process Client resolves to `Promise<Record<string, unknown>>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
-Process diagnostics keyed by process ID. The provider controls each entry; no stable entry shape is guaranteed.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `session` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `session.getProcessStats` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getProcessStats` | `getProcessStats` | Active |
-| Alias | `GET` | `/api/getProcessStats` | `getProcessStats` | Active |
-
-</details>
-
-
-## `getSnapshot`
-
-Take screenshot
-
-**Signature** `client.getSnapshot(chatId?: string, width?: number, height?: number): Promise<string>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getSnapshot();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X GET "http://localhost:8080/api/session/getSnapshot" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{}'
-```
-
-Example response envelope:
+Response:
 
 ```json
 {
@@ -854,301 +298,32 @@ Example response envelope:
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="GetSnapshotParams" />
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<string>` |
-
-Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `session` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | `chatId`, `width`, `height` |
-| Aliases | `session.getSnapshot`, `session.takeScreenshot`, `takeScreenshot` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getSnapshot` | `getSnapshot` | Active |
-| Alias | `GET` | `/api/getSnapshot` | `getSnapshot` | Active |
-| Alias | `GET` | `/api/session/takeScreenshot` | `session.takeScreenshot` | Active |
-| Alias | `GET` | `/api/takeScreenshot` | `takeScreenshot` | Active |
-
-</details>
-
-
-## `getUserAgent`
-
-Get user agent
-
-**Signature** `client.getUserAgent(userAgent?: string): Promise<string>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getUserAgent();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X GET "http://localhost:8080/api/session/getUserAgent" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{}'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": "example"
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="GetUserAgentParams" />
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<string>` |
-
-Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `session` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | `userAgent` |
-| Aliases | `getGeneratedUserAgent`, `session.getGeneratedUserAgent`, `session.getUserAgent` |
-| Deprecated aliases | `getGeneratedUserAgent`, `session.getGeneratedUserAgent` |
-| License | `none` |
-| WAPI override | `getGeneratedUserAgent` |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getUserAgent` | `getUserAgent` | Active |
-| Deprecated alias | `GET` | `/api/getGeneratedUserAgent` | `getGeneratedUserAgent` | **Deprecated** |
-| Alias | `GET` | `/api/getUserAgent` | `getUserAgent` | Active |
-| Deprecated alias | `GET` | `/api/session/getGeneratedUserAgent` | `session.getGeneratedUserAgent` | **Deprecated** |
-
-</details>
-
-
-## `getWAVersion`
-
-Get WhatsApp Web version
-
-**Signature** `client.getWAVersion(): Promise<string>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.getWAVersion();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getWAVersion();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X GET "http://localhost:8080/api/session/getWAVersion" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{}'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": "example"
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
+### Parameters [!toc] [#gethostnumber-parameters]
 
 This method does not define input parameters.
 
-### Returns
+### Returns [!toc] [#gethostnumber-returns]
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<string>` |
-
-Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<string>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+Resolves to `string`.
 
 <details>
-<summary>Advanced method metadata</summary>
+<summary>Aliases and HTTP routes</summary>
 
-### Overview
-
-| Prop | Value |
+| Name | Value |
 | --- | --- |
 | Namespace | `session` |
-| Action | `read` |
-| Functionality | `both` |
 | Positional parameter order | - |
-| Aliases | `getWhatsAppVersion`, `session.getWAVersion`, `session.getWhatsAppVersion` |
+| Aliases | `session.getHostNumber` |
 | Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
+| License | Not needed |
 | Deprecated | No |
 
-### Routes
+**HTTP routes**
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getWAVersion` | `getWAVersion` | Active |
-| Alias | `GET` | `/api/getWAVersion` | `getWAVersion` | Active |
-| Alias | `GET` | `/api/getWhatsAppVersion` | `getWhatsAppVersion` | Active |
-| Alias | `GET` | `/api/session/getWhatsAppVersion` | `session.getWhatsAppVersion` | Active |
-
-</details>
-
-
-## `healthCheck`
-
-Health check
-
-**Signature** `client.healthCheck(): Promise<HealthCheck>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.healthCheck();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X GET "http://localhost:8080/api/session/healthCheck" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{}'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": {}
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-This method does not define input parameters.
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<HealthCheck>` |
-| HealthCheck | [View fields](/docs/reference/client/return-types#healthcheck) |
-
-Browser health diagnostics. This is not the Easy API /health HTTP envelope.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
-Browser health diagnostics. This is not the Easy API /health HTTP envelope.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `session` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `session.healthCheck` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/healthCheck` | `healthCheck` | Active |
-| Alias | `GET` | `/api/healthCheck` | `healthCheck` | Active |
+| Primary | `GET` | `/api/session/getHostNumber` | `getHostNumber` | Active |
+| Alias | `GET` | `/api/getHostNumber` | `getHostNumber` | Active |
 
 </details>
 
@@ -1157,12 +332,14 @@ Browser health diagnostics. This is not the Easy API /health HTTP envelope.
 
 Check if phone is charging
 
-**Signature** `client.isPlugged(): Promise<boolean>`
+```ts
+client.isPlugged(): Promise<boolean>
+```
 
-### Usage
+### Usage [!toc] [#isplugged-usage]
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
+  <InterfaceTab value="SDK">
 
 ```ts
 const result = await client.getIsPlugged();
@@ -1179,7 +356,7 @@ const result = await client.isPlugged();
 ```
 
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/isPlugged" \
@@ -1188,7 +365,7 @@ curl -X GET "http://localhost:8080/api/session/isPlugged" \
   --data '{}'
 ```
 
-Example response envelope:
+Response:
 
 ```json
 {
@@ -1200,38 +377,27 @@ Example response envelope:
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+### Parameters [!toc] [#isplugged-parameters]
 
 This method does not define input parameters.
 
-### Returns
+### Returns [!toc] [#isplugged-returns]
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<boolean>` |
-
-Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+Resolves to `boolean`.
 
 <details>
-<summary>Advanced method metadata</summary>
+<summary>Aliases and HTTP routes</summary>
 
-### Overview
-
-| Prop | Value |
+| Name | Value |
 | --- | --- |
 | Namespace | `session` |
-| Action | `read` |
-| Functionality | `both` |
 | Positional parameter order | - |
 | Aliases | `getIsPlugged`, `session.getIsPlugged`, `session.isPlugged` |
 | Deprecated aliases | `getIsPlugged`, `session.getIsPlugged` |
-| License | `none` |
-| WAPI override | `getIsPlugged` |
+| License | Not needed |
 | Deprecated | No |
 
-### Routes
+**HTTP routes**
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
@@ -1243,16 +409,254 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 </details>
 
 
+## `getBatteryLevel`
+
+Get phone battery level
+
+```ts
+client.getBatteryLevel(): Promise<number>
+```
+
+### Usage [!toc] [#getbatterylevel-usage]
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+```ts
+const result = await client.getBatteryLevel();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getBatteryLevel();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getBatteryLevel" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": 0
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters [!toc] [#getbatterylevel-parameters]
+
+This method does not define input parameters.
+
+### Returns [!toc] [#getbatterylevel-returns]
+
+Resolves to `number`.
+
+<details>
+<summary>Aliases and HTTP routes</summary>
+
+| Name | Value |
+| --- | --- |
+| Namespace | `session` |
+| Positional parameter order | - |
+| Aliases | `session.getBatteryLevel` |
+| Deprecated aliases | - |
+| License | Not needed |
+| Deprecated | No |
+
+**HTTP routes**
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getBatteryLevel` | `getBatteryLevel` | Active |
+| Alias | `GET` | `/api/getBatteryLevel` | `getBatteryLevel` | Active |
+
+</details>
+
+
+## `getWAVersion`
+
+Get WhatsApp Web version
+
+```ts
+client.getWAVersion(): Promise<string>
+```
+
+### Usage [!toc] [#getwaversion-usage]
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+```ts
+const result = await client.getWAVersion();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getWAVersion();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getWAVersion" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": "example"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters [!toc] [#getwaversion-parameters]
+
+This method does not define input parameters.
+
+### Returns [!toc] [#getwaversion-returns]
+
+Resolves to `string`.
+
+<details>
+<summary>Aliases and HTTP routes</summary>
+
+| Name | Value |
+| --- | --- |
+| Namespace | `session` |
+| Positional parameter order | - |
+| Aliases | `getWhatsAppVersion`, `session.getWAVersion`, `session.getWhatsAppVersion` |
+| Deprecated aliases | - |
+| License | Not needed |
+| Deprecated | No |
+
+**HTTP routes**
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getWAVersion` | `getWAVersion` | Active |
+| Alias | `GET` | `/api/getWAVersion` | `getWAVersion` | Active |
+| Alias | `GET` | `/api/getWhatsAppVersion` | `getWhatsAppVersion` | Active |
+| Alias | `GET` | `/api/session/getWhatsAppVersion` | `session.getWhatsAppVersion` | Active |
+
+</details>
+
+
+## `getSnapshot`
+
+Take screenshot
+
+```ts
+client.getSnapshot(chatId?: string, width?: number, height?: number): Promise<string>
+```
+
+### Usage [!toc] [#getsnapshot-usage]
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getSnapshot();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getSnapshot" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": "example"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters [!toc] [#getsnapshot-parameters]
+
+<AutoTypeTable path="./generated-method-params.ts" name="GetSnapshotParams" />
+
+### Returns [!toc] [#getsnapshot-returns]
+
+Resolves to `string`.
+
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
+
+<details>
+<summary>Aliases and HTTP routes</summary>
+
+| Name | Value |
+| --- | --- |
+| Namespace | `session` |
+| Positional parameter order | `chatId`, `width`, `height` |
+| Aliases | `session.getSnapshot`, `session.takeScreenshot`, `takeScreenshot` |
+| Deprecated aliases | - |
+| License | Not needed |
+| Deprecated | No |
+
+**HTTP routes**
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getSnapshot` | `getSnapshot` | Active |
+| Alias | `GET` | `/api/getSnapshot` | `getSnapshot` | Active |
+| Alias | `GET` | `/api/session/takeScreenshot` | `session.takeScreenshot` | Active |
+| Alias | `GET` | `/api/takeScreenshot` | `takeScreenshot` | Active |
+
+</details>
+
+
 ## `setMyName`
 
 Set host name
 
-**Signature** `client.setMyName(name: string): Promise<boolean>`
+```ts
+client.setMyName(name: string): Promise<boolean>
+```
 
-### Usage
+### Usage [!toc] [#setmyname-usage]
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
+  <InterfaceTab value="SDK">
 
 ```ts
 const result = await client.setMyName("OpenWA Bot");
@@ -1271,7 +675,7 @@ const result = await client.setMyName({
 ```
 
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/session/setName" \
@@ -1282,7 +686,7 @@ curl -X PUT "http://localhost:8080/api/session/setName" \
   }'
 ```
 
-Example response envelope:
+Response:
 
 ```json
 {
@@ -1294,38 +698,27 @@ Example response envelope:
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+### Parameters [!toc] [#setmyname-parameters]
 
 <AutoTypeTable path="./generated-method-params.ts" name="SetMyNameParams" />
 
-### Returns
+### Returns [!toc] [#setmyname-returns]
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<boolean>` |
-
-Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+Resolves to `boolean`.
 
 <details>
-<summary>Advanced method metadata</summary>
+<summary>Aliases and HTTP routes</summary>
 
-### Overview
-
-| Prop | Value |
+| Name | Value |
 | --- | --- |
 | Namespace | `session` |
-| Action | `update` |
-| Functionality | `personal-only` |
 | Positional parameter order | `name` |
 | Aliases | `session.setDisplayName`, `session.setMyName`, `session.setName`, `setDisplayName` |
 | Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
+| License | Not needed |
 | Deprecated | No |
 
-### Routes
+**HTTP routes**
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
@@ -1342,12 +735,14 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 
 Set host status
 
-**Signature** `client.setMyStatus(statusText: string): Promise<boolean>`
+```ts
+client.setMyStatus(statusText: string): Promise<boolean>
+```
 
-### Usage
+### Usage [!toc] [#setmystatus-usage]
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
+  <InterfaceTab value="SDK">
 
 ```ts
 const result = await client.setMyStatus("Available");
@@ -1366,7 +761,7 @@ const result = await client.setMyStatus({
 ```
 
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/session/setStatus" \
@@ -1377,7 +772,7 @@ curl -X PUT "http://localhost:8080/api/session/setStatus" \
   }'
 ```
 
-Example response envelope:
+Response:
 
 ```json
 {
@@ -1389,38 +784,27 @@ Example response envelope:
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+### Parameters [!toc] [#setmystatus-parameters]
 
 <AutoTypeTable path="./generated-method-params.ts" name="SetMyStatusParams" />
 
-### Returns
+### Returns [!toc] [#setmystatus-returns]
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<boolean>` |
-
-Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+Resolves to `boolean`.
 
 <details>
-<summary>Advanced method metadata</summary>
+<summary>Aliases and HTTP routes</summary>
 
-### Overview
-
-| Prop | Value |
+| Name | Value |
 | --- | --- |
 | Namespace | `session` |
-| Action | `update` |
-| Functionality | `both` |
 | Positional parameter order | `statusText` |
 | Aliases | `session.setMyStatus`, `session.setStatus`, `session.setStatusText`, `setStatusText` |
 | Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
+| License | Not needed |
 | Deprecated | No |
 
-### Routes
+**HTTP routes**
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
@@ -1439,9 +823,13 @@ In-process Client resolves to `Promise<boolean>`. The contract above is for the 
 
 Set profile picture
 
-**Signature** `client.setProfilePicture(image: string \| Buffer): Promise<boolean>`
+Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
-### Usage
+```ts
+client.setProfilePicture(image: string | Buffer): Promise<boolean>
+```
+
+### Usage [!toc] [#setprofilepicture-usage]
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
@@ -1456,7 +844,7 @@ const result = await client.setProfilePicture({
 ```
 
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
 
 ```bash
 curl -X PUT "http://localhost:8080/api/session/setProfilePicture" \
@@ -1467,7 +855,7 @@ curl -X PUT "http://localhost:8080/api/session/setProfilePicture" \
   }'
 ```
 
-Example response envelope:
+Response:
 
 ```json
 {
@@ -1479,38 +867,29 @@ Example response envelope:
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+### Parameters [!toc] [#setprofilepicture-parameters]
 
 <AutoTypeTable path="./generated-method-params.ts" name="SetProfilePictureParams" />
 
-### Returns
+### Returns [!toc] [#setprofilepicture-returns]
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<boolean>` |
+Resolves to `boolean`.
 
-Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
 <details>
-<summary>Advanced method metadata</summary>
+<summary>Aliases and HTTP routes</summary>
 
-### Overview
-
-| Prop | Value |
+| Name | Value |
 | --- | --- |
 | Namespace | `session` |
-| Action | `update` |
-| Functionality | `both` |
 | Positional parameter order | `image` |
 | Aliases | `session.setProfilePic`, `session.setProfilePicture`, `setProfilePic` |
 | Deprecated aliases | `session.setProfilePic`, `setProfilePic` |
 | License | `insiders` |
-| WAPI override | `setProfilePic` |
 | Deprecated | No |
 
-### Routes
+**HTTP routes**
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
@@ -1522,3 +901,490 @@ This method is not declared on the in-process Client facade. Use the remote Node
 </details>
 
 </LicensedMethodSection>
+
+
+## `getLicenseType`
+
+Get license type
+
+```ts
+client.getLicenseType(): Promise<LicenseType | false>
+```
+
+### Usage [!toc] [#getlicensetype-usage]
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getLicenseType();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getLicenseType" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": "CUSTOM"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters [!toc] [#getlicensetype-parameters]
+
+This method does not define input parameters.
+
+### Returns [!toc] [#getlicensetype-returns]
+
+Resolves to `LicenseType | false`. See [LicenseType](/docs/reference/client/return-types#licensetype) for its fields.
+
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
+
+<details>
+<summary>Aliases and HTTP routes</summary>
+
+| Name | Value |
+| --- | --- |
+| Namespace | `session` |
+| Positional parameter order | - |
+| Aliases | `session.getLicenseType` |
+| Deprecated aliases | - |
+| License | Not needed |
+| Deprecated | No |
+
+**HTTP routes**
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getLicenseType` | `getLicenseType` | Active |
+| Alias | `GET` | `/api/getLicenseType` | `getLicenseType` | Active |
+
+</details>
+
+
+## `getLicenseFeatures`
+
+List which licensed features your license key turns on. Each method still checks availability when you call it.
+
+```ts
+client.getLicenseFeatures(): Promise<{ status: "valid" | "missing" | "invalid" | "expired" | "metadata_only"; keyType: string | null; expiresAt: number | "Infinity" | "-Infinity" | "NaN" | null; features: Record<string, boolean> }>
+```
+
+### Usage [!toc] [#getlicensefeatures-usage]
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+```ts
+const result = await client.getLicenseFeatures();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getLicenseFeatures();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getLicenseFeatures" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": {
+    "status": "valid",
+    "keyType": "example",
+    "expiresAt": 0,
+    "features": {}
+  }
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters [!toc] [#getlicensefeatures-parameters]
+
+This method does not define input parameters.
+
+### Returns [!toc] [#getlicensefeatures-returns]
+
+Resolves to:
+
+```ts
+{ status: "valid" | "missing" | "invalid" | "expired" | "metadata_only"; keyType: string | null; expiresAt: number | "Infinity" | "-Infinity" | "NaN" | null; features: Record<string, boolean> }
+```
+
+The SDK resolves to `LicenseFeatures` instead.
+
+<details>
+<summary>Aliases and HTTP routes</summary>
+
+| Name | Value |
+| --- | --- |
+| Namespace | `session` |
+| Positional parameter order | - |
+| Aliases | `session.getLicenseFeatures` |
+| Deprecated aliases | - |
+| License | Not needed |
+| Deprecated | No |
+
+**HTTP routes**
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getLicenseFeatures` | `getLicenseFeatures` | Active |
+| Alias | `GET` | `/api/getLicenseFeatures` | `getLicenseFeatures` | Active |
+
+</details>
+
+
+## `getFeatures`
+
+Get enabled features
+
+```ts
+client.getFeatures(): Promise<FeatureFlags>
+```
+
+### Usage [!toc] [#getfeatures-usage]
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+```ts
+const result = await client.getFeatures();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getFeatures();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getFeatures" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters [!toc] [#getfeatures-parameters]
+
+This method does not define input parameters.
+
+### Returns [!toc] [#getfeatures-returns]
+
+Resolves to [`FeatureFlags`](/docs/reference/client/return-types#featureflags).
+
+WhatsApp feature flags keyed by name. Values are provider-defined and must be narrowed before use.
+
+The SDK resolves to `Record<string, unknown>` instead.
+
+<details>
+<summary>Aliases and HTTP routes</summary>
+
+| Name | Value |
+| --- | --- |
+| Namespace | `session` |
+| Positional parameter order | - |
+| Aliases | `session.getFeatures` |
+| Deprecated aliases | - |
+| License | Not needed |
+| Deprecated | No |
+
+**HTTP routes**
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getFeatures` | `getFeatures` | Active |
+| Alias | `GET` | `/api/getFeatures` | `getFeatures` | Active |
+
+</details>
+
+
+## `getLoadedMessageCount`
+
+Get loaded message count
+
+```ts
+client.getLoadedMessageCount(): Promise<number>
+```
+
+### Usage [!toc] [#getloadedmessagecount-usage]
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+```ts
+const result = await client.getAmountOfLoadedMessages();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getLoadedMessageCount();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getLoadedMessageCount" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": 0
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters [!toc] [#getloadedmessagecount-parameters]
+
+This method does not define input parameters.
+
+### Returns [!toc] [#getloadedmessagecount-returns]
+
+Resolves to `number`.
+
+<details>
+<summary>Aliases and HTTP routes</summary>
+
+| Name | Value |
+| --- | --- |
+| Namespace | `session` |
+| Positional parameter order | - |
+| Aliases | `getAmountOfLoadedMessages`, `session.getAmountOfLoadedMessages`, `session.getLoadedMessageCount` |
+| Deprecated aliases | `getAmountOfLoadedMessages`, `session.getAmountOfLoadedMessages` |
+| License | Not needed |
+| Deprecated | No |
+
+**HTTP routes**
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getLoadedMessageCount` | `getLoadedMessageCount` | Active |
+| Deprecated alias | `GET` | `/api/getAmountOfLoadedMessages` | `getAmountOfLoadedMessages` | **Deprecated** |
+| Alias | `GET` | `/api/getLoadedMessageCount` | `getLoadedMessageCount` | Active |
+| Deprecated alias | `GET` | `/api/session/getAmountOfLoadedMessages` | `session.getAmountOfLoadedMessages` | **Deprecated** |
+
+</details>
+
+
+## `getUserAgent`
+
+Get user agent
+
+```ts
+client.getUserAgent(userAgent?: string): Promise<string>
+```
+
+### Usage [!toc] [#getuseragent-usage]
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getUserAgent();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getUserAgent" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": "example"
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters [!toc] [#getuseragent-parameters]
+
+<AutoTypeTable path="./generated-method-params.ts" name="GetUserAgentParams" />
+
+### Returns [!toc] [#getuseragent-returns]
+
+Resolves to `string`.
+
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
+
+<details>
+<summary>Aliases and HTTP routes</summary>
+
+| Name | Value |
+| --- | --- |
+| Namespace | `session` |
+| Positional parameter order | `userAgent` |
+| Aliases | `getGeneratedUserAgent`, `session.getGeneratedUserAgent`, `session.getUserAgent` |
+| Deprecated aliases | `getGeneratedUserAgent`, `session.getGeneratedUserAgent` |
+| License | Not needed |
+| Deprecated | No |
+
+**HTTP routes**
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getUserAgent` | `getUserAgent` | Active |
+| Deprecated alias | `GET` | `/api/getGeneratedUserAgent` | `getGeneratedUserAgent` | **Deprecated** |
+| Alias | `GET` | `/api/getUserAgent` | `getUserAgent` | Active |
+| Deprecated alias | `GET` | `/api/session/getGeneratedUserAgent` | `session.getGeneratedUserAgent` | **Deprecated** |
+
+</details>
+
+
+## `getProcessStats`
+
+Get process statistics
+
+```ts
+client.getProcessStats(): Promise<ProcessStats>
+```
+
+### Usage [!toc] [#getprocessstats-usage]
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+```ts
+const result = await client.getProcessStats();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getProcessStats();
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+```bash
+curl -X GET "http://localhost:8080/api/session/getProcessStats" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": {}
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters [!toc] [#getprocessstats-parameters]
+
+This method does not define input parameters.
+
+### Returns [!toc] [#getprocessstats-returns]
+
+Resolves to [`ProcessStats`](/docs/reference/client/return-types#processstats).
+
+Process diagnostics keyed by process ID. The provider controls each entry; no stable entry shape is guaranteed.
+
+The SDK resolves to `Record<string, unknown>` instead.
+
+<details>
+<summary>Aliases and HTTP routes</summary>
+
+| Name | Value |
+| --- | --- |
+| Namespace | `session` |
+| Positional parameter order | - |
+| Aliases | `session.getProcessStats` |
+| Deprecated aliases | - |
+| License | Not needed |
+| Deprecated | No |
+
+**HTTP routes**
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/session/getProcessStats` | `getProcessStats` | Active |
+| Alias | `GET` | `/api/getProcessStats` | `getProcessStats` | Active |
+
+</details>

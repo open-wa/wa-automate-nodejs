@@ -71,6 +71,102 @@ type CanonicalMethodRecord = {
 
 const generatorPath = 'packages/schema/scripts/gen-client-reference-docs.ts';
 const docsDir = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '../../../apps/docs/content/docs/reference/client');
+const referenceMetaPath = path.resolve(docsDir, '../meta.json');
+
+// ── Reading order ───────────────────────────────────────────────────────────
+// Developers scan a namespace page from the top, so pages and the methods on
+// them follow how often a method is used, not the alphabet. Keep these lists in
+// step with the registry: the generator fails on a name it can't find and warns
+// about registered methods that aren't listed (they're appended alphabetically).
+
+/** Namespace pages in the sidebar, most used first. */
+const NAMESPACE_ORDER = [
+  'messages',
+  'chats',
+  'contacts',
+  'groups',
+  'media',
+  'session',
+  'status',
+  'labels',
+  'communities',
+  'calls',
+  'business',
+  'events',
+  'mystatus',
+  'chatIds',
+] as const;
+
+/** Page title and the job each namespace page covers. */
+const NAMESPACE_PAGES: Record<string, { title: string; description: string }> = {
+  messages: { title: 'Messages', description: 'Send, reply to, edit, delete and react to messages, and read message history.' },
+  chats: { title: 'Chats', description: 'List chats, mark them read or unread, and archive, pin, mute or clear them.' },
+  contacts: { title: 'Contacts', description: 'Check whether a number is on WhatsApp, look up contacts and profile pictures, and block or unblock people.' },
+  groups: { title: 'Groups', description: 'Create groups, manage members and admins, share invite links and change group settings.' },
+  media: { title: 'Media', description: 'Download and decrypt images, video, audio and documents from messages you receive.' },
+  session: { title: 'Session', description: 'Check the connection, read details about the logged-in account, and change its name, about text and picture.' },
+  status: { title: 'Status updates', description: 'Post text, image and video status updates, read stories and delete your updates.' },
+  labels: { title: 'Labels', description: 'Read WhatsApp Business labels and add them to or remove them from chats.' },
+  communities: { title: 'Communities', description: 'List communities and read their details, members and admins.' },
+  calls: { title: 'Calls', description: 'Start, answer, reject and end calls, and work with call audio.' },
+  business: { title: 'Business', description: 'Read business profiles, product catalogues and orders.' },
+  events: { title: 'Calendar events', description: 'Create, edit and cancel WhatsApp events, and read and send RSVPs.' },
+  mystatus: { title: 'Contact status', description: 'Read the about text a contact has set.' },
+  chatIds: { title: 'Chat IDs', description: 'List the IDs of every chat in the session.' },
+};
+
+/** Methods inside each namespace page, most used first. */
+const METHOD_ORDER: Record<string, readonly string[]> = {
+  messages: [
+    'sendText', 'sendImage', 'sendFile', 'sendFileFromUrl', 'sendReplyWithMentions', 'react', 'sendTextWithMentions',
+    'editMessage', 'deleteMessage', 'forwardMessages', 'sendSeen', 'getMessageById', 'sendAudio', 'sendPtt',
+    'sendSticker', 'sendAlbum', 'sendVideoAsGif', 'sendLocation', 'sendContact', 'sendVCard', 'sendMultipleContacts',
+    'sendLinkWithAutoPreview', 'sendYouTubeLink', 'sendMessageWithThumb', 'sendPoll', 'getPollResults', 'voteOnPoll',
+    'sendButtons', 'sendListMessage', 'sendInteractive', 'sendAdvancedButtons', 'sendBanner', 'getAllMessages',
+    'loadEarlierMessages', 'getMyLastMessage', 'getMessageInfo', 'getMessagesForLLM', 'getAlbumMessages',
+    'getUnsentMessages', 'getVCards', 'starMessage', 'unstarMessage', 'getStarredMessages', 'pinMessage',
+    'unpinMessage', 'sendPaymentRequest', 'sendRawMessage',
+  ],
+  chats: [
+    'getAllChats', 'getChat', 'markAsRead', 'markAsUnread', 'archiveChat', 'unarchiveChat', 'pinChat', 'unpinChat',
+    'muteChat', 'unmuteChat', 'clearChat', 'deleteChat', 'isChatOnline', 'setChatEphemeral', 'getChatWithNonContacts',
+  ],
+  contacts: [
+    'checkNumberStatus', 'getContact', 'getAllContacts', 'getProfilePicture', 'getNumberProfile', 'blockContact',
+    'unblockContact', 'getBlockedIds', 'getCommonGroups', 'checkReadReceipts', 'requestPhoneNumber', 'sharePhoneNumber',
+  ],
+  groups: [
+    'createGroup', 'getAllGroups', 'getGroupInfo', 'getGroupMembers', 'getGroupMembersId', 'getGroupAdmins',
+    'addParticipant', 'removeParticipant', 'promoteParticipant', 'demoteParticipant', 'getGroupInviteLink',
+    'revokeGroupInviteLink', 'joinGroupViaLink', 'leaveGroup', 'setGroupTitle', 'setGroupDescription', 'setGroupIcon',
+    'setGroupToAdminsOnly', 'setGroupEditToAdminsOnly', 'approveGroupJoinRequest', 'rejectGroupJoinRequest',
+    'getKickedGroups',
+  ],
+  media: ['decryptMedia', 'downloadMedia'],
+  session: [
+    'getConnectionState', 'healthCheck', 'getMe', 'getHostNumber', 'isPlugged', 'getBatteryLevel', 'getWAVersion',
+    'getSnapshot', 'setMyName', 'setMyStatus', 'setProfilePicture', 'getLicenseType', 'getLicenseFeatures',
+    'getFeatures', 'getLoadedMessageCount', 'getUserAgent', 'getProcessStats',
+  ],
+  status: ['postTextStatus', 'postImageStatus', 'postVideoStatus', 'getStories', 'deleteStatus', 'deleteAllStatus'],
+  labels: ['getAllLabels', 'addLabel', 'removeLabel', 'getChatsByLabel'],
+  communities: [
+    'getAllCommunities', 'getCommunityInfo', 'getCommunityParticipants', 'getCommunityParticipantIds',
+    'getCommunityAdmins', 'getCommunityAdminIds',
+  ],
+  calls: [
+    'getCallCapabilities', 'startCall', 'acceptCall', 'rejectCall', 'endCall', 'muteCall', 'getActiveCall',
+    'setCallMedia', 'observeCallAudio', 'stopCallAudioObserver', 'clearCallAudio',
+  ],
+  business: ['getBusinessProfile', 'getBusinessProducts', 'getOrder'],
+  events: ['sendEvent', 'getEvents', 'getEvent', 'getEventResponses', 'respondToEvent', 'editEvent', 'cancelEvent'],
+  mystatus: ['getStatus'],
+  chatIds: ['getAllChatIds'],
+};
+
+/** Hand-written reference pages, in sidebar order, around the generated ones. */
+const STARTUP_AND_EVENT_PAGES = ['create', 'core', 'client/events', 'events', 'event-contracts', 'hyperemitter'];
+const TYPE_PAGES = ['client/return-types', 'client/schemas', 'messaging', 'client/licensed-methods', 'client/client'];
 const recordsPath = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '../../../apps/docs/src/generated/client-methods.json');
 
 // The in-process Client facade can normalize the raw registry result. Read its
@@ -399,13 +495,7 @@ function buildFrontmatter(title: string, description: string, icon?: string, seo
 
 function buildRouteBlock(route: HttpMethodDefinition | undefined): string {
   if (!route) {
-    return [
-      '### Routes',
-      '',
-      '| Type | Method | Path | Name | Status |',
-      '| --- | --- | --- | --- | --- |',
-      '| Primary | - | - | - | Not registered |',
-    ].join('\n');
+    return '**HTTP routes:** none. Call this method from the SDK or SocketClient.';
   }
 
   const aliasRows = route.aliasRoutes
@@ -425,7 +515,7 @@ function buildRouteBlock(route: HttpMethodDefinition | undefined): string {
   ];
 
   return [
-    '### Routes',
+    '**HTTP routes**',
     '',
     '| Type | Method | Path | Name | Status |',
     '| --- | --- | --- | --- | --- |',
@@ -437,53 +527,67 @@ function buildOverviewBlock(def: MethodDefinition): string {
   const meta = def.meta;
   const rows = [
     ['Namespace', `\`${escapeTableCell(meta.namespace ?? 'core')}\``],
-    ['Action', meta.action ? `\`${escapeTableCell(meta.action)}\`` : '-'],
-    ['Functionality', meta.functionality ? `\`${escapeTableCell(meta.functionality)}\`` : '-'],
     ['Positional parameter order', formatList(meta.parameterOrder)],
     ['Aliases', formatList(sortStrings(meta.allAliases ?? []))],
     ['Deprecated aliases', formatList(sortStrings(meta.deprecatedAliases ?? []))],
-    ['License', meta.license ? `\`${escapeTableCell(meta.license)}\`` : '`none`'],
-    ['WAPI override', meta.wapiOverride ? `\`${escapeTableCell(meta.wapiOverride)}\`` : '-'],
+    ['License', meta.license && meta.license !== 'none' ? `\`${escapeTableCell(meta.license)}\`` : 'Not needed'],
     ['Deprecated', meta.deprecated ? '**Yes**' : 'No'],
   ];
 
   return [
-    '### Overview',
-    '',
-    '| Prop | Value |',
+    '| Name | Value |',
     '| --- | --- |',
     ...rows.map(([prop, value]) => `| ${prop} | ${value} |`),
   ].join('\n');
 }
 
-function buildOutputBlock(outputSummary: string, notes?: string): string {
-  const lines = [
-    '| Prop | Value |',
-    '| --- | --- |',
-    `| Return type | \`Promise<${escapeTableCell(outputSummary)}>\` |`,
-    ...Object.entries(typeLinks(outputSummary)).map(([name, url]) => `| ${name} | [View fields](${url}) |`),
-  ];
-  if (isUnstructuredOutput(outputSummary)) {
-    lines.push('');
-    lines.push('> Returns raw, unstructured data from WhatsApp Web. Narrow or validate the shape before relying on specific fields.');
+/** Return types longer than this go in a code block instead of a sentence. */
+const MAX_INLINE_RETURN_TYPE = 72;
+
+/** Returns reads as a sentence; only long object types get a code block. */
+function buildReturnsBlock(record: CanonicalMethodRecord): string {
+  const type = record.returnType;
+  const lines: string[] = [];
+  const links = Object.entries(typeLinks(type));
+  const fieldsSentence = links.length > 0
+    ? ` See ${links.map(([name, url]) => `[${name}](${url})`).join(' and ')} for ${links.length > 1 ? 'their' : 'its'} fields.`
+    : '';
+  if (links.length === 1 && links[0][0] === type) {
+    lines.push(`Resolves to [\`${type}\`](${links[0][1]}).`);
+  } else if (type.length <= MAX_INLINE_RETURN_TYPE) {
+    lines.push(`Resolves to \`${type}\`.${fieldsSentence}`);
+  } else {
+    const arms = splitTopLevelUnion(type);
+    lines.push('Resolves to:', '', '```ts', arms.length > 1 ? arms.map((arm) => `| ${arm}`).join('\n') : type, '```');
+    if (fieldsSentence) lines.push('', fieldsSentence.trim());
   }
-  lines.push('');
-  lines.push(notes ?? `The call resolves to \`${escapeMarkdownInline(outputSummary)}\`. A rejected Promise indicates input validation or dispatch failure.`);
+  if (isUnstructuredOutput(type)) {
+    lines.push('', 'WhatsApp decides the shape of this data and it can change, so check fields before you rely on them.');
+  }
+
+  const notes = record.returnNotes || record.returnCaveat;
+  if (notes) lines.push('', notes);
+
+  if (!record.sdkReturnType) {
+    lines.push('', "The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.");
+  } else if (record.sdkReturnType !== type) {
+    lines.push('', `The SDK resolves to \`${record.sdkReturnType}\` instead.`);
+  }
+
   return lines.join('\n');
 }
 
-function buildReturnNotes(def: MethodDefinition, outputSummary: string): string {
+/** Guidance about the result beyond its type. Empty when the type says it all. */
+function buildReturnNotes(def: MethodDefinition): string {
   if (def.meta.functionName === 'sendText') {
-    return 'Resolves to a validated serialized `MessageId` string, not a delivery or read receipt. The in-process Client throws `SendTextError`, exported by `@open-wa/wa-automate` and `@open-wa/client`, on failure. Its `code` is `INVALID_ARGUMENT`, `LICENSE_REQUIRED`, `SEND_REJECTED`, `INVALID_SEND_RESULT`, or `SEND_FAILED`. Its `outcome` is `not_sent` for invalid arguments and known runtime rejections, or `unknown` when the runtime returns no valid ID or browser evaluation fails. An unknown outcome means the message may already have been sent: check the chat before retrying. The client never retries automatically. Starting a chat with a new number still requires an applied restricted or premium license. HTTP and remote clients expose failures through their own error envelopes.';
+    return "The ID means WhatsApp accepted the message, not that it was delivered or read. On failure the SDK throws `SendTextError`, exported by `@open-wa/wa-automate`. Its `code` is `INVALID_ARGUMENT`, `LICENSE_REQUIRED`, `SEND_REJECTED`, `INVALID_SEND_RESULT` or `SEND_FAILED`, and its `outcome` is `not_sent` or `unknown`. An `unknown` outcome means the message may already have been sent, so check the chat before you retry. The client never retries on its own.";
   }
 
   if (def.meta.functionName === 'deleteMessage') {
-    return 'Resolves to `boolean`: `true` means the runtime accepted the operation and `false` means it did not complete. Provider-side revoke can still be rejected, so the value is not proof that every recipient removed the message. A rejected Promise indicates input validation or dispatch failure.';
+    return "`true` means the delete was accepted and `false` means it didn't complete. WhatsApp can still refuse to remove the message for everyone, so `true` doesn't prove every recipient lost it.";
   }
 
-  const description = def.meta.outputSchema.description;
-  if (description) return description;
-  return `Resolves to \`${escapeMarkdownInline(outputSummary)}\`. A rejected Promise indicates input validation or dispatch failure.`;
+  return def.meta.outputSchema.description ?? '';
 }
 
 /** Illustrative JSON data follows the output schema, never a guessed ID for every object. */
@@ -549,10 +653,31 @@ function sampleValueForParameter(row: ParameterRow): string {
   return JSON.stringify(row.name);
 }
 
+/** Samples wrap once a line would scroll on a laptop-width code block. */
+const MAX_SAMPLE_LINE = 80;
+
+/** Pretty-print a long JSON sample so objects and arrays wrap instead of scrolling. */
+function formatSampleValue(sample: string, indent: string): string {
+  if (sample.length <= 40) return sample;
+  try {
+    const parsed = JSON.parse(sample);
+    if (parsed === null || typeof parsed !== 'object') return sample;
+    return JSON.stringify(parsed, null, 2).split('\n').map((line, index) => index === 0 ? line : `${indent}${line}`).join('\n');
+  } catch {
+    return sample;
+  }
+}
+
+/** `prefix(a, b)` on one line when it fits, otherwise one argument per line. */
+function formatCall(prefix: string, args: string[]): string {
+  const oneLine = `${prefix}(${args.join(', ')});`;
+  if (oneLine.length <= MAX_SAMPLE_LINE && !oneLine.includes('\n')) return oneLine;
+  return `${prefix}(\n${args.map((arg) => `  ${formatSampleValue(arg, '  ')},`).join('\n')}\n);`;
+}
+
 function buildPositionalCall(functionName: string, rows: ParameterRow[]): string {
-  if (functionName === 'sendAlbum') return `${buildAlbumMediaExample()}\n\nconst result = await client.sendAlbum('447123456789@c.us', media, 'One caption for the album');`;
-  const argumentsList = rows.map((row) => sampleValueForParameter(row)).join(', ');
-  return `const result = await client.${functionName}(${argumentsList});`;
+  if (functionName === 'sendAlbum') return `${buildAlbumMediaExample()}\n\n${formatCall('const result = await client.sendAlbum', ["'447123456789@c.us'", 'media', "'One caption for the album'"])}`;
+  return formatCall(`const result = await client.${functionName}`, rows.map((row) => sampleValueForParameter(row)));
 }
 
 function buildObjectCall(functionName: string, rows: ParameterRow[]): string {
@@ -564,7 +689,7 @@ function buildObjectCall(functionName: string, rows: ParameterRow[]): string {
   if (functionName === 'decryptMedia' || functionName === 'downloadMedia') {
     return `// Use the full media message received by your message handler.\nconst result = await client.${functionName}({ message${functionName === 'downloadMedia' ? ', path: \"./downloaded-media\"' : ''} });`;
   }
-  const body = rows.map((row) => `  ${row.name}: ${sampleValueForParameter(row)},`).join('\n');
+  const body = rows.map((row) => `  ${row.name}: ${formatSampleValue(sampleValueForParameter(row), '  ')},`).join('\n');
   return `const result = await client.${functionName}({\n${body}\n});`;
 }
 
@@ -599,7 +724,7 @@ function buildJsonBody(rows: ParameterRow[], indent: string): string {
 
 function buildCurlExample(route: HttpMethodDefinition | undefined, rows: ParameterRow[]): string {
   if (!route) {
-    return '# HTTP route is not registered for this method yet.';
+    return '# This method has no HTTP route. Call it from the SDK or SocketClient.';
   }
 
   const url = `http://localhost:8080${route.path}`;
@@ -628,25 +753,23 @@ function buildCurlExample(route: HttpMethodDefinition | undefined, rows: Paramet
   ].join('\n');
 }
 
-function buildUsageTabs(def: MethodDefinition, route: HttpMethodDefinition | undefined, rows: ParameterRow[], outputSummary: string): string {
-  const namespace = def.meta.namespace ?? 'core';
-  const namespacedName = def.meta.namespacedName ?? def.meta.functionName;
-  const exampleRows = rows.filter((row) => row.required);
-  const exampleCall = def.meta.functionName === 'sendText'
-    ? buildPositionalCall(def.meta.functionName, exampleRows)
-    : buildObjectCall(def.meta.functionName, exampleRows);
+/**
+ * A sub-heading inside a method block. `[!toc]` keeps it out of the page's
+ * table of contents, which lists method names only; the explicit id stays
+ * unique across the dozens of methods on one page.
+ */
+function methodSubheading(title: string, anchor: string): string {
+  return `### ${title} [!toc] [#${anchor}-${title.toLowerCase()}]`;
+}
 
-  const record = buildCanonicalMethodRecord(def, route);
-
-  // Interface-aware usage: the tab shown follows the reader's site-wide
-  // "preferred interface" choice. SocketClient is the same call surface over a
-  // socket and is the basis for other-language clients.
+function buildUsageTabs(record: CanonicalMethodRecord): string {
+  // The tab shown follows the reader's site-wide interface choice.
   return [
-    '### Usage',
+    methodSubheading('Usage', record.anchor),
     '',
     '<InterfaceTabs>',
     ...(record.sdkReturnType ? [
-      '  <InterfaceTab value="Embedded">',
+      '  <InterfaceTab value="SDK">',
       '',
       '```ts',
       record.examples.inProcessSdk,
@@ -657,23 +780,20 @@ function buildUsageTabs(def: MethodDefinition, route: HttpMethodDefinition | und
     '  <InterfaceTab value="SocketClient">',
     '',
     '```ts',
-    "import { SocketClient } from '@open-wa/socket-client';",
-    '',
-    "const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');",
-    exampleCall,
+    record.examples.nodeClient,
     '```',
     '',
     '  </InterfaceTab>',
-    '  <InterfaceTab value="Easy API">',
+    '  <InterfaceTab value="HTTP">',
     '',
     '```bash',
-    buildCurlExample(route, exampleRows),
+    record.examples.http,
     '```',
     '',
-    'Example response envelope:',
+    'Response:',
     '',
     '```json',
-    buildResponseExample(def.meta.outputSchema),
+    record.examples.response,
     '```',
     '',
     '  </InterfaceTab>',
@@ -717,7 +837,7 @@ function buildCanonicalMethodRecord(
     returnTypeLinks: typeLinks(`${returnType} ${sdkReturnType ?? ''}`),
     sdkReturnType,
     returnCaveat: def.meta.outputSchema.description ?? (def.meta.outputSchema._zod.def as any).element?.description,
-    returnNotes: buildReturnNotes(def, returnType),
+    returnNotes: buildReturnNotes(def),
     route: route ? { method: route.httpMethod, path: route.path, flatPath: route.aliasRoutes.find((alias) => alias.name === def.meta.functionName)?.path ?? route.path } : null,
     examples: {
       inProcessSdk: !sdkReturnType ? '' : def.meta.functionName === 'decryptMedia' || def.meta.functionName === 'downloadMedia'
@@ -741,18 +861,53 @@ function buildCanonicalMethodRecord(
   };
 }
 
+/** Signatures stay on one line up to this width; code blocks fit about 90 characters. */
+const MAX_SIGNATURE_LINE = 90;
+
+/** Split a type on its top-level `|`, leaving unions inside objects alone. */
+function splitTopLevelUnion(type: string): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let start = 0;
+  for (let index = 0; index < type.length; index += 1) {
+    const char = type[index];
+    if (char === '{' || char === '(' || char === '<' || char === '[') depth += 1;
+    else if (char === '}' || char === ')' || char === '>' || char === ']') depth -= 1;
+    else if (depth === 0 && type.startsWith(' | ', index)) {
+      parts.push(type.slice(start, index));
+      start = index + 3;
+      index += 2;
+    }
+  }
+  parts.push(type.slice(start));
+  return parts;
+}
+
+/** The signature reads as code: one line when it fits, one parameter per line otherwise. */
 function buildMethodSignature(record: CanonicalMethodRecord): string {
   const parameters = record.parameterOrder.map((name) => {
     const parameter = record.parameters.find((item) => item.name === name);
-    return `${name}${parameter?.required ? '' : '?'}: ${parameter?.type ?? 'unknown'}`;
+    return { label: `${name}${parameter?.required ? '' : '?'}`, type: parameter?.type ?? 'unknown' };
   });
-  return `client.${record.name}(${parameters.join(', ')}): Promise<${record.returnType}>`;
+  const oneLine = `client.${record.name}(${parameters.map(({ label, type }) => `${label}: ${type}`).join(', ')}): Promise<${record.returnType}>`;
+  if (oneLine.length <= MAX_SIGNATURE_LINE || parameters.length === 0) return oneLine;
+
+  const lines = parameters.map(({ label, type }) => {
+    const line = `  ${label}: ${type},`;
+    const arms = splitTopLevelUnion(type);
+    if (line.length <= MAX_SIGNATURE_LINE || arms.length < 2) return line;
+    return [`  ${label}:`, ...arms.map((arm) => `    | ${arm}`)].join('\n') + ',';
+  });
+  return `client.${record.name}(\n${lines.join('\n')}\n): Promise<${record.returnType}>`;
+}
+
+function licenseSentence(tier: string): string {
+  const label = tier === 'insiders' ? 'an Insiders' : `a ${titleCase(tier)}`;
+  return `Needs ${label} license. See [pricing](/docs/licensing/pricing).`;
 }
 
 function buildMethodSection(def: MethodDefinition, route: HttpMethodDefinition | undefined): string {
   const record = buildCanonicalMethodRecord(def, route);
-  const outputSummary = record.returnType;
-  const parameters = record.parameters;
 
   const parts = [
     record.license ? `<span id="${record.anchor}---${record.license}" aria-hidden="true"></span>` : '',
@@ -760,27 +915,28 @@ function buildMethodSection(def: MethodDefinition, route: HttpMethodDefinition |
     '',
     record.description,
     '',
-    `**Signature** \`${escapeMarkdownInline(buildMethodSignature(record))}\``,
+    record.license ? licenseSentence(record.license) : '',
+    '',
+    '```ts',
+    buildMethodSignature(record),
+    '```',
     '',
     def.meta.functionName === 'sendText'
-      ? 'Start with `await client.sendText(to, content)`. The registry still accepts an optional `options` value for compatibility, but the current Client implementation ignores it. Use `reply(to, content, messageId)` for quoted replies and `sendTextWithMentions(to, content, hideTags, mentions)` for mentions.'
+      ? 'Leave out `options`: `sendText` ignores it, and neither the SDK nor HTTP needs it. For a quoted reply use `reply(to, content, messageId)`, and for mentions use `sendTextWithMentions`.'
       : '',
     '',
-    buildUsageTabs(def, route, parameters, outputSummary),
+    buildUsageTabs(record),
     '',
-    '### Parameters',
+    methodSubheading('Parameters', record.anchor),
     '',
-    buildParameterTable(def, parameters),
+    buildParameterTable(def, record.parameters),
     '',
-    '### Returns',
+    methodSubheading('Returns', record.anchor),
     '',
-    buildOutputBlock(outputSummary, buildReturnNotes(def, outputSummary)),
-    '',
-    record.sdkReturnType ? `In-process Client resolves to \`Promise<${escapeMarkdownInline(record.sdkReturnType)}>\`. The contract above is for the remote Node.js client; HTTP wraps that result in its \`data\` property.` : 'This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.',
-    record.returnCaveat ?? '',
+    buildReturnsBlock(record),
     '',
     '<details>',
-    '<summary>Advanced method metadata</summary>',
+    '<summary>Aliases and HTTP routes</summary>',
     '',
     buildOverviewBlock(def),
     '',
@@ -822,31 +978,39 @@ function buildGeneratedPage(title: string, description: string, body: string, se
   ].join('\n');
 }
 
-// ── #5: lightweight flat client index (was a 177KB full dump) ────────────────
+/** The method's block on its namespace page. */
+function methodHref(def: MethodDefinition): string {
+  return `/docs/reference/client/${slugForNamespace(def.meta.namespace ?? 'core')}#${methodAnchor(def.meta.functionName)}`;
+}
+
+function namespaceTitle(namespace: string): string {
+  return NAMESPACE_PAGES[namespace]?.title ?? titleCase(namespace);
+}
+
+// ── Every method on one page, A–Z, with the method explorer ─────────────────
 function buildClientIndexPage(methods: MethodDefinition[]): string {
   const rows = methods.map((def) => {
-    const anchor = methodAnchor(def.meta.functionName);
-    const license = def.meta.license && def.meta.license !== 'none' ? `\`${def.meta.license}\`` : '-';
-    return `| [\`${def.meta.functionName}\`](/docs/reference/client/client#${anchor}) | \`${escapeTableCell(def.meta.namespace ?? 'core')}\` | ${escapeTableCell(def.meta.description ?? '')} | ${license} |`;
+    const license = def.meta.license && def.meta.license !== 'none' ? titleCase(def.meta.license) : '-';
+    return `| [\`${def.meta.functionName}\`](${methodHref(def)}) | ${escapeTableCell(namespaceTitle(def.meta.namespace ?? 'core'))} | ${escapeTableCell(def.meta.description ?? '')} | ${license} |`;
   });
   return buildGeneratedPage(
-    'Client API',
-    'Client methods, return values, and examples.',
+    'All methods (A–Z)',
+    'Every method on one page in alphabetical order, with a filter.',
     [
       '<ClientReference />',
       '',
       '<details>\n<summary>Plain-text method index</summary>\n',
       '',
-      '| Method | Namespace | Description | License |',
+      '| Method | Page | Description | License |',
       '| --- | --- | --- | --- |',
       ...rows,
       '\n</details>',
     ].join('\n'),
-    'WhatsApp Client API reference for Node.js | open-wa',
+    'All open-wa WhatsApp API methods, A–Z | open-wa',
   );
 }
 
-// ── #6: methods grouped by license tier ─────────────────────────────────────
+// ── Methods grouped by license tier ─────────────────────────────────────────
 function buildLicensedMethodsPage(methods: MethodDefinition[]): string {
   const byTier = new Map<string, MethodDefinition[]>();
   for (const def of methods) {
@@ -858,12 +1022,12 @@ function buildLicensedMethodsPage(methods: MethodDefinition[]): string {
   const sections = tierOrder.map((tier) => {
     const list = (byTier.get(tier) ?? []).sort((a, b) => a.meta.functionName.localeCompare(b.meta.functionName));
     const rows = list.map((def) => {
-      return `| [\`${def.meta.functionName}\`](/docs/reference/client/client#${methodAnchor(def.meta.functionName)}) | \`${escapeTableCell(def.meta.namespace ?? 'core')}\` | ${escapeTableCell(def.meta.description ?? '')} |`;
+      return `| [\`${def.meta.functionName}\`](${methodHref(def)}) | ${escapeTableCell(namespaceTitle(def.meta.namespace ?? 'core'))} | ${escapeTableCell(def.meta.description ?? '')} |`;
     });
     const section = [
-      `## \`${tier}\` (${list.length})`,
+      `## ${titleCase(tier)}`,
       '',
-      '| Method | Namespace | Description |',
+      '| Method | Page | Description |',
       '| --- | --- | --- |',
       ...rows,
     ].join('\n');
@@ -876,27 +1040,24 @@ function buildLicensedMethodsPage(methods: MethodDefinition[]): string {
     ].join('\n');
   });
 
-  const freeCount = (byTier.get('none') ?? []).length;
-  const licensedCount = methods.length - freeCount;
   return buildGeneratedPage(
     'Licensed methods',
-    'Client methods that require a license key, grouped by tier.',
+    'Methods that need a license key, grouped by the tier that unlocks them.',
     [
-      `The method registry marks **${licensedCount}** methods as licensed. The tables group them by required tier; check each method’s reference for runtime and account requirements.`,
+      'These methods need a license key. Each table lists the methods one tier unlocks, and [pricing](/docs/licensing/pricing) shows what each tier costs.',
       '',
       sections.join('\n\n'),
     ].join('\n'),
   );
 }
 
-// ── #3 (#3338): internals pages, registry-derived ───────────────────────────
-function buildBaseClientDispatchTable(methods: MethodDefinition[]): string {
+// ── #3 (#3338): contributor pages, registry-derived ─────────────────────────
+function buildBaseClientMethodTable(methods: MethodDefinition[]): string {
   const rows = methods.map((def) => {
     const meta = def.meta;
-    const dispatch = meta.wapiOverride ?? meta.functionName;
-    return `| \`${meta.functionName}\` | \`${escapeTableCell(meta.namespace ?? 'core')}\` | \`${escapeTableCell(dispatch)}\` | ${formatList(meta.parameterOrder)} | \`${escapeTableCell(summarizeOutput(meta.outputSchema))}\` |`;
+    return `| \`${meta.functionName}\` | \`${escapeTableCell(meta.namespace ?? 'core')}\` | ${formatList(meta.parameterOrder)} | \`${escapeTableCell(summarizeOutput(meta.outputSchema))}\` |`;
   });
-  return ['| Method | Namespace | Dispatch target | Parameter order | Output |', '| --- | --- | --- | --- | --- |', ...rows].join('\n');
+  return ['| Method | Namespace | Parameter order | Output |', '| --- | --- | --- | --- |', ...rows].join('\n');
 }
 
 function buildFunctionAliasTable(methods: MethodDefinition[]): string {
@@ -955,7 +1116,7 @@ function buildInternalsPages(
       `The registry currently holds **${methodCount} methods** across **${namespaceCount} namespaces**.`,
     ].join('\n')),
 
-    'base-client': buildGeneratedPage('BaseClient', 'The generated flat client, its dispatch contract, and the full method table.', [
+    'base-client': buildGeneratedPage('BaseClient', 'The generated flat client and the full method table.', [
       '`BaseClient` is generated from the registry. Each method is a one-line binding, for example:',
       '',
       '```ts',
@@ -963,26 +1124,26 @@ function buildInternalsPages(
       'public sendText = implementMethod(Methods.sendText);',
       '```',
       '',
-      'At runtime each call normalizes arguments, validates them with the method\'s Zod input schema, then dispatches to `execute(meta.wapiOverride ?? meta.functionName, validatedParams)` (falling back to `pup()` page evaluation). See [Argument normalization](/docs/reference/client/argument-normalization).',
+      'Each call maps its arguments, validates them with the method\'s Zod input schema and then runs the method in the session. See [Argument normalization](/docs/reference/client/argument-normalization).',
       '',
-      '## Method dispatch table',
+      '## Method table',
       '',
-      buildBaseClientDispatchTable(methods),
+      buildBaseClientMethodTable(methods),
     ].join('\n')),
 
     'namespaced-client': buildGeneratedPage('Namespaced client', 'How BaseNamespacedClient builds namespace objects from aliases.', [
       'Namespaced aliases group related methods. For example, `groups.create` resolves to `createGroup`, and `messages.sendText` resolves to `sendText`. Both names identify the same registered method.',
       '',
-      'The [compact reference](/docs/reference/client/client) starts with flat method names. Turn on **Namespaced** beside **Expand parameters** to browse by namespace. Permanent method links stay the same.',
+      'The [A–Z method list](/docs/reference/client/client) starts with flat method names. Turn on **Namespaced** beside **Expand parameters** to browse by namespace. Method links stay the same.',
       '',
-      'The [HTTP API](/docs/getting-started/easy-api) registers both forms, such as `/api/createGroup` and `/api/groups/create`. Its examples follow the switch. The [Node.js client](/docs/client-and-integrations/socket-client) and [in-process SDK](/docs/getting-started/custom-code) use flat calls such as `client.createGroup(...)`; they do not expose `client.groups.create(...)`, so their examples keep the callable form.',
+      'The [HTTP API](/docs/getting-started/easy-api) registers both forms, such as `/api/createGroup` and `/api/groups/create`. Its examples follow the switch. [SocketClient](/docs/client-and-integrations/socket-client) and the [SDK](/docs/getting-started/custom-code) use flat calls such as `client.createGroup(...)`; they do not expose `client.groups.create(...)`, so their examples keep the callable form.',
       '',
       '`BaseNamespacedClient` is a generated base class for client implementations. It extends `BaseClient` and builds namespace objects from the registered aliases. It is not the class returned by `SocketClient.connect()`.',
       '',
       'See the full alias map on [Aliases](/docs/reference/client/aliases).',
     ].join('\n')),
 
-    'argument-normalization': buildGeneratedPage('Argument normalization', 'Positional vs object arguments, alias resolution, validation, and dispatch.', [
+    'argument-normalization': buildGeneratedPage('Argument normalization', 'Positional and object arguments, key aliases and validation.', [
       'Every generated method accepts either positional arguments (mapped by `parameterOrder`) or a single options object (with key aliases resolved).',
       '',
       '```ts',
@@ -993,7 +1154,7 @@ function buildInternalsPages(
       '// key aliases normalize -> { to, content }',
       '```',
       '',
-      'Steps: 1) resolve positional/object args, 2) normalize key aliases, 3) `inputSchema.parseAsync()` validates, 4) dispatch to `execute(...)`. Invalid input rejects before any WhatsApp call.',
+      'Each call resolves positional or object arguments, normalizes key aliases, validates the result with `inputSchema.parseAsync()` and only then runs the method. Invalid input rejects before anything reaches WhatsApp.',
     ].join('\n')),
 
     aliases: buildGeneratedPage('Aliases', 'Function aliases and parameter key aliases across all methods.', [
@@ -1010,8 +1171,8 @@ function buildInternalsPages(
       buildKeyAliasTable(methods),
     ].join('\n')),
 
-    schemas: buildGeneratedPage('Data models', 'Core data models returned by client methods.', [
-      'These are the main data models. Fields are derived from the exported types in `packages/schema/src/common-types.ts`.',
+    schemas: buildGeneratedPage('Data models', 'The message, contact, chat and group objects most methods return.', [
+      'These are the objects most methods return. [Return types](/docs/reference/client/return-types) covers every other result.',
       '',
       '### Message',
       '<AutoTypeTable path="../../../../../../packages/schema/src/common-types.ts" name="Message" />',
@@ -1030,10 +1191,10 @@ function buildInternalsPages(
       '`gen-types.ts` emits input and output type aliases for every method from its `inputSchema` and `outputSchema` into `packages/schema/src/generated/types.ts`. `@open-wa/wa-automate-types-only` re-exposes this generated surface so consumers can import method types without the runtime.',
     ].join('\n')),
 
-    'send-text-worked-example': buildGeneratedPage('Trace sendText through the runtime', 'Contributor walkthrough of how sendText is defined and dispatched.', [
+    'send-text-worked-example': buildGeneratedPage('Trace sendText', 'Follow sendText from its schema definition to the call in a session.', [
       sendText
         ? [
-            'This contributor walkthrough follows `sendText` from its schema definition to runtime dispatch. For the consumer contract, start with the [sendText method block](/docs/reference/client/messages#sendtext).',
+            'This walkthrough for contributors follows `sendText` from its schema definition to the call in a session. To use it, start with the [sendText reference](/docs/reference/client/messages#sendtext).',
             '',
             '## Consumer usage',
             '',
@@ -1049,7 +1210,7 @@ function buildInternalsPages(
             '}',
             '```',
             '',
-            '## Runtime trace',
+            '## Trace',
             '',
             '`sendText` is defined in `packages/schema/src/methods/messaging.ts`:',
             '',
@@ -1063,8 +1224,8 @@ function buildInternalsPages(
             '',
             '1. A positional call maps by `parameterOrder`.',
             '2. An object call resolves key aliases (`chatId` → `to`, `text` → `content`).',
-            '3. `inputSchema.parseAsync()` validates before dispatch.',
-            `4. Dispatch target is \`execute('${sendText.meta.wapiOverride ?? 'sendText'}', validatedParams)\`.`,
+            '3. `inputSchema.parseAsync()` validates the arguments.',
+            '4. The validated call runs in the session and resolves to the message ID.',
             '5. See the full reference on the [messages namespace page](/docs/reference/client/messages#sendtext).',
           ].join('\n')
         : 'The `sendText` method is not currently registered.',
@@ -1085,10 +1246,10 @@ function buildEventsPage(events: EventDefinition[]): string {
   });
 
   return buildGeneratedPage(
-    'Events',
-    'Generated reference for registered client events and their payloads.',
+    'Event listeners',
+    'Every event you can listen for, with its listener name and payload.',
     [
-      `open-wa emits **${sorted.length}** events. Subscribe with the client helper (\`client.onMessage\`), the legacy listener name, or the event bus wildcard. Payload types are derived from each event\'s registered schema.`,
+      'Subscribe with a client helper such as `client.onMessage`, the listener name in the second column, or the event bus wildcard.',
       '',
       '| Event | Legacy listener | Description | Payload | Status | License |',
       '| --- | --- | --- | --- | --- | --- |',
@@ -1097,15 +1258,14 @@ function buildEventsPage(events: EventDefinition[]): string {
   );
 }
 
+/** Contributor pages about how the reference is built, at the bottom of the sidebar. */
 const INTERNALS_PAGE_ORDER = [
   'schema-pipeline',
   'base-client',
   'namespaced-client',
   'argument-normalization',
   'aliases',
-  'schemas',
   'generated-types',
-  'return-types',
   'send-text-worked-example',
 ];
 
@@ -1130,6 +1290,32 @@ function cleanGeneratedDocs(): void {
   }
 }
 
+/** Namespaces in reading order; any namespace missing from NAMESPACE_ORDER follows alphabetically. */
+function orderNamespaces(registered: string[]): string[] {
+  const known = NAMESPACE_ORDER.filter((namespace) => registered.includes(namespace));
+  const unknown = sortStrings(registered.filter((namespace) => !(NAMESPACE_ORDER as readonly string[]).includes(namespace)));
+  for (const namespace of unknown) {
+    console.warn(`[reference] Namespace "${namespace}" isn't in NAMESPACE_ORDER; listing it after the others.`);
+  }
+  return [...known, ...unknown];
+}
+
+/** Methods in reading order; unlisted methods follow alphabetically. */
+function orderMethods(namespace: string, defs: MethodDefinition[]): MethodDefinition[] {
+  const order = METHOD_ORDER[namespace] ?? [];
+  const byName = new Map(defs.map((def) => [def.meta.functionName, def]));
+  for (const name of order) {
+    if (!byName.has(name)) {
+      throw new Error(`[reference] METHOD_ORDER.${namespace} lists "${name}", but no such method is registered in that namespace.`);
+    }
+  }
+  const unlisted = defs.filter((def) => !order.includes(def.meta.functionName));
+  for (const def of unlisted) {
+    console.warn(`[reference] "${def.meta.functionName}" isn't in METHOD_ORDER.${namespace}; listing it after the others.`);
+  }
+  return [...order.map((name) => byName.get(name)!), ...unlisted];
+}
+
 const methods = clientRegistry
   .getAll()
   .slice()
@@ -1148,64 +1334,85 @@ for (const def of methods) {
   namespaceMethods.push(def);
   methodsByNamespace.set(namespace, namespaceMethods);
 }
+for (const [namespace, defs] of methodsByNamespace) {
+  methodsByNamespace.set(namespace, orderMethods(namespace, defs));
+}
 
 cleanGeneratedDocs();
 
-const namespaces = sortStrings(Array.from(methodsByNamespace.keys()));
-const meta = {
-  title: 'Client API',
-  icon: 'BookOpen',
-  pages: ['index', 'client', ...INTERNALS_PAGE_ORDER, 'events', 'licensed-methods', ...namespaces.map(slugForNamespace)],
+const namespaces = orderNamespaces(Array.from(methodsByNamespace.keys()));
+
+// The whole API reference sidebar: namespaces first, then startup and events,
+// then types, with the pages about how the reference is built at the bottom.
+const referenceMeta = {
+  title: 'API reference',
+  icon: 'FileCode',
+  pages: [
+    // /docs/reference stays reachable for old links but isn't a second landing page.
+    '!index',
+    'client/index',
+    ...namespaces.map((namespace) => `client/${slugForNamespace(namespace)}`),
+    '---Startup and events---',
+    ...STARTUP_AND_EVENT_PAGES,
+    '---Types---',
+    ...TYPE_PAGES,
+    '---How the reference is built---',
+    ...INTERNALS_PAGE_ORDER.map((slug) => `client/${slug}`),
+  ],
 };
 
 const indexContent = [
-  buildFrontmatter('Client API Reference', 'Generated reference for schema-registry client methods.', 'BookOpen'),
+  buildFrontmatter(
+    'Overview',
+    'Every method open-wa offers, grouped by job, with SDK, SocketClient and HTTP examples.',
+    'BookOpen',
+    'WhatsApp API reference for Node.js and HTTP | open-wa',
+  ),
   '',
-  '# Client API Reference',
+  '# API reference',
   '',
-  '`packages/schema/scripts/gen-client-reference-docs.ts` generates these pages from the schema registry and method files.',
+  'Find the job you want to do, then the method that does it. Each method shows the same call from the SDK, from SocketClient and over HTTP.',
   '',
   '<InterfacePreference />',
   '',
-  '## Namespaces',
+  '## Methods by job',
   '',
   '<Cards>',
   '',
   ...namespaces.map((namespace) => {
-    const namespaceMethods = methodsByNamespace.get(namespace) ?? [];
-    const slug = slugForNamespace(namespace);
+    const page = NAMESPACE_PAGES[namespace];
     return [
-      `  <Card title="${escapeMdxText(titleCase(namespace))}" href="./${slug}">`,
-      `    ${namespaceMethods.length} client methods`,
+      `  <Card title="${escapeMdxText(namespaceTitle(namespace))}" href="/docs/reference/client/${slugForNamespace(namespace)}">`,
+      `    ${escapeMdxText(page?.description ?? '')}`,
       '  </Card>',
       '',
     ].join('\n');
   }),
   '</Cards>',
   '',
-  '## How the client works',
+  '## Calling a method',
   '',
-  '- [Schema pipeline](/docs/reference/client/schema-pipeline) — one definition, many projections',
-  '- [BaseClient](/docs/reference/client/base-client) — the generated flat client and dispatch table',
-  '- [Namespaced client](/docs/reference/client/namespaced-client) — namespace member mapping',
-  '- [Argument normalization](/docs/reference/client/argument-normalization) — positional vs object args, aliases',
-  '- [Aliases](/docs/reference/client/aliases) — function and parameter key aliases',
-  '- [Data models](/docs/reference/client/schemas) — Message, Contact, Chat, GroupMetadata',
-  '- [Generated types](/docs/reference/client/generated-types) — where input/output type aliases come from',
-  '- [Worked example: sendText](/docs/reference/client/send-text-worked-example)',
-  '- [Events](/docs/reference/client/events) — registered events and payloads',
-  '- [Licensed methods](/docs/reference/client/licensed-methods) — what needs a license key',
-  '- [All client methods](/docs/reference/client/client) — alphabetical index',
+  '- **SDK:** start a session with `create()` from `@open-wa/wa-automate`, then call methods on the client it returns, for example `await client.sendText(to, content)`.',
+  "- **SocketClient:** connect to a running Easy API with `SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY')` and make the same calls over the network.",
+  '- **HTTP:** send JSON to `POST /api/<page>/<method>`, such as `/api/messages/sendText`, with your key in the `x-api-key` header. Body keys match the parameter names on each method.',
+  '',
+  'Every method returns a promise that rejects when the arguments are invalid or the call fails. Over HTTP a successful call returns `{ "success": true, "data": … }`, where `data` is the value listed under **Returns**, and a failed call returns an error status with `{ "error", "details" }`.',
+  '',
+  '## Also in the reference',
+  '',
+  '- [All methods (A–Z)](/docs/reference/client/client) puts every method on one page with a filter.',
+  '- [Licensed methods](/docs/reference/client/licensed-methods) lists the methods that need a license key.',
+  '- [Event listeners](/docs/reference/client/events) lists every event you can subscribe to.',
+  '- [Return types](/docs/reference/client/return-types) and [Data models](/docs/reference/client/schemas) describe the objects methods return.',
 ].join('\n');
 
 writeFileIfChanged(path.join(docsDir, 'index.mdx'), `${indexContent}\n`);
-writeFileIfChanged(path.join(docsDir, 'meta.json'), `${JSON.stringify(meta, null, 2)}\n`);
+writeFileIfChanged(referenceMetaPath, `${JSON.stringify(referenceMeta, null, 2)}\n`);
 
-// #5: the flat page is now a lightweight alphabetical index (was ~177KB); the
-// full per-method detail lives on the namespace pages.
+// Every method on one page, alphabetical; full detail lives on the namespace pages.
 writeFileIfChanged(path.join(docsDir, 'client.mdx'), buildClientIndexPage(methods));
 
-// #3 (#3338): registry-derived internals pages.
+// #3 (#3338): registry-derived contributor pages.
 const internalsPages = buildInternalsPages(methods, namespaces.length, routesByFunctionName);
 for (const [slug, content] of Object.entries(internalsPages)) {
   writeFileIfChanged(path.join(docsDir, `${slug}.mdx`), content);
@@ -1219,16 +1426,12 @@ writeFileIfChanged(path.join(docsDir, 'licensed-methods.mdx'), buildLicensedMeth
 
 for (const namespace of namespaces) {
   const namespaceMethods = methodsByNamespace.get(namespace) ?? [];
+  const title = namespaceTitle(namespace);
+  const description = NAMESPACE_PAGES[namespace]?.description ?? `Methods in the ${namespace} namespace.`;
   const pageContent = [
-    buildFrontmatter(
-      `${titleCase(namespace)} Client API`,
-      `Generated client method reference for the ${namespace} namespace.`,
-      'BookOpen'
-    ),
+    buildFrontmatter(title, description, 'BookOpen'),
     '',
-    `# ${titleCase(namespace)} Client API`,
-    '',
-    `This page documents ${namespaceMethods.length} schema-registry client methods in the \`${namespace}\` namespace.`,
+    `# ${title}`,
     '',
     namespaceMethods.map((def) => buildMethodSection(def, routesByFunctionName.get(def.meta.functionName))).join('\n\n'),
   ].join('\n');
@@ -1241,7 +1444,7 @@ const canonicalMethodRecords: CanonicalMethodRecord[] = [];
 for (const def of methods) {
   const record = buildCanonicalMethodRecord(def, routesByFunctionName.get(def.meta.functionName));
   canonicalMethodRecords.push(record);
-  methodsMap[def.meta.functionName] = `/docs/reference/client/client#${record.anchor}`;
+  methodsMap[def.meta.functionName] = methodHref(def);
 }
 
 writeFileIfChanged(path.join(docsDir, 'methods-map.json'), `${JSON.stringify(methodsMap, null, 2)}\n`);

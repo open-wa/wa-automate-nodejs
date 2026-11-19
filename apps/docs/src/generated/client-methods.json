@@ -38,7 +38,7 @@
     "returnType": "{ ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
     "returnTypeLinks": {},
     "sdkReturnType": "CallActionResult",
-    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/calls/acceptCall",
@@ -94,7 +94,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/labels/add",
@@ -157,14 +157,14 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/groups/addParticipant",
       "flatPath": "/api/addParticipant"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.addParticipant(\"447123456789-1445627445@g.us\", \"447123456789@c.us\");",
+      "inProcessSdk": "const result = await client.addParticipant(\n  \"447123456789-1445627445@g.us\",\n  \"447123456789@c.us\",\n);",
       "nodeCall": "const result = await client.addParticipant({\n  groupId: \"447123456789-1445627445@g.us\",\n  contactId: \"447123456789@c.us\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.addParticipant({\n  groupId: \"447123456789-1445627445@g.us\",\n  contactId: \"447123456789@c.us\",\n});",
       "http": "curl -X PUT \"http://localhost:8080/api/groups/addParticipant\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"groupId\": \"447123456789-1445627445@g.us\",\n    \"contactId\": \"447123456789@c.us\"\n  }'",
@@ -219,7 +219,7 @@
     "returnType": "string | boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `string \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/groups/approveJoinRequest",
@@ -266,7 +266,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/chats/archive",
@@ -317,7 +317,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/contacts/block",
@@ -366,14 +366,14 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/events/cancelEvent",
       "flatPath": "/api/cancelEvent"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.cancelEvent(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\");",
+      "inProcessSdk": "const result = await client.cancelEvent(\n  \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n);",
       "nodeCall": "const result = await client.cancelEvent({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.cancelEvent({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/events/cancelEvent\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"eventId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n  }'",
@@ -414,7 +414,7 @@
       "NumberCheck": "/docs/reference/client/return-types#numbercheck"
     },
     "sdkReturnType": "NumberCheck",
-    "returnNotes": "Resolves to `NumberCheck`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/contacts/checkNumberStatus",
@@ -462,7 +462,7 @@
     "returnType": "boolean | string",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean \\| string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/contacts/checkReadReceipts",
@@ -505,7 +505,7 @@
     "returnType": "{ ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
     "returnTypeLinks": {},
     "sdkReturnType": "CallActionResult",
-    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/calls/clearCallAudio",
@@ -552,7 +552,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "DELETE",
       "path": "/api/chats/clear",
@@ -611,7 +611,7 @@
       "GroupCreationResult": "/docs/reference/client/return-types#groupcreationresult"
     },
     "sdkReturnType": "{ gid: GroupId } | null",
-    "returnNotes": "Resolves to `GroupCreationResult \\| null`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/groups/create",
@@ -656,7 +656,7 @@
       "DataURL": "/docs/reference/client/return-types#dataurl"
     },
     "sdkReturnType": "DataURL",
-    "returnNotes": "Resolves to `DataURL`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/media/decrypt",
@@ -688,7 +688,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "DELETE",
       "path": "/api/status/deleteAll",
@@ -735,7 +735,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "DELETE",
       "path": "/api/chats/delete",
@@ -805,16 +805,16 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`: `true` means the runtime accepted the operation and `false` means it did not complete. Provider-side revoke can still be rejected, so the value is not proof that every recipient removed the message. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "`true` means the delete was accepted and `false` means it didn't complete. WhatsApp can still refuse to remove the message for everyone, so `true` doesn't prove every recipient lost it.",
     "route": {
       "method": "DELETE",
       "path": "/api/messages/delete",
       "flatPath": "/api/deleteMessage"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.deleteMessage(\"447123456789@c.us\", [\"false_447123456789@c.us_ABC123\",\"false_447123456789@c.us_DEF456\"]);",
-      "nodeCall": "const result = await client.deleteMessage({\n  chatId: \"447123456789@c.us\",\n  messageId: [\"false_447123456789@c.us_ABC123\",\"false_447123456789@c.us_DEF456\"],\n});",
-      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.deleteMessage({\n  chatId: \"447123456789@c.us\",\n  messageId: [\"false_447123456789@c.us_ABC123\",\"false_447123456789@c.us_DEF456\"],\n});",
+      "inProcessSdk": "const result = await client.deleteMessage(\n  \"447123456789@c.us\",\n  [\n    \"false_447123456789@c.us_ABC123\",\n    \"false_447123456789@c.us_DEF456\"\n  ],\n);",
+      "nodeCall": "const result = await client.deleteMessage({\n  chatId: \"447123456789@c.us\",\n  messageId: [\n    \"false_447123456789@c.us_ABC123\",\n    \"false_447123456789@c.us_DEF456\"\n  ],\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.deleteMessage({\n  chatId: \"447123456789@c.us\",\n  messageId: [\n    \"false_447123456789@c.us_ABC123\",\n    \"false_447123456789@c.us_DEF456\"\n  ],\n});",
       "http": "curl -X DELETE \"http://localhost:8080/api/messages/delete\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"chatId\": \"447123456789@c.us\",\n    \"messageId\": [\n      \"false_447123456789@c.us_ABC123\",\n      \"false_447123456789@c.us_DEF456\"\n    ]\n  }'",
       "response": "{\n  \"success\": true,\n  \"data\": true\n}"
     }
@@ -848,7 +848,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "DELETE",
       "path": "/api/status/delete",
@@ -911,14 +911,14 @@
     "returnType": "boolean | string",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean \\| string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/groups/demoteParticipant",
       "flatPath": "/api/demoteParticipant"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.demoteParticipant(\"447123456789-1445627445@g.us\", \"447123456789@c.us\");",
+      "inProcessSdk": "const result = await client.demoteParticipant(\n  \"447123456789-1445627445@g.us\",\n  \"447123456789@c.us\",\n);",
       "nodeCall": "const result = await client.demoteParticipant({\n  groupId: \"447123456789-1445627445@g.us\",\n  contactId: \"447123456789@c.us\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.demoteParticipant({\n  groupId: \"447123456789-1445627445@g.us\",\n  contactId: \"447123456789@c.us\",\n});",
       "http": "curl -X PUT \"http://localhost:8080/api/groups/demoteParticipant\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"groupId\": \"447123456789-1445627445@g.us\",\n    \"contactId\": \"447123456789@c.us\"\n  }'",
@@ -1024,14 +1024,14 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/events/editEvent",
       "flatPath": "/api/editEvent"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.editEvent(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\", {\"description\":\"Updated meetup details\"});",
+      "inProcessSdk": "const result = await client.editEvent(\n  \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  {\"description\":\"Updated meetup details\"},\n);",
       "nodeCall": "const result = await client.editEvent({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  changes: {\"description\":\"Updated meetup details\"},\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.editEvent({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  changes: {\"description\":\"Updated meetup details\"},\n});",
       "http": "curl -X POST \"http://localhost:8080/api/events/editEvent\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"eventId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n    \"changes\": {\n      \"description\": \"Updated meetup details\"\n    }\n  }'",
@@ -1044,7 +1044,7 @@
     "name": "editMessage",
     "namespacedName": "messages.edit",
     "namespace": "messages",
-    "description": "Edits the text of a message through the installed private patch",
+    "description": "Edit the text of a message you sent",
     "license": null,
     "aliases": [
       "messages.edit"
@@ -1083,7 +1083,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/messages/edit",
@@ -1126,7 +1126,7 @@
     "returnType": "{ ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
     "returnTypeLinks": {},
     "sdkReturnType": "CallActionResult",
-    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/calls/endCall",
@@ -1197,16 +1197,16 @@
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
     "sdkReturnType": "MessageIdReturn[] | boolean",
-    "returnNotes": "Resolves to `MessageIdReturn[] \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/forward",
       "flatPath": "/api/forwardMessages"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.forwardMessages(\"447123456789@c.us\", [\"false_447123456789@c.us_ABC123\",\"false_447123456789@c.us_DEF456\"]);",
-      "nodeCall": "const result = await client.forwardMessages({\n  to: \"447123456789@c.us\",\n  messages: [\"false_447123456789@c.us_ABC123\",\"false_447123456789@c.us_DEF456\"],\n});",
-      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.forwardMessages({\n  to: \"447123456789@c.us\",\n  messages: [\"false_447123456789@c.us_ABC123\",\"false_447123456789@c.us_DEF456\"],\n});",
+      "inProcessSdk": "const result = await client.forwardMessages(\n  \"447123456789@c.us\",\n  [\n    \"false_447123456789@c.us_ABC123\",\n    \"false_447123456789@c.us_DEF456\"\n  ],\n);",
+      "nodeCall": "const result = await client.forwardMessages({\n  to: \"447123456789@c.us\",\n  messages: [\n    \"false_447123456789@c.us_ABC123\",\n    \"false_447123456789@c.us_DEF456\"\n  ],\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.forwardMessages({\n  to: \"447123456789@c.us\",\n  messages: [\n    \"false_447123456789@c.us_ABC123\",\n    \"false_447123456789@c.us_DEF456\"\n  ],\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/forward\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"messages\": [\n      \"false_447123456789@c.us_ABC123\",\n      \"false_447123456789@c.us_DEF456\"\n    ]\n  }'",
       "response": "{\n  \"success\": true,\n  \"data\": []\n}"
     }
@@ -1217,7 +1217,7 @@
     "name": "getActiveCall",
     "namespacedName": "calls.getActiveCall",
     "namespace": "calls",
-    "description": "Get the current call snapshot. SDK clients hydrate its bound methods.",
+    "description": "Get the current call, if there is one. In the SDK the result also has methods to control the call.",
     "license": "restricted",
     "aliases": [
       "calls.getActiveCall"
@@ -1228,7 +1228,7 @@
     "returnType": "{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: \"incoming\" | \"outgoing\"; video: boolean; terminal: boolean; observedAt: number | \"Infinity\" | \"-Infinity\" | \"NaN\"; endReason?: { code: string; message: string; source: \"local\" | \"media\" | \"license\" | \"session\" | \"whatsapp\" } | null; media?: { state: \"attached\" | \"ended\"; reason?: string | null } | null",
     "returnTypeLinks": {},
     "sdkReturnType": "Call | null",
-    "returnNotes": "Resolves to `{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: \"incoming\" \\| \"outgoing\"; video: boolean; terminal: boolean; observedAt: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\"; endReason?: { code: string; message: string; source: \"local\" \\| \"media\" \\| \"license\" \\| \"session\" \\| \"whatsapp\" } \\| null; media?: { state: \"attached\" \\| \"ended\"; reason?: string \\| null } \\| null`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/calls/getActiveCall",
@@ -1287,7 +1287,7 @@
       "flatPath": "/api/getAlbumMessages"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.getAlbumMessages(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\");",
+      "inProcessSdk": "const result = await client.getAlbumMessages(\n  \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n);",
       "nodeCall": "const result = await client.getAlbumMessages({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getAlbumMessages({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "http": "curl -G \"http://localhost:8080/api/messages/getAlbum\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"messageId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"",
@@ -1318,7 +1318,7 @@
     },
     "sdkReturnType": null,
     "returnCaveat": "Opaque conversation identifier. Use the exact value returned by a message event or chat lookup.",
-    "returnNotes": "Resolves to `ChatId[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/chatIds/getAll",
@@ -1367,7 +1367,7 @@
     },
     "sdkReturnType": "Chat[]",
     "returnCaveat": "Serialized chat returned by chat lookups and listings. Its id is an opaque ChatId; additional WhatsApp Web fields may be present.",
-    "returnNotes": "Resolves to `Chat[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/chats/getAll",
@@ -1404,7 +1404,7 @@
     },
     "sdkReturnType": null,
     "returnCaveat": "Opaque group conversation identifier returned by a group lookup or join method.",
-    "returnNotes": "Resolves to `GroupChatId[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/communities/getAll",
@@ -1440,7 +1440,7 @@
       "Contact": "/docs/reference/client/return-types#contact"
     },
     "sdkReturnType": "Contact[]",
-    "returnNotes": "Resolves to `Contact[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/contacts/getAll",
@@ -1489,7 +1489,7 @@
     },
     "sdkReturnType": null,
     "returnCaveat": "Serialized chat returned by chat lookups and listings. Its id is an opaque ChatId; additional WhatsApp Web fields may be present.",
-    "returnNotes": "Resolves to `Chat[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/groups/getAll",
@@ -1525,7 +1525,7 @@
       "Label": "/docs/reference/client/return-types#label"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `Label[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/labels/getAll",
@@ -1597,7 +1597,7 @@
       "Message": "/docs/reference/client/return-types#message"
     },
     "sdkReturnType": "Message[]",
-    "returnNotes": "Resolves to `Message[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/messages/getAll",
@@ -1628,7 +1628,7 @@
     "returnType": "number",
     "returnTypeLinks": {},
     "sdkReturnType": "number",
-    "returnNotes": "Resolves to `number`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/session/getBatteryLevel",
@@ -1661,7 +1661,7 @@
       "ContactId": "/docs/reference/client/return-types#contactid"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `ContactId[] \\| false`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/contacts/getBlockedIds",
@@ -1714,7 +1714,7 @@
       "Product": "/docs/reference/client/return-types#product"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `Product[] \\| false`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/business/getProducts",
@@ -1762,7 +1762,7 @@
       "BusinessProfile": "/docs/reference/client/return-types#businessprofile"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `BusinessProfile`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/business/getProfile",
@@ -1793,7 +1793,7 @@
     "returnType": "{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" } }",
     "returnTypeLinks": {},
     "sdkReturnType": "CallCapabilities",
-    "returnNotes": "Resolves to `{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" } }`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/calls/getCallCapabilities",
@@ -1844,7 +1844,7 @@
       "Chat": "/docs/reference/client/return-types#chat"
     },
     "sdkReturnType": "Chat | false | undefined",
-    "returnNotes": "Resolves to `Chat \\| null \\| undefined \\| false`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/chats/get",
@@ -1891,7 +1891,7 @@
     },
     "sdkReturnType": null,
     "returnCaveat": "Serialized chat returned by chat lookups and listings. Its id is an opaque ChatId; additional WhatsApp Web fields may be present.",
-    "returnNotes": "Resolves to `Chat[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/labels/getChats",
@@ -1924,7 +1924,7 @@
       "Contact": "/docs/reference/client/return-types#contact"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `Contact[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/chats/getWithNonContacts",
@@ -1973,7 +1973,7 @@
       "CommonGroup": "/docs/reference/client/return-types#commongroup"
     },
     "sdkReturnType": "Array<{ id: GroupId; title: string }>",
-    "returnNotes": "Resolves to `CommonGroup[] \\| false`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/contacts/getCommonGroups",
@@ -2019,7 +2019,7 @@
       "CommunityAdminIds": "/docs/reference/client/return-types#communityadminids"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `CommunityAdminIds[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/communities/getAdminIds",
@@ -2065,7 +2065,7 @@
       "CommunityAdmins": "/docs/reference/client/return-types#communityadmins"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `CommunityAdmins[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/communities/getAdmins",
@@ -2111,7 +2111,7 @@
       "CommunityMetadata": "/docs/reference/client/return-types#communitymetadata"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `CommunityMetadata`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/communities/getInfo",
@@ -2157,7 +2157,7 @@
       "CommunityParticipantIds": "/docs/reference/client/return-types#communityparticipantids"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `CommunityParticipantIds[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/communities/getParticipantIds",
@@ -2203,7 +2203,7 @@
       "CommunityParticipants": "/docs/reference/client/return-types#communityparticipants"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `CommunityParticipants[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/communities/getParticipants",
@@ -2234,7 +2234,7 @@
     "returnType": "string",
     "returnTypeLinks": {},
     "sdkReturnType": "string",
-    "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/session/getConnectionState",
@@ -2282,7 +2282,7 @@
       "Contact": "/docs/reference/client/return-types#contact"
     },
     "sdkReturnType": "Contact | null",
-    "returnNotes": "Resolves to `Contact \\| null`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/contacts/get",
@@ -2333,14 +2333,14 @@
       "WhatsAppEvent": "/docs/reference/client/return-types#whatsappevent"
     },
     "sdkReturnType": "WhatsAppEvent | null",
-    "returnNotes": "Resolves to `WhatsAppEvent \\| null`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/events/getEvent",
       "flatPath": "/api/getEvent"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.getEvent(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\");",
+      "inProcessSdk": "const result = await client.getEvent(\n  \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n);",
       "nodeCall": "const result = await client.getEvent({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getEvent({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "http": "curl -G \"http://localhost:8080/api/events/getEvent\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"eventId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"",
@@ -2384,14 +2384,14 @@
       "EventResponse": "/docs/reference/client/return-types#eventresponse"
     },
     "sdkReturnType": "EventResponse[]",
-    "returnNotes": "Resolves to `EventResponse[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/events/getEventResponses",
       "flatPath": "/api/getEventResponses"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.getEventResponses(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\");",
+      "inProcessSdk": "const result = await client.getEventResponses(\n  \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n);",
       "nodeCall": "const result = await client.getEventResponses({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getEventResponses({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "http": "curl -G \"http://localhost:8080/api/events/getEventResponses\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"eventId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"",
@@ -2442,7 +2442,7 @@
       "EventPage": "/docs/reference/client/return-types#eventpage"
     },
     "sdkReturnType": "EventPage",
-    "returnNotes": "Resolves to `EventPage`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/events/get",
@@ -2528,7 +2528,7 @@
     },
     "sdkReturnType": null,
     "returnCaveat": "Opaque WhatsApp contact identifier. Preserve the exact value returned by the API.",
-    "returnNotes": "Resolves to `ContactId[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/groups/getAdmins",
@@ -2548,7 +2548,7 @@
     "name": "getGroupInfo",
     "namespacedName": "groups.getInfo",
     "namespace": "groups",
-    "description": "Get the group title and description through the installed private patch",
+    "description": "Get a group title and description",
     "license": null,
     "aliases": [
       "groups.getInfo"
@@ -2577,7 +2577,7 @@
     "returnType": "{ title: string; description?: string | null } | string | null",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `{ title: string; description?: string \\| null } \\| string \\| null`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/groups/getInfo",
@@ -2626,7 +2626,7 @@
     "returnType": "string",
     "returnTypeLinks": {},
     "sdkReturnType": "string",
-    "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/groups/getInviteLink",
@@ -2677,7 +2677,7 @@
       "Contact": "/docs/reference/client/return-types#contact"
     },
     "sdkReturnType": "Contact[]",
-    "returnNotes": "Resolves to `Contact[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/groups/getMembers",
@@ -2731,7 +2731,7 @@
     },
     "sdkReturnType": "ContactId[]",
     "returnCaveat": "Opaque WhatsApp contact identifier. Preserve the exact value returned by the API.",
-    "returnNotes": "Resolves to `ContactId[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/groups/getMemberIds",
@@ -2762,7 +2762,7 @@
     "returnType": "string",
     "returnTypeLinks": {},
     "sdkReturnType": "string",
-    "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/session/getHostNumber",
@@ -2796,7 +2796,7 @@
     },
     "sdkReturnType": null,
     "returnCaveat": "Opaque group conversation identifier returned by a group lookup or join method.",
-    "returnNotes": "Resolves to `GroupChatId[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/groups/getKicked",
@@ -2816,7 +2816,7 @@
     "name": "getLicenseFeatures",
     "namespacedName": "session.getLicenseFeatures",
     "namespace": "session",
-    "description": "Get enabled and disabled licensed features from the accepted licence patch. This reports licence access; actions check runtime availability automatically.",
+    "description": "List which licensed features your license key turns on. Each method still checks availability when you call it.",
     "license": null,
     "aliases": [
       "session.getLicenseFeatures"
@@ -2827,7 +2827,7 @@
     "returnType": "{ status: \"valid\" | \"missing\" | \"invalid\" | \"expired\" | \"metadata_only\"; keyType: string | null; expiresAt: number | \"Infinity\" | \"-Infinity\" | \"NaN\" | null; features: Record<string, boolean> }",
     "returnTypeLinks": {},
     "sdkReturnType": "LicenseFeatures",
-    "returnNotes": "Resolves to `{ status: \"valid\" \\| \"missing\" \\| \"invalid\" \\| \"expired\" \\| \"metadata_only\"; keyType: string \\| null; expiresAt: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" \\| null; features: Record<string, boolean> }`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/session/getLicenseFeatures",
@@ -2860,7 +2860,7 @@
       "LicenseType": "/docs/reference/client/return-types#licensetype"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `LicenseType \\| false`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/session/getLicenseType",
@@ -2896,7 +2896,7 @@
     "returnType": "number",
     "returnTypeLinks": {},
     "sdkReturnType": "number",
-    "returnNotes": "Resolves to `number`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/session/getLoadedMessageCount",
@@ -2983,14 +2983,14 @@
       "Message": "/docs/reference/client/return-types#message"
     },
     "sdkReturnType": "Message | false | null",
-    "returnNotes": "Resolves to `Message \\| null \\| false`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/messages/get",
       "flatPath": "/api/getMessageById"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.getMessageById(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\");",
+      "inProcessSdk": "const result = await client.getMessageById(\n  \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n);",
       "nodeCall": "const result = await client.getMessageById({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getMessageById({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "http": "curl -G \"http://localhost:8080/api/messages/get\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"messageId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"",
@@ -3034,7 +3034,7 @@
       "MessageInfo": "/docs/reference/client/return-types#messageinfo"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `MessageInfo`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/messages/getInfo",
@@ -3098,7 +3098,7 @@
       "LLMMessage": "/docs/reference/client/return-types#llmmessage"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `LLMMessage[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/messages/getForLLM",
@@ -3147,7 +3147,7 @@
       "Message": "/docs/reference/client/return-types#message"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `Message \\| undefined`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/messages/getMyLast",
@@ -3241,7 +3241,7 @@
       "Order": "/docs/reference/client/return-types#order"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `Order`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/business/getOrder",
@@ -3261,7 +3261,7 @@
     "name": "getPollResults",
     "namespacedName": "messages.getPollResults",
     "namespace": "messages",
-    "description": "Hydrates the local poll vote store and returns synced counts, choices and votes. Hidden-voter polls omit voter identities and the votes array. Unsynced votes may be absent.",
+    "description": "Get the current counts, choices and votes for a poll. Polls with hidden voters leave out voter identities and the votes array, and very recent votes may not appear yet.",
     "license": null,
     "aliases": [
       "messages.getPollResults"
@@ -3292,14 +3292,14 @@
       "PollResults": "/docs/reference/client/return-types#pollresults"
     },
     "sdkReturnType": "PollResults",
-    "returnNotes": "Resolves to `PollResults`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/getPollResults",
       "flatPath": "/api/getPollResults"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.getPollResults(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\");",
+      "inProcessSdk": "const result = await client.getPollResults(\n  \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n);",
       "nodeCall": "const result = await client.getPollResults({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getPollResults({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/getPollResults\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"messageId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n  }'",
@@ -3378,7 +3378,7 @@
     "returnType": "string",
     "returnTypeLinks": {},
     "sdkReturnType": "string | null",
-    "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/contacts/getProfilePicture",
@@ -3447,7 +3447,7 @@
     "returnType": "string",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/session/getSnapshot",
@@ -3496,7 +3496,7 @@
       "Message": "/docs/reference/client/return-types#message"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `Message[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/messages/getStarred",
@@ -3544,7 +3544,7 @@
       "ContactStatus": "/docs/reference/client/return-types#contactstatus"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `ContactStatus`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/mystatus/getStatus",
@@ -3581,7 +3581,7 @@
     },
     "sdkReturnType": null,
     "returnCaveat": "Message-shaped status entry, based on the legacy story API. Chat and sender may be absent or null. The licensed getStories payload has not been verified against this model.",
-    "returnNotes": "Resolves to `Story[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/status/getAll",
@@ -3614,7 +3614,7 @@
       "Message": "/docs/reference/client/return-types#message"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `Message[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/messages/getUnsent",
@@ -3666,7 +3666,7 @@
     "returnType": "string",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/session/getUserAgent",
@@ -3715,7 +3715,7 @@
     "returnType": "string[]",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `string[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/messages/getVCards",
@@ -3748,7 +3748,7 @@
     "returnType": "string",
     "returnTypeLinks": {},
     "sdkReturnType": "string",
-    "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/session/getWAVersion",
@@ -3829,7 +3829,7 @@
     "returnType": "boolean | string",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean \\| string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/chats/isOnline",
@@ -3865,7 +3865,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "GET",
       "path": "/api/session/isPlugged",
@@ -3924,7 +3924,7 @@
       "GroupId": "/docs/reference/client/return-types#groupid"
     },
     "sdkReturnType": "GroupId | boolean | number",
-    "returnNotes": "Resolves to `GroupChatId \\| boolean \\| number \\| Chat`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/groups/join",
@@ -3973,7 +3973,7 @@
     "returnType": "void",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `void`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/groups/leave",
@@ -4044,7 +4044,7 @@
       "Message": "/docs/reference/client/return-types#message"
     },
     "sdkReturnType": "Message[]",
-    "returnNotes": "Resolves to `Message[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/loadEarlier",
@@ -4091,7 +4091,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/chats/markAsRead",
@@ -4138,7 +4138,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/chats/markAsUnread",
@@ -4191,7 +4191,7 @@
     "returnType": "{ ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
     "returnTypeLinks": {},
     "sdkReturnType": "CallActionResult",
-    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/calls/muteCall",
@@ -4248,7 +4248,7 @@
     "returnType": "string | boolean | number",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `string \\| boolean \\| number`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/chats/mute",
@@ -4301,7 +4301,7 @@
     "returnType": "{ ok: true; status: \"requested\"; observerId: string } | { ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
     "returnTypeLinks": {},
     "sdkReturnType": "CallActionResult & { observerId?: string }",
-    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; observerId: string } \\| { ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/calls/observeCallAudio",
@@ -4348,7 +4348,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/chats/pin",
@@ -4407,14 +4407,14 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/pin",
       "flatPath": "/api/pinMessage"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.pinMessage(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\");",
+      "inProcessSdk": "const result = await client.pinMessage(\n  \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n);",
       "nodeCall": "const result = await client.pinMessage({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.pinMessage({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/pin\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"messageId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n  }'",
@@ -4462,7 +4462,7 @@
       "MessageId": "/docs/reference/client/return-types#messageid"
     },
     "sdkReturnType": "MediaSendResult",
-    "returnNotes": "Resolves to `MessageId \\| string \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/status/postImage",
@@ -4527,7 +4527,7 @@
       "MessageId": "/docs/reference/client/return-types#messageid"
     },
     "sdkReturnType": "MediaSendResult",
-    "returnNotes": "Resolves to `MessageId \\| string \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/status/postText",
@@ -4582,7 +4582,7 @@
       "MessageId": "/docs/reference/client/return-types#messageid"
     },
     "sdkReturnType": "MediaSendResult",
-    "returnNotes": "Resolves to `MessageId \\| string \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/status/postVideo",
@@ -4645,14 +4645,14 @@
     "returnType": "boolean | string",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean \\| string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/groups/promoteParticipant",
       "flatPath": "/api/promoteParticipant"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.promoteParticipant(\"447123456789-1445627445@g.us\", \"447123456789@c.us\");",
+      "inProcessSdk": "const result = await client.promoteParticipant(\n  \"447123456789-1445627445@g.us\",\n  \"447123456789@c.us\",\n);",
       "nodeCall": "const result = await client.promoteParticipant({\n  groupId: \"447123456789-1445627445@g.us\",\n  contactId: \"447123456789@c.us\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.promoteParticipant({\n  groupId: \"447123456789-1445627445@g.us\",\n  contactId: \"447123456789@c.us\",\n});",
       "http": "curl -X PUT \"http://localhost:8080/api/groups/promoteParticipant\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"groupId\": \"447123456789-1445627445@g.us\",\n    \"contactId\": \"447123456789@c.us\"\n  }'",
@@ -4704,7 +4704,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/react",
@@ -4724,7 +4724,7 @@
     "name": "rejectCall",
     "namespacedName": "calls.rejectCall",
     "namespace": "calls",
-    "description": "Reject this call with native state confirmation.",
+    "description": "Reject an incoming call and wait for WhatsApp to confirm it.",
     "license": "restricted",
     "aliases": [
       "calls.rejectCall"
@@ -4747,7 +4747,7 @@
     "returnType": "{ ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
     "returnTypeLinks": {},
     "sdkReturnType": "CallActionResult",
-    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/calls/rejectCall",
@@ -4809,7 +4809,7 @@
     "returnType": "string | boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `string \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/groups/rejectJoinRequest",
@@ -4865,7 +4865,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/labels/remove",
@@ -4928,14 +4928,14 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/groups/removeParticipant",
       "flatPath": "/api/removeParticipant"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.removeParticipant(\"447123456789-1445627445@g.us\", \"447123456789@c.us\");",
+      "inProcessSdk": "const result = await client.removeParticipant(\n  \"447123456789-1445627445@g.us\",\n  \"447123456789@c.us\",\n);",
       "nodeCall": "const result = await client.removeParticipant({\n  groupId: \"447123456789-1445627445@g.us\",\n  contactId: \"447123456789@c.us\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.removeParticipant({\n  groupId: \"447123456789-1445627445@g.us\",\n  contactId: \"447123456789@c.us\",\n});",
       "http": "curl -X PUT \"http://localhost:8080/api/groups/removeParticipant\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"groupId\": \"447123456789-1445627445@g.us\",\n    \"contactId\": \"447123456789@c.us\"\n  }'",
@@ -4997,7 +4997,7 @@
     "name": "respondToEvent",
     "namespacedName": "events.respondToEvent",
     "namespace": "events",
-    "description": "RSVP through WhatsApp’s native encrypted event-response action.",
+    "description": "Send your RSVP to a WhatsApp event.",
     "license": null,
     "aliases": [
       "events.respondToEvent"
@@ -5036,14 +5036,14 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/events/respondToEvent",
       "flatPath": "/api/respondToEvent"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.respondToEvent(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\", \"going\");",
+      "inProcessSdk": "const result = await client.respondToEvent(\n  \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  \"going\",\n);",
       "nodeCall": "const result = await client.respondToEvent({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  response: \"going\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.respondToEvent({\n  eventId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  response: \"going\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/events/respondToEvent\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"eventId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n    \"response\": \"going\"\n  }'",
@@ -5085,14 +5085,14 @@
     "returnType": "string | boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "string | boolean",
-    "returnNotes": "Resolves to `string \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/groups/revokeInviteLink",
       "flatPath": "/api/revokeGroupInviteLink"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.revokeGroupInviteLink(\"447123456789-1445627445@g.us\");",
+      "inProcessSdk": "const result = await client.revokeGroupInviteLink(\n  \"447123456789-1445627445@g.us\",\n);",
       "nodeCall": "const result = await client.revokeGroupInviteLink({\n  groupId: \"447123456789-1445627445@g.us\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.revokeGroupInviteLink({\n  groupId: \"447123456789-1445627445@g.us\",\n});",
       "http": "curl -X PUT \"http://localhost:8080/api/groups/revokeInviteLink\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"groupId\": \"447123456789-1445627445@g.us\"\n  }'",
@@ -5183,7 +5183,7 @@
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendAdvancedButtons",
@@ -5275,7 +5275,7 @@
       "flatPath": "/api/sendAlbum"
     },
     "examples": {
-      "inProcessSdk": "import { readFile } from 'node:fs/promises';\n\n// Put these real image files in your process working directory.\nconst media = await Promise.all(['photo-1.jpg', 'photo-2.jpg', 'photo-3.jpg', 'photo-4.jpg'].map(async filename => ({\n  filename,\n  file: `data:image/jpeg;base64,${(await readFile(filename)).toString('base64')}`,\n})));\n\nconst result = await client.sendAlbum('447123456789@c.us', media, 'One caption for the album');",
+      "inProcessSdk": "import { readFile } from 'node:fs/promises';\n\n// Put these real image files in your process working directory.\nconst media = await Promise.all(['photo-1.jpg', 'photo-2.jpg', 'photo-3.jpg', 'photo-4.jpg'].map(async filename => ({\n  filename,\n  file: `data:image/jpeg;base64,${(await readFile(filename)).toString('base64')}`,\n})));\n\nconst result = await client.sendAlbum(\n  '447123456789@c.us',\n  media,\n  'One caption for the album',\n);",
       "nodeCall": "import { readFile } from 'node:fs/promises';\n\n// Put these real image files in your process working directory.\nconst media = await Promise.all(['photo-1.jpg', 'photo-2.jpg', 'photo-3.jpg', 'photo-4.jpg'].map(async filename => ({\n  filename,\n  file: `data:image/jpeg;base64,${(await readFile(filename)).toString('base64')}`,\n})));\n\nconst result = await client.sendAlbum({\n  to: '447123456789@c.us',\n  media,\n  caption: 'One caption for the album',\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nimport { readFile } from 'node:fs/promises';\n\n// Put these real image files in your process working directory.\nconst media = await Promise.all(['photo-1.jpg', 'photo-2.jpg', 'photo-3.jpg', 'photo-4.jpg'].map(async filename => ({\n  filename,\n  file: `data:image/jpeg;base64,${(await readFile(filename)).toString('base64')}`,\n})));\n\nconst result = await client.sendAlbum({\n  to: '447123456789@c.us',\n  media,\n  caption: 'One caption for the album',\n});",
       "http": "# Save an album request as album.json with \"to\", \"caption\", and \"media\".\n# Each media item needs \"filename\" and \"file\" containing a real image/video data URL.\n# See /docs/guides/messages#albums for encoding real files.\ncurl -X POST \"http://localhost:8080/api/messages/sendAlbum\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-binary @album.json",
@@ -5347,14 +5347,14 @@
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
     "sdkReturnType": "MediaSendResult",
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendAudio",
       "flatPath": "/api/sendAudio"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.sendAudio(\"447123456789@c.us\", \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\");",
+      "inProcessSdk": "const result = await client.sendAudio(\n  \"447123456789@c.us\",\n  \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\",\n);",
       "nodeCall": "const result = await client.sendAudio({\n  to: \"447123456789@c.us\",\n  file: \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendAudio({\n  to: \"447123456789@c.us\",\n  file: \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendAudio\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"file\": \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\"\n  }'",
@@ -5405,7 +5405,7 @@
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendBanner",
@@ -5493,7 +5493,7 @@
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendButtons",
@@ -5552,14 +5552,14 @@
       "MessageId": "/docs/reference/client/return-types#messageid"
     },
     "sdkReturnType": "MessageId | boolean | (MessageId | boolean)[]",
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean \\| (MessageIdReturn \\| boolean)[]`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendContact",
       "flatPath": "/api/sendContact"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.sendContact(\"447123456789@c.us\", \"447123456789@c.us\");",
+      "inProcessSdk": "const result = await client.sendContact(\n  \"447123456789@c.us\",\n  \"447123456789@c.us\",\n);",
       "nodeCall": "const result = await client.sendContact({\n  to: \"447123456789@c.us\",\n  contactId: \"447123456789@c.us\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendContact({\n  to: \"447123456789@c.us\",\n  contactId: \"447123456789@c.us\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendContact\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"contactId\": \"447123456789@c.us\"\n  }'",
@@ -5618,9 +5618,9 @@
       "flatPath": "/api/sendEvent"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.sendEvent(\"447123456789@c.us\", {\"name\":\"Community meetup\",\"startTime\":1893456000,\"description\":\"Meet the community\"});",
-      "nodeCall": "const result = await client.sendEvent({\n  to: \"447123456789@c.us\",\n  event: {\"name\":\"Community meetup\",\"startTime\":1893456000,\"description\":\"Meet the community\"},\n});",
-      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendEvent({\n  to: \"447123456789@c.us\",\n  event: {\"name\":\"Community meetup\",\"startTime\":1893456000,\"description\":\"Meet the community\"},\n});",
+      "inProcessSdk": "const result = await client.sendEvent(\n  \"447123456789@c.us\",\n  {\n    \"name\": \"Community meetup\",\n    \"startTime\": 1893456000,\n    \"description\": \"Meet the community\"\n  },\n);",
+      "nodeCall": "const result = await client.sendEvent({\n  to: \"447123456789@c.us\",\n  event: {\n    \"name\": \"Community meetup\",\n    \"startTime\": 1893456000,\n    \"description\": \"Meet the community\"\n  },\n});",
+      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendEvent({\n  to: \"447123456789@c.us\",\n  event: {\n    \"name\": \"Community meetup\",\n    \"startTime\": 1893456000,\n    \"description\": \"Meet the community\"\n  },\n});",
       "http": "curl -X POST \"http://localhost:8080/api/events/sendEvent\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"event\": {\n      \"name\": \"Community meetup\",\n      \"startTime\": 1893456000,\n      \"description\": \"Meet the community\"\n    }\n  }'",
       "response": "{\n  \"success\": true,\n  \"data\": \"example\"\n}"
     }
@@ -5690,14 +5690,14 @@
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
     "sdkReturnType": "MediaSendResult",
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendFile",
       "flatPath": "/api/sendFile"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.sendFile(\"447123456789@c.us\", \"data:application/pdf;base64,JVBERi0xLjQK...\");",
+      "inProcessSdk": "const result = await client.sendFile(\n  \"447123456789@c.us\",\n  \"data:application/pdf;base64,JVBERi0xLjQK...\",\n);",
       "nodeCall": "const result = await client.sendFile({\n  to: \"447123456789@c.us\",\n  file: \"data:application/pdf;base64,JVBERi0xLjQK...\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendFile({\n  to: \"447123456789@c.us\",\n  file: \"data:application/pdf;base64,JVBERi0xLjQK...\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendFile\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"file\": \"data:application/pdf;base64,JVBERi0xLjQK...\"\n  }'",
@@ -5799,7 +5799,7 @@
     "name": "sendImage",
     "namespacedName": "messages.sendImage",
     "namespace": "messages",
-    "description": "Sends media through the native attachment pipeline, including images and videos. Options select presentation, view once, GIF playback or circular video notes; media is not transcoded. Returns submission status, not a delivery receipt.",
+    "description": "Send an image or video, or any other media file, as a WhatsApp attachment. Options set the caption, view once, GIF playback or a round video note. Media is sent as is, without conversion. Resolves to the send result, not a delivery receipt.",
     "license": null,
     "aliases": [
       "messages.sendImage"
@@ -5858,14 +5858,14 @@
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
     "sdkReturnType": "MediaSendResult",
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendImage",
       "flatPath": "/api/sendImage"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.sendImage(\"447123456789@c.us\", \"data:application/pdf;base64,JVBERi0xLjQK...\");",
+      "inProcessSdk": "const result = await client.sendImage(\n  \"447123456789@c.us\",\n  \"data:application/pdf;base64,JVBERi0xLjQK...\",\n);",
       "nodeCall": "const result = await client.sendImage({\n  to: \"447123456789@c.us\",\n  file: \"data:application/pdf;base64,JVBERi0xLjQK...\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendImage({\n  to: \"447123456789@c.us\",\n  file: \"data:application/pdf;base64,JVBERi0xLjQK...\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendImage\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"file\": \"data:application/pdf;base64,JVBERi0xLjQK...\"\n  }'",
@@ -5916,7 +5916,7 @@
       "MessageId": "/docs/reference/client/return-types#messageid"
     },
     "sdkReturnType": "MessageId",
-    "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendInteractive",
@@ -6027,7 +6027,7 @@
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendLinkWithAutoPreview",
@@ -6116,7 +6116,7 @@
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendList",
@@ -6215,7 +6215,7 @@
       "MessageId": "/docs/reference/client/return-types#messageid"
     },
     "sdkReturnType": "MessageId | false",
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendLocation",
@@ -6346,7 +6346,7 @@
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendLinkWithThumbnail",
@@ -6410,14 +6410,14 @@
       "MessageId": "/docs/reference/client/return-types#messageid"
     },
     "sdkReturnType": "MessageId | boolean",
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendContacts",
       "flatPath": "/api/sendMultipleContacts"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.sendMultipleContacts(\"447123456789@c.us\", [\"447123456789@c.us\"]);",
+      "inProcessSdk": "const result = await client.sendMultipleContacts(\n  \"447123456789@c.us\",\n  [\"447123456789@c.us\"],\n);",
       "nodeCall": "const result = await client.sendMultipleContacts({\n  to: \"447123456789@c.us\",\n  contactIds: [\"447123456789@c.us\"],\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendMultipleContacts({\n  to: \"447123456789@c.us\",\n  contactIds: [\"447123456789@c.us\"],\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendContacts\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"contactIds\": [\n      \"447123456789@c.us\"\n    ]\n  }'",
@@ -6488,7 +6488,7 @@
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendPaymentRequest",
@@ -6508,7 +6508,7 @@
     "name": "sendPoll",
     "namespacedName": "messages.sendPoll",
     "namespace": "messages",
-    "description": "Sends a text poll with a selection limit, quote, optional closing time in Unix milliseconds and hidden voter names. Closing time and hidden names require native WhatsApp support for the sending account/chat. These fields select the native V6 poll payload.",
+    "description": "Send a poll with a selection limit, an optional quoted message, an optional closing time in Unix milliseconds and optionally hidden voter names. Closing times and hidden names only work where WhatsApp supports them for the sending account and chat.",
     "license": null,
     "aliases": [
       "messages.sendPoll"
@@ -6567,14 +6567,14 @@
       "MessageId": "/docs/reference/client/return-types#messageid"
     },
     "sdkReturnType": "MessageId | boolean",
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendPoll",
       "flatPath": "/api/sendPoll"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.sendPoll(\"447123456789@c.us\", \"name\", [\"Yes\", \"No\"]);",
+      "inProcessSdk": "const result = await client.sendPoll(\n  \"447123456789@c.us\",\n  \"name\",\n  [\"Yes\", \"No\"],\n);",
       "nodeCall": "const result = await client.sendPoll({\n  to: \"447123456789@c.us\",\n  name: \"name\",\n  options: [\"Yes\", \"No\"],\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendPoll({\n  to: \"447123456789@c.us\",\n  name: \"name\",\n  options: [\"Yes\", \"No\"],\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendPoll\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"name\": \"name\",\n    \"options\": [\n      \"Yes\",\n      \"No\"\n    ]\n  }'",
@@ -6638,14 +6638,14 @@
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
     "sdkReturnType": "MediaSendResult",
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendPtt",
       "flatPath": "/api/sendPtt"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.sendPtt(\"447123456789@c.us\", \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\");",
+      "inProcessSdk": "const result = await client.sendPtt(\n  \"447123456789@c.us\",\n  \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\",\n);",
       "nodeCall": "const result = await client.sendPtt({\n  to: \"447123456789@c.us\",\n  file: \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendPtt({\n  to: \"447123456789@c.us\",\n  file: \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendPtt\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"file\": \"data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAA...\"\n  }'",
@@ -6696,7 +6696,7 @@
       "MessageId": "/docs/reference/client/return-types#messageid"
     },
     "sdkReturnType": "MessageId",
-    "returnNotes": "Resolves to `string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendRaw",
@@ -6795,7 +6795,7 @@
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendReplyWithMentions",
@@ -6842,7 +6842,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/messages/sendSeen",
@@ -6862,7 +6862,7 @@
     "name": "sendSticker",
     "namespacedName": "messages.sendSticker",
     "namespace": "messages",
-    "description": "Render a sticker locally using automatic whole-job backend selection and ordered effects, then submit through the private donor finalizer. Author and pack labels are configurable; donor app links are owned by the installed patch. Returns a submitted message ID, not a delivery receipt. Unknown send outcomes must be reconciled before retrying.",
+    "description": "Turn an image or video into a sticker, apply optional effects and author and pack labels, and send it. Resolves to the message ID once WhatsApp accepts it, not a delivery receipt. If the outcome is unknown, check the chat before you retry.",
     "license": null,
     "aliases": [
       "messages.sendSticker"
@@ -6931,7 +6931,7 @@
     "name": "sendText",
     "namespacedName": "messages.sendText",
     "namespace": "messages",
-    "description": "Sends a text message and returns a validated serialized message ID. The in-process Client throws SendTextError on failure. An unknown outcome means the message may have been sent: check the chat before retrying. Starting a chat with a new number requires an applied restricted or premium license.",
+    "description": "Send a text message to a chat. Starting a chat with a number that has never messaged you needs a Restricted or Premium license.",
     "license": null,
     "aliases": [
       "messages.sendText"
@@ -6973,7 +6973,7 @@
         "name": "options",
         "type": "unknown",
         "required": false,
-        "description": "Reserved for compatibility with legacy request shapes. The current sendText Client implementation ignores this argument; use reply() or sendTextWithMentions() for quoted replies and mentions. Accepted as unknown for compatibility; currently ignored by sendText. Use reply() or sendTextWithMentions() for supported reply and mention behavior.",
+        "description": "Not used. Leave it out; use reply() for quoted replies and sendTextWithMentions() for mentions. sendText ignores this value.",
         "aliases": [],
         "deprecatedAliases": [],
         "example": "-"
@@ -6985,7 +6985,7 @@
     },
     "sdkReturnType": "MessageId",
     "returnCaveat": "Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.",
-    "returnNotes": "Resolves to a validated serialized `MessageId` string, not a delivery or read receipt. The in-process Client throws `SendTextError`, exported by `@open-wa/wa-automate` and `@open-wa/client`, on failure. Its `code` is `INVALID_ARGUMENT`, `LICENSE_REQUIRED`, `SEND_REJECTED`, `INVALID_SEND_RESULT`, or `SEND_FAILED`. Its `outcome` is `not_sent` for invalid arguments and known runtime rejections, or `unknown` when the runtime returns no valid ID or browser evaluation fails. An unknown outcome means the message may already have been sent: check the chat before retrying. The client never retries automatically. Starting a chat with a new number still requires an applied restricted or premium license. HTTP and remote clients expose failures through their own error envelopes.",
+    "returnNotes": "The ID means WhatsApp accepted the message, not that it was delivered or read. On failure the SDK throws `SendTextError`, exported by `@open-wa/wa-automate`. Its `code` is `INVALID_ARGUMENT`, `LICENSE_REQUIRED`, `SEND_REJECTED`, `INVALID_SEND_RESULT` or `SEND_FAILED`, and its `outcome` is `not_sent` or `unknown`. An `unknown` outcome means the message may already have been sent, so check the chat before you retry. The client never retries on its own.",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendText",
@@ -7068,7 +7068,7 @@
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendTextWithMentions",
@@ -7147,7 +7147,7 @@
       "MessageId": "/docs/reference/client/return-types#messageid"
     },
     "sdkReturnType": "MessageId | boolean",
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendVCard",
@@ -7226,14 +7226,14 @@
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
     "sdkReturnType": "MediaSendResult",
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendVideoAsGif",
       "flatPath": "/api/sendVideoAsGif"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.sendVideoAsGif(\"447123456789@c.us\", \"data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...\");",
+      "inProcessSdk": "const result = await client.sendVideoAsGif(\n  \"447123456789@c.us\",\n  \"data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...\",\n);",
       "nodeCall": "const result = await client.sendVideoAsGif({\n  to: \"447123456789@c.us\",\n  file: \"data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendVideoAsGif({\n  to: \"447123456789@c.us\",\n  file: \"data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendVideoAsGif\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"file\": \"data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21...\"\n  }'",
@@ -7340,7 +7340,7 @@
       "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
     },
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `MessageIdReturn \\| boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendYouTubeLink",
@@ -7393,7 +7393,7 @@
     "returnType": "{ ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
     "returnTypeLinks": {},
     "sdkReturnType": "CallActionResult",
-    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/calls/setCallMedia",
@@ -7450,7 +7450,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/chats/setEphemeral",
@@ -7509,7 +7509,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/groups/setDescription",
@@ -7569,7 +7569,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/groups/setEditAdminsOnly",
@@ -7628,14 +7628,14 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/groups/setIcon",
       "flatPath": "/api/setGroupIcon"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.setGroupIcon(\"447123456789-1445627445@g.us\", \"image\");",
+      "inProcessSdk": "const result = await client.setGroupIcon(\n  \"447123456789-1445627445@g.us\",\n  \"image\",\n);",
       "nodeCall": "const result = await client.setGroupIcon({\n  groupId: \"447123456789-1445627445@g.us\",\n  image: \"image\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.setGroupIcon({\n  groupId: \"447123456789-1445627445@g.us\",\n  image: \"image\",\n});",
       "http": "curl -X PUT \"http://localhost:8080/api/groups/setIcon\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"groupId\": \"447123456789-1445627445@g.us\",\n    \"image\": \"image\"\n  }'",
@@ -7687,7 +7687,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/groups/setTitle",
@@ -7747,7 +7747,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/groups/setAdminsOnly",
@@ -7797,7 +7797,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/session/setName",
@@ -7847,7 +7847,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/session/setStatus",
@@ -7896,7 +7896,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/session/setProfilePicture",
@@ -7916,7 +7916,7 @@
     "name": "sharePhoneNumber",
     "namespacedName": "contacts.sharePhoneNumber",
     "namespace": "contacts",
-    "description": "Share the signed-in account’s own phone number with a direct LID chat using WhatsApp’s native protocol. No arbitrary phone number is accepted.",
+    "description": "Share the logged-in account’s own phone number in a one-to-one chat that only shows a LID. You can’t share any other number.",
     "license": null,
     "aliases": [
       "contacts.sharePhoneNumber"
@@ -7994,7 +7994,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/messages/star",
@@ -8067,7 +8067,7 @@
     "returnType": "{ ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
     "returnTypeLinks": {},
     "sdkReturnType": "CallActionResult",
-    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/calls/startCall",
@@ -8120,7 +8120,7 @@
     "returnType": "{ ok: true; status: \"requested\"; callId?: string | null } | { ok: false; status: \"unavailable\" | \"failed\" | \"unknown\"; reason: { code: string; message: string; status: number | \"Infinity\" | \"-Infinity\" | \"NaN\" }; callId?: string",
     "returnTypeLinks": {},
     "sdkReturnType": "CallActionResult",
-    "returnNotes": "Resolves to `{ ok: true; status: \"requested\"; callId?: string \\| null } \\| { ok: false; status: \"unavailable\" \\| \"failed\" \\| \"unknown\"; reason: { code: string; message: string; status: number \\| \"Infinity\" \\| \"-Infinity\" \\| \"NaN\" }; callId?: string`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/calls/stopCallAudioObserver",
@@ -8167,7 +8167,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/chats/unarchive",
@@ -8218,7 +8218,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/contacts/unblock",
@@ -8265,7 +8265,7 @@
     "returnType": "string | boolean | number",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `string \\| boolean \\| number`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/chats/unmute",
@@ -8312,7 +8312,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/chats/unpin",
@@ -8361,14 +8361,14 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/unpin",
       "flatPath": "/api/unpinMessage"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.unpinMessage(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\");",
+      "inProcessSdk": "const result = await client.unpinMessage(\n  \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n);",
       "nodeCall": "const result = await client.unpinMessage({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.unpinMessage({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/unpin\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"messageId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n  }'",
@@ -8410,7 +8410,7 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": null,
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "PUT",
       "path": "/api/messages/unstar",
@@ -8469,14 +8469,14 @@
     "returnType": "boolean",
     "returnTypeLinks": {},
     "sdkReturnType": "boolean",
-    "returnNotes": "Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.",
+    "returnNotes": "",
     "route": {
       "method": "POST",
       "path": "/api/messages/voteOnPoll",
       "flatPath": "/api/voteOnPoll"
     },
     "examples": {
-      "inProcessSdk": "const result = await client.voteOnPoll(\"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\", []);",
+      "inProcessSdk": "const result = await client.voteOnPoll(\n  \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  [],\n);",
       "nodeCall": "const result = await client.voteOnPoll({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  optionIds: [],\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.voteOnPoll({\n  messageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n  optionIds: [],\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/voteOnPoll\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"messageId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n    \"optionIds\": []\n  }'",

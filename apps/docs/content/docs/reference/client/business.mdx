@@ -1,106 +1,21 @@
 ---
-title: "Business Client API"
-description: "Generated client method reference for the business namespace."
+title: "Business"
+description: "Read business profiles, product catalogues and orders."
 icon: "BookOpen"
 ---
 
-# Business Client API
-
-This page documents 3 schema-registry client methods in the `business` namespace.
-
-
-## `getBusinessProducts`
-
-Get business products
-
-**Signature** `client.getBusinessProducts(contactId: string): Promise<Product[] \| false>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getBusinessProducts({
-  contactId: "447123456789@c.us",
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -G "http://localhost:8080/api/business/getProducts" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data-urlencode "contactId=447123456789@c.us"
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": []
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="GetBusinessProductsParams" />
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<Product[] \| false>` |
-| Product | [View fields](/docs/reference/client/return-types#product) |
-
-Resolves to `Product[] \| false`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `business` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | `contactId` |
-| Aliases | `business.getProducts`, `business.getProfilesProducts`, `getBusinessProfilesProducts` |
-| Deprecated aliases | `business.getProfilesProducts`, `getBusinessProfilesProducts` |
-| License | `none` |
-| WAPI override | `getBusinessProfilesProducts` |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/business/getProducts` | `getBusinessProducts` | Active |
-| Deprecated alias | `GET` | `/api/business/getProfilesProducts` | `business.getProfilesProducts` | **Deprecated** |
-| Alias | `GET` | `/api/getBusinessProducts` | `getBusinessProducts` | Active |
-| Deprecated alias | `GET` | `/api/getBusinessProfilesProducts` | `getBusinessProfilesProducts` | **Deprecated** |
-
-</details>
+# Business
 
 
 ## `getBusinessProfile`
 
 Get business profile
 
-**Signature** `client.getBusinessProfile(contactId: string): Promise<BusinessProfile>`
+```ts
+client.getBusinessProfile(contactId: string): Promise<BusinessProfile>
+```
 
-### Usage
+### Usage [!toc] [#getbusinessprofile-usage]
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
@@ -115,7 +30,7 @@ const result = await client.getBusinessProfile({
 ```
 
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
 
 ```bash
 curl -G "http://localhost:8080/api/business/getProfile" \
@@ -123,7 +38,7 @@ curl -G "http://localhost:8080/api/business/getProfile" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
-Example response envelope:
+Response:
 
 ```json
 {
@@ -137,44 +52,111 @@ Example response envelope:
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+### Parameters [!toc] [#getbusinessprofile-parameters]
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetBusinessProfileParams" />
 
-### Returns
+### Returns [!toc] [#getbusinessprofile-returns]
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<BusinessProfile>` |
-| BusinessProfile | [View fields](/docs/reference/client/return-types#businessprofile) |
+Resolves to [`BusinessProfile`](/docs/reference/client/return-types#businessprofile).
 
-Resolves to `BusinessProfile`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
 <details>
-<summary>Advanced method metadata</summary>
+<summary>Aliases and HTTP routes</summary>
 
-### Overview
-
-| Prop | Value |
+| Name | Value |
 | --- | --- |
 | Namespace | `business` |
-| Action | `read` |
-| Functionality | `both` |
 | Positional parameter order | `contactId` |
 | Aliases | `business.getProfile` |
 | Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
+| License | Not needed |
 | Deprecated | No |
 
-### Routes
+**HTTP routes**
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |
 | Primary | `GET` | `/api/business/getProfile` | `getBusinessProfile` | Active |
 | Alias | `GET` | `/api/getBusinessProfile` | `getBusinessProfile` | Active |
+
+</details>
+
+
+## `getBusinessProducts`
+
+Get business products
+
+```ts
+client.getBusinessProducts(contactId: string): Promise<Product[] | false>
+```
+
+### Usage [!toc] [#getbusinessproducts-usage]
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getBusinessProducts({
+  contactId: "447123456789@c.us",
+});
+```
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+```bash
+curl -G "http://localhost:8080/api/business/getProducts" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "contactId=447123456789@c.us"
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+### Parameters [!toc] [#getbusinessproducts-parameters]
+
+<AutoTypeTable path="./generated-method-params.ts" name="GetBusinessProductsParams" />
+
+### Returns [!toc] [#getbusinessproducts-returns]
+
+Resolves to `Product[] | false`. See [Product](/docs/reference/client/return-types#product) for its fields.
+
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
+
+<details>
+<summary>Aliases and HTTP routes</summary>
+
+| Name | Value |
+| --- | --- |
+| Namespace | `business` |
+| Positional parameter order | `contactId` |
+| Aliases | `business.getProducts`, `business.getProfilesProducts`, `getBusinessProfilesProducts` |
+| Deprecated aliases | `business.getProfilesProducts`, `getBusinessProfilesProducts` |
+| License | Not needed |
+| Deprecated | No |
+
+**HTTP routes**
+
+| Type | Method | Path | Name | Status |
+| --- | --- | --- | --- | --- |
+| Primary | `GET` | `/api/business/getProducts` | `getBusinessProducts` | Active |
+| Deprecated alias | `GET` | `/api/business/getProfilesProducts` | `business.getProfilesProducts` | **Deprecated** |
+| Alias | `GET` | `/api/getBusinessProducts` | `getBusinessProducts` | Active |
+| Deprecated alias | `GET` | `/api/getBusinessProfilesProducts` | `getBusinessProfilesProducts` | **Deprecated** |
 
 </details>
 
@@ -185,9 +167,13 @@ This method is not declared on the in-process Client facade. Use the remote Node
 
 Get order details
 
-**Signature** `client.getOrder(id: string): Promise<Order>`
+Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
-### Usage
+```ts
+client.getOrder(id: string): Promise<Order>
+```
+
+### Usage [!toc] [#getorder-usage]
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
@@ -202,7 +188,7 @@ const result = await client.getOrder({
 ```
 
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
 
 ```bash
 curl -G "http://localhost:8080/api/business/getOrder" \
@@ -210,7 +196,7 @@ curl -G "http://localhost:8080/api/business/getOrder" \
   --data-urlencode "id=id"
 ```
 
-Example response envelope:
+Response:
 
 ```json
 {
@@ -230,39 +216,29 @@ Example response envelope:
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+### Parameters [!toc] [#getorder-parameters]
 
 <AutoTypeTable path="./generated-method-params.ts" name="GetOrderParams" />
 
-### Returns
+### Returns [!toc] [#getorder-returns]
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<Order>` |
-| Order | [View fields](/docs/reference/client/return-types#order) |
+Resolves to [`Order`](/docs/reference/client/return-types#order).
 
-Resolves to `Order`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
 <details>
-<summary>Advanced method metadata</summary>
+<summary>Aliases and HTTP routes</summary>
 
-### Overview
-
-| Prop | Value |
+| Name | Value |
 | --- | --- |
 | Namespace | `business` |
-| Action | `read` |
-| Functionality | `both` |
 | Positional parameter order | `id` |
 | Aliases | `business.getOrder` |
 | Deprecated aliases | - |
 | License | `insiders` |
-| WAPI override | - |
 | Deprecated | No |
 
-### Routes
+**HTTP routes**
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |

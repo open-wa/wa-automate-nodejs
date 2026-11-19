@@ -1,21 +1,21 @@
 ---
-title: "ChatIds Client API"
-description: "Generated client method reference for the chatIds namespace."
+title: "Chat IDs"
+description: "List the IDs of every chat in the session."
 icon: "BookOpen"
 ---
 
-# ChatIds Client API
-
-This page documents 1 schema-registry client methods in the `chatIds` namespace.
+# Chat IDs
 
 
 ## `getAllChatIds`
 
 Get all chat IDs
 
-**Signature** `client.getAllChatIds(): Promise<ChatId[]>`
+```ts
+client.getAllChatIds(): Promise<ChatId[]>
+```
 
-### Usage
+### Usage [!toc] [#getallchatids-usage]
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
@@ -28,7 +28,7 @@ const result = await client.getAllChatIds();
 ```
 
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
 
 ```bash
 curl -X GET "http://localhost:8080/api/chatIds/getAll" \
@@ -37,7 +37,7 @@ curl -X GET "http://localhost:8080/api/chatIds/getAll" \
   --data '{}'
 ```
 
-Example response envelope:
+Response:
 
 ```json
 {
@@ -49,40 +49,31 @@ Example response envelope:
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+### Parameters [!toc] [#getallchatids-parameters]
 
 This method does not define input parameters.
 
-### Returns
+### Returns [!toc] [#getallchatids-returns]
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<ChatId[]>` |
-| ChatId | [View fields](/docs/reference/client/return-types#chatid) |
+Resolves to `ChatId[]`. See [ChatId](/docs/reference/client/return-types#chatid) for its fields.
 
-Resolves to `ChatId[]`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 Opaque conversation identifier. Use the exact value returned by a message event or chat lookup.
 
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
+
 <details>
-<summary>Advanced method metadata</summary>
+<summary>Aliases and HTTP routes</summary>
 
-### Overview
-
-| Prop | Value |
+| Name | Value |
 | --- | --- |
 | Namespace | `chatIds` |
-| Action | `read` |
-| Functionality | `both` |
 | Positional parameter order | - |
 | Aliases | `chatIds.all`, `chatIds.getAll`, `chatIds.list`, `chats.ids`, `listChatIds` |
 | Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
+| License | Not needed |
 | Deprecated | No |
 
-### Routes
+**HTTP routes**
 
 | Type | Method | Path | Name | Status |
 | --- | --- | --- | --- | --- |

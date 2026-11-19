@@ -1,6 +1,6 @@
 ---
 title: "Argument normalization"
-description: "Positional vs object arguments, alias resolution, validation, and dispatch."
+description: "Positional and object arguments, key aliases and validation."
 icon: "BookOpen"
 ---
 
@@ -16,4 +16,4 @@ await client.sendText({ chatId: '447123456789@c.us', text: 'Hello, world!' });
 // key aliases normalize -> { to, content }
 ```
 
-Steps: 1) resolve positional/object args, 2) normalize key aliases, 3) `inputSchema.parseAsync()` validates, 4) dispatch to `execute(...)`. Invalid input rejects before any WhatsApp call.
+Each call resolves positional or object arguments, normalizes key aliases, validates the result with `inputSchema.parseAsync()` and only then runs the method. Invalid input rejects before anything reaches WhatsApp.
