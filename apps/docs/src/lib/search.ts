@@ -12,8 +12,20 @@ export type CanonicalMethod = {
   version: string;
 };
 
+/** What the search index knows about each docs page, keyed by page URL. */
+export type SearchPageInfo = {
+  title: string;
+  /** The top-level sidebar group, such as "Getting started" or "API reference". */
+  category?: string;
+  /** Every sidebar folder on the way to the page, joined with " / ". */
+  section?: string;
+};
+
+export type SearchPages = ReadonlyMap<string, SearchPageInfo>;
+
 export type CanonicalSearchResult = SortedResult<string> & {
   resultKind: SearchResultKind;
+  category?: string;
   match?: SearchMatch;
   method?: string;
   summary?: string;
@@ -41,6 +53,10 @@ export type MethodRecord = {
 };
 
 const METHOD_QUERY = /^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$/i;
+// A query that looks like a method name: `sendText` or `client.sendText`, not `webhook`.
+const CAMEL_CASE_QUERY = /^(?:[a-z][a-z0-9]*\.)?[a-z][a-z0-9]*[A-Z][A-Za-z0-9]*$/;
+// Package README mirrors. They match many words but rarely answer the question.
+const LOW_PRIORITY_PREFIXES = ['/docs/reference/workspaces'];
 const GENERATED_METHOD_REFERENCE_PATHS = new Set([
   '/docs/reference/client/aliases',
   '/docs/reference/client/base-client',
@@ -121,20 +137,44 @@ function methodDescriptionScore(queryTerms: string[], method: CanonicalMethod): 
   return summaryScore * 4 + nameScore * 2 + aliasScore;
 }
 
-function resultLexicalScore(queryTerms: string[], result: SortedResult<string>): number {
-  const metadata = result as SortedResult<string> & { breadcrumbs?: string[] };
-  const breadcrumbs = metadata.breadcrumbs?.join(' ') ?? '';
-  return (
-    lexicalOverlap(queryTerms, result.content) * 3 +
-    lexicalOverlap(queryTerms, breadcrumbs) * 2 +
-    lexicalOverlap(queryTerms, result.url)
-  );
+function pageUrlOf(result: SortedResult<string>): string {
+  return result.url.split('#')[0];
 }
 
-function rankResults(query: string, results: SortedResult<string>[]): SortedResult<string>[] {
+function isLowPriority(result: SortedResult<string>): boolean {
+  const url = pageUrlOf(result);
+  return LOW_PRIORITY_PREFIXES.some((prefix) => url === prefix || url.startsWith(`${prefix}/`));
+}
+
+function resultLexicalScore(
+  query: string,
+  queryTerms: string[],
+  result: SortedResult<string>,
+  pages: SearchPages,
+): number {
+  const title = pages.get(pageUrlOf(result))?.title ?? '';
+  const content = typeof result.content === 'string' ? result.content : '';
+  const titleOverlap = lexicalOverlap(queryTerms, title);
+  const phrase = query.trim().toLocaleLowerCase();
+  // A page whose title (its H1) matches every term is almost always the answer.
+  const titleScore =
+    titleOverlap * 6 +
+    (queryTerms.length > 0 && titleOverlap === queryTerms.length ? 8 : 0) +
+    (phrase.length > 2 && title.toLocaleLowerCase().includes(phrase) ? 6 : 0);
+  // Headings are the page's own H2/H3s; plain text matches count for less.
+  const contentWeight = result.type === 'text' ? 2 : 4;
+  const score =
+    titleScore +
+    lexicalOverlap(queryTerms, content) * contentWeight +
+    (result.type === 'page' && titleOverlap > 0 ? 4 : 0) +
+    lexicalOverlap(queryTerms, result.url);
+  return isLowPriority(result) ? score - 1000 : score;
+}
+
+function rankResults(query: string, results: SortedResult<string>[], pages: SearchPages): SortedResult<string>[] {
   const queryTerms = searchTokens(query);
   return results
-    .map((result, index) => ({ result, index, score: resultLexicalScore(queryTerms, result) }))
+    .map((result, index) => ({ result, index, score: resultLexicalScore(query, queryTerms, result, pages) }))
     .sort((left, right) => right.score - left.score || left.index - right.index)
     .map(({ result }) => result);
 }
@@ -220,7 +260,13 @@ function titleFromPath(url: string): string {
   return titleFromSegment(url.split('/').filter(Boolean).at(-1)?.split('#')[0]);
 }
 
-function pageContext(result: SortedResult<string>): { pageTitle: string; section?: string } {
+function pageContext(
+  result: SortedResult<string>,
+  pages: SearchPages,
+): { pageTitle: string; section?: string; category?: string } {
+  const info = pages.get(pageUrlOf(result));
+  if (info) return { pageTitle: info.title, section: info.section, category: info.category };
+
   const breadcrumbs = (result.breadcrumbs ?? []).filter(
     (breadcrumb): breadcrumb is string => typeof breadcrumb === 'string' && breadcrumb.trim().length > 0,
   );
@@ -239,16 +285,20 @@ function pageContext(result: SortedResult<string>): { pageTitle: string; section
   return { pageTitle, section };
 }
 
-function dedupePageResults(results: SortedResult<string>[], query: string): CanonicalSearchResult[] {
+function dedupePageResults(
+  results: SortedResult<string>[],
+  query: string,
+  pages: SearchPages,
+): CanonicalSearchResult[] {
   const seen = new Set<string>();
 
   return results.flatMap((result) => {
     const kind: SearchResultKind = isReferenceResult(result) ? 'reference' : 'guide';
-    const pageUrl = result.url.split('#')[0];
+    const pageUrl = pageUrlOf(result);
     const key = `${kind}:${pageUrl}`;
     if (seen.has(key)) return [];
     seen.add(key);
-    const context = pageContext(result);
+    const context = pageContext(result, pages);
 
     return [
       {
@@ -267,6 +317,7 @@ export function searchCanonical(
   query: string,
   methods: CanonicalMethod[],
   results: SortedResult<string>[],
+  pages: SearchPages = new Map(),
 ): CanonicalSearchResult[] {
   const normalizedQuery = normalizeSearchTerm(query);
   if (!normalizedQuery) return [];
@@ -305,14 +356,22 @@ export function searchCanonical(
         .map((method) => methodResult(method, 'partial'))
     : [];
 
+  const methodShaped = isCamelCaseQuery(query.replace(/\balias(?:es)?\b/gi, ' '));
   const related = dedupePageResults(
-    symbolQuery && partialMethods.length > 0
-      ? results.filter((result) => !isReferenceResult(result))
-      : rankResults(query, results),
+    rankResults(
+      query,
+      methodShaped && partialMethods.length > 0 ? results.filter((result) => !isReferenceResult(result)) : results,
+      pages,
+    ),
     query,
+    pages,
   );
 
-  if (symbolQuery || searchTokens(query).length === 0) return includeAliasPage([...partialMethods, ...related]);
+  // `sendTex` wants methods first; a plain word such as `webhook` wants guides first.
+  if (methodShaped) return includeAliasPage([...partialMethods, ...related]);
+  if (symbolQuery || searchTokens(query).length === 0) {
+    return includeAliasPage([...related.slice(0, 5), ...partialMethods, ...related.slice(5)]);
+  }
 
   const descriptiveMethods = methods
     .map((method) => ({ method, score: methodDescriptionScore(searchTokens(query), method) }))
@@ -333,8 +392,10 @@ export function searchCanonical(
         const content = normalizeSearchTerm(result.content);
         return !methodNames.some((name) => anchor === name || content.includes(name));
       }),
+      pages,
     ),
     query,
+    pages,
   );
 
   return includeAliasPage([...descriptiveMethods, ...conceptualRelated]);
@@ -342,4 +403,9 @@ export function searchCanonical(
 
 export function isMethodQuery(value: string): boolean {
   return METHOD_QUERY.test(value.trim());
+}
+
+/** True for queries shaped like a method name, which is when "no exact method" is worth saying. */
+export function isCamelCaseQuery(value: string): boolean {
+  return CAMEL_CASE_QUERY.test(value.trim());
 }
