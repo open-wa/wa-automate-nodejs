@@ -35,6 +35,12 @@ const pageTreeLoader = createServerFn({
 export const Route = createFileRoute('/api-explorer')({
   component: ApiExplorerPage,
   loader: () => pageTreeLoader(),
+  head: () => ({
+    meta: [
+      { title: 'API Explorer | open-wa' },
+      { name: 'description', content: 'Try the open-wa Easy API endpoints against your own running instance.' },
+    ],
+  }),
 });
 
 function normalizeHost(value: string): { value: string | null; error: string | null } {
