@@ -63,9 +63,9 @@ function TypeDisplay({ value, namedType }: { value: string; namedType?: string }
 
 type ExampleMode = 'node' | 'http' | 'sdk';
 const modes: { id: ExampleMode; label: string }[] = [
-  { id: 'node', label: 'Node.js client' },
+  { id: 'sdk', label: 'SDK' },
+  { id: 'node', label: 'SocketClient' },
   { id: 'http', label: 'HTTP' },
-  { id: 'sdk', label: 'In-process SDK' },
 ];
 
 function CodeBlock({ value, lang = 'ts' }: { value: string; lang?: string }) {
@@ -122,7 +122,7 @@ function MethodBlock({ method, mode, expanded, namespaced }: { method: MethodRec
     .replace(/\s*A rejected Promise indicates input validation or dispatch failure\.$/, '')
     .trim();
   const caveat = method.returnType === 'any' || method.returnType === 'any[]'
-    ? 'Raw WhatsApp Web data. Validate its shape before reading fields.'
+    ? 'WhatsApp decides the shape of this data and it can change, so check fields before you rely on them.'
     : null;
   const content = (
     <>
@@ -147,11 +147,11 @@ function MethodBlock({ method, mode, expanded, namespaced }: { method: MethodRec
           </div>)}
         </div> : <p className="p-3 text-sm">Call this method without arguments.</p>}
       </details>
-      <div className="reference-return"><span>{mode === 'http' ? 'Response data' : 'Returns'}</span>{returnType ? <code>{mode !== 'http' ? 'Promise<' : ''}{returnType.split(/(\b[A-Za-z][A-Za-z0-9]*\b)/).map((part, index) => method.returnTypeLinks?.[part] ? <a key={index} href={method.returnTypeLinks[part]} className="underline decoration-dotted underline-offset-4">{part}</a> : part)}{mode !== 'http' ? '>' : ''}</code> : <span>This method is not declared on the in-process Client facade. Use Node.js client or HTTP.</span>}</div>
+      <div className="reference-return"><span>{mode === 'http' ? 'Response data' : 'Returns'}</span>{returnType ? <code>{mode !== 'http' ? 'Promise<' : ''}{returnType.split(/(\b[A-Za-z][A-Za-z0-9]*\b)/).map((part, index) => method.returnTypeLinks?.[part] ? <a key={index} href={method.returnTypeLinks[part]} className="underline decoration-dotted underline-offset-4">{part}</a> : part)}{mode !== 'http' ? '>' : ''}</code> : <span>The SDK <code>Client</code> doesn't have this method. Call it through SocketClient or HTTP.</span>}</div>
       {mode === 'http' && /\b(void|undefined)\b/.test(method.returnType) ? <p className="reference-caveat">When no value is returned, the JSON response omits the data property.</p> : null}
       {method.returnCaveat && mode !== 'sdk' ? <p className="reference-caveat">{method.returnCaveat}</p> : null}
       {meaningfulNotes && meaningfulNotes !== method.returnCaveat && mode === 'node' ? <p className="reference-caveat">{meaningfulNotes.replace(/`/g, '')}</p> : null}
-      {mode === 'sdk' && returnType && returnType !== method.returnType ? <p className="reference-caveat">This is the in-process Client contract. The remote Node.js client and HTTP API use the registry contract shown in their tabs.</p> : null}
+      {mode === 'sdk' && returnType && returnType !== method.returnType ? <p className="reference-caveat">This is what the SDK returns. SocketClient and HTTP return the type shown in their tabs.</p> : null}
       {caveat ? <p className="reference-caveat">{caveat}</p> : null}
       {mode !== 'sdk' || returnType ? <CodeBlock value={mode === 'http' ? httpExample : compactExample(mode === 'sdk' ? method.examples.inProcessSdk : method.examples.nodeCall)} lang={mode === 'http' ? 'bash' : 'ts'} /> : null}
     </>
@@ -167,7 +167,7 @@ export function ClientReference() {
   const [query, setQuery] = React.useState('');
   const [explorerOpen, setExplorerOpen] = React.useState(false);
   const [namespace, setNamespace] = React.useState('all');
-  const [mode, setMode] = React.useState<ExampleMode>('node');
+  const [mode, setMode] = React.useState<ExampleMode>('sdk');
   const [expanded, setExpanded] = React.useState(false);
   const [namespaced, setNamespaced] = React.useState(false);
   const [activeMethod, setActiveMethod] = React.useState('');
@@ -235,11 +235,11 @@ export function ClientReference() {
             </label>
           </div>
         </div>
-        {namespaced && mode !== 'http' ? <p className="reference-naming-note">Namespaced labels are <a href="/docs/reference/client/namespaced-client">registry aliases</a>. {mode === 'node' ? 'SocketClient' : 'The in-process SDK'} uses the flat calls shown below.</p> : null}
+        {namespaced && mode !== 'http' ? <p className="reference-naming-note">Namespaced names are <a href="/docs/reference/client/namespaced-client">aliases</a>. {mode === 'node' ? 'SocketClient' : 'The SDK'} uses the flat calls shown below.</p> : null}
         <details className="reference-setup">
-          <summary>{mode === 'http' ? 'HTTP connection and response format' : mode === 'sdk' ? 'What is the in-process SDK?' : 'Connect the Node.js client'}</summary>
+          <summary>{mode === 'http' ? 'HTTP connection and response format' : mode === 'sdk' ? 'Start the SDK' : 'Connect SocketClient'}</summary>
           {mode === 'node' ? <><p>Connect once to a running Easy API, then use the calls below.</p><CodeBlock value={records[0].examples.nodeClient.split('\n').filter((line) => line.startsWith('import ') || line.includes('SocketClient.connect')).join('\n')} /></>
-            : mode === 'sdk' ? <p>The SDK runs WhatsApp inside your Node.js application. The examples assume you already created a runtime with <code>createClient()</code> and wrapped it in the <code>Client</code> facade. Follow <a href="/docs/getting-started/custom-code">the Node.js setup guide</a> first.</p>
+            : mode === 'sdk' ? <p>The SDK runs WhatsApp inside your Node.js app. The examples assume you started a session with <code>const client = await create()</code> from <code>@open-wa/wa-automate</code>. <a href="/docs/getting-started/custom-code">Set up the SDK</a> first.</p>
               : <p>Run the Easy API on port 8080 and replace <code>YOUR_API_KEY</code> with your configured key. Successful HTTP calls wrap the return value in <code>{'{ success: true, data: … }'}</code>. The return types below describe <code>data</code>.</p>}
         </details>
         <div id="client-method-examples" role="tabpanel">{records.map((method) => <MethodBlock key={method.id} method={method} mode={mode} expanded={expanded} namespaced={namespaced} />)}</div>

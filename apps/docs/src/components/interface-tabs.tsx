@@ -1,21 +1,20 @@
 import * as React from 'react';
 
 /**
- * A site-wide "preferred interface" preference. Lets a reader pick how they want
- * to consume the library — embedded Node code, the SocketClient (the basis for
- * other-language clients), or the Easy API over HTTP — once, and have every code
- * example follow that choice across pages.
+ * A site-wide "preferred interface" preference. Lets a reader pick how they call
+ * open-wa — the SDK in their own Node.js process, SocketClient against a running
+ * Easy API, or plain HTTP — once, and have every code example follow that choice.
  */
-export const INTERFACES = ['Embedded', 'SocketClient', 'Easy API'] as const;
+export const INTERFACES = ['SDK', 'SocketClient', 'HTTP'] as const;
 export type InterfaceId = (typeof INTERFACES)[number];
 
 const STORAGE_KEY = 'openwa.preferredInterface';
-const DEFAULT: InterfaceId = 'Embedded';
+const DEFAULT: InterfaceId = 'SDK';
 
 const INTERFACE_LABELS: Record<InterfaceId, string> = {
-  Embedded: 'In-process SDK',
-  SocketClient: 'Node.js client',
-  'Easy API': 'HTTP',
+  SDK: 'SDK',
+  SocketClient: 'SocketClient',
+  HTTP: 'HTTP',
 };
 
 let current: InterfaceId = DEFAULT;
@@ -91,10 +90,11 @@ export function InterfacePreference() {
   const [pref, setPref] = usePreferredInterface();
   return (
     <div className="not-prose my-4 flex flex-col gap-2 rounded-lg border border-fd-border p-4">
-      <span className="text-sm font-medium">Preferred interface</span>
+      <span className="text-sm font-medium">Show examples for</span>
       <p className="text-sm text-fd-muted-foreground">
-        Choose how you want to use open-wa. Code examples across the docs follow this choice. The
-        SocketClient protocol is the basis for clients in other languages.
+        Pick how you call open-wa and every example in the reference switches to it. Use the SDK
+        inside your own Node.js app, SocketClient to call a running Easy API from Node.js, or HTTP
+        from any language.
       </p>
       <TabBar options={INTERFACES} value={pref} onChange={setPref} />
     </div>
