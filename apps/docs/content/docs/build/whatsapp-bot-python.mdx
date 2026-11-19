@@ -1,7 +1,7 @@
 ---
-title: Build a WhatsApp bot in Python
+title: Bot in Python
 seoTitle: "WhatsApp bot in Python with a self-hosted API | open-wa"
-description: Build a WhatsApp bot in Python. Receive messages with a webhook and reply through the self-hosted open-wa HTTP API.
+description: Answer WhatsApp messages from a Python app that receives a webhook and replies through the Easy API.
 ---
 
 # Build a WhatsApp bot in Python
@@ -14,7 +14,7 @@ WhatsApp -> open-wa Easy API -> webhook -> Python app -> POST /api/messages/send
 
 ## Before you start
 
-- Install Node.js 22 or later for the open-wa process.
+- Install Node.js 22.21.1 or newer for the open-wa process.
 - Install Python 3.10 or later.
 - Keep a phone with WhatsApp near you to link the account.
 
@@ -36,8 +36,8 @@ import requests
 from flask import Flask, abort, request
 
 API_URL = "http://127.0.0.1:8080"
-API_KEY = os.environ["OPEN_WA_API_KEY"]
-WEBHOOK_SECRET = os.environ["OPEN_WA_WEBHOOK_SECRET"]
+API_KEY = os.environ["WA_API_KEY"]
+WEBHOOK_SECRET = os.environ["WEBHOOK_SECRET"]
 
 app = Flask(__name__)
 
@@ -46,7 +46,7 @@ def send_text(chat_id: str, text: str) -> None:
     response = requests.post(
         f"{API_URL}/api/messages/sendText",
         headers={"X-API-Key": API_KEY},
-        json={"to": chat_id, "content": text, "options": {}},
+        json={"to": chat_id, "content": text},
         timeout=30,
     )
     response.raise_for_status()
@@ -80,8 +80,8 @@ if __name__ == "__main__":
 Start the receiver before you start open-wa:
 
 ```bash
-export OPEN_WA_API_KEY='use-a-long-random-value'
-export OPEN_WA_WEBHOOK_SECRET='use-a-different-long-random-value'
+export WA_API_KEY='use-a-long-random-value'
+export WEBHOOK_SECRET='use-a-different-long-random-value'
 python bot.py
 ```
 
@@ -90,14 +90,14 @@ python bot.py
 In a new directory, install the webhook integration:
 
 ```bash
-npm install @open-wa/integration-webhook
+npm install @open-wa/wa-automate @open-wa/integration-webhook
 ```
 
-Create `wa.config.mjs`:
+Create `wa.config.mjs` in the same directory:
 
 ```js
-const webhookSecret = process.env.OPEN_WA_WEBHOOK_SECRET?.trim();
-if (!webhookSecret) throw new Error('OPEN_WA_WEBHOOK_SECRET is required');
+const webhookSecret = process.env.WEBHOOK_SECRET?.trim();
+if (!webhookSecret) throw new Error('WEBHOOK_SECRET is required');
 
 export default {
   sessionId: 'python-bot',
@@ -116,12 +116,12 @@ export default {
 
 ## 3. Start open-wa
 
-Set the same two values in this terminal. Then start the Easy API:
+Set the same two values in this terminal, then start the Easy API from that directory. It finds `wa.config.mjs` on its own and reads the API key from `WA_API_KEY`:
 
 ```bash
-export OPEN_WA_API_KEY='use-a-long-random-value'
-export OPEN_WA_WEBHOOK_SECRET='use-a-different-long-random-value'
-npx @open-wa/wa-automate --config ./wa.config.mjs --session-id python-bot --host 127.0.0.1 --port 8080 --api-key "$OPEN_WA_API_KEY"
+export WA_API_KEY='use-a-long-random-value'
+export WEBHOOK_SECRET='use-a-different-long-random-value'
+npx @open-wa/wa-automate
 ```
 
 Scan the QR code with WhatsApp on your phone. Then send `!help` to the linked account from another phone. The bot replies in the same chat.
@@ -142,7 +142,7 @@ import requests
 requests.post(
     "http://127.0.0.1:8080/api/messages/sendText",
     headers={"X-API-Key": "use-a-long-random-value"},
-    json={"to": "447123456789@c.us", "content": "Your order has shipped.", "options": {}},
+    json={"to": "447123456789@c.us", "content": "Your order has shipped."},
     timeout=30,
 ).raise_for_status()
 ```
@@ -155,7 +155,8 @@ The API key gives full control of the WhatsApp account. Do not expose port `8080
 
 ## Related
 
-- [WhatsApp webhooks](/docs/client-and-integrations/webhook-payloads)
+- [Receive webhooks](/docs/guides/receive-webhooks)
+- [Go to production](/docs/operations/go-to-production)
 - [Build a WhatsApp bot in Node.js](/docs/guides/whatsapp-bot)
 - [Security and deployment](/docs/operations/security-and-deployment)
-- [Rate limits](/docs/guides/rate-limits)
+- [Rate limits](/docs/operations/rate-limits)

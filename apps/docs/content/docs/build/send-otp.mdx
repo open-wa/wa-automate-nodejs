@@ -1,0 +1,130 @@
+---
+title: Send an OTP
+seoTitle: "Send WhatsApp OTP verification codes from your app | open-wa"
+description: Send one-time verification codes over WhatsApp from your backend, check them, and handle failed sends without double-sending.
+---
+
+# Send an OTP
+
+This recipe sends a six-digit login or sign-up code to a user's WhatsApp and checks it when they type it back. Your backend generates and stores the code; open-wa only delivers the text. It works from any language through the Easy API, and there's an SDK version at the end.
+
+## Before you start
+
+- An Easy API session that is linked and ready. The [quick start](/docs/getting-started/quickstart) gets you there; `/health` should report `"connected": true`.
+- A license on the sending number. Most OTP recipients have never chatted with your account, and starting a chat with a new number is a [licensed feature](/docs/licensing/licensed-features). Without one, the send fails with a license error.
+- The user's phone number with its country code, for example `447700900123` for a UK number.
+
+## Send the code
+
+Generate the code with a secure random source, store only its hash with an expiry, then send it with `sendText`. The chat ID for a phone number is the digits followed by `@c.us`.
+
+```js title="otp.mjs"
+import { createHash, randomInt, timingSafeEqual } from 'node:crypto';
+
+const OPEN_WA = 'http://127.0.0.1:8080';
+const CODE_TTL_MS = 5 * 60_000;
+const MAX_ATTEMPTS = 5;
+
+// Use your database or Redis in production; a Map is enough to try it.
+const pending = new Map();
+
+const hash = (code) => createHash('sha256').update(code).digest();
+
+export async function sendOtp(rawPhone) {
+  const phone = rawPhone.replace(/\D/g, '');
+  const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
+  pending.set(phone, { hash: hash(code), expiresAt: Date.now() + CODE_TTL_MS, attempts: 0 });
+
+  const response = await fetch(`${OPEN_WA}/api/messages/sendText`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-API-Key': process.env.WA_API_KEY },
+    body: JSON.stringify({
+      to: `${phone}@c.us`,
+      content: `${code} is your verification code. It expires in 5 minutes. Don't share it with anyone.`,
+    }),
+  });
+  const body = await response.json();
+  if (!response.ok) throw new Error(body.error ?? `open-wa returned ${response.status}`);
+  return body.data; // the submitted message ID
+}
+```
+
+A successful send returns the message ID:
+
+```json
+{ "success": true, "data": "true_447700900123@c.us_3EB0C7D5E4A1B2" }
+```
+
+The ID means WhatsApp accepted the message, not that the user has read it. Use [acknowledgements](/docs/guides/messages) if you want to show "delivered" in your UI.
+
+## Check the code
+
+```js title="otp.mjs"
+export function verifyOtp(rawPhone, code) {
+  const phone = rawPhone.replace(/\D/g, '');
+  const entry = pending.get(phone);
+  if (!entry || Date.now() > entry.expiresAt) return false;
+  if (++entry.attempts > MAX_ATTEMPTS) {
+    pending.delete(phone);
+    return false;
+  }
+  const ok = timingSafeEqual(entry.hash, hash(String(code).trim()));
+  if (ok) pending.delete(phone);
+  return ok;
+}
+```
+
+Call `sendOtp` from your sign-up or login route, and `verifyOtp` when the user submits the code. Deleting the entry on success makes each code single-use, and the attempt limit stops guessing.
+
+## Handle failed sends
+
+| Response | What happened | What to do |
+| --- | --- | --- |
+| `503` with `API not available until the session is truly ready` | The session is starting or reconnecting. | Retry after a few seconds, or ask the user to try again shortly. |
+| `500` with `Starting a chat with a new number requires an applied restricted or premium license.` | The number has no chat with your account and the session has no license. | Apply a [license](/docs/licensing/pricing). |
+| `500` with `sendText could not confirm the result…` | The message may have been sent. | Don't resend automatically. Let the user ask for a new code, which replaces the old one. |
+| `401` | The `X-API-Key` header doesn't match `WA_API_KEY`. | Send the same key the Easy API was started with. |
+
+Rate-limit the "send code" button per phone number and per IP address, for example one code every 60 seconds. It stops abuse and keeps your account's sending pattern normal; see [rate limits](/docs/operations/rate-limits).
+
+## Offer a copy button
+
+With a license applied, you can send the code as an interactive message with a copy button, so the user doesn't have to select the digits. Send it with `sendInteractive` instead of `sendText`:
+
+```js
+await fetch(`${OPEN_WA}/api/messages/sendInteractive`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'X-API-Key': process.env.WA_API_KEY },
+  body: JSON.stringify({
+    to: `${phone}@c.us`,
+    content: {
+      type: 'buttons',
+      body: `${code} is your verification code. It expires in 5 minutes.`,
+      actions: [{ type: 'copy', label: 'Copy code', code }],
+    },
+  }),
+});
+```
+
+## With the SDK
+
+If your backend runs in Node.js, start the session in-process with `create()` and call `sendText` directly. Failures throw a `SendTextError` with a `code` and an `outcome`; when `outcome` is `unknown`, the message may already have been sent.
+
+```ts
+import { create } from '@open-wa/wa-automate';
+
+const client = await create({ sessionId: 'otp', licenseKey: process.env.WA_LICENSE_KEY });
+
+try {
+  await client.sendText(`${phone}@c.us`, `${code} is your verification code.`);
+} catch (error) {
+  if (error.code === 'LICENSE_REQUIRED') throw new Error('Apply a license to message new numbers');
+  if (error.outcome === 'unknown') return; // don't resend; let the user request a new code
+  throw error;
+}
+```
+
+## Next steps
+
+- [Go to production](/docs/operations/go-to-production) before real users depend on the codes.
+- [Send messages](/docs/guides/send-message-api) for chat ID formats and the HTTP API.

@@ -1,0 +1,99 @@
+---
+title: Booking confirmation with buttons
+seoTitle: "WhatsApp booking confirmations with confirm and reschedule buttons | open-wa"
+description: Send a WhatsApp booking card with Confirm and Reschedule buttons, and update your booking system when the customer taps one.
+---
+
+# Booking confirmation with buttons
+
+This recipe sends a customer a native booking card for their appointment, followed by **Confirm** and **Reschedule** buttons, and updates your booking system when they tap one. It uses `sendInteractive`, which needs a [license](/docs/licensing/pricing) on the sending number.
+
+## Before you start
+
+- A Node.js project with `@open-wa/wa-automate` installed (`npm install @open-wa/wa-automate`) and Node.js 22.21.1 or newer.
+- A license key for the sending number, in `WA_LICENSE_KEY`.
+- A booking record with an ID, a start and end time, a place, and the customer's phone number.
+
+## Send the card and the buttons
+
+The booking card shows the date, time and place in WhatsApp's own details view, with an add-to-calendar option. Reply buttons can't sit on the booking card itself, so send them as a second message. Put the booking ID in each button's `id`; it comes back when the customer taps, so you don't need to track message IDs.
+
+```ts title="bookings.mts"
+import { create } from '@open-wa/wa-automate';
+
+const client = await create({ sessionId: 'bookings', licenseKey: process.env.WA_LICENSE_KEY });
+
+type Booking = {
+  id: string; phone: string; service: string;
+  startAt: string; endAt: string; location: string; manageUrl: string;
+};
+
+export async function sendConfirmation(booking: Booking) {
+  const to = `${booking.phone}@c.us`;
+
+  await client.sendInteractive(to, {
+    type: 'booking',
+    title: booking.service,
+    body: 'Here are your appointment details.',
+    booking: {
+      startAt: booking.startAt, // for example '2026-12-03T10:00:00+00:00'
+      endAt: booking.endAt,
+      location: booking.location,
+      managementUrl: booking.manageUrl,
+    },
+  });
+
+  await client.sendInteractive(to, {
+    type: 'buttons',
+    body: 'Can you make it?',
+    actions: [
+      { type: 'reply', id: `confirm:${booking.id}`, label: 'Confirm' },
+      { type: 'reply', id: `reschedule:${booking.id}`, label: 'Reschedule' },
+    ],
+  });
+}
+```
+
+`sendInteractive` validates the document before sending. A booking needs a `location`, `url` or `phoneNumber`, and `endAt` must be after `startAt`; times with an offset are normalised for you. Each call returns the sent message's ID, which confirms the send, not that the customer saw it.
+
+## Handle the tap
+
+Register the handler once, when your app starts:
+
+```ts title="bookings.mts"
+const handled = new Set<string>();
+
+client.onInteractiveResponse(async (response) => {
+  if (response.type !== 'reply') return;
+  if (handled.has(response.messageId)) return; // the same tap can arrive twice
+  handled.add(response.messageId);
+
+  const [action, bookingId] = response.id.split(':');
+  if (action === 'confirm') {
+    await markConfirmed(bookingId); // your booking system
+    await client.sendText(response.chatId, 'Thanks, you are confirmed. See you then.');
+  } else if (action === 'reschedule') {
+    await client.sendText(response.chatId, `No problem. Pick a new time here: ${await rescheduleLink(bookingId)}`);
+  }
+});
+```
+
+`response.chatId` is the customer's chat, and `response.id` is the button ID you chose. Store `response.messageId` in your database rather than a `Set` if the process can restart, so a repeated delivery doesn't confirm twice.
+
+## From the Easy API
+
+Any language can do the same over HTTP. Send each message to `POST /api/messages/sendInteractive` with `{ "to": "447700900123@c.us", "content": { ... } }`, using the same documents as above:
+
+```bash
+curl http://127.0.0.1:8080/api/messages/sendInteractive \
+  -H "X-API-Key: $WA_API_KEY" -H 'Content-Type: application/json' \
+  --data '{"to":"447700900123@c.us","content":{"type":"buttons","body":"Can you make it?","actions":[{"type":"reply","id":"confirm:bk_123","label":"Confirm"},{"type":"reply","id":"reschedule:bk_123","label":"Reschedule"}]}}'
+```
+
+Taps arrive as `interactive.response` events, with the response at `payload.response`. Read them from the event stream (`GET /api/events?topics=interactive.response`) or forward them to your backend with a [webhook](/docs/guides/receive-webhooks) by adding `interactive.response` to its `events`.
+
+## Next steps
+
+- [Interactive messages](/docs/guides/interactive-messages) covers lists, forms, carousels and every booking field.
+- [Calendar events and RSVPs](/docs/guides/whatsapp-events) is the alternative when you want a WhatsApp event with going and not-going replies.
+- [Go to production](/docs/operations/go-to-production) before customers rely on it.
