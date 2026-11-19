@@ -17,7 +17,7 @@ import { fetchClient } from 'fumadocs-core/search/client/fetch';
 import { useI18n } from 'fumadocs-ui/contexts/i18n';
 import { useEffect, useMemo, useState } from 'react';
 import { Markdown } from './markdown';
-import { isMethodQuery, type CanonicalSearchResult } from '@/lib/search';
+import { isCamelCaseQuery, type CanonicalSearchResult } from '@/lib/search';
 
 function ResultItem({ item, onClick }: { item: SearchItemType; onClick: () => void }) {
   if (item.type === 'action') return item.node;
@@ -30,11 +30,14 @@ function ResultItem({ item, onClick }: { item: SearchItemType; onClick: () => vo
       ? `Alias for ${result.method}`
       : method && (result.match === 'partial' || result.match === 'related')
         ? 'Related method'
-        : result.resultKind === 'guide'
-          ? 'Guide'
-          : result.resultKind === 'reference'
-            ? 'Reference'
-            : 'Method';
+        : !method
+          ? result.category ?? (result.resultKind === 'reference' ? 'Reference' : 'Docs')
+          : 'Method';
+  // The category already names the top group, so only show deeper sections.
+  const section =
+    result.section && result.section !== result.category
+      ? result.section.split(' / ').slice(1).join(' / ')
+      : undefined;
 
   return (
     <SearchDialogListItem item={item} onClick={onClick}>
@@ -47,8 +50,8 @@ function ResultItem({ item, onClick }: { item: SearchItemType; onClick: () => vo
       ) : (
         <>
           <div className="font-medium">{result.pageTitle ?? 'Documentation'}</div>
-          {result.section && (
-            <div className="mt-0.5 text-xs text-fd-muted-foreground">{result.section}</div>
+          {section && (
+            <div className="mt-0.5 text-xs text-fd-muted-foreground">{section}</div>
           )}
           <div className="mt-1 text-sm text-fd-muted-foreground">
             <Markdown text={content} />
@@ -115,7 +118,7 @@ export default function DefaultSearchDialog(props: SharedProps) {
     !loadingTimedOut &&
     settledSearch === search &&
     !aliasIntent &&
-    isMethodQuery(search) &&
+    isCamelCaseQuery(search) &&
     !hasExactMethod;
 
   const empty = () => {

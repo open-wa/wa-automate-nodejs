@@ -228,6 +228,8 @@ export const docs = defineDocs({
         schema: frontmatterSchema.extend({
             // Search-result title when the page heading is too short or generic.
             seoTitle: z.string().optional(),
+            // Number the H2 sections ("01", "02"). Off unless a page is a sequence.
+            numberedSections: z.boolean().optional(),
             release: z.object({
                 version: z.string(),
                 date: z.string().datetime(),

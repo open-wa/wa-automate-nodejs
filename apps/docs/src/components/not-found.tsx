@@ -1,19 +1,26 @@
+import { useEffect } from 'react';
 import { Link } from '@tanstack/react-router';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { useSearchContext } from 'fumadocs-ui/contexts/search';
 import { baseOptions } from '@/lib/layout.shared';
+import { DOCS_PATHS, NOT_FOUND_TITLE } from '@/lib/site';
 
 const destinations = [
-  { href: '/docs/getting-started/quickstart', title: 'Send your first message', description: 'Start and connect an Easy API session.' },
-  { href: '/docs/reference/client/client', title: 'Client method reference', description: 'Find a method, its parameters and examples.' },
-  { href: '/docs/guides/configuration-and-cli', title: 'Configuration and CLI', description: 'The current home for command-line options.' },
+  { href: DOCS_PATHS.quickstart, title: 'Send your first message', description: 'Start and connect an Easy API session.' },
+  { href: DOCS_PATHS.referenceClient, title: 'Client method reference', description: 'Find a method, its parameters and examples.' },
+  { href: DOCS_PATHS.configuration, title: 'Configuration and CLI', description: 'The current home for command-line options.' },
 ];
 
 export function NotFound() {
   const { setOpenSearch } = useSearchContext();
+  // Routes outside /docs fall back to the root title, so name the tab here too.
+  useEffect(() => {
+    document.title = NOT_FOUND_TITLE;
+  }, []);
+
   return (
-    <HomeLayout {...baseOptions()} className="bg-background px-6 py-20">
-      <main className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+    <HomeLayout {...baseOptions()} className="bg-background">
+      <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-16">
         <p className="text-sm font-medium text-muted-foreground">404 · Page not found</p>
         <h1 className="text-4xl font-semibold tracking-tight">Let’s find the right page.</h1>
         <p className="max-w-xl text-base leading-7 text-muted-foreground">

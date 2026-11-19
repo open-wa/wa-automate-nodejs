@@ -3,13 +3,29 @@ import { source } from '@/lib/source';
 import { createFromSource } from 'fumadocs-core/search/server';
 import methodsRecords from '../../generated/client-methods.json';
 import { CURRENT_VERSION } from '@/lib/site';
-import { createCanonicalMethods, searchCanonical } from '@/lib/search';
+import { createCanonicalMethods, searchCanonical, type SearchPageInfo } from '@/lib/search';
+import { folderCrumbs } from '@/lib/page-tree';
 
 const server = createFromSource(source, {
   language: 'english',
 });
 
 const canonicalMethods = createCanonicalMethods(methodsRecords, CURRENT_VERSION);
+
+// Results are titled by each page's frontmatter title and grouped by its sidebar section.
+const searchPages = new Map<string, SearchPageInfo>(
+  source.getPages().map((page) => {
+    const crumbs = folderCrumbs(source.pageTree, page.url).map((crumb) => crumb.name);
+    return [
+      page.url,
+      {
+        title: page.data.title,
+        category: crumbs[0],
+        section: crumbs.length > 0 ? crumbs.join(' / ') : undefined,
+      },
+    ];
+  }),
+);
 const SEARCH_TIMEOUT_MS = 8_000;
 
 async function withSearchTimeout<T>(promise: Promise<T>): Promise<T> {
@@ -49,7 +65,7 @@ export const Route = createFileRoute('/api/search')({
             canonicalMethods,
           ]);
 
-          return Response.json(searchCanonical(query, methods, results), {
+          return Response.json(searchCanonical(query, methods, results, searchPages), {
             headers: {
               'Cache-Control': 'public, max-age=60, s-maxage=300',
             },

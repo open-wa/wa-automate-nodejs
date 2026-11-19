@@ -3,30 +3,38 @@ import {
   MarkdownCopyButton,
   ViewOptionsPopover,
 } from '@/components/ai/page-actions';
+import type { Crumb } from '@/lib/page-tree';
 
 type DocsPageHeaderProps = Readonly<{
   title: string;
   description?: string;
   pagePath: string;
+  crumbs?: ReadonlyArray<Crumb>;
 }>;
 
 export function DocsPageHeader({
   title,
   description,
   pagePath,
+  crumbs = [],
 }: DocsPageHeaderProps) {
-  const docsUrlPath = getDocsUrlPath(pagePath);
-  const reference = docsUrlPath.startsWith('/docs/reference');
   return (
     <header className="docs-page-header">
-      <div className="docs-page-meta">
-        <span><a href="/docs">Docs</a><span aria-hidden="true"> / </span>{reference ? 'API reference' : 'Guides'}</span>
-        <PageActions pagePath={pagePath} />
-      </div>
+      <nav className="docs-page-meta" aria-label="Breadcrumb">
+        <ol className="docs-breadcrumb">
+          <li><a href="/docs">Docs</a></li>
+          {crumbs.map((crumb) => (
+            <li key={`${crumb.name}-${crumb.url ?? ''}`}>
+              {crumb.url ? <a href={crumb.url}>{crumb.name}</a> : <span>{crumb.name}</span>}
+            </li>
+          ))}
+        </ol>
+      </nav>
       <div className="docs-page-heading">
         <DocsTitle>{title}</DocsTitle>
         {description ? <DocsDescription>{description}</DocsDescription> : null}
       </div>
+      <PageActions pagePath={pagePath} />
     </header>
   );
 }
@@ -37,7 +45,7 @@ function PageActions({ pagePath }: Readonly<{ pagePath: string }>) {
     docsUrlPath === '/docs' ? '/llms.mdx/docs/' : `/llms.mdx${docsUrlPath}`;
 
   return (
-    <div className="docs-page-header-actions flex flex-wrap items-center gap-2">
+    <div className="docs-page-header-actions not-prose flex flex-wrap items-center gap-2">
       <MarkdownCopyButton
         markdownUrl={markdownUrl}
         className="min-h-9 w-auto px-2.5 text-xs sm:min-h-10 sm:px-3 sm:text-sm"
