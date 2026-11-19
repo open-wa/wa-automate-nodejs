@@ -174,19 +174,6 @@ function writeMeta(filePath, title, pages) {
   writeFileIfChanged(filePath, `${JSON.stringify({ title, pages }, null, 2)}\n`);
 }
 
-function ensureReferenceMeta() {
-  const metaPath = path.join(docsRoot, 'reference/meta.json');
-  const meta = readJson(metaPath) ?? { title: 'API Reference', pages: ['index'] };
-  const pages = Array.isArray(meta.pages) ? [...meta.pages] : ['index'];
-
-  if (!pages.includes('workspaces')) {
-    const indexPosition = pages.indexOf('index');
-    pages.splice(indexPosition === -1 ? 0 : indexPosition + 1, 0, 'workspaces');
-  }
-
-  writeFileIfChanged(metaPath, `${JSON.stringify({ ...meta, pages }, null, 2)}\n`);
-}
-
 function generateDocs() {
   const grouped = workspaceRoots.map((root) => ({ root, workspaces: getWorkspaces(root) }));
   const allWorkspaces = grouped.flatMap((group) => group.workspaces);
@@ -210,7 +197,9 @@ function generateDocs() {
     }
   }
 
-  ensureReferenceMeta();
+  // These pages mirror the package READMEs for contributors. They stay off the
+  // user sidebar: packages/schema/scripts/gen-client-reference-docs.ts owns
+  // reference/meta.json and doesn't list them.
   console.log(`Generated ${allWorkspaces.length} workspace README docs (${createdReadmes} README files created).`);
 }
 
