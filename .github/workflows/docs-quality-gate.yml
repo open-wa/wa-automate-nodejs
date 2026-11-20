@@ -56,10 +56,10 @@ jobs:
           fail=0
 
           # 1. Webhook envelope must be {event, payload}, never a legacy "data"
-          #    wrapper, in the two canonical webhook pages.
-          if grep -rEn '"data"[[:space:]]*:' \
-               apps/docs/content/docs/guides/webhooks-for-business.mdx \
-               apps/docs/content/docs/client-and-integrations/webhook-payloads.mdx; then
+          #    wrapper, in the canonical webhook guide.
+          webhook_guide=apps/docs/content/docs/guides/receive-webhooks.mdx
+          test -f "$webhook_guide"
+          if grep -En '"data"[[:space:]]*:' "$webhook_guide"; then
             echo "::error::Webhook docs must use the {event, payload} envelope, not a 'data' wrapper."
             fail=1
           fi
@@ -76,7 +76,7 @@ jobs:
           # 3. OPENWA_API_KEY is allowed only as an app-local example variable in
           #    config-secrets/socket-client docs. Runtime config should use WA_API_KEY.
           if grep -rn 'OPENWA_API_KEY' apps/docs/content/docs \
-             | grep -vE 'apps/docs/content/docs/(guides/config-secrets|client-and-integrations/socket-client)\.mdx:'; then
+               | grep -vE 'apps/docs/content/docs/guides/(config-secrets|socket-client)\.mdx:'; then
             echo "::error::Use WA_API_KEY for runtime config. OPENWA_API_KEY is only allowed in app-local example docs."
             fail=1
           fi
