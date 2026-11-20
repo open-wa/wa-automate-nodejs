@@ -22,9 +22,9 @@ open-wa advertises these events alongside its tools:
 
 | Event | When it arrives | Subscription filter |
 | --- | --- | --- |
-| `message.received` | A new incoming message, excluding this account's sends | Optional exact `chatId` |
-| `ack.changed` | A message acknowledgement changes | Optional exact `chatId`; snapshots without that field won't match |
-| `session.state.changed` | The linked session changes state | No arguments |
+| [`message.received`](/docs/reference/event-contracts/generated/mcp_message_received) | A new incoming message, excluding this account's sends | Optional exact `chatId` |
+| [`ack.changed`](/docs/reference/event-contracts/generated/mcp_ack_changed) | A message acknowledgement changes | Optional exact `chatId`; snapshots without that field won't match |
+| [`session.state.changed`](/docs/reference/event-contracts/generated/mcp_session_state_changed) | The linked session changes state | No arguments |
 
 Use the conversation ID returned by open-wa. Ask ChatGPT what to monitor and what it should do; ChatGPT manages `events/subscribe`, refresh and `events/unsubscribe`.
 
