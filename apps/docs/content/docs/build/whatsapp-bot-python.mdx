@@ -6,7 +6,11 @@ description: Answer WhatsApp messages from a Python app that receives a webhook 
 
 # Build a WhatsApp bot in Python
 
-This guide shows how to build a WhatsApp bot in Python. open-wa runs the WhatsApp session in Node.js. Your Python application receives messages through a webhook and replies through the HTTP API.
+This recipe builds a WhatsApp bot with Python and Flask. open-wa runs the WhatsApp session in Node.js, your Flask app receives each message through a [webhook](/docs/guides/receive-webhooks), and it replies with [`sendText`](/docs/reference/client/messages#sendtext) over the HTTP API. When it works, sending `!help` to the linked number gets this reply in the same chat:
+
+```text
+Commands: !help, !hours
+```
 
 ```text
 WhatsApp -> open-wa Easy API -> webhook -> Python app -> POST /api/messages/sendText
@@ -26,7 +30,7 @@ Install Flask and requests:
 pip install flask requests
 ```
 
-Create `bot.py`. The receiver checks the shared secret, reads the message, and replies through the Easy API.
+Create `bot.py`. The receiver checks the shared secret, reads the [`message.received` payload](/docs/reference/event-contracts/generated/webhook_message_received), and replies through the Easy API.
 
 ```python
 import hmac
@@ -35,7 +39,7 @@ import os
 import requests
 from flask import Flask, abort, request
 
-API_URL = "http://127.0.0.1:8080"
+API_URL = os.environ.get("OPENWA_URL", "http://127.0.0.1:8080")
 API_KEY = os.environ["WA_API_KEY"]
 WEBHOOK_SECRET = os.environ["WEBHOOK_SECRET"]
 
@@ -74,7 +78,7 @@ def webhook():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000)
+    app.run(host="127.0.0.1", port=8000)
 ```
 
 Start the receiver before you start open-wa:
@@ -106,7 +110,7 @@ export default {
   plugins: ['@open-wa/integration-webhook'],
   pluginConfig: {
     webhook: {
-      url: 'http://127.0.0.1:5000/webhooks/open-wa',
+      url: 'http://127.0.0.1:8000/webhooks/open-wa',
       events: ['message.received'],
       headers: { 'X-Webhook-Secret': webhookSecret },
     },
@@ -124,13 +128,30 @@ export WEBHOOK_SECRET='use-a-different-long-random-value'
 npx @open-wa/wa-automate
 ```
 
-Scan the QR code with WhatsApp on your phone. Then send `!help` to the linked account from another phone. The bot replies in the same chat.
+Scan the QR code with WhatsApp on your phone. Then send `!help` to the linked account from another phone. The bot replies `Commands: !help, !hours` in the same chat, and `!hours` gets the opening hours.
 
 ## Respond quickly
 
 open-wa waits for the webhook response. A slow response uses a delivery slot and can cause a retry after a timeout. Return `204` quickly. For slow work, put the message in a queue and send the reply from a worker.
 
 A retry can send the same event again. To prevent a duplicate reply, store `payload.message.id` and ignore an ID that you already processed.
+
+## Deploy the receiver
+
+The Flask development server is for trying the bot. On a server, run the same app under a production WSGI server such as Gunicorn:
+
+```bash
+pip install gunicorn
+gunicorn --bind 127.0.0.1:8000 --workers 2 bot:app
+```
+
+Three settings connect the two processes:
+
+- **The callback URL** is `pluginConfig.webhook.url` in `wa.config.mjs` on the open-wa host. When both run on one machine, keep `http://127.0.0.1:8000/webhooks/open-wa`. When the Python app runs elsewhere, use its HTTPS address, such as `https://bot.example.com/webhooks/open-wa`, and restart open-wa so it reads the new config.
+- **The Easy API address** is `OPENWA_URL` in the Python app's environment. Leave it unset on one machine, or point it at the Easy API's private-network address, never a public one.
+- **The secrets** `WA_API_KEY` and `WEBHOOK_SECRET` must match in both processes. Set them in your process manager, container env file or secret store rather than in code.
+
+After deploying, send `!help` again and check that the reply arrives. If it doesn't, the [webhook troubleshooting table](/docs/guides/receive-webhooks#troubleshooting) covers the usual causes.
 
 ## Send messages without a webhook
 
@@ -155,7 +176,8 @@ The API key gives full control of the WhatsApp account. Do not expose port `8080
 
 ## Related
 
-- [Receive webhooks](/docs/guides/receive-webhooks)
+- [Receive WhatsApp webhooks with Node.js and Express](/docs/guides/receive-webhooks) covers the envelope, retries and durable delivery
+- [Send a WhatsApp message](/docs/guides/send-message-api)
 - [Go to production](/docs/operations/go-to-production)
 - [Build a WhatsApp bot in Node.js](/docs/guides/whatsapp-bot)
 - [Security and deployment](/docs/operations/security-and-deployment)

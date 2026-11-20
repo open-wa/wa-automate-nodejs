@@ -6,7 +6,7 @@ description: Answer common customer questions on WhatsApp automatically, reply o
 
 # Run a support bot
 
-This recipe runs a WhatsApp support bot in Node.js. It answers common questions from a menu, tells people when you're closed, and hands the chat to a person when they ask for one or the bot doesn't understand. It uses only free methods, so it doesn't need a license as long as customers message you first.
+This recipe runs a WhatsApp support bot in Node.js. It answers common questions from a menu, tells people when you're closed, and hands the chat to a person when they ask for one or the bot doesn't understand. It listens with [`onMessage`](/docs/reference/client/events#message) and answers with [`sendText`](/docs/reference/client/messages#sendtext) and `reply`, all free methods, so it doesn't need a license as long as customers message you first. When it works, any message to the linked number gets the numbered menu back, and `0` hands the chat to your team.
 
 ## Before you start
 
@@ -92,7 +92,7 @@ Scan the QR code on first run; the login is saved for the next start. Then messa
 
 ## How the hand-off works
 
-When someone asks for a person, the bot replies once, marks the chat unread so it stands out in WhatsApp on the team's phone or WhatsApp Web, and posts an alert in the staff group. It then ignores that chat for four hours so it doesn't talk over your staff. Your team replies from the linked phone or WhatsApp Web as usual.
+When someone asks for a person, the bot replies once, marks the chat unread with [`markAsUnread`](/docs/reference/client/chats#markasunread) so it stands out in WhatsApp on the team's phone or WhatsApp Web, and posts an alert in the staff group. It then ignores that chat for four hours so it doesn't talk over your staff. Your team replies from the linked phone or WhatsApp Web as usual.
 
 The `handedOff` map lives in memory, so a restart puts the bot back into every chat. Keep it in your database if that matters, and give staff a way to end a hand-off early, for example a `!bot` command in the staff group that deletes the entry.
 
@@ -109,4 +109,5 @@ If several people answer support all day, connect the session to [Chatwoot](/doc
 ## Next steps
 
 - [Receive messages](/docs/guides/receive-messages) explains `onMessage`, the event stream and webhooks.
+- [Send a WhatsApp message](/docs/guides/send-message-api) covers chat IDs and what a returned message ID confirms.
 - [Go to production](/docs/operations/go-to-production) before customers depend on the bot.
