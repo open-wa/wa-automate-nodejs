@@ -4,6 +4,20 @@ import { source } from '@/lib/source';
 import { llms } from 'fumadocs-core/source';
 import { getLLMText } from '@/lib/get-llm-text';
 
+// Hardening for every Worker response. public/_headers sends the same values
+// with static assets such as the prerendered /new/ and /api-explorer/ pages.
+// HSTS leaves out includeSubDomains because other openwa.dev hosts exist, and
+// framing is limited to this origin: no other site embeds these pages.
+const SECURITY_HEADERS = {
+  'X-Content-Type-Options': 'nosniff',
+  'Strict-Transport-Security': 'max-age=31536000',
+  'Content-Security-Policy': "frame-ancestors 'self'",
+} as const;
+
+function setSecurityHeaders(headers: Headers) {
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) headers.set(name, value);
+}
+
 function acceptsMarkdown(header: string) {
   return header.split(',').some((entry) => {
     const [mediaType, ...parameters] = entry.trim().split(';');
@@ -62,6 +76,7 @@ const llmMiddleware = createMiddleware().server(async ({ next, request }) => {
             'X-Markdown-Negotiation': 'Success',
           },
         });
+        setSecurityHeaders(res.headers);
 
         // Add required Link headers for agents
         res.headers.append(
@@ -98,6 +113,7 @@ const llmMiddleware = createMiddleware().server(async ({ next, request }) => {
       '</.well-known/agent-skills/index.json>; rel="agent-skills"',
     );
     newHeaders.append('Vary', 'Accept');
+    setSecurityHeaders(newHeaders);
 
     // Attempt to reconstruct the response inside the result object
     result.response = new Response(result.response.body, {
