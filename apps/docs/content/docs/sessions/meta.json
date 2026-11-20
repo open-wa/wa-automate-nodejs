@@ -2,7 +2,6 @@
   "title": "Sessions and login",
   "icon": "KeyRound",
   "pages": [
-    "index",
     "authentication",
     "link-code",
     "session-events",
