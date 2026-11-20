@@ -1,0 +1,102 @@
+---
+title: Log in and keep a session
+description: Link a WhatsApp account, keep its login between restarts, and check that the session is ready before you send.
+---
+
+# Log in and keep a session
+
+open-wa runs WhatsApp Web in a browser and links it to your phone as a linked
+device. The first time a session starts, you scan a QR code (or enter a
+[link code](/docs/sessions/link-code)); after that, the saved login is reused
+until the phone unlinks the device.
+
+## Link the account
+
+On the phone, open **WhatsApp → Linked devices → Link a device** and scan the
+QR code that open-wa prints in its terminal. The Easy API also shows it in the
+Neo dashboard.
+
+In the SDK, `create()` prints the QR code and only resolves once the session
+is ready to send:
+
+```ts
+import { create } from '@open-wa/wa-automate';
+
+const client = await create({ sessionId: 'support' });
+console.log('Ready');
+```
+
+To pair without a camera, set `linkCode` to the phone number and follow
+[Link with a code](/docs/sessions/link-code). Don't copy QR values or link
+codes into shared logs, webhooks or support tickets; anyone holding one can
+link the account.
+
+## Keep the login between restarts
+
+After you link the account, open-wa saves the login in an encrypted file named
+after the session, `<sessionId>.data.json`, in the working directory.
+Restarting with the same session ID from the same directory restores the login
+without a QR code. Set `sessionDataPath` to a folder or a full file path when
+the file should live somewhere else, for example a mounted volume:
+
+```ts
+const client = await create({
+  sessionId: 'support',
+  sessionDataPath: './private/sessions/',
+});
+```
+
+For the Easy API, use `sessionDataPath` in `wa.config.js` or the
+`WA_SESSION_DATA_PATH` environment variable. Treat the file like a password:
+keep it out of version control, give it restrictive file permissions and back
+it up. The browser profile is rebuilt on every start, so `userDataDir` and
+`ephemeral` don't change whether the login is kept.
+
+## Check that the session is ready
+
+For the Easy API, an answer from `/health` only means the HTTP server is up.
+Send once `connected` and `session.ready` are both `true`:
+
+```bash
+curl -sS http://localhost:8080/health
+```
+
+`/health` is public and can contain the current QR code, so keep the server on
+localhost or a private network. Check readiness again after every restart; a
+running process doesn't mean WhatsApp reconnected.
+
+## Recover a session
+
+If the browser or the Node.js process exits, start again with the same session
+ID from the same directory. open-wa restores the login from the session file. If the phone
+unlinked the device, the session file is missing, or login times out, link the
+account again.
+
+If you think someone copied the session file, unlink the device from the phone, stop
+open-wa, delete the file and link a new session. Don't delete session files as a
+routine fix, because that throws away a working login.
+
+## Watch for disconnects
+
+`client.events` carries the session's lifecycle events. Listen for a later
+disconnect and reconnect:
+
+```ts
+client.events.on('session.connection.disconnected', ({ details }) => {
+  console.warn('Session disconnected', details?.reason);
+});
+
+client.events.on('session.connection.reconnected', () => {
+  console.log('Session reconnected');
+});
+```
+
+To observe startup steps before `create()` returns, use `ev` as shown in
+[Session events](/docs/sessions/session-events). For logouts and the full state
+list, read [Detect logouts](/docs/sessions/detect-logouts).
+
+## Related
+
+- [Easy API](/docs/getting-started/easy-api) for the HTTP server and API keys
+- [Security and deployment](/docs/operations/security-and-deployment) for network and credential boundaries
+- [Multiple sessions](/docs/sessions/multiple-sessions) to run more than one account

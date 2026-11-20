@@ -1,9 +1,9 @@
 ---
-title: PluginInput Breakdown
-description: "Understand what your plugin receives: events, logger, config, sessionId, and client."
+title: PluginInput
+description: "See what your plugin's init() receives: events, logger, config, sessionId, client and host services."
 ---
 
-# PluginInput Breakdown
+# PluginInput
 
 The host passes a `PluginInput` object to your plugin's `init()` function. It contains the event interface, logger, plugin configuration, session identifier, lifetime signal, and client proxy.
 
@@ -22,7 +22,7 @@ interface PluginInput<TConfig = unknown> {
 
 Each field is described below.
 
-## `events`: Filtered Event Emitter
+## `events`: filtered event emitter
 
 The `events` field provides `on()`, `once()`, and `off()`. The host gateway checks event metadata and ignores events marked internal or sensitive. It does not create a sandbox around plugin code.
 
@@ -43,7 +43,7 @@ events.on('message.received', (payload) => {
 
 The loader dynamically imports plugins into the host process. They retain that process's Node.js and operating-system permissions, so review plugin source and dependencies before loading them. See the [plugin security model](/docs/plugins/security-model) for deployment isolation options.
 
-## `logger`: Scoped Logger
+## `logger`: scoped logger
 
 The `logger` provides structured logging with automatic plugin name prefixing.
 
@@ -61,7 +61,7 @@ logger.debug('Processing message', { messageId: 'abc123' });
 - `error(message, meta?)`: Errors
 - `debug(message, meta?)`: Debug output (only visible when debug logging is enabled)
 
-### Auto-Prefixing
+### Automatic prefix
 
 All log output is automatically prefixed with your plugin name:
 
@@ -69,15 +69,15 @@ All log output is automatically prefixed with your plugin name:
 [greeting-bot] Plugin initialized { version: '1.0.0' }
 ```
 
-### Log Persistence
+### Log persistence
 
 Plugin logs flow through the host's logging system. Whether they are persisted depends on the host's logging configuration. By default, logs are written to stdout/stderr.
 
-## `config`: Validated Configuration
+## `config`: validated configuration
 
 The `config` field contains your plugin's configuration from `wa.config.js` or `wa.config.ts`. When you provide a `configSchema`, the host validates and parses the value before calling `init()`; without a schema, it passes the configured value through (or `{}` when it is absent).
 
-### Access Pattern
+### Reading config
 
 Your plugin's config is accessed via the `pluginConfig` key in the global config file:
 
@@ -102,7 +102,7 @@ init: async ({ config }) => {
 }
 ```
 
-### Type Inference
+### Type inference
 
 When you provide a `configSchema`, the `config` type is automatically inferred:
 
@@ -117,7 +117,7 @@ const configSchema = z.object({
 init: async ({ config }) => { ... }
 ```
 
-## `sessionId`: Current Session
+## `sessionId`: current session
 
 A string identifier for the current session.
 
@@ -133,7 +133,7 @@ Use this for:
 - Scoping data to a specific session
 - Differentiating behavior across multiple sessions
 
-## `signal`: Plugin lifetime
+## `signal`: plugin lifetime
 
 The host aborts this signal when it starts disposing the plugin. Pass it to cancellable work or check `signal.aborted` before starting another operation.
 
@@ -146,25 +146,25 @@ init: async ({ signal, logger }) => {
 }
 ```
 
-## `runtime`: Host Client methods
+## `runtime`: host client methods
 
-`runtime.invoke()` calls the attached high-level Client facade on the Easy API
-host. Use it for prepared media, decryption, and calling with streams; these
-operations need host services that a raw browser method cannot provide.
+`runtime.invoke()` calls the host's SDK client methods directly. Use it for
+media preparation, decryption and calls with streams, which need host services
+that `client` can't reach.
 
 ```ts
 const audio = await runtime.invoke<string>('decryptMedia', [message]);
 const call = await runtime.invoke<Call | null>('getActiveCall');
 ```
 
-The facade must be attached before invocation, so start runtime work from
-`client.ready` or a later event rather than `init()`. Calls return hydrated local
+The host client is attached once the session is ready, so start runtime work
+from `client.ready` or a later event rather than `init()`. Calls return hydrated local
 objects and can accept Web streams; don't JSON-serialize those values. This
 bridge has the same process trust as the installed plugin.
 
-## `client`: WhatsApp Method Proxy
+## `client`: WhatsApp method proxy
 
-The `client` is a host-managed proxy for calling methods exposed by `window.WAPI` in the connected runtime. Its `ask()` method forwards method names and arguments; the SDK does not apply a safe-method allowlist. The proxy does not restrict Node.js imports or replace process isolation.
+`client` forwards method calls to the connected session's client methods. Its `ask()` method forwards any method name and arguments without an allowlist. It doesn't restrict Node.js imports or isolate the plugin.
 
 ```ts
 init: async ({ client }) => {
@@ -175,13 +175,7 @@ init: async ({ client }) => {
 
 See the **[PluginClient reference](/docs/plugins/plugin-client)** for the complete list of available methods.
 
-## Related
-
-- **[Hooks reference](/docs/plugins/hooks-reference):** What your plugin can return
-- **[PluginClient reference](/docs/plugins/plugin-client):** Available client methods
-- **[Plugin security model](/docs/plugins/security-model):** What plugins can and cannot do
-
-## `services`: Shared host services
+## `services`: shared host services
 
 Cooperating plugins can use `services.getOrCreate(name, factory)` for one
 instance per session host. The factory receives a host lifetime signal and
@@ -190,3 +184,9 @@ failed creation is removed so a later acquisition can try again. The host aborts
 these services when shutting down, disposes plugins, then disposes the shared
 services. Do not bind a shared service to the first acquiring plugin's signal.
 Jev and Voxtral use this for their common conversation state and send journal.
+
+## Related
+
+- **[Hooks reference](/docs/plugins/hooks-reference):** What your plugin can return
+- **[PluginClient reference](/docs/plugins/plugin-client):** Available client methods
+- **[Plugin security model](/docs/plugins/security-model):** What plugins can and cannot do

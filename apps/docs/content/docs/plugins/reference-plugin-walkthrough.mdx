@@ -1,23 +1,23 @@
 ---
-title: Anatomy of a Plugin
-description: Step-by-step walkthrough of the webhook and Chatwoot reference plugins.
+title: Anatomy of a plugin
+description: Learn plugin patterns by reading how the webhook and Chatwoot plugins are built.
 ---
 
-# Anatomy of a Plugin
+# Anatomy of a plugin
 
 This page explains the event and lifecycle patterns used by the webhook and Chatwoot integrations in this checkout. Keep the source files as the authority when an integration adds provider-specific behavior.
 
-## The Webhook Plugin
+## The webhook plugin
 
 The webhook plugin pushes public WhatsApp events to an external HTTP endpoint. It demonstrates catch-all event forwarding, configuration, bounded delivery, retries, and disposal.
 
-### File Location
+### File location
 
 ```
 integrations/webhook/src/plugin.ts
 ```
 
-### Structure Breakdown
+### Structure breakdown
 
 ```ts
 export default createPlugin({
@@ -35,7 +35,7 @@ export default createPlugin({
 });
 ```
 
-### Key Patterns
+### Key patterns
 
 - **`meta.name`**: Used for logging prefix and config key mapping
 - **`configSchema`**: Zod schema that validates `pluginConfig.webhook` from `wa.config.js`
@@ -43,7 +43,7 @@ export default createPlugin({
 - **`event`**: Receives public events; the integration filters and queues the events selected by its config
 - **`dispose`**: Releases the delivery runtime and drains its queue during shutdown
 
-### Event Forwarding Pattern
+### Event forwarding pattern
 
 ```ts
 event: async ({ event, payload }) => {
@@ -61,17 +61,17 @@ event: async ({ event, payload }) => {
 
 This is a shape for a simple receiver. The supplied integration adds event filtering, queue capacity, retry policy, request timeouts, and optional durable delivery around the HTTP call.
 
-## The Chatwoot Plugin
+## The Chatwoot plugin
 
 The Chatwoot plugin bridges WhatsApp into Chatwoot conversations. It demonstrates bidirectional message handling, contact management, and media mapping.
 
-### File Location
+### File location
 
 ```
 integrations/chatwoot/src/plugin.ts
 ```
 
-### Structure Breakdown
+### Structure breakdown
 
 ```ts
 export default createPlugin({
@@ -81,13 +81,13 @@ export default createPlugin({
 });
 ```
 
-### Key Patterns
+### Key patterns
 
 - **Bidirectional sync**: WhatsApp messages flow into Chatwoot, and Chatwoot agent replies flow back to WhatsApp
 - **Contact mapping**: Phone numbers are mapped to Chatwoot contacts
 - **Media handling**: Media messages are uploaded to Chatwoot as attachments
 
-### Contact Sync Pattern
+### Contact sync pattern
 
 ```ts
 async function getOrCreateContact(phoneNumber: string) {
@@ -97,7 +97,7 @@ async function getOrCreateContact(phoneNumber: string) {
 }
 ```
 
-### Message Routing Pattern
+### Message routing pattern
 
 ```ts
 events.on('message.received', async ({ message }) => {
@@ -106,9 +106,9 @@ events.on('message.received', async ({ message }) => {
 });
 ```
 
-## Patterns to Reuse
+## Patterns to reuse
 
-### 1. Config Validation
+### 1. Config validation
 
 Always provide a `configSchema`:
 
@@ -120,7 +120,7 @@ const configSchema = z.object({
 });
 ```
 
-### 2. Event Subscription
+### 2. Event subscription
 
 Subscribe to specific events instead of a catch-all subscription:
 
@@ -130,7 +130,7 @@ events.on('client.ready', handler);
 events.on('core.stopping', handler);
 ```
 
-### 3. Error Handling
+### 3. Error handling
 
 Wrap external calls in try-catch and log errors:
 
@@ -142,7 +142,7 @@ try {
 }
 ```
 
-### 4. Graceful Degradation
+### 4. Graceful degradation
 
 Keep the host alive when an external service fails, but make the retry or persistence policy explicit:
 
@@ -157,7 +157,7 @@ events.on('message.received', async ({ message }) => {
 });
 ```
 
-### 5. Lifecycle Awareness
+### 5. Lifecycle awareness
 
 Handle session state changes:
 
@@ -170,6 +170,6 @@ events.on('core.stopping', async () => {
 
 ## Related
 
-- **[Plugin getting started](/docs/plugins/getting-started)** - Build your first plugin
+- **[Build your first plugin](/docs/plugins/getting-started)** - Build your first plugin
 - **[Hooks reference](/docs/plugins/hooks-reference)** - Available hooks
 - **[Plugin security model](/docs/plugins/security-model)** - Security boundaries

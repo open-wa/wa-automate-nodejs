@@ -21,7 +21,7 @@ export function createAsyncApiDocument(options: AsyncApiOptions = {}) {
         ? { id: { type: 'string' }, event: { const: contract.name }, payload: payloadRef, ts: { type: 'number' }, sessionId: { type: 'string' } }
         : transport === 'webhook'
           ? { webhookId: { type: 'string' }, sessionId: { type: 'string' }, event: { const: contract.name }, payload: payloadRef, timestamp: { type: 'number' }, idempotencyKey: { type: 'string' } }
-          : { eventId: { type: 'string' }, name: { const: contract.name }, timestamp: { type: 'string', format: 'date-time' }, data: payloadRef, cursor: { type: 'null' } };
+          : { eventId: { type: 'string' }, name: { const: contract.name }, timestamp: { type: 'string', format: 'date-time' }, data: payloadRef, cursor: { type: ['string', 'null'] } };
       messages[id] = {
         name: contract.name, title: contract.name, summary: contract.description,
         contentType: 'application/json',
@@ -38,7 +38,7 @@ export function createAsyncApiDocument(options: AsyncApiOptions = {}) {
           ? 'SSE event frame: id, event and JSON data; optional topics query filters exact runtime names. Keepalive every 20 seconds; reconnect hint 3000 ms. No history replay. API key in X-API-Key or api_key/key query.'
           : transport === 'webhook'
             ? 'Outbound HTTP POST to the configured destination. Public non-sensitive events pass through the plugin gateway. Optional event-name filter; default 3 retries with exponential delay from 1000 ms. Optional durable journal adds Idempotency-Key and retries pending deliveries after restart. No exactly-once guarantee.'
-            : `Verified subscriber-provided HTTPS callback. Subscribe through ${basePath}${options.mcpPath ?? '/mcp'} using MCP 2026-07-28. Standard Webhooks signatures, stable event IDs and bounded transient retries. No retry on 410/413; cursor:null means no historical replay.`,
+            : `Verified subscriber-provided HTTPS callback. Subscribe through ${basePath}${options.mcpPath ?? '/mcp'} using MCP 2026-07-28. Standard Webhooks signatures, stable event IDs and transient retries for up to 15 minutes. No retry on 410/413. The same events are available through events/poll and events/stream; cursors replay events retained on the server (15 minutes by default).`,
         messages: { event: { $ref: `#/components/messages/${id}` } },
         'x-openwa-transport': transport,
         ...(transport === 'sse' ? { servers: [{ $ref: '#/servers/easyApi' }], 'x-openwa-sse': { event: contract.name, contentType: 'text/event-stream', topics: contract.name } } : {}),

@@ -1,14 +1,16 @@
 ---
-title: SDK quick start
-description: Generate a persistent JavaScript or TypeScript WhatsApp bot with open-wa.
+title: Send your first WhatsApp message with the Node.js SDK
+sidebarTitle: SDK
+description: Install the open-wa Node.js SDK, link a WhatsApp account, and reply to or send your first message from your own code.
 ---
 
-# SDK quick start
+# Send your first WhatsApp message with the Node.js SDK
 
-Use the SDK when your application owns the browser and session. Use
-**Node.js 22.21.1 or newer** and npm.
+The SDK runs the WhatsApp session inside your Node.js process, so your code
+calls methods and receives messages directly, with no HTTP server in between.
+You need **Node.js 22.21.1 or newer** and a phone with WhatsApp to link.
 
-## Create the bot
+## Reply to your first message
 
 ```bash
 npm init @open-wa@latest my-bot -- --mode sdk
@@ -16,25 +18,52 @@ cd my-bot
 npm start
 ```
 
-Choose JavaScript or TypeScript, your browser, and any plugins in the wizard.
-You can also use the [project builder](/new?mode=sdk) to preview the generated
-files and copy a command with every choice filled in.
+Scan the QR code from **WhatsApp → Linked devices → Link a device**. When the
+terminal prints `WhatsApp is ready. Send !ping from another account.`, send
+`!ping` to the linked number from another phone. The bot answers `pong` in the
+same chat, which confirms that receiving and replying both work. The
+[generator options](/docs/getting-started/quickstart/generator-options) page
+lists the language, browser and plugin choices.
 
-The project includes `index.js` or `index.ts`, the matching `wa.config` file,
-a start script, and ignore rules. TypeScript projects include editor types and
-`tsconfig.json`; Node.js runs these starter files directly.
+## Send a message from a script
 
-If you selected a plugin that needs credentials, copy `.env.example` to `.env`
-and fill it in before running `npm start`.
+To add the SDK to an existing project instead, install the package and send
+one message with [`sendText`](/docs/reference/client/messages#sendtext):
 
-## Connect and handle messages
+```bash
+npm install @open-wa/wa-automate
+```
 
-Scan the terminal QR code using **WhatsApp → Linked devices → Link a device**
-on your phone. Once ready, send `!ping` from another WhatsApp account. The
-starter responds `pong` and keeps running.
+```js title="send.mjs"
+import { create } from '@open-wa/wa-automate';
 
-The JavaScript entry point looks like this; the TypeScript choice uses the same
-flow and imports `wa.config.ts`:
+const client = await create({ sessionId: 'my-bot' });
+
+const messageId = await client.sendText('447123456789@c.us', 'Hello from open-wa');
+console.log('Sent', messageId);
+
+await client.stop();
+```
+
+```bash
+node send.mjs
+```
+
+Replace `447123456789` with the recipient's full international number, without
+`+` or spaces. The first run prints a QR code to scan. When the send works, the
+terminal prints the message ID, such as `Sent true_447123456789@c.us_3EB0C7...`,
+and the message appears in that chat on the phone. Later runs reuse the saved
+login and skip the QR code.
+
+Pick a recipient that has already chatted with the linked account. Starting a
+chat with a new number needs a [license](/docs/licensing/pricing); without one,
+`sendText` throws with code `LICENSE_REQUIRED`. The
+[send guide](/docs/guides/send-message-api) covers chat IDs and the same send
+over HTTP.
+
+## The entry point
+
+The generated `index.js` is the whole bot:
 
 ```js title="index.js"
 import { create } from '@open-wa/wa-automate';
@@ -56,28 +85,58 @@ for (const signal of ['SIGINT', 'SIGTERM']) {
 }
 ```
 
-The handler reuses `message.from`, including `@lid` identities. It sends only
-when someone types `!ping`; startup itself doesn't send a greeting. Add your
-own handlers here. See [`create()`](/docs/reference/create),
-[client methods](/docs/reference/client/client), and the
-[chat ID guide](/docs/guides/chatid-primer).
+`create()` starts the browser, prints the QR code when the account isn't linked
+yet, and resolves once the session is ready to send. Reply to `message.from`
+exactly as it arrives, because it can be a phone-number ID (`@c.us`) or a
+private ID (`@lid`); the [chat ID guide](/docs/guides/chatid-primer) explains
+the formats. [`onMessage`](/docs/reference/client/events#message) fires for
+messages other people send, and `client.stop()` closes the browser and keeps
+the saved login.
 
-## Configure browsers and plugins
+The [`create()` reference](/docs/reference/create) lists its options, and the
+[client reference](/docs/reference/client) lists the methods by job.
 
-Edit `wa.config.js` or `wa.config.ts`. The entry point passes it to `create()`;
-it isn't implicitly loaded by the SDK. The generated config also loads `.env`
-when present. Browser selections and plugins use the same setup options as
-Easy API. They download only when needed and are cached.
+## Configuration
 
-SDK mode doesn't start an HTTP server or Neo dashboard. Use
-[Easy API](/docs/getting-started/easy-api) if you want those surfaces. Chatwoot
-requires Easy API webhook routes, so the initializer excludes it from SDK mode.
-Voxtral can run in the SDK using its file settings; see the
-[Voxtral guide](/docs/guides/voxtral).
+`wa.config.js` or `wa.config.ts` holds the session ID, browser choice and
+plugin settings, and the entry point passes it to `create()`. `create()` uses
+only the options you pass it. It doesn't read `WA_*` environment variables or
+look for a config file on its own, so read secrets from `process.env` in your
+config, as the generated file does:
 
-## Stop and restart
+```js title="wa.config.js"
+export default {
+  sessionId: 'my-bot',
+  licenseKey: process.env.OPENWA_LICENSE_KEY || undefined,
+};
+```
 
-Press `Ctrl+C` to stop the client and browser. Run `npm start` again from the
-same directory to reuse a valid saved session. Keep `.env` and session data
-private. If a send fails with an uncertain result, inspect the receiving chat
-before retrying it.
+The generated config loads `.env` when it exists. Plugins listed under
+`plugins` run in SDK projects too, except Chatwoot, which needs Easy API.
+
+## Saved login
+
+After the first scan, the login is saved in an encrypted file named after the
+session, such as `my-bot.data.json`, in the folder you run from. Set
+`sessionDataPath` to keep it somewhere else. Start again with the same
+`sessionId` and path and no QR code is needed. Treat the file like a password,
+and keep one session ID per WhatsApp account.
+
+## Errors
+
+`sendText` throws a `SendTextError` when it fails. Its `outcome` is
+`not_sent` when nothing was sent, or `unknown` when the message may have gone
+out. Check the chat before you retry an unknown outcome; open-wa never retries a
+send for you. Sending to a number with no existing chat throws with code
+`LICENSE_REQUIRED` unless a [license](/docs/licensing/pricing) is applied.
+
+## Next steps
+
+- [Receive messages](/docs/guides/receive-messages) covers `onMessage`,
+  `onAnyMessage` and filtering.
+- [Run a support bot](/docs/build/support-bot) turns this into a complete bot
+  with a menu and hand-off to a person.
+- [createClient and drivers](/docs/concepts/create-client-and-drivers) is for
+  when you need to choose the browser driver or control startup yourself.
+- [Go to production](/docs/operations/go-to-production) is the checklist before
+  customers depend on the bot.

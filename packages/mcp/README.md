@@ -18,13 +18,16 @@ Hosted MCP runs on Easy API with an API key and `mcp.enabled: true`. It serves
 MCP 2.0 (`2026-07-28`), with tools and webhook event subscriptions on the same
 endpoint. Clients must support that protocol revision.
 
-ChatGPT Work can subscribe to `message.received`, `ack.changed` and
-`session.state.changed`. Subscriptions and pending deliveries persist under
-`.open-wa/`; keep this directory on persistent storage. Callbacks are verified,
-signed using Standard Webhooks and restricted to public HTTPS destinations.
-There is no historical event replay (`cursor: null`).
+MCP clients can follow `message.received`, `ack.changed` and
+`session.state.changed` through the Events extension
+(`io.modelcontextprotocol/events`) by polling (`events/poll`), streaming
+(`events/stream`) or webhook (`events/subscribe`). Recent events, subscriptions
+and pending deliveries persist under `.open-wa/`; keep this directory on
+persistent storage. Cursors replay events retained for `mcp.events.retentionMs`
+(15 minutes by default). Callbacks are verified, signed using Standard Webhooks
+and restricted to public HTTPS destinations.
 
-See [MCP Events](https://openwa.dev/docs/client-and-integrations/mcp-events) and
+See [MCP Events](https://openwa.dev/docs/guides/mcp-events) and
 the [event contracts](https://openwa.dev/docs/reference/event-contracts).
 
 ## License

@@ -1,12 +1,12 @@
 ---
-title: "Trace sendText through the runtime"
-description: "Contributor walkthrough of how sendText is defined and dispatched."
+title: "Trace sendText"
+description: "Follow sendText from its schema definition to the call in a session."
 icon: "BookOpen"
 ---
 
-# Trace sendText through the runtime
+# Trace sendText
 
-This contributor walkthrough follows `sendText` from its schema definition to runtime dispatch. For the consumer contract, start with the [sendText method block](/docs/reference/client/messages#sendtext).
+This walkthrough for contributors follows `sendText` from its schema definition to the call in a session. To use it, start with the [sendText reference](/docs/reference/client/messages#sendtext).
 
 ## Consumer usage
 
@@ -22,13 +22,13 @@ try {
 }
 ```
 
-## Runtime trace
+## Trace
 
 `sendText` is defined in `packages/schema/src/methods/messaging.ts`:
 
 ```ts
 export const sendText = defineMethodV2('sendText', {
-  meta: { description: "Sends a text message and returns a validated serialized message ID. The in-process Client throws SendTextError on failure. An unknown outcome means the message may have been sent: check the chat before retrying. Starting a chat with a new number requires an applied restricted or premium license.", namespace: "messages", httpMethod: "POST" },
+  meta: { description: "Send a text message to a chat. Starting a chat with a number that has never messaged you needs a Restricted or Premium license.", namespace: "messages", httpMethod: "POST" },
   parameterOrder: ["to","content","options"],
   // input: z.object({ to, content, options }), output: SendTextResultSchema
 });
@@ -36,6 +36,6 @@ export const sendText = defineMethodV2('sendText', {
 
 1. A positional call maps by `parameterOrder`.
 2. An object call resolves key aliases (`chatId` → `to`, `text` → `content`).
-3. `inputSchema.parseAsync()` validates before dispatch.
-4. Dispatch target is `execute('sendText', validatedParams)`.
+3. `inputSchema.parseAsync()` validates the arguments.
+4. The validated call runs in the session and resolves to the message ID.
 5. See the full reference on the [messages namespace page](/docs/reference/client/messages#sendtext).

@@ -41,7 +41,8 @@ export function createChat({ React, ui, json, watch, useCalling, usePrivacy, ope
     };
     const status = snapshot?.status;
     const person = snapshot?.conversation;
-    const live = status?.call?.call?.peer === chatId && !status.call.call.terminal ? status.call : null;
+    const callContext = status?.call?.call?.peer === chatId ? status.call : null;
+    const live = callContext && !callContext.call.terminal ? callContext : null;
     const current = calling.active?.peer === chatId ? calling.active : null;
     const ringing = current?.direction === 'incoming' && ['incoming', 'ringing'].includes(current.state);
     const post = (path, body = {}) => json(path, { method: 'POST', body: JSON.stringify(body) });
@@ -76,7 +77,7 @@ export function createChat({ React, ui, json, watch, useCalling, usePrivacy, ope
       current && button('End call', () => calling.end(), { variant: 'destructive' }),
       live?.interim && h('p', { className: 'vx-chat-interim', role: 'status' }, `Hearing: ${hidden(live.interim)}`),
       current && !ringing && live?.owner === 'human' && h('label', { className: 'vx-chat-summary' }, 'Handoff summary (optional)', h(ui.Textarea, { rows: 2, value: summary, onChange: event => setSummary(event.target.value), placeholder: 'Facts the assistant should know when it returns' }), h('small', null, 'Your microphone is not transcribed.')),
-      live?.error && h('div', { className: 'vx-chat-error', role: 'alert' }, live.error, ' ', button('Reconnect assistant', () => callAction('reconnect'))),
+      callContext?.error && h('div', { className: 'vx-chat-error', role: 'alert' }, hidden(callContext.error), ' ', live?.reconnectable && button('Reconnect assistant', () => callAction('reconnect'))),
       status?.actions?.sendMessage && (!status.classifier?.configured || status.classifier.error) && h('p', { className: 'vx-chat-error', role: 'status' }, status.classifier?.error || 'Chat actions need JEV_API_KEY on the Easy API host.'),
       connectionError && h('p', { className: 'vx-chat-error', role: 'status' }, connectionError),
       error && h('p', { className: 'vx-chat-error', role: 'alert' }, error)));

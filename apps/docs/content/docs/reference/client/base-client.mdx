@@ -1,6 +1,6 @@
 ---
 title: "BaseClient"
-description: "The generated flat client, its dispatch contract, and the full method table."
+description: "The generated flat client and the full method table."
 icon: "BookOpen"
 ---
 
@@ -13,163 +13,163 @@ icon: "BookOpen"
 public sendText = implementMethod(Methods.sendText);
 ```
 
-At runtime each call normalizes arguments, validates them with the method's Zod input schema, then dispatches to `execute(meta.wapiOverride ?? meta.functionName, validatedParams)` (falling back to `pup()` page evaluation). See [Argument normalization](/docs/reference/client/argument-normalization).
+Each call maps its arguments, validates them with the method's Zod input schema and then runs the method in the session. See [Argument normalization](/docs/reference/client/argument-normalization).
 
-## Method dispatch table
+## Method table
 
-| Method | Namespace | Dispatch target | Parameter order | Output |
-| --- | --- | --- | --- | --- |
-| `acceptCall` | `calls` | `acceptCall` | `call`, `media` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
-| `addLabel` | `labels` | `addLabel` | `label`, `chatId` | `boolean` |
-| `addParticipant` | `groups` | `addParticipant` | `groupId`, `contactId` | `boolean` |
-| `approveGroupJoinRequest` | `groups` | `approveGroupJoinRequest` | `groupId`, `contactId` | `string \| boolean` |
-| `archiveChat` | `chats` | `archiveChat` | `chatId` | `boolean` |
-| `blockContact` | `contacts` | `contactBlock` | `contactId` | `boolean` |
-| `cancelEvent` | `events` | `cancelEvent` | `eventId` | `boolean` |
-| `checkNumberStatus` | `contacts` | `checkNumberStatus` | `contactId` | `NumberCheck` |
-| `checkReadReceipts` | `contacts` | `checkReadReceipts` | `contactId` | `boolean \| string` |
-| `clearCallAudio` | `calls` | `clearCallAudio` | `call` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
-| `clearChat` | `chats` | `clearChat` | `chatId` | `boolean` |
-| `createGroup` | `groups` | `createGroup` | `name`, `contacts` | `GroupCreationResult \| null` |
-| `decryptMedia` | `media` | `decryptMedia` | `message` | `DataURL` |
-| `deleteAllStatus` | `status` | `deleteAllStatus` | - | `boolean` |
-| `deleteChat` | `chats` | `deleteChat` | `chatId` | `boolean` |
-| `deleteMessage` | `messages` | `deleteMessage` | `chatId`, `messageId`, `onlyLocal` | `boolean` |
-| `deleteStatus` | `status` | `deleteStatus` | `statusesToDelete` | `boolean` |
-| `demoteParticipant` | `groups` | `demoteParticipant` | `groupId`, `contactId` | `boolean \| string` |
-| `downloadMedia` | `media` | `downloadMedia` | `message`, `path` | `string` |
-| `editEvent` | `events` | `editEvent` | `eventId`, `changes` | `boolean` |
-| `editMessage` | `messages` | `editMessage` | `messageId`, `newContent` | `boolean` |
-| `endCall` | `calls` | `endCall` | `call` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
-| `forwardMessages` | `messages` | `forwardMessages` | `to`, `messages`, `skipMyMessages` | `MessageIdReturn[] \| boolean` |
-| `getActiveCall` | `calls` | `getActiveCall` | - | `{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: "incoming" \| "outgoing"; video: boolean; terminal: boolean; observedAt: number \| "Infinity" \| "-Infinity" \| "NaN"; endReason?: { code: string; message: string; source: "local" \| "media" \| "license" \| "session" \| "whatsapp" } \| null; media?: { state: "attached" \| "ended"; reason?: string \| null } \| null` |
-| `getAlbumMessages` | `messages` | `getAlbumMessages` | `messageId` | `Message[] \| false` |
-| `getAllChatIds` | `chatIds` | `getAllChatIds` | - | `ChatId[]` |
-| `getAllChats` | `chats` | `getAllChats` | `withNewMessagesOnly` | `Chat[]` |
-| `getAllCommunities` | `communities` | `getAllCommunities` | - | `GroupChatId[]` |
-| `getAllContacts` | `contacts` | `getAllContacts` | - | `Contact[]` |
-| `getAllGroups` | `groups` | `getAllGroups` | `withNewMessagesOnly` | `Chat[]` |
-| `getAllLabels` | `labels` | `getAllLabels` | - | `Label[]` |
-| `getAllMessages` | `messages` | `getAllMessages` | `chatId`, `includeMe`, `includeNotifications` | `Message[]` |
-| `getBatteryLevel` | `session` | `getBatteryLevel` | - | `number` |
-| `getBlockedIds` | `contacts` | `getBlockedIds` | - | `ContactId[] \| false` |
-| `getBusinessProducts` | `business` | `getBusinessProfilesProducts` | `contactId` | `Product[] \| false` |
-| `getBusinessProfile` | `business` | `getBusinessProfile` | `contactId` | `BusinessProfile` |
-| `getCallCapabilities` | `calls` | `getCallCapabilities` | - | `{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" } }` |
-| `getChat` | `chats` | `getChat` | `chatId` | `Chat \| null \| undefined \| false` |
-| `getChatsByLabel` | `labels` | `getChatsByLabel` | `label` | `Chat[]` |
-| `getChatWithNonContacts` | `chats` | `getChatWithNonContacts` | - | `Contact[]` |
-| `getCommonGroups` | `contacts` | `getCommonGroups` | `contactId` | `CommonGroup[] \| false` |
-| `getCommunityAdminIds` | `communities` | `getCommunityAdminIds` | `communityId` | `CommunityAdminIds[]` |
-| `getCommunityAdmins` | `communities` | `getCommunityAdmins` | `communityId` | `CommunityAdmins[]` |
-| `getCommunityInfo` | `communities` | `getCommunityInfo` | `communityId` | `CommunityMetadata` |
-| `getCommunityParticipantIds` | `communities` | `getCommunityParticipantIds` | `communityId` | `CommunityParticipantIds[]` |
-| `getCommunityParticipants` | `communities` | `getCommunityParticipants` | `communityId` | `CommunityParticipants[]` |
-| `getConnectionState` | `session` | `getConnectionState` | - | `string` |
-| `getContact` | `contacts` | `getContact` | `contactId` | `Contact \| null` |
-| `getEvent` | `events` | `getEvent` | `eventId` | `WhatsAppEvent \| null` |
-| `getEventResponses` | `events` | `getEventResponses` | `eventId` | `EventResponse[]` |
-| `getEvents` | `events` | `getEvents` | `chatId`, `options` | `EventPage` |
-| `getFeatures` | `session` | `getFeatures` | - | `FeatureFlags` |
-| `getGroupAdmins` | `groups` | `getGroupAdmins` | `groupId` | `ContactId[]` |
-| `getGroupInfo` | `groups` | `getGroupInfo` | `groupId` | `{ title: string; description?: string \| null } \| string \| null` |
-| `getGroupInviteLink` | `groups` | `getGroupInviteLink` | `groupId` | `string` |
-| `getGroupMembers` | `groups` | `getGroupMembers` | `groupId` | `Contact[]` |
-| `getGroupMembersId` | `groups` | `getGroupMembersId` | `groupId` | `ContactId[]` |
-| `getHostNumber` | `session` | `getHostNumber` | - | `string` |
-| `getKickedGroups` | `groups` | `getKickedGroups` | - | `GroupChatId[]` |
-| `getLicenseFeatures` | `session` | `getLicenseFeatures` | - | `{ status: "valid" \| "missing" \| "invalid" \| "expired" \| "metadata_only"; keyType: string \| null; expiresAt: number \| "Infinity" \| "-Infinity" \| "NaN" \| null; features: Record<string, boolean> }` |
-| `getLicenseType` | `session` | `getLicenseType` | - | `LicenseType \| false` |
-| `getLoadedMessageCount` | `session` | `getAmountOfLoadedMessages` | - | `number` |
-| `getMe` | `session` | `getMe` | - | `HostAccount` |
-| `getMessageById` | `messages` | `getMessageById` | `messageId` | `Message \| null \| false` |
-| `getMessageInfo` | `messages` | `getMessageInfo` | `messageId` | `MessageInfo` |
-| `getMessagesForLLM` | `messages` | `getGptArray` | `chatId`, `last` | `LLMMessage[]` |
-| `getMyLastMessage` | `messages` | `getMyLastMessage` | `chatId` | `Message \| undefined` |
-| `getNumberProfile` | `contacts` | `getNumberProfile` | `contactId` | `NumberProfile` |
-| `getOrder` | `business` | `getOrder` | `id` | `Order` |
-| `getPollResults` | `messages` | `getPollResults` | `messageId` | `PollResults` |
-| `getProcessStats` | `session` | `getProcessStats` | - | `ProcessStats` |
-| `getProfilePicture` | `contacts` | `getProfilePicFromServer` | `chatId` | `string` |
-| `getSnapshot` | `session` | `getSnapshot` | `chatId`, `width`, `height` | `string` |
-| `getStarredMessages` | `messages` | `getStarredMessages` | `chatId` | `Message[]` |
-| `getStatus` | `mystatus` | `getStatus` | `contactId` | `ContactStatus` |
-| `getStories` | `status` | `getStories` | - | `Story[]` |
-| `getUnsentMessages` | `messages` | `getUnsentMessages` | - | `Message[]` |
-| `getUserAgent` | `session` | `getGeneratedUserAgent` | `userAgent` | `string` |
-| `getVCards` | `messages` | `getVCards` | `messageId` | `string[]` |
-| `getWAVersion` | `session` | `getWAVersion` | - | `string` |
-| `healthCheck` | `session` | `healthCheck` | - | `HealthCheck` |
-| `isChatOnline` | `chats` | `isChatOnline` | `chatId` | `boolean \| string` |
-| `isPlugged` | `session` | `getIsPlugged` | - | `boolean` |
-| `joinGroupViaLink` | `groups` | `joinGroupViaLink` | `link`, `returnChatObj` | `GroupChatId \| boolean \| number \| Chat` |
-| `leaveGroup` | `groups` | `leaveGroup` | `groupId` | `void` |
-| `loadEarlierMessages` | `messages` | `loadEarlierMessages` | `chatId`, `count`, `includeMe` | `Message[]` |
-| `markAsRead` | `chats` | `markAsRead` | `chatId` | `boolean` |
-| `markAsUnread` | `chats` | `markAsUnread` | `chatId` | `boolean` |
-| `muteCall` | `calls` | `muteCall` | `call`, `muted` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
-| `muteChat` | `chats` | `muteChat` | `chatId`, `muteDuration` | `string \| boolean \| number` |
-| `observeCallAudio` | `calls` | `observeCallAudio` | `call`, `speaker` | `{ ok: true; status: "requested"; observerId: string } \| { ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
-| `pinChat` | `chats` | `pinChat` | `chatId` | `boolean` |
-| `pinMessage` | `messages` | `pinMessage` | `messageId`, `duration` | `boolean` |
-| `postImageStatus` | `status` | `postImageStatus` | `image`, `caption` | `MessageId \| string \| boolean` |
-| `postTextStatus` | `status` | `postTextStatus` | `text`, `backgroundColor`, `font` | `MessageId \| string \| boolean` |
-| `postVideoStatus` | `status` | `postVideoStatus` | `video`, `caption` | `MessageId \| string \| boolean` |
-| `promoteParticipant` | `groups` | `promoteParticipant` | `groupId`, `contactId` | `boolean \| string` |
-| `react` | `messages` | `react` | `messageId`, `emoji` | `boolean` |
-| `rejectCall` | `calls` | `rejectCall` | `call` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
-| `rejectGroupJoinRequest` | `groups` | `rejectGroupJoinRequest` | `groupId`, `contactId` | `string \| boolean` |
-| `removeLabel` | `labels` | `removeLabel` | `label`, `chatId` | `boolean` |
-| `removeParticipant` | `groups` | `removeParticipant` | `groupId`, `contactId` | `boolean` |
-| `requestPhoneNumber` | `contacts` | `requestPhoneNumber` | `to` | `string` |
-| `respondToEvent` | `events` | `respondToEvent` | `eventId`, `response` | `boolean` |
-| `revokeGroupInviteLink` | `groups` | `revokeGroupInviteLink` | `groupId` | `string \| boolean` |
-| `sendAdvancedButtons` | `messages` | `sendAdvancedButtons` | `to`, `body`, `buttons`, `text`, `footer`, `filename` | `MessageIdReturn \| boolean` |
-| `sendAlbum` | `messages` | `sendAlbum` | `to`, `media`, `caption`, `quotedMsgId` | `AlbumSendResult` |
-| `sendAudio` | `messages` | `sendAudio` | `to`, `file`, `filename`, `options` | `MessageIdReturn \| boolean` |
-| `sendBanner` | `messages` | `sendBanner` | `to`, `base64` | `MessageIdReturn \| boolean` |
-| `sendButtons` | `messages` | `sendButtons` | `to`, `body`, `buttons`, `title`, `footer` | `MessageIdReturn \| boolean` |
-| `sendContact` | `messages` | `sendContact` | `to`, `contactId` | `MessageIdReturn \| boolean \| (MessageIdReturn \| boolean)[]` |
-| `sendEvent` | `events` | `sendEvent` | `to`, `event` | `string` |
-| `sendFile` | `messages` | `sendFile` | `to`, `file`, `filename`, `options` | `MessageIdReturn \| boolean` |
-| `sendFileFromUrl` | `messages` | `sendFileFromUrl` | `to`, `url`, `filename`, `options`, `headers` | `MessageIdReturn \| string \| boolean` |
-| `sendImage` | `messages` | `sendImage` | `to`, `file`, `filename`, `options` | `MessageIdReturn \| boolean` |
-| `sendInteractive` | `messages` | `sendInteractive` | `to`, `content` | `string` |
-| `sendLinkWithAutoPreview` | `messages` | `sendLinkWithAutoPreview` | `to`, `url`, `text`, `thumbnail`, `quotedMsgId`, `customSize` | `MessageIdReturn \| boolean` |
-| `sendListMessage` | `messages` | `sendListMessage` | `to`, `sections`, `title`, `description`, `actionText` | `MessageIdReturn \| boolean` |
-| `sendLocation` | `messages` | `sendLocation` | `to`, `lat`, `lng`, `loc`, `address`, `url` | `MessageIdReturn \| boolean` |
-| `sendMessageWithThumb` | `messages` | `sendMessageWithThumb` | `thumb`, `url`, `title`, `description`, `content`, `to`, `quotedMsgId`, `customSize` | `MessageIdReturn \| boolean` |
-| `sendMultipleContacts` | `messages` | `sendMultipleContacts` | `to`, `contactIds` | `MessageIdReturn \| boolean` |
-| `sendPaymentRequest` | `messages` | `sendPaymentRequest` | `to`, `amount`, `currency`, `message` | `MessageIdReturn \| boolean` |
-| `sendPoll` | `messages` | `sendPoll` | `to`, `name`, `options`, `config` | `MessageIdReturn \| boolean` |
-| `sendPtt` | `messages` | `sendPtt` | `to`, `file`, `options` | `MessageIdReturn \| boolean` |
-| `sendRawMessage` | `messages` | `sendRawMessage` | `to`, `payload` | `string` |
-| `sendReplyWithMentions` | `messages` | `sendReplyWithMentions` | `to`, `content`, `replyMessageId`, `hideTags`, `mentions` | `MessageIdReturn \| boolean` |
-| `sendSeen` | `messages` | `sendSeen` | `chatId` | `boolean` |
-| `sendSticker` | `messages` | `sendStickerJob` | `to`, `input`, `job` | `MessageId` |
-| `sendText` | `messages` | `sendText` | `to`, `content`, `options` | `MessageId` |
-| `sendTextWithMentions` | `messages` | `sendTextWithMentions` | `to`, `content`, `hideTags`, `mentions` | `MessageIdReturn \| boolean` |
-| `sendVCard` | `messages` | `sendVCard` | `to`, `vcard`, `contactName`, `contactNumber` | `MessageIdReturn \| boolean` |
-| `sendVideoAsGif` | `messages` | `sendVideoAsGif` | `to`, `file`, `filename`, `options` | `MessageIdReturn \| boolean` |
-| `sendYouTubeLink` | `messages` | `sendYoutubeLink` | `to`, `url`, `text`, `thumbnail`, `quotedMsgId`, `customSize` | `MessageIdReturn \| boolean` |
-| `setCallMedia` | `calls` | `setCallMedia` | `call`, `media` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
-| `setChatEphemeral` | `chats` | `setChatEphemeral` | `chatId`, `ephemeral` | `boolean` |
-| `setGroupDescription` | `groups` | `setGroupDescription` | `groupId`, `description` | `boolean` |
-| `setGroupEditToAdminsOnly` | `groups` | `setGroupEditToAdminsOnly` | `groupId`, `onlyAdmins` | `boolean` |
-| `setGroupIcon` | `groups` | `setGroupIcon` | `groupId`, `image` | `boolean` |
-| `setGroupTitle` | `groups` | `setGroupTitle` | `groupId`, `title` | `boolean` |
-| `setGroupToAdminsOnly` | `groups` | `setGroupToAdminsOnly` | `groupId`, `onlyAdmins` | `boolean` |
-| `setMyName` | `session` | `setMyName` | `name` | `boolean` |
-| `setMyStatus` | `session` | `setMyStatus` | `statusText` | `boolean` |
-| `setProfilePicture` | `session` | `setProfilePic` | `image` | `boolean` |
-| `sharePhoneNumber` | `contacts` | `sharePhoneNumber` | `to` | `string` |
-| `starMessage` | `messages` | `starMessage` | `messageId` | `boolean` |
-| `startCall` | `calls` | `startCall` | `to`, `microphone`, `speaker`, `camera` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
-| `stopCallAudioObserver` | `calls` | `stopCallAudioObserver` | `call`, `observerId` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
-| `unarchiveChat` | `chats` | `unarchiveChat` | `chatId` | `boolean` |
-| `unblockContact` | `contacts` | `contactUnblock` | `contactId` | `boolean` |
-| `unmuteChat` | `chats` | `unmuteChat` | `chatId` | `string \| boolean \| number` |
-| `unpinChat` | `chats` | `unpinChat` | `chatId` | `boolean` |
-| `unpinMessage` | `messages` | `unpinMessage` | `messageId` | `boolean` |
-| `unstarMessage` | `messages` | `unstarMessage` | `messageId` | `boolean` |
-| `voteOnPoll` | `messages` | `voteOnPoll` | `messageId`, `optionIds` | `boolean` |
+| Method | Namespace | Parameter order | Output |
+| --- | --- | --- | --- |
+| `acceptCall` | `calls` | `call`, `media` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
+| `addLabel` | `labels` | `label`, `chatId` | `boolean` |
+| `addParticipant` | `groups` | `groupId`, `contactId` | `boolean` |
+| `approveGroupJoinRequest` | `groups` | `groupId`, `contactId` | `string \| boolean` |
+| `archiveChat` | `chats` | `chatId` | `boolean` |
+| `blockContact` | `contacts` | `contactId` | `boolean` |
+| `cancelEvent` | `events` | `eventId` | `boolean` |
+| `checkNumberStatus` | `contacts` | `contactId` | `NumberCheck` |
+| `checkReadReceipts` | `contacts` | `contactId` | `boolean \| string` |
+| `clearCallAudio` | `calls` | `call` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
+| `clearChat` | `chats` | `chatId` | `boolean` |
+| `createGroup` | `groups` | `name`, `contacts` | `GroupCreationResult \| null` |
+| `decryptMedia` | `media` | `message` | `DataURL` |
+| `deleteAllStatus` | `status` | - | `boolean` |
+| `deleteChat` | `chats` | `chatId` | `boolean` |
+| `deleteMessage` | `messages` | `chatId`, `messageId`, `onlyLocal` | `boolean` |
+| `deleteStatus` | `status` | `statusesToDelete` | `boolean` |
+| `demoteParticipant` | `groups` | `groupId`, `contactId` | `boolean \| string` |
+| `downloadMedia` | `media` | `message`, `path` | `string` |
+| `editEvent` | `events` | `eventId`, `changes` | `boolean` |
+| `editMessage` | `messages` | `messageId`, `newContent` | `boolean` |
+| `endCall` | `calls` | `call` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
+| `forwardMessages` | `messages` | `to`, `messages`, `skipMyMessages` | `MessageIdReturn[] \| boolean` |
+| `getActiveCall` | `calls` | - | `{ id: string; sessionId: string; generation: string; peer: string; state: string; direction: "incoming" \| "outgoing"; video: boolean; terminal: boolean; observedAt: number \| "Infinity" \| "-Infinity" \| "NaN"; endReason?: { code: string; message: string; source: "local" \| "media" \| "license" \| "session" \| "whatsapp" } \| null; media?: { state: "attached" \| "ended"; reason?: string \| null } \| null` |
+| `getAlbumMessages` | `messages` | `messageId` | `Message[] \| false` |
+| `getAllChatIds` | `chatIds` | - | `ChatId[]` |
+| `getAllChats` | `chats` | `withNewMessagesOnly` | `Chat[]` |
+| `getAllCommunities` | `communities` | - | `GroupChatId[]` |
+| `getAllContacts` | `contacts` | - | `Contact[]` |
+| `getAllGroups` | `groups` | `withNewMessagesOnly` | `Chat[]` |
+| `getAllLabels` | `labels` | - | `Label[]` |
+| `getAllMessages` | `messages` | `chatId`, `includeMe`, `includeNotifications` | `Message[]` |
+| `getBatteryLevel` | `session` | - | `number` |
+| `getBlockedIds` | `contacts` | - | `ContactId[] \| false` |
+| `getBusinessProducts` | `business` | `contactId` | `Product[] \| false` |
+| `getBusinessProfile` | `business` | `contactId` | `BusinessProfile` |
+| `getCallCapabilities` | `calls` | - | `{ control: boolean; audio: boolean; video: boolean; reason?: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" } }` |
+| `getChat` | `chats` | `chatId` | `Chat \| null \| undefined \| false` |
+| `getChatsByLabel` | `labels` | `label` | `Chat[]` |
+| `getChatWithNonContacts` | `chats` | - | `Contact[]` |
+| `getCommonGroups` | `contacts` | `contactId` | `CommonGroup[] \| false` |
+| `getCommunityAdminIds` | `communities` | `communityId` | `CommunityAdminIds[]` |
+| `getCommunityAdmins` | `communities` | `communityId` | `CommunityAdmins[]` |
+| `getCommunityInfo` | `communities` | `communityId` | `CommunityMetadata` |
+| `getCommunityParticipantIds` | `communities` | `communityId` | `CommunityParticipantIds[]` |
+| `getCommunityParticipants` | `communities` | `communityId` | `CommunityParticipants[]` |
+| `getConnectionState` | `session` | - | `string` |
+| `getContact` | `contacts` | `contactId` | `Contact \| null` |
+| `getEvent` | `events` | `eventId` | `WhatsAppEvent \| null` |
+| `getEventResponses` | `events` | `eventId` | `EventResponse[]` |
+| `getEvents` | `events` | `chatId`, `options` | `EventPage` |
+| `getFeatures` | `session` | - | `FeatureFlags` |
+| `getGroupAdmins` | `groups` | `groupId` | `ContactId[]` |
+| `getGroupInfo` | `groups` | `groupId` | `{ title: string; description?: string \| null } \| string \| null` |
+| `getGroupInviteLink` | `groups` | `groupId` | `string` |
+| `getGroupMembers` | `groups` | `groupId` | `Contact[]` |
+| `getGroupMembersId` | `groups` | `groupId` | `ContactId[]` |
+| `getHostNumber` | `session` | - | `string` |
+| `getKickedGroups` | `groups` | - | `GroupChatId[]` |
+| `getLicenseFeatures` | `session` | - | `{ status: "valid" \| "missing" \| "invalid" \| "expired" \| "metadata_only"; keyType: string \| null; expiresAt: number \| "Infinity" \| "-Infinity" \| "NaN" \| null; features: Record<string, boolean> }` |
+| `getLicenseType` | `session` | - | `LicenseType \| false` |
+| `getLoadedMessageCount` | `session` | - | `number` |
+| `getMe` | `session` | - | `HostAccount` |
+| `getMessageById` | `messages` | `messageId` | `Message \| null \| false` |
+| `getMessageInfo` | `messages` | `messageId` | `MessageInfo` |
+| `getMessagesForLLM` | `messages` | `chatId`, `last` | `LLMMessage[]` |
+| `getMyLastMessage` | `messages` | `chatId` | `Message \| undefined` |
+| `getNumberProfile` | `contacts` | `contactId` | `NumberProfile` |
+| `getOrder` | `business` | `id` | `Order` |
+| `getPollResults` | `messages` | `messageId` | `PollResults` |
+| `getProcessStats` | `session` | - | `ProcessStats` |
+| `getProfilePicture` | `contacts` | `chatId` | `string` |
+| `getSnapshot` | `session` | `chatId`, `width`, `height` | `string` |
+| `getStarredMessages` | `messages` | `chatId` | `Message[]` |
+| `getStatus` | `mystatus` | `contactId` | `ContactStatus` |
+| `getStories` | `status` | - | `Story[]` |
+| `getUnsentMessages` | `messages` | - | `Message[]` |
+| `getUserAgent` | `session` | `userAgent` | `string` |
+| `getVCards` | `messages` | `messageId` | `string[]` |
+| `getWAVersion` | `session` | - | `string` |
+| `healthCheck` | `session` | - | `HealthCheck` |
+| `isChatOnline` | `chats` | `chatId` | `boolean \| string` |
+| `isPlugged` | `session` | - | `boolean` |
+| `joinGroupViaLink` | `groups` | `link`, `returnChatObj` | `GroupChatId \| boolean \| number \| Chat` |
+| `leaveGroup` | `groups` | `groupId` | `void` |
+| `loadEarlierMessages` | `messages` | `chatId`, `count`, `includeMe` | `Message[]` |
+| `markAsRead` | `chats` | `chatId` | `boolean` |
+| `markAsUnread` | `chats` | `chatId` | `boolean` |
+| `muteCall` | `calls` | `call`, `muted` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
+| `muteChat` | `chats` | `chatId`, `muteDuration` | `string \| boolean \| number` |
+| `observeCallAudio` | `calls` | `call`, `speaker` | `{ ok: true; status: "requested"; observerId: string } \| { ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
+| `pinChat` | `chats` | `chatId` | `boolean` |
+| `pinMessage` | `messages` | `messageId`, `duration` | `boolean` |
+| `postImageStatus` | `status` | `image`, `caption` | `MessageId \| string \| boolean` |
+| `postTextStatus` | `status` | `text`, `backgroundColor`, `font` | `MessageId \| string \| boolean` |
+| `postVideoStatus` | `status` | `video`, `caption` | `MessageId \| string \| boolean` |
+| `promoteParticipant` | `groups` | `groupId`, `contactId` | `boolean \| string` |
+| `react` | `messages` | `messageId`, `emoji` | `boolean` |
+| `rejectCall` | `calls` | `call` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
+| `rejectGroupJoinRequest` | `groups` | `groupId`, `contactId` | `string \| boolean` |
+| `removeLabel` | `labels` | `label`, `chatId` | `boolean` |
+| `removeParticipant` | `groups` | `groupId`, `contactId` | `boolean` |
+| `requestPhoneNumber` | `contacts` | `to` | `string` |
+| `respondToEvent` | `events` | `eventId`, `response` | `boolean` |
+| `revokeGroupInviteLink` | `groups` | `groupId` | `string \| boolean` |
+| `sendAdvancedButtons` | `messages` | `to`, `body`, `buttons`, `text`, `footer`, `filename` | `MessageIdReturn \| boolean` |
+| `sendAlbum` | `messages` | `to`, `media`, `caption`, `quotedMsgId` | `AlbumSendResult` |
+| `sendAudio` | `messages` | `to`, `file`, `filename`, `options` | `MessageIdReturn \| boolean` |
+| `sendBanner` | `messages` | `to`, `base64` | `MessageIdReturn \| boolean` |
+| `sendButtons` | `messages` | `to`, `body`, `buttons`, `title`, `footer` | `MessageIdReturn \| boolean` |
+| `sendContact` | `messages` | `to`, `contactId` | `MessageIdReturn \| boolean \| (MessageIdReturn \| boolean)[]` |
+| `sendEvent` | `events` | `to`, `event` | `string` |
+| `sendFile` | `messages` | `to`, `file`, `filename`, `options` | `MessageIdReturn \| boolean` |
+| `sendFileFromUrl` | `messages` | `to`, `url`, `filename`, `options`, `headers` | `MessageIdReturn \| string \| boolean` |
+| `sendImage` | `messages` | `to`, `file`, `filename`, `options` | `MessageIdReturn \| boolean` |
+| `sendInteractive` | `messages` | `to`, `content` | `string` |
+| `sendLinkWithAutoPreview` | `messages` | `to`, `url`, `text`, `thumbnail`, `quotedMsgId`, `customSize` | `MessageIdReturn \| boolean` |
+| `sendListMessage` | `messages` | `to`, `sections`, `title`, `description`, `actionText` | `MessageIdReturn \| boolean` |
+| `sendLocation` | `messages` | `to`, `lat`, `lng`, `loc`, `address`, `url` | `MessageIdReturn \| boolean` |
+| `sendMessageWithThumb` | `messages` | `thumb`, `url`, `title`, `description`, `content`, `to`, `quotedMsgId`, `customSize` | `MessageIdReturn \| boolean` |
+| `sendMultipleContacts` | `messages` | `to`, `contactIds` | `MessageIdReturn \| boolean` |
+| `sendPaymentRequest` | `messages` | `to`, `amount`, `currency`, `message` | `MessageIdReturn \| boolean` |
+| `sendPoll` | `messages` | `to`, `name`, `options`, `config` | `MessageIdReturn \| boolean` |
+| `sendPtt` | `messages` | `to`, `file`, `options` | `MessageIdReturn \| boolean` |
+| `sendRawMessage` | `messages` | `to`, `payload` | `string` |
+| `sendReplyWithMentions` | `messages` | `to`, `content`, `replyMessageId`, `hideTags`, `mentions` | `MessageIdReturn \| boolean` |
+| `sendSeen` | `messages` | `chatId` | `boolean` |
+| `sendSticker` | `messages` | `to`, `input`, `job` | `MessageId` |
+| `sendText` | `messages` | `to`, `content`, `options` | `MessageId` |
+| `sendTextWithMentions` | `messages` | `to`, `content`, `hideTags`, `mentions` | `MessageIdReturn \| boolean` |
+| `sendVCard` | `messages` | `to`, `vcard`, `contactName`, `contactNumber` | `MessageIdReturn \| boolean` |
+| `sendVideoAsGif` | `messages` | `to`, `file`, `filename`, `options` | `MessageIdReturn \| boolean` |
+| `sendYouTubeLink` | `messages` | `to`, `url`, `text`, `thumbnail`, `quotedMsgId`, `customSize` | `MessageIdReturn \| boolean` |
+| `setCallMedia` | `calls` | `call`, `media` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
+| `setChatEphemeral` | `chats` | `chatId`, `ephemeral` | `boolean` |
+| `setGroupDescription` | `groups` | `groupId`, `description` | `boolean` |
+| `setGroupEditToAdminsOnly` | `groups` | `groupId`, `onlyAdmins` | `boolean` |
+| `setGroupIcon` | `groups` | `groupId`, `image` | `boolean` |
+| `setGroupTitle` | `groups` | `groupId`, `title` | `boolean` |
+| `setGroupToAdminsOnly` | `groups` | `groupId`, `onlyAdmins` | `boolean` |
+| `setMyName` | `session` | `name` | `boolean` |
+| `setMyStatus` | `session` | `statusText` | `boolean` |
+| `setProfilePicture` | `session` | `image` | `boolean` |
+| `sharePhoneNumber` | `contacts` | `to` | `string` |
+| `starMessage` | `messages` | `messageId` | `boolean` |
+| `startCall` | `calls` | `to`, `microphone`, `speaker`, `camera` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
+| `stopCallAudioObserver` | `calls` | `call`, `observerId` | `{ ok: true; status: "requested"; callId?: string \| null } \| { ok: false; status: "unavailable" \| "failed" \| "unknown"; reason: { code: string; message: string; status: number \| "Infinity" \| "-Infinity" \| "NaN" }; callId?: string` |
+| `unarchiveChat` | `chats` | `chatId` | `boolean` |
+| `unblockContact` | `contacts` | `contactId` | `boolean` |
+| `unmuteChat` | `chats` | `chatId` | `string \| boolean \| number` |
+| `unpinChat` | `chats` | `chatId` | `boolean` |
+| `unpinMessage` | `messages` | `messageId` | `boolean` |
+| `unstarMessage` | `messages` | `messageId` | `boolean` |
+| `voteOnPoll` | `messages` | `messageId`, `optionIds` | `boolean` |

@@ -18,7 +18,7 @@ export const MASCOT_BY_PATH: Record<string, MascotEntry> = {
     title: 'Quickstart Wally',
     activity: 'launching a tiny first-success rocket beside the session console.',
   },
-  '/docs/getting-started/link-code': {
+  '/docs/sessions/link-code': {
     src: '/mascots/wally-link-code-phone.png',
     title: 'Link-code Wally',
     activity: 'pairing a phone and secure login charm without exposing real codes.',
@@ -63,7 +63,7 @@ export const MASCOT_BY_PATH: Record<string, MascotEntry> = {
     title: 'Glossary Wally',
     activity: 'looking up terms in a chunky pixel glossary book.',
   },
-  '/docs/guides/integrations-overview': {
+  '/docs/guides/integrations': {
     src: '/mascots/wally-integration-hub.png',
     title: 'Integration Wally',
     activity: 'keeping app tiles, webhooks, clouds, and inboxes connected.',
@@ -73,7 +73,7 @@ export const MASCOT_BY_PATH: Record<string, MascotEntry> = {
     title: 'Chat ID Wally',
     activity: 'pinning tidy name tags onto each kind of chat bubble.',
   },
-  '/docs/guides/authentication-flow': {
+  '/docs/sessions/authentication': {
     src: '/mascots/wally-auth-checkpoint.png',
     title: 'Auth Wally',
     activity: 'guiding a phone through a friendly security checkpoint.',
@@ -103,17 +103,17 @@ export const MASCOT_BY_PATH: Record<string, MascotEntry> = {
     title: 'Deletion Wally',
     activity: 'gently erasing one message bubble while preserving the rest.',
   },
-  '/docs/guides/session-events': {
+  '/docs/sessions/session-events': {
     src: '/mascots/wally-event-bell.png',
     title: 'Event Wally',
     activity: 'listening for lifecycle bells and session event cards.',
   },
-  '/docs/guides/multiple-sessions': {
+  '/docs/sessions/multiple-sessions': {
     src: '/mascots/wally-session-switchboard.png',
     title: 'Session Wally',
     activity: 'operating a vintage switchboard of named session lights.',
   },
-  '/docs/guides/webhooks-for-business': {
+  '/docs/guides/receive-webhooks': {
     src: '/mascots/wally-webhook-fishing.png',
     title: 'Webhook Wally',
     activity: 'catching event bubbles with a hook-shaped connector.',
@@ -153,37 +153,37 @@ export const MASCOT_BY_PATH: Record<string, MascotEntry> = {
     title: 'Secrets Wally',
     activity: 'locking golden key icons and env cards safely in a vault.',
   },
-  '/docs/guides/rate-limits': {
+  '/docs/operations/rate-limits': {
     src: '/mascots/wally-rate-limit-traffic.png',
     title: 'Rate-limit Wally',
     activity: 'spacing message bubbles through a safety-first traffic lane.',
   },
-  '/docs/guides/logging-and-audit': {
+  '/docs/operations/logging-and-audit': {
     src: '/mascots/wally-audit-ledger.png',
     title: 'Audit Ledger Wally',
     activity: 'illustrating the logging and audit trails guide with tidy pixel props.',
   },
-  '/docs/client-and-integrations/socket-client': {
+  '/docs/guides/socket-client': {
     src: '/mascots/wally-socket-cable.png',
     title: 'Socket Cable Wally',
     activity: 'connecting the socket client flow with safe retro cables.',
   },
-  '/docs/client-and-integrations/webhook-payloads': {
+  '/docs/guides/receive-webhooks': {
     src: '/mascots/wally-payload-envelope.png',
     title: 'Payload Envelope Wally',
     activity: 'connecting the webhook payloads flow with safe retro cables.',
   },
-  '/docs/client-and-integrations/proxying-a-session': {
+  '/docs/guides/proxying-a-session': {
     src: '/mascots/wally-session-tunnel.png',
     title: 'Session Tunnel Wally',
     activity: 'connecting the proxying a session flow with safe retro cables.',
   },
-  '/docs/client-and-integrations/cf-proxy': {
+  '/docs/guides/cf-proxy': {
     src: '/mascots/wally-cloudflare-tunnel.png',
     title: 'Cloudflare Tunnel Wally',
     activity: 'connecting the cloudflare session proxy flow with safe retro cables.',
   },
-  '/docs/client-and-integrations/chatwoot': {
+  '/docs/guides/chatwoot': {
     src: '/mascots/wally-support-inbox.png',
     title: 'Support Inbox Wally',
     activity: 'connecting the chatwoot integration flow with safe retro cables.',
@@ -558,17 +558,17 @@ export const MASCOT_BY_PATH: Record<string, MascotEntry> = {
     title: 'Security Shield Wally',
     activity: 'checking the security and deployment runbook before production traffic starts.',
   },
-  '/docs/operations-and-troubleshooting/best-practices': {
+  '/docs/operations/best-practices': {
     src: '/mascots/wally-production-checklist.png',
     title: 'Production Checklist Wally',
     activity: 'checking the best practices runbook before production traffic starts.',
   },
-  '/docs/operations-and-troubleshooting/error-handling': {
+  '/docs/operations/error-handling': {
     src: '/mascots/wally-error-toolbox.png',
     title: 'Error Toolbox Wally',
     activity: 'checking the error handling runbook before production traffic starts.',
   },
-  '/docs/operations-and-troubleshooting/detect-logouts': {
+  '/docs/sessions/detect-logouts': {
     src: '/mascots/wally-logout-beacon.png',
     title: 'Logout Beacon Wally',
     activity: 'checking the detect logouts runbook before production traffic starts.',

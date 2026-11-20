@@ -1,143 +1,52 @@
 ---
-title: Deleting Messages
-description: Delete messages locally or request provider-side removal, with result, permission, and failure handling.
+title: Delete messages
+description: Delete a message for everyone or only from this account, and handle deletions that don't go through.
 ---
 
-# Deleting Messages
+# Delete messages
 
-`deleteMessage` accepts a chat ID, one message ID or an array of message IDs,
-and an optional `onlyLocal` flag. It returns a boolean: `true` means the
-runtime completed its deletion jobs, while `false` means the chat could
-not be found. The current runtime also returns `true` when none of the supplied
-message IDs match a loaded message, so that value alone does not prove a message
-was removed. Handle rejected calls too. Even when a revoke operation completes,
-the return value cannot prove that every recipient has removed the message.
+`deleteMessage(chatId, messageId, onlyLocal?)` takes a chat ID, one message ID or an array of them, and an optional `onlyLocal` flag. It resolves to `true` when open-wa finished the deletion and `false` when the chat couldn't be found. It also resolves to `true` when none of the IDs match a loaded message, so `true` on its own doesn't prove a message was removed, and even a completed delete for everyone can't prove every recipient's copy is gone.
 
-## Local deletion versus revoke for everyone
+## Delete for everyone or only here
 
-The default is `onlyLocal: false`. For messages sent by this session, the
-runtime requests revoke for everyone; for incoming messages, it deletes the
-local copy. Revoke can depend on message ownership, group permissions, message
-age, account state, and current WhatsApp rules.
-
-Set `onlyLocal: true` when the goal is to remove the message from this session's
-local view only. Local deletion does not remove a message from other devices or
-recipients.
+By default (`onlyLocal: false`), messages this account sent are deleted for everyone, and incoming messages are deleted from this account only. Deleting for everyone only works within WhatsApp's own limits on who sent the message, group permissions and message age.
 
 ```ts
-const removedLocally = await client.deleteMessage(
-  '447700900000@c.us',
-  'false_447700900000@c.us_ABC123',
-  true
-);
+const messageId = await client.sendText('447700900000@c.us', 'This message may be removed shortly.');
 
-if (!removedLocally) {
-  console.error('The local deletion was not completed');
-}
+const deleted = await client.deleteMessage('447700900000@c.us', messageId);
+if (!deleted) console.error('The deletion did not complete; check the chat and message IDs');
 ```
 
-For a provider-side request, use `false` or omit the third argument and handle
-`false` as a failed request:
+`sendText` returns a message ID you can pass straight to `deleteMessage`. Use IDs from send results and message events rather than building them yourself.
+
+Set `onlyLocal: true` to remove a message from this account's view only. It stays on other devices and with recipients.
 
 ```ts
-const revoked = await client.deleteMessage(
-  '447700900000@c.us',
-  'false_447700900000@c.us_ABC123'
-);
-
-if (!revoked) {
-  console.error('The deletion request did not complete; check the chat and message IDs');
-}
+await client.deleteMessage('447700900000@c.us', 'false_447700900000@c.us_ABC123', true);
 ```
 
-## Use a supported message ID
+## Delete from a message handler
 
-The in-process `Client` declares `sendText` as `Promise<string | false>`; the
-current runtime can also return status strings such as `Not a contact`. The
-Easy API schema also permits a boolean or an object containing `_serialized`.
-Only a value matching the message-ID shape is safe to pass to
-`deleteMessage`:
-
-```ts
-type SendResult =
-  | string
-  | boolean
-  | { _serialized: string; [key: string]: unknown };
-
-function messageIdFrom(result: SendResult): string | null {
-  const value = typeof result === 'string'
-    ? result
-    : typeof result === 'object' && result !== null
-      ? result._serialized
-      : null;
-
-  return value && /^(true|false)_.+_.+$/.test(value) ? value : null;
-}
-
-const sent = await client.sendText(
-  '447700900000@c.us',
-  'This message may be removed shortly.'
-);
-const messageId = messageIdFrom(sent);
-
-if (!messageId) {
-  throw new Error(`sendText did not return a usable message ID: ${String(sent)}`);
-}
-
-const removed = await client.deleteMessage(
-  '447700900000@c.us',
-  messageId,
-  false
-);
-
-if (!removed) {
-  console.error('The provider rejected or could not complete deletion');
-}
-```
-
-The message ID format shown here is the current schema's representative shape.
-Prefer the ID returned by the send call or event rather than constructing one.
-If your method surface returns a serialized object, use its `_serialized` value;
-never pass the whole object or a boolean to `deleteMessage`.
-
-## Incoming messages and permissions
-
-You can request deletion from an incoming-message handler, but the provider may
-allow only messages you sent or messages covered by the connected account's
-group permissions. Older messages can also fall outside the provider's current
-revoke window. None of those windows or permissions are guaranteed by the
-open-wa method, so keep the failure path explicit:
+You can delete from a handler, but WhatsApp may refuse to delete other people's messages for everyone unless the account is a group admin, and older messages can be past the time limit. Keep the failure path explicit:
 
 ```ts
 client.onMessage(async (message) => {
   if (!message.body.includes('[remove]')) return;
 
   try {
-    const removed = await client.deleteMessage(
-      message.chatId,
-      message.id,
-      false
-    );
-
-    if (!removed) {
-      console.warn('Deletion was rejected or unavailable', {
-        chatId: message.chatId,
-        messageId: message.id,
-      });
-    }
+    const deleted = await client.deleteMessage(message.chatId, message.id, false);
+    if (!deleted) console.warn('Deletion was refused', { chatId: message.chatId, messageId: message.id });
   } catch (error) {
-    console.error('Deletion failed before completion', error);
+    console.error('Deletion failed', error);
   }
 });
 ```
 
-Deleting a message cannot undo a recipient seeing, copying, or storing it
-before the provider processes the request. If your policy requires immediate
-redaction, remove the local copy and stop downstream processing while the
-provider result is unresolved.
+Deleting can't undo someone having already seen, copied or saved the message. If your policy needs immediate redaction, remove your own stored copy and stop any downstream processing straight away rather than waiting on the result.
 
 ## Related
 
-- **[Client message reference](/docs/reference/client/messages#deletemessage)**: Exact parameters and output
-- **[Messages guide](/docs/guides/messages)**: Send messages and handle result unions
-- **[Groups guide](/docs/guides/groups)**: Group membership and administrator behavior
+- [`deleteMessage` in the API reference](/docs/reference/client/messages#deletemessage)
+- [Message types and events](/docs/guides/messages)
+- [Groups](/docs/guides/groups)

@@ -2,14 +2,15 @@
   "title": "Docs",
   "pages": [
     "index",
+    "build",
     "getting-started",
-    "releases",
-    "concepts",
     "guides",
-    "client-and-integrations",
+    "sessions",
+    "concepts",
     "plugins",
     "reference",
     "operations",
-    "licensing"
+    "licensing",
+    "upgrading"
   ]
 }

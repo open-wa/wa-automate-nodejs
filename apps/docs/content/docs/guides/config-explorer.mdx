@@ -1,38 +1,17 @@
 ---
-title: "Config Explorer"
-description: "Every open-wa config option and the CLI or environment adapters that actually support it."
+title: "Config explorer"
+description: "Look up any open-wa setting and copy it as a config file entry, a CLI flag or an environment variable."
 icon: "SlidersHorizontal"
 ---
 
-# Config Explorer
+# Config explorer
 
-open-wa has one configuration schema. The runtime exposes each schema field in
-the config file, while the CLI and environment adapters cover smaller,
-explicitly supported subsets:
+Every setting can go in a config file such as `wa.config.ts`. Some also have a CLI flag, and most have a `WA_*` environment variable. Search for a setting, filter by group, and switch between the three forms; the table and snippet update to match. A setting marked `config file only` has no flag or variable in the form you picked, and nested settings show their full path.
 
-- in a config file (`wa.config.json` / `wa.config.mjs`), by its key
-- as a CLI flag where the v5 CLI parser supports that option
-- as an environment variable where the environment loader supports that key
-
-Use the explorer below to search every option, filter by group, and switch
-between the three forms. The table and copy-paste snippet update to match the
-format you pick. Options are grouped by area (browser, session, server,
-logging, and so on) from the config schema itself. Nested fields are shown under
-their full config path, and a `config file only` label means the selected
-adapter does not accept that field.
-
-For the complete source-backed option reference, including full types and
-defaults, see [Configuration and CLI](/docs/guides/configuration-and-cli#full-configuration-reference).
+For full types and defaults, see [every setting](/docs/guides/configuration-and-cli#every-setting).
 
 <ConfigExplorer />
 
 <Callout type="info">
-The explorer does not invent adapters. For example, `mcp.enabled` is a nested
-config-file field, while `WA_MCP` is the supported environment form for the
-whole MCP object; the current CLI does not parse `--mcp`. A few supported flags
-also have short aliases, such as `-p` for `--port`.
+For example, `mcp.enabled` is a nested config-file setting, while `WA_MCP` sets the whole `mcp` object as JSON. The CLI does not parse `--mcp`. Some flags also have short forms, such as `-p` for `--port`.
 </Callout>
-
-This page is generated from `@open-wa/config`'s schema plus the v5 CLI and
-environment adapters, so the displayed forms describe what each runtime path
-actually accepts.

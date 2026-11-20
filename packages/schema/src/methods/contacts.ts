@@ -9,7 +9,7 @@ export const requestPhoneNumber = defineMethodV2('requestPhoneNumber', {
     input: z.object({ to: toParam }), parameterOrder: ['to'], output: messageIdParam,
 });
 export const sharePhoneNumber = defineMethodV2('sharePhoneNumber', {
-    meta: { description: 'Share the signed-in account’s own phone number with a direct LID chat using WhatsApp’s native protocol. No arbitrary phone number is accepted.', action: 'send', namespace: 'contacts', license: 'none', functionality: 'both', httpMethod: 'POST' },
+    meta: { description: 'Share the logged-in account’s own phone number in a one-to-one chat that only shows a LID. You can’t share any other number.', action: 'send', namespace: 'contacts', license: 'none', functionality: 'both', httpMethod: 'POST' },
     input: z.object({ to: toParam }), parameterOrder: ['to'], output: messageIdParam,
 });
 

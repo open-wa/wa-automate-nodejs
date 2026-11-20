@@ -151,6 +151,64 @@ export function PackageManagerTabs({
   );
 }
 
+/**
+ * A horizontally scrolling frame for wide tables. It marks itself when more
+ * columns sit past the right edge, so CSS can fade that edge as a hint.
+ */
+export function ScrollTable({ children, className }: { children: React.ReactNode; className?: string }) {
+  const frame = React.useRef<HTMLDivElement>(null);
+  const scroller = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const element = scroller.current;
+    const outer = frame.current;
+    if (!element || !outer) return;
+    const update = () => {
+      const more = element.scrollWidth - element.clientWidth - element.scrollLeft > 2;
+      outer.dataset.overflowEnd = String(more);
+    };
+    update();
+    element.addEventListener('scroll', update, { passive: true });
+    const observer = new ResizeObserver(update);
+    observer.observe(element);
+    return () => {
+      element.removeEventListener('scroll', update);
+      observer.disconnect();
+    };
+  }, []);
+
+  return (
+    <div ref={frame} className={cx('docs-table-scroll', className)}>
+      <div ref={scroller}>{children}</div>
+    </div>
+  );
+}
+
+export function MdxTable(props: React.ComponentPropsWithoutRef<'table'>) {
+  return (
+    <ScrollTable>
+      <table {...props} />
+    </ScrollTable>
+  );
+}
+
+/** Renders `code` spans written with backticks inside plain-string table cells. */
+function InlineText({ value }: { value: React.ReactNode }) {
+  if (typeof value !== 'string' || !value.includes('`')) return <>{value}</>;
+  const parts = value.split(/(`[^`]+`)/g);
+  return (
+    <>
+      {parts.map((part, index) =>
+        part.length > 2 && part.startsWith('`') && part.endsWith('`') ? (
+          <code key={index}>{part.slice(1, -1)}</code>
+        ) : (
+          <React.Fragment key={index}>{part}</React.Fragment>
+        ),
+      )}
+    </>
+  );
+}
+
 type ComparisonColumn = {
   key: string;
   label: string;
@@ -173,14 +231,14 @@ export function ComparisonTable({
 
   return (
     <div className="my-8 overflow-hidden rounded-2xl border-backstitch bg-card shadow-stipple relative">
-      <div className="overflow-x-auto relative ">
-        <table className="min-w-full border-collapse text-left text-sm">
+      <ScrollTable className="!m-0">
+        <table className="!m-0 min-w-full border-collapse text-left text-sm">
           <thead className="bg-muted border-b border-border">
             <tr>
               <th className="px-4 py-4 font-bold text-foreground font-display">Feature</th>
               {columns.map((column) => (
                 <th key={column.key} className="px-4 py-4 font-bold text-foreground font-display">
-                  {column.label}
+                  <InlineText value={column.label} />
                 </th>
               ))}
             </tr>
@@ -198,17 +256,17 @@ export function ComparisonTable({
                         colSpan={columns.length + 1}
                         className="px-4 py-3 !m-0 text-sm font-semibold text-foreground"
                       >
-                        {row.group}
+                        <InlineText value={row.group} />
                       </td>
                     </tr>
                   ) : null}
                   <tr className="border-b border-border align-top transition-colors hover:bg-muted/30 last:border-b-0">
                     <td className="min-w-44 px-4 py-4 font-bold text-foreground font-display">
-                      {row.feature}
+                      <InlineText value={row.feature} />
                     </td>
                     {columns.map((column) => (
                       <td key={column.key} className="min-w-40 px-4 py-4 text-muted-foreground font-medium">
-                        {row.values[column.key]}
+                        <InlineText value={row.values[column.key]} />
                       </td>
                     ))}
                   </tr>
@@ -217,7 +275,7 @@ export function ComparisonTable({
             })}
           </tbody>
         </table>
-      </div>
+      </ScrollTable>
     </div>
   );
 }

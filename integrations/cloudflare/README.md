@@ -114,7 +114,7 @@ The Worker entrypoint is `packages/cf-proxy/src/index.ts`; the Durable Object is
 
 ## Documentation
 
-See the [Cloudflare Session Proxy guide](https://openwa.dev/docs/client-and-integrations/cf-proxy).
+See the [Cloudflare Session Proxy guide](https://openwa.dev/docs/guides/cf-proxy).
 
 ## License
 

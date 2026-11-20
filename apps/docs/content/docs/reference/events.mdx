@@ -1,20 +1,20 @@
 ---
-title: Event Reference
-description: API reference for all events emitted by the Open-WA Client.
+title: Event names and payloads
+description: Listen for client events by name, with payload samples and the order they fire in.
 ---
 
 [Browse the generated wire-event contracts](/docs/reference/event-contracts) or
 [download AsyncAPI 3.1](/asyncapi.json) for SSE, webhooks and MCP Events.
 
-# Event Reference
+# Event names and payloads
 
 Each open-wa client has its own `HyperEmitter` event stream. The shared `ev`
 helper forwards native events from those clients and supports v4 wildcard
 subscriptions through the Effect-backed HyperEmitter hybrid. Effect owns each
 forwarding connection and removes it when the session closes.
 
-The Effect hybrid and optional PubSub APIs are available from OpenWA 5.6.0.
-See [session events](/docs/guides/session-events) for aliases and payloads,
+The Effect hybrid and optional PubSub APIs are available from open-wa 5.6.0.
+See [session events](/docs/sessions/session-events) for aliases and payloads,
 the [HyperEmitter reference](/docs/reference/hyperemitter) for emitter methods,
 and [Consume events with Effect](/docs/guides/effect-event-streams) for a
 complete callback-and-queue example.
@@ -43,7 +43,7 @@ ev.on('session.connection.disconnected', ({ details }) => {
 });
 
 ev.on('error', ({ scope, error, fatal }) => {
-  console.error(`Open-WA error in ${scope}`, { fatal, error });
+  console.error(`open-wa error in ${scope}`, { fatal, error });
 });
 ```
 
@@ -65,15 +65,9 @@ ev.on('**', (payload, sessionId, namespace) => {
 
 Keep wildcard listeners narrow in production. QR codes, link codes, session artifacts, and persistence events can contain sensitive data.
 
-## OpenWAEventMap
-
-This interface defines all available events and their corresponding payload shapes.
-
-<AutoTypeTable path="../../../../../packages/core/src/events/eventMap.ts" name="OpenWAEventMap" />
-
 ## Full event names
 
-The table below lists every event name in `OpenWAEventMap` with its namespace. Event names without a dot are process-level compatibility or utility events.
+The table below lists the event names you can listen for, grouped by namespace. Payload types come from `OpenWAEventMap`, exported by `@open-wa/core`. Startup also emits internal step events that aren't listed here; they can change between releases, so don't build on them.
 
 | Namespace | Events |
 | --- | --- |
@@ -83,23 +77,14 @@ The table below lists every event name in `OpenWAEventMap` with its namespace. E
 | `launch.update.check` | `launch.update.check.before`, `launch.update.check.after` |
 | `launch.browser.init` | `launch.browser.init.before`, `launch.browser.init.after` |
 | `launch.page.init` | `launch.page.init.before`, `launch.page.init.after` |
-| `launch.page.interception` | `launch.page.interception.before`, `launch.page.interception.after` |
 | `launch.navigation.gotoWaWeb` | `launch.navigation.gotoWaWeb.before`, `launch.navigation.gotoWaWeb.after` |
-| `launch.modules.wait` | `launch.modules.wait.before`, `launch.modules.wait.after` |
-| `launch.injection.earlyCheck` | `launch.injection.earlyCheck.before`, `launch.injection.earlyCheck.after` |
 | `launch.auth` | `launch.auth.check.before`, `launch.auth.check.after`, `launch.auth.nuke.detected`, `launch.auth.timeout`, `launch.auth.phoneOutOfReach`, `launch.auth.qr.requested`, `launch.auth.qr.generated`, `launch.auth.qr.scanned`, `launch.auth.qr.expired`, `launch.auth.linkCode.requested`, `launch.auth.linkCode.generated`, `launch.auth.pairing`, `launch.auth.syncing` |
-| `launch.license.preload` | `launch.license.preload.before`, `launch.license.preload.after` |
-| `launch.wapi.inject` | `launch.wapi.inject.before`, `launch.wapi.inject.after` |
-| `launch.helper.pre_api` | `launch.helper.pre_api.before`, `launch.helper.pre_api.after` |
 | `launch.session` | `launch.session.validityCheck.before`, `launch.session.validityCheck.after`, `launch.session.invalid.retry` |
 | `launch.license.check` | `launch.license.check.before`, `launch.license.check.after` |
-| `launch.patch.init` | `launch.patch.init.before`, `launch.patch.init.after` |
-| `launch.patch.integrity` | `launch.patch.integrity.before`, `launch.patch.integrity.after` |
 | `launch.client.finalize` | `launch.client.finalize.before`, `launch.client.finalize.after` |
 | `session.state` | `session.state.changed` |
 | `session.connection` | `session.connection.disconnected`, `session.connection.reconnecting`, `session.connection.reconnected` |
 | `session.frame` | `session.frame.navigated` |
-| `session.reinject` | `session.reinject.detected`, `session.reinject.before`, `session.reinject.after`, `session.reinject.qr.waiting` |
 | `session.stale` | `session.stale.detected` |
 | `session` | `session.logout`, `session.data` |
 | `message` | `message.received`, `message.any`, `message.deleted` |
@@ -122,20 +107,16 @@ The table below lists every event name in `OpenWAEventMap` with its namespace. E
 | `persistence.compress.zstd` | `persistence.compress.zstd.before`, `persistence.compress.zstd.after` |
 | `persistence.archive.zip` | `persistence.archive.zip.before`, `persistence.archive.zip.after` |
 | `persistence.upload.s3` | `persistence.upload.s3.before`, `persistence.upload.s3.after` |
-| `patch.apply` | `patch.apply.before`, `patch.apply.after` |
-| `patch.init` | `patch.init.before`, `patch.init.after` |
 | `license.check` | `license.check.before`, `license.check.after` |
-| `license.inject` | `license.inject.before`, `license.inject.after` |
 | `cli` | `cli.launched` |
 | `server.start` | `server.start.before`, `server.start.after` |
 | `server.port` | `server.port.live` |
 | `core` | `core.starting`, `core.started`, `core.stopping`, `core.stopped` |
 | `client` | `client.ready` |
-| Process-level | `internal_launch_progress`, `critical_internal_message`, `error` |
 
 ## Payload samples
 
-The generated table above is the source of truth for payload shapes. These samples show the structure you will usually see in logs or listeners.
+`OpenWAEventMap` is the source of truth for payload shapes. These samples show the structure you will usually see in logs or listeners.
 
 ### `client.ready`
 
@@ -223,21 +204,19 @@ A normal first login usually follows this order:
 12. `launch.auth.qr.generated`, when a new login needs a QR
 13. `launch.auth.qr.scanned`, after the QR is scanned
 14. `launch.auth.check.after`, when auth state is known
-15. `launch.wapi.inject.before`
-16. `launch.wapi.inject.after`
-17. `launch.session.validityCheck.before`
-18. `launch.session.validityCheck.after`
-19. `launch.client.finalize.before`
-20. `launch.client.finalize.after`
-21. `session.state.changed`, usually to `READY`
-22. `client.ready`
-23. `core.started`
+15. `launch.session.validityCheck.before`
+16. `launch.session.validityCheck.after`
+17. `launch.client.finalize.before`
+18. `launch.client.finalize.after`
+19. `session.state.changed`, usually to `READY`
+20. `client.ready`
+21. `core.started`
 
 Warm starts can skip QR events. Failed starts can emit retry, timeout, invalid session, or error events before the lifecycle reaches `client.ready`.
 
 ## Mapping to session-events guide
 
-This reference lists the typed event names and payloads from the core event map. For a task-oriented guide to QR capture, session data handling, lifecycle timing, and wildcard patterns, read **[Session events](/docs/guides/session-events)**.
+This reference lists the typed event names and payloads from the core event map. For a task-oriented guide to QR capture, session data handling, lifecycle timing, and wildcard patterns, read **[Session events](/docs/sessions/session-events)**.
 
 ## Common Payloads
 

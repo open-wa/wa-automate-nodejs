@@ -1,81 +1,60 @@
 ---
-title: Security and Deployment
-description: Protect your API, manage keys, and deploy to production safely.
+title: Security and deployment
+description: Protect the Easy API with a key and HTTPS, keep sessions and webhooks private, and pick a deployment layout.
 ---
 
-# Security and Deployment
+# Security and deployment
 
-Running open-wa in production requires attention to API key management, network security, and session protection. The published npm CLI `5.1.0` defaults to `0.0.0.0:8002`, so use explicit `--host` and `--port` values for the intended bind address and port.
+Anyone who can reach the Easy API can use the WhatsApp account behind it, so production deployments need an API key, a private network or HTTPS in front, and a protected session file. The Easy API listens on `localhost:8080` by default, which keeps it off the network until you choose otherwise with `--host` or `WA_HOST`.
 
-## Runtime prerequisites
+## API keys
 
-For monorepo development and source builds, the repo declares **Node.js >= 22.21.1** and pins `packageManager` to **pnpm@11.15.1**. Match those versions before debugging runtime or build issues.
+### Set a key
 
-## API Key Management
-
-### Why API Keys Are Necessary
-
-Protect every open-wa session with an API key. Without a key, each user who can access your server can control the WhatsApp session.
-
-### Generate random keys
-
-Use a cryptographically random string:
+Without a key, every API route is open to anyone who can reach the port. Generate a random key:
 
 ```bash
-# Generate a random key
 openssl rand -hex 32
 # or
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-### Storing Keys Safely
-
-**Environment variables** are the recommended approach:
+Supply it through the environment rather than a committed file:
 
 ```bash
 export WA_API_KEY="your-generated-key"
-npx @open-wa/wa-automate@5.1.0 --host 127.0.0.1 --port 8080 --api-key "$WA_API_KEY"
+npx @open-wa/wa-automate
 ```
 
-Or in a `.env` file:
+The Easy API reads `WA_API_KEY` on its own; `--api-key` works too. Clients then send it in the `X-API-Key` header. In production, keep it in a secrets manager such as AWS Secrets Manager, HashiCorp Vault or Doppler.
 
-```
-WA_API_KEY=your-generated-key
-```
+### Rotate a key
 
-For production deployments, use a secrets manager (AWS Secrets Manager, HashiCorp Vault, Doppler, etc.).
+The key is read at startup, so rotating it means restarting with the new value. Keep the session file; a new key doesn't require linking WhatsApp again.
 
-### Rotating API keys
+### If a key leaks
 
-The API key is process configuration, so changing it requires a coordinated restart or deployment. Keep the session profile in place; changing the key alone does not require linking WhatsApp again.
+1. Stop the running session.
+2. Generate a new key and restart with it.
+3. Review what was done with the old key.
+4. If you suspect someone used the account, log out the linked device from your phone and link it again.
 
-### What Happens If a Key Is Leaked
+## Network
 
-If your API key is exposed:
-1. Stop the running session immediately
-2. Generate a new API key
-3. Restart with the new key
-4. Audit what actions were taken with the leaked key
-5. Consider logging out from the phone and re-authenticating if you suspect unauthorized access
+### Don't expose the port directly
 
-## Port and Network Security
+Never put the Easy API on the internet without a key. `/health` stays public even with a key set, and it can include the QR code and diagnostics, so keep it off any public route. At a minimum, set an API key, put HTTPS in front with a reverse proxy, and restrict access to known IP addresses where you can.
 
-### Exposing Ports to the Internet
+### Reverse proxy
 
-**Never expose the Easy API port directly to the internet without authentication.** `/health` is public even when the API key protects API calls, and its response can include QR and diagnostic data. Keep the health route private and do not expose it through a public proxy. At minimum:
-
-- Always use `--api-key "your-secure-key"`
-- Use a reverse proxy (nginx, Caddy) with HTTPS
-- Restrict access to known IP addresses when possible
-
-### Use reverse proxies
-
-**nginx example:**
+**nginx:**
 
 ```nginx
 server {
     listen 443 ssl;
     server_name whatsapp-api.example.com;
+
+    location /health { return 404; }
 
     location / {
         proxy_pass http://localhost:8080;
@@ -85,146 +64,78 @@ server {
 }
 ```
 
-**Caddy example:**
+**Caddy:**
 
 ```
 whatsapp-api.example.com {
+    respond /health 404
     reverse_proxy localhost:8080
 }
 ```
 
-### Cloudflare Tunnel Alternative
+The Easy API rate-limits each client to 100 requests a minute, keyed on `X-Forwarded-For` or `X-Real-IP`, so make sure your proxy sets one of them.
 
-Cloudflare Tunnel can route traffic to a local API without an inbound firewall port:
+### Cloudflare Tunnel
+
+Cloudflare Tunnel reaches a local API without opening an inbound port:
 
 ```bash
 cloudflared tunnel --url http://localhost:8080
 ```
 
-The tunnel creates an internet-facing route, so keep API authentication enabled and account for the public `/health` response described above.
+That still creates a public route, so keep the API key on and block `/health`. For remote access without any public route, use the [Cloudflare session proxy](/docs/guides/cf-proxy).
 
-### Firewall Rules
+### Firewall
 
-If you must expose the API directly, restrict access:
+If you must expose the port, allow only the addresses that need it:
 
 ```bash
-# Only allow specific IPs
 ufw allow from 1.2.3.4 to any port 8080
 ```
 
-## Webhook Security
+## Webhooks
 
-### Securing Webhook Endpoints
+When open-wa sends webhooks to your service, use an HTTPS URL, add a shared-secret header through the webhook plugin's `headers` setting, and reject requests without it. The plugin doesn't sign payloads. Size your receiver for the plugin's defaults: 10 concurrent deliveries, 3 retries with exponential backoff from 1 second, and a 30-second timeout. See [receive webhooks](/docs/guides/receive-webhooks).
 
-When open-wa sends webhooks to your service:
+## MCP
 
-- Use HTTPS for the webhook URL
-- Add authentication headers via the webhook `headers` config
-- Have your receiver reject requests without the expected shared-secret header
+MCP needs an API key and won't start without one. Each MCP request must send the key in the `X-API-Key` header (`api_key` and `key` headers also work); query-string keys aren't accepted.
 
-The webhook integration sends configured headers; it does not provide signed-payload verification. See [Webhook payloads](/docs/client-and-integrations/webhook-payloads) for the supported plugin configuration.
+MCP exposes every Easy API method as a tool, with no per-tool permissions, so any agent holding the key can read every chat, message any contact and see session details. Keep the key secret, don't give it to agents you don't trust, and keep the endpoint behind your reverse proxy. Watch usage in your proxy's access logs and on the dashboard's MCP page.
 
-### Rate Limiting Webhook Receivers
+## Cloudflare session proxy tokens
 
-Your webhook receiver must handle the volume of incoming events. The webhook plugin supports:
-- `concurrency` (default: 10): max concurrent deliveries
-- `retries` (default: 3): retry attempts on failure
-- `retryDelay` (default: 1000ms): base delay with exponential backoff
-- `timeout` (default: 30000ms): request timeout
+The [Cloudflare session proxy](/docs/guides/cf-proxy) authenticates consumers with tokens. Rotate them periodically: update the token in the Worker, update the consumer's connection string, and test the new connection before removing the old token.
 
-## MCP Security
+## Deployment layouts
 
-### API Key Enforcement
-
-MCP requires the Easy API's API key and will not start without one. Every MCP request must include that key through an accepted API-key header: `X-API-Key`, `api_key`, or `key`.
-
-### Endpoint Exposure Risks
-
-If the MCP endpoint is exposed publicly, the API key is leaked, or untrusted agents are allowed to use the key, those agents could:
-- Read all messages in all chats
-- Send messages to any contact
-- Access session information
-
-Always protect the MCP endpoint with the API key, keep the key secret, and, ideally, place the endpoint behind a reverse proxy.
-
-### Restricting AI Agent Operations
-
-Currently, MCP exposes all Easy API methods as tools. There are no permission scopes, so any authenticated agent can call any method. Plan your deployment accordingly.
-
-### Audit Trails
-
-Monitor MCP usage through:
-- API access logs
-- The dashboard MCP page (`http://localhost:8080/dashboard/mcp`)
-- Your reverse proxy access logs
-
-## Proxy Security
-
-### Cloudflare Proxy Token Rotation
-
-The Cloudflare Session Proxy uses consumer tokens for authentication. Replace these tokens periodically:
-
-1. Update the token in your Cloudflare Worker
-2. Update the token in your consumer connection string
-3. Test the new connection before removing the old token
-
-### Custom Domains
-
-You can attach a custom domain to your Cloudflare Worker for a cleaner connection URL.
-
-## Production Checklist
-
-Before deploying to production:
-
-- [ ] API key set and stored securely (not in code or config files committed to git)
-- [ ] HTTPS enabled (reverse proxy or Cloudflare Tunnel)
-- [ ] Session persistence configured (volumes for Docker, persistent disk for servers)
-- [ ] Webhook auth configured (headers or IP restriction)
-- [ ] Rate limits understood and safe defaults applied
-- [ ] Logging enabled and monitored
-- [ ] Backup strategy for session files in place
-- [ ] Monitoring configured (health checks, alerting on session disconnect)
-- [ ] Process manager configured (PM2, systemd, Docker restart policy)
-- [ ] Firewall rules applied (only necessary ports open)
-
-## Deployment Topologies
-
-### Single Server
+### Single server
 
 ```
-[Your App] ←→ [open-wa Easy API] ←→ WhatsApp Web (browser)
+[Your app] ←→ [open-wa Easy API] ←→ WhatsApp
 ```
 
-- Simplest setup
-- Run with `npx @open-wa/wa-automate@5.1.0 --host 127.0.0.1 --port 8080 --api-key "key"`
-- Use PM2 or systemd for process management
+Run `npx @open-wa/wa-automate` with `WA_API_KEY` set, under PM2, systemd or another process manager.
 
-### Docker Container
+### Docker
 
-Use the [Docker baseline](/docs/getting-started/docker), which pins the inspected image digest, configures a persistent profile and key, and passes the published CLI's host, port, and session flags explicitly. Keep the container port private because `/health` remains public and can include QR and operational details.
+Follow the [Docker guide](/docs/getting-started/docker): it persists the session file, sets the key and keeps the port bound to loopback, because `/health` is public.
 
-### Cloudflare Proxy + Local Runtime
+### Cloudflare proxy and a local session
 
 ```
-[Your App] ←→ [Cloudflare Proxy] ←→ [open-wa Easy API (local)] ←→ WhatsApp
+[Your app] ←→ [Cloudflare session proxy] ←→ [open-wa Easy API, local] ←→ WhatsApp
 ```
 
-- No open ports on your server
-- Remote access without public exposure
-- See **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)**
+No inbound ports are open on your server. See the [Cloudflare session proxy](/docs/guides/cf-proxy).
 
 ### Kubernetes
 
-For large-scale deployments:
-- One pod per session (sessions do not share state)
-- Persistent volumes for session data
-- Horizontal Pod Autoscaler based on session count
-- Service mesh for internal routing
+Run one pod per session, since sessions share no state, and give each a persistent volume for its session file. Scale by adding sessions rather than replicas of one session, because two processes must never share a profile.
 
 ## Related
 
-- **[Quick Start](/docs/getting-started/quickstart)**: First-time setup
-- **[Docker](/docs/getting-started/docker)**: Pinned image and persistent session setup
-- **[Cloudflare Session Proxy](/docs/client-and-integrations/cf-proxy)**: Protected remote access
-- **[Webhook payloads](/docs/client-and-integrations/webhook-payloads)**: Webhook plugin configuration
-- **[Best Practices](/docs/operations-and-troubleshooting/best-practices)**: Production patterns
+- [Go to production](/docs/operations/go-to-production)
+- [Docker](/docs/getting-started/docker)
+- [Keep secrets out of config](/docs/guides/config-secrets)
+- [Best practices](/docs/operations/best-practices)

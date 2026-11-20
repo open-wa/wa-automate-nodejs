@@ -187,8 +187,10 @@ export const McpConfigSchema = z.object({
     .default(true)
     .describe('Expose /meta/mcp-tools.json for dashboard and debugging.'),
   events: z.object({
-    enabled: z.boolean().default(true).describe('Advertise webhook MCP Events alongside tools.'),
-    storePath: z.string().optional().describe('Private SQLite subscription and delivery journal; defaults to an instance-specific file under .open-wa.'),
+    enabled: z.boolean().default(true).describe('Advertise MCP Events (poll, push and webhook delivery) alongside tools.'),
+    storePath: z.string().optional().describe('Private SQLite event log, subscription and delivery journal; defaults to an instance-specific file under .open-wa.'),
+    retentionMs: z.number().int().positive().max(24 * 60 * 60_000).default(15 * 60_000)
+      .describe('How long recent events stay available for cursor replay, polling and stream reconnection.'),
     lifetimeMs: z.number().int().positive().max(7 * 24 * 60 * 60_000).default(24 * 60 * 60_000)
       .describe('Maximum granted subscription lifetime in milliseconds. ChatGPT refreshes before expiration.'),
   }).optional().describe('Durable MCP Events delivery configuration.'),

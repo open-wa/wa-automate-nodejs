@@ -1,0 +1,89 @@
+---
+title: Receive messages
+seoTitle: "Receive WhatsApp messages in Node.js, over HTTP or by webhook | open-wa"
+description: Choose how your code hears about incoming WhatsApp messages, with onMessage, the event stream or a webhook, and set it up.
+---
+
+# Receive messages
+
+There are three ways to hear about incoming messages. Pick by where your code runs:
+
+| Your code | Use | Why |
+| --- | --- | --- |
+| Runs in Node.js and starts the session with `create()` | `client.onMessage` | The handler runs in the same process, with no network hop and nothing to secure. |
+| Runs anywhere and keeps a connection open to the Easy API | The event stream, `GET /api/events` | One long-lived HTTP request; nothing has to be reachable from the internet. |
+| Is a backend, CRM or no-code tool that receives HTTP requests | A webhook | open-wa calls your URL, with retries and optional durable delivery. |
+
+All three deliver the same message object: `from` is the chat to reply to, `body` is the text (or `caption` for media), `id` identifies the message, and `fromMe` is `true` for messages the linked account sent. See [data models](/docs/concepts/data-models) for every field.
+
+## In Node.js: onMessage
+
+```ts title="bot.mts"
+import { create } from '@open-wa/wa-automate';
+
+const client = await create({ sessionId: 'support' });
+
+client.onMessage(async (message) => {
+  if (message.isGroupMsg) return;
+  console.log(`${message.from}: ${message.body}`);
+  if (message.body?.toLowerCase() === 'hours') {
+    await client.reply(message.from, 'We are open 9am to 5pm, Monday to Friday.', message.id);
+  }
+});
+```
+
+[`onMessage`](/docs/reference/client/events#message) fires for messages other people send you. Use [`onAnyMessage`](/docs/reference/client/events#anymessage) when you also want the ones the linked account sends, and [`onAck`](/docs/reference/client/events#ack) to follow delivery and read receipts. The [event listener reference](/docs/reference/client/events) lists every listener and its payload. Each listener returns a handle with `off()` to stop it. Listeners accept queue options such as `{ concurrency: 1 }` when you need to handle messages one at a time; see [best practices](/docs/operations/best-practices).
+
+For a complete bot, see [run a support bot](/docs/build/support-bot). A Node.js app that talks to a remote Easy API can use the same listener names through [SocketClient](/docs/guides/socket-client).
+
+## Over HTTP: the event stream
+
+The Easy API streams events as [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events). Pick the events you want with `topics`:
+
+```bash
+curl --no-buffer "http://127.0.0.1:8080/api/events?topics=message.received,ack.changed" \
+  -H "X-API-Key: $WA_API_KEY"
+```
+
+Each event arrives as one frame:
+
+```text
+id: 42
+event: message.received
+data: {"id":"42","event":"message.received","payload":{"message":{"id":"false_447700900123@c.us_3EB0C7D5E4A1B2","from":"447700900123@c.us","body":"hours","fromMe":false}},"ts":1763560000123,"sessionId":"support"}
+```
+
+The message is at `payload.message`, and the [`message.received` stream payload](/docs/reference/event-contracts/generated/sse_message_received) defines every field. Leave out `topics` to receive every event. The stream doesn't replay events you missed while disconnected, so reconnect promptly and use a webhook with durability when you can't afford gaps. Most languages have an SSE client; in the browser, `EventSource` can't send headers, so add `?api_key=` to the URL instead, and only from a trusted page.
+
+To reply, call [`sendText`](/docs/reference/client/messages#sendtext) over HTTP with the sender's chat ID:
+
+```bash
+curl http://127.0.0.1:8080/api/messages/sendText \
+  -H "X-API-Key: $WA_API_KEY" -H 'Content-Type: application/json' \
+  --data '{"to":"447700900123@c.us","content":"We are open 9am to 5pm."}'
+```
+
+## To your backend: a webhook
+
+Load the webhook plugin in `wa.config.js` and open-wa will `POST` each event to your URL:
+
+```js title="wa.config.js"
+export default {
+  plugins: ['@open-wa/integration-webhook'],
+  pluginConfig: {
+    webhook: {
+      url: 'https://receiver.example/webhooks/open-wa',
+      events: ['message.received'],
+      headers: { 'X-Webhook-Secret': process.env.WEBHOOK_SECRET },
+    },
+  },
+};
+```
+
+[Receive WhatsApp webhooks with Node.js and Express](/docs/guides/receive-webhooks) walks through a receiver, a sample request to test it, the envelope and retries. The [`message.received` webhook payload](/docs/reference/event-contracts/generated/webhook_message_received) defines each field, and the [Python bot recipe](/docs/build/whatsapp-bot-python) shows a complete webhook bot.
+
+## Related
+
+- [Message types and events](/docs/guides/messages) for replies, mentions and acknowledgements
+- [Groups and direct messages](/docs/guides/group-filtering) for filtering group chats
+- [Chat IDs](/docs/guides/chatid-primer) for the `@c.us`, `@g.us` and `@lid` formats

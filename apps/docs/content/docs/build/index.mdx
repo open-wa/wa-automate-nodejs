@@ -1,0 +1,18 @@
+---
+title: Build
+seoTitle: "WhatsApp API recipes: OTP codes, bookings, support and Python bots | open-wa"
+description: Complete open-wa recipes for common WhatsApp jobs, each with the outcome it delivers and what you need before you start.
+---
+
+# Build
+
+Each recipe is a complete, working job you can copy into your own app. Pick the outcome you want; the prerequisite is the one thing to have ready before you start.
+
+- **[Send an OTP](/docs/build/send-otp).** Your backend sends a six-digit code to a user's WhatsApp and verifies it, with expiry, attempt limits and user-initiated resends. *You need* a license on the sending number, because most recipients haven't chatted with you before.
+- **[Booking confirmations and reminders](/docs/build/booking-confirmation).** Customers get a booking card with Confirm and Reschedule buttons, your booking system updates when they tap one, and a reminder goes out before the appointment. *You need* a license on the sending number, for the interactive card and buttons.
+- **[Run a support bot](/docs/build/support-bot).** A Node.js bot answers common questions from a menu, replies out of hours and hands the chat to a person on request. *You need* a WhatsApp account to link; there's no license to buy, because customers message you first.
+- **[Build a WhatsApp bot in Python](/docs/build/whatsapp-bot-python).** A Flask app receives each message by webhook and replies over HTTP, answering `!help` with its command list. *You need* Python 3.10 or later; open-wa itself runs in Node.js next to it.
+
+## Before any recipe
+
+Every recipe runs on a linked session. If you haven't linked one yet, the [quick start](/docs/getting-started/quickstart) takes you from `npm init @open-wa@latest` to a ready session, and [send a WhatsApp message](/docs/guides/send-message-api) shows the single call most recipes build on.

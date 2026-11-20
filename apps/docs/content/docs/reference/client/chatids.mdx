@@ -1,24 +1,32 @@
 ---
-title: "ChatIds Client API"
-description: "Generated client method reference for the chatIds namespace."
+title: "Chat IDs"
+description: "List the IDs of every chat in the session."
 icon: "BookOpen"
 ---
 
-# ChatIds Client API
+import { ReferenceCode } from '../../../../src/components/reference-code';
 
-This page documents 1 schema-registry client methods in the `chatIds` namespace.
+# Chat IDs
 
 
 ## `getAllChatIds`
 
 Get all chat IDs
 
-**Signature** `client.getAllChatIds(): Promise<ChatId[]>`
+<ReferenceCode>
 
-### Usage
+```ts
+client.getAllChatIds(): Promise<ChatId[]>
+```
+
+</ReferenceCode>
+
+<h3 id="getallchatids-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -27,8 +35,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getAllChatIds();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/chatIds/getAll" \
@@ -37,7 +49,11 @@ curl -X GET "http://localhost:8080/api/chatIds/getAll" \
   --data '{}'
 ```
 
-Example response envelope:
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -46,51 +62,21 @@ Example response envelope:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+<h3 id="getallchatids-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns
+<h3 id="getallchatids-returns" className="scroll-m-28">Returns</h3>
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<ChatId[]>` |
-| ChatId | [View fields](/docs/reference/client/return-types#chatid) |
+Resolves to `ChatId[]`. See [ChatId](/docs/reference/client/return-types#chatid) for its fields.
 
-Resolves to `ChatId[]`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
 Opaque conversation identifier. Use the exact value returned by a message event or chat lookup.
 
-<details>
-<summary>Advanced method metadata</summary>
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chatIds` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `chatIds.all`, `chatIds.getAll`, `chatIds.list`, `chats.ids`, `listChatIds` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/chatIds/getAll` | `getAllChatIds` | Active |
-| Alias | `GET` | `/api/chatIds/all` | `chatIds.all` | Active |
-| Alias | `GET` | `/api/chatIds/list` | `chatIds.list` | Active |
-| Alias | `GET` | `/api/chats/ids` | `chats.ids` | Active |
-| Alias | `GET` | `/api/getAllChatIds` | `getAllChatIds` | Active |
-| Alias | `GET` | `/api/listChatIds` | `listChatIds` | Active |
-
-</details>
+**HTTP:** `GET /api/chatIds/getAll`, or `/api/chatIds/all`, `/api/chatIds/list`, `/api/chats/ids`, `/api/getAllChatIds`, `/api/listChatIds`. **Also named:** `chatIds.all`, `chatIds.getAll`, `chatIds.list`, `chats.ids`, `listChatIds`.

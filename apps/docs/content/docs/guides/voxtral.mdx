@@ -1,12 +1,12 @@
 ---
 title: Voxtral voice assistant
 seoTitle: "WhatsApp AI voice notes and calls with Mistral Voxtral | open-wa"
-description: Add open-wa's Voxtral plugin to Easy API for two-way WhatsApp voice-note conversations and live AI audio calls, with controls in the dashboard.
+description: Answer WhatsApp voice notes and audio calls with an AI voice assistant, using your Mistral account and controls in the Neo dashboard.
 ---
 
 # Voxtral voice assistant
 
-Use the official `@open-wa/integration-voxtral` plugin to answer WhatsApp voice
+Use the `@open-wa/integration-voxtral` plugin to answer WhatsApp voice
 notes and audio calls with a conversational assistant. Add it to your Easy API
 configuration, supply a Mistral API key, and describe how the assistant should
 respond.
@@ -26,7 +26,7 @@ cd voice-assistant
 
 The wizard asks for JavaScript or TypeScript, your browser, and whether Voxtral
 should handle **voice notes**, **calls**, or **both**. Or use the
-[project builder](/new?mode=easy-api&plugins=voxtral) to choose visually, preview
+[project builder](/new/?mode=easy-api&plugins=voxtral) to choose visually, preview
 the files, and copy a complete command.
 
 The generated `wa.config.js` or `wa.config.ts` includes the plugin and your
@@ -48,8 +48,8 @@ Get a Jev key from [TypeSafe](https://typesafe.ai/) to let the assistant choose
 chat actions. Without it, voice conversations continue and chat actions are
 unavailable. The plugin reads both keys from the environment.
 
-For calls, also fill in `OPENWA_LICENSE_KEY` with your calling-enabled open-wa
-license. The generated config loads `.env`. Mistral bills transcription, answer
+For calls, also fill in `OPENWA_LICENSE_KEY` with your open-wa license key;
+the generated config passes it to `licenseKey`. The generated config loads `.env`. Mistral bills transcription, answer
 generation, and speech separately through your account; see
 [Mistral's current pricing](https://mistral.ai/pricing).
 
@@ -63,7 +63,7 @@ Only selected plugins are installed, on demand at startup, then reused from the
 project's cache. The browser follows your selected reuse/download policy.
 
 Link WhatsApp using the QR code shown by Easy API, then open the
-[dashboard](http://localhost:8080/dashboard/) and select **Plugins → Voxtral**.
+[dashboard](http://localhost:8080/dashboard/) (on your machine) and select **Plugins → Voxtral**.
 The plugin runs inside Easy API and uses its connected WhatsApp session. It
 keeps working when you close the dashboard.
 
@@ -126,16 +126,16 @@ It doesn't send the incoming transcript back as the answer.
 
 ### Live audio calls
 
-Switch to `calls` or `both` and supply your calling-enabled open-wa license in
-the top-level Easy API config:
+Switch to `calls` or `both` and give the Easy API your open-wa license key.
+The Easy API reads `WA_LICENSE_KEY` from the environment, or you can set
+`licenseKey` in the top-level config:
 
 ```bash
-export OPENWA_LICENSE_KEY='YOUR_CALLING_LICENSE'
+export WA_LICENSE_KEY='YOUR_LICENSE_KEY'
 ```
 
 ```js title="wa.config.js"
 export default {
-  licenseKey: process.env.OPENWA_LICENSE_KEY,
   plugins: ['@open-wa/integration-voxtral'],
   pluginConfig: {
     voxtral: {
@@ -146,7 +146,7 @@ export default {
 ```
 
 Run `npm start` as before. Calling uses open-wa's
-[licensed audio calling support](/docs/guides/calls).
+[audio calling](/docs/guides/calls), which needs a license.
 If calling isn't available, the dashboard shows the reason; the Easy API and
 any enabled voice-note handling continue running.
 
@@ -199,9 +199,9 @@ change a reservation in an external booking system. The original card must
 still be in the assistant's recent conversation context.
 
 Set `JEV_API_KEY` on the Easy API host. The classifier model defaults to
-`jev-latest`; change it under **Edit assistant → Chat actions**. Rich formats
-require an Insiders or higher license with interactive messaging. Jev is given
-only the formats the session supports. A confirmation template here is formatted
+`jev-latest`; change it under **Edit assistant → Chat actions**. Buttons,
+lists, forms and booking cards need an applied [license](/docs/licensing/pricing).
+Jev is given only the formats the session can send. A confirmation template here is formatted
 WhatsApp text, not a Meta-approved business template.
 
 Jev reviews each user turn, proposed message content, action result and spoken reply.

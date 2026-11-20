@@ -1,56 +1,56 @@
 ---
 title: "Licensed methods"
-description: "Client methods that require a license key, grouped by tier."
+description: "Methods that need a license key, grouped by the tier that unlocks them."
 icon: "BookOpen"
 ---
 
 # Licensed methods
 
-The method registry marks **29** methods as licensed. The tables group them by required tier; check each method’s reference for runtime and account requirements.
+These methods need a license key. Each table lists the methods one tier unlocks, and [pricing](/docs/licensing/pricing) shows what each tier costs.
 
 <LicensedMethodSection tier="insiders">
 
-## `insiders` (17)
+## Insiders
 
-| Method | Namespace | Description |
+| Method | Page | Description |
 | --- | --- | --- |
-| [`checkNumberStatus`](/docs/reference/client/client#checknumberstatus) | `contacts` | Check if number is on WhatsApp |
-| [`deleteAllStatus`](/docs/reference/client/client#deleteallstatus) | `status` | Delete all statuses |
-| [`deleteStatus`](/docs/reference/client/client#deletestatus) | `status` | Delete status |
-| [`getNumberProfile`](/docs/reference/client/client#getnumberprofile) | `contacts` | Get profile of number |
-| [`getOrder`](/docs/reference/client/client#getorder) | `business` | Get order details |
-| [`getStarredMessages`](/docs/reference/client/client#getstarredmessages) | `messages` | Get starred messages |
-| [`getStatus`](/docs/reference/client/client#getstatus) | `mystatus` | Get specific status |
-| [`getStories`](/docs/reference/client/client#getstories) | `status` | Get all stories |
-| [`postImageStatus`](/docs/reference/client/client#postimagestatus) | `status` | Post image status |
-| [`postTextStatus`](/docs/reference/client/client#posttextstatus) | `status` | Post text status |
-| [`postVideoStatus`](/docs/reference/client/client#postvideostatus) | `status` | Post video status |
-| [`sendAdvancedButtons`](/docs/reference/client/client#sendadvancedbuttons) | `messages` | Sends an advanced button message with media (deprecated) |
-| [`sendButtons`](/docs/reference/client/client#sendbuttons) | `messages` | Sends a button message (deprecated) |
-| [`sendInteractive`](/docs/reference/client/client#sendinteractive) | `messages` | Send a portable interactive message document (Insiders and above) |
-| [`sendListMessage`](/docs/reference/client/client#sendlistmessage) | `messages` | Sends a list/menu message (deprecated) |
-| [`sendRawMessage`](/docs/reference/client/client#sendrawmessage) | `messages` | Send a constructed WhatsApp protobuf Message payload (Insiders and above); media must already be uploaded |
-| [`setProfilePicture`](/docs/reference/client/client#setprofilepicture) | `session` | Set profile picture |
+| [`checkNumberStatus`](/docs/reference/client/contacts#checknumberstatus) | Contacts | Check if number is on WhatsApp |
+| [`deleteAllStatus`](/docs/reference/client/status#deleteallstatus) | Status updates | Delete all statuses |
+| [`deleteStatus`](/docs/reference/client/status#deletestatus) | Status updates | Delete status |
+| [`getNumberProfile`](/docs/reference/client/contacts#getnumberprofile) | Contacts | Get profile of number |
+| [`getOrder`](/docs/reference/client/business#getorder) | Business | Get order details |
+| [`getStarredMessages`](/docs/reference/client/messages#getstarredmessages) | Messages | Get starred messages |
+| [`getStatus`](/docs/reference/client/mystatus#getstatus) | Contact status | Get specific status |
+| [`getStories`](/docs/reference/client/status#getstories) | Status updates | Get all stories |
+| [`postImageStatus`](/docs/reference/client/status#postimagestatus) | Status updates | Post image status |
+| [`postTextStatus`](/docs/reference/client/status#posttextstatus) | Status updates | Post text status |
+| [`postVideoStatus`](/docs/reference/client/status#postvideostatus) | Status updates | Post video status |
+| [`sendAdvancedButtons`](/docs/reference/client/messages#sendadvancedbuttons) | Messages | Sends an advanced button message with media (deprecated) |
+| [`sendButtons`](/docs/reference/client/messages#sendbuttons) | Messages | Sends a button message (deprecated) |
+| [`sendInteractive`](/docs/reference/client/messages#sendinteractive) | Messages | Send a portable interactive message document (Insiders and above) |
+| [`sendListMessage`](/docs/reference/client/messages#sendlistmessage) | Messages | Sends a list/menu message (deprecated) |
+| [`sendRawMessage`](/docs/reference/client/messages#sendrawmessage) | Messages | Send a constructed WhatsApp protobuf Message payload (Insiders and above); media must already be uploaded |
+| [`setProfilePicture`](/docs/reference/client/session#setprofilepicture) | Session | Set profile picture |
 
 </LicensedMethodSection>
 
 <LicensedMethodSection tier="restricted">
 
-## `restricted` (12)
+## Restricted
 
-| Method | Namespace | Description |
+| Method | Page | Description |
 | --- | --- | --- |
-| [`acceptCall`](/docs/reference/client/client#acceptcall) | `calls` | Prepare media and accept this incoming call. |
-| [`clearCallAudio`](/docs/reference/client/client#clearcallaudio) | `calls` | Discard queued outgoing audio. |
-| [`createGroup`](/docs/reference/client/client#creategroup) | `groups` | Create new group |
-| [`endCall`](/docs/reference/client/client#endcall) | `calls` | Request hangup for this call. |
-| [`getActiveCall`](/docs/reference/client/client#getactivecall) | `calls` | Get the current call snapshot. SDK clients hydrate its bound methods. |
-| [`joinGroupViaLink`](/docs/reference/client/client#joingroupvialink) | `groups` | Join group via invite link |
-| [`muteCall`](/docs/reference/client/client#mutecall) | `calls` | Mute or unmute the microphone without ending reception. |
-| [`observeCallAudio`](/docs/reference/client/client#observecallaudio) | `calls` | Attach an isolated receive-only audio sink. Its failure does not interrupt the call owner. |
-| [`rejectCall`](/docs/reference/client/client#rejectcall) | `calls` | Reject this call with native state confirmation. |
-| [`setCallMedia`](/docs/reference/client/client#setcallmedia) | `calls` | Prepare a replacement before releasing the working media. |
-| [`startCall`](/docs/reference/client/client#startcall) | `calls` | Prepare media and place an outgoing audio or video call. |
-| [`stopCallAudioObserver`](/docs/reference/client/client#stopcallaudioobserver) | `calls` | Stop an audio observer and finalize its sink. |
+| [`acceptCall`](/docs/reference/client/calls#acceptcall) | Calls | Prepare media and accept this incoming call. |
+| [`clearCallAudio`](/docs/reference/client/calls#clearcallaudio) | Calls | Discard queued outgoing audio. |
+| [`createGroup`](/docs/reference/client/groups#creategroup) | Groups | Create new group |
+| [`endCall`](/docs/reference/client/calls#endcall) | Calls | Request hangup for this call. |
+| [`getActiveCall`](/docs/reference/client/calls#getactivecall) | Calls | Get the current call, if there is one. In the SDK the result also has methods to control the call. |
+| [`joinGroupViaLink`](/docs/reference/client/groups#joingroupvialink) | Groups | Join group via invite link |
+| [`muteCall`](/docs/reference/client/calls#mutecall) | Calls | Mute or unmute the microphone without ending reception. |
+| [`observeCallAudio`](/docs/reference/client/calls#observecallaudio) | Calls | Attach an isolated receive-only audio sink. Its failure does not interrupt the call owner. |
+| [`rejectCall`](/docs/reference/client/calls#rejectcall) | Calls | Reject an incoming call and wait for WhatsApp to confirm it. |
+| [`setCallMedia`](/docs/reference/client/calls#setcallmedia) | Calls | Prepare a replacement before releasing the working media. |
+| [`startCall`](/docs/reference/client/calls#startcall) | Calls | Prepare media and place an outgoing audio or video call. |
+| [`stopCallAudioObserver`](/docs/reference/client/calls#stopcallaudioobserver) | Calls | Stop an audio observer and finalize its sink. |
 
 </LicensedMethodSection>

@@ -1,15 +1,15 @@
 ---
-title: HTTP Routes in Plugins
-description: Mount custom HTTP endpoints from your plugin with Hono.
+title: HTTP routes in plugins
+description: Add your own HTTP endpoints to the Easy API from a plugin, using Hono.
 ---
 
-# HTTP Routes in Plugins
+# HTTP routes in plugins
 
 Plugins can mount Hono routes alongside the Easy API for webhooks, health checks, or admin endpoints. A route is a hook returned by the plugin's async `init()` function, and the host mounts that Hono sub-app at `/plugins/<meta.name>/`.
 
 ## Add a route to the starter plugin
 
-For a complete installation with the event hook, route, and dashboard declaration in one `plugins/greeting-bot.mjs` file, start with [Plugin getting started](/docs/plugins/getting-started). This is the same returned `routes` hook in isolation:
+For a complete installation with the event hook, route, and dashboard declaration in one `plugins/greeting-bot.mjs` file, start with [Build your first plugin](/docs/plugins/getting-started). This is the same returned `routes` hook in isolation:
 
 ```js
 import { Hono } from 'hono';
@@ -157,6 +157,6 @@ Store state per authorization attempt, bind it to the initiating user, and expir
 
 ## Related
 
-- **[Plugin getting started](/docs/plugins/getting-started)** - Build and load `greeting-bot.mjs`
+- **[Build your first plugin](/docs/plugins/getting-started)** - Build and load `greeting-bot.mjs`
 - **[Dashboard Pages](/docs/plugins/dashboard-pages)** - Add dashboard metadata to a plugin
 - **[External API patterns](/docs/plugins/external-api-patterns)** - Calling external services

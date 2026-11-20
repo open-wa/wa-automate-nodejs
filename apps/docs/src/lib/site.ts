@@ -3,6 +3,7 @@ import { version } from '../../../../packages/wa-automate/package.json';
 export type LicenseTier = 'insiders' | 'restricted';
 
 export const SITE_NAME = 'open-wa v5 docs';
+export const NOT_FOUND_TITLE = 'Page not found | open-wa';
 // Canonical origin for the docs site. Used for sitemap, robots, OG image URLs,
 // and og:url so they never disagree. Current docs are served at openwa.dev;
 // docs.openwa.dev redirects to the current documentation.
@@ -11,39 +12,49 @@ export const REPO_URL = 'https://github.com/open-wa/wa-automate-nodejs';
 export const LICENSE_CHECKOUT_URL = `${SITE_ORIGIN}/checkout`;
 export const GENERIC_LICENSE_URL = LICENSE_CHECKOUT_URL;
 export const GENERIC_GUMROAD_URL = 'https://smashah.gumroad.com/l/open-wa?wanted=true';
+export const RELEASES_URL = `${REPO_URL}/releases`;
 export const CURRENT_VERSION = version;
 
 export const DOCS_PATHS = {
   blog: '/blog',
-  changelog: '/changelog',
+  releases: RELEASES_URL,
   overview: '/docs',
-  apiExplorer: '/api-explorer',
+  apiExplorer: '/api-explorer/',
+  projectBuilder: '/new/',
+  whatsappWebApi: '/whatsapp-web-api',
   quickstart: '/docs/getting-started/quickstart',
   easyApi: '/docs/getting-started/easy-api',
   customCode: '/docs/getting-started/custom-code',
-  linkCode: '/docs/getting-started/link-code',
-  configuration: '/docs/guides/configuration-and-cli',
-  sessionEvents: '/docs/guides/session-events',
-  multiSession: '/docs/guides/multiple-sessions',
-  messages: '/docs/guides/messages',
+  linkCode: '/docs/sessions/link-code',
+  sendOtp: '/docs/build/send-otp',
+  bookingConfirmation: '/docs/build/booking-confirmation',
+  supportBot: '/docs/build/support-bot',
+  whatsappBotPython: '/docs/build/whatsapp-bot-python',
   sendMessage: '/docs/guides/send-message-api',
+  receiveMessages: '/docs/guides/receive-messages',
+  webhooks: '/docs/guides/receive-webhooks',
+  integrations: '/docs/guides/integrations',
+  sessions: '/docs/sessions',
+  goToProduction: '/docs/operations/go-to-production',
+  pricing: '/docs/licensing/pricing',
+  configuration: '/docs/guides/configuration-and-cli',
+  sessionEvents: '/docs/sessions/session-events',
+  multiSession: '/docs/sessions/multiple-sessions',
+  messages: '/docs/guides/messages',
   whatsappBot: '/docs/guides/whatsapp-bot',
-  whatsappBotPython: '/docs/guides/whatsapp-bot-python',
-  webhooks: '/docs/client-and-integrations/webhook-payloads',
   media: '/docs/guides/media',
   groups: '/docs/guides/groups',
-  socketClient: '/docs/client-and-integrations/socket-client',
-  chatwoot: '/docs/client-and-integrations/chatwoot',
-  cloudflareProxy: '/docs/client-and-integrations/cf-proxy',
-  proxying: '/docs/client-and-integrations/proxying-a-session',
+  socketClient: '/docs/guides/socket-client',
+  chatwoot: '/docs/guides/chatwoot',
+  cloudflareProxy: '/docs/guides/cf-proxy',
+  proxying: '/docs/guides/proxying-a-session',
   runtimeModel: '/docs/concepts/how-it-works',
   glossary: '/docs/concepts/glossary',
-  bestPractices: '/docs/operations-and-troubleshooting/best-practices',
-  errorHandling: '/docs/operations-and-troubleshooting/error-handling',
-  logoutDetection: '/docs/operations-and-troubleshooting/detect-logouts',
+  bestPractices: '/docs/operations/best-practices',
+  errorHandling: '/docs/operations/error-handling',
+  logoutDetection: '/docs/sessions/detect-logouts',
   licensedFeatures: '/docs/licensing/licensed-features',
-  integrationsOverview: '/docs/guides/integrations-overview',
-  referenceClient: '/docs/reference/client/client',
+  referenceClient: '/docs/reference/client',
 } as const;
 
 export function getLicenseTierLabel(tier: LicenseTier): string {

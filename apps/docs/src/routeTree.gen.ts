@@ -19,23 +19,24 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as NewRouteImport } from './routes/new'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as WhatsappWebApiRouteImport } from './routes/whatsapp-web-api'
 import { Route as DotwellKnownApiCatalogRouteImport } from './routes/[.]well-known.api-catalog'
 import { Route as DotwellKnownOauthAuthorizationServerRouteImport } from './routes/[.]well-known.oauth-authorization-server'
 import { Route as DotwellKnownOauthProtectedResourceRouteImport } from './routes/[.]well-known.oauth-protected-resource'
 import { Route as ApiChatRouteImport } from './routes/api.chat'
 import { Route as ApiFeedbackRouteImport } from './routes/api.feedback'
+import { Route as ApiGrowthMetricsRouteImport } from './routes/api.growth-metrics'
 import { Route as ApiLicenseSessionRouteImport } from './routes/api.license-session'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
-import { Route as ChangelogIndexRouteImport } from './routes/changelog/index'
-import { Route as ChangelogVersionRouteImport } from './routes/changelog/$version'
 import { Route as DocsSplatRouteImport } from './routes/docs/$'
 import { Route as DotwellKnownAgentSkillsIndexDotjsonRouteImport } from './routes/[.]well-known.agent-skills.index[.]json'
 import { Route as DotwellKnownMcpServerCardDotjsonRouteImport } from './routes/[.]well-known.mcp.server-card[.]json'
 import { Route as ApiEditorialMediaSplatRouteImport } from './routes/api.editorial-media.$'
 import { Route as LlmsDotmdxDocsSplatRouteImport } from './routes/llms[.]mdx.docs.$'
 import { Route as OgDocsSplatRouteImport } from './routes/og.docs.$'
+import { Route as OgToolsSplatRouteImport } from './routes/og.tools.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -87,6 +88,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WhatsappWebApiRoute = WhatsappWebApiRouteImport.update({
+  id: '/whatsapp-web-api',
+  path: '/whatsapp-web-api',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DotwellKnownApiCatalogRoute = DotwellKnownApiCatalogRouteImport.update({
   id: '/.well-known/api-catalog',
   path: '/.well-known/api-catalog',
@@ -114,6 +120,11 @@ const ApiFeedbackRoute = ApiFeedbackRouteImport.update({
   path: '/api/feedback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGrowthMetricsRoute = ApiGrowthMetricsRouteImport.update({
+  id: '/api/growth-metrics',
+  path: '/api/growth-metrics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiLicenseSessionRoute = ApiLicenseSessionRouteImport.update({
   id: '/api/license-session',
   path: '/api/license-session',
@@ -132,16 +143,6 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChangelogIndexRoute = ChangelogIndexRouteImport.update({
-  id: '/changelog/',
-  path: '/changelog/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChangelogVersionRoute = ChangelogVersionRouteImport.update({
-  id: '/changelog/$version',
-  path: '/changelog/$version',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocsSplatRoute = DocsSplatRouteImport.update({
@@ -176,6 +177,11 @@ const OgDocsSplatRoute = OgDocsSplatRouteImport.update({
   path: '/og/docs/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OgToolsSplatRoute = OgToolsSplatRouteImport.update({
+  id: '/og/tools/$',
+  path: '/og/tools/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -188,23 +194,24 @@ export interface FileRoutesByFullPath {
   '/new': typeof NewRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/whatsapp-web-api': typeof WhatsappWebApiRoute
   '/.well-known/api-catalog': typeof DotwellKnownApiCatalogRoute
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
   '/api/feedback': typeof ApiFeedbackRoute
+  '/api/growth-metrics': typeof ApiGrowthMetricsRoute
   '/api/license-session': typeof ApiLicenseSessionRoute
   '/api/search': typeof ApiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
-  '/changelog/$version': typeof ChangelogVersionRoute
   '/docs/$': typeof DocsSplatRoute
   '/blog/': typeof BlogIndexRoute
-  '/changelog/': typeof ChangelogIndexRoute
   '/.well-known/agent-skills/index.json': typeof DotwellKnownAgentSkillsIndexDotjsonRoute
   '/.well-known/mcp/server-card.json': typeof DotwellKnownMcpServerCardDotjsonRoute
   '/api/editorial-media/$': typeof ApiEditorialMediaSplatRoute
   '/llms.mdx/docs/$': typeof LlmsDotmdxDocsSplatRoute
   '/og/docs/$': typeof OgDocsSplatRoute
+  '/og/tools/$': typeof OgToolsSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -217,23 +224,24 @@ export interface FileRoutesByTo {
   '/new': typeof NewRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/whatsapp-web-api': typeof WhatsappWebApiRoute
   '/.well-known/api-catalog': typeof DotwellKnownApiCatalogRoute
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
   '/api/feedback': typeof ApiFeedbackRoute
+  '/api/growth-metrics': typeof ApiGrowthMetricsRoute
   '/api/license-session': typeof ApiLicenseSessionRoute
   '/api/search': typeof ApiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
-  '/changelog/$version': typeof ChangelogVersionRoute
   '/docs/$': typeof DocsSplatRoute
   '/blog': typeof BlogIndexRoute
-  '/changelog': typeof ChangelogIndexRoute
   '/.well-known/agent-skills/index.json': typeof DotwellKnownAgentSkillsIndexDotjsonRoute
   '/.well-known/mcp/server-card.json': typeof DotwellKnownMcpServerCardDotjsonRoute
   '/api/editorial-media/$': typeof ApiEditorialMediaSplatRoute
   '/llms.mdx/docs/$': typeof LlmsDotmdxDocsSplatRoute
   '/og/docs/$': typeof OgDocsSplatRoute
+  '/og/tools/$': typeof OgToolsSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -247,23 +255,24 @@ export interface FileRoutesById {
   '/new': typeof NewRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/whatsapp-web-api': typeof WhatsappWebApiRoute
   '/.well-known/api-catalog': typeof DotwellKnownApiCatalogRoute
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
   '/api/feedback': typeof ApiFeedbackRoute
+  '/api/growth-metrics': typeof ApiGrowthMetricsRoute
   '/api/license-session': typeof ApiLicenseSessionRoute
   '/api/search': typeof ApiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
-  '/changelog/$version': typeof ChangelogVersionRoute
   '/docs/$': typeof DocsSplatRoute
   '/blog/': typeof BlogIndexRoute
-  '/changelog/': typeof ChangelogIndexRoute
   '/.well-known/agent-skills/index.json': typeof DotwellKnownAgentSkillsIndexDotjsonRoute
   '/.well-known/mcp/server-card.json': typeof DotwellKnownMcpServerCardDotjsonRoute
   '/api/editorial-media/$': typeof ApiEditorialMediaSplatRoute
   '/llms.mdx/docs/$': typeof LlmsDotmdxDocsSplatRoute
   '/og/docs/$': typeof OgDocsSplatRoute
+  '/og/tools/$': typeof OgToolsSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -278,23 +287,24 @@ export interface FileRouteTypes {
     | '/new'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/whatsapp-web-api'
     | '/.well-known/api-catalog'
     | '/.well-known/oauth-authorization-server'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
     | '/api/feedback'
+    | '/api/growth-metrics'
     | '/api/license-session'
     | '/api/search'
     | '/blog/$slug'
-    | '/changelog/$version'
     | '/docs/$'
     | '/blog/'
-    | '/changelog/'
     | '/.well-known/agent-skills/index.json'
     | '/.well-known/mcp/server-card.json'
     | '/api/editorial-media/$'
     | '/llms.mdx/docs/$'
     | '/og/docs/$'
+    | '/og/tools/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -307,23 +317,24 @@ export interface FileRouteTypes {
     | '/new'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/whatsapp-web-api'
     | '/.well-known/api-catalog'
     | '/.well-known/oauth-authorization-server'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
     | '/api/feedback'
+    | '/api/growth-metrics'
     | '/api/license-session'
     | '/api/search'
     | '/blog/$slug'
-    | '/changelog/$version'
     | '/docs/$'
     | '/blog'
-    | '/changelog'
     | '/.well-known/agent-skills/index.json'
     | '/.well-known/mcp/server-card.json'
     | '/api/editorial-media/$'
     | '/llms.mdx/docs/$'
     | '/og/docs/$'
+    | '/og/tools/$'
   id:
     | '__root__'
     | '/'
@@ -336,23 +347,24 @@ export interface FileRouteTypes {
     | '/new'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/whatsapp-web-api'
     | '/.well-known/api-catalog'
     | '/.well-known/oauth-authorization-server'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
     | '/api/feedback'
+    | '/api/growth-metrics'
     | '/api/license-session'
     | '/api/search'
     | '/blog/$slug'
-    | '/changelog/$version'
     | '/docs/$'
     | '/blog/'
-    | '/changelog/'
     | '/.well-known/agent-skills/index.json'
     | '/.well-known/mcp/server-card.json'
     | '/api/editorial-media/$'
     | '/llms.mdx/docs/$'
     | '/og/docs/$'
+    | '/og/tools/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -366,23 +378,24 @@ export interface RootRouteChildren {
   NewRoute: typeof NewRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  WhatsappWebApiRoute: typeof WhatsappWebApiRoute
   DotwellKnownApiCatalogRoute: typeof DotwellKnownApiCatalogRoute
   DotwellKnownOauthAuthorizationServerRoute: typeof DotwellKnownOauthAuthorizationServerRoute
   DotwellKnownOauthProtectedResourceRoute: typeof DotwellKnownOauthProtectedResourceRoute
   ApiChatRoute: typeof ApiChatRoute
   ApiFeedbackRoute: typeof ApiFeedbackRoute
+  ApiGrowthMetricsRoute: typeof ApiGrowthMetricsRoute
   ApiLicenseSessionRoute: typeof ApiLicenseSessionRoute
   ApiSearchRoute: typeof ApiSearchRoute
   BlogSlugRoute: typeof BlogSlugRoute
-  ChangelogVersionRoute: typeof ChangelogVersionRoute
   DocsSplatRoute: typeof DocsSplatRoute
   BlogIndexRoute: typeof BlogIndexRoute
-  ChangelogIndexRoute: typeof ChangelogIndexRoute
   DotwellKnownAgentSkillsIndexDotjsonRoute: typeof DotwellKnownAgentSkillsIndexDotjsonRoute
   DotwellKnownMcpServerCardDotjsonRoute: typeof DotwellKnownMcpServerCardDotjsonRoute
   ApiEditorialMediaSplatRoute: typeof ApiEditorialMediaSplatRoute
   LlmsDotmdxDocsSplatRoute: typeof LlmsDotmdxDocsSplatRoute
   OgDocsSplatRoute: typeof OgDocsSplatRoute
+  OgToolsSplatRoute: typeof OgToolsSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -457,6 +470,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/whatsapp-web-api': {
+      id: '/whatsapp-web-api'
+      path: '/whatsapp-web-api'
+      fullPath: '/whatsapp-web-api'
+      preLoaderRoute: typeof WhatsappWebApiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/.well-known/api-catalog': {
       id: '/.well-known/api-catalog'
       path: '/.well-known/api-catalog'
@@ -492,6 +512,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiFeedbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/growth-metrics': {
+      id: '/api/growth-metrics'
+      path: '/api/growth-metrics'
+      fullPath: '/api/growth-metrics'
+      preLoaderRoute: typeof ApiGrowthMetricsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/license-session': {
       id: '/api/license-session'
       path: '/api/license-session'
@@ -518,20 +545,6 @@ declare module '@tanstack/react-router' {
       path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/changelog/': {
-      id: '/changelog/'
-      path: '/changelog'
-      fullPath: '/changelog/'
-      preLoaderRoute: typeof ChangelogIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/changelog/$version': {
-      id: '/changelog/$version'
-      path: '/changelog/$version'
-      fullPath: '/changelog/$version'
-      preLoaderRoute: typeof ChangelogVersionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/docs/$': {
@@ -576,6 +589,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OgDocsSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/og/tools/$': {
+      id: '/og/tools/$'
+      path: '/og/tools/$'
+      fullPath: '/og/tools/$'
+      preLoaderRoute: typeof OgToolsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -590,6 +610,7 @@ const rootRouteChildren: RootRouteChildren = {
   NewRoute: NewRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  WhatsappWebApiRoute: WhatsappWebApiRoute,
   DotwellKnownApiCatalogRoute: DotwellKnownApiCatalogRoute,
   DotwellKnownOauthAuthorizationServerRoute:
     DotwellKnownOauthAuthorizationServerRoute,
@@ -597,19 +618,19 @@ const rootRouteChildren: RootRouteChildren = {
     DotwellKnownOauthProtectedResourceRoute,
   ApiChatRoute: ApiChatRoute,
   ApiFeedbackRoute: ApiFeedbackRoute,
+  ApiGrowthMetricsRoute: ApiGrowthMetricsRoute,
   ApiLicenseSessionRoute: ApiLicenseSessionRoute,
   ApiSearchRoute: ApiSearchRoute,
   BlogSlugRoute: BlogSlugRoute,
-  ChangelogVersionRoute: ChangelogVersionRoute,
   DocsSplatRoute: DocsSplatRoute,
   BlogIndexRoute: BlogIndexRoute,
-  ChangelogIndexRoute: ChangelogIndexRoute,
   DotwellKnownAgentSkillsIndexDotjsonRoute:
     DotwellKnownAgentSkillsIndexDotjsonRoute,
   DotwellKnownMcpServerCardDotjsonRoute: DotwellKnownMcpServerCardDotjsonRoute,
   ApiEditorialMediaSplatRoute: ApiEditorialMediaSplatRoute,
   LlmsDotmdxDocsSplatRoute: LlmsDotmdxDocsSplatRoute,
   OgDocsSplatRoute: OgDocsSplatRoute,
+  OgToolsSplatRoute: OgToolsSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

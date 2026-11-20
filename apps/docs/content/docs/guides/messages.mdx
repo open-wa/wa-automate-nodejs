@@ -1,192 +1,129 @@
 ---
-title: Messages and message events
-seoTitle: "Send and receive WhatsApp messages in Node.js | open-wa"
-description: Send, receive, reply to, and monitor WhatsApp messages.
+title: Message types and events
+seoTitle: "WhatsApp message types, replies and delivery events in Node.js | open-wa"
+description: The fields on a WhatsApp message, every kind you can send (replies, mentions, attachments, albums, polls, locations), and the events that track delivery.
 ---
 
-# Messages and message events
+# Message types and events
 
-Use this guide for the common message flows: receiving messages, sending replies, attaching media, and reacting to message metadata.
-
-For chat ID formats such as `447700000000@c.us`, group IDs, and LID IDs, read **[ChatId primer](/docs/guides/chatid-primer)** first.
+This guide covers the message types open-wa sends and receives, and the events that report them: the message object, replies, formatting, mentions, attachments, albums, polls, locations and delivery tracking. To send your first text, start with [send a WhatsApp message](/docs/guides/send-message-api). The examples assume a `client` from `create()`. Chat IDs such as `447700000000@c.us`, group IDs and LIDs are explained in the [chat ID primer](/docs/guides/chatid-primer).
 
 ## Receive messages
 
 ```ts
 client.onMessage((message) => {
-  console.log(message.body);
+  console.log(message.from, message.body);
 });
 
 client.onAnyMessage((message) => {
-  console.log(message.body);
+  console.log(message.fromMe ? 'sent' : 'received', message.body);
 });
 ```
 
-Use `onMessage` for incoming traffic only. Use `onAnyMessage` when you need incoming and outgoing traffic.
+[`onMessage`](/docs/reference/client/events#message) fires for incoming messages only, while [`onAnyMessage`](/docs/reference/client/events#anymessage) also fires for messages this account sends, so use it when you want both directions in one place. Each listener returns a handle; call `handle.off()` to remove it. To receive messages over HTTP or in another language, see [receive messages](/docs/guides/receive-messages); the [webhook payload for `message.received`](/docs/reference/event-contracts/generated/webhook_message_received) shows the same message as your backend receives it.
 
-## Message object shape
+## Message object
 
-Incoming message objects include the message text, sender details, chat details, media flags, and quote metadata. WhatsApp can add extra fields, so treat the object as extensible.
-
-```ts
-client.onMessage((message) => {
-  console.log(message.id);
-  console.log(message.from);
-  console.log(message.body);
-  console.log(message.type);
-});
-```
+Messages are plain objects. WhatsApp can add fields, so treat the shape as extensible and read only what you need.
 
 | Field | Description |
 | --- | --- |
-| `id` | The message ID. Pass this to `reply`, `forwardMessages`, or lookup methods. |
-| `body` | Text content for text messages. For media messages, this can be empty. |
-| `type` | WhatsApp message type, such as `chat`, `image`, `video`, `album`, `document`, `ptt`, `location`, `buttons_response`, or `list_response`. |
-| `event` | Structured event details for an `event_creation` message. See [WhatsApp events and RSVPs](/docs/guides/whatsapp-events). |
-| `from` | The chat that sent the message. In direct chats this is the contact ID. In groups this is the group chat ID. |
+| `id` | The message ID. Pass it to `reply`, `forwardMessages` or lookup methods. |
+| `body` | Text of a text message. Media messages can have an empty body. |
+| `type` | Message type, such as `chat`, `image`, `video`, `album`, `document`, `ptt`, `location`, `buttons_response` or `list_response`. |
+| `event` | Event details on an `event_creation` message. See [calendar events and RSVPs](/docs/guides/whatsapp-events). |
+| `from` | The chat that sent the message: the contact in a direct chat, the group in a group. |
 | `to` | The chat or account that received the message. |
-| `chatId` | The chat ID for the conversation. |
+| `chatId` | The conversation's chat ID. |
 | `sender` | Contact details for the sender. |
-| `senderId` | Sender contact ID when available. Useful in groups. |
-| `author` | The group participant that sent the message. Present on many group messages. |
-| `fromMe` | `true` when the current session sent the message. |
-| `self` | Direction marker, usually `in` or `out`. |
-| `timestamp` / `t` | Unix timestamp values from WhatsApp. |
-| `isGroupMsg` | `true` when the message came from a group. |
-| `isMedia` / `isMMS` | Media flags. Use these before downloading or processing attachments. |
-| `caption` | Caption for image, video, or document messages. |
-| `expectedImageCount` / `expectedVideoCount` | Media counts declared by an album container. They don't confirm that all children have arrived. GIF videos contribute to the video count. |
-| `parentMsgKey` / `associationType` | Associated media's parent message ID and association type. Album children use `MEDIA_ALBUM`. |
-| `isGif` | Whether a video message plays as a WhatsApp GIF. |
+| `senderId` | Sender contact ID when available, which is useful in groups. |
+| `author` | The group participant who sent the message. |
+| `fromMe` | `true` when this account sent the message. |
+| `timestamp` / `t` | Unix timestamps from WhatsApp. |
+| `isGroupMsg` | `true` for a group message. |
+| `isMedia` / `isMMS` | Media flags; check them before downloading. |
+| `caption` | Caption of an image, video or document. |
+| `expectedImageCount` / `expectedVideoCount` | Item counts declared by an album. They don't confirm that every item has arrived. |
+| `parentMsgKey` / `associationType` | The parent message and association type of an album item (`MEDIA_ALBUM`). |
+| `isGif` | Whether a video plays as a GIF. |
 | `mentionedJidList` | Contact IDs mentioned in the message. |
-| `ack` | Delivery state for outgoing messages. Read `onAck` for updates. |
-| `quotedMsg` / `quotedMsgObj` | Quoted message payload when WhatsApp makes it available. |
-| `isQuotedMsgAvailable` | Whether quote data can be read from the payload. |
+| `ack` | Delivery state of an outgoing message; see [acknowledgements](#acknowledgements). |
+| `quotedMsg` / `quotedMsgObj` | The quoted message, when available. |
 
-## Send messages
+## Send text and replies
 
 ```ts
 await client.sendText(chatId, 'Hello');
-await client.reply(chatId, 'Hello', messageId);
+await client.reply(chatId, 'Thanks, got it.', messageId);
 ```
 
-The minimum call is `sendText(chatId, text)`. The generated
-[sendText reference](/docs/reference/client/client#sendtext) lists an optional
-`options` value retained for request compatibility, but the current Client
-implementation ignores it. Use [`reply`](/docs/reference/client/client#reply)
-with a message ID for a quoted reply. For mentions, use the generated Easy API
-method [`sendTextWithMentions`](/docs/reference/client/client#sendtextwithmentions)
-with contact IDs such as `447700900000@c.us`; the current embedded Client does
-not declare that method.
-
-The in-process `Client` returns a validated serialized `MessageId` from
-`sendText`, or throws a typed `SendTextError`. A returned ID confirms submission,
-not delivery or reading. Subscribe to `onAck` before sending to observe later
-acknowledgements. Starting a chat with a new number requires an applied
-Restricted or Premium license; an existing chat is enough for this tutorial.
-
-An error with `outcome: 'unknown'` means the message may already have been sent.
-Check the conversation before retrying. open-wa never retries `sendText`
-automatically.
-
-Mention helpers are generated Easy API methods with their own parameter
-contract; they are not methods declared by the current embedded `Client`
-surface. When using that API surface, the call shape is:
+[`sendText(chatId, text)`](/docs/reference/client/messages#sendtext) returns the message ID or throws a `SendTextError`. `reply` quotes the message whose ID you pass. A returned ID confirms the send, not delivery or reading, and starting a chat with a new number needs a [license](/docs/licensing/pricing).
 
 ```ts
-await client.sendTextWithMentions(
-  groupId,
-  'Hello @447700000000',
-  false,
-  ['447700000000@c.us']
-);
-await client.sendReplyWithMentions(
-  groupId,
-  'Hello @447700000000',
-  messageId,
-  false,
-  ['447700000000@c.us']
-);
+import { SendTextError } from '@open-wa/wa-automate';
+
+try {
+  await client.sendText(chatId, 'Hello');
+} catch (error) {
+  if (!(error instanceof SendTextError)) throw error;
+  console.error(error.code, error.message);
+  if (error.outcome === 'unknown') console.error('Check the chat before sending again.');
+}
 ```
+
+`INVALID_ARGUMENT`, `LICENSE_REQUIRED` and `SEND_REJECTED` have `outcome: 'not_sent'`, so nothing reached the chat. `SEND_FAILED` and `INVALID_SEND_RESULT` have `outcome: 'unknown'`, which means the message may already be there; their `cause` holds the underlying failure. open-wa never retries `sendText` for you.
 
 ## Formatting
 
-WhatsApp uses inline formatting markers in text messages. Send the markers as part of the message body.
-
-```ts
-await client.sendText(chatId, '*bold*');
-await client.sendText(chatId, '_italic_');
-await client.sendText(chatId, '~strikethrough~');
-await client.sendText(chatId, '```monospace```');
-```
-
-You can combine formatting with normal text.
+WhatsApp formats text with inline markers, so put them in the message body:
 
 ```ts
 await client.sendText(chatId, 'Order *confirmed* for _today_.');
+await client.sendText(chatId, '~cancelled~ ```monospace```');
 ```
 
-## Attachments vs text
+## Mentions
 
-Text messages only need a chat ID and a string body. Attachment messages include a file payload, a filename, and often a caption.
+Mentions are Easy API methods, [`sendTextWithMentions`](/docs/reference/client/messages#sendtextwithmentions) and [`sendReplyWithMentions`](/docs/reference/client/messages#sendreplywithmentions). Put the `@number` text in the content and pass the mentioned contact IDs:
+
+```bash
+curl --fail-with-body http://localhost:8080/api/messages/sendTextWithMentions \
+  -H "Content-Type: application/json" -H "X-API-Key: $WA_API_KEY" \
+  -d '{"to":"120363000000000000@g.us","content":"Hello @447700000000, can you check this?","mentions":["447700000000@c.us"]}'
+```
+
+Set `"hideTags": true` to notify the mentioned people without showing the tags. `sendReplyWithMentions` takes the same fields plus `replyMessageId` to quote a message.
+
+## Attachments
+
+Text needs only a chat ID and a string. Attachments take a file, a filename and an options object for the caption:
 
 ```ts
-import { readFile } from 'node:fs/promises';
-
-await client.sendText(chatId, 'Here is the receipt.');
-
-const image = await readFile('./receipt.png');
-const imageDataUrl = `data:image/png;base64,${image.toString('base64')}`;
-await client.sendImage(
-  chatId,
-  imageDataUrl,
-  'receipt.png',
-  { caption: 'Receipt attached' }
-);
+await client.sendImage(chatId, './receipt.png', 'receipt.png', { caption: 'Receipt attached' });
 ```
 
-Media methods accept a local path, URL, data URL, base64 string or `Buffer`.
-`sendFile` and `sendImage` both use the native attachment pipeline and detect
-image, video, audio or document presentation. Captions, quote IDs and typed
-presentation settings go in their options object. The embedded Client also
-provides `sendAudio`, `sendPtt` and `sendVideoAsGif`.
-
-See [Media](/docs/guides/media) for view-once images/videos/voice notes,
-circular video notes, document presentation and the allowed combinations.
+Media methods accept a local path, URL, data URL, base64 string or `Buffer`. `sendFile` and `sendImage` detect whether to show an image, video, audio clip or document; `sendAudio`, `sendPtt` and `sendVideoAsGif` cover the other cases. [Send and receive media](/docs/guides/media) explains captions, view-once media, video notes and document presentation.
 
 ## Albums
 
-The next release adds album receiving and sending. An album arrives with
-`type: 'album'`, declared image/video counts, and an empty body. The container
-has no downloadable media; its images and videos are separate messages.
-Album children carry `associationType: 'MEDIA_ALBUM'` and a serialized
-`parentMsgKey` matching the container's ID. Captions belong to those children.
+An incoming album is a container message with `type: 'album'`, declared image and video counts, and an empty body. Its images and videos arrive as separate messages with `associationType: 'MEDIA_ALBUM'` and a `parentMsgKey` that matches the container's ID, and captions belong to those items.
 
 ```ts
 client.onMessage(async (message) => {
   if (message.type === 'album') {
-    console.log('Album:', message.id,
-      message.expectedImageCount, message.expectedVideoCount);
     const loaded = await client.getAlbumMessages(message.id);
-    if (loaded !== false) console.log('Loaded items:', loaded.length);
+    if (loaded !== false) console.log('Loaded items so far:', loaded.length);
   }
   if (message.associationType === 'MEDIA_ALBUM' && message.parentMsgKey) {
-    console.log('Album item:', message.parentMsgKey, message.caption);
     const dataUrl = await client.decryptMedia(message);
-    // Process this image or video in your application.
-    console.log('Downloaded bytes as a data URL:', dataUrl.length);
+    console.log('Album item', message.parentMsgKey, dataUrl.length);
   }
 });
 ```
 
-`getAlbumMessages(albumId)` returns the currently loaded image/video children,
-including GIF videos, or `false` if the container isn't loaded or the ID isn't
-an album. Its array can be empty or incomplete when the parent arrives before
-its children. Process child events as they arrive, or call the lookup again
-later; the lookup doesn't wait for every declared item. Pass each child to
-`decryptMedia` or `downloadMedia`.
+[`getAlbumMessages(albumId)`](/docs/reference/client/messages#getalbummessages) returns the items loaded so far, or `false` when the ID isn't a loaded album. The container can arrive before its items, so handle each item as it arrives rather than waiting for the full count.
 
-Send an album from real media files:
+To send an album with [`sendAlbum`](/docs/reference/client/messages#sendalbum), pass two or more images or videos as data URLs:
 
 ```ts
 import { readFile } from 'node:fs/promises';
@@ -198,122 +135,48 @@ const result = await client.sendAlbum(chatId, [
   { file: await encode('./photo.jpg', 'image/jpeg'), filename: 'photo.jpg' },
   { file: await encode('./clip.mp4', 'video/mp4'), filename: 'clip.mp4' },
   { file: await encode('./loop.mp4', 'video/mp4'), filename: 'loop.mp4', isGif: true },
-  { file: await encode('./photo-2.jpg', 'image/jpeg'), filename: 'photo-2.jpg' },
 ], 'One caption for the album');
 
 console.log(result.albumId, result.messageIds);
 ```
 
-Images and videos can be mixed. For a WhatsApp GIF, provide an MP4 video with
-`isGif: true`; this API doesn't convert GIF files to MP4. Documents and audio
-are rejected. WhatsApp controls album availability, its minimum item count
-and upload limits. Phone-number IDs (`number@c.us`) are resolved to LIDs using
-WhatsApp's contact mapping, querying it when needed. LID, group and channel IDs
-are used directly. The destination chat must already be loaded and allow
-sending. The optional fourth argument quotes a loaded message in that chat on the
-first album item; the caption is also attached to that first item.
+The caption goes on the first item, and an optional fourth argument quotes a loaded message. For a GIF, supply an MP4 with `isGif: true`, because the method doesn't convert GIF files. Documents and audio are rejected, and the destination chat must already be loaded. The result lists the album ID and item IDs in input order. If the send fails partway, the error includes the IDs submitted so far; check the chat before retrying, since the album may be partly sent.
 
-The method prepares every item before submitting the container. It returns
-the parent ID and submitted media IDs in input order. These IDs confirm
-submission, not delivery or recipient rendering. If submission fails after
-the parent is created, the error includes the parent ID and submitted child
-IDs when the browser can report them. A lost connection can leave the outcome
-unknown, and the album may be partially sent, so inspect the chat before
-retrying. The method doesn't retry automatically.
+## Polls and interactive messages
 
-## Quoted replies
+For buttons, lists, forms, carousels and bookings, use [`sendInteractive`](/docs/guides/interactive-messages), which needs a [license](/docs/licensing/pricing). `sendButtons`, `sendAdvancedButtons` and `sendListMessage` are older methods kept for existing integrations.
 
-Use `reply` when you want the response to quote an existing message. Pass the destination chat, reply body, and original message ID.
+Polls need no license:
 
 ```ts
-client.onMessage(async (message) => {
-  if (message.body === '!status') {
-    await client.reply(message.from, 'Still working on it.', message.id);
-  }
+await client.sendPoll(chatId, 'Which day works best?', ['Monday', 'Tuesday', 'Wednesday'], {
+  selectableCount: 1,
 });
 ```
 
-For replies that also mention users, use the generated Easy API method
-`sendReplyWithMentions`.
-
-```ts
-await client.sendReplyWithMentions(
-  groupId,
-  'Thanks @447700000000',
-  messageId,
-  false,
-  ['447700000000@c.us']
-);
-```
-
-## Mentions
-
-Mentions work in group messages when the body contains `@` text and the mentioned contact IDs are passed to the send method.
-
-```ts
-await client.sendTextWithMentions(
-  groupId,
-  'Hello @447700000000, can you check this?',
-  false,
-  ['447700000000@c.us']
-);
-```
-
-Set `hideTags` to `true` when you want WhatsApp to notify the users without showing the mention tags in the rendered text.
-
-## Buttons, lists, and polls
-
-For new v5 integrations, use [`sendInteractive`](/docs/guides/interactive-messages)
-for buttons, lists, forms, carousels, or bookings. It requires an applied
-Insiders or higher license for the sending account. The guide covers the
-message format, response listeners, HTTP route, and recipient-side caveats.
-
-`sendButtons` and `sendListMessage` are deprecated legacy methods and remain
-Insiders-gated. `sendAdvancedButtons` is also an Insiders-gated legacy method.
-Check their exact contracts in the [sendButtons reference](/docs/reference/client/messages#sendbuttons)
-and [sendListMessage reference](/docs/reference/client/messages#sendlistmessage)
-before maintaining existing integrations. An available route does not prove
-that the session is licensed. For a fixed-choice flow without an Insiders gate,
-use the active [`sendPoll`](/docs/reference/client/messages#sendpoll) method
-when poll semantics fit the product.
-
-```ts
-await client.sendPoll(
-  chatId,
-  'Which day works best?',
-  ['Monday', 'Tuesday', 'Wednesday'],
-  { selectableCount: 1 }
-);
-```
-
-Legacy button and list replies arrive as message events with types such as
-`buttons_response` or `list_response`. Interactive-message response events
-use the structured shapes described in the linked guide. Use `onPollVote` for decrypted vote updates and `getPollResults` for synced
-totals. See [Polls and message pins](/docs/guides/polls-and-pins) for closing
-times, hidden voter names, voting and message pinning.
+Votes arrive through [`onPollVote`](/docs/reference/client/events#pollvote), and [`getPollResults`](/docs/reference/client/messages#getpollresults) returns the totals. [Polls and pinned messages](/docs/guides/polls-and-pins) covers closing times, voting and pinning.
 
 ## Forward messages
 
 ```ts
-await client.forwardMessages('1234567890@c.us', [messageId], true);
+await client.forwardMessages('447700900123@c.us', [messageId], true);
 ```
+
+See [`forwardMessages`](/docs/reference/client/messages#forwardmessages) for its parameters.
+
+The third argument skips messages this account sent.
 
 ## Acknowledgements
 
-Subscribe before sending to observe delivery changes:
+Subscribe before sending to watch a message move from sent to read:
 
 ```ts
 const subscription = client.onAck((message) => {
-  console.log(message.id, message.ack, message.body);
-  if (message.sender) console.log('Sender:', message.sender.id);
+  console.log(message.id, message.ack);
 });
 ```
 
-The next release after 5.4.0 restores the full available message snapshot.
-It preserves fields supplied by WhatsApp, including the body, sender, chat,
-and extra metadata, without fetching a later version of the message.
-Some details may be absent while WhatsApp is loading it. In early v5 releases
-through 5.4.0, this callback instead receives `{ messageId, ack }`.
+The callback receives the message with its current `ack` value. Some fields can be missing while WhatsApp is still loading the message.
 
 | `message.ack` | Meaning |
 | --- | --- |
@@ -324,95 +187,33 @@ through 5.4.0, this callback instead receives `{ messageId, ack }`.
 | `3` | Read |
 | `4` | Played |
 
-Call `subscription.off()` to remove the handler. A returned send ID confirms
-submission; it does not mean that delivery or reading has occurred.
-
-## Typing state
-
-```ts
-await client.simulateTyping(chatId, true);
-await client.simulateTyping(chatId, false);
-```
+Call `subscription.off()` to stop listening. Over HTTP, the same updates arrive as `ack.changed` events; see the [webhook](/docs/reference/event-contracts/generated/webhook_ack_changed) and [event stream](/docs/reference/event-contracts/generated/sse_ack_changed) payloads.
 
 ## Location messages
 
 ```ts
-await client.sendLocation(chatId, latitude, longitude, 'London');
+await client.sendLocation(chatId, 51.5072, -0.1276, 'London');
 ```
 
-When receiving a location message, read fields such as `lat`, `lng`, and `loc` from the incoming message payload.
+[`sendLocation`](/docs/reference/client/messages#sendlocation) takes the latitude, longitude and an optional label.
 
-## Errors
+An incoming location message carries `lat`, `lng` and `loc`.
 
-A message send can fail when the session is not ready or the chat ID is incorrect. It can also fail when the user is not available. WhatsApp can reject a large, malformed, or prohibited payload.
+## When a send fails
 
-```ts
-import { SendTextError } from '@open-wa/wa-automate';
-
-try {
-  const messageId = await client.sendText(chatId, 'Hello');
-  console.log('Submitted:', messageId);
-} catch (error) {
-  if (error instanceof SendTextError) {
-    console.error(error.code, error.message);
-    if (error.outcome === 'unknown') {
-      console.error('Check the receiving chat before sending again.');
-    }
-  } else {
-    throw error;
-  }
-}
-```
-
-`INVALID_ARGUMENT`, `LICENSE_REQUIRED`, and `SEND_REJECTED` report
-`outcome: 'not_sent'`. `SEND_FAILED` and `INVALID_SEND_RESULT` report
-`outcome: 'unknown'`; their `cause` retains the underlying failure or response.
-
-Common checks:
-
-| Error case | What to check |
+| Problem | What to check |
 | --- | --- |
-| Invalid chat ID | Confirm the value matches a contact, group, or LID format. See **[ChatId primer](/docs/guides/chatid-primer)**. |
-| Session not ready | Wait for authentication and connection before sending. |
-| Media rejected | Check the MIME type, base64 data URL, filename, and file size. |
-| Message not delivered | Watch `onAck`; retry only from one bounded owner after reviewing the failure. |
-| Provider restriction | Pause or slow the relevant queue and retain the provider error. Timing alone does not prove that the account is clear. |
+| Invalid chat ID | The value matches a contact, group or LID format. See the [chat ID primer](/docs/guides/chatid-primer). |
+| Session not ready | Authentication finished and the session is ready before you send. |
+| Media rejected | The MIME type, data URL, filename and file size. |
+| Message not delivered | `onAck` updates; retry from one place only, after reviewing the failure. |
+| Account restricted | Slow or pause the queue and keep the error. |
 
-## Rate limits
+Send at a controlled rate, avoid bulk or repeated content and short retry loops, and read [rate limits](/docs/operations/rate-limits) before running automation in production.
 
-WhatsApp can limit or block accounts that send too many messages or send the same content again. It can also block accounts that contact users without consent. Send messages at a controlled rate. Do not send bulk messages. Do not use short retry loops.
+## Related
 
-Read **[Rate limits](/docs/guides/rate-limits)** before running production automation.
-
-## Full bot example
-
-Create a project with the [initializer](/docs/getting-started/initializer), then
-replace `index.ts` with this example. Run `bun run start`, link the sending
-account if prompted, and send `!help` to it from your test chat.
-
-```ts
-import { create } from '@open-wa/wa-automate';
-
-const client = await create();
-
-client.onMessage(async (message) => {
-  if (message.body !== '!help') return;
-  try {
-    await client.sendText(message.from, 'I received your request.');
-  } catch (error) {
-    console.error('Reply failed. Check the chat before retrying:', error);
-  }
-});
-
-let stopping = false;
-const shutdown = async () => {
-  if (stopping) return;
-  stopping = true;
-  await client.stop();
-};
-process.once('SIGINT', () => void shutdown());
-process.once('SIGTERM', () => void shutdown());
-```
-
-The process stays connected to receive messages. Stop it with Ctrl+C when you
-finish; the saved connection remains available for the next run.
+- [Send a WhatsApp message](/docs/guides/send-message-api)
+- [Run a support bot](/docs/build/support-bot)
+- [Send and receive media](/docs/guides/media)
+- [Messages reference](/docs/reference/client/messages)

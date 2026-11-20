@@ -33,6 +33,7 @@ assert.equal(
 const meta = getDocsSocialMeta({
   title: 'Quickstart',
   description: 'Start here',
+  url: 'https://openwa.dev/docs/getting-started/quickstart',
   imageUrl: 'https://openwa.dev/og/docs/getting-started/quickstart/image.webp',
 });
 assert.deepEqual(meta.find((item) => 'property' in item && item.property === 'og:image'), {

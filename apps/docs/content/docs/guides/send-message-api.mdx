@@ -1,26 +1,54 @@
 ---
-title: Send a WhatsApp message with the API
+title: Send a WhatsApp message
 seoTitle: "WhatsApp API send message: Node.js and HTTP examples | open-wa"
-description: Send a WhatsApp text message from Node.js or from any language through the self-hosted open-wa HTTP API.
+description: Send a WhatsApp text message from Node.js with the SDK, or from any language through the Easy API, and read the message ID that confirms it.
 ---
 
-# Send a WhatsApp message with the API
+# Send a WhatsApp message
 
-This guide shows two ways to send a WhatsApp message with open-wa. Use the Node.js library when your application runs in Node.js or Bun. Use the Easy API when your application uses another language or runs on a different machine.
+You need a WhatsApp account linked to open-wa on your own server, and a recipient that already has a chat with that account. Starting a chat with a new number needs a [license](/docs/licensing/pricing); replying to an existing chat doesn't. Both examples below send the same text with [`sendText`](/docs/reference/client/messages#sendtext), and a message ID in the response means WhatsApp accepted it.
 
-The two paths use a WhatsApp account that you link to your own server. open-wa is not the official WhatsApp Business Platform. It connects through WhatsApp Web.
+## Send from Node.js
 
-## Before you start
+```ts title="send.mts"
+import { create } from '@open-wa/wa-automate';
 
-- Install Node.js 22 or later.
-- Keep a phone with WhatsApp near you to link the account.
-- Get the phone number of a test recipient that already has a chat with your account.
+const client = await create({ sessionId: 'sender' });
+const messageId = await client.sendText('447123456789@c.us', 'Hello from open-wa');
+console.log('Submitted message', messageId);
+await client.stop();
+```
 
-To start a chat with a new number, you must apply a Restricted or Insiders license. A recipient with an existing chat does not need a license. See [licensed features](/docs/licensing/licensed-features).
+```bash
+npm install @open-wa/wa-automate
+npx tsx send.mts
+```
+
+Scan the QR code with WhatsApp on your phone the first time; open-wa keeps the login for later runs. The script prints `Submitted message true_447123456789@c.us_3EB0C7...` and the text appears in the chat. [Send your first message with the Node.js SDK](/docs/getting-started/custom-code) walks through the setup in more detail.
+
+## Send over HTTP
+
+With the [Easy API](/docs/getting-started/easy-api) running on the machine that holds the session (see [start the Easy API](#start-the-easy-api)), `POST` the same fields to `/api/messages/sendText` from any language:
+
+```bash
+curl --fail-with-body http://localhost:8080/api/messages/sendText \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-api-key" \
+  -d '{"to":"447123456789@c.us","content":"Hello from open-wa"}'
+```
+
+A successful send returns HTTP 200 with the message ID in `data`:
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_3EB0C7D5E4A1B2"
+}
+```
 
 ## Find the recipient chat ID
 
-open-wa sends to a chat ID, not to a plain phone number. For a person, write the full international number without `+`, spaces, or dashes. Then add `@c.us` to the end.
+open-wa sends to a chat ID, not a bare phone number. For a person, write the full international number without `+`, spaces or dashes, then add `@c.us`.
 
 | Recipient | Chat ID |
 | --- | --- |
@@ -28,64 +56,33 @@ open-wa sends to a chat ID, not to a plain phone number. For a person, write the
 | Group | The `@g.us` ID from the group metadata |
 | Sender of an incoming message | The exact `message.from` value |
 
-If an incoming message gives a `message.from` value, use that value without changes. It can end in `@lid`. Read the [chat ID primer](/docs/guides/chatid-primer) for all ID types.
+When you reply to an incoming message, reuse `message.from` unchanged, because it can end in `@lid`. The [chat ID primer](/docs/guides/chatid-primer) covers every ID type.
 
-## Send from Node.js
+## What the message ID tells you
 
-Install the library in your project:
+`sendText` resolves to the message ID once WhatsApp accepts the message. That confirms the send, not delivery, so subscribe to [`onAck`](/docs/reference/client/events#ack) before sending if you need delivery and read states (see [acknowledgements](/docs/guides/messages#acknowledgements)). Over HTTP, the same updates arrive as `ack.changed` events; the [webhook payload](/docs/reference/event-contracts/generated/webhook_ack_changed) shows their shape.
 
-```bash
-npm install @open-wa/wa-automate
-```
+If the send fails, `sendText` throws a `SendTextError` with a `code` and an `outcome`. An `outcome` of `not_sent` is safe to retry after fixing the cause, for example `LICENSE_REQUIRED` for a new number. An `outcome` of `unknown` means the message may already be in the chat, so check before sending again; open-wa never retries `sendText` for you.
 
-Create `send.mts` with this code:
+## Start the Easy API
 
-```ts
-import { create } from '@open-wa/wa-automate';
-
-const client = await create({ sessionId: 'sender' });
-
-const messageId = await client.sendText('447123456789@c.us', 'Hello from open-wa');
-console.log('Submitted message', messageId);
-
-await client.stop();
-```
-
-Run the file. On the first run, scan the QR code with WhatsApp on your phone. open-wa keeps the login for the next run.
+The HTTP example needs the Easy API running and linked. Start it on the machine that holds the session:
 
 ```bash
-npx tsx send.mts
+npx @open-wa/wa-automate --session-id sender --api-key "your-api-key"
 ```
 
-`sendText` returns a serialized message ID when WhatsApp accepts the message. The ID confirms submission. It does not confirm delivery. To monitor delivery, subscribe to `onAck` before you send. See [acknowledgements](/docs/guides/messages#acknowledgements).
+It listens on `http://localhost:8080` by default. Scan the QR code in the terminal, and send once `/health` reports `"connected": true`.
 
-## Send through the HTTP API
-
-Start the Easy API on the machine that holds the WhatsApp session:
-
-```bash
-npx @open-wa/wa-automate --session-id sender --host 127.0.0.1 --port 8080 --api-key "your-api-key"
-```
-
-Scan the QR code that the terminal shows. Then send a `POST` request to `/api/messages/sendText`:
-
-```bash
-curl -X POST http://localhost:8080/api/messages/sendText \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: your-api-key" \
-  -d '{"to":"447123456789@c.us","content":"Hello from open-wa","options":{}}'
-```
-
-A successful response has `success: true`. The `data` value is the send result.
+A failed send returns an error body instead of `success`. For example, a first message to a number without a license returns HTTP 500 with:
 
 ```json
 {
-  "success": true,
-  "data": "<runtime-dependent send result>"
+  "error": "Starting a chat with a new number requires an applied restricted or premium license."
 }
 ```
 
-The same request works from any language that can send HTTP requests. This example uses Python with `requests`:
+The same request works from any language. This example uses Python with `requests`:
 
 ```python
 import requests
@@ -93,18 +90,18 @@ import requests
 response = requests.post(
     "http://localhost:8080/api/messages/sendText",
     headers={"X-API-Key": "your-api-key"},
-    json={"to": "447123456789@c.us", "content": "Hello from open-wa", "options": {}},
+    json={"to": "447123456789@c.us", "content": "Hello from open-wa"},
     timeout=30,
 )
 response.raise_for_status()
-print(response.json())
+print(response.json()["data"])
 ```
 
-The Easy API also serves interactive API docs at `http://localhost:8080/api-docs/`. Use these docs to find the request body for each method.
+The Easy API also serves an API explorer at `http://localhost:8080/api-docs/` (on your machine), where you can look up the request body for every method.
 
 ## Reply to a received message
 
-To reply in the same chat, use the sender chat ID from the incoming message. To quote the message, give its ID to `reply`.
+To reply in the same chat, send to the sender's chat ID. To quote the message, pass its ID to `reply`:
 
 ```ts
 client.onMessage(async (message) => {
@@ -114,24 +111,25 @@ client.onMessage(async (message) => {
 });
 ```
 
-For a complete bot, read [build a WhatsApp bot](/docs/guides/whatsapp-bot).
+The [support bot recipe](/docs/build/support-bot) builds on this into a complete bot, and [receive messages](/docs/guides/receive-messages) covers listening over HTTP and webhooks.
 
 ## Troubleshooting
 
 | Problem | Cause | Fix |
 | --- | --- | --- |
-| The request returns `401` | The `X-API-Key` header does not match `--api-key`. | Send the same key that you gave to the CLI. |
-| The send fails for a new number | The account has no chat with that number. | Apply a Restricted or Insiders license, or let the recipient send a message first. |
-| The error has `outcome: 'unknown'` | WhatsApp did not confirm the result. | Check the chat before you send again. open-wa does not retry `sendText`. |
-| The number does not receive the message | The chat ID format is incorrect. | Remove `+`, spaces, and dashes. Add `@c.us` to the end. |
+| The request returns `401` | The `X-API-Key` header doesn't match the configured key. | Send the same key you gave to `--api-key` or `WA_API_KEY`. |
+| The request returns `503` | The session isn't ready yet. | Wait until `/health` reports `session.ready: true`, then retry. |
+| The send fails for a new number | The account has no chat with that number. | Apply a license, or let the recipient message you first. |
+| The error has `outcome: 'unknown'` | open-wa couldn't confirm the result. | Check the chat before sending again. |
+| The number never receives the message | The chat ID format is wrong. | Remove `+`, spaces and dashes, and add `@c.us`. |
 
 <Callout type="warning">
-WhatsApp can restrict an account that sends many messages to new contacts. To decrease this risk, send messages only to contacts that expect them, and obey the [rate limits](/docs/guides/rate-limits).
+WhatsApp can restrict an account that sends many messages to new contacts. Message only people who expect to hear from you, and follow the [rate limits](/docs/operations/rate-limits).
 </Callout>
 
-## Related
+## Next steps
 
-- [Messages and message events](/docs/guides/messages)
-- [WhatsApp webhooks](/docs/client-and-integrations/webhook-payloads)
-- [Quick start](/docs/getting-started/quickstart)
-- [Client API reference](/docs/reference/client/client#sendtext)
+- [Send an OTP](/docs/build/send-otp) sends and checks verification codes from your backend.
+- [Booking confirmations and reminders](/docs/build/booking-confirmation) sends booking details, buttons and scheduled reminders.
+- [Message types and events](/docs/guides/messages) covers replies, mentions, albums and delivery tracking.
+- [`sendText` in the Messages reference](/docs/reference/client/messages#sendtext) lists its parameters and HTTP routes.

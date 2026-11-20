@@ -3,7 +3,10 @@ import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, Check, Copy, Link2, Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { GrowthMetricsPreference } from '@/components/growth-metrics-preference';
+import { recordGrowthEvent } from '@/lib/growth-metrics';
 import { baseOptions } from '@/lib/layout.shared';
+import { getAbsoluteDocsUrl, getToolPageSocialMeta, TOOL_PAGES } from '@/lib/og';
 import { buildCommand, choices, optionErrors, pluginChoices, readBuilderSearch, type SetupOptions } from '../../../../packages/create/src/options.js';
 import { renderProject } from '../../../../packages/create/src/templates.js';
 import '@/styles/project-builder.css';
@@ -11,8 +14,9 @@ import '@/styles/project-builder.css';
 export const Route = createFileRoute('/new')({
   validateSearch: readBuilderSearch,
   head: () => ({
-    meta: [{ title: 'Create your project | open-wa' }, { name: 'description', content: 'Configure an open-wa Easy API or SDK project. Choose JavaScript or TypeScript, a browser and plugins, then copy your setup command.' }],
-    links: [{ rel: 'canonical', href: 'https://openwa.dev/new' }],
+    // Every builder configuration (?mode=…&plugins=…) canonicalises to the builder itself.
+    meta: getToolPageSocialMeta('new'),
+    links: [{ rel: 'canonical', href: getAbsoluteDocsUrl(TOOL_PAGES.new.path) }],
   }),
   component: ProjectBuilder,
 });
@@ -42,6 +46,9 @@ function ProjectBuilder() {
   async function copy(value: string, label: string) {
     try {
       await navigator.clipboard.writeText(value); setCopied(label); setCopyError('');
+      if (label === 'command') {
+        recordGrowthEvent({ event: 'setup_command_copy', source: 'project_builder', setup: options.mode });
+      }
       setTimeout(() => setCopied(current => current === label ? '' : current), 2500);
     } catch { setCopyError('Copy was unavailable. Select the text and copy it manually.'); }
   }
@@ -55,7 +62,7 @@ function ProjectBuilder() {
   }
   return <HomeLayout {...baseOptions()}><main className="setup-builder">
     <header className="setup-heading"><div><h1>Create your open-wa project</h1><p>Choose your setup, copy one command, then link WhatsApp. You’ll need Node.js 22.21.1 or newer.</p></div>
-      <a href="/docs/getting-started/initializer">Setup guide <ArrowRight size={16} /></a>
+      <a href="/docs/getting-started/quickstart/generator-options">Setup guide <ArrowRight size={16} /></a>
     </header>
     <div className="setup-layout"><section className="setup-form" aria-label="Project choices">
       <div className="setup-section"><label className="setup-label" htmlFor="setup-directory">Project folder</label><input id="setup-directory" value={options.directory} onChange={event => update('directory', event.target.value)} autoComplete="off" spellCheck={false} /></div>
@@ -78,7 +85,7 @@ function ProjectBuilder() {
         <p>Run this in your terminal. It creates your project with the choices shown here.</p>
         {options.plugins.length > 0 && <p>Before starting, copy <code>.env.example</code> to <code>.env</code> and fill in your selected integrations’ settings.</p>}
         <div className="setup-next"><code>cd {options.directory || 'my-bot'}</code>{!options.install && <code>npm install</code>}<code>npm start</code></div>
-        <Button variant="outline" size="sm" disabled={!valid} onClick={() => void copy(new URL(`/new?${new URLSearchParams({ directory: options.directory, mode: options.mode, language: options.language, browser: options.browser, plugins: options.plugins.join(','), voxtralMode: options.voxtralMode, install: String(options.install) })}`, window.location.origin).href, 'link')}><Link2 size={15} />{copied === 'link' ? 'Link copied' : 'Share this setup'}</Button>
+        <Button variant="outline" size="sm" disabled={!valid} onClick={() => void copy(new URL(`/new/?${new URLSearchParams({ directory: options.directory, mode: options.mode, language: options.language, browser: options.browser, plugins: options.plugins.join(','), voxtralMode: options.voxtralMode, install: String(options.install) })}`, window.location.origin).href, 'link')}><Link2 size={15} />{copied === 'link' ? 'Link copied' : 'Share this setup'}</Button>
         {(copied || copyError) && <p role="status">{copyError || (copied === 'link' ? 'Share link copied.' : 'Copied to clipboard.')}</p>}
       </section>
       <section className="setup-files"><div className="setup-output-title"><h2>File preview <span>{filenames.length} files</span></h2><Button variant="outline" size="sm" disabled={!valid} onClick={() => void copy(files[file] ?? '', 'file')}>{copied === 'file' ? <Check size={15} /> : <Copy size={15} />}{copied === 'file' ? 'Copied' : 'Copy file'}</Button></div>
@@ -86,5 +93,6 @@ function ProjectBuilder() {
         <pre><code>{files[file] ?? 'Choose valid project options to preview the files.'}</code></pre><p>These are the same templates used by the terminal wizard. Edit the generated files to make the project your own.</p>
       </section>
     </aside></div>
+    <GrowthMetricsPreference />
   </main></HomeLayout>;
 }

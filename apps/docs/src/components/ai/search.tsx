@@ -361,24 +361,22 @@ export function AISearch({ children }: { children: ReactNode }) {
   );
 }
 
-export function AISearchTrigger({
-  position = 'default',
-  className,
-  ...props
-}: ComponentProps<'button'> & { position?: 'default' | 'float' }) {
-  const { open, setOpen } = useAISearchContext();
+/**
+ * The header button that opens Ask AI. It renders nothing until the backend
+ * reports that it is available, so readers never open a panel that can only
+ * say "unavailable".
+ */
+export function AISearchTrigger({ className, ...props }: ComponentProps<'button'>) {
+  const context = use(Context);
+  if (!context || context.available !== true) return null;
+  const { open, setOpen } = context;
 
   return (
     <button
+      type="button"
       data-state={open ? 'open' : 'closed'}
-      className={cn(
-        position === 'float' && [
-          'fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] gap-3 w-28 inset-e-[calc(--spacing(4)+var(--removed-body-scroll-bar-size,0px))] shadow-stipple z-20 transition-[translate,opacity]',
-          'max-sm:w-auto max-sm:min-w-28 max-sm:justify-center max-sm:px-4',
-          open && 'translate-y-10 opacity-0',
-        ],
-        className,
-      )}
+      aria-expanded={open}
+      className={className}
       onClick={() => setOpen(!open)}
       {...props}
     >
@@ -390,6 +388,7 @@ export function AISearchTrigger({
 export function AISearchPanel() {
   const { open, setOpen, available } = useAISearchContext();
   useHotKey();
+  if (available !== true) return null;
 
   return (
     <>
@@ -422,9 +421,9 @@ export function AISearchPanel() {
       <Presence present={open}>
         <div
           className={cn(
-            'overflow-hidden z-30 bg-card text-card-foreground [--ai-chat-width:400px] 2xl:[--ai-chat-width:460px]',
+            'ask-ai-panel overflow-hidden z-40 bg-card text-card-foreground [--ai-chat-width:400px] 2xl:[--ai-chat-width:460px]',
             'max-lg:fixed max-lg:inset-x-3 max-lg:bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] max-lg:top-[calc(env(safe-area-inset-top)+0.75rem)] max-lg:border-backstitch max-lg:rounded-3xl max-lg:shadow-stipple',
-            'lg:sticky lg:top-0 lg:h-dvh lg:border-s lg:ms-auto lg:in-[#nd-docs-layout]:[grid-area:toc] lg:in-[#nd-notebook-layout]:row-span-full lg:in-[#nd-notebook-layout]:col-start-5',
+            'lg:fixed lg:end-0 lg:bottom-0 lg:top-(--fd-header-height,56px) lg:border-s lg:shadow-stipple',
             open
               ? 'animate-fd-dialog-in lg:animate-[ask-ai-open_200ms]'
               : 'animate-fd-dialog-out lg:animate-[ask-ai-close_200ms]',

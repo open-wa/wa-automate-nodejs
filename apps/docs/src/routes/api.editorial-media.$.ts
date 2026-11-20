@@ -8,7 +8,7 @@ export const Route = createFileRoute('/api/editorial-media/$')({server:{handlers
   const key = params._splat ?? '';
   if (!/^[a-zA-Z0-9][a-zA-Z0-9._/-]{0,500}$/.test(key) || key.split('/').some(part=>!part || part==='.' || part==='..')) return new Response('Not found',{status:404});
   const pathname = `/_emdash/api/media/file/${key}`;
-  const sources = await Promise.all([getEditorialSource('posts'),getEditorialSource('changelog')]);
+  const sources = [await getEditorialSource('posts')];
   let referenced = false;
   for (const source of sources) for (const page of source.getPages()) {
     if (referencedEditorialMedia(page.data.bodyMarkdown, page.data.image).has(pathname)) referenced = true;

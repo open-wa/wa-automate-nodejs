@@ -35,7 +35,12 @@ export interface EventContract {
   optionalRuntimeListener: boolean;
   payloadSchema: z.ZodType;
   transports: readonly ('sse' | 'webhook' | 'mcp')[];
-  mcp?: { inputSchema: z.ZodType; payloadSchema: z.ZodType; project(payload: unknown, sessionId: string): unknown };
+  mcp?: {
+    inputSchema: z.ZodType; payloadSchema: z.ZodType;
+    project(payload: unknown, sessionId: string): unknown;
+    /** Stable upstream identity, so the same WhatsApp event deduplicates across delivery paths. */
+    eventId?(data: Record<string, unknown>): string | undefined;
+  };
 }
 
 const record = (value: unknown): Record<string, unknown> =>
@@ -62,6 +67,7 @@ export const eventContracts: readonly EventContract[] = [
         const body = text(m.body);
         return { sessionId, messageId: m.id, chatId: text(m.chatId), from: text(m.from), body: body?.slice(0, 4000), truncated: (body?.length ?? 0) > 4000 };
       },
+      eventId: data => text(data.messageId),
     },
   }),
   defineContract('anyMessage', {
@@ -77,6 +83,7 @@ export const eventContracts: readonly EventContract[] = [
         const a = record(record(payload).ack);
         return { sessionId, messageId: a.id, ack: a.ack, chatId: text(a.chatId) };
       },
+      eventId: data => typeof data.messageId === 'string' ? `${data.messageId}:${String(data.ack)}` : undefined,
     },
   }),
   defineContract('stateChanged', {
@@ -111,8 +118,8 @@ export function eventJsonSchema(schema: z.ZodType): Record<string, unknown> {
 export function getMcpEventDefinitions() {
   return eventContracts.filter(contract => contract.mcp).map(contract => ({
     name: contract.name,
-    description: `${contract.description}. Compact summary${contract.name === 'session.state.changed' ? '' : '; use messages.get with messageId to read a full message'}. No history replay.`,
-    delivery: ['webhook'] as 'webhook'[],
+    description: `${contract.description}. Compact summary${contract.name === 'session.state.changed' ? '' : '; use messages.get with messageId to read a full message'}. Cursors replay recent events within the server's retention window.`,
+    delivery: ['poll', 'push', 'webhook'] as ('poll' | 'push' | 'webhook')[],
     inputSchema: eventJsonSchema(contract.mcp!.inputSchema),
     payloadSchema: eventJsonSchema(contract.mcp!.payloadSchema),
   }));

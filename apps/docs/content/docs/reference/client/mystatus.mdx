@@ -1,12 +1,12 @@
 ---
-title: "Mystatus Client API"
-description: "Generated client method reference for the mystatus namespace."
+title: "Contact status"
+description: "Read the about text a contact has set."
 icon: "BookOpen"
 ---
 
-# Mystatus Client API
+import { ReferenceCode } from '../../../../src/components/reference-code';
 
-This page documents 1 schema-registry client methods in the `mystatus` namespace.
+# Contact status
 
 <LicensedMethodSection tier="insiders">
 
@@ -15,12 +15,22 @@ This page documents 1 schema-registry client methods in the `mystatus` namespace
 
 Get specific status
 
-**Signature** `client.getStatus(contactId: string): Promise<ContactStatus>`
+Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
-### Usage
+<ReferenceCode>
+
+```ts
+client.getStatus(contactId: string): Promise<ContactStatus>
+```
+
+</ReferenceCode>
+
+<h3 id="getstatus-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -31,8 +41,12 @@ const result = await client.getStatus({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/mystatus/getStatus" \
@@ -40,7 +54,11 @@ curl -G "http://localhost:8080/api/mystatus/getStatus" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
-Example response envelope:
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -52,48 +70,23 @@ Example response envelope:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+<h3 id="getstatus-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetStatusParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns
+<h3 id="getstatus-returns" className="scroll-m-28">Returns</h3>
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<ContactStatus>` |
-| ContactStatus | [View fields](/docs/reference/client/return-types#contactstatus) |
+Resolves to [`ContactStatus`](/docs/reference/client/return-types#contactstatus).
 
-Resolves to `ContactStatus`. A rejected Promise indicates input validation or dispatch failure.
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `mystatus` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | `contactId` |
-| Aliases | `mystatus.getStatus` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/mystatus/getStatus` | `getStatus` | Active |
-| Alias | `GET` | `/api/getStatus` | `getStatus` | Active |
-
-</details>
+**HTTP:** `GET /api/mystatus/getStatus`, or `/api/getStatus`. **Also named:** `mystatus.getStatus`.
 
 </LicensedMethodSection>

@@ -39,7 +39,7 @@ export const SendTextResultSchema = z.string()
 
 export const StickerJobSchema = z.object({
     effects: z.array(z.union([z.string(), z.object({ name: z.string(), options: z.record(z.string(), z.unknown()).optional() }).strict()])).max(8).optional(),
-    backend: z.enum(['auto','browser','standalone']).optional().describe('Defaults to browser when it supports the entire job; otherwise the entire job runs standalone.'),
+    backend: z.enum(['auto','browser','standalone']).optional().describe('Where the sticker is rendered. `auto` (the default) picks the best option for the whole job.'),
     quality: z.number().min(0.01).max(1).optional().describe('Maximum encoding quality; encoding can reduce quality to meet sticker byte limits.'),
     fit: z.enum(['contain','cover']).optional(),
     circle: z.boolean().optional(), background: z.string().max(64).optional(),
@@ -52,7 +52,7 @@ export const StickerJobSchema = z.object({
 
 export const sendSticker = defineMethodV2('sendSticker', {
     meta: {
-        description: 'Render a sticker locally using automatic whole-job backend selection and ordered effects, then submit through the private donor finalizer. Author and pack labels are configurable; donor app links are owned by the installed patch. Returns a submitted message ID, not a delivery receipt. Unknown send outcomes must be reconciled before retrying.',
+        description: 'Turn an image or video into a sticker, apply optional effects and author and pack labels, and send it. Resolves to the message ID once WhatsApp accepts it, not a delivery receipt. If the outcome is unknown, check the chat before you retry.',
         action: 'send', namespace: 'messages', license: 'none', functionality: 'both', httpMethod: 'POST',
         wapiOverride: 'sendStickerJob',
     },
@@ -106,7 +106,7 @@ export const sendAlbum = defineMethodV2('sendAlbum', {
  */
 export const sendText = defineMethodV2('sendText', {
     meta: {
-        description: 'Sends a text message and returns a validated serialized message ID. The in-process Client throws SendTextError on failure. An unknown outcome means the message may have been sent: check the chat before retrying. Starting a chat with a new number requires an applied restricted or premium license.',
+        description: 'Send a text message to a chat. Starting a chat with a number that has never messaged you needs a Restricted or Premium license.',
         action: 'send',
         namespace: 'messages',
         license: 'none',
@@ -194,7 +194,7 @@ export const sendPaymentRequest = defineMethodV2('sendPaymentRequest', {
  */
 export const sendImage = defineMethodV2('sendImage', {
     meta: {
-        description: 'Sends media through the native attachment pipeline, including images and videos. Options select presentation, view once, GIF playback or circular video notes; media is not transcoded. Returns submission status, not a delivery receipt.',
+        description: 'Send an image or video, or any other media file, as a WhatsApp attachment. Options set the caption, view once, GIF playback or a round video note. Media is sent as is, without conversion. Resolves to the send result, not a delivery receipt.',
         action: 'send',
         namespace: 'messages',
         license: 'none',
@@ -469,7 +469,7 @@ export const sendListMessage = defineMethodV2('sendListMessage', {
  */
 export const sendPoll = defineMethodV2('sendPoll', {
     meta: {
-        description: 'Sends a text poll with a selection limit, quote, optional closing time in Unix milliseconds and hidden voter names. Closing time and hidden names require native WhatsApp support for the sending account/chat. These fields select the native V6 poll payload.',
+        description: 'Send a poll with a selection limit, an optional quoted message, an optional closing time in Unix milliseconds and optionally hidden voter names. Closing times and hidden names only work where WhatsApp supports them for the sending account and chat.',
         action: 'send', namespace: 'messages', license: 'none', functionality: 'both', httpMethod: 'POST',
     },
     input: z.object({
@@ -492,7 +492,7 @@ export const voteOnPoll = defineMethodV2('voteOnPoll', {
     parameterOrder: ['messageId', 'optionIds'], output: z.boolean(),
 });
 export const getPollResults = defineMethodV2('getPollResults', {
-    meta: { description: 'Hydrates the local poll vote store and returns synced counts, choices and votes. Hidden-voter polls omit voter identities and the votes array. Unsynced votes may be absent.', action: 'get', namespace: 'messages', license: 'none', functionality: 'both', httpMethod: 'POST' },
+    meta: { description: 'Get the current counts, choices and votes for a poll. Polls with hidden voters leave out voter identities and the votes array, and very recent votes may not appear yet.', action: 'get', namespace: 'messages', license: 'none', functionality: 'both', httpMethod: 'POST' },
     input: z.object({ messageId: messageIdParam }), parameterOrder: ['messageId'], output: PollResultsSchema,
 });
 export const pinMessage = defineMethodV2('pinMessage', {
@@ -859,7 +859,7 @@ export const unstarMessage = defineMethodV2('unstarMessage', {
 
 export const editMessage = defineMethodV2('editMessage', {
     meta: {
-        description: 'Edits the text of a message through the installed private patch',
+        description: 'Edit the text of a message you sent',
         action: 'update',
         namespace: 'messages',
         license: 'none',

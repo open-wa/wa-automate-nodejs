@@ -74,7 +74,7 @@ The plugin exports `chatwootPlugin`, `ChatwootClient`, `createChatwootRouter`, `
 
 ## Documentation
 
-See the [Chatwoot guide](https://openwa.dev/docs/client-and-integrations/chatwoot) for the setup journey, media mapping, and recovery table.
+See the [Chatwoot guide](https://openwa.dev/docs/guides/chatwoot) for the setup journey, media mapping, and recovery table.
 
 ## License
 

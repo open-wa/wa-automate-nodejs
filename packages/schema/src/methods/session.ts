@@ -126,7 +126,7 @@ export const getLicenseType = defineMethodV2('getLicenseType', {
 
 export const getLicenseFeatures = defineMethodV2('getLicenseFeatures', {
     meta: {
-        description: 'Get enabled and disabled licensed features from the accepted licence patch. This reports licence access; actions check runtime availability automatically.',
+        description: 'List which licensed features your license key turns on. Each method still checks availability when you call it.',
         action: 'read', namespace: 'session', license: 'none', functionality: 'both', httpMethod: 'GET',
     },
     input: z.object({}), parameterOrder: [], output: projectEffectSchema(LicenseFeaturesSchema),

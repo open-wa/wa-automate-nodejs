@@ -1,0 +1,113 @@
+---
+title: Run a support bot
+seoTitle: "WhatsApp customer support bot with human hand-off in Node.js | open-wa"
+description: Answer common customer questions on WhatsApp automatically, reply out of hours, and hand a conversation to a person when the bot can't help.
+---
+
+# Run a support bot
+
+This recipe runs a WhatsApp support bot in Node.js. It answers common questions from a menu, tells people when you're closed, and hands the chat to a person when they ask for one or the bot doesn't understand. It listens with [`onMessage`](/docs/reference/client/events#message) and answers with [`sendText`](/docs/reference/client/messages#sendtext) and `reply`, all free methods, so it doesn't need a license as long as customers message you first. When it works, any message to the linked number gets the numbered menu back, and `0` hands the chat to your team.
+
+## Before you start
+
+- Node.js 22.21.1 or newer and a WhatsApp account you can link.
+- A WhatsApp group your support staff are in, to receive hand-off alerts. Its chat ID ends in `@g.us`; log `message.from` for a message sent in that group to find it.
+
+```bash
+mkdir support-bot && cd support-bot
+npm init -y && npm pkg set type=module
+npm install @open-wa/wa-automate
+```
+
+## The bot
+
+```js title="bot.js"
+import { create } from '@open-wa/wa-automate';
+
+const STAFF_GROUP = process.env.STAFF_GROUP_ID; // for example '120363012345678901@g.us'
+const HANDOFF_MS = 4 * 60 * 60_000; // the bot stays quiet in a handed-off chat for 4 hours
+
+const answers = {
+  '1': 'Orders usually arrive in 2 to 4 working days. Reply with your order number and we will check it.',
+  '2': 'You can return anything within 30 days. Start a return at https://example.com/returns.',
+  '3': 'We are open Monday to Friday, 9am to 5pm UK time.',
+};
+const menu = [
+  'Hi! Reply with a number:',
+  '1. Where is my order?',
+  '2. Returns',
+  '3. Opening hours',
+  '0. Talk to a person',
+].join('\n');
+
+const handedOff = new Map(); // chat ID -> time the hand-off ends
+
+function isOpen(now = new Date()) {
+  const day = now.getUTCDay();
+  const hour = now.getUTCHours();
+  return day >= 1 && day <= 5 && hour >= 9 && hour < 17;
+}
+
+const client = await create({ sessionId: 'support' });
+console.log('Support bot is running.');
+
+client.onMessage(async (message) => {
+  if (message.isGroupMsg) return; // only answer direct chats
+  const chat = message.from;
+  if ((handedOff.get(chat) ?? 0) > Date.now()) return; // a person is handling it
+
+  const text = (message.body ?? '').trim().toLowerCase();
+
+  if (text === '0' || text.includes('human') || text.includes('agent')) {
+    handedOff.set(chat, Date.now() + HANDOFF_MS);
+    await client.sendText(chat, isOpen()
+      ? 'Thanks, a member of the team will reply here shortly.'
+      : 'Thanks. We are closed right now, and a member of the team will reply here when we open.');
+    await client.markAsUnread(chat);
+    if (STAFF_GROUP) {
+      const name = message.sender?.pushname ?? chat;
+      await client.sendText(STAFF_GROUP, `${name} asked for a person: "${message.body}"`);
+    }
+    return;
+  }
+
+  if (answers[text]) {
+    await client.reply(chat, answers[text], message.id);
+    return;
+  }
+
+  await client.sendText(chat, menu);
+});
+
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  process.once(signal, () => void client.stop(signal).catch(console.error));
+}
+```
+
+```bash
+STAFF_GROUP_ID='120363012345678901@g.us' node bot.js
+```
+
+Scan the QR code on first run; the login is saved for the next start. Then message the linked number from another phone: any message gets the menu, a number gets its answer, and `0` hands the chat over.
+
+## How the hand-off works
+
+When someone asks for a person, the bot replies once, marks the chat unread with [`markAsUnread`](/docs/reference/client/chats#markasunread) so it stands out in WhatsApp on the team's phone or WhatsApp Web, and posts an alert in the staff group. It then ignores that chat for four hours so it doesn't talk over your staff. Your team replies from the linked phone or WhatsApp Web as usual.
+
+The `handedOff` map lives in memory, so a restart puts the bot back into every chat. Keep it in your database if that matters, and give staff a way to end a hand-off early, for example a `!bot` command in the staff group that deletes the entry.
+
+## When to use a shared inbox instead
+
+If several people answer support all day, connect the session to [Chatwoot](/docs/guides/chatwoot). Each WhatsApp chat becomes a Chatwoot conversation that agents can assign, label and answer from the browser, and you can still run this bot's logic before a conversation is assigned.
+
+## Make it smarter
+
+- Match more phrases, or send unknown questions to a model; [AI agent patterns](/docs/guides/ai-agent-patterns) shows how.
+- Replace the numbered menu with a list or buttons using [interactive messages](/docs/guides/interactive-messages), which need a license.
+- Handle many chats at once without blocking by passing queue options to `onMessage`; see [best practices](/docs/operations/best-practices).
+
+## Next steps
+
+- [Receive messages](/docs/guides/receive-messages) explains `onMessage`, the event stream and webhooks.
+- [Send a WhatsApp message](/docs/guides/send-message-api) covers chat IDs and what a returned message ID confirms.
+- [Go to production](/docs/operations/go-to-production) before customers depend on the bot.

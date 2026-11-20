@@ -1,30 +1,30 @@
 ---
-title: PluginClient Reference
-description: Reference for the PluginClient interface, the transport-agnostic proxy for calling WhatsApp methods from plugins.
+title: PluginClient reference
+description: Call WhatsApp methods such as sendText and getContact from inside a plugin.
 ---
 
-# PluginClient Reference
+# PluginClient reference
 
-The `PluginClient` is the WhatsApp-method interface provided in `PluginInput`. It is a **host-managed proxy** backed by the connected runtime page. `PluginInput` does not include a browser or CDP handle, and the proxy does not create an isolation boundary around trusted plugin code.
+`PluginClient` is how a plugin calls WhatsApp methods. It arrives as `client` in `PluginInput` and forwards each call to the connected session's client methods. It isn't a browser handle, and it doesn't isolate plugin code from the host.
 
-## What PluginClient Is
+## What it is
 
-- A proxy that forwards method calls to `window.WAPI` in the connected runtime
+- A proxy that forwards method calls to the connected session's client methods
 - Available through `client` in your plugin's `PluginInput`
-- Uses the host's runtime transport without exposing that transport to plugin code
+- Uses the host's connection to the session without exposing it to plugin code
 - Forwards method names through `ask()` without an SDK method allowlist
 
-## What PluginClient Is Not
+## What it isn't
 
-- A browser or CDP interface. The client proxy does not expose CDP commands, DOM access, cookies, or page injection.
+- A browser or CDP interface. It doesn't expose CDP commands, the page, its DOM or cookies.
 - Filesystem isolation. `PluginClient` has no filesystem methods; trusted in-process plugin code still has the OS permissions of its host process.
 - A raw WebSocket. It is a managed proxy whose methods are forwarded by the host transport.
 
-## Generic Method Dispatcher
+## Call any method
 
 ### `ask(method, args?)`
 
-Call a method by name on the connected runtime's `window.WAPI` object. This is the most flexible way to interact with the runtime; `ask()` does not check the requested name against a safe-method list.
+Call a client method by name on the connected session. `ask()` doesn't check the name against an allowlist, so any method the session has can be called.
 
 ```ts
 // Send a text message
@@ -44,7 +44,7 @@ const contact = await client.ask('getContact', ['1234567890@c.us']);
 
 **Returns:** `Promise<T>`, The method's return value, typed via the generic parameter.
 
-## Event Listener
+## Event listener
 
 ### `listen(listener, callback)`
 
@@ -64,7 +64,7 @@ const result = await client.listen('onMessage', (data) => {
 
 **Returns:** `Promise<string>`, currently `'noop'`. There is no client-level unsubscribe flow; use `events` or named hooks from `PluginInput` for subscriptions.
 
-## Convenience Methods
+## Convenience methods
 
 These typed methods are provided for common operations. They all delegate to `ask()` under the hood.
 
@@ -186,9 +186,9 @@ const success = await client.sendSeen('1234567890@c.us');
 
 **Returns:** `Promise<boolean>`
 
-## Proxy Fallback
+## Other methods
 
-Any method name not listed above can be called on the client object. The proxy forwards it to the runtime; availability depends on the connected runtime exposing that method through `window.WAPI`.
+Any method name not listed above can be called on the client object. The proxy forwards it to the session; the call fails if the session has no method with that name.
 
 ```ts
 // These all work via the proxy:
@@ -200,5 +200,5 @@ await client.someOtherMethod('args');
 ## Related
 
 - **[Hooks reference](/docs/plugins/hooks-reference)**, All available hooks
-- **[PluginInput breakdown](/docs/plugins/plugin-input)**, What your plugin receives
-- **[Plugin getting started](/docs/plugins/getting-started)**, Build your first plugin
+- **[PluginInput](/docs/plugins/plugin-input)**, What your plugin receives
+- **[Build your first plugin](/docs/plugins/getting-started)**, Build your first plugin

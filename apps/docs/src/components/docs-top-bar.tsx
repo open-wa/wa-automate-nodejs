@@ -2,11 +2,12 @@
 
 import * as React from 'react';
 import Link from 'fumadocs-core/link';
-import { SidebarIcon, Languages } from 'lucide-react';
+import { SidebarIcon, Languages, MessageCircleIcon, ChevronDown } from 'lucide-react';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { useNotebookLayout } from 'fumadocs-ui/layouts/notebook';
 import type { LinkItemType } from 'fumadocs-ui/layouts/shared';
 import { cn } from '@/lib/cn';
+import { AISearchTrigger } from '@/components/ai/search';
 
 function isSecondary(item: LinkItemType): boolean {
   if ('secondary' in item && item.secondary != null) return item.secondary;
@@ -40,9 +41,7 @@ function HeaderLink({ item }: { item: LinkItemType }) {
           ) : (
             <span>{item.text}</span>
           )}
-          <span className="text-xs text-muted-foreground group-open:rotate-180">
-            v
-          </span>
+          <ChevronDown className="size-3.5 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
         </summary>
         <div className="absolute left-0 top-full z-40 mt-2 grid min-w-56 gap-1 rounded-xl border-backstitch bg-popover p-2 text-sm text-popover-foreground shadow-stipple">
           {item.items.map((child, index) => {
@@ -124,6 +123,12 @@ export function DocsTopBar(props: React.ComponentPropsWithoutRef<'header'>) {
             )}
           />
         ) : null}
+        <AISearchTrigger
+          aria-label="Ask AI"
+          className={cn(buttonVariants({ color: 'ghost', size: 'icon-sm', className: 'p-2' }))}
+        >
+          <MessageCircleIcon />
+        </AISearchTrigger>
         {slots.sidebar ? (
           <slots.sidebar.trigger
             className={cn(
@@ -139,36 +144,38 @@ export function DocsTopBar(props: React.ComponentPropsWithoutRef<'header'>) {
         ) : null}
       </header>
 
-      <header className="docs-topbar docs-topbar-desktop w-full min-w-0 [grid-area:header] sticky top-(--fd-docs-row-1) z-30 hidden h-14 items-center border-b border-border bg-background md:flex">
+      <header className="docs-topbar docs-topbar-desktop w-full min-w-0 [grid-area:header] sticky top-(--fd-docs-row-1) z-30 hidden h-14 items-center gap-2 border-b border-border bg-background md:flex">
         {slots.navTitle ? (
           <slots.navTitle className="docs-topbar-brand inline-flex shrink-0 items-center gap-2.5 font-semibold" />
         ) : null}
         <nav
-          className="docs-topbar-nav flex min-w-0 flex-1 items-center overflow-x-auto"
+          className="docs-topbar-nav flex min-w-0 items-center gap-1"
           aria-label="Docs navigation"
         >
           {primaryItems.map((item, index) => (
             <HeaderLink key={index} item={item} />
           ))}
         </nav>
-        <div className="docs-topbar-actions flex shrink-0 items-center justify-end gap-1.5">
-          {customActions.map((item, index) => (
-            <HeaderLink key={index} item={item} />
-          ))}
+        <div className="docs-topbar-actions flex min-w-0 flex-1 items-center justify-end gap-1.5">
           {slots.searchTrigger ? (
             <slots.searchTrigger.full
               hideIfDisabled
-              className={cn(
-                'w-full max-w-60 rounded-full border-backstitch bg-secondary ps-2.5 text-secondary-foreground hover:bg-accent hover:text-accent-foreground',
-              )}
+              className="docs-topbar-search w-full max-w-60 rounded-full ps-2.5"
             />
           ) : null}
-          {slots.themeSwitch ? <slots.themeSwitch /> : null}
+          {slots.themeSwitch ? <slots.themeSwitch className="shrink-0" /> : null}
           {slots.languageSelect ? (
             <slots.languageSelect.root>
               <Languages className="size-5" />
             </slots.languageSelect.root>
           ) : null}
+          <AISearchTrigger className="docs-ask-ai inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground">
+            <MessageCircleIcon className="size-4" aria-hidden="true" />
+            Ask AI
+          </AISearchTrigger>
+          {customActions.map((item, index) => (
+            <HeaderLink key={index} item={item} />
+          ))}
           {utilityItems.map((item, index) => (
             <HeaderLink key={index} item={item} />
           ))}

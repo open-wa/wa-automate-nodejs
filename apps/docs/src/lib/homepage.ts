@@ -13,7 +13,7 @@ export const HOMEPAGE_FAQS = [
   {
     question: 'Who is open-wa best for?',
     answer: 'Developers who want to connect an existing WhatsApp account to their own applications, support tools, or automation workflows through HTTP or Node.js.',
-    href: DOCS_PATHS.integrationsOverview,
+    href: DOCS_PATHS.integrations,
     label: 'Explore integrations',
   },
   {
@@ -30,7 +30,7 @@ export const HOMEPAGE_FAQS = [
   },
   {
     question: 'Is open-wa free to use?',
-    answer: 'Ungated methods do not need a paid license key. Some features require a Restricted or Insiders license, and sending to a number that is not already a contact has an additional license requirement. Review the current tiers and checkout prices for the features you need.',
+    answer: 'Ungated methods do not need a paid license key. Some features require a Restricted or Insiders license, and sending to a number that is not already a contact has an additional license requirement. Check which features need a license key.',
     href: '/docs/licensing/pricing',
     label: 'See pricing and licensed features',
   },

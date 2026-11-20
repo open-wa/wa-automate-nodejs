@@ -1,307 +1,43 @@
 ---
-title: "Chats Client API"
-description: "Generated client method reference for the chats namespace."
+title: "Chats"
+description: "List chats, mark them read or unread, and archive, pin, mute or clear them."
 icon: "BookOpen"
 ---
 
-# Chats Client API
+import { ReferenceCode } from '../../../../src/components/reference-code';
 
-This page documents 15 schema-registry client methods in the `chats` namespace.
-
-
-## `archiveChat`
-
-Archive a chat
-
-**Signature** `client.archiveChat(chatId: string): Promise<boolean>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.archiveChat("447123456789@c.us");
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.archiveChat({
-  chatId: "447123456789@c.us",
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X PUT "http://localhost:8080/api/chats/archive" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "chatId": "447123456789@c.us"
-  }'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": true
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="ArchiveChatParams" />
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<boolean>` |
-
-Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `update` |
-| Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `chats.archive` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/archive` | `archiveChat` | Active |
-| Alias | `PUT` | `/api/archiveChat` | `archiveChat` | Active |
-
-</details>
-
-
-## `clearChat`
-
-Clear chat history
-
-**Signature** `client.clearChat(chatId: string): Promise<boolean>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.clearChat("447123456789@c.us");
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.clearChat({
-  chatId: "447123456789@c.us",
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X DELETE "http://localhost:8080/api/chats/clear" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "chatId": "447123456789@c.us"
-  }'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": true
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="ClearChatParams" />
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<boolean>` |
-
-Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `delete` |
-| Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `chats.clear` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `DELETE` | `/api/chats/clear` | `clearChat` | Active |
-| Alias | `DELETE` | `/api/clearChat` | `clearChat` | Active |
-
-</details>
-
-
-## `deleteChat`
-
-Delete a chat
-
-**Signature** `client.deleteChat(chatId: string): Promise<boolean>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.deleteChat("447123456789@c.us");
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.deleteChat({
-  chatId: "447123456789@c.us",
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X DELETE "http://localhost:8080/api/chats/delete" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "chatId": "447123456789@c.us"
-  }'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": true
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="DeleteChatParams" />
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<boolean>` |
-
-Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `delete` |
-| Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `chats.delete` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `DELETE` | `/api/chats/delete` | `deleteChat` | Active |
-| Alias | `DELETE` | `/api/deleteChat` | `deleteChat` | Active |
-
-</details>
+# Chats
 
 
 ## `getAllChats`
 
 Returns serialized Chat objects from the current session, optionally limited to chats with unread messages.
 
-**Signature** `client.getAllChats(withNewMessagesOnly?: boolean): Promise<Chat[]>`
+<ReferenceCode>
 
-### Usage
+```ts
+client.getAllChats(withNewMessagesOnly?: boolean): Promise<Chat[]>
+```
+
+</ReferenceCode>
+
+<h3 id="getallchats-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getAllChats();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -310,8 +46,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getAllChats();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/chats/getAll" \
@@ -320,7 +60,11 @@ curl -X GET "http://localhost:8080/api/chats/getAll" \
   --data '{}'
 ```
 
-Example response envelope:
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -329,72 +73,55 @@ Example response envelope:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+<h3 id="getallchats-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetAllChatsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `withNewMessagesOnly` | `boolean` | Optional. Only chats with unread messages. |
 
-### Returns
+<h3 id="getallchats-returns" className="scroll-m-28">Returns</h3>
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<Chat[]>` |
-| Chat | [View fields](/docs/reference/client/return-types#chat) |
+Resolves to `Chat[]`. See [Chat](/docs/reference/client/return-types#chat) for its fields.
 
-Resolves to `Chat[]`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<Chat[]>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 Serialized chat returned by chat lookups and listings. Its id is an opaque ChatId; additional WhatsApp Web fields may be present.
 
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | `withNewMessagesOnly` |
-| Aliases | `chats.all`, `chats.getAll`, `chats.list`, `listChats` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/chats/getAll` | `getAllChats` | Active |
-| Alias | `GET` | `/api/chats/all` | `chats.all` | Active |
-| Alias | `GET` | `/api/chats/list` | `chats.list` | Active |
-| Alias | `GET` | `/api/getAllChats` | `getAllChats` | Active |
-| Alias | `GET` | `/api/listChats` | `listChats` | Active |
-
-</details>
+**HTTP:** `GET /api/chats/getAll`, or `/api/chats/all`, `/api/chats/list`, `/api/getAllChats`, `/api/listChats`. **Also named:** `chats.all`, `chats.getAll`, `chats.list`, `listChats`.
 
 
 ## `getChat`
 
 Get specific chat by ID
 
-**Signature** `client.getChat(chatId: string): Promise<Chat \| null \| undefined \| false>`
+<ReferenceCode>
 
-### Usage
+```ts
+client.getChat(chatId: string): Promise<Chat | null | undefined | false>
+```
+
+</ReferenceCode>
+
+<h3 id="getchat-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getChat("447123456789@c.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -405,8 +132,12 @@ const result = await client.getChat({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/chats/get" \
@@ -414,7 +145,11 @@ curl -G "http://localhost:8080/api/chats/get" \
   --data-urlencode "chatId=447123456789@c.us"
 ```
 
-Example response envelope:
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -429,234 +164,44 @@ Example response envelope:
 }
 ```
 
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="GetChatParams" />
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<Chat \| null \| undefined \| false>` |
-| Chat | [View fields](/docs/reference/client/return-types#chat) |
-
-Resolves to `Chat \| null \| undefined \| false`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<Chat \| false \| undefined>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `chats.get`, `chats.getById`, `getChatById` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/chats/get` | `getChat` | Active |
-| Alias | `GET` | `/api/chats/getById` | `chats.getById` | Active |
-| Alias | `GET` | `/api/getChat` | `getChat` | Active |
-| Alias | `GET` | `/api/getChatById` | `getChatById` | Active |
-
-</details>
-
-
-## `getChatWithNonContacts`
-
-Get chats with non-contacts
-
-**Signature** `client.getChatWithNonContacts(): Promise<Contact[]>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getChatWithNonContacts();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X GET "http://localhost:8080/api/chats/getWithNonContacts" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{}'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": []
-}
-```
+</ReferenceCode>
 
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+<h3 id="getchat-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
 
-### Returns
+<h3 id="getchat-returns" className="scroll-m-28">Returns</h3>
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<Contact[]>` |
-| Contact | [View fields](/docs/reference/client/return-types#contact) |
+Resolves to `Chat | null | undefined | false`. See [Chat](/docs/reference/client/return-types#chat) for its fields.
 
-Resolves to `Contact[]`. A rejected Promise indicates input validation or dispatch failure.
+The SDK resolves to `Chat | false | undefined` instead.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `chats.getWithNonContacts` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/chats/getWithNonContacts` | `getChatWithNonContacts` | Active |
-| Alias | `GET` | `/api/getChatWithNonContacts` | `getChatWithNonContacts` | Active |
-
-</details>
-
-
-## `isChatOnline`
-
-Check if chat is online
-
-**Signature** `client.isChatOnline(chatId: string): Promise<boolean \| string>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.isChatOnline("447123456789@c.us");
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.isChatOnline({
-  chatId: "447123456789@c.us",
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -G "http://localhost:8080/api/chats/isOnline" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data-urlencode "chatId=447123456789@c.us"
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": true
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="IsChatOnlineParams" />
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<boolean \| string>` |
-
-Resolves to `boolean \| string`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `chats.isOnline` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/chats/isOnline` | `isChatOnline` | Active |
-| Alias | `GET` | `/api/isChatOnline` | `isChatOnline` | Active |
-
-</details>
+**HTTP:** `GET /api/chats/get`, or `/api/chats/getById`, `/api/getChat`, `/api/getChatById`. **Also named:** `chats.get`, `chats.getById`, `getChatById`.
 
 
 ## `markAsRead`
 
 Mark chat as read
 
-**Signature** `client.markAsRead(chatId: string): Promise<boolean>`
+<ReferenceCode>
 
-### Usage
+```ts
+client.markAsRead(chatId: string): Promise<boolean>
+```
+
+</ReferenceCode>
+
+<h3 id="markasread-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -667,8 +212,12 @@ const result = await client.markAsRead({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/chats/markAsRead" \
@@ -679,7 +228,11 @@ curl -X PUT "http://localhost:8080/api/chats/markAsRead" \
   }'
 ```
 
-Example response envelope:
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -688,67 +241,55 @@ Example response envelope:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+<h3 id="markasread-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="MarkAsReadParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
 
-### Returns
+<h3 id="markasread-returns" className="scroll-m-28">Returns</h3>
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<boolean>` |
+Resolves to `boolean`.
 
-Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `update` |
-| Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `chats.markAsRead` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/markAsRead` | `markAsRead` | Active |
-| Alias | `PUT` | `/api/markAsRead` | `markAsRead` | Active |
-
-</details>
+**HTTP:** `PUT /api/chats/markAsRead`, or `/api/markAsRead`. **Also named:** `chats.markAsRead`.
 
 
 ## `markAsUnread`
 
 Mark chat as unread
 
-**Signature** `client.markAsUnread(chatId: string): Promise<boolean>`
+<ReferenceCode>
 
-### Usage
+```ts
+client.markAsUnread(chatId: string): Promise<boolean>
+```
+
+</ReferenceCode>
+
+<h3 id="markasunread-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.markAsUnread("447123456789@c.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -759,8 +300,12 @@ const result = await client.markAsUnread({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/chats/markAsUnread" \
@@ -771,7 +316,11 @@ curl -X PUT "http://localhost:8080/api/chats/markAsUnread" \
   }'
 ```
 
-Example response envelope:
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -780,67 +329,400 @@ Example response envelope:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+<h3 id="markasunread-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="MarkAsUnreadParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
 
-### Returns
+<h3 id="markasunread-returns" className="scroll-m-28">Returns</h3>
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<boolean>` |
+Resolves to `boolean`.
 
-Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+**HTTP:** `PUT /api/chats/markAsUnread`, or `/api/markAsUnread`. **Also named:** `chats.markAsUnread`.
 
-In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
-<details>
-<summary>Advanced method metadata</summary>
+## `archiveChat`
 
-### Overview
+Archive a chat
 
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `update` |
-| Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `chats.markAsUnread` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
+<ReferenceCode>
 
-### Routes
+```ts
+client.archiveChat(chatId: string): Promise<boolean>
+```
 
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/markAsUnread` | `markAsUnread` | Active |
-| Alias | `PUT` | `/api/markAsUnread` | `markAsUnread` | Active |
+</ReferenceCode>
 
-</details>
+<h3 id="archivechat-usage" className="scroll-m-28">Usage</h3>
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.archiveChat("447123456789@c.us");
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.archiveChat({
+  chatId: "447123456789@c.us",
+});
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
+
+```bash
+curl -X PUT "http://localhost:8080/api/chats/archive" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+<h3 id="archivechat-parameters" className="scroll-m-28">Parameters</h3>
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
+
+<h3 id="archivechat-returns" className="scroll-m-28">Returns</h3>
+
+Resolves to `boolean`.
+
+**HTTP:** `PUT /api/chats/archive`, or `/api/archiveChat`. **Also named:** `chats.archive`.
+
+
+## `unarchiveChat`
+
+Unarchive a chat
+
+<ReferenceCode>
+
+```ts
+client.unarchiveChat(chatId: string): Promise<boolean>
+```
+
+</ReferenceCode>
+
+<h3 id="unarchivechat-usage" className="scroll-m-28">Usage</h3>
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.unarchiveChat("447123456789@c.us");
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.unarchiveChat({
+  chatId: "447123456789@c.us",
+});
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
+
+```bash
+curl -X PUT "http://localhost:8080/api/chats/unarchive" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+<h3 id="unarchivechat-parameters" className="scroll-m-28">Parameters</h3>
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
+
+<h3 id="unarchivechat-returns" className="scroll-m-28">Returns</h3>
+
+Resolves to `boolean`.
+
+**HTTP:** `PUT /api/chats/unarchive`, or `/api/unarchiveChat`. **Also named:** `chats.unarchive`.
+
+
+## `pinChat`
+
+Pin a chat
+
+<ReferenceCode>
+
+```ts
+client.pinChat(chatId: string): Promise<boolean>
+```
+
+</ReferenceCode>
+
+<h3 id="pinchat-usage" className="scroll-m-28">Usage</h3>
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.pinChat("447123456789@c.us");
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.pinChat({
+  chatId: "447123456789@c.us",
+});
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
+
+```bash
+curl -X PUT "http://localhost:8080/api/chats/pin" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+<h3 id="pinchat-parameters" className="scroll-m-28">Parameters</h3>
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
+
+<h3 id="pinchat-returns" className="scroll-m-28">Returns</h3>
+
+Resolves to `boolean`.
+
+**HTTP:** `PUT /api/chats/pin`, or `/api/pinChat`. **Also named:** `chats.pin`.
+
+
+## `unpinChat`
+
+Unpin a chat
+
+<ReferenceCode>
+
+```ts
+client.unpinChat(chatId: string): Promise<boolean>
+```
+
+</ReferenceCode>
+
+<h3 id="unpinchat-usage" className="scroll-m-28">Usage</h3>
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.unpinChat("447123456789@c.us");
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.unpinChat({
+  chatId: "447123456789@c.us",
+});
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
+
+```bash
+curl -X PUT "http://localhost:8080/api/chats/unpin" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+<h3 id="unpinchat-parameters" className="scroll-m-28">Parameters</h3>
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
+
+<h3 id="unpinchat-returns" className="scroll-m-28">Returns</h3>
+
+Resolves to `boolean`.
+
+**HTTP:** `PUT /api/chats/unpin`, or `/api/unpinChat`. **Also named:** `chats.unpin`.
 
 
 ## `muteChat`
 
 Mute a chat
 
-**Signature** `client.muteChat(chatId: string, muteDuration: number \| string): Promise<string \| boolean \| number>`
+<ReferenceCode>
 
-### Usage
+```ts
+client.muteChat(
+  chatId: string,
+  muteDuration: number | string,
+): Promise<string | boolean | number>
+```
+
+</ReferenceCode>
+
+<h3 id="mutechat-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.muteChat("447123456789@c.us", 1);
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -852,8 +734,12 @@ const result = await client.muteChat({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/chats/mute" \
@@ -865,7 +751,11 @@ curl -X PUT "http://localhost:8080/api/chats/mute" \
   }'
 ```
 
-Example response envelope:
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -874,82 +764,75 @@ Example response envelope:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+<h3 id="mutechat-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="MuteChatParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
+| `muteDuration` | `number \| string` | Mute duration. |
 
-### Returns
+<h3 id="mutechat-returns" className="scroll-m-28">Returns</h3>
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<string \| boolean \| number>` |
+Resolves to `string | boolean | number`.
 
-Resolves to `string \| boolean \| number`. A rejected Promise indicates input validation or dispatch failure.
+The SDK resolves to `boolean` instead.
 
-In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `update` |
-| Functionality | `both` |
-| Positional parameter order | `chatId`, `muteDuration` |
-| Aliases | `chats.mute` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/mute` | `muteChat` | Active |
-| Alias | `PUT` | `/api/muteChat` | `muteChat` | Active |
-
-</details>
+**HTTP:** `PUT /api/chats/mute`, or `/api/muteChat`. **Also named:** `chats.mute`.
 
 
-## `pinChat`
+## `unmuteChat`
 
-Pin a chat
+Unmute a chat
 
-**Signature** `client.pinChat(chatId: string): Promise<boolean>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
+<ReferenceCode>
 
 ```ts
-const result = await client.pinChat("447123456789@c.us");
+client.unmuteChat(chatId: string): Promise<string | boolean | number>
 ```
+
+</ReferenceCode>
+
+<h3 id="unmutechat-usage" className="scroll-m-28">Usage</h3>
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.unmuteChat("447123456789@c.us");
+```
+
+</ReferenceCode>
 
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.pinChat({
+const result = await client.unmuteChat({
   chatId: "447123456789@c.us",
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
-curl -X PUT "http://localhost:8080/api/chats/pin" \
+curl -X PUT "http://localhost:8080/api/chats/unmute" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   --data '{
@@ -957,7 +840,99 @@ curl -X PUT "http://localhost:8080/api/chats/pin" \
   }'
 ```
 
-Example response envelope:
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
+
+```json
+{
+  "success": true,
+  "data": "example"
+}
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+<h3 id="unmutechat-parameters" className="scroll-m-28">Parameters</h3>
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
+
+<h3 id="unmutechat-returns" className="scroll-m-28">Returns</h3>
+
+Resolves to `string | boolean | number`.
+
+The SDK resolves to `boolean` instead.
+
+**HTTP:** `PUT /api/chats/unmute`, or `/api/unmuteChat`. **Also named:** `chats.unmute`.
+
+
+## `clearChat`
+
+Clear chat history
+
+<ReferenceCode>
+
+```ts
+client.clearChat(chatId: string): Promise<boolean>
+```
+
+</ReferenceCode>
+
+<h3 id="clearchat-usage" className="scroll-m-28">Usage</h3>
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.clearChat("447123456789@c.us");
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.clearChat({
+  chatId: "447123456789@c.us",
+});
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
+
+```bash
+curl -X DELETE "http://localhost:8080/api/chats/clear" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -966,60 +941,213 @@ Example response envelope:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+<h3 id="clearchat-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="PinChatParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
 
-### Returns
+<h3 id="clearchat-returns" className="scroll-m-28">Returns</h3>
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<boolean>` |
+Resolves to `boolean`.
 
-Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+**HTTP:** `DELETE /api/chats/clear`, or `/api/clearChat`. **Also named:** `chats.clear`.
 
-In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
 
-<details>
-<summary>Advanced method metadata</summary>
+## `deleteChat`
 
-### Overview
+Delete a chat
 
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `update` |
-| Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `chats.pin` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
+<ReferenceCode>
 
-### Routes
+```ts
+client.deleteChat(chatId: string): Promise<boolean>
+```
 
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/pin` | `pinChat` | Active |
-| Alias | `PUT` | `/api/pinChat` | `pinChat` | Active |
+</ReferenceCode>
 
-</details>
+<h3 id="deletechat-usage" className="scroll-m-28">Usage</h3>
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.deleteChat("447123456789@c.us");
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.deleteChat({
+  chatId: "447123456789@c.us",
+});
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
+
+```bash
+curl -X DELETE "http://localhost:8080/api/chats/delete" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "chatId": "447123456789@c.us"
+  }'
+```
+
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+<h3 id="deletechat-parameters" className="scroll-m-28">Parameters</h3>
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
+
+<h3 id="deletechat-returns" className="scroll-m-28">Returns</h3>
+
+Resolves to `boolean`.
+
+**HTTP:** `DELETE /api/chats/delete`, or `/api/deleteChat`. **Also named:** `chats.delete`.
+
+
+## `isChatOnline`
+
+Check if chat is online
+
+<ReferenceCode>
+
+```ts
+client.isChatOnline(chatId: string): Promise<boolean | string>
+```
+
+</ReferenceCode>
+
+<h3 id="ischatonline-usage" className="scroll-m-28">Usage</h3>
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.isChatOnline("447123456789@c.us");
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.isChatOnline({
+  chatId: "447123456789@c.us",
+});
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
+
+```bash
+curl -G "http://localhost:8080/api/chats/isOnline" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "chatId=447123456789@c.us"
+```
+
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+<h3 id="ischatonline-parameters" className="scroll-m-28">Parameters</h3>
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
+
+<h3 id="ischatonline-returns" className="scroll-m-28">Returns</h3>
+
+Resolves to `boolean | string`.
+
+The SDK resolves to `boolean` instead.
+
+**HTTP:** `GET /api/chats/isOnline`, or `/api/isChatOnline`. **Also named:** `chats.isOnline`.
 
 
 ## `setChatEphemeral`
 
 Set ephemeral messages for chat
 
-**Signature** `client.setChatEphemeral(chatId: string, ephemeral: boolean \| number): Promise<boolean>`
+<ReferenceCode>
 
-### Usage
+```ts
+client.setChatEphemeral(chatId: string, ephemeral: boolean | number): Promise<boolean>
+```
+
+</ReferenceCode>
+
+<h3 id="setchatephemeral-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1031,8 +1159,12 @@ const result = await client.setChatEphemeral({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/chats/setEphemeral" \
@@ -1044,7 +1176,11 @@ curl -X PUT "http://localhost:8080/api/chats/setEphemeral" \
   }'
 ```
 
-Example response envelope:
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1053,321 +1189,93 @@ Example response envelope:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+<h3 id="setchatephemeral-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SetChatEphemeralParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
+| `ephemeral` | `boolean \| number` | Ephemeral setting. |
 
-### Returns
+<h3 id="setchatephemeral-returns" className="scroll-m-28">Returns</h3>
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<boolean>` |
+Resolves to `boolean`.
 
-Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `update` |
-| Functionality | `both` |
-| Positional parameter order | `chatId`, `ephemeral` |
-| Aliases | `chats.setEphemeral` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/setEphemeral` | `setChatEphemeral` | Active |
-| Alias | `PUT` | `/api/setChatEphemeral` | `setChatEphemeral` | Active |
-
-</details>
+**HTTP:** `PUT /api/chats/setEphemeral`, or `/api/setChatEphemeral`. **Also named:** `chats.setEphemeral`.
 
 
-## `unarchiveChat`
+## `getChatWithNonContacts`
 
-Unarchive a chat
+Get chats with non-contacts
 
-**Signature** `client.unarchiveChat(chatId: string): Promise<boolean>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
+<ReferenceCode>
 
 ```ts
-const result = await client.unarchiveChat("447123456789@c.us");
+client.getChatWithNonContacts(): Promise<Contact[]>
 ```
 
-  </InterfaceTab>
+</ReferenceCode>
+
+<h3 id="getchatwithnoncontacts-usage" className="scroll-m-28">Usage</h3>
+
+<InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
 
 const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.unarchiveChat({
-  chatId: "447123456789@c.us",
-});
+const result = await client.getChatWithNonContacts();
 ```
+
+</ReferenceCode>
 
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
-curl -X PUT "http://localhost:8080/api/chats/unarchive" \
+curl -X GET "http://localhost:8080/api/chats/getWithNonContacts" \
   -H "content-type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "chatId": "447123456789@c.us"
-  }'
+  --data '{}'
 ```
 
-Example response envelope:
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
 
 ```json
 {
   "success": true,
-  "data": true
+  "data": []
 }
 ```
+
+</ReferenceCode>
 
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+<h3 id="getchatwithnoncontacts-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="UnarchiveChatParams" />
+This method takes no parameters.
 
-### Returns
+<h3 id="getchatwithnoncontacts-returns" className="scroll-m-28">Returns</h3>
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<boolean>` |
+Resolves to `Contact[]`. See [Contact](/docs/reference/client/return-types#contact) for its fields.
 
-Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `update` |
-| Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `chats.unarchive` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/unarchive` | `unarchiveChat` | Active |
-| Alias | `PUT` | `/api/unarchiveChat` | `unarchiveChat` | Active |
-
-</details>
-
-
-## `unmuteChat`
-
-Unmute a chat
-
-**Signature** `client.unmuteChat(chatId: string): Promise<string \| boolean \| number>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.unmuteChat("447123456789@c.us");
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.unmuteChat({
-  chatId: "447123456789@c.us",
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X PUT "http://localhost:8080/api/chats/unmute" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "chatId": "447123456789@c.us"
-  }'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": "example"
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="UnmuteChatParams" />
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<string \| boolean \| number>` |
-
-Resolves to `string \| boolean \| number`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `update` |
-| Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `chats.unmute` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/unmute` | `unmuteChat` | Active |
-| Alias | `PUT` | `/api/unmuteChat` | `unmuteChat` | Active |
-
-</details>
-
-
-## `unpinChat`
-
-Unpin a chat
-
-**Signature** `client.unpinChat(chatId: string): Promise<boolean>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.unpinChat("447123456789@c.us");
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.unpinChat({
-  chatId: "447123456789@c.us",
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X PUT "http://localhost:8080/api/chats/unpin" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "chatId": "447123456789@c.us"
-  }'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": true
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="UnpinChatParams" />
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<boolean>` |
-
-Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<boolean>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `chats` |
-| Action | `update` |
-| Functionality | `both` |
-| Positional parameter order | `chatId` |
-| Aliases | `chats.unpin` |
-| Deprecated aliases | - |
-| License | `none` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/chats/unpin` | `unpinChat` | Active |
-| Alias | `PUT` | `/api/unpinChat` | `unpinChat` | Active |
-
-</details>
+**HTTP:** `GET /api/chats/getWithNonContacts`, or `/api/getChatWithNonContacts`. **Also named:** `chats.getWithNonContacts`.

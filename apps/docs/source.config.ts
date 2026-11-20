@@ -228,14 +228,11 @@ export const docs = defineDocs({
         schema: frontmatterSchema.extend({
             // Search-result title when the page heading is too short or generic.
             seoTitle: z.string().optional(),
-            release: z.object({
-                version: z.string(),
-                date: z.string().datetime(),
-                headline: z.string(),
-                highlights: z.array(z.string()),
-                image: z.string().url().optional(),
-                audience: z.string().optional(),
-            }).optional(),
+            // Shorter label for the sidebar and page tree; the H1, <title>,
+            // OG card and structured data keep using `title`.
+            sidebarTitle: z.string().optional(),
+            // Number the H2 sections ("01", "02"). Off unless a page is a sequence.
+            numberedSections: z.boolean().optional(),
         }),
         postprocess: {
             includeProcessedMarkdown: true,

@@ -1,8 +1,57 @@
 /**
  * Redirects for URLs from the retired docs.openwa.dev sites (Docusaurus,
- * TypeDoc and the earlier `/pages` build). docs.openwa.dev forwards every path
- * to the same path on openwa.dev, and this table sends it to the current page.
+ * TypeDoc and the earlier `/pages` build), and for pages that moved inside the
+ * current docs. docs.openwa.dev forwards every path to the same path on
+ * openwa.dev, and these tables send it to the current page.
  */
+
+export const GITHUB_RELEASES_URL = 'https://github.com/open-wa/wa-automate-nodejs/releases';
+
+/**
+ * Current-docs pages that moved or were removed in the November 2026
+ * restructure. Old legacy destinations are resolved through this table too, so
+ * every redirect lands on the final page in one hop.
+ */
+const movedDocs: Record<string, string> = {
+  '/docs/guides/whatsapp-bot-python': '/docs/build/whatsapp-bot-python',
+  '/docs/getting-started/initializer': '/docs/getting-started/quickstart/generator-options',
+  '/docs/getting-started/link-code': '/docs/sessions/link-code',
+  '/docs/getting-started/migrating-to-v5': '/docs/upgrading/migrating-to-v5',
+  '/docs/getting-started/v5-alpha': GITHUB_RELEASES_URL,
+  '/docs/guides/authentication-flow': '/docs/sessions/authentication',
+  '/docs/guides/session-events': '/docs/sessions/session-events',
+  '/docs/guides/multiple-sessions': '/docs/sessions/multiple-sessions',
+  '/docs/guides/rate-limits': '/docs/operations/rate-limits',
+  '/docs/guides/logging-and-audit': '/docs/operations/logging-and-audit',
+  '/docs/guides/webhooks-for-business': '/docs/guides/receive-webhooks',
+  '/docs/guides/integrations-overview': '/docs/guides/integrations',
+  '/docs/operations/session-refresh': '/docs/sessions/refresh',
+  '/docs/operations-and-troubleshooting': '/docs/operations/go-to-production',
+  '/docs/operations-and-troubleshooting/best-practices': '/docs/operations/best-practices',
+  '/docs/operations-and-troubleshooting/error-handling': '/docs/operations/error-handling',
+  '/docs/operations-and-troubleshooting/detect-logouts': '/docs/sessions/detect-logouts',
+  '/docs/client-and-integrations': '/docs/guides/integrations',
+  '/docs/client-and-integrations/socket-client': '/docs/guides/socket-client',
+  '/docs/client-and-integrations/webhook-payloads': '/docs/guides/receive-webhooks',
+  '/docs/client-and-integrations/proxying-a-session': '/docs/guides/proxying-a-session',
+  '/docs/client-and-integrations/cf-proxy': '/docs/guides/cf-proxy',
+  '/docs/client-and-integrations/chatwoot': '/docs/guides/chatwoot',
+  '/docs/client-and-integrations/mcp-events': '/docs/guides/mcp-events',
+  // Section roots have no page of their own; send them to the first page.
+  '/docs/getting-started': '/docs/getting-started/quickstart',
+  '/docs/guides': '/docs/guides/send-message-api',
+  '/docs/concepts': '/docs/concepts/how-it-works',
+  '/docs/plugins': '/docs/plugins/getting-started',
+  '/docs/operations': '/docs/operations/go-to-production',
+  '/docs/licensing': '/docs/licensing/pricing',
+  '/docs/upgrading': '/docs/upgrading/migrating-to-v5',
+};
+
+/** Release notes live on GitHub; the docs Releases group and changelog were removed. */
+function getReleaseRedirect(path: string): string | undefined {
+  if (/^\/(changelog|docs\/releases)(\/|$)/.test(path)) return GITHUB_RELEASES_URL;
+  return undefined;
+}
 
 /** Exact historical paths with a useful current replacement. */
 const legacyDocs: Record<string, string> = {
@@ -16,18 +65,18 @@ const legacyDocs: Record<string, string> = {
   '/docs/get-started/quick-run': '/docs/getting-started/easy-api',
   '/docs/get-started/docker': '/docs/getting-started/docker',
   '/docs/get-started/installation': '/docs/getting-started/custom-code',
-  '/docs/get-started/link-code': '/docs/getting-started/link-code',
-  '/docs/get-started/socketmode': '/docs/client-and-integrations/socket-client',
+  '/docs/get-started/link-code': '/docs/sessions/link-code',
+  '/docs/get-started/socketmode': '/docs/guides/socket-client',
   '/docs/configuration/config-object': '/docs/guides/configuration-and-cli',
   '/docs/configuration/the-client': '/docs/getting-started/custom-code',
   '/docs/configuration/command-line-options': '/docs/guides/configuration-and-cli',
-  '/docs/configuration/capture-qr': '/docs/guides/session-events',
-  '/docs/configuration/capture-sd': '/docs/guides/session-events',
-  '/docs/configuration/launch-events': '/docs/guides/session-events',
-  '/docs/configuration/multiple-sessions': '/docs/guides/multiple-sessions',
+  '/docs/configuration/capture-qr': '/docs/sessions/session-events',
+  '/docs/configuration/capture-sd': '/docs/sessions/session-events',
+  '/docs/configuration/launch-events': '/docs/sessions/session-events',
+  '/docs/configuration/multiple-sessions': '/docs/sessions/multiple-sessions',
   '/docs/configuration/licensed-features': '/docs/licensing/licensed-features',
   '/docs/how-to/send-messages': '/docs/guides/messages',
-  '/docs/how-to/receive-messages': '/docs/guides/messages',
+  '/docs/how-to/receive-messages': '/docs/guides/receive-messages',
   '/docs/how-to/location': '/docs/guides/messages',
   '/docs/how-to/misc': '/docs/guides/messages',
   '/docs/how-to/read-state': '/docs/guides/messages',
@@ -41,11 +90,11 @@ const legacyDocs: Record<string, string> = {
   '/docs/how-to/manage-participants': '/docs/guides/groups',
   '/docs/how-to/react-to-group-events': '/docs/guides/groups',
   '/docs/how-to/create-api': '/docs/getting-started/easy-api',
-  '/docs/how-to/use-a-proxy': '/docs/client-and-integrations/proxying-a-session',
-  '/docs/how-to/handle-errors': '/docs/operations-and-troubleshooting/error-handling',
-  '/docs/how-to/detect-logout': '/docs/operations-and-troubleshooting/detect-logouts',
-  '/docs/advanced/best-practices': '/docs/operations-and-troubleshooting/best-practices',
-  '/docs/integrations/chatwoot': '/docs/client-and-integrations/chatwoot',
+  '/docs/how-to/use-a-proxy': '/docs/guides/proxying-a-session',
+  '/docs/how-to/handle-errors': '/docs/operations/error-handling',
+  '/docs/how-to/detect-logout': '/docs/sessions/detect-logouts',
+  '/docs/advanced/best-practices': '/docs/operations/best-practices',
+  '/docs/integrations/chatwoot': '/docs/guides/chatwoot',
   // Docusaurus starter-template pages that were published by accident.
   '/blog/first-blog-post': '/blog',
   '/blog/long-blog-post': '/blog',
@@ -57,18 +106,18 @@ const legacyDocs: Record<string, string> = {
 const legacyPageSlugs: Record<string, string> = {
   'manage-participants': '/docs/guides/groups',
   'send-videos': '/docs/guides/media',
-  'capture-qr': '/docs/guides/session-events',
-  'multiple-sessions': '/docs/guides/multiple-sessions',
+  'capture-qr': '/docs/sessions/session-events',
+  'multiple-sessions': '/docs/sessions/multiple-sessions',
   'the-client': '/docs/getting-started/custom-code',
   'config-object': '/docs/guides/configuration-and-cli',
-  'launch-events': '/docs/guides/session-events',
+  'launch-events': '/docs/sessions/session-events',
   'licensed-features': '/docs/licensing/licensed-features',
   'quick-run': '/docs/getting-started/easy-api',
   installation: '/docs/getting-started/custom-code',
   docker: '/docs/getting-started/docker',
-  'best-practices': '/docs/operations-and-troubleshooting/best-practices',
+  'best-practices': '/docs/operations/best-practices',
   'send-messages': '/docs/guides/messages',
-  'receive-messages': '/docs/guides/messages',
+  'receive-messages': '/docs/guides/receive-messages',
   location: '/docs/guides/messages',
   misc: '/docs/guides/messages',
   'incoming-calls': '/docs/guides/calls',
@@ -76,9 +125,9 @@ const legacyPageSlugs: Record<string, string> = {
   'decrypt-media': '/docs/guides/media',
   groups: '/docs/guides/groups',
   'react-to-group-events': '/docs/guides/groups',
-  'use-a-proxy': '/docs/client-and-integrations/proxying-a-session',
-  'handle-errors': '/docs/operations-and-troubleshooting/error-handling',
-  'detect-logout': '/docs/operations-and-troubleshooting/detect-logouts',
+  'use-a-proxy': '/docs/guides/proxying-a-session',
+  'handle-errors': '/docs/operations/error-handling',
+  'detect-logout': '/docs/sessions/detect-logouts',
 };
 
 /**
@@ -92,7 +141,7 @@ const legacyReferenceModules: [string, string][] = [
   ['model_id', '/docs/guides/chatid-primer'],
   ['model_config', '/docs/guides/config-schema'],
   ['model_group_metadata', '/docs/guides/groups'],
-  ['model_errors', '/docs/operations-and-troubleshooting/error-handling'],
+  ['model_errors', '/docs/operations/error-handling'],
   ['model_button', '/docs/guides/interactive-messages'],
   ['model_product', '/docs/reference/client/business'],
   ['model_reactions', '/docs/reference/client/messages'],
@@ -107,9 +156,9 @@ const legacyReferenceModules: [string, string][] = [
   ['controllers_events', '/docs/reference/events'],
   ['controllers_initializer', '/docs/reference/create'],
   ['controllers', '/docs/concepts/how-it-works'],
-  ['logging', '/docs/guides/logging-and-audit'],
-  ['structures', '/docs/getting-started/migrating-to-v5'],
-  ['connect', '/docs/client-and-integrations/socket-client'],
+  ['logging', '/docs/operations/logging-and-audit'],
+  ['structures', '/docs/upgrading/migrating-to-v5'],
+  ['connect', '/docs/guides/socket-client'],
 ];
 
 const typeDocKinds = new Set([
@@ -140,13 +189,9 @@ function getReferenceModuleRedirect(module: string): string {
   return '/docs/reference';
 }
 
-export function getLegacyDocsRedirect(pathname: string): string | undefined {
-  let path = pathname.replace(/\/+$/, '') || '/';
-  try {
-    path = decodeURIComponent(path);
-  } catch {
-    // Keep the raw path when it is not valid percent-encoding.
-  }
+function findLegacyDocsRedirect(path: string): string | undefined {
+  const moved = movedDocs[path] ?? movedDocs[path.toLowerCase()] ?? getReleaseRedirect(path);
+  if (moved) return moved;
 
   const exact = legacyDocs[path] ?? legacyDocs[path.toLowerCase()];
   if (exact) return exact;
@@ -188,4 +233,18 @@ export function getLegacyDocsRedirect(pathname: string): string | undefined {
   }
 
   return undefined;
+}
+
+export function getLegacyDocsRedirect(pathname: string): string | undefined {
+  let path = pathname.replace(/\/+$/, '') || '/';
+  try {
+    path = decodeURIComponent(path);
+  } catch {
+    // Keep the raw path when it is not valid percent-encoding.
+  }
+
+  const destination = findLegacyDocsRedirect(path);
+  if (!destination) return undefined;
+  // A legacy destination can itself be a page that moved since; follow it once.
+  return movedDocs[destination] ?? destination;
 }

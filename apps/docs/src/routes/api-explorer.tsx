@@ -9,6 +9,7 @@ import * as React from 'react';
 import { DocsShell } from './docs/-shell';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/cn';
+import { getAbsoluteDocsUrl, getToolPageSocialMeta, TOOL_PAGES } from '@/lib/og';
 import { DocsPage } from 'fumadocs-ui/layouts/notebook/page';
 
 const DEFAULT_HOST = 'http://localhost:8080';
@@ -35,6 +36,10 @@ const pageTreeLoader = createServerFn({
 export const Route = createFileRoute('/api-explorer')({
   component: ApiExplorerPage,
   loader: () => pageTreeLoader(),
+  head: () => ({
+    meta: getToolPageSocialMeta('api-explorer'),
+    links: [{ rel: 'canonical', href: getAbsoluteDocsUrl(TOOL_PAGES['api-explorer'].path) }],
+  }),
 });
 
 function normalizeHost(value: string): { value: string | null; error: string | null } {

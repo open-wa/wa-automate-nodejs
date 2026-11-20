@@ -1,0 +1,120 @@
+---
+title: Logging and audit trails
+description: Capture open-wa's logs, keep rotating application logs, and store a minimal record of the messages you handled.
+---
+
+# Logging and audit trails
+
+open-wa and its plugins log to the process's stdout and stderr. Your application can keep its own logs as well, but the two are separate streams: redirecting stdout doesn't capture your application logger, and your logger doesn't capture open-wa's output. Decide which stream owns each record before you set retention.
+
+## Capture open-wa's logs
+
+Plugins get a scoped logger, and their records go to the same output:
+
+```ts
+init: async ({ logger }) => {
+  logger.info('Plugin initialized', { version: '1.0.0' });
+  logger.warn('API key is missing');
+  logger.error('Failed to connect', { code: 'ECONNREFUSED' });
+};
+```
+
+Capture that output with your process supervisor, or redirect it from the shell:
+
+```bash
+mkdir -p ./logs
+npx @open-wa/wa-automate --session-id sales >> ./logs/open-wa.log 2>&1
+```
+
+Add `--log-level debug` or `--verbose` while investigating a problem, and `--log-console` to include the browser's console.
+
+## Keep rotating application logs
+
+```bash
+npm install winston winston-daily-rotate-file
+```
+
+```ts
+import winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
+
+const rotate = new DailyRotateFile({
+  filename: './logs/app-%DATE%.log',
+  datePattern: 'YYYY-MM-DD',
+  maxFiles: '14d',
+  maxSize: '50m',
+  zippedArchive: true,
+});
+rotate.on('error', (error) => console.error('rotating log transport failed', error));
+
+const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [rotate] });
+
+client.onMessage((message) => {
+  logger.info('message.received', {
+    messageId: message.id,
+    chatId: message.chatId,
+    timestamp: new Date().toISOString(),
+  });
+});
+```
+
+This records IDs and routing fields only. Add message text only when a business purpose and access policy require it. With JSON output, you can filter the files with `jq`:
+
+```bash
+jq 'select(.message == "message.received")' ./logs/app-*.log
+```
+
+## Store a minimal audit record
+
+SQLite can hold a small journal of identifiers and timestamps without copying message text:
+
+```ts
+import Database from 'better-sqlite3';
+
+const db = new Database('./logs/audit.sqlite');
+db.exec(`
+  CREATE TABLE IF NOT EXISTS message_audit (
+    session_id TEXT NOT NULL,
+    message_id TEXT NOT NULL,
+    chat_id TEXT NOT NULL,
+    observed_at INTEGER NOT NULL,
+    PRIMARY KEY (session_id, message_id)
+  )
+`);
+const insertAudit = db.prepare(
+  'INSERT OR IGNORE INTO message_audit (session_id, message_id, chat_id, observed_at) VALUES (?, ?, ?, ?)',
+);
+
+client.onMessage((message) => {
+  insertAudit.run('sales', message.id, message.chatId, Date.now());
+});
+```
+
+Install it with `npm install better-sqlite3`. A table like this is a record for your application, not proof of regulatory compliance. Decide who can read and delete it, how long to keep it, and whether you need tamper evidence, legal hold or a particular storage region. Keep tokens, QR codes, session credentials and full message bodies out of it.
+
+## Delete old records
+
+Run a retention job that matches your policy:
+
+```ts
+const cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000;
+const result = db.prepare('DELETE FROM message_audit WHERE observed_at < ?').run(cutoff);
+console.info('expired audit rows removed', result.changes);
+```
+
+Ninety days is an example, not a legal requirement; pick a period that fits your data inventory, customer commitments and deletion requests.
+
+## Troubleshooting
+
+| Symptom | Check | Fix |
+| --- | --- | --- |
+| No open-wa logs in the file | Run the redirect command above and look at `./logs/open-wa.log`. | Check the working directory, file permissions and how your supervisor captures stdout. |
+| The rotating file is empty | `ls -lh ./logs; tail -n 50 ./logs/app-*.log` | Make sure `winston-daily-rotate-file` is installed and your logger is actually called. |
+| `rotating log transport failed` on stderr | The error names the path or filesystem problem. | Fix directory ownership or disk space, then restart. |
+| `Webhook delivery failed (attempt 1/4), retrying…` | The webhook receiver didn't return `2xx` in time. | Make the receiver answer quickly; see [receive webhooks](/docs/guides/receive-webhooks). |
+
+## Related
+
+- [Security and deployment](/docs/operations/security-and-deployment)
+- [S3 media storage](/docs/guides/s3-media)
+- [Receive webhooks](/docs/guides/receive-webhooks)

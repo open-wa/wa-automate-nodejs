@@ -38,15 +38,20 @@ a:focus-visible,button:focus-visible {outline:2px solid var(--ring);outline-offs
 
 /* Documentation retains Fumadocs navigation, search, theme and mobile controls. */
 .docs-topbar {background:var(--background);border-color:var(--border);}
-.docs-topbar-desktop {padding:0;height:56px;}
+/* One sentence-case header for docs, 404, blog and the API explorer. */
+.docs-topbar-desktop {padding:0 16px 0 0;height:56px;}
 .docs-topbar-brand {padding:0 20px;flex:0 0 var(--fd-sidebar-width,246px);align-self:stretch;}
-.docs-topbar-nav {align-self:stretch;gap:0;margin:0;}
-.docs-topbar-nav > a,.docs-topbar-nav > details {flex:1 0 auto;border-left:1px solid var(--border);border-radius:0;}
-.docs-topbar-nav > a,.docs-topbar-nav > details > summary {display:flex;justify-content:center;align-items:center;height:56px;padding:0 14px;font:500 11px/1.4 var(--font-mono);letter-spacing:.035em;text-transform:uppercase;color:var(--muted-foreground);border-radius:0;}
-.docs-topbar-nav > a[data-active=true] {color:var(--foreground);background:var(--muted);box-shadow:inset 0 -2px var(--foreground);}
-.docs-topbar-actions {padding:0 10px;border-left:1px solid var(--border);height:56px;}
-.docs-topbar-actions :is(button,a) {border-radius:4px;box-shadow:none;}
-.docs-topbar-actions .license-header-button {border-radius:2px;}
+.docs-topbar-nav > a,.docs-topbar-nav > details > summary {display:inline-flex;align-items:center;gap:4px;padding:8px;font:500 14px/1.4 var(--font-sans);color:var(--muted-foreground);border-radius:6px;white-space:nowrap;}
+.docs-topbar-nav > a:hover,.docs-topbar-nav > details > summary:hover {color:var(--foreground);background:transparent;}
+.docs-topbar-nav > a[data-active=true] {color:var(--primary);}
+.docs-topbar-actions {height:56px;}
+.docs-topbar-actions > * {flex-shrink:0;}
+.docs-topbar-actions > .docs-topbar-search {flex-shrink:1;min-width:120px;}
+.docs-topbar :is([data-theme-toggle]) {flex-shrink:0;}
+.docs-topbar [data-theme-toggle] > svg {flex-shrink:0;}
+/* "Get a license" stays visible without being the loudest thing in the header. */
+.license-header-button {background:transparent!important;color:var(--primary)!important;border-color:color-mix(in srgb,var(--primary) 45%,var(--border))!important;font-weight:600;}
+.license-header-button:hover {background:var(--accent)!important;opacity:1;}
 .docs-site #nd-sidebar {background:var(--sidebar);border-right:1px solid var(--border);}
 .docs-site #nd-sidebar :is(a,button) {border-radius:2px;color:var(--sidebar-foreground);font-size:13px;}
 .docs-site #nd-sidebar a[data-active=true] {background:var(--sidebar-accent);color:var(--foreground);font-weight:600;}
@@ -57,21 +62,45 @@ a:focus-visible,button:focus-visible {outline:2px solid var(--ring);outline-offs
 .docs-page-heading {border-bottom:0;padding-bottom:0;}
 .docs-page-heading h1 {font-size:32px;line-height:1.2;letter-spacing:-.04em;font-weight:650;margin-bottom:15px;}
 .docs-page-heading p {font-size:16px;line-height:1.7;color:var(--muted-foreground);}
-.docs-page-header-actions :is(button,a) {border:1px solid var(--border);border-radius:3px;background:var(--card);padding:5px 9px;min-height:32px;font:11px/1.5 var(--font-sans);letter-spacing:0;}
-.docs-site .prose,.release-prose {font-size:17px;line-height:1.8;color:var(--foreground);}
+.docs-page-header-actions {margin-top:16px;}
+.docs-page-header-actions :is(button,a) {border:1px solid var(--border);border-radius:3px;background:var(--card);padding:5px 9px;min-height:32px;font:12px/1.5 var(--font-sans);letter-spacing:0;}
+.docs-page-header .docs-page-meta {font:13px/1.5 var(--font-sans);letter-spacing:0;}
+.docs-site .docs-page-header {margin-bottom:12px;}
+.docs-breadcrumb {display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:0;padding:0;list-style:none;}
+.docs-breadcrumb li {display:inline-flex;align-items:center;white-space:nowrap;}
+.docs-breadcrumb li + li::before {content:'/';margin:0 8px;color:var(--border);}
+.docs-breadcrumb a:hover {color:var(--foreground);}
+.docs-site .prose,.release-prose {font-size:16px;line-height:1.75;color:var(--foreground);}
 .docs-site .prose {--tw-prose-body:var(--foreground);--tw-prose-headings:var(--foreground);--tw-prose-bold:var(--foreground);--tw-prose-code:var(--foreground);--tw-prose-links:var(--primary);}
 .docs-site .prose :is(h2,h3) {color:var(--foreground);letter-spacing:-.03em;}
-.docs-guide-page .prose {counter-reset:document-sections;}
+/* Keep guide prose to a readable measure (~75 characters). */
+.docs-guide-page :is(.docs-page-header,.prose) {max-width:720px;}
+.docs-guide-page .prose :not(pre)>code {font-size:.875em;}
 .docs-guide-page .prose h2 {border-top:1px solid var(--border);padding-top:25px;margin-top:44px;font-size:24px;line-height:1.35;}
-.docs-guide-page .prose h2::before {counter-increment:document-sections;content:counter(document-sections,decimal-leading-zero);display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;margin-right:11px;border:1px solid var(--border);border-radius:50%;background:var(--muted);color:var(--muted-foreground);font:11px/1 var(--font-mono);vertical-align:2px;}
-.docs-site #nd-toc {font-size:13px;color:var(--muted-foreground);}
-.docs-site .docs-hub-paths>a,.docs-site .docs-hub-license,.method-explorer {border-radius:5px;box-shadow:none;}
-.docs-site .docs-hub h1 {font-size:38px;}
+.docs-guide-page .prose > .docs-mdx-title-anchor:first-child + h2,.docs-guide-page .prose > h2:first-child {margin-top:20px;}
+/* Section numbers are opt-in through `numberedSections: true` in frontmatter. */
+.docs-numbered-sections .prose {counter-reset:document-sections;}
+.docs-numbered-sections .prose h2::before {counter-increment:document-sections;content:counter(document-sections,decimal-leading-zero);display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;margin-right:11px;border:1px solid var(--border);border-radius:50%;background:var(--muted);color:var(--muted-foreground);font:11px/1 var(--font-mono);vertical-align:2px;}
+/* The TOC links carry the prose class, so pin them below body size. */
+.docs-site #nd-toc,.docs-site #nd-toc a {font-size:13px;line-height:1.5;color:var(--muted-foreground);}
+.docs-site #nd-toc a[data-active=true] {color:var(--foreground);}
+/* Illustrations are light artwork; frame them so they sit calmly on a dark page. */
+.dark .docs-site .prose img:not([src*="/mascots/"]) {padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--muted);filter:brightness(.9);}
+/* Wide tables scroll inside a frame that fades at the edge with more to see. */
+.docs-table-scroll {position:relative;margin:1.5em 0;}
+.docs-table-scroll > div {overflow-x:auto;}
+.docs-table-scroll > div > table {margin:0;}
+.docs-table-scroll::after {content:'';position:absolute;inset:0 0 0 auto;width:32px;pointer-events:none;background:linear-gradient(to right,transparent,var(--docs-table-fade,var(--background)));opacity:0;transition:opacity .15s;}
+.bg-card > .docs-table-scroll {--docs-table-fade:var(--card);}
+.docs-table-scroll[data-overflow-end=true]::after {opacity:1;}
+.docs-site .docs-hub-license,.method-explorer {border-radius:5px;box-shadow:none;}
 
 /* One code treatment for MDX, CMS articles, releases and client-reference examples. */
 figure.shiki,.reference-code {background:var(--reading-code);border:1px solid var(--border);color:var(--reading-code-ink);box-shadow:none;border-radius:5px;}
 figure.shiki > div:first-child:has(figcaption) {background:var(--reading-code-toolbar);border-color:var(--border);color:var(--muted-foreground);font:12px/1.5 var(--font-sans);}
-figure.shiki pre,.docs-guide-page figure.shiki pre {font:13px/1.8 var(--font-mono);}
+figure.shiki pre,.docs-guide-page figure.shiki pre {font:14px/1.7 var(--font-mono);}
+/* Leave room on the right so the copy button never sits on top of code. */
+figure.shiki:has(> button, > div > button) pre {padding-inline-end:3rem;}
 figure.shiki pre code {background:transparent;border:0;color:var(--reading-code-ink);}
 html:not(.dark) :is(figure.shiki,.reference-code) :is(pre,code,span) {color:var(--shiki-light,var(--reading-code-ink))!important;}
 html.dark :is(figure.shiki,.reference-code) :is(pre,code,span) {color:var(--shiki-dark,var(--reading-code-ink))!important;}
@@ -149,10 +178,15 @@ figure.shiki button {opacity:1;}
   .docs-site#nd-notebook-layout {--fd-sidebar-width:246px;--fd-header-height:56px;}
   .docs-site #nd-page {padding-inline:44px;}
 }
-@media(max-width:1200px) {
-  .docs-topbar-nav>a,.docs-topbar-nav>details>summary {padding-inline:10px;font-size:10px;}
+@media(max-width:1280px) {
+  .docs-topbar-brand {flex-basis:auto;}
+  .docs-topbar-nav>a,.docs-topbar-nav>details>summary {padding-inline:6px;font-size:13px;}
   .docs-topbar-actions {gap:3px;}
   .docs-topbar-actions .license-header-button {font-size:12px;padding-inline:9px;}
+}
+@media(max-width:1060px) {
+  .docs-ask-ai {padding-inline:8px;font-size:0;gap:0;}
+  .docs-topbar-nav>details {display:none;}
 }
 @media(max-width:1000px) {
   .blog-header-with-cover,.blog-row-with-cover {gap:40px;grid-template-columns:minmax(0,1fr) 280px;}

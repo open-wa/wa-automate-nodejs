@@ -1,0 +1,12 @@
+{
+  "title": "Sessions and login",
+  "icon": "KeyRound",
+  "pages": [
+    "authentication",
+    "link-code",
+    "session-events",
+    "detect-logouts",
+    "refresh",
+    "multiple-sessions"
+  ]
+}

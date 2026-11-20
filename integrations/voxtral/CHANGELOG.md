@@ -10,6 +10,14 @@
 
 
 
+
+## 5.11.0
+<sub>2026-11-20</sub>
+
+-  *(patch)*
+  Retain call-answer errors on the originating transcript turn and keep the error visible in Neo after hangup. Offer reconnection only for reconnectable transport failures rather than model quota errors.
+- *(minor)* Version bump from group with `@open-wa/config` v5.11.0, `@open-wa/mcp` v5.11.0, `@open-wa/schema` v5.11.0
+
 ## 5.10.0
 <sub>2026-10-28</sub>
 

@@ -25,11 +25,9 @@ await client.sendSticker(to, './photo.jpg', {
 ```
 
 The SDK imports this package on the first sticker request. Rendering produces
-pixels and optional author/pack labels. Sending requires the private sticker
-patch: it owns donor app links and finalizes EXIF before native hashing,
-encryption and upload. Rendering alone doesn't produce donor-branded output. Sticker payloads are rejected
-by `sendRawMessage`; use `sendSticker` to reach the finalizer. Native sticker
-forwarding is blocked until its local re-finalization path is ported.
+pixels and optional author/pack labels. Sending a sticker needs a license and
+goes through `sendSticker`; `sendRawMessage` rejects sticker payloads. Forwarding
+stickers isn't supported yet.
 
 ## Routing and lifecycle
 
@@ -167,9 +165,6 @@ surfaces. Peak RAM hasn't been measured for this implementation; the worker's
 
 The admission profile is 512×512, at most 120 frames / 10 seconds, 20 MiB input,
 16 million source pixels, and 100,000 / 512,000 output bytes for static / animated
-stickers. Rendering reserves 4,096 bytes for final metadata. The private patch
-checks final bytes again. An unknown send outcome is never retried automatically.
-
-WASM and client patches can be inspected and modified by a machine's owner.
-Donor protection applies to the supported OpenWA send path, not to arbitrary
-modified clients or externally generated files.
+stickers. Rendering reserves 4,096 bytes for final metadata, and the final
+bytes are checked again before sending. An unknown send outcome is never retried
+automatically.

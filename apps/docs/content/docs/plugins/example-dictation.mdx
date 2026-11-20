@@ -242,7 +242,7 @@ export default {
 Start a named session with this config:
 
 ```bash
-npx @open-wa/wa-automate@5.1.0 --config ./wa.config.mjs --session-id dictation-test --host 127.0.0.1 --port 8080
+npx @open-wa/wa-automate --config ./wa.config.mjs --session-id dictation-test
 ```
 
 Send an OGG voice note to the connected account. The plugin replies with the transcription; if it does not, check the Easy API logs and confirm that `STT_API_KEY` is set.
@@ -257,6 +257,6 @@ The example logs per-message failures and continues handling later events:
 
 ## Related
 
-- **[Plugin getting started](/docs/plugins/getting-started)**, build your first plugin
+- **[Build your first plugin](/docs/plugins/getting-started)**, build your first plugin
 - **[PluginClient reference](/docs/plugins/plugin-client)**, available client methods
 - **[External API patterns](/docs/plugins/external-api-patterns)**, calling external services

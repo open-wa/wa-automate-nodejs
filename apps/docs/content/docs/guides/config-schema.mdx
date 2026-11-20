@@ -1,31 +1,28 @@
 ---
-title: Config schema
-description: Generated config type tables for the open-wa runtime, based on the current config package source of truth.
+title: Config types
+description: Look up the TypeScript types for open-wa configuration when you type a config object or config file.
 ---
 
-# Config schema
+# Config types
 
-This page exposes the current configuration surface from the schema/config source
-of truth instead of relying only on prose summaries.
+These tables come from `@open-wa/config`. For how to set each value, start with [configuration and CLI](/docs/guides/configuration-and-cli).
 
-<Callout type="tip" title="How to use this page">
-  Start with **[Configuration and CLI](/docs/guides/configuration-and-cli)** for
-  the practical guidance, then use this page when you need the concrete field
-  surface and type details.
-</Callout>
+## Config
 
-## Primary config object
+The full, resolved configuration.
 
 <AutoTypeTable path="../../../../../packages/config/src/schema/config.ts" name="Config" />
 
-## Strict config
+## StrictConfig
 
 <AutoTypeTable path="../../../../../packages/config/src/schema/config.ts" name="StrictConfig" />
 
-## Partial config
+## PartialConfig
+
+What a config file or `create()` call accepts: any subset of the settings.
 
 <AutoTypeTable path="../../../../../packages/config/src/schema/config.ts" name="PartialConfig" />
 
-## Deep partial config
+## DeepPartialConfig
 
 <AutoTypeTable path="../../../../../packages/config/src/schema/config.ts" name="DeepPartialConfig" />

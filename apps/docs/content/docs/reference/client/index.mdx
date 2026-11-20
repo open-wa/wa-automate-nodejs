@@ -1,87 +1,89 @@
 ---
-title: "Client API Reference"
-description: "Generated reference for schema-registry client methods."
+title: "Overview"
+seoTitle: "WhatsApp API reference for Node.js and HTTP | open-wa"
+description: "Every method open-wa offers, grouped by job, with SDK, SocketClient and HTTP examples."
 icon: "BookOpen"
 ---
 
-# Client API Reference
+# API reference
 
-`packages/schema/scripts/gen-client-reference-docs.ts` generates these pages from the schema registry and method files.
+Find the job you want to do, then the method that does it. Each method shows the same call from the SDK, from SocketClient and over HTTP.
 
 <InterfacePreference />
 
-## Namespaces
+## Methods by job
 
 <Cards>
 
-  <Card title="Business" href="./business">
-    3 client methods
+  <Card title="Messages" href="/docs/reference/client/messages">
+    Send, reply to, edit, delete and react to messages, and read message history.
   </Card>
 
-  <Card title="Calls" href="./calls">
-    11 client methods
+  <Card title="Chats" href="/docs/reference/client/chats">
+    List chats, mark them read or unread, and archive, pin, mute or clear them.
   </Card>
 
-  <Card title="ChatIds" href="./chatids">
-    1 client methods
+  <Card title="Contacts" href="/docs/reference/client/contacts">
+    Check whether a number is on WhatsApp, look up contacts and profile pictures, and block or unblock people.
   </Card>
 
-  <Card title="Chats" href="./chats">
-    15 client methods
+  <Card title="Groups" href="/docs/reference/client/groups">
+    Create groups, manage members and admins, share invite links and change group settings.
   </Card>
 
-  <Card title="Communities" href="./communities">
-    6 client methods
+  <Card title="Media methods" href="/docs/reference/client/media">
+    Download and decrypt images, video, audio and documents from messages you receive.
   </Card>
 
-  <Card title="Contacts" href="./contacts">
-    12 client methods
+  <Card title="Session" href="/docs/reference/client/session">
+    Check the connection, read details about the logged-in account, and change its name, about text and picture.
   </Card>
 
-  <Card title="Events" href="./whatsapp-events">
-    7 client methods
+  <Card title="Status updates" href="/docs/reference/client/status">
+    Post text, image and video status updates, read stories and delete your updates.
   </Card>
 
-  <Card title="Groups" href="./groups">
-    22 client methods
+  <Card title="Labels" href="/docs/reference/client/labels">
+    Read WhatsApp Business labels and add them to or remove them from chats.
   </Card>
 
-  <Card title="Labels" href="./labels">
-    4 client methods
+  <Card title="Communities" href="/docs/reference/client/communities">
+    List communities and read their details, members and admins.
   </Card>
 
-  <Card title="Media" href="./media">
-    2 client methods
+  <Card title="Calls" href="/docs/reference/client/calls">
+    Start, answer, reject and end calls, and work with call audio.
   </Card>
 
-  <Card title="Messages" href="./messages">
-    47 client methods
+  <Card title="Business" href="/docs/reference/client/business">
+    Read business profiles, product catalogues and orders.
   </Card>
 
-  <Card title="Mystatus" href="./mystatus">
-    1 client methods
+  <Card title="Calendar events" href="/docs/reference/client/whatsapp-events">
+    Create, edit and cancel WhatsApp events, and read and send RSVPs.
   </Card>
 
-  <Card title="Session" href="./session">
-    17 client methods
+  <Card title="Contact status" href="/docs/reference/client/mystatus">
+    Read the about text a contact has set.
   </Card>
 
-  <Card title="Status" href="./status">
-    6 client methods
+  <Card title="Chat IDs" href="/docs/reference/client/chatids">
+    List the IDs of every chat in the session.
   </Card>
 
 </Cards>
 
-## How the client works
+## Calling a method
 
-- [Schema pipeline](/docs/reference/client/schema-pipeline) — one definition, many projections
-- [BaseClient](/docs/reference/client/base-client) — the generated flat client and dispatch table
-- [Namespaced client](/docs/reference/client/namespaced-client) — namespace member mapping
-- [Argument normalization](/docs/reference/client/argument-normalization) — positional vs object args, aliases
-- [Aliases](/docs/reference/client/aliases) — function and parameter key aliases
-- [Data models](/docs/reference/client/schemas) — Message, Contact, Chat, GroupMetadata
-- [Generated types](/docs/reference/client/generated-types) — where input/output type aliases come from
-- [Worked example: sendText](/docs/reference/client/send-text-worked-example)
-- [Events](/docs/reference/client/events) — registered events and payloads
-- [Licensed methods](/docs/reference/client/licensed-methods) — what needs a license key
-- [All client methods](/docs/reference/client/client) — alphabetical index
+- **SDK:** start a session with `create()` from `@open-wa/wa-automate`, then call methods on the client it returns, for example `await client.sendText(to, content)`.
+- **SocketClient:** connect to a running Easy API with `SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY')` and make the same calls over the network.
+- **HTTP:** send JSON to `POST /api/<page>/<method>`, such as `/api/messages/sendText`, with your key in the `x-api-key` header. Body keys match the parameter names on each method.
+
+Every method returns a promise that rejects when the arguments are invalid or the call fails. Over HTTP a successful call returns `{ "success": true, "data": … }`, where `data` is the value listed under **Returns**, and a failed call returns an error status with `{ "error", "details" }`.
+
+## Also in the reference
+
+- [All methods (A–Z)](/docs/reference/client/client) puts every method on one page with a filter.
+- [Licensed methods](/docs/reference/client/licensed-methods) lists the methods that need a license key.
+- [Event listeners](/docs/reference/client/events) lists every event you can subscribe to.
+- [Return types](/docs/reference/client/return-types) and [Data models](/docs/reference/client/schemas) describe the objects methods return.

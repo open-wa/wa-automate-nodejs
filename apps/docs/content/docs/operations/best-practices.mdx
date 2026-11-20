@@ -1,0 +1,56 @@
+---
+title: Best practices
+description: Keep a production session healthy with one owner per session, queued work, monitoring and backups.
+---
+
+# Best practices
+
+Give each session exactly one running process, keep its session file on durable storage, and move slow business work into a queue so message handling never blocks. The [go to production checklist](/docs/operations/go-to-production) lists the steps; this page explains the choices behind them.
+
+## Pace sending
+
+WhatsApp doesn't publish fixed limits for automation and can change them without notice. Send slowly, don't send identical bulk messages, back off after failures, and prefer replying to people who wrote to you. [Rate limits](/docs/operations/rate-limits) has safe defaults and the patterns that get accounts restricted.
+
+## Queue your work
+
+A queue stops a burst of incoming messages from turning into an uncontrolled burst of work. It caps concurrency, spaces out sends, and lets you retry failed jobs. Use one when messages can arrive faster than you handle them, when sending needs strict spacing, when work calls slow services such as a CRM, database or LLM, or when failed jobs need retrying.
+
+Listeners take queue options directly, so the simplest version needs no extra library:
+
+```ts
+client.onMessage(handleMessage, {
+  concurrency: 4,   // at most four handlers at once
+  intervalCap: 1,   // start at most one handler...
+  interval: 1000,   // ...per second
+});
+```
+
+For work that must survive a restart, hand the message to a durable queue such as BullMQ or your database, and process it in a separate worker.
+
+## Monitor the session
+
+- **Logs:** record startup, login, readiness, disconnects and reconnects, webhook failures and send failures, with the session ID, chat ID, message ID and error type where that's safe. See [logging](/docs/operations/logging-and-audit).
+- **Metrics:** track connected sessions, messages in and out, queue depth and latency, send and webhook failures, and process restarts.
+- **Tracing:** carry one request or job ID through webhooks, queues, business logic and sends, so you can follow a single message end to end.
+
+Keep message text, media, phone numbers and credentials out of logs unless you have a privacy and retention policy that covers them. To be told when a session drops, see [detect logouts](/docs/sessions/detect-logouts).
+
+## Back up
+
+Back up what you'd need to rebuild a session without relying on memory: the session file (`<sessionId>.data.json`), your config without plain-text secrets, deployment files such as Compose files, systemd units or Kubernetes manifests, and webhook and integration settings. On one server, back up the session file daily; with Docker, back up the mounted volume. Test a restore into staging before trusting the plan, and never commit session data or API keys.
+
+## Lay out the deployment
+
+- **Single server:** open-wa, your app and a process supervisor on one machine. This is the simplest option and suits one or a few sessions.
+- **Docker:** open-wa in a container with a mounted session volume and a restart policy, which makes upgrades and rollbacks predictable.
+- **Separate services:** open-wa as its own service, with web apps, workers, queues and databases elsewhere. This suits larger systems and many sessions.
+
+Give each session its own `sessionId`, session file, API key and port or route.
+
+## Scale around the session
+
+Add CPU and memory when one busy session struggles, and add more sessions or workers when you have more accounts or more downstream work. Never run one session from two processes against the same profile; keep one process per session and scale the consumers, queues and workers around it. [Multiple sessions](/docs/sessions/multiple-sessions) shows how.
+
+## AI agents
+
+Agents produce variable output and can call tools repeatedly, so they need tighter limits than ordinary bots. Respond only to messages meant to start the agent, skip your own messages, status updates and unsupported media, rate-limit every reply, keep the conversation context bounded, and log tool calls without storing message content you don't need. [AI agent patterns](/docs/guides/ai-agent-patterns) covers this in depth.

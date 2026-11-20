@@ -1,0 +1,226 @@
+---
+title: Error handling
+description: Tell startup, browser, API and account failures apart, and recover from each without making things worse.
+---
+
+# Error handling
+
+Failures come from three places: your process and its browser, the Easy API's HTTP layer, and WhatsApp itself. Each needs a different response, and a retry that fixes one can make another worse, so identify the layer first.
+
+## Handle send failures
+
+Wrap sends and check what kind of failure you got:
+
+```ts
+import { create, SendTextError } from '@open-wa/wa-automate';
+
+const client = await create({ sessionId: 'sales' });
+
+client.onMessage(async (message) => {
+  try {
+    await client.sendText(message.from, 'Hi!');
+  } catch (error) {
+    if (error instanceof SendTextError && error.outcome === 'unknown') {
+      console.error('The message may have been sent; check the chat before retrying', error);
+    } else {
+      console.error('sendText failed', error);
+    }
+  }
+});
+```
+
+[Messages](/docs/guides/messages#send-text-and-replies) lists every `SendTextError` code. For a client connected to a remote Easy API, use [SocketClient](/docs/guides/socket-client) and handle failures the same way.
+
+## Handle startup failures
+
+`create()` resolves only once the session is ready to send, and throws if login or startup fails, so one `try` covers startup:
+
+```ts
+async function launch() {
+  try {
+    return await create({ sessionId: 'sales', authTimeout: 120 });
+  } catch (error) {
+    console.error('open-wa failed to start', error);
+    throw error;
+  }
+}
+```
+
+## Common failures
+
+| Failure | Signal | Likely cause | What to do |
+| --- | --- | --- | --- |
+| Login timeout | Repeated QR expiry, `qrTimeout` or `authTimeout` reached | The QR or link code wasn't used in time, the phone was offline, or the saved login is no longer valid. | Restart, keep the phone online, raise the timeout if a person needs longer, and delete the session files only when the saved login is clearly invalid. |
+| Browser won't start | `ENOENT`, `EACCES`, sandbox errors, missing shared libraries | Chrome can't start, `executablePath` is wrong, the container lacks browser libraries, or permissions are missing. | Check the browser path, try `headless: false`, install the missing packages, and use container settings that suit your host. |
+| Account at risk | Login loops, forced logouts, unusual-activity prompts, sends failing after high volume | WhatsApp is limiting or reviewing the account. | Stop automation, review recent traffic, slow down, and don't delete sessions while the account is restricted. |
+| `401` | `Unauthorized` | Missing or wrong API key. | Send the configured key in `X-API-Key`, or pass it to `SocketClient.connect()`. |
+| `429` | `Too Many Requests` | More than 100 requests a minute from one client. | Back off, add jitter, queue work and lower concurrency. |
+| `503` | `API not available until the session is truly ready` | The session isn't ready yet. | Wait for `session.ready: true` in `/health`, then retry. |
+| `500` | An `error` message | The request failed while running, for example a send to a new number without a license, or a browser or session problem. | Read the message, check readiness and logs, retry once after a short delay, then restart the session if it's stuck. |
+
+## Login timeouts
+
+A login timeout happens before the session is ready: open-wa is waiting for a QR scan, a link code or a saved login to reconnect. Common causes are a QR code that expired, a link code that wasn't entered in time, a phone that's offline, saved session files that are missing or damaged, and a device that was removed from WhatsApp's **Linked devices**.
+
+1. Restart the process and watch for a new QR code or link code.
+2. Keep the phone online, with WhatsApp open, while it links.
+3. Raise `qrTimeout` or `authTimeout` (both in seconds) if a person needs more time.
+4. If the same saved login keeps failing, remove the linked device from the phone, delete only that session's files and link again.
+
+```ts
+const client = await create({ sessionId: 'sales', qrTimeout: 0, authTimeout: 120 });
+```
+
+`qrTimeout: 0` waits for a scan forever. In production, pair long timeouts with a process supervisor so a stuck start can still be restarted.
+
+## Browser failures
+
+Browser failures happen while starting or soon after. Node is running, but the browser can't launch, connect or keep WhatsApp open. Check these first:
+
+- Chrome or Chromium is installed if you set `useChrome` or `executablePath`.
+- Removing a custom `executablePath` lets open-wa pick its default browser.
+- Running once with `headless: false` on a desktop shows what the browser is doing.
+- In Linux containers, the browser's shared libraries are installed and sandbox permissions allow it to start.
+- Only one process uses a session directory at a time.
+- Browser console logging shows errors from inside the page.
+
+```ts
+const client = await create({
+  sessionId: 'sales',
+  useChrome: true,
+  headless: false,
+  logConsole: true,
+  logConsoleErrors: true,
+});
+```
+
+If the browser closes after the session was ready, restart with the same `sessionId`. The saved login usually reconnects without a new QR code.
+
+### `Navigating frame was detached` or `Attempted to use detached Frame`
+
+These errors, especially as a crash loop soon after the page loads, almost always mean one of three things:
+
+1. **`--single-process` or `--no-zygote` in `chromiumArgs`.** These crash current Chrome with WhatsApp. open-wa removes them and logs `Removed browser args known to crash WhatsApp Web`; if you forced them back with `allowDangerousBrowserArgs: true`, remove that. This is the most common cause on low-memory hosts.
+2. **The browser ran out of memory.** Check container memory limits and out-of-memory events. The [Docker guide](/docs/getting-started/docker) has sizing advice.
+3. **`/dev/shm` is too small.** Give the container more shared memory (`--shm-size=1gb`) or keep `--disable-dev-shm-usage`.
+
+Don't respond by adding more browser flags; the fix is almost always removing flags and adding memory.
+
+## Account restrictions
+
+Some failures come from WhatsApp rather than open-wa. Treat them as warnings about the account, not bugs to retry through. Signs include a valid session being logged out repeatedly, warnings or verification prompts on the phone, sends failing after a burst, sends to new contacts failing more than existing chats, and an account that works on the phone but becomes unstable when automation resumes.
+
+1. Stop outgoing automation for that account.
+2. Check the phone and deal with any prompts.
+3. Lower volume and concurrency, and stop sending identical messages.
+4. Prefer replies and expected conversations over cold messages.
+5. Keep the same device, session and network.
+6. Resume slowly, once the account behaves normally in the WhatsApp app.
+
+Don't delete and recreate sessions in a loop; the repeated linking makes the account look less stable. See [rate limits](/docs/operations/rate-limits).
+
+## Check readiness and the key
+
+Run these from the machine that calls the Easy API:
+
+```bash
+curl -sS http://localhost:8080/health
+
+curl -sS -D - http://localhost:8080/api/messages/sendText \
+  -H "X-API-Key: $WA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"to":"447123456789@c.us","content":"readiness check"}'
+```
+
+- `/health` returning `connected: true` and `session.ready: true` means the session is ready. `/health` is public and never checks the key.
+- `connected: false` or `session.ready: false` means the process is running but login or startup isn't finished. Complete the QR or link-code step, then read `session.pending` and `session.blockers`.
+- A `401` from the send means the key doesn't match the one the Easy API started with. Compare it with `--api-key` or `WA_API_KEY` rather than retrying.
+- A `503` means the key is right but the session isn't ready.
+- A refused connection or timeout means the address, port or process is wrong; fix that before looking at WhatsApp.
+
+## Retry by failure type
+
+| Failure | Retry strategy |
+| --- | --- |
+| Login timeout | Restart the login after checking the phone. Never run parallel logins for one account. |
+| Browser won't start | Don't retry blindly; fix the path, libraries, permissions or container settings first. |
+| Browser crash after ready | Restart with the same `sessionId` and let the saved login reconnect before deleting anything. |
+| `401` | Don't retry until the key is fixed. |
+| `429` or `503` | Retry with exponential backoff and jitter, and lower concurrency. |
+| `500` | Retry once or twice after a short delay; if it repeats, check the logs and restart the session. |
+| `SendTextError` with `outcome: 'unknown'` | Check the chat first; the message may already be there. |
+| Account restricted | Don't retry automatically. Stop and check the account on the phone. |
+
+```ts
+async function retryTransient(task: () => Promise<void>) {
+  for (const delay of [1000, 3000, 8000]) {
+    try {
+      return await task();
+    } catch (error) {
+      console.error('Transient failure', error);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+  throw new Error('Failed after retries');
+}
+```
+
+Record what you're about to send before you send it, so a timeout doesn't lead to a duplicate message.
+
+## Turn on logging
+
+Capture enough to see which layer failed:
+
+```bash
+npx @open-wa/wa-automate --session-id sales --log-console --verbose > open-wa.log 2>&1
+```
+
+In the SDK, pass `logConsole: true` and `logConsoleErrors: true` to `create()` while diagnosing. Around failures, log the session ID, method name, your request or job ID, the chat ID where that's safe, the HTTP status, and whether the session was ready. Don't log API keys, session data, full message bodies or personal data unless your policy requires it. See [logging and audit trails](/docs/operations/logging-and-audit).
+
+## Recovery playbooks
+
+<Accordions type="single">
+<Accordion title="Session won't log in" id="session-will-not-authenticate">
+
+1. Start open-wa with logging visible.
+2. Check that a QR code or link code actually appears.
+3. Keep the phone online and complete the login.
+4. If a saved login is reused and still fails, remove the linked device from the phone.
+5. Delete only that session's files and log in again.
+
+</Accordion>
+<Accordion title="Browser won't launch" id="browser-will-not-launch">
+
+1. Remove custom browser settings and try the defaults.
+2. Check `executablePath` if you need a specific Chrome.
+3. Run with `headless: false` on a desktop to see the error.
+4. Install missing Linux browser libraries in containers.
+5. Put it back under your supervisor once the browser starts by hand.
+
+</Accordion>
+<Accordion title="Easy API returns 401" id="easy-api-returns-401">
+
+1. Confirm the Easy API started with the key you expect (`--api-key` or `WA_API_KEY`).
+2. Send that key in the `X-API-Key` header.
+3. With SocketClient, pass the key as the second argument to `SocketClient.connect()`.
+4. Replace the key if it was ever copied into logs, browser code or a chat.
+
+</Accordion>
+<Accordion title="Easy API returns 429" id="easy-api-returns-429">
+
+1. Stop immediate retries.
+2. Queue new work for the session.
+3. Resume with lower concurrency and jitter between jobs.
+4. Watch for warnings from WhatsApp before returning to normal volume.
+
+</Accordion>
+<Accordion title="Account looks restricted" id="account-looks-restricted">
+
+1. Stop automated sends.
+2. Open WhatsApp on the phone and deal with any prompts.
+3. Review recent recipients, send rate and repeated messages.
+4. Wait before reconnecting automation.
+5. Resume with slower pacing and watch failures closely.
+
+</Accordion>
+</Accordions>

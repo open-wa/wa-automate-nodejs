@@ -1,374 +1,12 @@
 ---
-title: "Status Client API"
-description: "Generated client method reference for the status namespace."
+title: "Status updates"
+description: "Post text, image and video status updates, read stories and delete your updates."
 icon: "BookOpen"
 ---
 
-# Status Client API
+import { ReferenceCode } from '../../../../src/components/reference-code';
 
-This page documents 6 schema-registry client methods in the `status` namespace.
-
-<LicensedMethodSection tier="insiders">
-
-<span id="deleteallstatus---insiders" aria-hidden="true"></span>
-## `deleteAllStatus`
-
-Delete all statuses
-
-**Signature** `client.deleteAllStatus(): Promise<boolean>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.deleteAllStatus();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X DELETE "http://localhost:8080/api/status/deleteAll" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{}'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": true
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-This method does not define input parameters.
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<boolean>` |
-
-Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `status` |
-| Action | `delete` |
-| Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `deleteAllStatuses`, `status.deleteAll` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `DELETE` | `/api/status/deleteAll` | `deleteAllStatus` | Active |
-| Alias | `DELETE` | `/api/deleteAllStatus` | `deleteAllStatus` | Active |
-| Alias | `DELETE` | `/api/deleteAllStatuses` | `deleteAllStatuses` | Active |
-
-</details>
-
-</LicensedMethodSection>
-
-<LicensedMethodSection tier="insiders">
-
-<span id="deletestatus---insiders" aria-hidden="true"></span>
-## `deleteStatus`
-
-Delete status
-
-**Signature** `client.deleteStatus(statusesToDelete: string \| string[]): Promise<boolean>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.deleteStatus({
-  statusesToDelete: [],
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X DELETE "http://localhost:8080/api/status/delete" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "statusesToDelete": []
-  }'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": true
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="DeleteStatusParams" />
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<boolean>` |
-
-Resolves to `boolean`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `status` |
-| Action | `delete` |
-| Functionality | `both` |
-| Positional parameter order | `statusesToDelete` |
-| Aliases | `status.delete` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `DELETE` | `/api/status/delete` | `deleteStatus` | Active |
-| Alias | `DELETE` | `/api/deleteStatus` | `deleteStatus` | Active |
-
-</details>
-
-</LicensedMethodSection>
-
-<LicensedMethodSection tier="insiders">
-
-<span id="getstories---insiders" aria-hidden="true"></span>
-## `getStories`
-
-Get all stories
-
-**Signature** `client.getStories(): Promise<Story[]>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.getStories();
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X GET "http://localhost:8080/api/status/getAll" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{}'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": []
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-This method does not define input parameters.
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<Story[]>` |
-| Story | [View fields](/docs/reference/client/return-types#story) |
-
-Resolves to `Story[]`. A rejected Promise indicates input validation or dispatch failure.
-
-This method is not declared on the in-process Client facade. Use the remote Node.js client or HTTP API.
-Message-shaped status entry, based on the legacy story API. Chat and sender may be absent or null. The licensed getStories payload has not been verified against this model.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `status` |
-| Action | `read` |
-| Functionality | `both` |
-| Positional parameter order | - |
-| Aliases | `getStatuses`, `status.get`, `status.getAll`, `status.getStories` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/status/getAll` | `getStories` | Active |
-| Alias | `GET` | `/api/getStatuses` | `getStatuses` | Active |
-| Alias | `GET` | `/api/getStories` | `getStories` | Active |
-| Alias | `GET` | `/api/status/get` | `status.get` | Active |
-| Alias | `GET` | `/api/status/getStories` | `status.getStories` | Active |
-
-</details>
-
-</LicensedMethodSection>
-
-<LicensedMethodSection tier="insiders">
-
-<span id="postimagestatus---insiders" aria-hidden="true"></span>
-## `postImageStatus`
-
-Post image status
-
-**Signature** `client.postImageStatus(image: string, caption?: string): Promise<MessageId \| string \| boolean>`
-
-### Usage
-
-<InterfaceTabs>
-  <InterfaceTab value="Embedded">
-
-```ts
-const result = await client.postImageStatus("image");
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.postImageStatus({
-  image: "image",
-});
-```
-
-  </InterfaceTab>
-  <InterfaceTab value="Easy API">
-
-```bash
-curl -X POST "http://localhost:8080/api/status/postImage" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "image": "image"
-  }'
-```
-
-Example response envelope:
-
-```json
-{
-  "success": true,
-  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
-}
-```
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-### Parameters
-
-<AutoTypeTable path="./generated-method-params.ts" name="PostImageStatusParams" />
-
-### Returns
-
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<MessageId \| string \| boolean>` |
-| MessageId | [View fields](/docs/reference/client/return-types#messageid) |
-
-Resolves to `MessageId \| string \| boolean`. A rejected Promise indicates input validation or dispatch failure.
-
-In-process Client resolves to `Promise<MediaSendResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
-
-<details>
-<summary>Advanced method metadata</summary>
-
-### Overview
-
-| Prop | Value |
-| --- | --- |
-| Namespace | `status` |
-| Action | `send` |
-| Functionality | `both` |
-| Positional parameter order | `image`, `caption` |
-| Aliases | `status.postImage` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| WAPI override | - |
-| Deprecated | No |
-
-### Routes
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/status/postImage` | `postImageStatus` | Active |
-| Alias | `POST` | `/api/postImageStatus` | `postImageStatus` | Active |
-
-</details>
-
-</LicensedMethodSection>
+# Status updates
 
 <LicensedMethodSection tier="insiders">
 
@@ -377,19 +15,37 @@ In-process Client resolves to `Promise<MediaSendResult>`. The contract above is 
 
 Post text status
 
-**Signature** `client.postTextStatus(text: string, backgroundColor?: string, font?: number): Promise<MessageId \| string \| boolean>`
+Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
-### Usage
+<ReferenceCode>
+
+```ts
+client.postTextStatus(
+  text: string,
+  backgroundColor?: string,
+  font?: number,
+): Promise<MessageId | string | boolean>
+```
+
+</ReferenceCode>
+
+<h3 id="posttextstatus-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.postTextStatus("text");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -400,8 +56,12 @@ const result = await client.postTextStatus({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/status/postText" \
@@ -412,7 +72,11 @@ curl -X POST "http://localhost:8080/api/status/postText" \
   }'
 ```
 
-Example response envelope:
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -421,49 +85,124 @@ Example response envelope:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+<h3 id="posttextstatus-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="PostTextStatusParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `text` | `string` | Status text. |
+| `backgroundColor` | `string` | Optional. Background color. |
+| `font` | `number` | Optional. Font style. |
 
-### Returns
+<h3 id="posttextstatus-returns" className="scroll-m-28">Returns</h3>
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<MessageId \| string \| boolean>` |
-| MessageId | [View fields](/docs/reference/client/return-types#messageid) |
+Resolves to `MessageId | string | boolean`. See [MessageId](/docs/reference/client/return-types#messageid) for its fields.
 
-Resolves to `MessageId \| string \| boolean`. A rejected Promise indicates input validation or dispatch failure.
+The SDK resolves to `MediaSendResult` instead.
 
-In-process Client resolves to `Promise<MediaSendResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+**HTTP:** `POST /api/status/postText`, or `/api/postTextStatus`. **Also named:** `status.postText`.
 
-<details>
-<summary>Advanced method metadata</summary>
+</LicensedMethodSection>
 
-### Overview
+<LicensedMethodSection tier="insiders">
 
-| Prop | Value |
-| --- | --- |
-| Namespace | `status` |
-| Action | `send` |
-| Functionality | `both` |
-| Positional parameter order | `text`, `backgroundColor`, `font` |
-| Aliases | `status.postText` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| WAPI override | - |
-| Deprecated | No |
+<span id="postimagestatus---insiders" aria-hidden="true"></span>
+## `postImageStatus`
 
-### Routes
+Post image status
 
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/status/postText` | `postTextStatus` | Active |
-| Alias | `POST` | `/api/postTextStatus` | `postTextStatus` | Active |
+Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
-</details>
+<ReferenceCode>
+
+```ts
+client.postImageStatus(
+  image: string,
+  caption?: string,
+): Promise<MessageId | string | boolean>
+```
+
+</ReferenceCode>
+
+<h3 id="postimagestatus-usage" className="scroll-m-28">Usage</h3>
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.postImageStatus("image");
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.postImageStatus({
+  image: "image",
+});
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
+
+```bash
+curl -X POST "http://localhost:8080/api/status/postImage" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "image": "image"
+  }'
+```
+
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+<h3 id="postimagestatus-parameters" className="scroll-m-28">Parameters</h3>
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `image` | `string` | Image data URL. |
+| `caption` | `string` | Optional. Status caption. |
+
+<h3 id="postimagestatus-returns" className="scroll-m-28">Returns</h3>
+
+Resolves to `MessageId | string | boolean`. See [MessageId](/docs/reference/client/return-types#messageid) for its fields.
+
+The SDK resolves to `MediaSendResult` instead.
+
+**HTTP:** `POST /api/status/postImage`, or `/api/postImageStatus`. **Also named:** `status.postImage`.
 
 </LicensedMethodSection>
 
@@ -474,19 +213,36 @@ In-process Client resolves to `Promise<MediaSendResult>`. The contract above is 
 
 Post video status
 
-**Signature** `client.postVideoStatus(video: string, caption?: string): Promise<MessageId \| string \| boolean>`
+Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
-### Usage
+<ReferenceCode>
+
+```ts
+client.postVideoStatus(
+  video: string,
+  caption?: string,
+): Promise<MessageId | string | boolean>
+```
+
+</ReferenceCode>
+
+<h3 id="postvideostatus-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
-  <InterfaceTab value="Embedded">
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.postVideoStatus("video");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -497,8 +253,12 @@ const result = await client.postVideoStatus({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
-  <InterfaceTab value="Easy API">
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/status/postVideo" \
@@ -509,7 +269,11 @@ curl -X POST "http://localhost:8080/api/status/postVideo" \
   }'
 ```
 
-Example response envelope:
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -518,48 +282,263 @@ Example response envelope:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters
+<h3 id="postvideostatus-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="PostVideoStatusParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `video` | `string` | Video data URL. |
+| `caption` | `string` | Optional. Status caption. |
 
-### Returns
+<h3 id="postvideostatus-returns" className="scroll-m-28">Returns</h3>
 
-| Prop | Value |
-| --- | --- |
-| Return type | `Promise<MessageId \| string \| boolean>` |
-| MessageId | [View fields](/docs/reference/client/return-types#messageid) |
+Resolves to `MessageId | string | boolean`. See [MessageId](/docs/reference/client/return-types#messageid) for its fields.
 
-Resolves to `MessageId \| string \| boolean`. A rejected Promise indicates input validation or dispatch failure.
+The SDK resolves to `MediaSendResult` instead.
 
-In-process Client resolves to `Promise<MediaSendResult>`. The contract above is for the remote Node.js client; HTTP wraps that result in its `data` property.
+**HTTP:** `POST /api/status/postVideo`, or `/api/postVideoStatus`. **Also named:** `status.postVideo`.
 
-<details>
-<summary>Advanced method metadata</summary>
+</LicensedMethodSection>
 
-### Overview
+<LicensedMethodSection tier="insiders">
 
-| Prop | Value |
-| --- | --- |
-| Namespace | `status` |
-| Action | `send` |
-| Functionality | `both` |
-| Positional parameter order | `video`, `caption` |
-| Aliases | `status.postVideo` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| WAPI override | - |
-| Deprecated | No |
+<span id="getstories---insiders" aria-hidden="true"></span>
+## `getStories`
 
-### Routes
+Get all stories
 
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/status/postVideo` | `postVideoStatus` | Active |
-| Alias | `POST` | `/api/postVideoStatus` | `postVideoStatus` | Active |
+Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
-</details>
+<ReferenceCode>
+
+```ts
+client.getStories(): Promise<Story[]>
+```
+
+</ReferenceCode>
+
+<h3 id="getstories-usage" className="scroll-m-28">Usage</h3>
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.getStories();
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
+
+```bash
+curl -X GET "http://localhost:8080/api/status/getAll" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
+
+```json
+{
+  "success": true,
+  "data": []
+}
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+<h3 id="getstories-parameters" className="scroll-m-28">Parameters</h3>
+
+This method takes no parameters.
+
+<h3 id="getstories-returns" className="scroll-m-28">Returns</h3>
+
+Resolves to `Story[]`. See [Story](/docs/reference/client/return-types#story) for its fields.
+
+Message-shaped status entry, based on the legacy story API. Chat and sender may be absent or null. The licensed getStories payload has not been verified against this model.
+
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
+
+**HTTP:** `GET /api/status/getAll`, or `/api/getStatuses`, `/api/getStories`, `/api/status/get`, `/api/status/getStories`. **Also named:** `getStatuses`, `status.get`, `status.getAll`, `status.getStories`.
+
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="insiders">
+
+<span id="deletestatus---insiders" aria-hidden="true"></span>
+## `deleteStatus`
+
+Delete status
+
+Needs an Insiders license. See [pricing](/docs/licensing/pricing).
+
+<ReferenceCode>
+
+```ts
+client.deleteStatus(statusesToDelete: string | string[]): Promise<boolean>
+```
+
+</ReferenceCode>
+
+<h3 id="deletestatus-usage" className="scroll-m-28">Usage</h3>
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.deleteStatus({
+  statusesToDelete: [],
+});
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
+
+```bash
+curl -X DELETE "http://localhost:8080/api/status/delete" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "statusesToDelete": []
+  }'
+```
+
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+<h3 id="deletestatus-parameters" className="scroll-m-28">Parameters</h3>
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `statusesToDelete` | `string \| string[]` | Status ID(s) |
+
+<h3 id="deletestatus-returns" className="scroll-m-28">Returns</h3>
+
+Resolves to `boolean`.
+
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
+
+**HTTP:** `DELETE /api/status/delete`, or `/api/deleteStatus`. **Also named:** `status.delete`.
+
+</LicensedMethodSection>
+
+<LicensedMethodSection tier="insiders">
+
+<span id="deleteallstatus---insiders" aria-hidden="true"></span>
+## `deleteAllStatus`
+
+Delete all statuses
+
+Needs an Insiders license. See [pricing](/docs/licensing/pricing).
+
+<ReferenceCode>
+
+```ts
+client.deleteAllStatus(): Promise<boolean>
+```
+
+</ReferenceCode>
+
+<h3 id="deleteallstatus-usage" className="scroll-m-28">Usage</h3>
+
+<InterfaceTabs>
+  <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.deleteAllStatus();
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
+
+```bash
+curl -X DELETE "http://localhost:8080/api/status/deleteAll" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{}'
+```
+
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
+
+```json
+{
+  "success": true,
+  "data": true
+}
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+<h3 id="deleteallstatus-parameters" className="scroll-m-28">Parameters</h3>
+
+This method takes no parameters.
+
+<h3 id="deleteallstatus-returns" className="scroll-m-28">Returns</h3>
+
+Resolves to `boolean`.
+
+The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
+
+**HTTP:** `DELETE /api/status/deleteAll`, or `/api/deleteAllStatus`, `/api/deleteAllStatuses`. **Also named:** `deleteAllStatuses`, `status.deleteAll`.
 
 </LicensedMethodSection>

@@ -1,193 +1,86 @@
 ---
 title: Licensed features
-description: What licensed features are for, how keys are used, and where to validate unlock behavior.
+description: See which open-wa methods need a license, how to apply a key, and how to check that it worked.
 ---
 
 # Licensed features
 
-open-wa has license-gated functions. This page explains how the runtime applies a key and how to check the exact behavior you plan to use.
+Most of open-wa works without a license. A license unlocks the features below for the one WhatsApp number it's assigned to; see [pricing](/docs/licensing/pricing) for what it costs.
 
-<LicensedFeatureCallout tier="restricted" title="Need a key before you test a gated flow?">
-  Review the current first-party offer, then validate the specific restricted
-  or insiders behavior in the host-account session you actually plan to run.
-</LicensedFeatureCallout>
+## What a license unlocks
 
-## What licensing affects
+A license bought on [openwa.cloud](https://openwa.cloud) unlocks every row in this table.
 
-License-gated behavior includes features such as:
+| Feature | What it lets you do | Methods |
+| --- | --- | --- |
+| Messaging new numbers | Start a chat with a number the account hasn't talked to before | `sendText` and other sends to a new chat |
+| Stories and status | Post, read and delete status updates | `postTextStatus`, `postImageStatus`, `postVideoStatus`, `getStories`, `getStatus`, `deleteStatus`, `deleteAllStatus` |
+| Insiders methods | Look up numbers and profiles, read starred messages and orders, change the profile picture | `checkNumberStatus`, `getNumberProfile`, `getStarredMessages`, `getOrder`, `setProfilePicture` |
+| Interactive messages | Send buttons, lists, forms, carousels and booking cards | `sendInteractive`, `sendRawMessage`, and the older `sendButtons`, `sendAdvancedButtons` and `sendListMessage` |
+| Audio calls (preview) | Answer, place and end WhatsApp voice calls; video calls aren't available yet | See [calls](/docs/guides/calls) |
 
-- certain advanced or insiders-only capabilities
-- restricted flows like messaging non-contact numbers
-- premium/support-tier unlocks tied to a host account
+`createGroup` and `joinGroupViaLink` are marked `restricted` in the API reference; a license covers them too. Every other method is free to use, and sending to an existing chat never needs a license. The API reference marks each gated method with a license badge.
 
-The method tier and the behavior available in a deployed release are separate
-checks. A key does not make an absent method available, and the host account
-must still support the operation.
+### Keys bought on Gumroad
 
-## Current behavior
+Keys bought on Gumroad keep working and unlock what their tier included:
 
-At launch, the runtime resolves the configured `licenseKey`. When the host account context is available, it sends the key to the license validation service. The runtime classifies the result before it marks the client ready. A server-confirmed response is a valid unlock. The runtime injects the returned license payload into the browser.
-
-If the runtime cannot confirm the key with the server, it can fall back to local license metadata. That fallback records the key type and lets the session continue, but it is not the same as a server-confirmed capability unlock. Invalid or expired classifications are blocking failures and stop readiness before finalization.
-
-Feature gating comes from the generated method metadata. Each method declares a license tier of `none`, `insiders`, or `restricted`. Use that metadata as the feature list for your build.
-
-## Exact gated features
-
-The current generated method schema marks these methods as licensed:
-
-| Feature | License tier |
+| Gumroad tier | Unlocks |
 | --- | --- |
-| `getNumberProfile` | `insiders` |
-| `checkNumberStatus` | `insiders` |
-| `getOrder` | `insiders` |
-| `postTextStatus` | `insiders` |
-| `postImageStatus` | `insiders` |
-| `postVideoStatus` | `insiders` |
-| `getStories` / `getStatuses` | `insiders` |
-| `getStatus` | `insiders` |
-| `deleteStatus` | `insiders` |
-| `deleteAllStatus` / `deleteAllStatuses` | `insiders` |
-| `sendInteractive` (buttons, lists, forms, carousels, bookings) | `insiders` |
-| `sendRawMessage` (constructed protocol payloads) | `insiders` |
-| `sendButtons` | `insiders` |
-| `sendAdvancedButtons` | `insiders` |
-| `sendListMessage` / `sendList` | `insiders` |
-| `getStarredMessages` | `insiders` |
-| `setProfilePicture` / `setProfilePic` | `insiders` |
-| `createGroup` | `restricted` |
-| `joinGroupViaLink` / `joinGroup` | `restricted` |
+| Restricted or Premium license key | Everything above |
+| Insiders Program | Insiders methods, interactive messages and audio calls |
+| Text, image or video story key (including Early Bird image story) | Stories and status, Insiders methods, interactive messages and audio calls |
 
-Methods marked `none` are not license-gated in the schema. Old docs and changelog entries can contain previous tiers, names, or runtime surfaces. Use the generated API reference for the package version that you deploy.
+## Apply a key
 
-For new v5 integrations, use [`sendInteractive`](/docs/guides/interactive-messages)
-for buttons, lists, forms, carousels, and bookings. It requires an applied
-Insiders or higher license for the sending account. The legacy `sendButtons`,
-`sendAdvancedButtons`, and `sendListMessage` methods remain in the schema with
-their own Insider gates; `sendButtons` and `sendListMessage` are deprecated.
-
-### Runtime-specific number check
-
-The ordinary `sendText` method is marked `none` in the schema, but the current
-client reports that sending to a number that is not already a contact requires
-a Restricted or Premium licence. This is an additional runtime check for that
-recipient path, so the method badge alone does not describe it. Confirm the
-runtime response and test that path in the session and release you will use.
-
-## How keys are supplied
-
-You can provide a license key in the runtime config:
+In the SDK, pass the key to `create()`:
 
 ```ts
-await create({
-  licenseKey: 'YOUR-LICENSE-KEY',
+import { create } from '@open-wa/wa-automate';
+
+const client = await create({
+  sessionId: 'sales',
+  licenseKey: process.env.WA_LICENSE_KEY,
 });
 ```
 
-Or via the Easy API / CLI path:
+For the Easy API, use the `--license-key` flag, the `WA_LICENSE_KEY` environment variable or `licenseKey` in `wa.config.js`:
 
 ```bash
-npx @open-wa/wa-automate@5.1.0 --session-id sales --host 127.0.0.1 --port 8080 --license-key "YOUR-LICENSE-KEY"
+WA_LICENSE_KEY='YOUR-LICENSE-KEY' npx @open-wa/wa-automate --session-id sales
 ```
 
-## License behavior
+You can also apply a key to a running Easy API session from the dashboard's license badge; see [refresh a session](/docs/sessions/refresh). Treat the key as a secret and keep it out of source control.
 
-When the license is valid, the runtime applies the server-confirmed license payload, records the license lifecycle as satisfied, and continues launch. The relevant runtime status is `valid`.
+## Check that it worked
 
-When the runtime can use only local metadata, it records `metadata_only`. The session can continue, but this status does not confirm an unlock. The license server did not confirm the capability.
-
-When you supply no key, the runtime records `missing`. Ungated methods continue to work. Do not expect gated methods to work.
-
-For an expired or invalid key, the runtime records `expired` or `invalid`. It marks the license lifecycle as failed and emits a fatal bootstrap error. Readiness stops before finalization.
-
-## Common license workflow
-
-1. review the current first-party offer and confirm it covers the behavior you intend to run
-2. supply it through config or CLI at launch
-3. verify the runtime recognizes the key in the session you care about
-4. test the specific gated feature instead of assuming success from configuration alone
-
-## Status inspection
-
-For Easy API sessions, inspect the `/health` endpoint and read the `license` object:
+Read the `license` object from `/health`:
 
 ```bash
-curl http://localhost:8080/health
+curl http://127.0.0.1:8080/health
 ```
 
-The response includes fields like:
+A session started without a key reports:
 
 ```json
 {
   "license": {
-    "status": "valid",
-    "source": "local",
-    "keyType": "server",
-    "detail": "License capability remained server-confirmed at check time."
+    "status": "missing",
+    "source": "none",
+    "keyType": "none",
+    "detail": "No license is applied."
   }
 }
 ```
 
-From a client method surface, you can also call `getLicenseType` to inspect the runtime license type exposed by the session:
+With a working key, `status` is `valid`. In the SDK, `await client.getLicenseFeatures()` returns the same `status`.
 
-```ts
-const licenseType = await client.getLicenseType();
-console.log(licenseType);
-```
-
-For launch-level diagnostics, listen for `license.check.after` or inspect the launch timeline in `/health`. The same status values are used there: `valid`, `metadata_only`, `missing`, `invalid`, and `expired`.
-
-## Operational advice
-
-- Treat license configuration as deploy-time secret material.
-- Validate the license against the actual host account you intend to run.
-- If unlock behavior looks inconsistent, verify the host number, deployment clock, and current runtime mode before assuming the key itself is wrong.
-
-## If the key looks wrong
-
-Check these first:
-
-- the host account number associated with the running session
-- whether the feature is available in the runtime surface that you use
-- whether the machine clock and deployment environment are sane
-- whether you are testing the gated feature through the same session the key is meant for
-
-## Failure messages
-
-The current runtime uses these license failure details:
-
-| Situation | Message |
+| Status | Meaning |
 | --- | --- |
-| Validation server rejects the key | `License key was rejected by the validation server.` |
-| Preload fails before validation | `License preload failed before validation.` |
-| No key is available | `No license material was available for this session.` |
-| Key is marked expired | `Resolved license key is marked as expired.` |
-| Key is marked invalid | `Resolved license key is marked as invalid.` |
-| Server-confirmed payload cannot be applied | `License payload did not confirm successful application.` |
-| Apply phase fails without a more specific detail | `License lifecycle did not complete successfully` |
-| Blocking status reaches launch finalization | `License lifecycle blocked readiness with status: ${status}` |
-| License validation request fails | `License validation request failed: ${error}` |
+| `valid` | The key was accepted for this number and the licensed features are on. |
+| `missing` | No key reached the session. Unlicensed methods work as normal. |
+| `invalid` | The key was rejected, usually because it's assigned to another number or the subscription ended. |
+| `expired` | The license period ended. |
+| `metadata_only` | The key couldn't be confirmed, so licensed features stay off until it can. |
 
-You can also see the `license_server_validation_failed` warning in logs when the validation request fails and the runtime tries the metadata fallback path.
-
-## Purchase link
-
-Use **Get a license** to choose Insiders or Restricted and enter your GitHub
-username, WhatsApp number, and use case. The purchase button on a licensed
-method selects that method’s tier for you.
-
-When you open [the license form](/checkout) from the dashboard, it fills in the
-session’s phone number when available and includes the session reference with
-your use case. Continue to Gumroad to review the selected license, prefilled
-details, current price, and terms before paying. You still need to configure
-the purchased key in your runtime.
-
-## Support escalation
-
-If a license still fails, examine the host account, runtime version, deployment clock, and gated method. Then, collect the `/health` license object. Also collect the masked log key, host account number, and method name.
-
-For support, use the project Discord or the paid support links from the primary support page. Include the status value and failure message above so the issue can be routed quickly, and mask the key and host account number before sharing logs.
-
-## Scope note
-
-Feature availability has changed over time. Use the current generated API reference and runtime behavior as the source of truth for what is available in the build you are actually deploying.
+A key problem never stops the session: it still becomes ready, and only the licensed features stay off. If a licensed method fails while the status is `valid`, check that you're calling it on the session the key was applied to. When asking for help, include the `license` object with the key and number masked.

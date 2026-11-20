@@ -1,0 +1,120 @@
+---
+title: Multiple sessions
+description: Run several WhatsApp accounts side by side, each with its own login, port and API key.
+---
+
+# Multiple sessions
+
+Give each WhatsApp account a unique `sessionId`; each one saves its login in its own `<sessionId>.data.json` file.
+For separate Easy API processes, also assign a unique port and API key. The
+[Easy API quick start](/docs/getting-started/easy-api) covers installation and
+API-key setup; use the [Docker guide](/docs/getting-started/docker) when each
+session needs its own persistent volume.
+
+## One process per session
+
+Separate processes keep browser failures, restarts, and API credentials scoped
+to one account. Give each process its own port, and set different values for
+`SALES_API_KEY` and `SUPPORT_API_KEY` in your secret store or shell first.
+
+```bash
+npx @open-wa/wa-automate \
+  --session-id sales --port 8081 --api-key "$SALES_API_KEY"
+
+npx @open-wa/wa-automate \
+  --session-id support --port 8082 --api-key "$SUPPORT_API_KEY"
+```
+
+Both listen on `localhost`, the default host.
+
+Keep the API processes on loopback or a private network and configure your
+reverse proxy with a separate upstream credential for each session. `/health`
+is public and can include QR or diagnostic data, so do not expose it through a
+public proxy. See [Security and deployment](/docs/operations/security-and-deployment).
+
+## One Node.js process
+
+With the SDK, call `create()` once per account, keep each client, and stop
+every client when your application shuts down.
+
+```ts
+import { create } from '@open-wa/wa-automate';
+
+const sessions = new Map();
+
+for (const sessionId of ['sales', 'support']) {
+  const client = await create({
+    sessionId,
+    sessionDataPath: `./private/sessions/`,
+  });
+  sessions.set(sessionId, client);
+}
+
+process.once('SIGTERM', async () => {
+  await Promise.all([...sessions.values()].map(client => client.stop('SIGTERM')));
+});
+```
+
+`create()` waits for each session to be ready, so link the first account before
+the second QR code appears. Each session runs its own browser, so memory grows
+with the number of accounts. If one process exits, all its sessions stop; supervise and
+recover them as a unit or move sessions into separate processes when they need
+independent availability.
+
+## Route requests to the intended session
+
+Keep the session-to-origin and session-to-key mapping in your application.
+Authenticate the upstream request with the key for that session and reject
+unknown session names before forwarding traffic.
+
+| Session | Local API origin | API key source |
+| --- | --- | --- |
+| `sales` | `http://localhost:8081` | `SALES_API_KEY` |
+| `support` | `http://localhost:8082` | `SUPPORT_API_KEY` |
+
+For example, a request to `sales` can be forwarded to the method route on its
+own API process:
+
+```ts
+const salesApiKey = process.env.SALES_API_KEY;
+if (!salesApiKey) {
+  throw new Error('Set SALES_API_KEY before sending requests');
+}
+
+const response = await fetch('http://localhost:8081/api/messages/sendText', {
+  method: 'POST',
+  headers: {
+    'content-type': 'application/json',
+    'x-api-key': salesApiKey,
+  },
+  body: JSON.stringify({
+    to: '447700900000@c.us',
+    content: 'Your update is ready.',
+  }),
+});
+
+if (!response.ok) {
+  throw new Error(`The sales session returned ${response.status}`);
+}
+```
+
+The exact input shape comes from the method contract; see the
+[`sendText` reference](/docs/reference/client/messages#sendtext). Do not let a
+user with access to one session inherit permission to send from another.
+
+## Recovery and capacity
+
+Monitor each Easy API process separately and wait for `/health` to report
+`connected: true` and `session.ready: true` after startup or restart. A
+responding port only shows the HTTP server is up. Keep the session ID, session file,
+API key, logs and restart policy paired so you can recover one
+account without changing another.
+
+Browser memory, CPU, media work, sockets, and reconnect bursts determine how
+many sessions a host can support. There is no fixed safe count; add sessions
+only after measuring the workload on the intended host. For process
+supervision, use your platform's service manager or container runtime.
+
+See [Log in and keep a session](/docs/sessions/authentication)
+for where the login is saved and [configuration and CLI](/docs/guides/configuration-and-cli)
+for runtime flags.

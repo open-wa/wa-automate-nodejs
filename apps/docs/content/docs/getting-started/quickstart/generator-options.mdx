@@ -1,0 +1,104 @@
+---
+title: Generator options
+description: Script the project generator with flags and see what each choice writes into your project.
+---
+
+# Generator options
+
+`npm init @open-wa@latest` asks for a project type, a language, a browser and
+optional plugins. This page lists each choice and its flag, so you can run the
+generator without questions in a script or CI. The [project builder](/new/)
+offers the same choices on this site and previews every generated file.
+
+## Project type
+
+| Choice | What you get |
+| --- | --- |
+| **Easy API** (`--mode easy-api`) | An HTTP server with the Neo dashboard and API explorer. `npm start` runs `wa-automate`, which finds `wa.config.js` or `wa.config.ts` in the folder by itself. |
+| **SDK** (`--mode sdk`) | A Node.js bot in `index.js` or `index.ts` that passes the config to `create()`. It replies `pong` to `!ping`. There's no HTTP server or dashboard. |
+
+JavaScript projects use `.js` files. TypeScript projects (`--language ts`) use
+`.ts` files with `tsconfig.json` and editor types; Node.js runs them directly,
+so there's no build step.
+
+## Browser
+
+| Choice | Flag | What happens |
+| --- | --- | --- |
+| Detect at startup | `auto` | Reuse installed Chrome or a cached browser, and ask what to download if neither exists. |
+| Use installed Chrome | `system-chrome` | Use the Chrome already on the machine. Never download. |
+| Download Chrome | `chrome` | Download Chrome for Testing the first time it's needed, then reuse it. Recommended for calls and media. |
+| Download Chromium | `chromium` | Download Chromium the first time it's needed. Some audio and video codecs may be missing. |
+
+Downloads happen when you first run `npm start`, not when the project is
+created. Choose `chrome` or `chromium` for an unattended first start, because
+`auto` may stop to ask.
+
+## Plugins
+
+| Plugin | Flag value | Notes |
+| --- | --- | --- |
+| Jev chat assistant | `jev` | Answers text messages and offers chat actions. Needs `MISTRAL_API_KEY` and `JEV_API_KEY`. |
+| Voxtral | `voxtral` | A voice assistant for voice notes, calls or both (`--voxtral-mode`). Calls need a license with calling. |
+| Webhooks | `webhook` | Posts incoming messages to the URL in `WEBHOOK_URL`. |
+| Chatwoot | `chatwoot` | Connects a Chatwoot inbox. Easy API only. |
+
+The generator writes plugin settings into the config file and lists the
+variables they need in `.env.example`. Copy it to `.env` and fill it in. The
+generated config loads `.env` when the file exists, and variables already set
+in your shell take precedence. Plugins download on the first `npm start` and are
+cached in the project.
+
+See [Jev](/docs/guides/jev), [Voxtral](/docs/guides/voxtral),
+[Receive webhooks](/docs/guides/receive-webhooks) and
+[Chatwoot](/docs/guides/chatwoot) for what each plugin does once it runs.
+
+## Run without questions
+
+Flags skip their questions, and `--yes` takes the default for anything you
+didn't pass:
+
+```bash
+npm init @open-wa@latest my-api -- --mode easy-api --language js --browser chrome --plugins none --yes
+```
+
+A TypeScript SDK voice assistant:
+
+```bash
+npm init @open-wa@latest voice-bot -- --mode sdk --language ts --browser chrome --plugins voxtral --voxtral-mode both --yes
+```
+
+| Flag | Values |
+| --- | --- |
+| `--mode` | `easy-api`, `sdk` |
+| `--language` | `js`, `ts` |
+| `--browser` | `auto`, `system-chrome`, `chrome`, `chromium` |
+| `--plugins` | Comma-separated `jev`, `voxtral`, `webhook`, `chatwoot`, or `none` |
+| `--voxtral-mode` | `voice-notes`, `calls`, `both` |
+| `--no-install` | Write the files and skip `npm install`. |
+| `--yes` | Use defaults for any choice you didn't pass. |
+| `--help` | Print usage without creating anything. |
+
+The defaults are Easy API, JavaScript, browser detection, no plugins, and
+installing dependencies. Pass `.` as the folder to generate into the current
+directory. `npx @open-wa/wa-automate init my-bot` opens the same generator.
+
+## Generated files
+
+| File | When |
+| --- | --- |
+| `package.json` | Always. Requires Node.js 22.21.1 or newer and depends on `@open-wa/wa-automate`. |
+| `wa.config.js` or `wa.config.ts` | Always. Holds the session ID, browser choice and plugin settings. |
+| `index.js` or `index.ts` | SDK projects. |
+| `tsconfig.json` | TypeScript projects. |
+| `.env.example` | When the project needs keys, such as `WA_API_KEY` for Easy API. |
+| `.gitignore` | Always. Ignores `.env`, `node_modules`, the browser cache and the saved session file. |
+| `README.md` | Always. |
+
+The generator refuses to overwrite files that already exist. If `npm install`
+fails, keep the files, fix the npm error and run `npm install` in the folder.
+
+The saved login is a file named after the session, such as `my-bot.data.json`,
+in the project folder. Treat it and `.env` as credentials.
+
+Back to the [quick start](/docs/getting-started/quickstart).
