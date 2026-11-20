@@ -4,6 +4,8 @@ description: "Post text, image and video status updates, read stories and delete
 icon: "BookOpen"
 ---
 
+import { ReferenceCode } from '../../../../src/components/reference-code';
+
 # Status updates
 
 <LicensedMethodSection tier="insiders">
@@ -15,6 +17,8 @@ Post text status
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
 client.postTextStatus(
   text: string,
@@ -23,17 +27,25 @@ client.postTextStatus(
 ): Promise<MessageId | string | boolean>
 ```
 
-### Usage [!toc] [#posttextstatus-usage]
+</ReferenceCode>
+
+<h3 id="posttextstatus-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.postTextStatus("text");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -44,8 +56,12 @@ const result = await client.postTextStatus({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/status/postText" \
@@ -56,7 +72,11 @@ curl -X POST "http://localhost:8080/api/status/postText" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -65,39 +85,26 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#posttextstatus-parameters]
+<h3 id="posttextstatus-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="PostTextStatusParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `text` | `string` | Status text. |
+| `backgroundColor` | `string` | Optional. Background color. |
+| `font` | `number` | Optional. Font style. |
 
-### Returns [!toc] [#posttextstatus-returns]
+<h3 id="posttextstatus-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageId | string | boolean`. See [MessageId](/docs/reference/client/return-types#messageid) for its fields.
 
 The SDK resolves to `MediaSendResult` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `status` |
-| Positional parameter order | `text`, `backgroundColor`, `font` |
-| Aliases | `status.postText` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/status/postText` | `postTextStatus` | Active |
-| Alias | `POST` | `/api/postTextStatus` | `postTextStatus` | Active |
-
-</details>
+**HTTP:** `POST /api/status/postText`, or `/api/postTextStatus`. **Also named:** `status.postText`.
 
 </LicensedMethodSection>
 
@@ -110,6 +117,8 @@ Post image status
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
 client.postImageStatus(
   image: string,
@@ -117,17 +126,25 @@ client.postImageStatus(
 ): Promise<MessageId | string | boolean>
 ```
 
-### Usage [!toc] [#postimagestatus-usage]
+</ReferenceCode>
+
+<h3 id="postimagestatus-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.postImageStatus("image");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -138,8 +155,12 @@ const result = await client.postImageStatus({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/status/postImage" \
@@ -150,7 +171,11 @@ curl -X POST "http://localhost:8080/api/status/postImage" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -159,39 +184,25 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#postimagestatus-parameters]
+<h3 id="postimagestatus-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="PostImageStatusParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `image` | `string` | Image data URL. |
+| `caption` | `string` | Optional. Status caption. |
 
-### Returns [!toc] [#postimagestatus-returns]
+<h3 id="postimagestatus-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageId | string | boolean`. See [MessageId](/docs/reference/client/return-types#messageid) for its fields.
 
 The SDK resolves to `MediaSendResult` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `status` |
-| Positional parameter order | `image`, `caption` |
-| Aliases | `status.postImage` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/status/postImage` | `postImageStatus` | Active |
-| Alias | `POST` | `/api/postImageStatus` | `postImageStatus` | Active |
-
-</details>
+**HTTP:** `POST /api/status/postImage`, or `/api/postImageStatus`. **Also named:** `status.postImage`.
 
 </LicensedMethodSection>
 
@@ -204,6 +215,8 @@ Post video status
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
 client.postVideoStatus(
   video: string,
@@ -211,17 +224,25 @@ client.postVideoStatus(
 ): Promise<MessageId | string | boolean>
 ```
 
-### Usage [!toc] [#postvideostatus-usage]
+</ReferenceCode>
+
+<h3 id="postvideostatus-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.postVideoStatus("video");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -232,8 +253,12 @@ const result = await client.postVideoStatus({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/status/postVideo" \
@@ -244,7 +269,11 @@ curl -X POST "http://localhost:8080/api/status/postVideo" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -253,39 +282,25 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#postvideostatus-parameters]
+<h3 id="postvideostatus-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="PostVideoStatusParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `video` | `string` | Video data URL. |
+| `caption` | `string` | Optional. Status caption. |
 
-### Returns [!toc] [#postvideostatus-returns]
+<h3 id="postvideostatus-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageId | string | boolean`. See [MessageId](/docs/reference/client/return-types#messageid) for its fields.
 
 The SDK resolves to `MediaSendResult` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `status` |
-| Positional parameter order | `video`, `caption` |
-| Aliases | `status.postVideo` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/status/postVideo` | `postVideoStatus` | Active |
-| Alias | `POST` | `/api/postVideoStatus` | `postVideoStatus` | Active |
-
-</details>
+**HTTP:** `POST /api/status/postVideo`, or `/api/postVideoStatus`. **Also named:** `status.postVideo`.
 
 </LicensedMethodSection>
 
@@ -298,14 +313,20 @@ Get all stories
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
 client.getStories(): Promise<Story[]>
 ```
 
-### Usage [!toc] [#getstories-usage]
+</ReferenceCode>
+
+<h3 id="getstories-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -314,8 +335,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getStories();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/status/getAll" \
@@ -324,7 +349,11 @@ curl -X GET "http://localhost:8080/api/status/getAll" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -333,14 +362,16 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getstories-parameters]
+<h3 id="getstories-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getstories-returns]
+<h3 id="getstories-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `Story[]`. See [Story](/docs/reference/client/return-types#story) for its fields.
 
@@ -348,29 +379,7 @@ Message-shaped status entry, based on the legacy story API. Chat and sender may 
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `status` |
-| Positional parameter order | - |
-| Aliases | `getStatuses`, `status.get`, `status.getAll`, `status.getStories` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/status/getAll` | `getStories` | Active |
-| Alias | `GET` | `/api/getStatuses` | `getStatuses` | Active |
-| Alias | `GET` | `/api/getStories` | `getStories` | Active |
-| Alias | `GET` | `/api/status/get` | `status.get` | Active |
-| Alias | `GET` | `/api/status/getStories` | `status.getStories` | Active |
-
-</details>
+**HTTP:** `GET /api/status/getAll`, or `/api/getStatuses`, `/api/getStories`, `/api/status/get`, `/api/status/getStories`. **Also named:** `getStatuses`, `status.get`, `status.getAll`, `status.getStories`.
 
 </LicensedMethodSection>
 
@@ -383,14 +392,20 @@ Delete status
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
 client.deleteStatus(statusesToDelete: string | string[]): Promise<boolean>
 ```
 
-### Usage [!toc] [#deletestatus-usage]
+</ReferenceCode>
+
+<h3 id="deletestatus-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -401,8 +416,12 @@ const result = await client.deleteStatus({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X DELETE "http://localhost:8080/api/status/delete" \
@@ -413,7 +432,11 @@ curl -X DELETE "http://localhost:8080/api/status/delete" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -422,39 +445,24 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#deletestatus-parameters]
+<h3 id="deletestatus-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="DeleteStatusParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `statusesToDelete` | `string \| string[]` | Status ID(s) |
 
-### Returns [!toc] [#deletestatus-returns]
+<h3 id="deletestatus-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `status` |
-| Positional parameter order | `statusesToDelete` |
-| Aliases | `status.delete` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `DELETE` | `/api/status/delete` | `deleteStatus` | Active |
-| Alias | `DELETE` | `/api/deleteStatus` | `deleteStatus` | Active |
-
-</details>
+**HTTP:** `DELETE /api/status/delete`, or `/api/deleteStatus`. **Also named:** `status.delete`.
 
 </LicensedMethodSection>
 
@@ -467,14 +475,20 @@ Delete all statuses
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
 client.deleteAllStatus(): Promise<boolean>
 ```
 
-### Usage [!toc] [#deleteallstatus-usage]
+</ReferenceCode>
+
+<h3 id="deleteallstatus-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -483,8 +497,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.deleteAllStatus();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X DELETE "http://localhost:8080/api/status/deleteAll" \
@@ -493,7 +511,11 @@ curl -X DELETE "http://localhost:8080/api/status/deleteAll" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -502,39 +524,21 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#deleteallstatus-parameters]
+<h3 id="deleteallstatus-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#deleteallstatus-returns]
+<h3 id="deleteallstatus-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `status` |
-| Positional parameter order | - |
-| Aliases | `deleteAllStatuses`, `status.deleteAll` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `DELETE` | `/api/status/deleteAll` | `deleteAllStatus` | Active |
-| Alias | `DELETE` | `/api/deleteAllStatus` | `deleteAllStatus` | Active |
-| Alias | `DELETE` | `/api/deleteAllStatuses` | `deleteAllStatuses` | Active |
-
-</details>
+**HTTP:** `DELETE /api/status/deleteAll`, or `/api/deleteAllStatus`, `/api/deleteAllStatuses`. **Also named:** `deleteAllStatuses`, `status.deleteAll`.
 
 </LicensedMethodSection>

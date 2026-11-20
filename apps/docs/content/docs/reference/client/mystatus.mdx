@@ -4,6 +4,8 @@ description: "Read the about text a contact has set."
 icon: "BookOpen"
 ---
 
+import { ReferenceCode } from '../../../../src/components/reference-code';
+
 # Contact status
 
 <LicensedMethodSection tier="insiders">
@@ -15,14 +17,20 @@ Get specific status
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
 client.getStatus(contactId: string): Promise<ContactStatus>
 ```
 
-### Usage [!toc] [#getstatus-usage]
+</ReferenceCode>
+
+<h3 id="getstatus-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -33,8 +41,12 @@ const result = await client.getStatus({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/mystatus/getStatus" \
@@ -42,7 +54,11 @@ curl -G "http://localhost:8080/api/mystatus/getStatus" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -54,38 +70,23 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getstatus-parameters]
+<h3 id="getstatus-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetStatusParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#getstatus-returns]
+<h3 id="getstatus-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to [`ContactStatus`](/docs/reference/client/return-types#contactstatus).
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `mystatus` |
-| Positional parameter order | `contactId` |
-| Aliases | `mystatus.getStatus` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/mystatus/getStatus` | `getStatus` | Active |
-| Alias | `GET` | `/api/getStatus` | `getStatus` | Active |
-
-</details>
+**HTTP:** `GET /api/mystatus/getStatus`, or `/api/getStatus`. **Also named:** `mystatus.getStatus`.
 
 </LicensedMethodSection>

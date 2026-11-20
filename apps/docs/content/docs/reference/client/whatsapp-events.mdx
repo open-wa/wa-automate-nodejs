@@ -4,6 +4,8 @@ description: "Create, edit and cancel WhatsApp events, and read and send RSVPs."
 icon: "BookOpen"
 ---
 
+import { ReferenceCode } from '../../../../src/components/reference-code';
+
 # Calendar events
 
 
@@ -11,17 +13,20 @@ icon: "BookOpen"
 
 Send a native WhatsApp event with Unix-second times. Returns its submitted message ID; delivery is observed through ACKs.
 
+<ReferenceCode>
+
 ```ts
-client.sendEvent(
-  to: string,
-  event: { callType?: "voice" | "video"; description?: string; endTime?: number; extraGuestsAllowed?: boolean; isScheduledCall?: boolean; location?: string; name: string; quotedMsgId?: string; requireApproval?: boolean; startTime: number },
-): Promise<string>
+client.sendEvent(to: string, event: EventInput): Promise<string>
 ```
 
-### Usage [!toc] [#sendevent-usage]
+</ReferenceCode>
+
+<h3 id="sendevent-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.sendEvent(
@@ -34,8 +39,12 @@ const result = await client.sendEvent(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -51,8 +60,12 @@ const result = await client.sendEvent({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/events/sendEvent" \
@@ -68,7 +81,11 @@ curl -X POST "http://localhost:8080/api/events/sendEvent" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -77,14 +94,19 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendevent-parameters]
+<h3 id="sendevent-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendEventParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `event` | [`EventInput`](/docs/reference/client/return-types#eventinput) | - |
 
-### Returns [!toc] [#sendevent-returns]
+<h3 id="sendevent-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `string`.
 
@@ -92,50 +114,38 @@ Message ID
 
 The SDK resolves to `MessageId` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `events` |
-| Positional parameter order | `to`, `event` |
-| Aliases | `events.sendEvent` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/events/sendEvent` | `sendEvent` | Active |
-| Alias | `POST` | `/api/sendEvent` | `sendEvent` | Active |
-
-</details>
+**HTTP:** `POST /api/events/sendEvent`, or `/api/sendEvent`. **Also named:** `events.sendEvent`.
 
 
 ## `getEvents`
 
 Page through a chat’s locally synced event history, newest first. Pass nextCursor as options.before to retrieve the next page.
 
+<ReferenceCode>
+
 ```ts
-client.getEvents(
-  chatId: string,
-  options?: { before?: string; limit?: number },
-): Promise<EventPage>
+client.getEvents(chatId: string, options?: EventListOptions): Promise<EventPage>
 ```
 
-### Usage [!toc] [#getevents-usage]
+</ReferenceCode>
+
+<h3 id="getevents-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getEvents("447123456789@c.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -146,8 +156,12 @@ const result = await client.getEvents({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/events/get" \
@@ -155,7 +169,11 @@ curl -G "http://localhost:8080/api/events/get" \
   --data-urlencode "chatId=447123456789@c.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -167,51 +185,43 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getevents-parameters]
+<h3 id="getevents-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetEventsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `options` | [`EventListOptions`](/docs/reference/client/return-types#eventlistoptions) | Optional. |
 
-### Returns [!toc] [#getevents-returns]
+<h3 id="getevents-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to [`EventPage`](/docs/reference/client/return-types#eventpage).
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `events` |
-| Positional parameter order | `chatId`, `options` |
-| Aliases | `events.get` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/events/get` | `getEvents` | Active |
-| Alias | `GET` | `/api/getEvents` | `getEvents` | Active |
-
-</details>
+**HTTP:** `GET /api/events/get`, or `/api/getEvents`. **Also named:** `events.get`.
 
 
 ## `getEvent`
 
 Retrieve an event by message ID from WhatsApp local history. Returns null when absent.
 
+<ReferenceCode>
+
 ```ts
 client.getEvent(eventId: string): Promise<WhatsAppEvent | null>
 ```
 
-### Usage [!toc] [#getevent-usage]
+</ReferenceCode>
+
+<h3 id="getevent-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getEvent(
@@ -219,8 +229,12 @@ const result = await client.getEvent(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -231,8 +245,12 @@ const result = await client.getEvent({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/events/getEvent" \
@@ -240,7 +258,11 @@ curl -G "http://localhost:8080/api/events/getEvent" \
   --data-urlencode "eventId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -258,51 +280,42 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getevent-parameters]
+<h3 id="getevent-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetEventParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `eventId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
 
-### Returns [!toc] [#getevent-returns]
+<h3 id="getevent-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `WhatsAppEvent | null`. See [WhatsAppEvent](/docs/reference/client/return-types#whatsappevent) for its fields.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `events` |
-| Positional parameter order | `eventId` |
-| Aliases | `events.getEvent` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/events/getEvent` | `getEvent` | Active |
-| Alias | `GET` | `/api/getEvent` | `getEvent` | Active |
-
-</details>
+**HTTP:** `GET /api/events/getEvent`, or `/api/getEvent`. **Also named:** `events.getEvent`.
 
 
 ## `getEventResponses`
 
 Get the latest decrypted RSVP per participant, including responses persisted in WhatsApp local history.
 
+<ReferenceCode>
+
 ```ts
 client.getEventResponses(eventId: string): Promise<EventResponse[]>
 ```
 
-### Usage [!toc] [#geteventresponses-usage]
+</ReferenceCode>
+
+<h3 id="geteventresponses-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getEventResponses(
@@ -310,8 +323,12 @@ const result = await client.getEventResponses(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -322,8 +339,12 @@ const result = await client.getEventResponses({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/events/getEventResponses" \
@@ -331,7 +352,11 @@ curl -G "http://localhost:8080/api/events/getEventResponses" \
   --data-urlencode "eventId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -340,42 +365,29 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#geteventresponses-parameters]
+<h3 id="geteventresponses-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetEventResponsesParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `eventId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
 
-### Returns [!toc] [#geteventresponses-returns]
+<h3 id="geteventresponses-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `EventResponse[]`. See [EventResponse](/docs/reference/client/return-types#eventresponse) for its fields.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `events` |
-| Positional parameter order | `eventId` |
-| Aliases | `events.getEventResponses` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/events/getEventResponses` | `getEventResponses` | Active |
-| Alias | `GET` | `/api/getEventResponses` | `getEventResponses` | Active |
-
-</details>
+**HTTP:** `GET /api/events/getEventResponses`, or `/api/getEventResponses`. **Also named:** `events.getEventResponses`.
 
 
 ## `respondToEvent`
 
 Send your RSVP to a WhatsApp event.
+
+<ReferenceCode>
 
 ```ts
 client.respondToEvent(
@@ -384,10 +396,14 @@ client.respondToEvent(
 ): Promise<boolean>
 ```
 
-### Usage [!toc] [#respondtoevent-usage]
+</ReferenceCode>
+
+<h3 id="respondtoevent-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.respondToEvent(
@@ -396,8 +412,12 @@ const result = await client.respondToEvent(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -409,8 +429,12 @@ const result = await client.respondToEvent({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/events/respondToEvent" \
@@ -422,7 +446,11 @@ curl -X POST "http://localhost:8080/api/events/respondToEvent" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -431,54 +459,43 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#respondtoevent-parameters]
+<h3 id="respondtoevent-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="RespondToEventParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `eventId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
+| `response` | `"going" \| "notGoing" \| "maybe"` | - |
 
-### Returns [!toc] [#respondtoevent-returns]
+<h3 id="respondtoevent-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `events` |
-| Positional parameter order | `eventId`, `response` |
-| Aliases | `events.respondToEvent` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/events/respondToEvent` | `respondToEvent` | Active |
-| Alias | `POST` | `/api/respondToEvent` | `respondToEvent` | Active |
-
-</details>
+**HTTP:** `POST /api/events/respondToEvent`, or `/api/respondToEvent`. **Also named:** `events.respondToEvent`.
 
 
 ## `editEvent`
 
 Edit an event created by this account. Unspecified fields retain their current values; endTime: null removes the end time.
 
+<ReferenceCode>
+
 ```ts
-client.editEvent(
-  eventId: string,
-  changes: { description?: string; endTime?: number | null; location?: string; name?: string; startTime?: number },
-): Promise<boolean>
+client.editEvent(eventId: string, changes: EventUpdate): Promise<boolean>
 ```
 
-### Usage [!toc] [#editevent-usage]
+</ReferenceCode>
+
+<h3 id="editevent-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.editEvent(
@@ -487,8 +504,12 @@ const result = await client.editEvent(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -500,8 +521,12 @@ const result = await client.editEvent({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/events/editEvent" \
@@ -515,7 +540,11 @@ curl -X POST "http://localhost:8080/api/events/editEvent" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -524,51 +553,43 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#editevent-parameters]
+<h3 id="editevent-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="EditEventParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `eventId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
+| `changes` | [`EventUpdate`](/docs/reference/client/return-types#eventupdate) | - |
 
-### Returns [!toc] [#editevent-returns]
+<h3 id="editevent-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `events` |
-| Positional parameter order | `eventId`, `changes` |
-| Aliases | `events.editEvent` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/events/editEvent` | `editEvent` | Active |
-| Alias | `POST` | `/api/editEvent` | `editEvent` | Active |
-
-</details>
+**HTTP:** `POST /api/events/editEvent`, or `/api/editEvent`. **Also named:** `events.editEvent`.
 
 
 ## `cancelEvent`
 
 Cancel an event created by this account using WhatsApp’s encrypted event edit action.
 
+<ReferenceCode>
+
 ```ts
 client.cancelEvent(eventId: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#cancelevent-usage]
+</ReferenceCode>
+
+<h3 id="cancelevent-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.cancelEvent(
@@ -576,8 +597,12 @@ const result = await client.cancelEvent(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -588,8 +613,12 @@ const result = await client.cancelEvent({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/events/cancelEvent" \
@@ -600,7 +629,11 @@ curl -X POST "http://localhost:8080/api/events/cancelEvent" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -609,34 +642,19 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#cancelevent-parameters]
+<h3 id="cancelevent-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="CancelEventParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `eventId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
 
-### Returns [!toc] [#cancelevent-returns]
+<h3 id="cancelevent-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `events` |
-| Positional parameter order | `eventId` |
-| Aliases | `events.cancelEvent` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/events/cancelEvent` | `cancelEvent` | Active |
-| Alias | `POST` | `/api/cancelEvent` | `cancelEvent` | Active |
-
-</details>
+**HTTP:** `POST /api/events/cancelEvent`, or `/api/cancelEvent`. **Also named:** `events.cancelEvent`.

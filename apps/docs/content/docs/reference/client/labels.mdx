@@ -4,6 +4,8 @@ description: "Read WhatsApp Business labels and add them to or remove them from 
 icon: "BookOpen"
 ---
 
+import { ReferenceCode } from '../../../../src/components/reference-code';
+
 # Labels
 
 
@@ -11,14 +13,20 @@ icon: "BookOpen"
 
 Get all labels
 
+<ReferenceCode>
+
 ```ts
 client.getAllLabels(): Promise<Label[]>
 ```
 
-### Usage [!toc] [#getalllabels-usage]
+</ReferenceCode>
+
+<h3 id="getalllabels-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -27,8 +35,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getAllLabels();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/labels/getAll" \
@@ -37,7 +49,11 @@ curl -X GET "http://localhost:8080/api/labels/getAll" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -46,56 +62,42 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getalllabels-parameters]
+<h3 id="getalllabels-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getalllabels-returns]
+<h3 id="getalllabels-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `Label[]`. See [Label](/docs/reference/client/return-types#label) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `labels` |
-| Positional parameter order | - |
-| Aliases | `labels.all`, `labels.getAll`, `labels.list`, `listLabels` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/labels/getAll` | `getAllLabels` | Active |
-| Alias | `GET` | `/api/getAllLabels` | `getAllLabels` | Active |
-| Alias | `GET` | `/api/labels/all` | `labels.all` | Active |
-| Alias | `GET` | `/api/labels/list` | `labels.list` | Active |
-| Alias | `GET` | `/api/listLabels` | `listLabels` | Active |
-
-</details>
+**HTTP:** `GET /api/labels/getAll`, or `/api/getAllLabels`, `/api/labels/all`, `/api/labels/list`, `/api/listLabels`. **Also named:** `labels.all`, `labels.getAll`, `labels.list`, `listLabels`.
 
 
 ## `addLabel`
 
 Add label to chat
 
+<ReferenceCode>
+
 ```ts
 client.addLabel(label: string, chatId: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#addlabel-usage]
+</ReferenceCode>
+
+<h3 id="addlabel-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -107,8 +109,12 @@ const result = await client.addLabel({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/labels/add" \
@@ -120,7 +126,11 @@ curl -X PUT "http://localhost:8080/api/labels/add" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -129,53 +139,45 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#addlabel-parameters]
+<h3 id="addlabel-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="AddLabelParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `label` | `string` | Label ID or name. |
+| `chatId` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
 
-### Returns [!toc] [#addlabel-returns]
+<h3 id="addlabel-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `labels` |
-| Positional parameter order | `label`, `chatId` |
-| Aliases | `labels.add` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/labels/add` | `addLabel` | Active |
-| Alias | `PUT` | `/api/addLabel` | `addLabel` | Active |
-
-</details>
+**HTTP:** `PUT /api/labels/add`, or `/api/addLabel`. **Also named:** `labels.add`.
 
 
 ## `removeLabel`
 
 Remove label from chat
 
+<ReferenceCode>
+
 ```ts
 client.removeLabel(label: string, chatId: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#removelabel-usage]
+</ReferenceCode>
+
+<h3 id="removelabel-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -187,8 +189,12 @@ const result = await client.removeLabel({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/labels/remove" \
@@ -200,7 +206,11 @@ curl -X PUT "http://localhost:8080/api/labels/remove" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -209,53 +219,45 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#removelabel-parameters]
+<h3 id="removelabel-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="RemoveLabelParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `label` | `string` | Label ID or name. |
+| `chatId` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
 
-### Returns [!toc] [#removelabel-returns]
+<h3 id="removelabel-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `labels` |
-| Positional parameter order | `label`, `chatId` |
-| Aliases | `labels.remove` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/labels/remove` | `removeLabel` | Active |
-| Alias | `PUT` | `/api/removeLabel` | `removeLabel` | Active |
-
-</details>
+**HTTP:** `PUT /api/labels/remove`, or `/api/removeLabel`. **Also named:** `labels.remove`.
 
 
 ## `getChatsByLabel`
 
 Get chats by label
 
+<ReferenceCode>
+
 ```ts
 client.getChatsByLabel(label: string): Promise<Chat[]>
 ```
 
-### Usage [!toc] [#getchatsbylabel-usage]
+</ReferenceCode>
+
+<h3 id="getchatsbylabel-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -266,8 +268,12 @@ const result = await client.getChatsByLabel({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/labels/getChats" \
@@ -275,7 +281,11 @@ curl -G "http://localhost:8080/api/labels/getChats" \
   --data-urlencode "label=label"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -284,14 +294,18 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getchatsbylabel-parameters]
+<h3 id="getchatsbylabel-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetChatsByLabelParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `label` | `string` | Label name. |
 
-### Returns [!toc] [#getchatsbylabel-returns]
+<h3 id="getchatsbylabel-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `Chat[]`. See [Chat](/docs/reference/client/return-types#chat) for its fields.
 
@@ -299,24 +313,4 @@ Serialized chat returned by chat lookups and listings. Its id is an opaque ChatI
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `labels` |
-| Positional parameter order | `label` |
-| Aliases | `labels.getChats`, `labels.getChatsBy` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/labels/getChats` | `getChatsByLabel` | Active |
-| Alias | `GET` | `/api/getChatsByLabel` | `getChatsByLabel` | Active |
-| Alias | `GET` | `/api/labels/getChatsBy` | `labels.getChatsBy` | Active |
-
-</details>
+**HTTP:** `GET /api/labels/getChats`, or `/api/getChatsByLabel`, `/api/labels/getChatsBy`. **Also named:** `labels.getChats`, `labels.getChatsBy`.

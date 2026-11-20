@@ -4,6 +4,8 @@ description: "Read business profiles, product catalogues and orders."
 icon: "BookOpen"
 ---
 
+import { ReferenceCode } from '../../../../src/components/reference-code';
+
 # Business
 
 
@@ -11,14 +13,20 @@ icon: "BookOpen"
 
 Get business profile
 
+<ReferenceCode>
+
 ```ts
 client.getBusinessProfile(contactId: string): Promise<BusinessProfile>
 ```
 
-### Usage [!toc] [#getbusinessprofile-usage]
+</ReferenceCode>
+
+<h3 id="getbusinessprofile-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -29,8 +37,12 @@ const result = await client.getBusinessProfile({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/business/getProfile" \
@@ -38,7 +50,11 @@ curl -G "http://localhost:8080/api/business/getProfile" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -49,53 +65,44 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getbusinessprofile-parameters]
+<h3 id="getbusinessprofile-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetBusinessProfileParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#getbusinessprofile-returns]
+<h3 id="getbusinessprofile-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to [`BusinessProfile`](/docs/reference/client/return-types#businessprofile).
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `business` |
-| Positional parameter order | `contactId` |
-| Aliases | `business.getProfile` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/business/getProfile` | `getBusinessProfile` | Active |
-| Alias | `GET` | `/api/getBusinessProfile` | `getBusinessProfile` | Active |
-
-</details>
+**HTTP:** `GET /api/business/getProfile`, or `/api/getBusinessProfile`. **Also named:** `business.getProfile`.
 
 
 ## `getBusinessProducts`
 
 Get business products
 
+<ReferenceCode>
+
 ```ts
 client.getBusinessProducts(contactId: string): Promise<Product[] | false>
 ```
 
-### Usage [!toc] [#getbusinessproducts-usage]
+</ReferenceCode>
+
+<h3 id="getbusinessproducts-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -106,8 +113,12 @@ const result = await client.getBusinessProducts({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/business/getProducts" \
@@ -115,7 +126,11 @@ curl -G "http://localhost:8080/api/business/getProducts" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -124,41 +139,24 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getbusinessproducts-parameters]
+<h3 id="getbusinessproducts-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetBusinessProductsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#getbusinessproducts-returns]
+<h3 id="getbusinessproducts-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `Product[] | false`. See [Product](/docs/reference/client/return-types#product) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `business` |
-| Positional parameter order | `contactId` |
-| Aliases | `business.getProducts`, `business.getProfilesProducts`, `getBusinessProfilesProducts` |
-| Deprecated aliases | `business.getProfilesProducts`, `getBusinessProfilesProducts` |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/business/getProducts` | `getBusinessProducts` | Active |
-| Deprecated alias | `GET` | `/api/business/getProfilesProducts` | `business.getProfilesProducts` | **Deprecated** |
-| Alias | `GET` | `/api/getBusinessProducts` | `getBusinessProducts` | Active |
-| Deprecated alias | `GET` | `/api/getBusinessProfilesProducts` | `getBusinessProfilesProducts` | **Deprecated** |
-
-</details>
+**HTTP:** `GET /api/business/getProducts`, or `/api/getBusinessProducts`. Deprecated routes: `/api/business/getProfilesProducts`, `/api/getBusinessProfilesProducts`. **Also named:** `business.getProducts`. Deprecated names: `business.getProfilesProducts`, `getBusinessProfilesProducts`.
 
 <LicensedMethodSection tier="insiders">
 
@@ -169,14 +167,20 @@ Get order details
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
 client.getOrder(id: string): Promise<Order>
 ```
 
-### Usage [!toc] [#getorder-usage]
+</ReferenceCode>
+
+<h3 id="getorder-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -187,8 +191,12 @@ const result = await client.getOrder({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/business/getOrder" \
@@ -196,7 +204,11 @@ curl -G "http://localhost:8080/api/business/getOrder" \
   --data-urlencode "id=id"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -213,38 +225,23 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getorder-parameters]
+<h3 id="getorder-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetOrderParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `id` | `string` | Order or message ID. |
 
-### Returns [!toc] [#getorder-returns]
+<h3 id="getorder-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to [`Order`](/docs/reference/client/return-types#order).
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `business` |
-| Positional parameter order | `id` |
-| Aliases | `business.getOrder` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/business/getOrder` | `getOrder` | Active |
-| Alias | `GET` | `/api/getOrder` | `getOrder` | Active |
-
-</details>
+**HTTP:** `GET /api/business/getOrder`, or `/api/getOrder`. **Also named:** `business.getOrder`.
 
 </LicensedMethodSection>

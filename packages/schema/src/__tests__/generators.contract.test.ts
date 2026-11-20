@@ -138,21 +138,20 @@ describe('generator outputs', () => {
             expect(content.indexOf('## `sendText`')).toBeLessThan(content.indexOf('## `sendImage`'));
             expect(content.indexOf('## `sendImage`')).toBeLessThan(content.indexOf('## `deleteMessage`'));
             expect(content).toContain('```ts\nclient.sendText(to: string, content: string, options?: unknown): Promise<MessageId>\n```');
-            expect(content).toContain('### Usage [!toc] [#sendtext-usage]');
+            // Sub-headings are literal <h3> elements: out of the TOC, with no copy-link button.
+            expect(content).toContain('<h3 id="sendtext-usage" className="scroll-m-28">Usage</h3>');
+            expect(content).not.toContain('[!toc]');
             expect(content).toContain('<InterfaceTab value="SDK">');
             expect(content).toContain('<InterfaceTab value="SocketClient">');
             expect(content).toContain('<InterfaceTab value="HTTP">');
             expect(content).toContain('curl -X POST "http://localhost:8080/api/messages/sendText"');
-            expect(content).toContain('### Parameters [!toc] [#sendtext-parameters]');
-            expect(content).toContain('<AutoTypeTable path="./generated-method-params.ts" name="SendTextParams" />');
-            expect(content).toContain('### Returns [!toc] [#sendtext-returns]');
+            expect(content).toContain('<h3 id="sendtext-parameters" className="scroll-m-28">Parameters</h3>');
+            expect(content).toContain('| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |');
+            expect(content).not.toContain('AutoTypeTable');
+            expect(content).toContain('<h3 id="sendtext-returns" className="scroll-m-28">Returns</h3>');
             expect(content).toContain('Resolves to [`MessageId`](/docs/reference/client/return-types#messageid).');
-            expect(content).toContain('| Namespace | `messages` |');
-            expect(content).toContain('| Positional parameter order | `to`, `content`, `options` |');
-            expect(content).toContain('| Aliases | `messages.sendText` |');
-            expect(content).toContain('**HTTP routes**');
-            expect(content).toContain('| Primary | `POST` | `/api/messages/sendText` | `sendText` | Active |');
-            expect(content).toContain('| Alias | `POST` | `/api/sendText` | `sendText` | Active |');
+            expect(content).toContain('**HTTP:** `POST /api/messages/sendText`, or `/api/sendText`. **Also named:** `messages.sendText`.');
+            expect(content).not.toContain('<details>');
             expect(content).not.toContain('"options": {}');
             expect(content).not.toContain('**Signature**');
         });
@@ -164,7 +163,38 @@ describe('generator outputs', () => {
             expect(content).toContain('<LicensedMethodSection tier="insiders">');
             expect(content).toContain('## `sendButtons`');
             expect(content).toContain('Needs an Insiders license.');
-            expect(content).toContain('| License | `insiders` |');
+        });
+
+        it('should link documented parameter types to Return types instead of expanding them', () => {
+            const content = fs.readFileSync(messagesPath, 'utf-8');
+
+            expect(content).toContain('client.sendInteractive(to: string, content: InteractiveContent): Promise<string>');
+            expect(content).toContain('| `content` | [`InteractiveContent`](/docs/reference/client/return-types#interactivecontent) |');
+            expect(fs.readFileSync(path.join(clientDocsDir, 'media.mdx'), 'utf-8')).toContain('client.decryptMedia(message: Message): Promise<DataURL>');
+        });
+
+        it('should make the A–Z page a lookup that links to namespace anchors', () => {
+            const content = fs.readFileSync(path.join(clientDocsDir, 'client.mdx'), 'utf-8');
+            const count = clientRegistry.getAll().length;
+
+            expect(content).toContain(`<ClientReference total={${count}}>`);
+            expect(content).toContain('| [`sendText`](/docs/reference/client/messages#sendtext) | Messages |');
+            expect(content.match(/^\| \[`/gm)).toHaveLength(count);
+            expect(content).not.toContain('<details>');
+            expect(content).not.toContain('```');
+        });
+
+        it('should keep Return types declarations without repeating shared fields', () => {
+            const content = fs.readFileSync(path.join(clientDocsDir, 'return-types.mdx'), 'utf-8');
+            const story = content.slice(content.indexOf('## Story'), content.indexOf('\n## ', content.indexOf('## Story') + 1));
+
+            expect(content).toContain('<TypeDeclaration name="Message" code={"type Message = {');
+            expect(story).toContain('Story has the same fields as [Message](/docs/reference/client/return-types#message), apart from these.');
+            expect(story).not.toContain('| `body` |');
+        });
+
+        it('should title the media method page apart from the media guide', () => {
+            expect(fs.readFileSync(path.join(clientDocsDir, 'media.mdx'), 'utf-8')).toContain('title: "Media methods"');
         });
 
         it('should keep implementation mechanisms out of the generated pages', () => {
@@ -175,14 +205,14 @@ describe('generator outputs', () => {
             }
         });
 
-        it('should visibly label deprecated alias routes in route tables', () => {
+        it('should visibly label deprecated alias routes', () => {
             const contactsPath = path.join(clientDocsDir, 'contacts.mdx');
             expect(fs.existsSync(contactsPath)).toBe(true);
             const content = fs.readFileSync(contactsPath, 'utf-8');
 
             expect(content).toContain('## `blockContact`');
-            expect(content).toContain('| Deprecated alias | `PUT` | `/api/contactBlock` | `contactBlock` | **Deprecated** |');
-            expect(content).toContain('| Deprecated alias | `PUT` | `/api/contacts/contactBlock` | `contacts.contactBlock` | **Deprecated** |');
+            expect(content).toContain('Deprecated routes: `/api/contactBlock`, `/api/contacts/contactBlock`.');
+            expect(content).toContain('Deprecated names: `contactBlock`, `contacts.contactBlock`.');
         });
     });
 });
