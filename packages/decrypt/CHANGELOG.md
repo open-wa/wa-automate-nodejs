@@ -25,6 +25,12 @@
 
 
 
+
+## 5.11.0
+<sub>2026-11-20</sub>
+
+- *(minor)* Version bump from group with `@open-wa/config` v5.11.0, `@open-wa/mcp` v5.11.0, `@open-wa/schema` v5.11.0
+
 ## 5.10.0
 <sub>2026-10-28</sub>
 
