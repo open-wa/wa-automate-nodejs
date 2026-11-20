@@ -417,8 +417,8 @@ SocketClient, and Easy API examples because their contracts can differ.
 | `getProfilePicFromServer(contactId)` | Use [`getProfilePic(contactId)`](/docs/reference/client/contacts#getprofilepicture) on the embedded client. |
 | `sendLocation(to, '51.5', '-0.1', label)` | Pass numeric coordinates: [`sendLocation(to, 51.5, -0.1, label)`](/docs/reference/client/messages#sendlocation). |
 | `sendImage(to, localPathOrUrl, filename, caption)` | Call `sendImage(to, file, filename, { caption })`. The file can be a local path, URL, data URL, base64 string or `Buffer`. See [media](/docs/guides/media). |
-| `sendImageAsSticker(...)` | Review [`sendSticker(...)`](/docs/guides/media), which accepts prepared sticker data. It is not the old general image-conversion helper. |
-| Package-level `decryptMedia(message)` | Use [`client.decryptMedia(message)`](/docs/guides/media) for a data URL, or `client.downloadMedia(message, path)` to save the bytes. The return is not a `Buffer`. |
+| `sendImageAsSticker(...)` | Review [`sendSticker(...)`](/docs/reference/client/messages#sendsticker), which accepts prepared sticker data. It is not the old general image-conversion helper. |
+| Package-level `decryptMedia(message)` | Use [`client.decryptMedia(message)`](/docs/reference/client/media#decryptmedia) for a data URL, or `client.downloadMedia(message, path)` to save the bytes. The return is not a `Buffer`. |
 | `sendText(...)` returns `false` on failure | Catch [`SendTextError`](/docs/guides/messages#send-text-and-replies). A successful call returns a validated message ID. |
 
 ### A send failure may have an uncertain outcome
