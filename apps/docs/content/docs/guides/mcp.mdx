@@ -86,7 +86,7 @@ show the available tools.
 | `mcp.enabled` | `false` | Serve the MCP endpoint. Needs `apiKey`. |
 | `mcp.path` | `"/mcp"` | URL path of the endpoint. |
 | `mcp.exposeToolsMeta` | `true` | Serve `/meta/mcp-tools.json` for the dashboard and debugging. |
-| `mcp.events` | enabled | Event subscriptions for ChatGPT; see [Watch WhatsApp from ChatGPT](/docs/guides/mcp-events). |
+| `mcp.events` | enabled | Event subscriptions by poll, stream or webhook; see [Watch WhatsApp from ChatGPT](/docs/guides/mcp-events). |
 
 To set it from the environment, pass the whole object as JSON in `WA_MCP`;
 there are no separate `WA_MCP_ENABLED` or `WA_MCP_PATH` variables:
