@@ -1,15 +1,15 @@
 ---
-title: SDK
-description: Run WhatsApp inside your own Node.js program with create(), handle messages and shut down cleanly.
+title: Send your first WhatsApp message with the Node.js SDK
+description: Install the open-wa Node.js SDK, link a WhatsApp account, and reply to or send your first message from your own code.
 ---
 
-# SDK
+# Send your first WhatsApp message with the Node.js SDK
 
 The SDK runs the WhatsApp session inside your Node.js process, so your code
 calls methods and receives messages directly, with no HTTP server in between.
-You need **Node.js 22.21.1 or newer**.
+You need **Node.js 22.21.1 or newer** and a phone with WhatsApp to link.
 
-## Create a bot
+## Reply to your first message
 
 ```bash
 npm init @open-wa@latest my-bot -- --mode sdk
@@ -18,15 +18,47 @@ npm start
 ```
 
 Scan the QR code from **WhatsApp → Linked devices → Link a device**. When the
-terminal says WhatsApp is ready, send `!ping` from another account; the bot
-answers `pong`. The [generator options](/docs/getting-started/quickstart/generator-options)
-page lists the language, browser and plugin choices.
+terminal prints `WhatsApp is ready. Send !ping from another account.`, send
+`!ping` to the linked number from another phone. The bot answers `pong` in the
+same chat, which confirms that receiving and replying both work. The
+[generator options](/docs/getting-started/quickstart/generator-options) page
+lists the language, browser and plugin choices.
 
-To add the SDK to an existing project instead, install the package:
+## Send a message from a script
+
+To add the SDK to an existing project instead, install the package and send
+one message with [`sendText`](/docs/reference/client/messages#sendtext):
 
 ```bash
 npm install @open-wa/wa-automate
 ```
+
+```js title="send.mjs"
+import { create } from '@open-wa/wa-automate';
+
+const client = await create({ sessionId: 'my-bot' });
+
+const messageId = await client.sendText('447123456789@c.us', 'Hello from open-wa');
+console.log('Sent', messageId);
+
+await client.stop();
+```
+
+```bash
+node send.mjs
+```
+
+Replace `447123456789` with the recipient's full international number, without
+`+` or spaces. The first run prints a QR code to scan. When the send works, the
+terminal prints the message ID, such as `Sent true_447123456789@c.us_3EB0C7...`,
+and the message appears in that chat on the phone. Later runs reuse the saved
+login and skip the QR code.
+
+Pick a recipient that has already chatted with the linked account. Starting a
+chat with a new number needs a [license](/docs/licensing/pricing); without one,
+`sendText` throws with code `LICENSE_REQUIRED`. The
+[send guide](/docs/guides/send-message-api) covers chat IDs and the same send
+over HTTP.
 
 ## The entry point
 
@@ -56,10 +88,12 @@ for (const signal of ['SIGINT', 'SIGTERM']) {
 yet, and resolves once the session is ready to send. Reply to `message.from`
 exactly as it arrives, because it can be a phone-number ID (`@c.us`) or a
 private ID (`@lid`); the [chat ID guide](/docs/guides/chatid-primer) explains
-the formats. `client.stop()` closes the browser and keeps the saved login.
+the formats. [`onMessage`](/docs/reference/client/events#message) fires for
+messages other people send, and `client.stop()` closes the browser and keeps
+the saved login.
 
 The [`create()` reference](/docs/reference/create) lists its options, and the
-[client reference](/docs/reference/client/client) lists every method.
+[client reference](/docs/reference/client) lists the methods by job.
 
 ## Configuration
 
@@ -99,7 +133,8 @@ send for you. Sending to a number with no existing chat throws with code
 
 - [Receive messages](/docs/guides/receive-messages) covers `onMessage`,
   `onAnyMessage` and filtering.
-- [Build](/docs/build/support-bot) has a complete support bot.
+- [Run a support bot](/docs/build/support-bot) turns this into a complete bot
+  with a menu and hand-off to a person.
 - [createClient and drivers](/docs/concepts/create-client-and-drivers) is for
   when you need to choose the browser driver or control startup yourself.
 - [Go to production](/docs/operations/go-to-production) is the checklist before
