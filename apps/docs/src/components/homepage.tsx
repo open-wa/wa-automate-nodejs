@@ -6,6 +6,7 @@ import { WorkbenchTexture } from '@/components/workbench-texture';
 import { baseOptions } from '@/lib/layout.shared';
 import { CURRENT_VERSION, DOCS_PATHS, REPO_URL } from '@/lib/site';
 import { HOMEPAGE_DESCRIPTION, HOMEPAGE_FAQS } from '@/lib/homepage';
+import { WallyPicture } from '@/components/wally-picture';
 
 const runCommand = 'npm init @open-wa@latest my-bot';
 const examples = {
@@ -31,7 +32,7 @@ function CopyButton({ value, label = 'Copy code' }: { value: string; label?: str
 function MessageExample() {
   const [mode, setMode] = useState<keyof typeof examples>('HTTP');
   return <div className="landing-example">
-    <div className="landing-example-art" aria-hidden="true"><WorkbenchTexture /><img src="/mascots/wally-quickstart-transparent.png" width="230" height="230" alt="Wally, the open-wa mascot" /></div>
+    <div className="landing-example-art" aria-hidden="true"><WorkbenchTexture /><WallyPicture width={230} sizes="(max-width: 800px) 155px, 202px" alt="Wally, the open-wa mascot" /></div>
     <div className="landing-code">
       <div className="landing-code-toolbar">
         <div className="landing-example-switch" role="group" aria-label="Example language">

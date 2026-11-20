@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ArrowUpRight, Ticket } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@open-wa/ui-components/dialog';
+import { WallyPicture } from '@/components/wally-picture';
 import { buildLicenseCheckoutUrl, LICENSE_DASHBOARD_URL, emptyLicenseDetails, type LicenseCheckoutDetails } from '@/lib/license-checkout';
 
 type CheckoutContext = { signedIn: boolean; openCheckout: (details: Partial<LicenseCheckoutDetails>, trigger: HTMLElement) => void };
@@ -9,7 +10,7 @@ export function useLicenseAccount() { return React.useContext(LicenseCheckoutCon
 
 function CheckoutIntroduction() {
   return <div className="license-config-intro">
-    <img src="/mascots/wally-quickstart-transparent.png" width="92" height="92" alt="Wally, the open-wa mascot" />
+    <WallyPicture width={92} sizes="84px" alt="Wally, the open-wa mascot" loading="lazy" />
     <p>Add your details once, then sign in to your open-wa account to finish checkout.</p>
   </div>;
 }

@@ -5,3 +5,6 @@
   X-Content-Type-Options: nosniff
   Strict-Transport-Security: max-age=31536000
   Content-Security-Policy: frame-ancestors 'self'
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
