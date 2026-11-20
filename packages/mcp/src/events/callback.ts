@@ -2,6 +2,7 @@ import { lookup } from 'node:dns/promises';
 import { request } from 'node:https';
 import { isIP } from 'node:net';
 import ipaddr from 'ipaddr.js';
+import type { CallbackFailure } from './protocol';
 
 export function callbackUrl(value: string): URL {
   const url = new URL(value);
@@ -54,4 +55,14 @@ export function postCallback(urlString: string, body: string, headers: Record<st
     req.on('error', reject);
     req.end(body);
   });
+}
+
+/** Maps a failed callback attempt to a spec category; raw endpoint output never leaves this module. */
+export function callbackFailure(error: unknown, status?: number): CallbackFailure {
+  if (status !== undefined) return status >= 500 ? 'http_5xx' : 'http_4xx';
+  const value = error as { code?: unknown; name?: unknown; cause?: unknown } | undefined;
+  const code = String(value?.code ?? (value?.cause as { code?: unknown } | undefined)?.code ?? '');
+  if (value?.name === 'TimeoutError' || code === 'ETIMEDOUT' || code === 'ESOCKETTIMEDOUT' || code === 'ABORT_ERR') return 'timeout';
+  if (/^(ERR_TLS|ERR_SSL|CERT_|UNABLE_TO|DEPTH_ZERO|SELF_SIGNED|ERR_OSSL)/.test(code) || code.includes('CERT')) return 'tls_error';
+  return 'connection_refused';
 }
