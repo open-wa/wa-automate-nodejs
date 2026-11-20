@@ -12,7 +12,7 @@ const loadArticles = createServerFn({method:'GET'}).handler(async () => {
 });
 export const Route = createFileRoute('/blog/')({
   loader: () => loadArticles(),
-  head: () => ({meta:getDocsSocialMeta({title:'Blog — open-wa',description:'Practical guides to building with open-wa. WhatsApp automation, maintained since 2019.',imageUrl:getAbsoluteDocsUrl(getPageImage([]).url)}),links:[{rel:'canonical',href:getAbsoluteDocsUrl('/blog')}]}),
+  head: () => ({meta:getDocsSocialMeta({title:'Blog — open-wa',description:'Practical guides to building with open-wa. WhatsApp automation, maintained since 2019.',url:getAbsoluteDocsUrl('/blog'),imageUrl:getAbsoluteDocsUrl(getPageImage([]).url)}),links:[{rel:'canonical',href:getAbsoluteDocsUrl('/blog')}]}),
   component: Blog,
 });
 function Blog() {

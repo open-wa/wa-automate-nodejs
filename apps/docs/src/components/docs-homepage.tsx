@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { CURRENT_VERSION, DOCS_PATHS } from '@/lib/site';
 import { WorkbenchTexture } from './workbench-texture';
+import { WallyPicture } from './wally-picture';
 
 const CREATE_COMMAND = 'npm init @open-wa@latest my-bot';
 
@@ -82,7 +83,7 @@ export function DocsHomepage() {
         </div>
         <div className="docs-hub-wally" aria-hidden="true">
           <WorkbenchTexture />
-          <img src="/mascots/wally-quickstart-transparent.png" alt="" width="180" height="180" />
+          <WallyPicture width={180} sizes="(max-width: 640px) 80px, 180px" alt="" loading="priority" />
         </div>
       </header>
 

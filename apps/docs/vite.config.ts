@@ -3,7 +3,56 @@ import react from '@vitejs/plugin-react';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import mdx from 'fumadocs-mdx/vite';
 import tailwindcss from '@tailwindcss/vite';
-import { defineConfig, type UserConfig } from 'vite';
+import { defineConfig, type Plugin, type UserConfig } from 'vite';
+import { execFileSync } from 'node:child_process';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const docsDir = path.dirname(fileURLToPath(import.meta.url));
+
+type DocsGitDates = Record<string, { published: string; modified: string }>;
+
+/**
+ * First and last commit dates for each docs page, keyed by its path under
+ * content/docs. Dates come only from real history: a shallow clone, a missing
+ * git binary or an uncommitted file yields no entry, never a guess.
+ */
+function readDocsGitDates(): DocsGitDates {
+  const git = (...args: string[]) =>
+    execFileSync('git', args, { cwd: docsDir, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).trim();
+  try {
+    if (git('rev-parse', '--is-shallow-repository') !== 'false') return {};
+    const prefix = `${git('rev-parse', '--show-prefix')}content/docs/`;
+    const log = git('log', '--format=%x00%cI', '--name-only', '--no-renames', '--', 'content/docs');
+    const dates: DocsGitDates = {};
+    // Newest commit first: the first sighting is the last change, the final one the first.
+    for (const commit of log.split('\0').filter(Boolean)) {
+      const [date, ...files] = commit.trim().split('\n');
+      for (const file of files) {
+        if (!file.startsWith(prefix)) continue;
+        const key = file.slice(prefix.length);
+        dates[key] = { published: date, modified: dates[key]?.modified ?? date };
+      }
+    }
+    return dates;
+  } catch {
+    return {};
+  }
+}
+
+function docsGitDates(): Plugin {
+  const id = 'virtual:docs-git-dates';
+  let dates: DocsGitDates | undefined;
+  return {
+    name: 'docs-git-dates',
+    resolveId: (source) => (source === id ? `\0${id}` : undefined),
+    load(resolved) {
+      if (resolved !== `\0${id}`) return;
+      dates ??= readDocsGitDates();
+      return `export default ${JSON.stringify(dates)};`;
+    },
+  };
+}
 
 const config: UserConfig = {
     server: {
@@ -36,6 +85,7 @@ const config: UserConfig = {
       },
     },
     plugins: [
+        docsGitDates(),
         cloudflare({
             viteEnvironment: {
                 name: 'ssr',

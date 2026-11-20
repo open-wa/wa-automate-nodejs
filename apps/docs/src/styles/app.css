@@ -726,6 +726,7 @@ body { background-color: var(--background); color: var(--foreground); }
 .docs-hub-next a:first-child { display: inline-flex; align-items: center; gap: 5px; color: var(--primary); font-weight: 600; }
 .docs-hub-version { color: var(--muted-foreground); font-family: var(--font-mono); font-size: 12px; }
 .docs-hub-wally { position: relative; isolation: isolate; flex: 0 0 196px; height: 178px; border-radius: 16px; background: #214be6; overflow: hidden; display: flex; justify-content: center; align-items: end; }
+.wally-picture { display: contents; }
 .docs-hub-wally img { position: relative; z-index: 1; width: 180px; height: 180px; object-fit: contain; }
 .docs-hub-jobs h2 { font-size: 20px; line-height: 28px; font-weight: 600; letter-spacing: -.025em; margin: 0 0 16px; }
 .docs-hub-job-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }

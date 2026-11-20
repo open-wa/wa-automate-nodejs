@@ -22,7 +22,7 @@ const loadArticle = createServerFn({method:'GET'}).validator((slug:string)=>slug
 export const Route = createFileRoute('/blog/$slug')({
   loader: ({params}) => loadArticle({data:params.slug}),
   head: ({loaderData:article}) => article ? ({
-    meta:[...getDocsSocialMeta({title:article.seo.title || `${article.title} — open-wa`,description:article.seo.description || article.description,imageUrl:getAbsoluteDocsUrl(article.image || getPageImage([]).url)}),{property:'og:type',content:'article'},{name:'author',content:'open-wa'},...(article.publishedAt ? [{property:'article:published_time',content:article.publishedAt}] : []),...(article.seo.robots ? [{name:'robots',content:article.seo.robots}] : [])],
+    meta:[...getDocsSocialMeta({title:article.seo.title || `${article.title} — open-wa`,description:article.seo.description || article.description,url:articleCanonical(article.seo.canonical, article.url),imageUrl:getAbsoluteDocsUrl(article.image || getPageImage([]).url)}),{property:'og:type',content:'article'},{name:'author',content:'open-wa'},...(article.publishedAt ? [{property:'article:published_time',content:article.publishedAt}] : []),...(article.seo.robots ? [{name:'robots',content:article.seo.robots}] : [])],
     links:[{rel:'canonical',href:articleCanonical(article.seo.canonical, article.url)}],
   }) : {},
   component: Article,

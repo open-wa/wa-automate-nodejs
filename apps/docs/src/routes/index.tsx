@@ -12,6 +12,7 @@ export const Route = createFileRoute('/')({
     meta: [...getDocsSocialMeta({
       title: HOMEPAGE_TITLE,
       description: HOMEPAGE_DESCRIPTION,
+      url: getAbsoluteDocsUrl('/'),
       imageUrl: getAbsoluteDocsUrl(getPageImage([]).url),
     }), { 'script:ld+json': HOMEPAGE_SCHEMA }],
   }),

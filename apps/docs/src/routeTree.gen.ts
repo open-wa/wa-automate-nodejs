@@ -34,6 +34,7 @@ import { Route as DotwellKnownMcpServerCardDotjsonRouteImport } from './routes/[
 import { Route as ApiEditorialMediaSplatRouteImport } from './routes/api.editorial-media.$'
 import { Route as LlmsDotmdxDocsSplatRouteImport } from './routes/llms[.]mdx.docs.$'
 import { Route as OgDocsSplatRouteImport } from './routes/og.docs.$'
+import { Route as OgToolsSplatRouteImport } from './routes/og.tools.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -164,6 +165,11 @@ const OgDocsSplatRoute = OgDocsSplatRouteImport.update({
   path: '/og/docs/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OgToolsSplatRoute = OgToolsSplatRouteImport.update({
+  id: '/og/tools/$',
+  path: '/og/tools/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -191,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/api/editorial-media/$': typeof ApiEditorialMediaSplatRoute
   '/llms.mdx/docs/$': typeof LlmsDotmdxDocsSplatRoute
   '/og/docs/$': typeof OgDocsSplatRoute
+  '/og/tools/$': typeof OgToolsSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -218,6 +225,7 @@ export interface FileRoutesByTo {
   '/api/editorial-media/$': typeof ApiEditorialMediaSplatRoute
   '/llms.mdx/docs/$': typeof LlmsDotmdxDocsSplatRoute
   '/og/docs/$': typeof OgDocsSplatRoute
+  '/og/tools/$': typeof OgToolsSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -246,6 +254,7 @@ export interface FileRoutesById {
   '/api/editorial-media/$': typeof ApiEditorialMediaSplatRoute
   '/llms.mdx/docs/$': typeof LlmsDotmdxDocsSplatRoute
   '/og/docs/$': typeof OgDocsSplatRoute
+  '/og/tools/$': typeof OgToolsSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -275,6 +284,7 @@ export interface FileRouteTypes {
     | '/api/editorial-media/$'
     | '/llms.mdx/docs/$'
     | '/og/docs/$'
+    | '/og/tools/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -302,6 +312,7 @@ export interface FileRouteTypes {
     | '/api/editorial-media/$'
     | '/llms.mdx/docs/$'
     | '/og/docs/$'
+    | '/og/tools/$'
   id:
     | '__root__'
     | '/'
@@ -329,6 +340,7 @@ export interface FileRouteTypes {
     | '/api/editorial-media/$'
     | '/llms.mdx/docs/$'
     | '/og/docs/$'
+    | '/og/tools/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -357,6 +369,7 @@ export interface RootRouteChildren {
   ApiEditorialMediaSplatRoute: typeof ApiEditorialMediaSplatRoute
   LlmsDotmdxDocsSplatRoute: typeof LlmsDotmdxDocsSplatRoute
   OgDocsSplatRoute: typeof OgDocsSplatRoute
+  OgToolsSplatRoute: typeof OgToolsSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -536,6 +549,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OgDocsSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/og/tools/$': {
+      id: '/og/tools/$'
+      path: '/og/tools/$'
+      fullPath: '/og/tools/$'
+      preLoaderRoute: typeof OgToolsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -568,6 +588,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiEditorialMediaSplatRoute: ApiEditorialMediaSplatRoute,
   LlmsDotmdxDocsSplatRoute: LlmsDotmdxDocsSplatRoute,
   OgDocsSplatRoute: OgDocsSplatRoute,
+  OgToolsSplatRoute: OgToolsSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
