@@ -20,6 +20,14 @@ import { firstPageUnder, folderCrumbs, type Crumb } from '@/lib/page-tree';
 import { NOT_FOUND_TITLE } from '@/lib/site';
 import { DocsShell } from './-shell';
 
+/** Guides that live in a folder's index file but aren't lists of pages. */
+const GUIDE_INDEX_PAGES = new Set(['getting-started/quickstart/index.mdx']);
+
+/** The docs home and section index pages list other pages. */
+function isCollectionPage(path: string): boolean {
+  return (path === 'index.mdx' || path.endsWith('/index.mdx')) && !GUIDE_INDEX_PAGES.has(path);
+}
+
 const loader = createServerFn({
   method: 'GET',
 })
@@ -35,16 +43,26 @@ const loader = createServerFn({
         throw notFound();
       }
 
+      const { default: gitDates } = await import('virtual:docs-git-dates');
       const image = getPageImage(slugs);
       const imageUrl = getAbsoluteDocsUrl(image.url);
       const description = getOgDescription(page.data);
       const canonical = getAbsoluteDocsUrl(page.url);
-      const crumbs: Crumb[] = folderCrumbs(source.pageTree, page.url);
+      // A folder with no index page links to its first page, which can be this
+      // page, so the visible crumb drops its link rather than point here.
+      const crumbs: Crumb[] = folderCrumbs(source.pageTree, page.url).map((crumb) =>
+        crumb.url === page.url ? { name: crumb.name } : crumb,
+      );
+      // Structured data names only real places: a folder appears when it has
+      // its own index page, such as /docs/sessions, and is skipped otherwise.
       const breadcrumbs = [
         { name: 'Docs', url: getAbsoluteDocsUrl('/docs') },
-        ...crumbs.flatMap((crumb) => (crumb.url ? [{ name: crumb.name, url: getAbsoluteDocsUrl(crumb.url) }] : [])),
+        ...crumbs.flatMap((crumb) => {
+          const index = crumb.folder ? source.getPage(crumb.folder.split('/')) : undefined;
+          return index ? [{ name: crumb.name, url: getAbsoluteDocsUrl(index.url) }] : [];
+        }),
+        { name: page.data.title, url: canonical },
       ];
-      if (slugs.length > 0) breadcrumbs.push({ name: page.data.title, url: canonical });
 
       return {
         path: page.path,
@@ -53,6 +71,7 @@ const loader = createServerFn({
         meta: getDocsSocialMeta({
           title: getDocsDocumentTitle(page.data),
           description,
+          url: canonical,
           imageUrl,
         }),
         schema: JSON.stringify(
@@ -62,6 +81,8 @@ const loader = createServerFn({
             url: canonical,
             imageUrl,
             breadcrumbs,
+            kind: isCollectionPage(page.path) ? 'collection' : 'article',
+            dates: gitDates[page.path],
           }),
         ),
         pageTree: await source.serializePageTree(source.pageTree),

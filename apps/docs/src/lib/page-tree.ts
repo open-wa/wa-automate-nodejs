@@ -36,7 +36,8 @@ export function firstPageUnder(tree: PageTree.Root, sectionUrl: string): string 
   return pageUrlsInOrder(tree).find((url) => url.startsWith(prefix));
 }
 
-export type Crumb = { name: string; url?: string };
+/** `folder` is the folder's path under content/docs, such as `build`. */
+export type Crumb = { name: string; url?: string; folder?: string };
 
 function nodeName(name: unknown): string {
   return typeof name === 'string' ? name : '';
@@ -60,6 +61,6 @@ export function folderCrumbs(tree: PageTree.Root, pageUrl: string): Crumb[] {
 
   return path
     .filter((folder) => folder.index?.url !== pageUrl)
-    .map((folder) => ({ name: nodeName(folder.name), url: folderUrl(folder) }))
+    .map((folder) => ({ name: nodeName(folder.name), url: folderUrl(folder), folder: folder.$ref?.folder }))
     .filter((crumb) => crumb.name.length > 0);
 }

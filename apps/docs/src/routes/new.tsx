@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, Check, Copy, Link2, Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { baseOptions } from '@/lib/layout.shared';
+import { getAbsoluteDocsUrl, getToolPageSocialMeta, TOOL_PAGES } from '@/lib/og';
 import { buildCommand, choices, optionErrors, pluginChoices, readBuilderSearch, type SetupOptions } from '../../../../packages/create/src/options.js';
 import { renderProject } from '../../../../packages/create/src/templates.js';
 import '@/styles/project-builder.css';
@@ -11,8 +12,9 @@ import '@/styles/project-builder.css';
 export const Route = createFileRoute('/new')({
   validateSearch: readBuilderSearch,
   head: () => ({
-    meta: [{ title: 'Create your project | open-wa' }, { name: 'description', content: 'Configure an open-wa Easy API or SDK project. Choose JavaScript or TypeScript, a browser and plugins, then copy your setup command.' }],
-    links: [{ rel: 'canonical', href: 'https://openwa.dev/new' }],
+    // Every builder configuration (?mode=…&plugins=…) canonicalises to the builder itself.
+    meta: getToolPageSocialMeta('new'),
+    links: [{ rel: 'canonical', href: getAbsoluteDocsUrl(TOOL_PAGES.new.path) }],
   }),
   component: ProjectBuilder,
 });
@@ -78,7 +80,7 @@ function ProjectBuilder() {
         <p>Run this in your terminal. It creates your project with the choices shown here.</p>
         {options.plugins.length > 0 && <p>Before starting, copy <code>.env.example</code> to <code>.env</code> and fill in your selected integrations’ settings.</p>}
         <div className="setup-next"><code>cd {options.directory || 'my-bot'}</code>{!options.install && <code>npm install</code>}<code>npm start</code></div>
-        <Button variant="outline" size="sm" disabled={!valid} onClick={() => void copy(new URL(`/new?${new URLSearchParams({ directory: options.directory, mode: options.mode, language: options.language, browser: options.browser, plugins: options.plugins.join(','), voxtralMode: options.voxtralMode, install: String(options.install) })}`, window.location.origin).href, 'link')}><Link2 size={15} />{copied === 'link' ? 'Link copied' : 'Share this setup'}</Button>
+        <Button variant="outline" size="sm" disabled={!valid} onClick={() => void copy(new URL(`/new/?${new URLSearchParams({ directory: options.directory, mode: options.mode, language: options.language, browser: options.browser, plugins: options.plugins.join(','), voxtralMode: options.voxtralMode, install: String(options.install) })}`, window.location.origin).href, 'link')}><Link2 size={15} />{copied === 'link' ? 'Link copied' : 'Share this setup'}</Button>
         {(copied || copyError) && <p role="status">{copyError || (copied === 'link' ? 'Share link copied.' : 'Copied to clipboard.')}</p>}
       </section>
       <section className="setup-files"><div className="setup-output-title"><h2>File preview <span>{filenames.length} files</span></h2><Button variant="outline" size="sm" disabled={!valid} onClick={() => void copy(files[file] ?? '', 'file')}>{copied === 'file' ? <Check size={15} /> : <Copy size={15} />}{copied === 'file' ? 'Copied' : 'Copy file'}</Button></div>
