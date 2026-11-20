@@ -4,6 +4,8 @@ description: "Send, reply to, edit, delete and react to messages, and read messa
 icon: "BookOpen"
 ---
 
+import { ReferenceCode } from '../../../../src/components/reference-code';
+
 # Messages
 
 
@@ -11,24 +13,34 @@ icon: "BookOpen"
 
 Send a text message to a chat. Starting a chat with a number that has never messaged you needs a Restricted or Premium license.
 
+<ReferenceCode>
+
 ```ts
 client.sendText(to: string, content: string, options?: unknown): Promise<MessageId>
 ```
 
+</ReferenceCode>
+
 Leave out `options`: `sendText` ignores it, and neither the SDK nor HTTP needs it. For a quoted reply use `reply(to, content, messageId)`, and for mentions use `sendTextWithMentions`.
 
-### Usage [!toc] [#sendtext-usage]
+<h3 id="sendtext-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const messageId = await client.sendText('447123456789@c.us', 'Hello from open-wa');
 console.log('Message ID:', messageId);
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -38,8 +50,12 @@ const messageId = await client.sendText("447123456789@c.us", "Hello, world!");
 console.log('Message ID:', messageId);
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendText" \
@@ -51,7 +67,11 @@ curl -X POST "http://localhost:8080/api/messages/sendText" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -60,63 +80,51 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendtext-parameters]
+<h3 id="sendtext-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendTextParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `content` | `string` | Message content. Also accepts `body`, `message`, `text`. |
+| `options` | `unknown` | Optional. Not used. Leave it out; use reply() for quoted replies and sendTextWithMentions() for mentions. sendText ignores this value. |
 
-### Returns [!toc] [#sendtext-returns]
+<h3 id="sendtext-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to [`MessageId`](/docs/reference/client/return-types#messageid).
 
 The ID means WhatsApp accepted the message, not that it was delivered or read. On failure the SDK throws `SendTextError`, exported by `@open-wa/wa-automate`. Its `code` is `INVALID_ARGUMENT`, `LICENSE_REQUIRED`, `SEND_REJECTED`, `INVALID_SEND_RESULT` or `SEND_FAILED`, and its `outcome` is `not_sent` or `unknown`. An `unknown` outcome means the message may already have been sent, so check the chat before you retry. The client never retries on its own.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `content`, `options` |
-| Aliases | `messages.sendText` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendText` | `sendText` | Active |
-| Alias | `POST` | `/api/sendText` | `sendText` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendText`, or `/api/sendText`. **Also named:** `messages.sendText`.
 
 
 ## `sendImage`
 
 Send an image or video, or any other media file, as a WhatsApp attachment. Options set the caption, view once, GIF playback or a round video note. Media is sent as is, without conversion. Resolves to the send result, not a delivery receipt.
 
+<ReferenceCode>
+
 ```ts
 client.sendImage(
   to: string,
   file: string | Buffer,
   filename?: string,
-  options?:
-    | { caption?: string; quotedMsgId?: string; type?: "auto"; viewOnce?: boolean }
-    | { caption?: string; quotedMsgId?: string; type: "image"; viewOnce?: boolean }
-    | { caption?: string; isGif?: boolean; quotedMsgId?: string; type: "video"; videoNote?: boolean; viewOnce?: boolean }
-    | { ptt?: boolean; quotedMsgId?: string; type: "audio"; viewOnce?: boolean }
-    | { caption?: string; quotedMsgId?: string; type: "document" },
+  options?: MediaSendOptions,
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendimage-usage]
+</ReferenceCode>
+
+<h3 id="sendimage-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.sendImage(
@@ -125,8 +133,12 @@ const result = await client.sendImage(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -138,8 +150,12 @@ const result = await client.sendImage({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendImage" \
@@ -151,7 +167,11 @@ curl -X POST "http://localhost:8080/api/messages/sendImage" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -160,63 +180,52 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendimage-parameters]
+<h3 id="sendimage-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendImageParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `file` | `string \| Buffer` | File (path, URL, DataURL, Base64, or Buffer) |
+| `filename` | `string` | Optional. Filename with extension. |
+| `options` | [`MediaSendOptions`](/docs/reference/client/return-types#mediasendoptions) | Optional. |
 
-### Returns [!toc] [#sendimage-returns]
+<h3 id="sendimage-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK resolves to `MediaSendResult` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `file`, `filename`, `options` |
-| Aliases | `messages.sendImage` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendImage` | `sendImage` | Active |
-| Alias | `POST` | `/api/sendImage` | `sendImage` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendImage`, or `/api/sendImage`. **Also named:** `messages.sendImage`.
 
 
 ## `sendFile`
 
 Sends an image, video, audio file or document using MIME detection or an explicit typed presentation. Incompatible options are rejected before sending. Media is not transcoded.
 
+<ReferenceCode>
+
 ```ts
 client.sendFile(
   to: string,
   file: string | Buffer,
   filename?: string,
-  options?:
-    | { caption?: string; quotedMsgId?: string; type?: "auto"; viewOnce?: boolean }
-    | { caption?: string; quotedMsgId?: string; type: "image"; viewOnce?: boolean }
-    | { caption?: string; isGif?: boolean; quotedMsgId?: string; type: "video"; videoNote?: boolean; viewOnce?: boolean }
-    | { ptt?: boolean; quotedMsgId?: string; type: "audio"; viewOnce?: boolean }
-    | { caption?: string; quotedMsgId?: string; type: "document" },
+  options?: MediaSendOptions,
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendfile-usage]
+</ReferenceCode>
+
+<h3 id="sendfile-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.sendFile(
@@ -225,8 +234,12 @@ const result = await client.sendFile(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -238,8 +251,12 @@ const result = await client.sendFile({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendFile" \
@@ -251,7 +268,11 @@ curl -X POST "http://localhost:8080/api/messages/sendFile" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -260,64 +281,53 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendfile-parameters]
+<h3 id="sendfile-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendFileParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `file` | `string \| Buffer` | File (path, URL, DataURL, Base64, or Buffer) |
+| `filename` | `string` | Optional. Filename with extension. |
+| `options` | [`MediaSendOptions`](/docs/reference/client/return-types#mediasendoptions) | Optional. |
 
-### Returns [!toc] [#sendfile-returns]
+<h3 id="sendfile-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK resolves to `MediaSendResult` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `file`, `filename`, `options` |
-| Aliases | `messages.sendFile` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendFile` | `sendFile` | Active |
-| Alias | `POST` | `/api/sendFile` | `sendFile` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendFile`, or `/api/sendFile`. **Also named:** `messages.sendFile`.
 
 
 ## `sendFileFromUrl`
 
 Downloads media and sends it through sendFile with the same typed presentation options.
 
+<ReferenceCode>
+
 ```ts
 client.sendFileFromUrl(
   to: string,
   url: string,
   filename?: string,
-  options?:
-    | { caption?: string; quotedMsgId?: string; type?: "auto"; viewOnce?: boolean }
-    | { caption?: string; quotedMsgId?: string; type: "image"; viewOnce?: boolean }
-    | { caption?: string; isGif?: boolean; quotedMsgId?: string; type: "video"; videoNote?: boolean; viewOnce?: boolean }
-    | { ptt?: boolean; quotedMsgId?: string; type: "audio"; viewOnce?: boolean }
-    | { caption?: string; quotedMsgId?: string; type: "document" },
+  options?: MediaSendOptions,
   headers?: object,
 ): Promise<MessageIdReturn | string | boolean>
 ```
 
-### Usage [!toc] [#sendfilefromurl-usage]
+</ReferenceCode>
+
+<h3 id="sendfilefromurl-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -329,8 +339,12 @@ const result = await client.sendFileFromUrl({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendFileFromUrl" \
@@ -342,7 +356,11 @@ curl -X POST "http://localhost:8080/api/messages/sendFileFromUrl" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -351,14 +369,22 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendfilefromurl-parameters]
+<h3 id="sendfilefromurl-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendFileFromUrlParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `url` | `string` | URL of the file to download. |
+| `filename` | `string` | Optional. Filename with extension. |
+| `options` | [`MediaSendOptions`](/docs/reference/client/return-types#mediasendoptions) | Optional. |
+| `headers` | `object` | Optional. HTTP headers for the download request. |
 
-### Returns [!toc] [#sendfilefromurl-returns]
+<h3 id="sendfilefromurl-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | string | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
@@ -366,31 +392,14 @@ Message ID or success status
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `url`, `filename`, `options`, `headers` |
-| Aliases | `messages.sendFileFromUrl` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendFileFromUrl` | `sendFileFromUrl` | Active |
-| Alias | `POST` | `/api/sendFileFromUrl` | `sendFileFromUrl` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendFileFromUrl`, or `/api/sendFileFromUrl`. **Also named:** `messages.sendFileFromUrl`.
 
 
 ## `sendReplyWithMentions`
 
 Sends a reply to a message that includes @mentions
+
+<ReferenceCode>
 
 ```ts
 client.sendReplyWithMentions(
@@ -402,10 +411,14 @@ client.sendReplyWithMentions(
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendreplywithmentions-usage]
+</ReferenceCode>
+
+<h3 id="sendreplywithmentions-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -418,8 +431,12 @@ const result = await client.sendReplyWithMentions({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendReplyWithMentions" \
@@ -432,7 +449,11 @@ curl -X POST "http://localhost:8080/api/messages/sendReplyWithMentions" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -441,53 +462,48 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendreplywithmentions-parameters]
+<h3 id="sendreplywithmentions-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendReplyWithMentionsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `content` | `string` | Message content. Also accepts `body`, `message`, `text`. |
+| `replyMessageId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
+| `hideTags` | `boolean` | Optional. Removes all tags within the message. |
+| `mentions` | `string[]` | Optional. List of mentioned contact IDs. |
 
-### Returns [!toc] [#sendreplywithmentions-returns]
+<h3 id="sendreplywithmentions-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `content`, `replyMessageId`, `hideTags`, `mentions` |
-| Aliases | `messages.sendReplyWithMentions` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendReplyWithMentions` | `sendReplyWithMentions` | Active |
-| Alias | `POST` | `/api/sendReplyWithMentions` | `sendReplyWithMentions` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendReplyWithMentions`, or `/api/sendReplyWithMentions`. **Also named:** `messages.sendReplyWithMentions`.
 
 
 ## `react`
 
 React to message with emoji
 
+<ReferenceCode>
+
 ```ts
 client.react(messageId: string, emoji: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#react-usage]
+</ReferenceCode>
+
+<h3 id="react-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -499,8 +515,12 @@ const result = await client.react({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/react" \
@@ -512,7 +532,11 @@ curl -X POST "http://localhost:8080/api/messages/react" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -521,44 +545,32 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#react-parameters]
+<h3 id="react-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="ReactParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `messageId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
+| `emoji` | `string` | Emoji reaction. |
 
-### Returns [!toc] [#react-returns]
+<h3 id="react-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `messageId`, `emoji` |
-| Aliases | `messages.react` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/react` | `react` | Active |
-| Alias | `POST` | `/api/react` | `react` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/react`, or `/api/react`. **Also named:** `messages.react`.
 
 
 ## `sendTextWithMentions`
 
 Sends a text message that includes @mentions
+
+<ReferenceCode>
 
 ```ts
 client.sendTextWithMentions(
@@ -569,10 +581,14 @@ client.sendTextWithMentions(
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendtextwithmentions-usage]
+</ReferenceCode>
+
+<h3 id="sendtextwithmentions-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -584,8 +600,12 @@ const result = await client.sendTextWithMentions({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendTextWithMentions" \
@@ -597,7 +617,11 @@ curl -X POST "http://localhost:8080/api/messages/sendTextWithMentions" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -606,53 +630,47 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendtextwithmentions-parameters]
+<h3 id="sendtextwithmentions-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendTextWithMentionsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `content` | `string` | Message content. Also accepts `body`, `message`, `text`. |
+| `hideTags` | `boolean` | Optional. Removes all tags within the message. |
+| `mentions` | `string[]` | Optional. List of mentioned contact IDs. |
 
-### Returns [!toc] [#sendtextwithmentions-returns]
+<h3 id="sendtextwithmentions-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `content`, `hideTags`, `mentions` |
-| Aliases | `messages.sendTextWithMentions` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendTextWithMentions` | `sendTextWithMentions` | Active |
-| Alias | `POST` | `/api/sendTextWithMentions` | `sendTextWithMentions` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendTextWithMentions`, or `/api/sendTextWithMentions`. **Also named:** `messages.sendTextWithMentions`.
 
 
 ## `editMessage`
 
 Edit the text of a message you sent
 
+<ReferenceCode>
+
 ```ts
 client.editMessage(messageId: string, newContent: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#editmessage-usage]
+</ReferenceCode>
+
+<h3 id="editmessage-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -664,8 +682,12 @@ const result = await client.editMessage({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/messages/edit" \
@@ -677,7 +699,11 @@ curl -X PUT "http://localhost:8080/api/messages/edit" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -686,44 +712,32 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#editmessage-parameters]
+<h3 id="editmessage-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="EditMessageParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `messageId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
+| `newContent` | `string` | Replacement message text. |
 
-### Returns [!toc] [#editmessage-returns]
+<h3 id="editmessage-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `messageId`, `newContent` |
-| Aliases | `messages.edit` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/messages/edit` | `editMessage` | Active |
-| Alias | `PUT` | `/api/editMessage` | `editMessage` | Active |
-
-</details>
+**HTTP:** `PUT /api/messages/edit`, or `/api/editMessage`. **Also named:** `messages.edit`.
 
 
 ## `deleteMessage`
 
 Deletes a message
+
+<ReferenceCode>
 
 ```ts
 client.deleteMessage(
@@ -733,10 +747,14 @@ client.deleteMessage(
 ): Promise<boolean>
 ```
 
-### Usage [!toc] [#deletemessage-usage]
+</ReferenceCode>
+
+<h3 id="deletemessage-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.deleteMessage(
@@ -748,8 +766,12 @@ const result = await client.deleteMessage(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -764,8 +786,12 @@ const result = await client.deleteMessage({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X DELETE "http://localhost:8080/api/messages/delete" \
@@ -780,7 +806,11 @@ curl -X DELETE "http://localhost:8080/api/messages/delete" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -789,44 +819,33 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#deletemessage-parameters]
+<h3 id="deletemessage-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="DeleteMessageParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
+| `messageId` | `string[] \| string` | Message ID(s) to process. Also accepts `messages`. |
+| `onlyLocal` | `boolean` | Optional. Delete only locally. |
 
-### Returns [!toc] [#deletemessage-returns]
+<h3 id="deletemessage-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
 `true` means the delete was accepted and `false` means it didn't complete. WhatsApp can still refuse to remove the message for everyone, so `true` doesn't prove every recipient lost it.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `chatId`, `messageId`, `onlyLocal` |
-| Aliases | `messages.delete` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `DELETE` | `/api/messages/delete` | `deleteMessage` | Active |
-| Alias | `DELETE` | `/api/deleteMessage` | `deleteMessage` | Active |
-
-</details>
+**HTTP:** `DELETE /api/messages/delete`, or `/api/deleteMessage`. **Also named:** `messages.delete`.
 
 
 ## `forwardMessages`
 
 Forwards messages to a chat
+
+<ReferenceCode>
 
 ```ts
 client.forwardMessages(
@@ -836,10 +855,14 @@ client.forwardMessages(
 ): Promise<MessageIdReturn[] | boolean>
 ```
 
-### Usage [!toc] [#forwardmessages-usage]
+</ReferenceCode>
+
+<h3 id="forwardmessages-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.forwardMessages(
@@ -851,8 +874,12 @@ const result = await client.forwardMessages(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -867,8 +894,12 @@ const result = await client.forwardMessages({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/forward" \
@@ -883,7 +914,11 @@ curl -X POST "http://localhost:8080/api/messages/forward" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -892,58 +927,55 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#forwardmessages-parameters]
+<h3 id="forwardmessages-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="ForwardMessagesParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `messages` | `string[] \| string` | Message ID(s) to process. Also accepts `messages`. |
+| `skipMyMessages` | `boolean` | Optional. Skip own messages. |
 
-### Returns [!toc] [#forwardmessages-returns]
+<h3 id="forwardmessages-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn[] | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `messages`, `skipMyMessages` |
-| Aliases | `messages.forward` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/forward` | `forwardMessages` | Active |
-| Alias | `POST` | `/api/forwardMessages` | `forwardMessages` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/forward`, or `/api/forwardMessages`. **Also named:** `messages.forward`.
 
 
 ## `sendSeen`
 
 Mark message as seen
 
+<ReferenceCode>
+
 ```ts
 client.sendSeen(chatId: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#sendseen-usage]
+</ReferenceCode>
+
+<h3 id="sendseen-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.sendSeen("447123456789@c.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -954,8 +986,12 @@ const result = await client.sendSeen({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/messages/sendSeen" \
@@ -966,7 +1002,11 @@ curl -X PUT "http://localhost:8080/api/messages/sendSeen" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -975,51 +1015,42 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendseen-parameters]
+<h3 id="sendseen-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendSeenParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
 
-### Returns [!toc] [#sendseen-returns]
+<h3 id="sendseen-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `chatId` |
-| Aliases | `messages.sendSeen` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/messages/sendSeen` | `sendSeen` | Active |
-| Alias | `PUT` | `/api/sendSeen` | `sendSeen` | Active |
-
-</details>
+**HTTP:** `PUT /api/messages/sendSeen`, or `/api/sendSeen`. **Also named:** `messages.sendSeen`.
 
 
 ## `getMessageById`
 
 Retrieves a specific message by ID
 
+<ReferenceCode>
+
 ```ts
 client.getMessageById(messageId: string): Promise<Message | null | false>
 ```
 
-### Usage [!toc] [#getmessagebyid-usage]
+</ReferenceCode>
+
+<h3 id="getmessagebyid-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getMessageById(
@@ -1027,8 +1058,12 @@ const result = await client.getMessageById(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1039,8 +1074,12 @@ const result = await client.getMessageById({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/messages/get" \
@@ -1048,7 +1087,11 @@ curl -G "http://localhost:8080/api/messages/get" \
   --data-urlencode "messageId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1084,60 +1127,49 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getmessagebyid-parameters]
+<h3 id="getmessagebyid-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetMessageByIdParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `messageId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
 
-### Returns [!toc] [#getmessagebyid-returns]
+<h3 id="getmessagebyid-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `Message | null | false`. See [Message](/docs/reference/client/return-types#message) for its fields.
 
 The SDK resolves to `Message | false | null` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `messageId` |
-| Aliases | `getMessage`, `messages.get`, `messages.getById` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/messages/get` | `getMessageById` | Active |
-| Alias | `GET` | `/api/getMessage` | `getMessage` | Active |
-| Alias | `GET` | `/api/getMessageById` | `getMessageById` | Active |
-| Alias | `GET` | `/api/messages/getById` | `messages.getById` | Active |
-
-</details>
+**HTTP:** `GET /api/messages/get`, or `/api/getMessage`, `/api/getMessageById`, `/api/messages/getById`. **Also named:** `getMessage`, `messages.get`, `messages.getById`.
 
 
 ## `sendAudio`
 
 Sends an audio attachment with an optional quoted message. Use sendPtt for voice notes and view-once audio.
 
+<ReferenceCode>
+
 ```ts
 client.sendAudio(
   to: string,
   file: string | Buffer,
   filename?: string,
-  options?: { quotedMsgId?: string },
+  options?: AudioAttachmentOptions,
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendaudio-usage]
+</ReferenceCode>
+
+<h3 id="sendaudio-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.sendAudio(
@@ -1146,8 +1178,12 @@ const result = await client.sendAudio(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1159,8 +1195,12 @@ const result = await client.sendAudio({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendAudio" \
@@ -1172,7 +1212,11 @@ curl -X POST "http://localhost:8080/api/messages/sendAudio" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1181,57 +1225,51 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendaudio-parameters]
+<h3 id="sendaudio-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendAudioParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `file` | `string \| Buffer` | Audio file (path, URL, DataURL, or Base64) |
+| `filename` | `string` | Optional. Filename with extension. |
+| `options` | [`AudioAttachmentOptions`](/docs/reference/client/return-types#audioattachmentoptions) | Optional. |
 
-### Returns [!toc] [#sendaudio-returns]
+<h3 id="sendaudio-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK resolves to `MediaSendResult` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `file`, `filename`, `options` |
-| Aliases | `messages.sendAudio` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendAudio` | `sendAudio` | Active |
-| Alias | `POST` | `/api/sendAudio` | `sendAudio` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendAudio`, or `/api/sendAudio`. **Also named:** `messages.sendAudio`.
 
 
 ## `sendPtt`
 
 Sends prepared audio as a voice note, optionally view once. It does not transcode the input; use suitable voice-note audio such as Ogg Opus.
 
+<ReferenceCode>
+
 ```ts
 client.sendPtt(
   to: string,
   file: string | Buffer,
-  options?: { quotedMsgId?: string; viewOnce?: boolean },
+  options?: VoiceNoteOptions,
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendptt-usage]
+</ReferenceCode>
+
+<h3 id="sendptt-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.sendPtt(
@@ -1240,8 +1278,12 @@ const result = await client.sendPtt(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1253,8 +1295,12 @@ const result = await client.sendPtt({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendPtt" \
@@ -1266,7 +1312,11 @@ curl -X POST "http://localhost:8080/api/messages/sendPtt" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1275,66 +1325,57 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendptt-parameters]
+<h3 id="sendptt-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendPttParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `file` | `string \| Buffer` | Audio file (path, URL, DataURL, or Base64) |
+| `options` | [`VoiceNoteOptions`](/docs/reference/client/return-types#voicenoteoptions) | Optional. |
 
-### Returns [!toc] [#sendptt-returns]
+<h3 id="sendptt-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK resolves to `MediaSendResult` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `file`, `options` |
-| Aliases | `messages.sendPtt`, `messages.sendVoiceNote`, `sendVoiceNote` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendPtt` | `sendPtt` | Active |
-| Alias | `POST` | `/api/messages/sendVoiceNote` | `messages.sendVoiceNote` | Active |
-| Alias | `POST` | `/api/sendPtt` | `sendPtt` | Active |
-| Alias | `POST` | `/api/sendVoiceNote` | `sendVoiceNote` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendPtt`, or `/api/messages/sendVoiceNote`, `/api/sendPtt`, `/api/sendVoiceNote`. **Also named:** `messages.sendPtt`, `messages.sendVoiceNote`, `sendVoiceNote`.
 
 
 ## `sendSticker`
 
 Turn an image or video into a sticker, apply optional effects and author and pack labels, and send it. Resolves to the message ID once WhatsApp accepts it, not a delivery receipt. If the outcome is unknown, check the chat before you retry.
 
+<ReferenceCode>
+
 ```ts
-client.sendSticker(
-  to: string,
-  input: string,
-  job?: { author?: string; backend?: "auto" | "browser" | "standalone"; background?: string; circle?: boolean; effects?: (string | { name: string; options?: object })[]; fit?: "contain" | "cover"; fps?: number; loopCount?: number; pack?: string; quality?: number; quotedMsgId?: string; trim?: number[] },
-): Promise<MessageId>
+client.sendSticker(to: string, input: string, job?: { … }): Promise<MessageId>
 ```
 
-### Usage [!toc] [#sendsticker-usage]
+</ReferenceCode>
+
+<h3 id="sendsticker-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.sendSticker("447123456789@c.us", "input");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1346,8 +1387,12 @@ const result = await client.sendSticker({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendSticker" \
@@ -1359,7 +1404,11 @@ curl -X POST "http://localhost:8080/api/messages/sendSticker" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1368,58 +1417,51 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendsticker-parameters]
+<h3 id="sendsticker-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendStickerParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `input` | `string` | A media data URL or HTTP(S) URL. The local library additionally accepts bytes, Blob and local filenames. |
+| `job` | `{ author?: string; backend?: "auto" \| "browser" \| "standalone"; background?: string; circle?: boolean; effects?: (string \| { name: string; options?: object })[]; fit?: "contain" \| "cover"; fps?: number; loopCount?: number; pack?: string; quality?: number; quotedMsgId?: string; trim?: number[] }` | Optional. |
 
-### Returns [!toc] [#sendsticker-returns]
+<h3 id="sendsticker-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to [`MessageId`](/docs/reference/client/return-types#messageid).
 
 Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `input`, `job` |
-| Aliases | `messages.sendSticker` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendSticker` | `sendSticker` | Active |
-| Alias | `POST` | `/api/sendSticker` | `sendSticker` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendSticker`, or `/api/sendSticker`. **Also named:** `messages.sendSticker`.
 
 
 ## `sendAlbum`
 
 Sends images and videos together as a native WhatsApp album with one caption on its first item. GIFs use MP4 video data with isGif: true. Documents are rejected. Phone-number IDs are resolved to LIDs; the destination chat must already be loaded and allow sending. WhatsApp controls the minimum item count and upload limits. Runtime failures include the parent and submitted child IDs when available; inspect the chat before retrying.
 
+<ReferenceCode>
+
 ```ts
 client.sendAlbum(
   to: string,
-  media: { file: string; filename: string; isGif?: boolean }[],
+  media: AlbumMedia[],
   caption?: string,
   quotedMsgId?: string,
 ): Promise<AlbumSendResult>
 ```
 
-### Usage [!toc] [#sendalbum-usage]
+</ReferenceCode>
+
+<h3 id="sendalbum-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 import { readFile } from 'node:fs/promises';
@@ -1437,8 +1479,12 @@ const result = await client.sendAlbum(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1459,8 +1505,12 @@ const result = await client.sendAlbum({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 # Save an album request as album.json with "to", "caption", and "media".
@@ -1472,7 +1522,11 @@ curl -X POST "http://localhost:8080/api/messages/sendAlbum" \
   --data-binary @album.json
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1489,58 +1543,52 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendalbum-parameters]
+<h3 id="sendalbum-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendAlbumParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `media` | [`AlbumMedia[]`](/docs/reference/client/return-types#albummedia) | Album items in send order. |
+| `caption` | `string` | Optional. Media caption. |
+| `quotedMsgId` | `string` | Optional. Message to quote on the first album item. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
 
-### Returns [!toc] [#sendalbum-returns]
+<h3 id="sendalbum-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to [`AlbumSendResult`](/docs/reference/client/return-types#albumsendresult).
 
 Submitted album parent and child message IDs, in input order. Submission does not confirm recipient delivery. Runtime failures include the album ID and submitted child IDs when available. A lost connection can leave the send outcome unknown; inspect the chat before retrying.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `media`, `caption`, `quotedMsgId` |
-| Aliases | `messages.sendAlbum` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendAlbum` | `sendAlbum` | Active |
-| Alias | `POST` | `/api/sendAlbum` | `sendAlbum` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendAlbum`, or `/api/sendAlbum`. **Also named:** `messages.sendAlbum`.
 
 
 ## `sendVideoAsGif`
 
 Sends MP4 video with WhatsApp GIF playback. GIF is a video presentation flag; this method does not convert a GIF image or transcode video.
 
+<ReferenceCode>
+
 ```ts
 client.sendVideoAsGif(
   to: string,
   file: string | Buffer,
   filename?: string,
-  options?: { caption?: string; quotedMsgId?: string },
+  options?: GifSendOptions,
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendvideoasgif-usage]
+</ReferenceCode>
+
+<h3 id="sendvideoasgif-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.sendVideoAsGif(
@@ -1549,8 +1597,12 @@ const result = await client.sendVideoAsGif(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1562,8 +1614,12 @@ const result = await client.sendVideoAsGif({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendVideoAsGif" \
@@ -1575,7 +1631,11 @@ curl -X POST "http://localhost:8080/api/messages/sendVideoAsGif" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1584,44 +1644,34 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendvideoasgif-parameters]
+<h3 id="sendvideoasgif-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendVideoAsGifParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `file` | `string \| Buffer` | Video file (path, URL, DataURL, or Base64) |
+| `filename` | `string` | Optional. Filename with extension. |
+| `options` | [`GifSendOptions`](/docs/reference/client/return-types#gifsendoptions) | Optional. |
 
-### Returns [!toc] [#sendvideoasgif-returns]
+<h3 id="sendvideoasgif-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK resolves to `MediaSendResult` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `file`, `filename`, `options` |
-| Aliases | `messages.sendVideoAsGif` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendVideoAsGif` | `sendVideoAsGif` | Active |
-| Alias | `POST` | `/api/sendVideoAsGif` | `sendVideoAsGif` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendVideoAsGif`, or `/api/sendVideoAsGif`. **Also named:** `messages.sendVideoAsGif`.
 
 
 ## `sendLocation`
 
 Sends a location to a chat
+
+<ReferenceCode>
 
 ```ts
 client.sendLocation(
@@ -1634,17 +1684,25 @@ client.sendLocation(
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendlocation-usage]
+</ReferenceCode>
+
+<h3 id="sendlocation-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.sendLocation("447123456789@c.us", 51.5074, -0.1278);
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1657,8 +1715,12 @@ const result = await client.sendLocation({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendLocation" \
@@ -1671,7 +1733,11 @@ curl -X POST "http://localhost:8080/api/messages/sendLocation" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1680,44 +1746,36 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendlocation-parameters]
+<h3 id="sendlocation-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendLocationParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `lat` | `number \| string` | Latitude coordinate. |
+| `lng` | `number \| string` | Longitude coordinate. |
+| `loc` | `string` | Optional. Location name or description. |
+| `address` | `string` | Optional. Address text. |
+| `url` | `string` | Optional. Address link. |
 
-### Returns [!toc] [#sendlocation-returns]
+<h3 id="sendlocation-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK resolves to `MessageId | false` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `lat`, `lng`, `loc`, `address`, `url` |
-| Aliases | `messages.sendLocation` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendLocation` | `sendLocation` | Active |
-| Alias | `POST` | `/api/sendLocation` | `sendLocation` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendLocation`, or `/api/sendLocation`. **Also named:** `messages.sendLocation`.
 
 
 ## `sendContact`
 
 Sends a single contact
+
+<ReferenceCode>
 
 ```ts
 client.sendContact(
@@ -1726,10 +1784,14 @@ client.sendContact(
 ): Promise<MessageIdReturn | boolean | (MessageIdReturn | boolean)[]>
 ```
 
-### Usage [!toc] [#sendcontact-usage]
+</ReferenceCode>
+
+<h3 id="sendcontact-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.sendContact(
@@ -1738,8 +1800,12 @@ const result = await client.sendContact(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1751,8 +1817,12 @@ const result = await client.sendContact({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendContact" \
@@ -1764,7 +1834,11 @@ curl -X POST "http://localhost:8080/api/messages/sendContact" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1773,44 +1847,32 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendcontact-parameters]
+<h3 id="sendcontact-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendContactParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `contactId` | `string \| string[]` | - |
 
-### Returns [!toc] [#sendcontact-returns]
+<h3 id="sendcontact-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean | (MessageIdReturn | boolean)[]`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK resolves to `MessageId | boolean | (MessageId | boolean)[]` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `contactId` |
-| Aliases | `messages.sendContact` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendContact` | `sendContact` | Active |
-| Alias | `POST` | `/api/sendContact` | `sendContact` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendContact`, or `/api/sendContact`. **Also named:** `messages.sendContact`.
 
 
 ## `sendVCard`
 
 Sends a contact card (vCard)
+
+<ReferenceCode>
 
 ```ts
 client.sendVCard(
@@ -1821,17 +1883,25 @@ client.sendVCard(
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendvcard-usage]
+</ReferenceCode>
+
+<h3 id="sendvcard-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.sendVCard("447123456789@c.us", "vcard");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1843,8 +1913,12 @@ const result = await client.sendVCard({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendVCard" \
@@ -1856,7 +1930,11 @@ curl -X POST "http://localhost:8080/api/messages/sendVCard" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1865,44 +1943,34 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendvcard-parameters]
+<h3 id="sendvcard-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendVCardParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `vcard` | `string` | vCard string. |
+| `contactName` | `string` | Optional. Contact display name. |
+| `contactNumber` | `string` | Optional. Contact number with country code. |
 
-### Returns [!toc] [#sendvcard-returns]
+<h3 id="sendvcard-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK resolves to `MessageId | boolean` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `vcard`, `contactName`, `contactNumber` |
-| Aliases | `messages.sendVCard` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendVCard` | `sendVCard` | Active |
-| Alias | `POST` | `/api/sendVCard` | `sendVCard` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendVCard`, or `/api/sendVCard`. **Also named:** `messages.sendVCard`.
 
 
 ## `sendMultipleContacts`
 
 Sends multiple contacts
+
+<ReferenceCode>
 
 ```ts
 client.sendMultipleContacts(
@@ -1911,10 +1979,14 @@ client.sendMultipleContacts(
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendmultiplecontacts-usage]
+</ReferenceCode>
+
+<h3 id="sendmultiplecontacts-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.sendMultipleContacts(
@@ -1923,8 +1995,12 @@ const result = await client.sendMultipleContacts(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1936,8 +2012,12 @@ const result = await client.sendMultipleContacts({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendContacts" \
@@ -1951,7 +2031,11 @@ curl -X POST "http://localhost:8080/api/messages/sendContacts" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1960,46 +2044,32 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendmultiplecontacts-parameters]
+<h3 id="sendmultiplecontacts-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendMultipleContactsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `contactIds` | `string[]` | A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#sendmultiplecontacts-returns]
+<h3 id="sendmultiplecontacts-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK resolves to `MessageId | boolean` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `contactIds` |
-| Aliases | `messages.sendContacts`, `messages.sendMultipleContacts`, `sendContacts` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendContacts` | `sendMultipleContacts` | Active |
-| Alias | `POST` | `/api/messages/sendMultipleContacts` | `messages.sendMultipleContacts` | Active |
-| Alias | `POST` | `/api/sendContacts` | `sendContacts` | Active |
-| Alias | `POST` | `/api/sendMultipleContacts` | `sendMultipleContacts` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendContacts`, or `/api/messages/sendMultipleContacts`, `/api/sendContacts`, `/api/sendMultipleContacts`. **Also named:** `messages.sendContacts`, `messages.sendMultipleContacts`, `sendContacts`.
 
 
 ## `sendLinkWithAutoPreview`
 
 Sends a link with auto-generated preview
+
+<ReferenceCode>
 
 ```ts
 client.sendLinkWithAutoPreview(
@@ -2012,10 +2082,14 @@ client.sendLinkWithAutoPreview(
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendlinkwithautopreview-usage]
+</ReferenceCode>
+
+<h3 id="sendlinkwithautopreview-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -2027,8 +2101,12 @@ const result = await client.sendLinkWithAutoPreview({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendLinkWithAutoPreview" \
@@ -2040,7 +2118,11 @@ curl -X POST "http://localhost:8080/api/messages/sendLinkWithAutoPreview" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -2049,46 +2131,36 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendlinkwithautopreview-parameters]
+<h3 id="sendlinkwithautopreview-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendLinkWithAutoPreviewParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `url` | `string` | Link URL. |
+| `text` | `string` | Optional. Message content. Also accepts `body`, `message`, `text`. |
+| `thumbnail` | `string` | Optional. Base64 thumbnail override. |
+| `quotedMsgId` | `string` | Optional. Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
+| `customSize` | `{ height: number; width: number }` | Optional. Custom thumbnail size. |
 
-### Returns [!toc] [#sendlinkwithautopreview-returns]
+<h3 id="sendlinkwithautopreview-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `url`, `text`, `thumbnail`, `quotedMsgId`, `customSize` |
-| Aliases | `messages.sendLink`, `messages.sendLinkWithAutoPreview`, `sendLink` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendLinkWithAutoPreview` | `sendLinkWithAutoPreview` | Active |
-| Alias | `POST` | `/api/messages/sendLink` | `messages.sendLink` | Active |
-| Alias | `POST` | `/api/sendLink` | `sendLink` | Active |
-| Alias | `POST` | `/api/sendLinkWithAutoPreview` | `sendLinkWithAutoPreview` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendLinkWithAutoPreview`, or `/api/messages/sendLink`, `/api/sendLink`, `/api/sendLinkWithAutoPreview`. **Also named:** `messages.sendLink`, `messages.sendLinkWithAutoPreview`, `sendLink`.
 
 
 ## `sendYouTubeLink`
 
 Sends a YouTube link with auto-generated preview
+
+<ReferenceCode>
 
 ```ts
 client.sendYouTubeLink(
@@ -2101,10 +2173,14 @@ client.sendYouTubeLink(
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendyoutubelink-usage]
+</ReferenceCode>
+
+<h3 id="sendyoutubelink-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -2116,8 +2192,12 @@ const result = await client.sendYouTubeLink({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendYouTubeLink" \
@@ -2129,7 +2209,11 @@ curl -X POST "http://localhost:8080/api/messages/sendYouTubeLink" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -2138,46 +2222,36 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendyoutubelink-parameters]
+<h3 id="sendyoutubelink-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendYouTubeLinkParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `url` | `string` | YouTube URL. |
+| `text` | `string` | Optional. Message content. Also accepts `body`, `message`, `text`. |
+| `thumbnail` | `string` | Optional. Base64 thumbnail override. |
+| `quotedMsgId` | `string` | Optional. Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
+| `customSize` | `{ height: number; width: number }` | Optional. Custom thumbnail size. |
 
-### Returns [!toc] [#sendyoutubelink-returns]
+<h3 id="sendyoutubelink-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `url`, `text`, `thumbnail`, `quotedMsgId`, `customSize` |
-| Aliases | `messages.sendYoutubeLink`, `messages.sendYouTubeLink`, `sendYoutubeLink` |
-| Deprecated aliases | `messages.sendYoutubeLink`, `sendYoutubeLink` |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendYouTubeLink` | `sendYouTubeLink` | Active |
-| Deprecated alias | `POST` | `/api/messages/sendYoutubeLink` | `messages.sendYoutubeLink` | **Deprecated** |
-| Deprecated alias | `POST` | `/api/sendYoutubeLink` | `sendYoutubeLink` | **Deprecated** |
-| Alias | `POST` | `/api/sendYouTubeLink` | `sendYouTubeLink` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendYouTubeLink`, or `/api/sendYouTubeLink`. Deprecated routes: `/api/messages/sendYoutubeLink`, `/api/sendYoutubeLink`. **Also named:** `messages.sendYouTubeLink`. Deprecated names: `messages.sendYoutubeLink`, `sendYoutubeLink`.
 
 
 ## `sendMessageWithThumb`
 
 Sends a link preview message with custom thumbnail
+
+<ReferenceCode>
 
 ```ts
 client.sendMessageWithThumb(
@@ -2192,10 +2266,14 @@ client.sendMessageWithThumb(
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendmessagewiththumb-usage]
+</ReferenceCode>
+
+<h3 id="sendmessagewiththumb-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -2211,8 +2289,12 @@ const result = await client.sendMessageWithThumb({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendLinkWithThumbnail" \
@@ -2228,7 +2310,11 @@ curl -X POST "http://localhost:8080/api/messages/sendLinkWithThumbnail" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -2237,60 +2323,56 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendmessagewiththumb-parameters]
+<h3 id="sendmessagewiththumb-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendMessageWithThumbParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `thumb` | `string` | Base64 thumbnail (max 200x200px) |
+| `url` | `string` | Link URL. |
+| `title` | `string` | Link title. |
+| `description` | `string` | Link description. |
+| `content` | `string` | Message content. Also accepts `body`, `message`, `text`. |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `quotedMsgId` | `string` | Optional. Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
+| `customSize` | `{ height: number; width: number }` | Optional. Custom thumbnail size. |
 
-### Returns [!toc] [#sendmessagewiththumb-returns]
+<h3 id="sendmessagewiththumb-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `thumb`, `url`, `title`, `description`, `content`, `to`, `quotedMsgId`, `customSize` |
-| Aliases | `messages.sendLinkWithThumbnail`, `messages.sendWithThumb`, `sendLinkWithThumbnail` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendLinkWithThumbnail` | `sendMessageWithThumb` | Active |
-| Alias | `POST` | `/api/messages/sendWithThumb` | `messages.sendWithThumb` | Active |
-| Alias | `POST` | `/api/sendLinkWithThumbnail` | `sendLinkWithThumbnail` | Active |
-| Alias | `POST` | `/api/sendMessageWithThumb` | `sendMessageWithThumb` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendLinkWithThumbnail`, or `/api/messages/sendWithThumb`, `/api/sendLinkWithThumbnail`, `/api/sendMessageWithThumb`. **Also named:** `messages.sendLinkWithThumbnail`, `messages.sendWithThumb`, `sendLinkWithThumbnail`.
 
 
 ## `sendPoll`
 
 Send a poll with a selection limit, an optional quoted message, an optional closing time in Unix milliseconds and optionally hidden voter names. Closing times and hidden names only work where WhatsApp supports them for the sending account and chat.
 
+<ReferenceCode>
+
 ```ts
 client.sendPoll(
   to: string,
   name: string,
   options: string[],
-  config?: { endTime?: number; hideVoterNames?: boolean; quotedMsgId?: string; selectableCount?: number },
+  config?: PollSendOptions,
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendpoll-usage]
+</ReferenceCode>
+
+<h3 id="sendpoll-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.sendPoll(
@@ -2300,8 +2382,12 @@ const result = await client.sendPoll(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -2314,8 +2400,12 @@ const result = await client.sendPoll({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendPoll" \
@@ -2331,7 +2421,11 @@ curl -X POST "http://localhost:8080/api/messages/sendPoll" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -2340,53 +2434,47 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendpoll-parameters]
+<h3 id="sendpoll-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendPollParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `name` | `string` | Poll question. |
+| `options` | `string[]` | Poll choices; the account may have a lower native limit. |
+| `config` | [`PollSendOptions`](/docs/reference/client/return-types#pollsendoptions) | Optional. |
 
-### Returns [!toc] [#sendpoll-returns]
+<h3 id="sendpoll-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK resolves to `MessageId | boolean` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `name`, `options`, `config` |
-| Aliases | `messages.sendPoll` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendPoll` | `sendPoll` | Active |
-| Alias | `POST` | `/api/sendPoll` | `sendPoll` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendPoll`, or `/api/sendPoll`. **Also named:** `messages.sendPoll`.
 
 
 ## `getPollResults`
 
 Get the current counts, choices and votes for a poll. Polls with hidden voters leave out voter identities and the votes array, and very recent votes may not appear yet.
 
+<ReferenceCode>
+
 ```ts
 client.getPollResults(messageId: string): Promise<PollResults>
 ```
 
-### Usage [!toc] [#getpollresults-usage]
+</ReferenceCode>
+
+<h3 id="getpollresults-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getPollResults(
@@ -2394,8 +2482,12 @@ const result = await client.getPollResults(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -2406,8 +2498,12 @@ const result = await client.getPollResults({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/getPollResults" \
@@ -2418,7 +2514,11 @@ curl -X POST "http://localhost:8080/api/messages/getPollResults" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -2437,51 +2537,42 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getpollresults-parameters]
+<h3 id="getpollresults-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetPollResultsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `messageId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
 
-### Returns [!toc] [#getpollresults-returns]
+<h3 id="getpollresults-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to [`PollResults`](/docs/reference/client/return-types#pollresults).
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `messageId` |
-| Aliases | `messages.getPollResults` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/getPollResults` | `getPollResults` | Active |
-| Alias | `POST` | `/api/getPollResults` | `getPollResults` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/getPollResults`, or `/api/getPollResults`. **Also named:** `messages.getPollResults`.
 
 
 ## `voteOnPoll`
 
 Votes using option IDs returned by getPollResults; an empty array removes the current vote. The poll must be open and allow this account to vote.
 
+<ReferenceCode>
+
 ```ts
 client.voteOnPoll(messageId: string, optionIds: number[]): Promise<boolean>
 ```
 
-### Usage [!toc] [#voteonpoll-usage]
+</ReferenceCode>
+
+<h3 id="voteonpoll-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.voteOnPoll(
@@ -2490,8 +2581,12 @@ const result = await client.voteOnPoll(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -2503,8 +2598,12 @@ const result = await client.voteOnPoll({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/voteOnPoll" \
@@ -2516,7 +2615,11 @@ curl -X POST "http://localhost:8080/api/messages/voteOnPoll" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -2525,37 +2628,23 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#voteonpoll-parameters]
+<h3 id="voteonpoll-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="VoteOnPollParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `messageId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
+| `optionIds` | `number[]` | - |
 
-### Returns [!toc] [#voteonpoll-returns]
+<h3 id="voteonpoll-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `messageId`, `optionIds` |
-| Aliases | `messages.voteOnPoll` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/voteOnPoll` | `voteOnPoll` | Active |
-| Alias | `POST` | `/api/voteOnPoll` | `voteOnPoll` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/voteOnPoll`, or `/api/voteOnPoll`. **Also named:** `messages.voteOnPoll`.
 
 <LicensedMethodSection tier="insiders">
 
@@ -2565,6 +2654,8 @@ Resolves to `boolean`.
 Sends a button message (deprecated)
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
+
+<ReferenceCode>
 
 ```ts
 client.sendButtons(
@@ -2576,10 +2667,14 @@ client.sendButtons(
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendbuttons-usage]
+</ReferenceCode>
+
+<h3 id="sendbuttons-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -2591,8 +2686,12 @@ const result = await client.sendButtons({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendButtons" \
@@ -2604,7 +2703,11 @@ curl -X POST "http://localhost:8080/api/messages/sendButtons" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -2613,39 +2716,28 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendbuttons-parameters]
+<h3 id="sendbuttons-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendButtonsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `body` | `string \| any` | Optional. Message body or location. |
+| `buttons` | `any[]` | Array of buttons (max 3) |
+| `title` | `string` | Optional. Message title. |
+| `footer` | `string` | Optional. Message footer. |
 
-### Returns [!toc] [#sendbuttons-returns]
+<h3 id="sendbuttons-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `body`, `buttons`, `title`, `footer` |
-| Aliases | `messages.sendButtons` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendButtons` | `sendButtons` | Active |
-| Alias | `POST` | `/api/sendButtons` | `sendButtons` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendButtons`, or `/api/sendButtons`. **Also named:** `messages.sendButtons`.
 
 </LicensedMethodSection>
 
@@ -2658,6 +2750,8 @@ Sends a list/menu message (deprecated)
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
 client.sendListMessage(
   to: string,
@@ -2668,10 +2762,14 @@ client.sendListMessage(
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendlistmessage-usage]
+</ReferenceCode>
+
+<h3 id="sendlistmessage-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -2686,8 +2784,12 @@ const result = await client.sendListMessage({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendList" \
@@ -2702,7 +2804,11 @@ curl -X POST "http://localhost:8080/api/messages/sendList" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -2711,40 +2817,28 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendlistmessage-parameters]
+<h3 id="sendlistmessage-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendListMessageParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `sections` | `any[]` | List sections. |
+| `title` | `string` | List title. |
+| `description` | `string` | List description. |
+| `actionText` | `string` | Action button text. |
 
-### Returns [!toc] [#sendlistmessage-returns]
+<h3 id="sendlistmessage-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `sections`, `title`, `description`, `actionText` |
-| Aliases | `messages.sendList`, `sendList` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendList` | `sendListMessage` | Active |
-| Alias | `POST` | `/api/sendList` | `sendList` | Active |
-| Alias | `POST` | `/api/sendListMessage` | `sendListMessage` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendList`, or `/api/sendList`, `/api/sendListMessage`. **Also named:** `messages.sendList`, `sendList`.
 
 </LicensedMethodSection>
 
@@ -2757,30 +2851,31 @@ Send a portable interactive message document (Insiders and above)
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
-client.sendInteractive(
-  to: string,
-  content:
-    | { actions: ({ id: string; label: string; type: "reply" } | { label: string; type: "url"; url: string } | { label: string; phoneNumber: string; type: "call" } | { code: string; label: string; type: "copy" })[]; body: string; footer?: string; header?: { text: string; type: "text" } | { filename?: string; source: string; title?: string; type: "image" } | { filename?: string; source: string; title?: string; type: "video" } | { filename?: string; source: string; title?: string; type: "document" }; type: "buttons"; version?: 1 }
-    | { body: string; buttonLabel?: string; footer?: string; sections: { rows: { description?: string; id: string; title: string }[]; title?: string }[]; title?: string; type: "list"; version?: 1 }
-    | { body: string; footer?: string; questions: ({ allowCustomAnswer?: boolean; id: string; label: string; options: { id: string; label: string }[]; type: "singleSelect" | "multiSelect" })[]; title?: string; type: "form"; version?: 1 }
-    | { body: string; cards: ({ actions: ({ id: string; label: string; type: "reply" } | { label: string; type: "url"; url: string } | { label: string; phoneNumber: string; type: "call" } | { code: string; label: string; type: "copy" })[]; body: string; header: { filename?: string; source: string; title?: string; type: "image" } })[]; footer?: string; type: "carousel"; version?: 1 }
-    | { actions?: ({ label: string; type: "url"; url: string } | { label: string; phoneNumber: string; type: "call" } | { code: string; label: string; type: "copy" })[]; body: string; booking: { description?: string; email?: string; endAt?: string; labels?: { addToCalendar?: string; detailsTitle?: string; language?: string; manageBooking?: string; meetingType?: string; viewOnMap?: string }; location?: string; managementUrl?: string; phoneNumber?: string; startAt: string; url?: string }; buttonLabel?: string; footer?: string; title?: string; type: "booking"; version?: 1 }
-    | { actions: { name: string; parameters?: object }[]; body: string; footer?: string; header?: { text: string; type: "text" } | { filename?: string; source: string; title?: string; type: "image" } | { filename?: string; source: string; title?: string; type: "video" } | { filename?: string; source: string; title?: string; type: "document" }; parameters?: object; type: "native"; version?: 1 },
-): Promise<string>
+client.sendInteractive(to: string, content: InteractiveContent): Promise<string>
 ```
 
-### Usage [!toc] [#sendinteractive-usage]
+</ReferenceCode>
+
+<h3 id="sendinteractive-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.sendInteractive("447123456789@c.us", {});
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -2792,8 +2887,12 @@ const result = await client.sendInteractive({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendInteractive" \
@@ -2805,7 +2904,11 @@ curl -X POST "http://localhost:8080/api/messages/sendInteractive" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -2814,39 +2917,25 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendinteractive-parameters]
+<h3 id="sendinteractive-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendInteractiveParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `content` | [`InteractiveContent`](/docs/reference/client/return-types#interactivecontent) | - |
 
-### Returns [!toc] [#sendinteractive-returns]
+<h3 id="sendinteractive-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `string`.
 
 The SDK resolves to `MessageId` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `content` |
-| Aliases | `messages.sendInteractive` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendInteractive` | `sendInteractive` | Active |
-| Alias | `POST` | `/api/sendInteractive` | `sendInteractive` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendInteractive`, or `/api/sendInteractive`. **Also named:** `messages.sendInteractive`.
 
 </LicensedMethodSection>
 
@@ -2859,6 +2948,8 @@ Sends an advanced button message with media (deprecated)
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
 client.sendAdvancedButtons(
   to: string,
@@ -2870,10 +2961,14 @@ client.sendAdvancedButtons(
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendadvancedbuttons-usage]
+</ReferenceCode>
+
+<h3 id="sendadvancedbuttons-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -2888,8 +2983,12 @@ const result = await client.sendAdvancedButtons({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendAdvancedButtons" \
@@ -2904,7 +3003,11 @@ curl -X POST "http://localhost:8080/api/messages/sendAdvancedButtons" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -2913,39 +3016,29 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendadvancedbuttons-parameters]
+<h3 id="sendadvancedbuttons-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendAdvancedButtonsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `body` | `string \| any` | Optional. Message body, location, or media. |
+| `buttons` | `any[]` | Array of advanced buttons (max 3) |
+| `text` | `string` | Message text. |
+| `footer` | `string` | Message footer. |
+| `filename` | `string` | Filename if body is a file. |
 
-### Returns [!toc] [#sendadvancedbuttons-returns]
+<h3 id="sendadvancedbuttons-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `body`, `buttons`, `text`, `footer`, `filename` |
-| Aliases | `messages.sendAdvancedButtons` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendAdvancedButtons` | `sendAdvancedButtons` | Active |
-| Alias | `POST` | `/api/sendAdvancedButtons` | `sendAdvancedButtons` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendAdvancedButtons`, or `/api/sendAdvancedButtons`. **Also named:** `messages.sendAdvancedButtons`.
 
 </LicensedMethodSection>
 
@@ -2954,14 +3047,20 @@ The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
 Sends a banner image
 
+<ReferenceCode>
+
 ```ts
 client.sendBanner(to: string, base64: string): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendbanner-usage]
+</ReferenceCode>
+
+<h3 id="sendbanner-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -2973,8 +3072,12 @@ const result = await client.sendBanner({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendBanner" \
@@ -2986,7 +3089,11 @@ curl -X POST "http://localhost:8080/api/messages/sendBanner" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -2995,44 +3102,32 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendbanner-parameters]
+<h3 id="sendbanner-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendBannerParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `base64` | `string` | Base64 encoded JPEG. |
 
-### Returns [!toc] [#sendbanner-returns]
+<h3 id="sendbanner-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `base64` |
-| Aliases | `messages.sendBanner` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendBanner` | `sendBanner` | Active |
-| Alias | `POST` | `/api/sendBanner` | `sendBanner` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendBanner`, or `/api/sendBanner`. **Also named:** `messages.sendBanner`.
 
 
 ## `getAllMessages`
 
 Retrieves all messages in the session
+
+<ReferenceCode>
 
 ```ts
 client.getAllMessages(
@@ -3042,17 +3137,25 @@ client.getAllMessages(
 ): Promise<Message[]>
 ```
 
-### Usage [!toc] [#getallmessages-usage]
+</ReferenceCode>
+
+<h3 id="getallmessages-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getAllMessages();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -3061,8 +3164,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getAllMessages();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/messages/getAll" \
@@ -3071,7 +3178,11 @@ curl -X GET "http://localhost:8080/api/messages/getAll" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -3080,45 +3191,31 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getallmessages-parameters]
+<h3 id="getallmessages-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetAllMessagesParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Optional. Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
+| `includeMe` | `boolean` | Optional. Include own messages. |
+| `includeNotifications` | `boolean` | Optional. Include notification messages. |
 
-### Returns [!toc] [#getallmessages-returns]
+<h3 id="getallmessages-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `Message[]`. See [Message](/docs/reference/client/return-types#message) for its fields.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `chatId`, `includeMe`, `includeNotifications` |
-| Aliases | `listMessages`, `messages.all`, `messages.getAll`, `messages.list` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/messages/getAll` | `getAllMessages` | Active |
-| Alias | `GET` | `/api/getAllMessages` | `getAllMessages` | Active |
-| Alias | `GET` | `/api/listMessages` | `listMessages` | Active |
-| Alias | `GET` | `/api/messages/all` | `messages.all` | Active |
-| Alias | `GET` | `/api/messages/list` | `messages.list` | Active |
-
-</details>
+**HTTP:** `GET /api/messages/getAll`, or `/api/getAllMessages`, `/api/listMessages`, `/api/messages/all`, `/api/messages/list`. **Also named:** `listMessages`, `messages.all`, `messages.getAll`, `messages.list`.
 
 
 ## `loadEarlierMessages`
 
 Loads earlier messages from a chat
+
+<ReferenceCode>
 
 ```ts
 client.loadEarlierMessages(
@@ -3128,17 +3225,25 @@ client.loadEarlierMessages(
 ): Promise<Message[]>
 ```
 
-### Usage [!toc] [#loadearliermessages-usage]
+</ReferenceCode>
+
+<h3 id="loadearliermessages-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.loadEarlierMessages("447123456789@c.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -3149,8 +3254,12 @@ const result = await client.loadEarlierMessages({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/loadEarlier" \
@@ -3161,7 +3270,11 @@ curl -X POST "http://localhost:8080/api/messages/loadEarlier" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -3170,53 +3283,44 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#loadearliermessages-parameters]
+<h3 id="loadearliermessages-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="LoadEarlierMessagesParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
+| `count` | `number` | Optional. Number of messages to load (default: 20) |
+| `includeMe` | `boolean` | Optional. Whether to include messages from the host account (default: false) |
 
-### Returns [!toc] [#loadearliermessages-returns]
+<h3 id="loadearliermessages-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `Message[]`. See [Message](/docs/reference/client/return-types#message) for its fields.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `chatId`, `count`, `includeMe` |
-| Aliases | `loadOlderMessages`, `messages.loadEarlier`, `messages.loadOlder` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/loadEarlier` | `loadEarlierMessages` | Active |
-| Alias | `POST` | `/api/loadEarlierMessages` | `loadEarlierMessages` | Active |
-| Alias | `POST` | `/api/loadOlderMessages` | `loadOlderMessages` | Active |
-| Alias | `POST` | `/api/messages/loadOlder` | `messages.loadOlder` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/loadEarlier`, or `/api/loadEarlierMessages`, `/api/loadOlderMessages`, `/api/messages/loadOlder`. **Also named:** `loadOlderMessages`, `messages.loadEarlier`, `messages.loadOlder`.
 
 
 ## `getMyLastMessage`
 
 Get last message sent by host
 
+<ReferenceCode>
+
 ```ts
 client.getMyLastMessage(chatId?: string): Promise<Message | undefined>
 ```
 
-### Usage [!toc] [#getmylastmessage-usage]
+</ReferenceCode>
+
+<h3 id="getmylastmessage-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -3225,8 +3329,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getMyLastMessage();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/messages/getMyLast" \
@@ -3235,7 +3343,11 @@ curl -X GET "http://localhost:8080/api/messages/getMyLast" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -3271,53 +3383,44 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getmylastmessage-parameters]
+<h3 id="getmylastmessage-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetMyLastMessageParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Optional. Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
 
-### Returns [!toc] [#getmylastmessage-returns]
+<h3 id="getmylastmessage-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `Message | undefined`. See [Message](/docs/reference/client/return-types#message) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `chatId` |
-| Aliases | `messages.getMyLast` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/messages/getMyLast` | `getMyLastMessage` | Active |
-| Alias | `GET` | `/api/getMyLastMessage` | `getMyLastMessage` | Active |
-
-</details>
+**HTTP:** `GET /api/messages/getMyLast`, or `/api/getMyLastMessage`. **Also named:** `messages.getMyLast`.
 
 
 ## `getMessageInfo`
 
 Get message delivery info
 
+<ReferenceCode>
+
 ```ts
 client.getMessageInfo(messageId: string): Promise<MessageInfo>
 ```
 
-### Usage [!toc] [#getmessageinfo-usage]
+</ReferenceCode>
+
+<h3 id="getmessageinfo-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -3328,8 +3431,12 @@ const result = await client.getMessageInfo({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/messages/getInfo" \
@@ -3337,7 +3444,11 @@ curl -G "http://localhost:8080/api/messages/getInfo" \
   --data-urlencode "messageId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -3354,53 +3465,44 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getmessageinfo-parameters]
+<h3 id="getmessageinfo-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetMessageInfoParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `messageId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
 
-### Returns [!toc] [#getmessageinfo-returns]
+<h3 id="getmessageinfo-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to [`MessageInfo`](/docs/reference/client/return-types#messageinfo).
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `messageId` |
-| Aliases | `messages.getInfo` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/messages/getInfo` | `getMessageInfo` | Active |
-| Alias | `GET` | `/api/getMessageInfo` | `getMessageInfo` | Active |
-
-</details>
+**HTTP:** `GET /api/messages/getInfo`, or `/api/getMessageInfo`. **Also named:** `messages.getInfo`.
 
 
 ## `getMessagesForLLM`
 
 Get messages formatted for LLMs
 
+<ReferenceCode>
+
 ```ts
 client.getMessagesForLLM(chatId: string, last?: number): Promise<LLMMessage[]>
 ```
 
-### Usage [!toc] [#getmessagesforllm-usage]
+</ReferenceCode>
+
+<h3 id="getmessagesforllm-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -3411,8 +3513,12 @@ const result = await client.getMessagesForLLM({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/messages/getForLLM" \
@@ -3420,7 +3526,11 @@ curl -G "http://localhost:8080/api/messages/getForLLM" \
   --data-urlencode "chatId=447123456789@c.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -3429,55 +3539,45 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getmessagesforllm-parameters]
+<h3 id="getmessagesforllm-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetMessagesForLLMParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
+| `last` | `number` | Optional. |
 
-### Returns [!toc] [#getmessagesforllm-returns]
+<h3 id="getmessagesforllm-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `LLMMessage[]`. See [LLMMessage](/docs/reference/client/return-types#llmmessage) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `chatId`, `last` |
-| Aliases | `getGptArray`, `messages.getForLLM`, `messages.getGptArray` |
-| Deprecated aliases | `getGptArray`, `messages.getGptArray` |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/messages/getForLLM` | `getMessagesForLLM` | Active |
-| Deprecated alias | `GET` | `/api/getGptArray` | `getGptArray` | **Deprecated** |
-| Alias | `GET` | `/api/getMessagesForLLM` | `getMessagesForLLM` | Active |
-| Deprecated alias | `GET` | `/api/messages/getGptArray` | `messages.getGptArray` | **Deprecated** |
-
-</details>
+**HTTP:** `GET /api/messages/getForLLM`, or `/api/getMessagesForLLM`. Deprecated routes: `/api/getGptArray`, `/api/messages/getGptArray`. **Also named:** `messages.getForLLM`. Deprecated names: `getGptArray`, `messages.getGptArray`.
 
 
 ## `getAlbumMessages`
 
 Returns currently loaded image and video messages associated with an album, including GIF videos. The album can arrive before its media, so the array may be incomplete. Returns false if the album is not loaded or the ID belongs to another message type.
 
+<ReferenceCode>
+
 ```ts
 client.getAlbumMessages(messageId: string): Promise<Message[] | false>
 ```
 
-### Usage [!toc] [#getalbummessages-usage]
+</ReferenceCode>
+
+<h3 id="getalbummessages-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getAlbumMessages(
@@ -3485,8 +3585,12 @@ const result = await client.getAlbumMessages(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -3497,8 +3601,12 @@ const result = await client.getAlbumMessages({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/messages/getAlbum" \
@@ -3506,7 +3614,11 @@ curl -G "http://localhost:8080/api/messages/getAlbum" \
   --data-urlencode "messageId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -3515,53 +3627,44 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getalbummessages-parameters]
+<h3 id="getalbummessages-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetAlbumMessagesParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `messageId` | `string` | Album container message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
 
-### Returns [!toc] [#getalbummessages-returns]
+<h3 id="getalbummessages-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `Message[] | false`. See [Message](/docs/reference/client/return-types#message) for its fields.
 
 A snapshot of currently loaded album media. An empty or partial array does not mean that the sender sent an empty or partial album. Each item retains its caption and can be passed to decryptMedia or downloadMedia.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `messageId` |
-| Aliases | `messages.getAlbum` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/messages/getAlbum` | `getAlbumMessages` | Active |
-| Alias | `GET` | `/api/getAlbumMessages` | `getAlbumMessages` | Active |
-
-</details>
+**HTTP:** `GET /api/messages/getAlbum`, or `/api/getAlbumMessages`. **Also named:** `messages.getAlbum`.
 
 
 ## `getUnsentMessages`
 
 Get unsent/pending messages
 
+<ReferenceCode>
+
 ```ts
 client.getUnsentMessages(): Promise<Message[]>
 ```
 
-### Usage [!toc] [#getunsentmessages-usage]
+</ReferenceCode>
+
+<h3 id="getunsentmessages-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -3570,8 +3673,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getUnsentMessages();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/messages/getUnsent" \
@@ -3580,7 +3687,11 @@ curl -X GET "http://localhost:8080/api/messages/getUnsent" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -3589,53 +3700,42 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getunsentmessages-parameters]
+<h3 id="getunsentmessages-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getunsentmessages-returns]
+<h3 id="getunsentmessages-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `Message[]`. See [Message](/docs/reference/client/return-types#message) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | - |
-| Aliases | `messages.getUnsent` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/messages/getUnsent` | `getUnsentMessages` | Active |
-| Alias | `GET` | `/api/getUnsentMessages` | `getUnsentMessages` | Active |
-
-</details>
+**HTTP:** `GET /api/messages/getUnsent`, or `/api/getUnsentMessages`. **Also named:** `messages.getUnsent`.
 
 
 ## `getVCards`
 
 Extract vCards from message
 
+<ReferenceCode>
+
 ```ts
 client.getVCards(messageId: string): Promise<string[]>
 ```
 
-### Usage [!toc] [#getvcards-usage]
+</ReferenceCode>
+
+<h3 id="getvcards-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -3646,8 +3746,12 @@ const result = await client.getVCards({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/messages/getVCards" \
@@ -3655,7 +3759,11 @@ curl -G "http://localhost:8080/api/messages/getVCards" \
   --data-urlencode "messageId=false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -3664,53 +3772,44 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getvcards-parameters]
+<h3 id="getvcards-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetVCardsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `messageId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
 
-### Returns [!toc] [#getvcards-returns]
+<h3 id="getvcards-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `string[]`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `messageId` |
-| Aliases | `messages.getVCards` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/messages/getVCards` | `getVCards` | Active |
-| Alias | `GET` | `/api/getVCards` | `getVCards` | Active |
-
-</details>
+**HTTP:** `GET /api/messages/getVCards`, or `/api/getVCards`. **Also named:** `messages.getVCards`.
 
 
 ## `starMessage`
 
 Star a message
 
+<ReferenceCode>
+
 ```ts
 client.starMessage(messageId: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#starmessage-usage]
+</ReferenceCode>
+
+<h3 id="starmessage-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -3721,8 +3820,12 @@ const result = await client.starMessage({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/messages/star" \
@@ -3733,7 +3836,11 @@ curl -X PUT "http://localhost:8080/api/messages/star" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -3742,53 +3849,44 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#starmessage-parameters]
+<h3 id="starmessage-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="StarMessageParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `messageId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
 
-### Returns [!toc] [#starmessage-returns]
+<h3 id="starmessage-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `messageId` |
-| Aliases | `messages.star` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/messages/star` | `starMessage` | Active |
-| Alias | `PUT` | `/api/starMessage` | `starMessage` | Active |
-
-</details>
+**HTTP:** `PUT /api/messages/star`, or `/api/starMessage`. **Also named:** `messages.star`.
 
 
 ## `unstarMessage`
 
 Unstar a message
 
+<ReferenceCode>
+
 ```ts
 client.unstarMessage(messageId: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#unstarmessage-usage]
+</ReferenceCode>
+
+<h3 id="unstarmessage-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -3799,8 +3897,12 @@ const result = await client.unstarMessage({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/messages/unstar" \
@@ -3811,7 +3913,11 @@ curl -X PUT "http://localhost:8080/api/messages/unstar" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -3820,39 +3926,24 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#unstarmessage-parameters]
+<h3 id="unstarmessage-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="UnstarMessageParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `messageId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
 
-### Returns [!toc] [#unstarmessage-returns]
+<h3 id="unstarmessage-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `messageId` |
-| Aliases | `messages.unstar` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/messages/unstar` | `unstarMessage` | Active |
-| Alias | `PUT` | `/api/unstarMessage` | `unstarMessage` | Active |
-
-</details>
+**HTTP:** `PUT /api/messages/unstar`, or `/api/unstarMessage`. **Also named:** `messages.unstar`.
 
 <LicensedMethodSection tier="insiders">
 
@@ -3863,14 +3954,20 @@ Get starred messages
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
 client.getStarredMessages(chatId?: string): Promise<Message[]>
 ```
 
-### Usage [!toc] [#getstarredmessages-usage]
+</ReferenceCode>
+
+<h3 id="getstarredmessages-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -3879,8 +3976,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getStarredMessages();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/messages/getStarred" \
@@ -3889,7 +3990,11 @@ curl -X GET "http://localhost:8080/api/messages/getStarred" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -3898,39 +4003,24 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getstarredmessages-parameters]
+<h3 id="getstarredmessages-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetStarredMessagesParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Optional. Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
 
-### Returns [!toc] [#getstarredmessages-returns]
+<h3 id="getstarredmessages-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `Message[]`. See [Message](/docs/reference/client/return-types#message) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `chatId` |
-| Aliases | `messages.getStarred` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/messages/getStarred` | `getStarredMessages` | Active |
-| Alias | `GET` | `/api/getStarredMessages` | `getStarredMessages` | Active |
-
-</details>
+**HTTP:** `GET /api/messages/getStarred`, or `/api/getStarredMessages`. **Also named:** `messages.getStarred`.
 
 </LicensedMethodSection>
 
@@ -3939,17 +4029,20 @@ The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
 Pins a message in its chat for everyone, subject to native permissions. This differs from pinChat, which changes the current account chat list.
 
+<ReferenceCode>
+
 ```ts
-client.pinMessage(
-  messageId: string,
-  duration?: "OneDay" | "SevenDays" | "ThirtyDays",
-): Promise<boolean>
+client.pinMessage(messageId: string, duration?: PinDuration): Promise<boolean>
 ```
 
-### Usage [!toc] [#pinmessage-usage]
+</ReferenceCode>
+
+<h3 id="pinmessage-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.pinMessage(
@@ -3957,8 +4050,12 @@ const result = await client.pinMessage(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -3969,8 +4066,12 @@ const result = await client.pinMessage({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/pin" \
@@ -3981,7 +4082,11 @@ curl -X POST "http://localhost:8080/api/messages/pin" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -3990,51 +4095,43 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#pinmessage-parameters]
+<h3 id="pinmessage-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="PinMessageParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `messageId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
+| `duration` | [`PinDuration`](/docs/reference/client/return-types#pinduration) | Optional. |
 
-### Returns [!toc] [#pinmessage-returns]
+<h3 id="pinmessage-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `messageId`, `duration` |
-| Aliases | `messages.pin` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/pin` | `pinMessage` | Active |
-| Alias | `POST` | `/api/pinMessage` | `pinMessage` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/pin`, or `/api/pinMessage`. **Also named:** `messages.pin`.
 
 
 ## `unpinMessage`
 
 Removes a message pin for everyone, subject to native chat permissions.
 
+<ReferenceCode>
+
 ```ts
 client.unpinMessage(messageId: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#unpinmessage-usage]
+</ReferenceCode>
+
+<h3 id="unpinmessage-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.unpinMessage(
@@ -4042,8 +4139,12 @@ const result = await client.unpinMessage(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -4054,8 +4155,12 @@ const result = await client.unpinMessage({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/unpin" \
@@ -4066,7 +4171,11 @@ curl -X POST "http://localhost:8080/api/messages/unpin" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -4075,42 +4184,29 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#unpinmessage-parameters]
+<h3 id="unpinmessage-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="UnpinMessageParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `messageId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
 
-### Returns [!toc] [#unpinmessage-returns]
+<h3 id="unpinmessage-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `messageId` |
-| Aliases | `messages.unpin` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/unpin` | `unpinMessage` | Active |
-| Alias | `POST` | `/api/unpinMessage` | `unpinMessage` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/unpin`, or `/api/unpinMessage`. **Also named:** `messages.unpin`.
 
 
 ## `sendPaymentRequest`
 
 Sends a payment request message
+
+<ReferenceCode>
 
 ```ts
 client.sendPaymentRequest(
@@ -4121,10 +4217,14 @@ client.sendPaymentRequest(
 ): Promise<MessageIdReturn | boolean>
 ```
 
-### Usage [!toc] [#sendpaymentrequest-usage]
+</ReferenceCode>
+
+<h3 id="sendpaymentrequest-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -4137,8 +4237,12 @@ const result = await client.sendPaymentRequest({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendPaymentRequest" \
@@ -4151,7 +4255,11 @@ curl -X POST "http://localhost:8080/api/messages/sendPaymentRequest" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -4160,39 +4268,27 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendpaymentrequest-parameters]
+<h3 id="sendpaymentrequest-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendPaymentRequestParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `amount` | `number` | Amount in 1000 format (e.g £10 =&gt; 10000) |
+| `currency` | `string` | 3 letter currency code. |
+| `message` | `string` | Optional. Optional message. |
 
-### Returns [!toc] [#sendpaymentrequest-returns]
+<h3 id="sendpaymentrequest-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `amount`, `currency`, `message` |
-| Aliases | `messages.sendPaymentRequest` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendPaymentRequest` | `sendPaymentRequest` | Active |
-| Alias | `POST` | `/api/sendPaymentRequest` | `sendPaymentRequest` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendPaymentRequest`, or `/api/sendPaymentRequest`. **Also named:** `messages.sendPaymentRequest`.
 
 <LicensedMethodSection tier="insiders">
 
@@ -4203,21 +4299,31 @@ Send a constructed WhatsApp protobuf Message payload (Insiders and above); media
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
-client.sendRawMessage(to: string, payload: object): Promise<string>
+client.sendRawMessage(to: string, payload: JsonObject): Promise<string>
 ```
 
-### Usage [!toc] [#sendrawmessage-usage]
+</ReferenceCode>
+
+<h3 id="sendrawmessage-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.sendRawMessage("447123456789@c.us", {});
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -4229,8 +4335,12 @@ const result = await client.sendRawMessage({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/messages/sendRaw" \
@@ -4242,7 +4352,11 @@ curl -X POST "http://localhost:8080/api/messages/sendRaw" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -4251,38 +4365,24 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sendrawmessage-parameters]
+<h3 id="sendrawmessage-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SendRawMessageParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `payload` | [`JsonObject`](/docs/reference/client/return-types#jsonobject) | - |
 
-### Returns [!toc] [#sendrawmessage-returns]
+<h3 id="sendrawmessage-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `string`.
 
 The SDK resolves to `MessageId` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `messages` |
-| Positional parameter order | `to`, `payload` |
-| Aliases | `messages.sendRaw` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/messages/sendRaw` | `sendRawMessage` | Active |
-| Alias | `POST` | `/api/sendRawMessage` | `sendRawMessage` | Active |
-
-</details>
+**HTTP:** `POST /api/messages/sendRaw`, or `/api/sendRawMessage`. **Also named:** `messages.sendRaw`.
 
 </LicensedMethodSection>

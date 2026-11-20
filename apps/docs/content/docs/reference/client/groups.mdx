@@ -4,6 +4,8 @@ description: "Create groups, manage members and admins, share invite links and c
 icon: "BookOpen"
 ---
 
+import { ReferenceCode } from '../../../../src/components/reference-code';
+
 # Groups
 
 <LicensedMethodSection tier="restricted">
@@ -15,21 +17,31 @@ Create new group
 
 Needs a Restricted license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
 client.createGroup(name: string, contacts: string[]): Promise<GroupCreationResult | null>
 ```
 
-### Usage [!toc] [#creategroup-usage]
+</ReferenceCode>
+
+<h3 id="creategroup-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.createGroup("name", ["447123456789@c.us"]);
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -41,8 +53,12 @@ const result = await client.createGroup({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/groups/create" \
@@ -56,7 +72,11 @@ curl -X POST "http://localhost:8080/api/groups/create" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -67,39 +87,25 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#creategroup-parameters]
+<h3 id="creategroup-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="CreateGroupParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `name` | `string` | Group name. |
+| `contacts` | `string[]` | Contact IDs to add. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#creategroup-returns]
+<h3 id="creategroup-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `GroupCreationResult | null`. See [GroupCreationResult](/docs/reference/client/return-types#groupcreationresult) for its fields.
 
 The SDK resolves to `{ gid: GroupId } | null` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `name`, `contacts` |
-| Aliases | `groups.create` |
-| Deprecated aliases | - |
-| License | `restricted` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/groups/create` | `createGroup` | Active |
-| Alias | `POST` | `/api/createGroup` | `createGroup` | Active |
-
-</details>
+**HTTP:** `POST /api/groups/create`, or `/api/createGroup`. **Also named:** `groups.create`.
 
 </LicensedMethodSection>
 
@@ -108,14 +114,20 @@ The SDK resolves to `{ gid: GroupId } | null` instead.
 
 Get all groups
 
+<ReferenceCode>
+
 ```ts
 client.getAllGroups(withNewMessagesOnly?: boolean): Promise<Chat[]>
 ```
 
-### Usage [!toc] [#getallgroups-usage]
+</ReferenceCode>
+
+<h3 id="getallgroups-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -124,8 +136,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getAllGroups();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/groups/getAll" \
@@ -134,7 +150,11 @@ curl -X GET "http://localhost:8080/api/groups/getAll" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -143,14 +163,18 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getallgroups-parameters]
+<h3 id="getallgroups-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetAllGroupsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `withNewMessagesOnly` | `boolean` | Optional. Only chats with unread messages. |
 
-### Returns [!toc] [#getallgroups-returns]
+<h3 id="getallgroups-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `Chat[]`. See [Chat](/docs/reference/client/return-types#chat) for its fields.
 
@@ -158,45 +182,27 @@ Serialized chat returned by chat lookups and listings. Its id is an opaque ChatI
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `withNewMessagesOnly` |
-| Aliases | `groups.all`, `groups.getAll`, `groups.list`, `listGroups` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/groups/getAll` | `getAllGroups` | Active |
-| Alias | `GET` | `/api/getAllGroups` | `getAllGroups` | Active |
-| Alias | `GET` | `/api/groups/all` | `groups.all` | Active |
-| Alias | `GET` | `/api/groups/list` | `groups.list` | Active |
-| Alias | `GET` | `/api/listGroups` | `listGroups` | Active |
-
-</details>
+**HTTP:** `GET /api/groups/getAll`, or `/api/getAllGroups`, `/api/groups/all`, `/api/groups/list`, `/api/listGroups`. **Also named:** `groups.all`, `groups.getAll`, `groups.list`, `listGroups`.
 
 
 ## `getGroupInfo`
 
 Get a group title and description
 
+<ReferenceCode>
+
 ```ts
-client.getGroupInfo(
-  groupId: string,
-): Promise<{ title: string; description?: string | null } | string | null>
+client.getGroupInfo(groupId: string): Promise<{ … }>
 ```
 
-### Usage [!toc] [#getgroupinfo-usage]
+</ReferenceCode>
+
+<h3 id="getgroupinfo-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -207,8 +213,12 @@ const result = await client.getGroupInfo({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/groups/getInfo" \
@@ -216,7 +226,11 @@ curl -G "http://localhost:8080/api/groups/getInfo" \
   --data-urlencode "groupId=447123456789-1445627445@g.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -227,60 +241,55 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getgroupinfo-parameters]
+<h3 id="getgroupinfo-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetGroupInfoParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
 
-### Returns [!toc] [#getgroupinfo-returns]
+<h3 id="getgroupinfo-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `{ title: string; description?: string | null } | string | null`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId` |
-| Aliases | `groups.getInfo` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/groups/getInfo` | `getGroupInfo` | Active |
-| Alias | `GET` | `/api/getGroupInfo` | `getGroupInfo` | Active |
-
-</details>
+**HTTP:** `GET /api/groups/getInfo`, or `/api/getGroupInfo`. **Also named:** `groups.getInfo`.
 
 
 ## `getGroupMembers`
 
 Retrieves members of a group
 
+<ReferenceCode>
+
 ```ts
 client.getGroupMembers(groupId: string): Promise<Contact[]>
 ```
 
-### Usage [!toc] [#getgroupmembers-usage]
+</ReferenceCode>
+
+<h3 id="getgroupmembers-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getGroupMembers("447123456789-1445627445@g.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -291,8 +300,12 @@ const result = await client.getGroupMembers({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/groups/getMembers" \
@@ -300,7 +313,11 @@ curl -G "http://localhost:8080/api/groups/getMembers" \
   --data-urlencode "groupId=447123456789-1445627445@g.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -309,58 +326,53 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getgroupmembers-parameters]
+<h3 id="getgroupmembers-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetGroupMembersParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
 
-### Returns [!toc] [#getgroupmembers-returns]
+<h3 id="getgroupmembers-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `Contact[]`. See [Contact](/docs/reference/client/return-types#contact) for its fields.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId` |
-| Aliases | `groups.getMembers` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/groups/getMembers` | `getGroupMembers` | Active |
-| Alias | `GET` | `/api/getGroupMembers` | `getGroupMembers` | Active |
-
-</details>
+**HTTP:** `GET /api/groups/getMembers`, or `/api/getGroupMembers`. **Also named:** `groups.getMembers`.
 
 
 ## `getGroupMembersId`
 
 Get group member IDs
 
+<ReferenceCode>
+
 ```ts
 client.getGroupMembersId(groupId: string): Promise<ContactId[]>
 ```
 
-### Usage [!toc] [#getgroupmembersid-usage]
+</ReferenceCode>
+
+<h3 id="getgroupmembersid-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getGroupMembersId("447123456789-1445627445@g.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -371,8 +383,12 @@ const result = await client.getGroupMembersId({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/groups/getMemberIds" \
@@ -380,7 +396,11 @@ curl -G "http://localhost:8080/api/groups/getMemberIds" \
   --data-urlencode "groupId=447123456789-1445627445@g.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -389,55 +409,44 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getgroupmembersid-parameters]
+<h3 id="getgroupmembersid-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetGroupMembersIdParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
 
-### Returns [!toc] [#getgroupmembersid-returns]
+<h3 id="getgroupmembersid-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `ContactId[]`. See [ContactId](/docs/reference/client/return-types#contactid) for its fields.
 
 Opaque WhatsApp contact identifier. Preserve the exact value returned by the API.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId` |
-| Aliases | `getGroupMemberIds`, `groups.getMemberIds`, `groups.getMembersId` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/groups/getMemberIds` | `getGroupMembersId` | Active |
-| Alias | `GET` | `/api/getGroupMemberIds` | `getGroupMemberIds` | Active |
-| Alias | `GET` | `/api/getGroupMembersId` | `getGroupMembersId` | Active |
-| Alias | `GET` | `/api/groups/getMembersId` | `groups.getMembersId` | Active |
-
-</details>
+**HTTP:** `GET /api/groups/getMemberIds`, or `/api/getGroupMemberIds`, `/api/getGroupMembersId`, `/api/groups/getMembersId`. **Also named:** `getGroupMemberIds`, `groups.getMemberIds`, `groups.getMembersId`.
 
 
 ## `getGroupAdmins`
 
 Get group admins
 
+<ReferenceCode>
+
 ```ts
 client.getGroupAdmins(groupId: string): Promise<ContactId[]>
 ```
 
-### Usage [!toc] [#getgroupadmins-usage]
+</ReferenceCode>
+
+<h3 id="getgroupadmins-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -448,8 +457,12 @@ const result = await client.getGroupAdmins({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/groups/getAdmins" \
@@ -457,7 +470,11 @@ curl -G "http://localhost:8080/api/groups/getAdmins" \
   --data-urlencode "groupId=447123456789-1445627445@g.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -466,14 +483,18 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getgroupadmins-parameters]
+<h3 id="getgroupadmins-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetGroupAdminsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
 
-### Returns [!toc] [#getgroupadmins-returns]
+<h3 id="getgroupadmins-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `ContactId[]`. See [ContactId](/docs/reference/client/return-types#contactid) for its fields.
 
@@ -481,40 +502,27 @@ Opaque WhatsApp contact identifier. Preserve the exact value returned by the API
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId` |
-| Aliases | `groups.getAdmins` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/groups/getAdmins` | `getGroupAdmins` | Active |
-| Alias | `GET` | `/api/getGroupAdmins` | `getGroupAdmins` | Active |
-
-</details>
+**HTTP:** `GET /api/groups/getAdmins`, or `/api/getGroupAdmins`. **Also named:** `groups.getAdmins`.
 
 
 ## `addParticipant`
 
 Add participant to group
 
+<ReferenceCode>
+
 ```ts
 client.addParticipant(groupId: string, contactId: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#addparticipant-usage]
+</ReferenceCode>
+
+<h3 id="addparticipant-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.addParticipant(
@@ -523,8 +531,12 @@ const result = await client.addParticipant(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -536,8 +548,12 @@ const result = await client.addParticipant({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/addParticipant" \
@@ -549,7 +565,11 @@ curl -X PUT "http://localhost:8080/api/groups/addParticipant" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -558,52 +578,43 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#addparticipant-parameters]
+<h3 id="addparticipant-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="AddParticipantParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#addparticipant-returns]
+<h3 id="addparticipant-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId`, `contactId` |
-| Aliases | `addGroupParticipant`, `groups.addParticipant` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/addParticipant` | `addParticipant` | Active |
-| Alias | `PUT` | `/api/addGroupParticipant` | `addGroupParticipant` | Active |
-| Alias | `PUT` | `/api/addParticipant` | `addParticipant` | Active |
-
-</details>
+**HTTP:** `PUT /api/groups/addParticipant`, or `/api/addGroupParticipant`, `/api/addParticipant`. **Also named:** `addGroupParticipant`, `groups.addParticipant`.
 
 
 ## `removeParticipant`
 
 Remove participant from group
 
+<ReferenceCode>
+
 ```ts
 client.removeParticipant(groupId: string, contactId: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#removeparticipant-usage]
+</ReferenceCode>
+
+<h3 id="removeparticipant-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.removeParticipant(
@@ -612,8 +623,12 @@ const result = await client.removeParticipant(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -625,8 +640,12 @@ const result = await client.removeParticipant({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/removeParticipant" \
@@ -638,7 +657,11 @@ curl -X PUT "http://localhost:8080/api/groups/removeParticipant" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -647,52 +670,43 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#removeparticipant-parameters]
+<h3 id="removeparticipant-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="RemoveParticipantParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#removeparticipant-returns]
+<h3 id="removeparticipant-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId`, `contactId` |
-| Aliases | `groups.removeParticipant`, `removeGroupParticipant` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/removeParticipant` | `removeParticipant` | Active |
-| Alias | `PUT` | `/api/removeGroupParticipant` | `removeGroupParticipant` | Active |
-| Alias | `PUT` | `/api/removeParticipant` | `removeParticipant` | Active |
-
-</details>
+**HTTP:** `PUT /api/groups/removeParticipant`, or `/api/removeGroupParticipant`, `/api/removeParticipant`. **Also named:** `groups.removeParticipant`, `removeGroupParticipant`.
 
 
 ## `promoteParticipant`
 
 Promote participant to admin
 
+<ReferenceCode>
+
 ```ts
 client.promoteParticipant(groupId: string, contactId: string): Promise<boolean | string>
 ```
 
-### Usage [!toc] [#promoteparticipant-usage]
+</ReferenceCode>
+
+<h3 id="promoteparticipant-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.promoteParticipant(
@@ -701,8 +715,12 @@ const result = await client.promoteParticipant(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -714,8 +732,12 @@ const result = await client.promoteParticipant({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/promoteParticipant" \
@@ -727,7 +749,11 @@ curl -X PUT "http://localhost:8080/api/groups/promoteParticipant" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -736,54 +762,45 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#promoteparticipant-parameters]
+<h3 id="promoteparticipant-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="PromoteParticipantParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#promoteparticipant-returns]
+<h3 id="promoteparticipant-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean | string`.
 
 The SDK resolves to `boolean` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId`, `contactId` |
-| Aliases | `groups.promoteParticipant`, `promoteGroupParticipant` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/promoteParticipant` | `promoteParticipant` | Active |
-| Alias | `PUT` | `/api/promoteGroupParticipant` | `promoteGroupParticipant` | Active |
-| Alias | `PUT` | `/api/promoteParticipant` | `promoteParticipant` | Active |
-
-</details>
+**HTTP:** `PUT /api/groups/promoteParticipant`, or `/api/promoteGroupParticipant`, `/api/promoteParticipant`. **Also named:** `groups.promoteParticipant`, `promoteGroupParticipant`.
 
 
 ## `demoteParticipant`
 
 Demote participant from admin
 
+<ReferenceCode>
+
 ```ts
 client.demoteParticipant(groupId: string, contactId: string): Promise<boolean | string>
 ```
 
-### Usage [!toc] [#demoteparticipant-usage]
+</ReferenceCode>
+
+<h3 id="demoteparticipant-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.demoteParticipant(
@@ -792,8 +809,12 @@ const result = await client.demoteParticipant(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -805,8 +826,12 @@ const result = await client.demoteParticipant({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/demoteParticipant" \
@@ -818,7 +843,11 @@ curl -X PUT "http://localhost:8080/api/groups/demoteParticipant" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -827,61 +856,56 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#demoteparticipant-parameters]
+<h3 id="demoteparticipant-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="DemoteParticipantParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#demoteparticipant-returns]
+<h3 id="demoteparticipant-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean | string`.
 
 The SDK resolves to `boolean` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId`, `contactId` |
-| Aliases | `demoteGroupParticipant`, `groups.demoteParticipant` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/demoteParticipant` | `demoteParticipant` | Active |
-| Alias | `PUT` | `/api/demoteGroupParticipant` | `demoteGroupParticipant` | Active |
-| Alias | `PUT` | `/api/demoteParticipant` | `demoteParticipant` | Active |
-
-</details>
+**HTTP:** `PUT /api/groups/demoteParticipant`, or `/api/demoteGroupParticipant`, `/api/demoteParticipant`. **Also named:** `demoteGroupParticipant`, `groups.demoteParticipant`.
 
 
 ## `getGroupInviteLink`
 
 Get group invite link
 
+<ReferenceCode>
+
 ```ts
 client.getGroupInviteLink(groupId: string): Promise<string>
 ```
 
-### Usage [!toc] [#getgroupinvitelink-usage]
+</ReferenceCode>
+
+<h3 id="getgroupinvitelink-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getGroupInviteLink("447123456789-1445627445@g.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -892,8 +916,12 @@ const result = await client.getGroupInviteLink({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/groups/getInviteLink" \
@@ -901,7 +929,11 @@ curl -G "http://localhost:8080/api/groups/getInviteLink" \
   --data-urlencode "groupId=447123456789-1445627445@g.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -910,51 +942,42 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getgroupinvitelink-parameters]
+<h3 id="getgroupinvitelink-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetGroupInviteLinkParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
 
-### Returns [!toc] [#getgroupinvitelink-returns]
+<h3 id="getgroupinvitelink-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `string`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId` |
-| Aliases | `groups.getInviteLink` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/groups/getInviteLink` | `getGroupInviteLink` | Active |
-| Alias | `GET` | `/api/getGroupInviteLink` | `getGroupInviteLink` | Active |
-
-</details>
+**HTTP:** `GET /api/groups/getInviteLink`, or `/api/getGroupInviteLink`. **Also named:** `groups.getInviteLink`.
 
 
 ## `revokeGroupInviteLink`
 
 Revoke group invite link
 
+<ReferenceCode>
+
 ```ts
 client.revokeGroupInviteLink(groupId: string): Promise<string | boolean>
 ```
 
-### Usage [!toc] [#revokegroupinvitelink-usage]
+</ReferenceCode>
+
+<h3 id="revokegroupinvitelink-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.revokeGroupInviteLink(
@@ -962,8 +985,12 @@ const result = await client.revokeGroupInviteLink(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -974,8 +1001,12 @@ const result = await client.revokeGroupInviteLink({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/revokeInviteLink" \
@@ -986,7 +1017,11 @@ curl -X PUT "http://localhost:8080/api/groups/revokeInviteLink" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -995,37 +1030,22 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#revokegroupinvitelink-parameters]
+<h3 id="revokegroupinvitelink-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="RevokeGroupInviteLinkParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
 
-### Returns [!toc] [#revokegroupinvitelink-returns]
+<h3 id="revokegroupinvitelink-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `string | boolean`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId` |
-| Aliases | `groups.revokeInviteLink` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/revokeInviteLink` | `revokeGroupInviteLink` | Active |
-| Alias | `PUT` | `/api/revokeGroupInviteLink` | `revokeGroupInviteLink` | Active |
-
-</details>
+**HTTP:** `PUT /api/groups/revokeInviteLink`, or `/api/revokeGroupInviteLink`. **Also named:** `groups.revokeInviteLink`.
 
 <LicensedMethodSection tier="restricted">
 
@@ -1036,6 +1056,8 @@ Join group via invite link
 
 Needs a Restricted license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
 client.joinGroupViaLink(
   link: string,
@@ -1043,17 +1065,25 @@ client.joinGroupViaLink(
 ): Promise<GroupChatId | boolean | number | Chat>
 ```
 
-### Usage [!toc] [#joingroupvialink-usage]
+</ReferenceCode>
+
+<h3 id="joingroupvialink-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.joinGroupViaLink("link");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1064,8 +1094,12 @@ const result = await client.joinGroupViaLink({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/groups/join" \
@@ -1076,7 +1110,11 @@ curl -X POST "http://localhost:8080/api/groups/join" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1085,41 +1123,25 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#joingroupvialink-parameters]
+<h3 id="joingroupvialink-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="JoinGroupViaLinkParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `link` | `string` | Group invite link. |
+| `returnChatObj` | `boolean` | Optional. Return chat object. |
 
-### Returns [!toc] [#joingroupvialink-returns]
+<h3 id="joingroupvialink-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `GroupChatId | boolean | number | Chat`. See [Chat](/docs/reference/client/return-types#chat) and [GroupChatId](/docs/reference/client/return-types#groupchatid) for their fields.
 
 The SDK resolves to `GroupId | boolean | number` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `link`, `returnChatObj` |
-| Aliases | `groups.join`, `groups.joinViaLink`, `joinGroup` |
-| Deprecated aliases | - |
-| License | `restricted` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/groups/join` | `joinGroupViaLink` | Active |
-| Alias | `POST` | `/api/groups/joinViaLink` | `groups.joinViaLink` | Active |
-| Alias | `POST` | `/api/joinGroup` | `joinGroup` | Active |
-| Alias | `POST` | `/api/joinGroupViaLink` | `joinGroupViaLink` | Active |
-
-</details>
+**HTTP:** `POST /api/groups/join`, or `/api/groups/joinViaLink`, `/api/joinGroup`, `/api/joinGroupViaLink`. **Also named:** `groups.join`, `groups.joinViaLink`, `joinGroup`.
 
 </LicensedMethodSection>
 
@@ -1128,21 +1150,31 @@ The SDK resolves to `GroupId | boolean | number` instead.
 
 Leave a group
 
+<ReferenceCode>
+
 ```ts
 client.leaveGroup(groupId: string): Promise<void>
 ```
 
-### Usage [!toc] [#leavegroup-usage]
+</ReferenceCode>
+
+<h3 id="leavegroup-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.leaveGroup("447123456789-1445627445@g.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1153,8 +1185,12 @@ const result = await client.leaveGroup({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/leave" \
@@ -1165,7 +1201,11 @@ curl -X PUT "http://localhost:8080/api/groups/leave" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1173,53 +1213,44 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#leavegroup-parameters]
+<h3 id="leavegroup-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="LeaveGroupParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
 
-### Returns [!toc] [#leavegroup-returns]
+<h3 id="leavegroup-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `void`.
 
 The SDK resolves to `boolean` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId` |
-| Aliases | `groups.leave` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/leave` | `leaveGroup` | Active |
-| Alias | `PUT` | `/api/leaveGroup` | `leaveGroup` | Active |
-
-</details>
+**HTTP:** `PUT /api/groups/leave`, or `/api/leaveGroup`. **Also named:** `groups.leave`.
 
 
 ## `setGroupTitle`
 
 Set group title
 
+<ReferenceCode>
+
 ```ts
 client.setGroupTitle(groupId: string, title: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#setgrouptitle-usage]
+</ReferenceCode>
+
+<h3 id="setgrouptitle-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1231,8 +1262,12 @@ const result = await client.setGroupTitle({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/setTitle" \
@@ -1244,7 +1279,11 @@ curl -X PUT "http://localhost:8080/api/groups/setTitle" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1253,53 +1292,45 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#setgrouptitle-parameters]
+<h3 id="setgrouptitle-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SetGroupTitleParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
+| `title` | `string` | New group title. |
 
-### Returns [!toc] [#setgrouptitle-returns]
+<h3 id="setgrouptitle-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId`, `title` |
-| Aliases | `groups.setTitle` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/setTitle` | `setGroupTitle` | Active |
-| Alias | `PUT` | `/api/setGroupTitle` | `setGroupTitle` | Active |
-
-</details>
+**HTTP:** `PUT /api/groups/setTitle`, or `/api/setGroupTitle`. **Also named:** `groups.setTitle`.
 
 
 ## `setGroupDescription`
 
 Set group description
 
+<ReferenceCode>
+
 ```ts
 client.setGroupDescription(groupId: string, description: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#setgroupdescription-usage]
+</ReferenceCode>
+
+<h3 id="setgroupdescription-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1311,8 +1342,12 @@ const result = await client.setGroupDescription({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/setDescription" \
@@ -1324,7 +1359,11 @@ curl -X PUT "http://localhost:8080/api/groups/setDescription" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1333,53 +1372,45 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#setgroupdescription-parameters]
+<h3 id="setgroupdescription-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SetGroupDescriptionParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
+| `description` | `string` | New group description. |
 
-### Returns [!toc] [#setgroupdescription-returns]
+<h3 id="setgroupdescription-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId`, `description` |
-| Aliases | `groups.setDescription` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/setDescription` | `setGroupDescription` | Active |
-| Alias | `PUT` | `/api/setGroupDescription` | `setGroupDescription` | Active |
-
-</details>
+**HTTP:** `PUT /api/groups/setDescription`, or `/api/setGroupDescription`. **Also named:** `groups.setDescription`.
 
 
 ## `setGroupIcon`
 
 Set group icon
 
+<ReferenceCode>
+
 ```ts
 client.setGroupIcon(groupId: string, image: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#setgroupicon-usage]
+</ReferenceCode>
+
+<h3 id="setgroupicon-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.setGroupIcon(
@@ -1388,8 +1419,12 @@ const result = await client.setGroupIcon(
 );
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1401,8 +1436,12 @@ const result = await client.setGroupIcon({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/setIcon" \
@@ -1414,7 +1453,11 @@ curl -X PUT "http://localhost:8080/api/groups/setIcon" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1423,51 +1466,43 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#setgroupicon-parameters]
+<h3 id="setgroupicon-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SetGroupIconParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
+| `image` | `string` | Image data URL. |
 
-### Returns [!toc] [#setgroupicon-returns]
+<h3 id="setgroupicon-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId`, `image` |
-| Aliases | `groups.setIcon` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/setIcon` | `setGroupIcon` | Active |
-| Alias | `PUT` | `/api/setGroupIcon` | `setGroupIcon` | Active |
-
-</details>
+**HTTP:** `PUT /api/groups/setIcon`, or `/api/setGroupIcon`. **Also named:** `groups.setIcon`.
 
 
 ## `setGroupToAdminsOnly`
 
 Restrict group to admins only
 
+<ReferenceCode>
+
 ```ts
 client.setGroupToAdminsOnly(groupId: string, onlyAdmins: boolean): Promise<boolean>
 ```
 
-### Usage [!toc] [#setgrouptoadminsonly-usage]
+</ReferenceCode>
+
+<h3 id="setgrouptoadminsonly-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1479,8 +1514,12 @@ const result = await client.setGroupToAdminsOnly({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/setAdminsOnly" \
@@ -1492,7 +1531,11 @@ curl -X PUT "http://localhost:8080/api/groups/setAdminsOnly" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1501,54 +1544,45 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#setgrouptoadminsonly-parameters]
+<h3 id="setgrouptoadminsonly-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SetGroupToAdminsOnlyParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
+| `onlyAdmins` | `boolean` | Admins only setting. |
 
-### Returns [!toc] [#setgrouptoadminsonly-returns]
+<h3 id="setgrouptoadminsonly-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId`, `onlyAdmins` |
-| Aliases | `groups.setAdminsOnly`, `groups.setToAdminsOnly` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/setAdminsOnly` | `setGroupToAdminsOnly` | Active |
-| Alias | `PUT` | `/api/groups/setToAdminsOnly` | `groups.setToAdminsOnly` | Active |
-| Alias | `PUT` | `/api/setGroupToAdminsOnly` | `setGroupToAdminsOnly` | Active |
-
-</details>
+**HTTP:** `PUT /api/groups/setAdminsOnly`, or `/api/groups/setToAdminsOnly`, `/api/setGroupToAdminsOnly`. **Also named:** `groups.setAdminsOnly`, `groups.setToAdminsOnly`.
 
 
 ## `setGroupEditToAdminsOnly`
 
 Restrict group editing to admins only
 
+<ReferenceCode>
+
 ```ts
 client.setGroupEditToAdminsOnly(groupId: string, onlyAdmins: boolean): Promise<boolean>
 ```
 
-### Usage [!toc] [#setgroupedittoadminsonly-usage]
+</ReferenceCode>
+
+<h3 id="setgroupedittoadminsonly-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1560,8 +1594,12 @@ const result = await client.setGroupEditToAdminsOnly({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/setEditAdminsOnly" \
@@ -1573,7 +1611,11 @@ curl -X PUT "http://localhost:8080/api/groups/setEditAdminsOnly" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1582,45 +1624,32 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#setgroupedittoadminsonly-parameters]
+<h3 id="setgroupedittoadminsonly-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SetGroupEditToAdminsOnlyParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
+| `onlyAdmins` | `boolean` | Admins only setting. |
 
-### Returns [!toc] [#setgroupedittoadminsonly-returns]
+<h3 id="setgroupedittoadminsonly-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId`, `onlyAdmins` |
-| Aliases | `groups.setEditAdminsOnly`, `groups.setEditToAdminsOnly` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/setEditAdminsOnly` | `setGroupEditToAdminsOnly` | Active |
-| Alias | `PUT` | `/api/groups/setEditToAdminsOnly` | `groups.setEditToAdminsOnly` | Active |
-| Alias | `PUT` | `/api/setGroupEditToAdminsOnly` | `setGroupEditToAdminsOnly` | Active |
-
-</details>
+**HTTP:** `PUT /api/groups/setEditAdminsOnly`, or `/api/groups/setEditToAdminsOnly`, `/api/setGroupEditToAdminsOnly`. **Also named:** `groups.setEditAdminsOnly`, `groups.setEditToAdminsOnly`.
 
 
 ## `approveGroupJoinRequest`
 
 Approve group join request
+
+<ReferenceCode>
 
 ```ts
 client.approveGroupJoinRequest(
@@ -1629,10 +1658,14 @@ client.approveGroupJoinRequest(
 ): Promise<string | boolean>
 ```
 
-### Usage [!toc] [#approvegroupjoinrequest-usage]
+</ReferenceCode>
+
+<h3 id="approvegroupjoinrequest-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1644,8 +1677,12 @@ const result = await client.approveGroupJoinRequest({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/approveJoinRequest" \
@@ -1657,7 +1694,11 @@ curl -X PUT "http://localhost:8080/api/groups/approveJoinRequest" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1666,44 +1707,32 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#approvegroupjoinrequest-parameters]
+<h3 id="approvegroupjoinrequest-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="ApproveGroupJoinRequestParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#approvegroupjoinrequest-returns]
+<h3 id="approvegroupjoinrequest-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `string | boolean`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId`, `contactId` |
-| Aliases | `groups.approveJoinRequest` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/approveJoinRequest` | `approveGroupJoinRequest` | Active |
-| Alias | `PUT` | `/api/approveGroupJoinRequest` | `approveGroupJoinRequest` | Active |
-
-</details>
+**HTTP:** `PUT /api/groups/approveJoinRequest`, or `/api/approveGroupJoinRequest`. **Also named:** `groups.approveJoinRequest`.
 
 
 ## `rejectGroupJoinRequest`
 
 Reject group join request
+
+<ReferenceCode>
 
 ```ts
 client.rejectGroupJoinRequest(
@@ -1712,10 +1741,14 @@ client.rejectGroupJoinRequest(
 ): Promise<string | boolean>
 ```
 
-### Usage [!toc] [#rejectgroupjoinrequest-usage]
+</ReferenceCode>
+
+<h3 id="rejectgroupjoinrequest-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1727,8 +1760,12 @@ const result = await client.rejectGroupJoinRequest({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/groups/rejectJoinRequest" \
@@ -1740,7 +1777,11 @@ curl -X PUT "http://localhost:8080/api/groups/rejectJoinRequest" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1749,53 +1790,45 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#rejectgroupjoinrequest-parameters]
+<h3 id="rejectgroupjoinrequest-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="RejectGroupJoinRequestParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `groupId` | `string` | Group chat ID. A WhatsApp group JID. Also accepts `chatId`, `groupChatId`. |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#rejectgroupjoinrequest-returns]
+<h3 id="rejectgroupjoinrequest-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `string | boolean`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | `groupId`, `contactId` |
-| Aliases | `groups.rejectJoinRequest` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/groups/rejectJoinRequest` | `rejectGroupJoinRequest` | Active |
-| Alias | `PUT` | `/api/rejectGroupJoinRequest` | `rejectGroupJoinRequest` | Active |
-
-</details>
+**HTTP:** `PUT /api/groups/rejectJoinRequest`, or `/api/rejectGroupJoinRequest`. **Also named:** `groups.rejectJoinRequest`.
 
 
 ## `getKickedGroups`
 
 Get groups where kicked
 
+<ReferenceCode>
+
 ```ts
 client.getKickedGroups(): Promise<GroupChatId[]>
 ```
 
-### Usage [!toc] [#getkickedgroups-usage]
+</ReferenceCode>
+
+<h3 id="getkickedgroups-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1804,8 +1837,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getKickedGroups();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/groups/getKicked" \
@@ -1814,7 +1851,11 @@ curl -X GET "http://localhost:8080/api/groups/getKicked" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1823,14 +1864,16 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getkickedgroups-parameters]
+<h3 id="getkickedgroups-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getkickedgroups-returns]
+<h3 id="getkickedgroups-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `GroupChatId[]`. See [GroupChatId](/docs/reference/client/return-types#groupchatid) for its fields.
 
@@ -1838,23 +1881,4 @@ Opaque group conversation identifier returned by a group lookup or join method.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `groups` |
-| Positional parameter order | - |
-| Aliases | `groups.getKicked` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/groups/getKicked` | `getKickedGroups` | Active |
-| Alias | `GET` | `/api/getKickedGroups` | `getKickedGroups` | Active |
-
-</details>
+**HTTP:** `GET /api/groups/getKicked`, or `/api/getKickedGroups`. **Also named:** `groups.getKicked`.

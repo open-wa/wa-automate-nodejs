@@ -4,6 +4,8 @@ description: "List the IDs of every chat in the session."
 icon: "BookOpen"
 ---
 
+import { ReferenceCode } from '../../../../src/components/reference-code';
+
 # Chat IDs
 
 
@@ -11,14 +13,20 @@ icon: "BookOpen"
 
 Get all chat IDs
 
+<ReferenceCode>
+
 ```ts
 client.getAllChatIds(): Promise<ChatId[]>
 ```
 
-### Usage [!toc] [#getallchatids-usage]
+</ReferenceCode>
+
+<h3 id="getallchatids-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -27,8 +35,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getAllChatIds();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/chatIds/getAll" \
@@ -37,7 +49,11 @@ curl -X GET "http://localhost:8080/api/chatIds/getAll" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -46,14 +62,16 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getallchatids-parameters]
+<h3 id="getallchatids-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getallchatids-returns]
+<h3 id="getallchatids-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `ChatId[]`. See [ChatId](/docs/reference/client/return-types#chatid) for its fields.
 
@@ -61,27 +79,4 @@ Opaque conversation identifier. Use the exact value returned by a message event 
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `chatIds` |
-| Positional parameter order | - |
-| Aliases | `chatIds.all`, `chatIds.getAll`, `chatIds.list`, `chats.ids`, `listChatIds` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/chatIds/getAll` | `getAllChatIds` | Active |
-| Alias | `GET` | `/api/chatIds/all` | `chatIds.all` | Active |
-| Alias | `GET` | `/api/chatIds/list` | `chatIds.list` | Active |
-| Alias | `GET` | `/api/chats/ids` | `chats.ids` | Active |
-| Alias | `GET` | `/api/getAllChatIds` | `getAllChatIds` | Active |
-| Alias | `GET` | `/api/listChatIds` | `listChatIds` | Active |
-
-</details>
+**HTTP:** `GET /api/chatIds/getAll`, or `/api/chatIds/all`, `/api/chatIds/list`, `/api/chats/ids`, `/api/getAllChatIds`, `/api/listChatIds`. **Also named:** `chatIds.all`, `chatIds.getAll`, `chatIds.list`, `chats.ids`, `listChatIds`.

@@ -4,6 +4,8 @@ description: "Check the connection, read details about the logged-in account, an
 icon: "BookOpen"
 ---
 
+import { ReferenceCode } from '../../../../src/components/reference-code';
+
 # Session
 
 
@@ -11,21 +13,31 @@ icon: "BookOpen"
 
 Get connection state
 
+<ReferenceCode>
+
 ```ts
 client.getConnectionState(): Promise<string>
 ```
 
-### Usage [!toc] [#getconnectionstate-usage]
+</ReferenceCode>
+
+<h3 id="getconnectionstate-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getConnectionState();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -34,8 +46,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getConnectionState();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getConnectionState" \
@@ -44,7 +60,11 @@ curl -X GET "http://localhost:8080/api/session/getConnectionState" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -53,51 +73,40 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getconnectionstate-parameters]
+<h3 id="getconnectionstate-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getconnectionstate-returns]
+<h3 id="getconnectionstate-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `string`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | - |
-| Aliases | `session.getConnectionState` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getConnectionState` | `getConnectionState` | Active |
-| Alias | `GET` | `/api/getConnectionState` | `getConnectionState` | Active |
-
-</details>
+**HTTP:** `GET /api/session/getConnectionState`, or `/api/getConnectionState`. **Also named:** `session.getConnectionState`.
 
 
 ## `healthCheck`
 
 Health check
 
+<ReferenceCode>
+
 ```ts
 client.healthCheck(): Promise<HealthCheck>
 ```
 
-### Usage [!toc] [#healthcheck-usage]
+</ReferenceCode>
+
+<h3 id="healthcheck-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -106,8 +115,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.healthCheck();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/healthCheck" \
@@ -116,7 +129,11 @@ curl -X GET "http://localhost:8080/api/session/healthCheck" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -125,14 +142,16 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#healthcheck-parameters]
+<h3 id="healthcheck-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#healthcheck-returns]
+<h3 id="healthcheck-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to [`HealthCheck`](/docs/reference/client/return-types#healthcheck).
 
@@ -140,47 +159,38 @@ Browser health diagnostics. This is not the Easy API /health HTTP envelope.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | - |
-| Aliases | `session.healthCheck` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/healthCheck` | `healthCheck` | Active |
-| Alias | `GET` | `/api/healthCheck` | `healthCheck` | Active |
-
-</details>
+**HTTP:** `GET /api/session/healthCheck`, or `/api/healthCheck`. **Also named:** `session.healthCheck`.
 
 
 ## `getMe`
 
 Get host account info
 
+<ReferenceCode>
+
 ```ts
 client.getMe(): Promise<HostAccount>
 ```
 
-### Usage [!toc] [#getme-usage]
+</ReferenceCode>
+
+<h3 id="getme-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getMe();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -189,8 +199,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getMe();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getMe" \
@@ -199,7 +213,11 @@ curl -X GET "http://localhost:8080/api/session/getMe" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -214,60 +232,53 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getme-parameters]
+<h3 id="getme-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getme-returns]
+<h3 id="getme-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to [`HostAccount`](/docs/reference/client/return-types#hostaccount).
 
 Host account attributes plus the current account ID. Additional WhatsApp Web attributes vary by version.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | - |
-| Aliases | `session.getMe` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getMe` | `getMe` | Active |
-| Alias | `GET` | `/api/getMe` | `getMe` | Active |
-
-</details>
+**HTTP:** `GET /api/session/getMe`, or `/api/getMe`. **Also named:** `session.getMe`.
 
 
 ## `getHostNumber`
 
 Get host phone number
 
+<ReferenceCode>
+
 ```ts
 client.getHostNumber(): Promise<string>
 ```
 
-### Usage [!toc] [#gethostnumber-usage]
+</ReferenceCode>
+
+<h3 id="gethostnumber-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getHostNumber();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -276,8 +287,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getHostNumber();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getHostNumber" \
@@ -286,7 +301,11 @@ curl -X GET "http://localhost:8080/api/session/getHostNumber" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -295,58 +314,51 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#gethostnumber-parameters]
+<h3 id="gethostnumber-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#gethostnumber-returns]
+<h3 id="gethostnumber-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `string`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | - |
-| Aliases | `session.getHostNumber` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getHostNumber` | `getHostNumber` | Active |
-| Alias | `GET` | `/api/getHostNumber` | `getHostNumber` | Active |
-
-</details>
+**HTTP:** `GET /api/session/getHostNumber`, or `/api/getHostNumber`. **Also named:** `session.getHostNumber`.
 
 
 ## `isPlugged`
 
 Check if phone is charging
 
+<ReferenceCode>
+
 ```ts
 client.isPlugged(): Promise<boolean>
 ```
 
-### Usage [!toc] [#isplugged-usage]
+</ReferenceCode>
+
+<h3 id="isplugged-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getIsPlugged();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -355,8 +367,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.isPlugged();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/isPlugged" \
@@ -365,7 +381,11 @@ curl -X GET "http://localhost:8080/api/session/isPlugged" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -374,60 +394,51 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#isplugged-parameters]
+<h3 id="isplugged-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#isplugged-returns]
+<h3 id="isplugged-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | - |
-| Aliases | `getIsPlugged`, `session.getIsPlugged`, `session.isPlugged` |
-| Deprecated aliases | `getIsPlugged`, `session.getIsPlugged` |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/isPlugged` | `isPlugged` | Active |
-| Deprecated alias | `GET` | `/api/getIsPlugged` | `getIsPlugged` | **Deprecated** |
-| Alias | `GET` | `/api/isPlugged` | `isPlugged` | Active |
-| Deprecated alias | `GET` | `/api/session/getIsPlugged` | `session.getIsPlugged` | **Deprecated** |
-
-</details>
+**HTTP:** `GET /api/session/isPlugged`, or `/api/isPlugged`. Deprecated routes: `/api/getIsPlugged`, `/api/session/getIsPlugged`. **Also named:** `session.isPlugged`. Deprecated names: `getIsPlugged`, `session.getIsPlugged`.
 
 
 ## `getBatteryLevel`
 
 Get phone battery level
 
+<ReferenceCode>
+
 ```ts
 client.getBatteryLevel(): Promise<number>
 ```
 
-### Usage [!toc] [#getbatterylevel-usage]
+</ReferenceCode>
+
+<h3 id="getbatterylevel-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getBatteryLevel();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -436,8 +447,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getBatteryLevel();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getBatteryLevel" \
@@ -446,7 +461,11 @@ curl -X GET "http://localhost:8080/api/session/getBatteryLevel" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -455,58 +474,51 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getbatterylevel-parameters]
+<h3 id="getbatterylevel-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getbatterylevel-returns]
+<h3 id="getbatterylevel-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `number`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | - |
-| Aliases | `session.getBatteryLevel` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getBatteryLevel` | `getBatteryLevel` | Active |
-| Alias | `GET` | `/api/getBatteryLevel` | `getBatteryLevel` | Active |
-
-</details>
+**HTTP:** `GET /api/session/getBatteryLevel`, or `/api/getBatteryLevel`. **Also named:** `session.getBatteryLevel`.
 
 
 ## `getWAVersion`
 
 Get WhatsApp Web version
 
+<ReferenceCode>
+
 ```ts
 client.getWAVersion(): Promise<string>
 ```
 
-### Usage [!toc] [#getwaversion-usage]
+</ReferenceCode>
+
+<h3 id="getwaversion-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getWAVersion();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -515,8 +527,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getWAVersion();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getWAVersion" \
@@ -525,7 +541,11 @@ curl -X GET "http://localhost:8080/api/session/getWAVersion" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -534,53 +554,40 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getwaversion-parameters]
+<h3 id="getwaversion-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getwaversion-returns]
+<h3 id="getwaversion-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `string`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | - |
-| Aliases | `getWhatsAppVersion`, `session.getWAVersion`, `session.getWhatsAppVersion` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getWAVersion` | `getWAVersion` | Active |
-| Alias | `GET` | `/api/getWAVersion` | `getWAVersion` | Active |
-| Alias | `GET` | `/api/getWhatsAppVersion` | `getWhatsAppVersion` | Active |
-| Alias | `GET` | `/api/session/getWhatsAppVersion` | `session.getWhatsAppVersion` | Active |
-
-</details>
+**HTTP:** `GET /api/session/getWAVersion`, or `/api/getWAVersion`, `/api/getWhatsAppVersion`, `/api/session/getWhatsAppVersion`. **Also named:** `getWhatsAppVersion`, `session.getWAVersion`, `session.getWhatsAppVersion`.
 
 
 ## `getSnapshot`
 
 Take screenshot
 
+<ReferenceCode>
+
 ```ts
 client.getSnapshot(chatId?: string, width?: number, height?: number): Promise<string>
 ```
 
-### Usage [!toc] [#getsnapshot-usage]
+</ReferenceCode>
+
+<h3 id="getsnapshot-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -589,8 +596,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getSnapshot();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getSnapshot" \
@@ -599,7 +610,11 @@ curl -X GET "http://localhost:8080/api/session/getSnapshot" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -608,62 +623,57 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getsnapshot-parameters]
+<h3 id="getsnapshot-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetSnapshotParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Optional. Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
+| `width` | `number` | Optional. |
+| `height` | `number` | Optional. |
 
-### Returns [!toc] [#getsnapshot-returns]
+<h3 id="getsnapshot-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `string`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | `chatId`, `width`, `height` |
-| Aliases | `session.getSnapshot`, `session.takeScreenshot`, `takeScreenshot` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getSnapshot` | `getSnapshot` | Active |
-| Alias | `GET` | `/api/getSnapshot` | `getSnapshot` | Active |
-| Alias | `GET` | `/api/session/takeScreenshot` | `session.takeScreenshot` | Active |
-| Alias | `GET` | `/api/takeScreenshot` | `takeScreenshot` | Active |
-
-</details>
+**HTTP:** `GET /api/session/getSnapshot`, or `/api/getSnapshot`, `/api/session/takeScreenshot`, `/api/takeScreenshot`. **Also named:** `session.getSnapshot`, `session.takeScreenshot`, `takeScreenshot`.
 
 
 ## `setMyName`
 
 Set host name
 
+<ReferenceCode>
+
 ```ts
 client.setMyName(name: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#setmyname-usage]
+</ReferenceCode>
+
+<h3 id="setmyname-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.setMyName("OpenWA Bot");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -674,8 +684,12 @@ const result = await client.setMyName({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/session/setName" \
@@ -686,7 +700,11 @@ curl -X PUT "http://localhost:8080/api/session/setName" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -695,61 +713,53 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#setmyname-parameters]
+<h3 id="setmyname-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SetMyNameParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `name` | `string` | Display name. Also accepts `newName`. |
 
-### Returns [!toc] [#setmyname-returns]
+<h3 id="setmyname-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | `name` |
-| Aliases | `session.setDisplayName`, `session.setMyName`, `session.setName`, `setDisplayName` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/session/setName` | `setMyName` | Active |
-| Alias | `PUT` | `/api/session/setDisplayName` | `session.setDisplayName` | Active |
-| Alias | `PUT` | `/api/session/setMyName` | `session.setMyName` | Active |
-| Alias | `PUT` | `/api/setDisplayName` | `setDisplayName` | Active |
-| Alias | `PUT` | `/api/setMyName` | `setMyName` | Active |
-
-</details>
+**HTTP:** `PUT /api/session/setName`, or `/api/session/setDisplayName`, `/api/session/setMyName`, `/api/setDisplayName`, `/api/setMyName`. **Also named:** `session.setDisplayName`, `session.setMyName`, `session.setName`, `setDisplayName`.
 
 
 ## `setMyStatus`
 
 Set host status
 
+<ReferenceCode>
+
 ```ts
 client.setMyStatus(statusText: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#setmystatus-usage]
+</ReferenceCode>
+
+<h3 id="setmystatus-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.setMyStatus("Available");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -760,8 +770,12 @@ const result = await client.setMyStatus({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/session/setStatus" \
@@ -772,7 +786,11 @@ curl -X PUT "http://localhost:8080/api/session/setStatus" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -781,40 +799,22 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#setmystatus-parameters]
+<h3 id="setmystatus-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SetMyStatusParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `statusText` | `string` | Status text. Also accepts `newStatus`. |
 
-### Returns [!toc] [#setmystatus-returns]
+<h3 id="setmystatus-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | `statusText` |
-| Aliases | `session.setMyStatus`, `session.setStatus`, `session.setStatusText`, `setStatusText` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/session/setStatus` | `setMyStatus` | Active |
-| Alias | `PUT` | `/api/session/setMyStatus` | `session.setMyStatus` | Active |
-| Alias | `PUT` | `/api/session/setStatusText` | `session.setStatusText` | Active |
-| Alias | `PUT` | `/api/setMyStatus` | `setMyStatus` | Active |
-| Alias | `PUT` | `/api/setStatusText` | `setStatusText` | Active |
-
-</details>
+**HTTP:** `PUT /api/session/setStatus`, or `/api/session/setMyStatus`, `/api/session/setStatusText`, `/api/setMyStatus`, `/api/setStatusText`. **Also named:** `session.setMyStatus`, `session.setStatus`, `session.setStatusText`, `setStatusText`.
 
 <LicensedMethodSection tier="insiders">
 
@@ -825,14 +825,20 @@ Set profile picture
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
 client.setProfilePicture(image: string | Buffer): Promise<boolean>
 ```
 
-### Usage [!toc] [#setprofilepicture-usage]
+</ReferenceCode>
+
+<h3 id="setprofilepicture-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -843,8 +849,12 @@ const result = await client.setProfilePicture({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/session/setProfilePicture" \
@@ -855,7 +865,11 @@ curl -X PUT "http://localhost:8080/api/session/setProfilePicture" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -864,41 +878,24 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#setprofilepicture-parameters]
+<h3 id="setprofilepicture-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SetProfilePictureParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `image` | `string \| Buffer` | Image file (path, URL, DataURL, or Base64) |
 
-### Returns [!toc] [#setprofilepicture-returns]
+<h3 id="setprofilepicture-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | `image` |
-| Aliases | `session.setProfilePic`, `session.setProfilePicture`, `setProfilePic` |
-| Deprecated aliases | `session.setProfilePic`, `setProfilePic` |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/session/setProfilePicture` | `setProfilePicture` | Active |
-| Deprecated alias | `PUT` | `/api/session/setProfilePic` | `session.setProfilePic` | **Deprecated** |
-| Deprecated alias | `PUT` | `/api/setProfilePic` | `setProfilePic` | **Deprecated** |
-| Alias | `PUT` | `/api/setProfilePicture` | `setProfilePicture` | Active |
-
-</details>
+**HTTP:** `PUT /api/session/setProfilePicture`, or `/api/setProfilePicture`. Deprecated routes: `/api/session/setProfilePic`, `/api/setProfilePic`. **Also named:** `session.setProfilePicture`. Deprecated names: `session.setProfilePic`, `setProfilePic`.
 
 </LicensedMethodSection>
 
@@ -907,14 +904,20 @@ The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
 Get license type
 
+<ReferenceCode>
+
 ```ts
 client.getLicenseType(): Promise<LicenseType | false>
 ```
 
-### Usage [!toc] [#getlicensetype-usage]
+</ReferenceCode>
+
+<h3 id="getlicensetype-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -923,8 +926,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getLicenseType();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getLicenseType" \
@@ -933,7 +940,11 @@ curl -X GET "http://localhost:8080/api/session/getLicenseType" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -942,60 +953,53 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getlicensetype-parameters]
+<h3 id="getlicensetype-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getlicensetype-returns]
+<h3 id="getlicensetype-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `LicenseType | false`. See [LicenseType](/docs/reference/client/return-types#licensetype) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | - |
-| Aliases | `session.getLicenseType` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getLicenseType` | `getLicenseType` | Active |
-| Alias | `GET` | `/api/getLicenseType` | `getLicenseType` | Active |
-
-</details>
+**HTTP:** `GET /api/session/getLicenseType`, or `/api/getLicenseType`. **Also named:** `session.getLicenseType`.
 
 
 ## `getLicenseFeatures`
 
 List which licensed features your license key turns on. Each method still checks availability when you call it.
 
+<ReferenceCode>
+
 ```ts
-client.getLicenseFeatures(): Promise<{ status: "valid" | "missing" | "invalid" | "expired" | "metadata_only"; keyType: string | null; expiresAt: number | "Infinity" | "-Infinity" | "NaN" | null; features: Record<string, boolean> }>
+client.getLicenseFeatures(): Promise<{ … }>
 ```
 
-### Usage [!toc] [#getlicensefeatures-usage]
+</ReferenceCode>
+
+<h3 id="getlicensefeatures-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getLicenseFeatures();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1004,8 +1008,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getLicenseFeatures();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getLicenseFeatures" \
@@ -1014,7 +1022,11 @@ curl -X GET "http://localhost:8080/api/session/getLicenseFeatures" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1028,64 +1040,61 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getlicensefeatures-parameters]
+<h3 id="getlicensefeatures-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getlicensefeatures-returns]
+<h3 id="getlicensefeatures-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to:
+
+<ReferenceCode>
 
 ```ts
 { status: "valid" | "missing" | "invalid" | "expired" | "metadata_only"; keyType: string | null; expiresAt: number | "Infinity" | "-Infinity" | "NaN" | null; features: Record<string, boolean> }
 ```
 
+</ReferenceCode>
+
 The SDK resolves to `LicenseFeatures` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | - |
-| Aliases | `session.getLicenseFeatures` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getLicenseFeatures` | `getLicenseFeatures` | Active |
-| Alias | `GET` | `/api/getLicenseFeatures` | `getLicenseFeatures` | Active |
-
-</details>
+**HTTP:** `GET /api/session/getLicenseFeatures`, or `/api/getLicenseFeatures`. **Also named:** `session.getLicenseFeatures`.
 
 
 ## `getFeatures`
 
 Get enabled features
 
+<ReferenceCode>
+
 ```ts
 client.getFeatures(): Promise<FeatureFlags>
 ```
 
-### Usage [!toc] [#getfeatures-usage]
+</ReferenceCode>
+
+<h3 id="getfeatures-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getFeatures();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1094,8 +1103,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getFeatures();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getFeatures" \
@@ -1104,7 +1117,11 @@ curl -X GET "http://localhost:8080/api/session/getFeatures" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1113,14 +1130,16 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getfeatures-parameters]
+<h3 id="getfeatures-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getfeatures-returns]
+<h3 id="getfeatures-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to [`FeatureFlags`](/docs/reference/client/return-types#featureflags).
 
@@ -1128,47 +1147,38 @@ WhatsApp feature flags keyed by name. Values are provider-defined and must be na
 
 The SDK resolves to `Record<string, unknown>` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | - |
-| Aliases | `session.getFeatures` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getFeatures` | `getFeatures` | Active |
-| Alias | `GET` | `/api/getFeatures` | `getFeatures` | Active |
-
-</details>
+**HTTP:** `GET /api/session/getFeatures`, or `/api/getFeatures`. **Also named:** `session.getFeatures`.
 
 
 ## `getLoadedMessageCount`
 
 Get loaded message count
 
+<ReferenceCode>
+
 ```ts
 client.getLoadedMessageCount(): Promise<number>
 ```
 
-### Usage [!toc] [#getloadedmessagecount-usage]
+</ReferenceCode>
+
+<h3 id="getloadedmessagecount-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getAmountOfLoadedMessages();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1177,8 +1187,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getLoadedMessageCount();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getLoadedMessageCount" \
@@ -1187,7 +1201,11 @@ curl -X GET "http://localhost:8080/api/session/getLoadedMessageCount" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1196,53 +1214,40 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getloadedmessagecount-parameters]
+<h3 id="getloadedmessagecount-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getloadedmessagecount-returns]
+<h3 id="getloadedmessagecount-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `number`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | - |
-| Aliases | `getAmountOfLoadedMessages`, `session.getAmountOfLoadedMessages`, `session.getLoadedMessageCount` |
-| Deprecated aliases | `getAmountOfLoadedMessages`, `session.getAmountOfLoadedMessages` |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getLoadedMessageCount` | `getLoadedMessageCount` | Active |
-| Deprecated alias | `GET` | `/api/getAmountOfLoadedMessages` | `getAmountOfLoadedMessages` | **Deprecated** |
-| Alias | `GET` | `/api/getLoadedMessageCount` | `getLoadedMessageCount` | Active |
-| Deprecated alias | `GET` | `/api/session/getAmountOfLoadedMessages` | `session.getAmountOfLoadedMessages` | **Deprecated** |
-
-</details>
+**HTTP:** `GET /api/session/getLoadedMessageCount`, or `/api/getLoadedMessageCount`. Deprecated routes: `/api/getAmountOfLoadedMessages`, `/api/session/getAmountOfLoadedMessages`. **Also named:** `session.getLoadedMessageCount`. Deprecated names: `getAmountOfLoadedMessages`, `session.getAmountOfLoadedMessages`.
 
 
 ## `getUserAgent`
 
 Get user agent
 
+<ReferenceCode>
+
 ```ts
 client.getUserAgent(userAgent?: string): Promise<string>
 ```
 
-### Usage [!toc] [#getuseragent-usage]
+</ReferenceCode>
+
+<h3 id="getuseragent-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1251,8 +1256,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getUserAgent();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getUserAgent" \
@@ -1261,7 +1270,11 @@ curl -X GET "http://localhost:8080/api/session/getUserAgent" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1270,62 +1283,55 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getuseragent-parameters]
+<h3 id="getuseragent-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetUserAgentParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `userAgent` | `string` | Optional. User agent string. Also accepts `userA`. |
 
-### Returns [!toc] [#getuseragent-returns]
+<h3 id="getuseragent-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `string`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | `userAgent` |
-| Aliases | `getGeneratedUserAgent`, `session.getGeneratedUserAgent`, `session.getUserAgent` |
-| Deprecated aliases | `getGeneratedUserAgent`, `session.getGeneratedUserAgent` |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getUserAgent` | `getUserAgent` | Active |
-| Deprecated alias | `GET` | `/api/getGeneratedUserAgent` | `getGeneratedUserAgent` | **Deprecated** |
-| Alias | `GET` | `/api/getUserAgent` | `getUserAgent` | Active |
-| Deprecated alias | `GET` | `/api/session/getGeneratedUserAgent` | `session.getGeneratedUserAgent` | **Deprecated** |
-
-</details>
+**HTTP:** `GET /api/session/getUserAgent`, or `/api/getUserAgent`. Deprecated routes: `/api/getGeneratedUserAgent`, `/api/session/getGeneratedUserAgent`. **Also named:** `session.getUserAgent`. Deprecated names: `getGeneratedUserAgent`, `session.getGeneratedUserAgent`.
 
 
 ## `getProcessStats`
 
 Get process statistics
 
+<ReferenceCode>
+
 ```ts
 client.getProcessStats(): Promise<ProcessStats>
 ```
 
-### Usage [!toc] [#getprocessstats-usage]
+</ReferenceCode>
+
+<h3 id="getprocessstats-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getProcessStats();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -1334,8 +1340,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getProcessStats();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/session/getProcessStats" \
@@ -1344,7 +1354,11 @@ curl -X GET "http://localhost:8080/api/session/getProcessStats" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -1353,14 +1367,16 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getprocessstats-parameters]
+<h3 id="getprocessstats-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getprocessstats-returns]
+<h3 id="getprocessstats-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to [`ProcessStats`](/docs/reference/client/return-types#processstats).
 
@@ -1368,23 +1384,4 @@ Process diagnostics keyed by process ID. The provider controls each entry; no st
 
 The SDK resolves to `Record<string, unknown>` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `session` |
-| Positional parameter order | - |
-| Aliases | `session.getProcessStats` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/session/getProcessStats` | `getProcessStats` | Active |
-| Alias | `GET` | `/api/getProcessStats` | `getProcessStats` | Active |
-
-</details>
+**HTTP:** `GET /api/session/getProcessStats`, or `/api/getProcessStats`. **Also named:** `session.getProcessStats`.

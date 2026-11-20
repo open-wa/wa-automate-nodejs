@@ -24,7 +24,7 @@ ChatGPT Work can subscribe to `message.received`, `ack.changed` and
 signed using Standard Webhooks and restricted to public HTTPS destinations.
 There is no historical event replay (`cursor: null`).
 
-See [MCP Events](https://openwa.dev/docs/client-and-integrations/mcp-events) and
+See [MCP Events](https://openwa.dev/docs/guides/mcp-events) and
 the [event contracts](https://openwa.dev/docs/reference/event-contracts).
 
 ## License

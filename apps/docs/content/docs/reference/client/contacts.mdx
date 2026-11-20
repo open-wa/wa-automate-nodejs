@@ -4,6 +4,8 @@ description: "Check whether a number is on WhatsApp, look up contacts and profil
 icon: "BookOpen"
 ---
 
+import { ReferenceCode } from '../../../../src/components/reference-code';
+
 # Contacts
 
 <LicensedMethodSection tier="insiders">
@@ -15,21 +17,31 @@ Check if number is on WhatsApp
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
 client.checkNumberStatus(contactId: string): Promise<NumberCheck>
 ```
 
-### Usage [!toc] [#checknumberstatus-usage]
+</ReferenceCode>
+
+<h3 id="checknumberstatus-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.checkNumberStatus("447123456789@c.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -40,8 +52,12 @@ const result = await client.checkNumberStatus({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/contacts/checkNumberStatus" \
@@ -49,7 +65,11 @@ curl -G "http://localhost:8080/api/contacts/checkNumberStatus" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -65,37 +85,22 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#checknumberstatus-parameters]
+<h3 id="checknumberstatus-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="CheckNumberStatusParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#checknumberstatus-returns]
+<h3 id="checknumberstatus-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to [`NumberCheck`](/docs/reference/client/return-types#numbercheck).
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `contacts` |
-| Positional parameter order | `contactId` |
-| Aliases | `contacts.checkNumberStatus` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/contacts/checkNumberStatus` | `checkNumberStatus` | Active |
-| Alias | `GET` | `/api/checkNumberStatus` | `checkNumberStatus` | Active |
-
-</details>
+**HTTP:** `GET /api/contacts/checkNumberStatus`, or `/api/checkNumberStatus`. **Also named:** `contacts.checkNumberStatus`.
 
 </LicensedMethodSection>
 
@@ -104,21 +109,31 @@ Resolves to [`NumberCheck`](/docs/reference/client/return-types#numbercheck).
 
 Get specific contact
 
+<ReferenceCode>
+
 ```ts
 client.getContact(contactId: string): Promise<Contact | null>
 ```
 
-### Usage [!toc] [#getcontact-usage]
+</ReferenceCode>
+
+<h3 id="getcontact-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getContact("447123456789@c.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -129,8 +144,12 @@ const result = await client.getContact({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/contacts/get" \
@@ -138,7 +157,11 @@ curl -G "http://localhost:8080/api/contacts/get" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -149,58 +172,53 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getcontact-parameters]
+<h3 id="getcontact-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetContactParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#getcontact-returns]
+<h3 id="getcontact-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `Contact | null`. See [Contact](/docs/reference/client/return-types#contact) for its fields.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `contacts` |
-| Positional parameter order | `contactId` |
-| Aliases | `contacts.get` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/contacts/get` | `getContact` | Active |
-| Alias | `GET` | `/api/getContact` | `getContact` | Active |
-
-</details>
+**HTTP:** `GET /api/contacts/get`, or `/api/getContact`. **Also named:** `contacts.get`.
 
 
 ## `getAllContacts`
 
 Retrieves all contacts
 
+<ReferenceCode>
+
 ```ts
 client.getAllContacts(): Promise<Contact[]>
 ```
 
-### Usage [!toc] [#getallcontacts-usage]
+</ReferenceCode>
+
+<h3 id="getallcontacts-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getAllContacts();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -209,8 +227,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getAllContacts();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/contacts/getAll" \
@@ -219,7 +241,11 @@ curl -X GET "http://localhost:8080/api/contacts/getAll" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -228,61 +254,51 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getallcontacts-parameters]
+<h3 id="getallcontacts-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getallcontacts-returns]
+<h3 id="getallcontacts-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `Contact[]`. See [Contact](/docs/reference/client/return-types#contact) for its fields.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `contacts` |
-| Positional parameter order | - |
-| Aliases | `contacts.all`, `contacts.getAll`, `contacts.list`, `listContacts` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/contacts/getAll` | `getAllContacts` | Active |
-| Alias | `GET` | `/api/contacts/all` | `contacts.all` | Active |
-| Alias | `GET` | `/api/contacts/list` | `contacts.list` | Active |
-| Alias | `GET` | `/api/getAllContacts` | `getAllContacts` | Active |
-| Alias | `GET` | `/api/listContacts` | `listContacts` | Active |
-
-</details>
+**HTTP:** `GET /api/contacts/getAll`, or `/api/contacts/all`, `/api/contacts/list`, `/api/getAllContacts`, `/api/listContacts`. **Also named:** `contacts.all`, `contacts.getAll`, `contacts.list`, `listContacts`.
 
 
 ## `getProfilePicture`
 
 Get profile picture from server
 
+<ReferenceCode>
+
 ```ts
 client.getProfilePicture(chatId: string): Promise<string>
 ```
 
-### Usage [!toc] [#getprofilepicture-usage]
+</ReferenceCode>
+
+<h3 id="getprofilepicture-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getProfilePic("447123456789@c.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -293,8 +309,12 @@ const result = await client.getProfilePicture({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/contacts/getProfilePicture" \
@@ -302,7 +322,11 @@ curl -G "http://localhost:8080/api/contacts/getProfilePicture" \
   --data-urlencode "chatId=447123456789@c.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -311,41 +335,24 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getprofilepicture-parameters]
+<h3 id="getprofilepicture-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetProfilePictureParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `chatId` | `string` | Chat ID (phone number or formatted ID) A contact ID, group ID, or LID JID. Also accepts `contactId`, `id`. |
 
-### Returns [!toc] [#getprofilepicture-returns]
+<h3 id="getprofilepicture-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `string`.
 
 The SDK resolves to `string | null` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `contacts` |
-| Positional parameter order | `chatId` |
-| Aliases | `contacts.getProfilePicFromServer`, `contacts.getProfilePicture`, `getProfilePicFromServer` |
-| Deprecated aliases | `contacts.getProfilePicFromServer`, `getProfilePicFromServer` |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/contacts/getProfilePicture` | `getProfilePicture` | Active |
-| Deprecated alias | `GET` | `/api/contacts/getProfilePicFromServer` | `contacts.getProfilePicFromServer` | **Deprecated** |
-| Deprecated alias | `GET` | `/api/getProfilePicFromServer` | `getProfilePicFromServer` | **Deprecated** |
-| Alias | `GET` | `/api/getProfilePicture` | `getProfilePicture` | Active |
-
-</details>
+**HTTP:** `GET /api/contacts/getProfilePicture`, or `/api/getProfilePicture`. Deprecated routes: `/api/contacts/getProfilePicFromServer`, `/api/getProfilePicFromServer`. **Also named:** `contacts.getProfilePicture`. Deprecated names: `contacts.getProfilePicFromServer`, `getProfilePicFromServer`.
 
 <LicensedMethodSection tier="insiders">
 
@@ -356,14 +363,20 @@ Get profile of number
 
 Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
+<ReferenceCode>
+
 ```ts
 client.getNumberProfile(contactId: string): Promise<NumberProfile>
 ```
 
-### Usage [!toc] [#getnumberprofile-usage]
+</ReferenceCode>
+
+<h3 id="getnumberprofile-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -374,8 +387,12 @@ const result = await client.getNumberProfile({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/contacts/getNumberProfile" \
@@ -383,7 +400,11 @@ curl -G "http://localhost:8080/api/contacts/getNumberProfile" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -392,14 +413,18 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getnumberprofile-parameters]
+<h3 id="getnumberprofile-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetNumberProfileParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#getnumberprofile-returns]
+<h3 id="getnumberprofile-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to [`NumberProfile`](/docs/reference/client/return-types#numberprofile).
 
@@ -407,26 +432,7 @@ Provisional number profile based on the public Contact fields. Fields are option
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `contacts` |
-| Positional parameter order | `contactId` |
-| Aliases | `contacts.getNumberProfile` |
-| Deprecated aliases | - |
-| License | `insiders` |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/contacts/getNumberProfile` | `getNumberProfile` | Active |
-| Alias | `GET` | `/api/getNumberProfile` | `getNumberProfile` | Active |
-
-</details>
+**HTTP:** `GET /api/contacts/getNumberProfile`, or `/api/getNumberProfile`. **Also named:** `contacts.getNumberProfile`.
 
 </LicensedMethodSection>
 
@@ -435,21 +441,31 @@ The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
 Block a contact
 
+<ReferenceCode>
+
 ```ts
 client.blockContact(contactId: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#blockcontact-usage]
+</ReferenceCode>
+
+<h3 id="blockcontact-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.blockContact("447123456789@c.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -460,8 +476,12 @@ const result = await client.blockContact({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/contacts/block" \
@@ -472,7 +492,11 @@ curl -X PUT "http://localhost:8080/api/contacts/block" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -481,60 +505,53 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#blockcontact-parameters]
+<h3 id="blockcontact-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="BlockContactParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#blockcontact-returns]
+<h3 id="blockcontact-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `contacts` |
-| Positional parameter order | `contactId` |
-| Aliases | `contactBlock`, `contacts.block`, `contacts.contactBlock` |
-| Deprecated aliases | `contactBlock`, `contacts.contactBlock` |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/contacts/block` | `blockContact` | Active |
-| Alias | `PUT` | `/api/blockContact` | `blockContact` | Active |
-| Deprecated alias | `PUT` | `/api/contactBlock` | `contactBlock` | **Deprecated** |
-| Deprecated alias | `PUT` | `/api/contacts/contactBlock` | `contacts.contactBlock` | **Deprecated** |
-
-</details>
+**HTTP:** `PUT /api/contacts/block`, or `/api/blockContact`. Deprecated routes: `/api/contactBlock`, `/api/contacts/contactBlock`. **Also named:** `contacts.block`. Deprecated names: `contactBlock`, `contacts.contactBlock`.
 
 
 ## `unblockContact`
 
 Unblock a contact
 
+<ReferenceCode>
+
 ```ts
 client.unblockContact(contactId: string): Promise<boolean>
 ```
 
-### Usage [!toc] [#unblockcontact-usage]
+</ReferenceCode>
+
+<h3 id="unblockcontact-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.unblockContact("447123456789@c.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -545,8 +562,12 @@ const result = await client.unblockContact({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X PUT "http://localhost:8080/api/contacts/unblock" \
@@ -557,7 +578,11 @@ curl -X PUT "http://localhost:8080/api/contacts/unblock" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -566,53 +591,42 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#unblockcontact-parameters]
+<h3 id="unblockcontact-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="UnblockContactParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#unblockcontact-returns]
+<h3 id="unblockcontact-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean`.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `contacts` |
-| Positional parameter order | `contactId` |
-| Aliases | `contacts.contactUnblock`, `contacts.unblock`, `contactUnblock` |
-| Deprecated aliases | `contacts.contactUnblock`, `contactUnblock` |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `PUT` | `/api/contacts/unblock` | `unblockContact` | Active |
-| Deprecated alias | `PUT` | `/api/contacts/contactUnblock` | `contacts.contactUnblock` | **Deprecated** |
-| Deprecated alias | `PUT` | `/api/contactUnblock` | `contactUnblock` | **Deprecated** |
-| Alias | `PUT` | `/api/unblockContact` | `unblockContact` | Active |
-
-</details>
+**HTTP:** `PUT /api/contacts/unblock`, or `/api/unblockContact`. Deprecated routes: `/api/contacts/contactUnblock`, `/api/contactUnblock`. **Also named:** `contacts.unblock`. Deprecated names: `contacts.contactUnblock`, `contactUnblock`.
 
 
 ## `getBlockedIds`
 
 Get blocked contact IDs
 
+<ReferenceCode>
+
 ```ts
 client.getBlockedIds(): Promise<ContactId[] | false>
 ```
 
-### Usage [!toc] [#getblockedids-usage]
+</ReferenceCode>
+
+<h3 id="getblockedids-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -621,8 +635,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getBlockedIds();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/contacts/getBlockedIds" \
@@ -631,7 +649,11 @@ curl -X GET "http://localhost:8080/api/contacts/getBlockedIds" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -640,60 +662,53 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getblockedids-parameters]
+<h3 id="getblockedids-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getblockedids-returns]
+<h3 id="getblockedids-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `ContactId[] | false`. See [ContactId](/docs/reference/client/return-types#contactid) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `contacts` |
-| Positional parameter order | - |
-| Aliases | `contacts.getBlockedIds` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/contacts/getBlockedIds` | `getBlockedIds` | Active |
-| Alias | `GET` | `/api/getBlockedIds` | `getBlockedIds` | Active |
-
-</details>
+**HTTP:** `GET /api/contacts/getBlockedIds`, or `/api/getBlockedIds`. **Also named:** `contacts.getBlockedIds`.
 
 
 ## `getCommonGroups`
 
 Get common groups with contact
 
+<ReferenceCode>
+
 ```ts
 client.getCommonGroups(contactId: string): Promise<CommonGroup[] | false>
 ```
 
-### Usage [!toc] [#getcommongroups-usage]
+</ReferenceCode>
+
+<h3 id="getcommongroups-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.getCommonGroups("447123456789@c.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -704,8 +719,12 @@ const result = await client.getCommonGroups({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/contacts/getCommonGroups" \
@@ -713,7 +732,11 @@ curl -G "http://localhost:8080/api/contacts/getCommonGroups" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -722,53 +745,44 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getcommongroups-parameters]
+<h3 id="getcommongroups-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetCommonGroupsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#getcommongroups-returns]
+<h3 id="getcommongroups-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `CommonGroup[] | false`. See [CommonGroup](/docs/reference/client/return-types#commongroup) for its fields.
 
 The SDK resolves to `Array<{ id: GroupId; title: string }>` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `contacts` |
-| Positional parameter order | `contactId` |
-| Aliases | `contacts.getCommonGroups` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/contacts/getCommonGroups` | `getCommonGroups` | Active |
-| Alias | `GET` | `/api/getCommonGroups` | `getCommonGroups` | Active |
-
-</details>
+**HTTP:** `GET /api/contacts/getCommonGroups`, or `/api/getCommonGroups`. **Also named:** `contacts.getCommonGroups`.
 
 
 ## `checkReadReceipts`
 
 Check read receipts setting
 
+<ReferenceCode>
+
 ```ts
 client.checkReadReceipts(contactId: string): Promise<boolean | string>
 ```
 
-### Usage [!toc] [#checkreadreceipts-usage]
+</ReferenceCode>
+
+<h3 id="checkreadreceipts-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -779,8 +793,12 @@ const result = await client.checkReadReceipts({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/contacts/checkReadReceipts" \
@@ -788,7 +806,11 @@ curl -G "http://localhost:8080/api/contacts/checkReadReceipts" \
   --data-urlencode "contactId=447123456789@c.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -797,62 +819,55 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#checkreadreceipts-parameters]
+<h3 id="checkreadreceipts-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="CheckReadReceiptsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `contactId` | `string` | Contact ID. A WhatsApp contact JID. Also accepts `id`. |
 
-### Returns [!toc] [#checkreadreceipts-returns]
+<h3 id="checkreadreceipts-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `boolean | string`.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `contacts` |
-| Positional parameter order | `contactId` |
-| Aliases | `contacts.checkReadReceipts`, `contacts.getReadReceipts`, `getReadReceipts` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/contacts/checkReadReceipts` | `checkReadReceipts` | Active |
-| Alias | `GET` | `/api/checkReadReceipts` | `checkReadReceipts` | Active |
-| Alias | `GET` | `/api/contacts/getReadReceipts` | `contacts.getReadReceipts` | Active |
-| Alias | `GET` | `/api/getReadReceipts` | `getReadReceipts` | Active |
-
-</details>
+**HTTP:** `GET /api/contacts/checkReadReceipts`, or `/api/checkReadReceipts`, `/api/contacts/getReadReceipts`, `/api/getReadReceipts`. **Also named:** `contacts.checkReadReceipts`, `contacts.getReadReceipts`, `getReadReceipts`.
 
 
 ## `requestPhoneNumber`
 
 Ask a direct LID chat to voluntarily share their phone number. A submitted request does not confirm sharing.
 
+<ReferenceCode>
+
 ```ts
 client.requestPhoneNumber(to: string): Promise<string>
 ```
 
-### Usage [!toc] [#requestphonenumber-usage]
+</ReferenceCode>
+
+<h3 id="requestphonenumber-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.requestPhoneNumber("447123456789@c.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -863,8 +878,12 @@ const result = await client.requestPhoneNumber({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/contacts/requestPhoneNumber" \
@@ -875,7 +894,11 @@ curl -X POST "http://localhost:8080/api/contacts/requestPhoneNumber" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -884,14 +907,18 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#requestphonenumber-parameters]
+<h3 id="requestphonenumber-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="RequestPhoneNumberParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
 
-### Returns [!toc] [#requestphonenumber-returns]
+<h3 id="requestphonenumber-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `string`.
 
@@ -899,47 +926,38 @@ Message ID
 
 The SDK resolves to `MessageId` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `contacts` |
-| Positional parameter order | `to` |
-| Aliases | `contacts.requestPhoneNumber` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/contacts/requestPhoneNumber` | `requestPhoneNumber` | Active |
-| Alias | `POST` | `/api/requestPhoneNumber` | `requestPhoneNumber` | Active |
-
-</details>
+**HTTP:** `POST /api/contacts/requestPhoneNumber`, or `/api/requestPhoneNumber`. **Also named:** `contacts.requestPhoneNumber`.
 
 
 ## `sharePhoneNumber`
 
 Share the logged-in account’s own phone number in a one-to-one chat that only shows a LID. You can’t share any other number.
 
+<ReferenceCode>
+
 ```ts
 client.sharePhoneNumber(to: string): Promise<string>
 ```
 
-### Usage [!toc] [#sharephonenumber-usage]
+</ReferenceCode>
+
+<h3 id="sharephonenumber-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SDK">
+
+<ReferenceCode>
 
 ```ts
 const result = await client.sharePhoneNumber("447123456789@c.us");
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -950,8 +968,12 @@ const result = await client.sharePhoneNumber({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X POST "http://localhost:8080/api/contacts/sharePhoneNumber" \
@@ -962,7 +984,11 @@ curl -X POST "http://localhost:8080/api/contacts/sharePhoneNumber" \
   }'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -971,14 +997,18 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#sharephonenumber-parameters]
+<h3 id="sharephonenumber-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="SharePhoneNumberParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
 
-### Returns [!toc] [#sharephonenumber-returns]
+<h3 id="sharephonenumber-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `string`.
 
@@ -986,23 +1016,4 @@ Message ID
 
 The SDK resolves to `MessageId` instead.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `contacts` |
-| Positional parameter order | `to` |
-| Aliases | `contacts.sharePhoneNumber` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `POST` | `/api/contacts/sharePhoneNumber` | `sharePhoneNumber` | Active |
-| Alias | `POST` | `/api/sharePhoneNumber` | `sharePhoneNumber` | Active |
-
-</details>
+**HTTP:** `POST /api/contacts/sharePhoneNumber`, or `/api/sharePhoneNumber`. **Also named:** `contacts.sharePhoneNumber`.

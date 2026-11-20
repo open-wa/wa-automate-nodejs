@@ -4,6 +4,8 @@ description: "List communities and read their details, members and admins."
 icon: "BookOpen"
 ---
 
+import { ReferenceCode } from '../../../../src/components/reference-code';
+
 # Communities
 
 
@@ -11,14 +13,20 @@ icon: "BookOpen"
 
 Get all communities
 
+<ReferenceCode>
+
 ```ts
 client.getAllCommunities(): Promise<GroupChatId[]>
 ```
 
-### Usage [!toc] [#getallcommunities-usage]
+</ReferenceCode>
+
+<h3 id="getallcommunities-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -27,8 +35,12 @@ const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY
 const result = await client.getAllCommunities();
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -X GET "http://localhost:8080/api/communities/getAll" \
@@ -37,7 +49,11 @@ curl -X GET "http://localhost:8080/api/communities/getAll" \
   --data '{}'
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -46,14 +62,16 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getallcommunities-parameters]
+<h3 id="getallcommunities-parameters" className="scroll-m-28">Parameters</h3>
 
-This method does not define input parameters.
+This method takes no parameters.
 
-### Returns [!toc] [#getallcommunities-returns]
+<h3 id="getallcommunities-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `GroupChatId[]`. See [GroupChatId](/docs/reference/client/return-types#groupchatid) for its fields.
 
@@ -61,43 +79,27 @@ Opaque group conversation identifier returned by a group lookup or join method.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `communities` |
-| Positional parameter order | - |
-| Aliases | `communities.all`, `communities.getAll`, `communities.list`, `listCommunities` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/communities/getAll` | `getAllCommunities` | Active |
-| Alias | `GET` | `/api/communities/all` | `communities.all` | Active |
-| Alias | `GET` | `/api/communities/list` | `communities.list` | Active |
-| Alias | `GET` | `/api/getAllCommunities` | `getAllCommunities` | Active |
-| Alias | `GET` | `/api/listCommunities` | `listCommunities` | Active |
-
-</details>
+**HTTP:** `GET /api/communities/getAll`, or `/api/communities/all`, `/api/communities/list`, `/api/getAllCommunities`, `/api/listCommunities`. **Also named:** `communities.all`, `communities.getAll`, `communities.list`, `listCommunities`.
 
 
 ## `getCommunityInfo`
 
 Get community metadata
 
+<ReferenceCode>
+
 ```ts
 client.getCommunityInfo(communityId: string): Promise<CommunityMetadata>
 ```
 
-### Usage [!toc] [#getcommunityinfo-usage]
+</ReferenceCode>
+
+<h3 id="getcommunityinfo-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -108,8 +110,12 @@ const result = await client.getCommunityInfo({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/communities/getInfo" \
@@ -117,7 +123,11 @@ curl -G "http://localhost:8080/api/communities/getInfo" \
   --data-urlencode "communityId=447123456789-1445627445@g.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -132,53 +142,44 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getcommunityinfo-parameters]
+<h3 id="getcommunityinfo-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetCommunityInfoParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `communityId` | `string` | Community ID. A WhatsApp community JID. |
 
-### Returns [!toc] [#getcommunityinfo-returns]
+<h3 id="getcommunityinfo-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to [`CommunityMetadata`](/docs/reference/client/return-types#communitymetadata).
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `communities` |
-| Positional parameter order | `communityId` |
-| Aliases | `communities.getInfo` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/communities/getInfo` | `getCommunityInfo` | Active |
-| Alias | `GET` | `/api/getCommunityInfo` | `getCommunityInfo` | Active |
-
-</details>
+**HTTP:** `GET /api/communities/getInfo`, or `/api/getCommunityInfo`. **Also named:** `communities.getInfo`.
 
 
 ## `getCommunityParticipants`
 
 Get community participants
 
+<ReferenceCode>
+
 ```ts
 client.getCommunityParticipants(communityId: string): Promise<CommunityParticipants[]>
 ```
 
-### Usage [!toc] [#getcommunityparticipants-usage]
+</ReferenceCode>
+
+<h3 id="getcommunityparticipants-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -189,8 +190,12 @@ const result = await client.getCommunityParticipants({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/communities/getParticipants" \
@@ -198,7 +203,11 @@ curl -G "http://localhost:8080/api/communities/getParticipants" \
   --data-urlencode "communityId=447123456789-1445627445@g.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -207,53 +216,44 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getcommunityparticipants-parameters]
+<h3 id="getcommunityparticipants-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetCommunityParticipantsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `communityId` | `string` | Community ID. A WhatsApp community JID. |
 
-### Returns [!toc] [#getcommunityparticipants-returns]
+<h3 id="getcommunityparticipants-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `CommunityParticipants[]`. See [CommunityParticipants](/docs/reference/client/return-types#communityparticipants) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `communities` |
-| Positional parameter order | `communityId` |
-| Aliases | `communities.getParticipants` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/communities/getParticipants` | `getCommunityParticipants` | Active |
-| Alias | `GET` | `/api/getCommunityParticipants` | `getCommunityParticipants` | Active |
-
-</details>
+**HTTP:** `GET /api/communities/getParticipants`, or `/api/getCommunityParticipants`. **Also named:** `communities.getParticipants`.
 
 
 ## `getCommunityParticipantIds`
 
 Get community participant IDs
 
+<ReferenceCode>
+
 ```ts
 client.getCommunityParticipantIds(communityId: string): Promise<CommunityParticipantIds[]>
 ```
 
-### Usage [!toc] [#getcommunityparticipantids-usage]
+</ReferenceCode>
+
+<h3 id="getcommunityparticipantids-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -264,8 +264,12 @@ const result = await client.getCommunityParticipantIds({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/communities/getParticipantIds" \
@@ -273,7 +277,11 @@ curl -G "http://localhost:8080/api/communities/getParticipantIds" \
   --data-urlencode "communityId=447123456789-1445627445@g.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -282,53 +290,44 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getcommunityparticipantids-parameters]
+<h3 id="getcommunityparticipantids-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetCommunityParticipantIdsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `communityId` | `string` | Community ID. A WhatsApp community JID. |
 
-### Returns [!toc] [#getcommunityparticipantids-returns]
+<h3 id="getcommunityparticipantids-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `CommunityParticipantIds[]`. See [CommunityParticipantIds](/docs/reference/client/return-types#communityparticipantids) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `communities` |
-| Positional parameter order | `communityId` |
-| Aliases | `communities.getParticipantIds` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/communities/getParticipantIds` | `getCommunityParticipantIds` | Active |
-| Alias | `GET` | `/api/getCommunityParticipantIds` | `getCommunityParticipantIds` | Active |
-
-</details>
+**HTTP:** `GET /api/communities/getParticipantIds`, or `/api/getCommunityParticipantIds`. **Also named:** `communities.getParticipantIds`.
 
 
 ## `getCommunityAdmins`
 
 Get community admins
 
+<ReferenceCode>
+
 ```ts
 client.getCommunityAdmins(communityId: string): Promise<CommunityAdmins[]>
 ```
 
-### Usage [!toc] [#getcommunityadmins-usage]
+</ReferenceCode>
+
+<h3 id="getcommunityadmins-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -339,8 +338,12 @@ const result = await client.getCommunityAdmins({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/communities/getAdmins" \
@@ -348,7 +351,11 @@ curl -G "http://localhost:8080/api/communities/getAdmins" \
   --data-urlencode "communityId=447123456789-1445627445@g.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -357,53 +364,44 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getcommunityadmins-parameters]
+<h3 id="getcommunityadmins-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetCommunityAdminsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `communityId` | `string` | Community ID. A WhatsApp community JID. |
 
-### Returns [!toc] [#getcommunityadmins-returns]
+<h3 id="getcommunityadmins-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `CommunityAdmins[]`. See [CommunityAdmins](/docs/reference/client/return-types#communityadmins) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `communities` |
-| Positional parameter order | `communityId` |
-| Aliases | `communities.getAdmins` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/communities/getAdmins` | `getCommunityAdmins` | Active |
-| Alias | `GET` | `/api/getCommunityAdmins` | `getCommunityAdmins` | Active |
-
-</details>
+**HTTP:** `GET /api/communities/getAdmins`, or `/api/getCommunityAdmins`. **Also named:** `communities.getAdmins`.
 
 
 ## `getCommunityAdminIds`
 
 Get community admin IDs
 
+<ReferenceCode>
+
 ```ts
 client.getCommunityAdminIds(communityId: string): Promise<CommunityAdminIds[]>
 ```
 
-### Usage [!toc] [#getcommunityadminids-usage]
+</ReferenceCode>
+
+<h3 id="getcommunityadminids-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
   <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
 
 ```ts
 import { SocketClient } from '@open-wa/socket-client';
@@ -414,8 +412,12 @@ const result = await client.getCommunityAdminIds({
 });
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
   <InterfaceTab value="HTTP">
+
+<ReferenceCode>
 
 ```bash
 curl -G "http://localhost:8080/api/communities/getAdminIds" \
@@ -423,7 +425,11 @@ curl -G "http://localhost:8080/api/communities/getAdminIds" \
   --data-urlencode "communityId=447123456789-1445627445@g.us"
 ```
 
+</ReferenceCode>
+
 Response:
+
+<ReferenceCode>
 
 ```json
 {
@@ -432,36 +438,21 @@ Response:
 }
 ```
 
+</ReferenceCode>
+
   </InterfaceTab>
 </InterfaceTabs>
 
-### Parameters [!toc] [#getcommunityadminids-parameters]
+<h3 id="getcommunityadminids-parameters" className="scroll-m-28">Parameters</h3>
 
-<AutoTypeTable path="./generated-method-params.ts" name="GetCommunityAdminIdsParams" />
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `communityId` | `string` | Community ID. A WhatsApp community JID. |
 
-### Returns [!toc] [#getcommunityadminids-returns]
+<h3 id="getcommunityadminids-returns" className="scroll-m-28">Returns</h3>
 
 Resolves to `CommunityAdminIds[]`. See [CommunityAdminIds](/docs/reference/client/return-types#communityadminids) for its fields.
 
 The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
-<details>
-<summary>Aliases and HTTP routes</summary>
-
-| Name | Value |
-| --- | --- |
-| Namespace | `communities` |
-| Positional parameter order | `communityId` |
-| Aliases | `communities.getAdminIds` |
-| Deprecated aliases | - |
-| License | Not needed |
-| Deprecated | No |
-
-**HTTP routes**
-
-| Type | Method | Path | Name | Status |
-| --- | --- | --- | --- | --- |
-| Primary | `GET` | `/api/communities/getAdminIds` | `getCommunityAdminIds` | Active |
-| Alias | `GET` | `/api/getCommunityAdminIds` | `getCommunityAdminIds` | Active |
-
-</details>
+**HTTP:** `GET /api/communities/getAdminIds`, or `/api/getCommunityAdminIds`. **Also named:** `communities.getAdminIds`.
