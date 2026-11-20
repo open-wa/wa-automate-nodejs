@@ -11,7 +11,7 @@ import {
   ShieldCheck,
   Terminal,
 } from 'lucide-react';
-import { CURRENT_VERSION, DOCS_PATHS } from '@/lib/site';
+import { CURRENT_VERSION, DOCS_PATHS, REPO_URL } from '@/lib/site';
 import { WorkbenchTexture } from './workbench-texture';
 import { WallyPicture } from './wally-picture';
 
@@ -79,6 +79,10 @@ export function DocsHomepage() {
             <a href={DOCS_PATHS.releases} className="docs-hub-version">
               v{CURRENT_VERSION}
             </a>
+            <a href="https://www.npmjs.com/package/@open-wa/wa-automate">
+              <code>@open-wa/wa-automate</code>
+            </a>
+            <a href={REPO_URL}>Source on GitHub</a>
           </p>
         </div>
         <div className="docs-hub-wally" aria-hidden="true">
@@ -117,10 +121,10 @@ export function DocsHomepage() {
         <ShieldCheck size={22} aria-hidden="true" />
         <div>
           <h2>Some features need a license</h2>
-          <p>Interactive messages and some other methods need a Restricted or Insiders key. See what each tier unlocks and what it costs.</p>
+          <p>Interactive messages and some other methods need a Restricted or Insiders key. See which features require a key.</p>
         </div>
         <a href={DOCS_PATHS.pricing}>
-          See pricing <ArrowRight size={16} aria-hidden="true" />
+          See license options <ArrowRight size={16} aria-hidden="true" />
         </a>
       </aside>
     </div>
