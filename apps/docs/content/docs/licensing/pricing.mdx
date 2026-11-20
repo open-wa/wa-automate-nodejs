@@ -1,20 +1,30 @@
 ---
 title: Pricing
 seoTitle: "open-wa license pricing | open-wa"
-description: What an open-wa license unlocks, how bulk pricing works, and what to do if a key doesn't work.
+description: Start with open-wa for free, compare license options, and learn how to apply a key.
 ---
 
 # Pricing
 
-open-wa is free to run. A license is only needed for the [licensed features](/docs/licensing/licensed-features): starting chats with new numbers, stories and status, the Insiders methods such as `checkNumberStatus` and `getNumberProfile`, interactive messages such as buttons, lists and booking cards, and the audio calling preview. One license covers one WhatsApp number and unlocks all of them.
+You can run open-wa for free. Connect your WhatsApp account, read chats and send messages to existing chats with the [free quickstart](/docs/getting-started/quickstart).
 
-Licenses are billed per number, each month. Buying several? Bulk pricing is applied automatically on [openwa.cloud](https://openwa.cloud) as you add licenses, with no code or request needed.
+<GetLicenseButton className="not-prose my-2" label="See license options" />
 
-<a href="https://openwa.cloud" className="not-prose my-2 inline-flex min-h-10 items-center rounded-[10px] border border-primary bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90">Buy a license on openwa.cloud</a>
+## Paid license options
+
+The license form lists **Insiders** and **Restricted** feature keys. Each license key is assigned to one WhatsApp number.
+
+| What you want to do | Runtime requirement |
+| --- | --- |
+| Read chats or send ordinary messages to existing chats | No license required |
+| Look up a number or profile with `checkNumberStatus` or `getNumberProfile` | Insiders feature |
+| Create a group with `createGroup` or join with `joinGroupViaLink` | Restricted feature |
+
+These are examples of runtime requirements. Check the current offer for the features included in your purchase.
 
 ## How a key binds to a number
 
-Each license is assigned to one WhatsApp number, the one you enter when you buy it. When a session starts with a key, open-wa checks the key against the number that session is logged in as, and the licensed features only unlock on that number. Pass the key as `licenseKey` to `create()`, as `--license-key` or `WA_LICENSE_KEY` for the Easy API, or apply it from the dashboard's license badge without restarting. To move a license to another number, change the number in your account on openwa.cloud: the first change is available straight away, and later changes once every 30 days.
+Each license is assigned to one WhatsApp number, the one you enter when you buy it. When a session starts with a key, open-wa checks the key against the number that session is logged in as, and the licensed features only unlock on that number. Pass the key as `licenseKey` to `create()`, as `--license-key` or `WA_LICENSE_KEY` for the Easy API, or apply it from the dashboard's license badge without restarting. To move a license to another number, open the license manager in your [open-wa account](https://app.openwa.cloud/dashboard?view=licenses) and review the available options.
 
 ## If a key doesn't work
 

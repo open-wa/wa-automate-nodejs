@@ -26,6 +26,7 @@
     "socket-client",
     "chatwoot",
     "node-red",
+    "n8n-whatsapp",
     "s3-media",
     "mcp",
     "mcp-events",

@@ -7,6 +7,9 @@ import type { SerializedPageTree } from 'fumadocs-core/source/client';
 import { docsMdxComponents } from '@/components/docs-mdx';
 import { DocsHomepage } from '@/components/docs-homepage';
 import { FeedbackCard } from '@/components/feedback-card';
+import { QuickstartPre } from '@/components/quickstart-command';
+import { GrowthMetricsPreference } from '@/components/growth-metrics-preference';
+import { recordGuideLink, type GrowthGuide } from '@/lib/growth-metrics';
 import { DocsPageHeader } from '@/components/docs-page-header';
 import {
   getAbsoluteDocsUrl,
@@ -21,7 +24,13 @@ import { NOT_FOUND_TITLE } from '@/lib/site';
 import { DocsShell } from './-shell';
 
 /** Guides that live in a folder's index file but aren't lists of pages. */
-const GUIDE_INDEX_PAGES = new Set(['getting-started/quickstart/index.mdx']);
+const QUICKSTART_PAGE = 'getting-started/quickstart/index.mdx';
+const GUIDE_INDEX_PAGES = new Set([QUICKSTART_PAGE]);
+const trackedGuides = new Map<string, GrowthGuide>([
+  ['guides/mcp.mdx', 'mcp'],
+  ['guides/receive-webhooks.mdx', 'webhooks'],
+  ['guides/n8n-whatsapp.mdx', 'n8n'],
+]);
 
 /** The docs home and section index pages list other pages. */
 function isCollectionPage(path: string): boolean {
@@ -121,6 +130,8 @@ const clientLoader = browserCollections.docs.createClientLoader<{
     const normalizedPagePath = pagePath.replace(/^\/+/, '').replace(/\.mdx$/, '');
     const isCompactClientReference = normalizedPagePath === 'reference/client/client';
     const pageClass = isCompactClientReference ? 'docs-reference-page' : 'docs-guide-page';
+    const growthGuide = trackedGuides.get(pagePath);
+    const isQuickstart = pagePath === QUICKSTART_PAGE;
 
     return (
       <DocsPage
@@ -136,13 +147,20 @@ const clientLoader = browserCollections.docs.createClientLoader<{
           pagePath={pagePath}
           crumbs={crumbs}
         />
-        <DocsBody className="pb-20 sm:pb-0">
+        <DocsBody
+          className="pb-20 sm:pb-0"
+          onClickCapture={growthGuide ? (event) => recordGuideLink(growthGuide, event.target) : undefined}
+        >
           <MDX
             components={{
               ...defaultMdxComponents,
               ...docsMdxComponents,
+              ...(isQuickstart ? { pre: QuickstartPre } : {}),
             }}
           />
+          {(isQuickstart || growthGuide) && (
+            <GrowthMetricsPreference key={pagePath} quickstart={isQuickstart} />
+          )}
           <FeedbackCard />
         </DocsBody>
       </DocsPage>

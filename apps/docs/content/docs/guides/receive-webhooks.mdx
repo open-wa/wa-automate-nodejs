@@ -1,19 +1,24 @@
 ---
 title: Receive WhatsApp webhooks with Node.js and Express
-description: Run an Express receiver, test it with a sample request, then point open-wa at it so incoming WhatsApp messages arrive at your backend over HTTP.
+description: Accept an inbound open-wa event in Express, check the shared secret and confirm the receiver returns HTTP 204.
 ---
 
 # Receive WhatsApp webhooks with Node.js and Express
 
-Use a webhook when a backend, CRM, helpdesk or no-code tool should receive WhatsApp events over HTTP. open-wa `POST`s each event to your URL, and your receiver checks a shared secret and returns `2xx`. You need Node.js 22.21.1 or newer and an Easy API session you can link; the [quick start](/docs/getting-started/quickstart) gets you one. When it works, a WhatsApp message sent to the linked number shows up in your receiver's log.
+Receive WhatsApp messages in your backend as HTTP events. First, send a
+synthetic `message.received` event to a local Express receiver. You should see
+HTTP `204` with the correct shared secret and `401` without it. You need Node.js
+22.21.1 or newer, npm and curl. For a live delivery, you'll also need a
+WhatsApp test account you can link to Easy API.
 
-If your code runs in Node.js next to the session, `onMessage` is simpler; [receive messages](/docs/guides/receive-messages) explains how to choose.
+This uses open-wa's WhatsApp Web session. If you registered your number in
+Meta's WhatsApp Cloud API, see [the Meta flow](#official-meta-whatsapp-cloud-api-webhooks).
 
 ## Run the receiver
 
 ```bash
 mkdir receiver && cd receiver
-npm init -y && npm pkg set type=module
+npm init -y
 npm install express
 ```
 
@@ -35,84 +40,123 @@ function checkSecret(req, res, next) {
 const app = express();
 
 app.post('/webhooks/open-wa', checkSecret, express.json({ limit: '2mb' }), (req, res) => {
-  const { event, payload } = req.body ?? {};
-  if (event === 'message.received') {
-    console.log(`${payload.message.from}: ${payload.message.body}`);
+  if (req.body?.event === 'message.received') {
+    if (typeof req.body.payload?.message?.id !== 'string') return res.sendStatus(400);
+    console.log('Received message.received');
   }
   res.sendStatus(204);
 });
 
-app.listen(3000, () => console.log('Receiver listening on http://localhost:3000/webhooks/open-wa'));
+app.listen(3000, '127.0.0.1', () => {
+  console.log('Receiver listening on http://127.0.0.1:3000/webhooks/open-wa');
+});
 ```
 
+Generate a shared secret with
+`node -p "require('node:crypto').randomBytes(32).toString('hex')"`. Use the
+same value in both terminals. The receiver checks `X-Webhook-Secret` before
+parsing the JSON body and limits the body to 2 MB.
+
 ```bash
-export WEBHOOK_SECRET='use-a-long-random-value'
+export WEBHOOK_SECRET='replace-with-your-generated-secret'
 node receiver.mjs
 ```
 
-The receiver URL is `http://localhost:3000/webhooks/open-wa`. It checks the secret before it reads the body and limits the body to 2 MB.
-
 ## Test it with a sample request
 
-From a second terminal in the same shell session, send the receiver a known-good `message.received` delivery:
+In a second terminal, set `WEBHOOK_SECRET` to the same generated value and send this synthetic event.
 
 ```bash
-curl -i -X POST http://localhost:3000/webhooks/open-wa \
+curl -i http://127.0.0.1:3000/webhooks/open-wa \
   -H 'Content-Type: application/json' \
   -H "X-Webhook-Secret: $WEBHOOK_SECRET" \
-  -d '{"webhookId":"test","sessionId":"sales","event":"message.received","payload":{"message":{"id":"false_447700900123@c.us_3EB0C7D5E4A1B2","from":"447700900123@c.us","body":"Hello"}},"timestamp":1763560000123}'
+  -d '{"webhookId":"test","sessionId":"webhook-test","event":"message.received","payload":{"message":{"id":"false_447700900123@c.us_3EB0C7D5E4A1B2","from":"447700900123@c.us","body":"Hello"}},"timestamp":1763560000123}'
 ```
 
-The response is `HTTP/1.1 204 No Content`, and the receiver logs `447700900123@c.us: Hello`. The same request without the `X-Webhook-Secret` header returns `401`. The [`message.received` webhook payload](/docs/reference/event-contracts/generated/webhook_message_received) lists every field a real delivery can carry.
+Expect `HTTP/1.1 204 No Content` and `Received message.received` in the
+receiver terminal. The example logs the event name only. Repeat the request
+with the `X-Webhook-Secret` header removed to see `401 Unauthorized`. This
+checks the receiver locally. To test delivery from WhatsApp,
+[point open-wa at the receiver](#point-open-wa-at-the-receiver).
+
+## Official Meta WhatsApp Cloud API webhooks
+
+open-wa's plugin sends `POST` requests from your Easy API process with an
+`event` and `payload` envelope. The `X-Webhook-Secret` header in this guide
+is a shared secret you configure on the sender and receiver.
+
+Meta sends webhooks from the WhatsApp Cloud API to your public HTTPS callback.
+For setup, Meta sends a `GET` request with `hub.mode`, `hub.verify_token` and
+`hub.challenge`. Check that the mode is `subscribe` and the token matches,
+then return the challenge with HTTP `200`. For event `POST`s, use your Meta App
+Secret and the raw request body to verify the `X-Hub-Signature-256` HMAC, then
+acknowledge with HTTP `200`. The payload has
+`object: "whatsapp_business_account"` and an `entry[]` array. Incoming messages
+are in `entry[].changes[].value.messages[]`. Use a separate callback handler
+with Meta's verification and payload format.
+
+[Meta webhook verification](https://developers.facebook.com/docs/graph-api/webhooks/getting-started/)
+· [Meta WhatsApp Cloud API payload examples](https://www.postman.com/meta/whatsapp-business-platform/documentation/wlk6lh4/whatsapp-cloud-api)
 
 ## Point open-wa at the receiver
 
-Webhooks come from the `@open-wa/integration-webhook` plugin, loaded from your config file. The `--webhook` command-line flag is accepted but doesn't set up delivery, so use the config below.
-
-If you generated your project with `npm init @open-wa@latest` and chose **Webhooks**, the plugin is already in `wa.config.js` and reads `WEBHOOK_URL` from `.env`. Otherwise install it in the directory you start the Easy API from:
+Easy API delivers events through the `@open-wa/integration-webhook` plugin.
+In a new directory, install Easy API and the plugin.
 
 ```bash
-npm install @open-wa/wa-automate @open-wa/integration-webhook
+npm init -y
+npm install @open-wa/wa-automate@5.10.0 @open-wa/integration-webhook@5.10.0
 ```
 
-Then add it to `wa.config.js` in that directory, with your receiver URL as `url`:
+Then add this to `wa.config.mjs` in that directory.
 
-```js title="wa.config.js"
+```js title="wa.config.mjs"
 const webhookSecret = process.env.WEBHOOK_SECRET?.trim();
 if (!webhookSecret) throw new Error('Set WEBHOOK_SECRET before starting open-wa');
 
 export default {
-  sessionId: 'sales',
+  sessionId: 'webhook-test',
   host: '127.0.0.1',
-  apiKey: process.env.WA_API_KEY,
+  port: 8080,
   plugins: ['@open-wa/integration-webhook'],
   pluginConfig: {
     webhook: {
-      url: 'http://localhost:3000/webhooks/open-wa',
-      events: ['message.received', 'session.state.changed'],
+      url: 'http://127.0.0.1:3000/webhooks/open-wa',
+      events: ['message.received'],
       headers: { 'X-Webhook-Secret': webhookSecret },
     },
   },
 };
 ```
 
-Start the receiver first, then open-wa with the same secret:
+If you chose **Webhooks** in the [project generator](/docs/getting-started/quickstart/generator-options),
+use its existing `wa.config.js`. Set `WEBHOOK_URL` in `.env` to the local
+receiver URL. Copy the `webhookSecret` declaration and guard into the file,
+then add the `headers` entry to `pluginConfig.webhook`.
+
+Keep the receiver running and start open-wa with the same secret.
 
 ```bash
-export WEBHOOK_SECRET='use-a-long-random-value'
-npx @open-wa/wa-automate
+export WEBHOOK_SECRET='replace-with-your-generated-secret'
+npx wa-automate --config ./wa.config.mjs
 ```
 
-The Easy API finds `wa.config.js` on its own and listens on port 8080. Scan the QR code, then send a message to the linked number from another phone; the receiver logs the sender and text. In production, `url` is your backend's HTTPS address. The same `plugins` and `pluginConfig` options work when you pass them to `create()` in the SDK.
+In a generated project, use `npm start` in place of the `npx` command.
+
+Scan the QR code with your test account, then send a test message to the linked
+number from another account you control. The receiver should log
+`Received message.received` again. In production, set `url` to your backend's
+HTTPS address. The same `plugins` and `pluginConfig` options work when you
+pass them to `create()` in the SDK.
 
 ## The envelope
 
-Every delivery is a JSON body with the same outer fields. `payload` holds the event itself, and the [`message.received` payload reference](/docs/reference/event-contracts/generated/webhook_message_received) defines each field.
+Every delivery is a JSON body with the same outer fields. This example shows selected fields from a text message. `payload` holds the event itself, and the [`message.received` payload reference](/docs/reference/event-contracts/generated/webhook_message_received) defines each field.
 
 ```json
 {
   "webhookId": "0f5d6a52-2ff2-43d5-9d0d-9c0c8dd5f9d1",
-  "sessionId": "sales",
+  "sessionId": "webhook-test",
   "event": "message.received",
   "payload": {
     "message": {
@@ -135,7 +179,7 @@ Every delivery is a JSON body with the same outer fields. `payload` holds the ev
 | The text | `payload.message.body`, or `payload.message.caption` for media |
 | A key to ignore duplicates | `payload.message.id`, or the `Idempotency-Key` header when durability is on |
 
-`webhookId` is fixed for the life of the process, so it can't tell two events apart. These events are the ones most integrations use:
+`webhookId` is assigned when the plugin initializes and reused across its events, so it can't tell two events apart. These events are the ones most integrations use:
 
 | Event | Payload |
 | --- | --- |
@@ -151,7 +195,7 @@ The [event contracts](/docs/reference/event-contracts) and the [AsyncAPI documen
 
 ## Store each event once
 
-The receiver above only logs. For production, store each event before you acknowledge it, so a retry or a restart doesn't lose or double-process it. This version keeps the same secret check, stores each event once in SQLite and returns `204`. Do slower work, such as calling an AI model or a CRM, after the response.
+The receiver above logs the event name. For production, store each event before you acknowledge it, so a retry or a restart doesn't lose or double-process it. This version keeps the same secret check, stores each event once in SQLite and returns `204`. Do slower work, such as calling an AI model or a CRM, after the response.
 
 ```js title="receiver.mjs"
 import express from 'express';
@@ -211,12 +255,14 @@ app.use((error, _req, res, _next) => {
   res.status(500).send('Receiver error');
 });
 
-app.listen(3000, () => console.log('Receiver listening on http://localhost:3000 (on your machine)'));
+app.listen(3000, '127.0.0.1', () => {
+  console.log('Receiver listening on http://127.0.0.1:3000/webhooks/open-wa');
+});
 ```
 
 ```bash
 npm install express better-sqlite3
-export WEBHOOK_SECRET='use-a-long-random-value'
+export WEBHOOK_SECRET='replace-with-your-generated-secret'
 node receiver.mjs
 ```
 
@@ -257,6 +303,8 @@ open-wa then replays pending deliveries after a restart, sends each with an `Ide
 | Events are lost after a restart | Set `durability.enabled: true`. |
 
 For a complete bot built on webhooks, see the [Python bot recipe](/docs/build/whatsapp-bot-python). To forward booking button taps to your backend, add `interactive.response` to `events`, as the [booking recipe](/docs/build/booking-confirmation) shows.
+
+To create and link an Easy API project first, follow the [Quick start](/docs/getting-started/quickstart).
 
 ## Configuration types
 

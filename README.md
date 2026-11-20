@@ -14,6 +14,8 @@
 
 **Turn a WhatsApp account into an API, bot runtime, webhook bridge, and AI tool surface.**
 
+[Project site](https://openwa.dev) · [npm package](https://www.npmjs.com/package/@open-wa/wa-automate) · [GitHub repository](https://github.com/open-wa/wa-automate-nodejs)
+
 [![npm version](https://img.shields.io/npm/v/@open-wa/wa-automate.svg?color=green)](https://www.npmjs.com/package/@open-wa/wa-automate)
 ![node](https://img.shields.io/node/v/@open-wa/wa-automate)
 [![Downloads](https://img.shields.io/npm/dm/@open-wa/wa-automate.svg)](https://www.npmjs.com/package/@open-wa/wa-automate)
@@ -470,10 +472,10 @@ The current docs organize information by usage mode. Start with:
 
 - **Easy API quick start**: https://openwa.dev/docs/getting-started/easy-api
 - **Custom code**: https://openwa.dev/docs/getting-started/custom-code
-- **Socket Client**: https://openwa.dev/docs/client-and-integrations/socket-client
-- **Cloudflare Session Proxy**: https://openwa.dev/docs/client-and-integrations/cf-proxy
+- **Socket Client**: https://openwa.dev/docs/guides/socket-client
+- **Cloudflare Session Proxy**: https://openwa.dev/docs/guides/cf-proxy
 - **Configuration and CLI**: https://openwa.dev/docs/guides/configuration-and-cli
-- **Chatwoot**: https://openwa.dev/docs/client-and-integrations/chatwoot
+- **Chatwoot**: https://openwa.dev/docs/guides/chatwoot
 - **Core reference**: https://openwa.dev/docs/reference/core
 
 ## Running this repo locally

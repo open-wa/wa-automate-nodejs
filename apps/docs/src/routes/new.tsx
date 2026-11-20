@@ -3,6 +3,8 @@ import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, Check, Copy, Link2, Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { GrowthMetricsPreference } from '@/components/growth-metrics-preference';
+import { recordGrowthEvent } from '@/lib/growth-metrics';
 import { baseOptions } from '@/lib/layout.shared';
 import { getAbsoluteDocsUrl, getToolPageSocialMeta, TOOL_PAGES } from '@/lib/og';
 import { buildCommand, choices, optionErrors, pluginChoices, readBuilderSearch, type SetupOptions } from '../../../../packages/create/src/options.js';
@@ -44,6 +46,9 @@ function ProjectBuilder() {
   async function copy(value: string, label: string) {
     try {
       await navigator.clipboard.writeText(value); setCopied(label); setCopyError('');
+      if (label === 'command') {
+        recordGrowthEvent({ event: 'setup_command_copy', source: 'project_builder', setup: options.mode });
+      }
       setTimeout(() => setCopied(current => current === label ? '' : current), 2500);
     } catch { setCopyError('Copy was unavailable. Select the text and copy it manually.'); }
   }
@@ -88,5 +93,6 @@ function ProjectBuilder() {
         <pre><code>{files[file] ?? 'Choose valid project options to preview the files.'}</code></pre><p>These are the same templates used by the terminal wizard. Edit the generated files to make the project your own.</p>
       </section>
     </aside></div>
+    <GrowthMetricsPreference />
   </main></HomeLayout>;
 }
