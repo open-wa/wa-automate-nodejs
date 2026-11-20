@@ -1,11 +1,12 @@
 ---
-title: Media
+title: Send and receive media
+seoTitle: "Send and receive WhatsApp images, videos, voice notes and documents | open-wa"
 description: Send images, videos, audio, documents, view-once media and video notes, and save the media people send you.
 ---
 
-# Media
+# Send and receive media
 
-`sendFile(to, input, filename?, options?)` and `sendImage` send images, videos, audio and documents from a local path, URL, data URL, base64 string or `Buffer`. The filename is optional; open-wa infers it from the path, URL or MIME type. Captions and quoted-message IDs go in `options`.
+[`sendFile(to, input, filename?, options?)`](/docs/reference/client/messages#sendfile) and [`sendImage`](/docs/reference/client/messages#sendimage) send images, videos, audio and documents from a local path, URL, data URL, base64 string or `Buffer`. The filename is optional; open-wa infers it from the path, URL or MIME type. Captions and quoted-message IDs go in `options`.
 
 ```ts
 await client.sendImage(chatId, './photo.jpg', 'photo.jpg', { caption: 'Hello' });
@@ -15,6 +16,8 @@ await client.sendAudio(chatId, './sound.mp3');
 await client.sendPtt(chatId, './voice.ogg');
 await client.sendVideoAsGif(chatId, './loop.mp4');
 ```
+
+Each call resolves to the sent message's ID. [`sendAudio`](/docs/reference/client/messages#sendaudio), [`sendPtt`](/docs/reference/client/messages#sendptt) and [`sendVideoAsGif`](/docs/reference/client/messages#sendvideoasgif) list their own options.
 
 Over the Easy API, paths refer to files on the machine running the Easy API, so send a reachable URL or a complete data URL from anywhere else.
 
@@ -67,7 +70,7 @@ Documents keep the file's MIME type and filename, and the caption is separate fr
 
 ## Send from a URL that needs authentication
 
-`sendFileFromUrl(to, url, filename, options, headers)` downloads the file with the headers you pass, then sends it with the same presentation options. The URL must return the file itself.
+[`sendFileFromUrl(to, url, filename, options, headers)`](/docs/reference/client/messages#sendfilefromurl) downloads the file with the headers you pass, then sends it with the same presentation options. The URL must return the file itself.
 
 ```ts
 await client.sendFileFromUrl(
@@ -93,7 +96,7 @@ Use the file's real MIME type. For `application/octet-stream`, open-wa falls bac
 
 ## Save incoming media
 
-`client.decryptMedia(message)` returns the media as a data URL, ready to send back or decode:
+[`client.decryptMedia(message)`](/docs/reference/client/media#decryptmedia) returns the media as a data URL, ready to send back or decode:
 
 ```ts
 client.onMessage(async (message) => {

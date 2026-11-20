@@ -1,12 +1,12 @@
 ---
-title: Messages and message events
-seoTitle: "Send and receive WhatsApp messages in Node.js | open-wa"
-description: Read incoming messages, send text, replies, mentions, albums and locations, and track delivery with acknowledgements.
+title: Message types and events
+seoTitle: "WhatsApp message types, replies and delivery events in Node.js | open-wa"
+description: The fields on a WhatsApp message, every kind you can send (replies, mentions, attachments, albums, polls, locations), and the events that track delivery.
 ---
 
-# Messages and message events
+# Message types and events
 
-This guide covers the everyday message work: reading what arrives, replying, formatting, attachments, albums and delivery tracking. The examples assume a `client` from `create()`. Chat IDs such as `447700000000@c.us`, group IDs and LIDs are explained in the [chat ID primer](/docs/guides/chatid-primer).
+This guide covers the message types open-wa sends and receives, and the events that report them: the message object, replies, formatting, mentions, attachments, albums, polls, locations and delivery tracking. To send your first text, start with [send a WhatsApp message](/docs/guides/send-message-api). The examples assume a `client` from `create()`. Chat IDs such as `447700000000@c.us`, group IDs and LIDs are explained in the [chat ID primer](/docs/guides/chatid-primer).
 
 ## Receive messages
 
@@ -20,7 +20,7 @@ client.onAnyMessage((message) => {
 });
 ```
 
-`onMessage` fires for incoming messages only, while `onAnyMessage` also fires for messages this account sends, so use it when you want both directions in one place. Each listener returns a handle; call `handle.off()` to remove it. To receive messages over HTTP or in another language, see [receive messages](/docs/guides/receive-messages).
+[`onMessage`](/docs/reference/client/events#message) fires for incoming messages only, while [`onAnyMessage`](/docs/reference/client/events#anymessage) also fires for messages this account sends, so use it when you want both directions in one place. Each listener returns a handle; call `handle.off()` to remove it. To receive messages over HTTP or in another language, see [receive messages](/docs/guides/receive-messages); the [webhook payload for `message.received`](/docs/reference/event-contracts/generated/webhook_message_received) shows the same message as your backend receives it.
 
 ## Message object
 
@@ -57,7 +57,7 @@ await client.sendText(chatId, 'Hello');
 await client.reply(chatId, 'Thanks, got it.', messageId);
 ```
 
-`sendText(chatId, text)` returns the message ID or throws a `SendTextError`. `reply` quotes the message whose ID you pass. A returned ID confirms the send, not delivery or reading, and starting a chat with a new number needs a [license](/docs/licensing/pricing).
+[`sendText(chatId, text)`](/docs/reference/client/messages#sendtext) returns the message ID or throws a `SendTextError`. `reply` quotes the message whose ID you pass. A returned ID confirms the send, not delivery or reading, and starting a chat with a new number needs a [license](/docs/licensing/pricing).
 
 ```ts
 import { SendTextError } from '@open-wa/wa-automate';
@@ -84,7 +84,7 @@ await client.sendText(chatId, '~cancelled~ ```monospace```');
 
 ## Mentions
 
-Mentions are Easy API methods. Put the `@number` text in the content and pass the mentioned contact IDs:
+Mentions are Easy API methods, [`sendTextWithMentions`](/docs/reference/client/messages#sendtextwithmentions) and [`sendReplyWithMentions`](/docs/reference/client/messages#sendreplywithmentions). Put the `@number` text in the content and pass the mentioned contact IDs:
 
 ```bash
 curl --fail-with-body http://localhost:8080/api/messages/sendTextWithMentions \
@@ -102,7 +102,7 @@ Text needs only a chat ID and a string. Attachments take a file, a filename and 
 await client.sendImage(chatId, './receipt.png', 'receipt.png', { caption: 'Receipt attached' });
 ```
 
-Media methods accept a local path, URL, data URL, base64 string or `Buffer`. `sendFile` and `sendImage` detect whether to show an image, video, audio clip or document; `sendAudio`, `sendPtt` and `sendVideoAsGif` cover the other cases. [Media](/docs/guides/media) explains captions, view-once media, video notes and document presentation.
+Media methods accept a local path, URL, data URL, base64 string or `Buffer`. `sendFile` and `sendImage` detect whether to show an image, video, audio clip or document; `sendAudio`, `sendPtt` and `sendVideoAsGif` cover the other cases. [Send and receive media](/docs/guides/media) explains captions, view-once media, video notes and document presentation.
 
 ## Albums
 
@@ -121,9 +121,9 @@ client.onMessage(async (message) => {
 });
 ```
 
-`getAlbumMessages(albumId)` returns the items loaded so far, or `false` when the ID isn't a loaded album. The container can arrive before its items, so handle each item as it arrives rather than waiting for the full count.
+[`getAlbumMessages(albumId)`](/docs/reference/client/messages#getalbummessages) returns the items loaded so far, or `false` when the ID isn't a loaded album. The container can arrive before its items, so handle each item as it arrives rather than waiting for the full count.
 
-To send an album, pass two or more images or videos as data URLs:
+To send an album with [`sendAlbum`](/docs/reference/client/messages#sendalbum), pass two or more images or videos as data URLs:
 
 ```ts
 import { readFile } from 'node:fs/promises';
@@ -154,13 +154,15 @@ await client.sendPoll(chatId, 'Which day works best?', ['Monday', 'Tuesday', 'We
 });
 ```
 
-Votes arrive through `onPollVote`, and `getPollResults` returns the totals. [Polls and pinned messages](/docs/guides/polls-and-pins) covers closing times, voting and pinning.
+Votes arrive through [`onPollVote`](/docs/reference/client/events#pollvote), and [`getPollResults`](/docs/reference/client/messages#getpollresults) returns the totals. [Polls and pinned messages](/docs/guides/polls-and-pins) covers closing times, voting and pinning.
 
 ## Forward messages
 
 ```ts
 await client.forwardMessages('447700900123@c.us', [messageId], true);
 ```
+
+See [`forwardMessages`](/docs/reference/client/messages#forwardmessages) for its parameters.
 
 The third argument skips messages this account sent.
 
@@ -185,13 +187,15 @@ The callback receives the message with its current `ack` value. Some fields can 
 | `3` | Read |
 | `4` | Played |
 
-Call `subscription.off()` to stop listening.
+Call `subscription.off()` to stop listening. Over HTTP, the same updates arrive as `ack.changed` events; see the [webhook](/docs/reference/event-contracts/generated/webhook_ack_changed) and [event stream](/docs/reference/event-contracts/generated/sse_ack_changed) payloads.
 
 ## Location messages
 
 ```ts
 await client.sendLocation(chatId, 51.5072, -0.1276, 'London');
 ```
+
+[`sendLocation`](/docs/reference/client/messages#sendlocation) takes the latitude, longitude and an optional label.
 
 An incoming location message carries `lat`, `lng` and `loc`.
 
@@ -211,5 +215,5 @@ Send at a controlled rate, avoid bulk or repeated content and short retry loops,
 
 - [Send a WhatsApp message](/docs/guides/send-message-api)
 - [Run a support bot](/docs/build/support-bot)
-- [Media](/docs/guides/media)
-- [Client API reference](/docs/reference/client/client)
+- [Send and receive media](/docs/guides/media)
+- [Messages reference](/docs/reference/client/messages)
