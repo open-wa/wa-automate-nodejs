@@ -1,0 +1,117 @@
+---
+title: Connect WhatsApp to n8n
+seoTitle: "WhatsApp webhook and auto-reply in n8n with OpenWA"
+description: Import an n8n workflow, receive a WhatsApp webhook from your local OpenWA Easy API, and send one reply to an existing test chat.
+---
+
+# Connect WhatsApp to n8n
+
+Send `ping n8n` from a second WhatsApp account in an existing one-to-one chat. The n8n Webhook node will show the incoming message, and an HTTP Request node will send `pong from n8n` back to that chat through your local Easy API.
+
+<a href="/downloads/openwa-n8n-whatsapp.json" download="openwa-n8n-whatsapp.json">Download the n8n workflow JSON</a>
+
+OpenWA is an unofficial WhatsApp Web integration that uses a linked session on your machine. Meta's official Cloud API is part of the WhatsApp Business Platform and uses its own credentials, endpoints and webhook format. [Meta WhatsApp Business Platform](https://developers.facebook.com/documentation/business-messaging/whatsapp/overview/)
+
+## 1. Import the workflow and set its credentials
+
+Run self-hosted n8n and Easy API on the same machine for the loopback URLs below. Use two WhatsApp test accounts with an existing direct chat. You also need a persistent PostgreSQL database reachable from n8n with the built-in `sha256(bytea)` function. The workflow uses built-in nodes and imports inactive. Choose **Import from File** in the n8n workflow menu and select the downloaded JSON. [n8n import instructions](https://docs.n8n.io/build/manage-workflows/export-and-import/)
+
+| Node | Credential to create and select |
+| --- | --- |
+| **Receive WhatsApp event** | **Header Auth** with name `X-Webhook-Secret` and the value you will set as `WEBHOOK_SECRET`. |
+| **Claim message ID** | A **Postgres** credential for your local database. |
+| **Send WhatsApp reply** | **Header Auth** with name `X-API-Key` and the value you will set as `WA_API_KEY`. |
+
+Use different random values for the two header credentials. The imported workflow contains no credentials or pinned event data. Create the claim table in your database before running the workflow. The Postgres credential needs `INSERT` and `SELECT` on this table.
+
+```sql
+CREATE TABLE IF NOT EXISTS public.openwa_n8n_reply_claim (
+  event_key bytea PRIMARY KEY
+);
+```
+
+## 2. Start and link the local Easy API
+
+In a fresh local directory, install the Easy API and webhook plugin. This example uses the interfaces from OpenWA 5.10.0.
+
+```bash
+npm install @open-wa/wa-automate@5.10.0 @open-wa/integration-webhook@5.10.0
+```
+
+Copy the **Test URL** from **Receive WhatsApp event**. Use it as `OPENWA_WEBHOOK_URL` in the startup command. The plugin reads the URL and sends `message.received` events with the shared header.
+
+```js title="wa.config.cjs"
+const { OPENWA_WEBHOOK_URL, WEBHOOK_SECRET, WA_API_KEY } = process.env;
+
+if (!OPENWA_WEBHOOK_URL || !WEBHOOK_SECRET || !WA_API_KEY) {
+  throw new Error('Set OPENWA_WEBHOOK_URL, WEBHOOK_SECRET and WA_API_KEY');
+}
+
+module.exports = {
+  sessionId: 'n8n-demo',
+  host: '127.0.0.1',
+  port: 8080,
+  apiKey: WA_API_KEY,
+  plugins: ['@open-wa/integration-webhook'],
+  pluginConfig: {
+    webhook: {
+      url: OPENWA_WEBHOOK_URL,
+      events: ['message.received'],
+      headers: { 'X-Webhook-Secret': WEBHOOK_SECRET },
+    },
+  },
+};
+```
+
+```bash
+export OPENWA_WEBHOOK_URL='http://127.0.0.1:5678/webhook-test/openwa-test-chat'
+export WEBHOOK_SECRET='replace-with-a-long-random-webhook-secret'
+export WA_API_KEY='replace-with-a-different-long-random-api-key'
+npx wa-automate --config ./wa.config.cjs
+```
+
+Scan the QR code from WhatsApp's **Linked devices** screen. Run `curl -fsS http://127.0.0.1:8080/health` and wait for both `connected: true` and `session.ready: true`. The session uses port `8080` in this workflow. If either service runs in Docker, use addresses reachable from the calling service. Inside a container, `127.0.0.1` points to that container. Update both `OPENWA_WEBHOOK_URL` and the URL in **Send WhatsApp reply** to use reachable addresses. Keep both services on a private network and preserve the webhook plugin config when you set up the Easy API container. [Easy API Docker setup](/docs/getting-started/docker)
+
+## 3. Receive a message and watch for the reply
+
+1. In n8n, select **Listen for Test Event** on **Receive WhatsApp event**. From the second account, send `hello` in the existing direct test chat with the linked account. Open the Webhook node output to see the incoming event. n8n puts the posted JSON under `body`. Read the text at `body.payload.message.body` and copy `body.payload.message.from` locally. [Webhook node documentation](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/)
+2. In **Allow test chat only**, replace `REPLACE_WITH_TEST_CHAT_ID` in the condition expression with that exact sender ID. Keep its `@c.us` or `@lid` suffix. The condition requires this sender, the `n8n-demo` session, and an incoming direct text message with the exact text `ping n8n`. It skips messages from the linked account, group messages and events missing the required fields.
+3. Select **Listen for Test Event** again and send `ping n8n` from the second account. **Send WhatsApp reply** posts `{"to":"<incoming message.from>","content":"pong from n8n"}` to `http://127.0.0.1:8080/api/messages/sendText`. Its output should show `success: true` and a message ID in `data`. Open the test chat on the second account and look for `pong from n8n` to confirm arrival. [Easy API send response](/docs/guides/send-message-api#send-over-http)
+
+A successful HTTP Request output has this shape. The illustrative ID in `data` differs on each send.
+
+```json
+{
+  "success": true,
+  "data": "true_447700900123@c.us_EXAMPLE"
+}
+```
+
+This is a shortened example of the WhatsApp event under the Webhook node's `body` field. The OpenWA envelope also carries a timestamp and webhook ID. [Full `message.received` payload](/docs/reference/event-contracts/generated/webhook_message_received)
+
+```json
+{
+  "sessionId": "n8n-demo",
+  "event": "message.received",
+  "payload": {
+    "message": {
+      "id": "false_447700900123@c.us_EXAMPLE",
+      "from": "447700900123@c.us",
+      "fromMe": false,
+      "isGroupMsg": false,
+      "type": "chat",
+      "body": "ping n8n"
+    }
+  }
+}
+```
+
+For local runs without re-arming the listener, publish or activate the workflow inside your n8n instance, switch `OPENWA_WEBHOOK_URL` to the node's **Production URL**, and restart the Easy API. The Production URL can stay on your private network. Use the Test URL to inspect message data in the editor. The workflow defaults to leaving execution payloads unsaved.
+
+## What happens when an event is retried
+
+The Webhook node responds immediately, so its `2xx` acknowledges receipt by n8n. Check the HTTP Request output and test chat for the reply itself. OpenWA can retry if it misses that acknowledgement. The workflow uses the session ID and incoming message ID as bound query parameters, hashes the pair, and atomically claims it in Postgres. The primary key and `ON CONFLICT DO NOTHING` allow only one delivery to claim that event, even if retries arrive together. Only the successful claim reaches the send node. [n8n Postgres query parameters](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.postgres/#use-query-parameters) · [PostgreSQL `INSERT`](https://www.postgresql.org/docs/current/sql-insert.html)
+
+To see the guard, copy the successful `ping n8n` run's `body` object, re-arm the test listener and POST that same object to the Test URL with `Content-Type: application/json` and your `X-Webhook-Secret` header. Keep the message ID unchanged. **Claim message ID** should output `claimed: false`, the send node should stay idle, and the chat should still show one reply. Sending a fresh `ping n8n` from WhatsApp creates a different message ID and exercises a new reply.
+
+With the claim row retained, this gives at most one automatic send attempt per event. **Retry On Fail** is off for the send node. If n8n acknowledges the webhook and then stops, or if the send fails after the claim, the chat can go unanswered. If the send times out, it may still have reached WhatsApp. Check the chat before sending manually, and keep the claim row so delayed replays are skipped. [n8n node settings](https://docs.n8n.io/build/understand-workflows/workflow-components/work-with-nodes/#node-settings) · [OpenWA send outcomes](/docs/guides/send-message-api#what-the-message-id-tells-you)

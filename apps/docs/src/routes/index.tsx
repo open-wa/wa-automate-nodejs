@@ -11,7 +11,7 @@ export const Route = createFileRoute('/')({
     // brand card instead of nothing.
     meta: [...getDocsSocialMeta({
       title: HOMEPAGE_TITLE,
-      description: HOMEPAGE_DESCRIPTION,
+      description: `${HOMEPAGE_DESCRIPTION} Install @open-wa/wa-automate.`,
       url: getAbsoluteDocsUrl('/'),
       imageUrl: getAbsoluteDocsUrl(getPageImage([]).url),
     }), { 'script:ld+json': HOMEPAGE_SCHEMA }],

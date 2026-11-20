@@ -19,11 +19,13 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as NewRouteImport } from './routes/new'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as WhatsappWebApiRouteImport } from './routes/whatsapp-web-api'
 import { Route as DotwellKnownApiCatalogRouteImport } from './routes/[.]well-known.api-catalog'
 import { Route as DotwellKnownOauthAuthorizationServerRouteImport } from './routes/[.]well-known.oauth-authorization-server'
 import { Route as DotwellKnownOauthProtectedResourceRouteImport } from './routes/[.]well-known.oauth-protected-resource'
 import { Route as ApiChatRouteImport } from './routes/api.chat'
 import { Route as ApiFeedbackRouteImport } from './routes/api.feedback'
+import { Route as ApiGrowthMetricsRouteImport } from './routes/api.growth-metrics'
 import { Route as ApiLicenseSessionRouteImport } from './routes/api.license-session'
 import { Route as ApiSearchRouteImport } from './routes/api/search'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
@@ -86,6 +88,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WhatsappWebApiRoute = WhatsappWebApiRouteImport.update({
+  id: '/whatsapp-web-api',
+  path: '/whatsapp-web-api',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DotwellKnownApiCatalogRoute = DotwellKnownApiCatalogRouteImport.update({
   id: '/.well-known/api-catalog',
   path: '/.well-known/api-catalog',
@@ -111,6 +118,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
 const ApiFeedbackRoute = ApiFeedbackRouteImport.update({
   id: '/api/feedback',
   path: '/api/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGrowthMetricsRoute = ApiGrowthMetricsRouteImport.update({
+  id: '/api/growth-metrics',
+  path: '/api/growth-metrics',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiLicenseSessionRoute = ApiLicenseSessionRouteImport.update({
@@ -182,11 +194,13 @@ export interface FileRoutesByFullPath {
   '/new': typeof NewRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/whatsapp-web-api': typeof WhatsappWebApiRoute
   '/.well-known/api-catalog': typeof DotwellKnownApiCatalogRoute
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
   '/api/feedback': typeof ApiFeedbackRoute
+  '/api/growth-metrics': typeof ApiGrowthMetricsRoute
   '/api/license-session': typeof ApiLicenseSessionRoute
   '/api/search': typeof ApiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -210,11 +224,13 @@ export interface FileRoutesByTo {
   '/new': typeof NewRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/whatsapp-web-api': typeof WhatsappWebApiRoute
   '/.well-known/api-catalog': typeof DotwellKnownApiCatalogRoute
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
   '/api/feedback': typeof ApiFeedbackRoute
+  '/api/growth-metrics': typeof ApiGrowthMetricsRoute
   '/api/license-session': typeof ApiLicenseSessionRoute
   '/api/search': typeof ApiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -239,11 +255,13 @@ export interface FileRoutesById {
   '/new': typeof NewRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/whatsapp-web-api': typeof WhatsappWebApiRoute
   '/.well-known/api-catalog': typeof DotwellKnownApiCatalogRoute
   '/.well-known/oauth-authorization-server': typeof DotwellKnownOauthAuthorizationServerRoute
   '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
   '/api/feedback': typeof ApiFeedbackRoute
+  '/api/growth-metrics': typeof ApiGrowthMetricsRoute
   '/api/license-session': typeof ApiLicenseSessionRoute
   '/api/search': typeof ApiSearchRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -269,11 +287,13 @@ export interface FileRouteTypes {
     | '/new'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/whatsapp-web-api'
     | '/.well-known/api-catalog'
     | '/.well-known/oauth-authorization-server'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
     | '/api/feedback'
+    | '/api/growth-metrics'
     | '/api/license-session'
     | '/api/search'
     | '/blog/$slug'
@@ -297,11 +317,13 @@ export interface FileRouteTypes {
     | '/new'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/whatsapp-web-api'
     | '/.well-known/api-catalog'
     | '/.well-known/oauth-authorization-server'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
     | '/api/feedback'
+    | '/api/growth-metrics'
     | '/api/license-session'
     | '/api/search'
     | '/blog/$slug'
@@ -325,11 +347,13 @@ export interface FileRouteTypes {
     | '/new'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/whatsapp-web-api'
     | '/.well-known/api-catalog'
     | '/.well-known/oauth-authorization-server'
     | '/.well-known/oauth-protected-resource'
     | '/api/chat'
     | '/api/feedback'
+    | '/api/growth-metrics'
     | '/api/license-session'
     | '/api/search'
     | '/blog/$slug'
@@ -354,11 +378,13 @@ export interface RootRouteChildren {
   NewRoute: typeof NewRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  WhatsappWebApiRoute: typeof WhatsappWebApiRoute
   DotwellKnownApiCatalogRoute: typeof DotwellKnownApiCatalogRoute
   DotwellKnownOauthAuthorizationServerRoute: typeof DotwellKnownOauthAuthorizationServerRoute
   DotwellKnownOauthProtectedResourceRoute: typeof DotwellKnownOauthProtectedResourceRoute
   ApiChatRoute: typeof ApiChatRoute
   ApiFeedbackRoute: typeof ApiFeedbackRoute
+  ApiGrowthMetricsRoute: typeof ApiGrowthMetricsRoute
   ApiLicenseSessionRoute: typeof ApiLicenseSessionRoute
   ApiSearchRoute: typeof ApiSearchRoute
   BlogSlugRoute: typeof BlogSlugRoute
@@ -444,6 +470,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/whatsapp-web-api': {
+      id: '/whatsapp-web-api'
+      path: '/whatsapp-web-api'
+      fullPath: '/whatsapp-web-api'
+      preLoaderRoute: typeof WhatsappWebApiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/.well-known/api-catalog': {
       id: '/.well-known/api-catalog'
       path: '/.well-known/api-catalog'
@@ -477,6 +510,13 @@ declare module '@tanstack/react-router' {
       path: '/api/feedback'
       fullPath: '/api/feedback'
       preLoaderRoute: typeof ApiFeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/growth-metrics': {
+      id: '/api/growth-metrics'
+      path: '/api/growth-metrics'
+      fullPath: '/api/growth-metrics'
+      preLoaderRoute: typeof ApiGrowthMetricsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/license-session': {
@@ -570,6 +610,7 @@ const rootRouteChildren: RootRouteChildren = {
   NewRoute: NewRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  WhatsappWebApiRoute: WhatsappWebApiRoute,
   DotwellKnownApiCatalogRoute: DotwellKnownApiCatalogRoute,
   DotwellKnownOauthAuthorizationServerRoute:
     DotwellKnownOauthAuthorizationServerRoute,
@@ -577,6 +618,7 @@ const rootRouteChildren: RootRouteChildren = {
     DotwellKnownOauthProtectedResourceRoute,
   ApiChatRoute: ApiChatRoute,
   ApiFeedbackRoute: ApiFeedbackRoute,
+  ApiGrowthMetricsRoute: ApiGrowthMetricsRoute,
   ApiLicenseSessionRoute: ApiLicenseSessionRoute,
   ApiSearchRoute: ApiSearchRoute,
   BlogSlugRoute: BlogSlugRoute,

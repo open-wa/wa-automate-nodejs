@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import gitDates from 'virtual:docs-git-dates';
 import { source } from '@/lib/source';
-import { SITE_ORIGIN } from '@/lib/site';
+import { DOCS_PATHS, SITE_ORIGIN } from '@/lib/site';
 import { TOOL_PAGES } from '@/lib/og';
 import { getEditorialSource } from '@/lib/editorial.server';
 
@@ -38,6 +38,7 @@ export const Route = createFileRoute('/sitemap.xml')({
       async GET() {
         const entries: SitemapEntry[] = [
           { path: '/' },
+          { path: DOCS_PATHS.whatsappWebApi },
           ...Object.values(TOOL_PAGES).map((tool) => ({ path: tool.path })),
           { path: '/blog' },
           ...(await blogEntries()),

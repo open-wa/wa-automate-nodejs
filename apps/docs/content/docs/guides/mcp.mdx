@@ -1,125 +1,83 @@
 ---
 title: MCP server
-description: Let an AI assistant such as Claude, Cursor or Windsurf read and send WhatsApp messages through the Easy API's MCP endpoint.
+description: Run open-wa's MCP server locally with a test WhatsApp account and call a read-only tool to check the connection.
 ---
 
 # MCP server
 
-The Easy API has a built-in Model Context Protocol (MCP) endpoint. Turn it on
-and an AI assistant can call every Easy API method as a tool: read chats, send
-messages and media, look up contacts and manage groups.
+Connect a local tool or AI client to WhatsApp through the Easy API's Model
+Context Protocol (MCP) endpoint. This walkthrough reads the WhatsApp Web
+version without opening a chat or sending a message. You need Node.js 22.21.1 or
+newer, npm, curl, and a dedicated WhatsApp test account you can link from your
+phone.
 
-<Callout type="warning" title="The agent gets full access to the account">
-There are no per-tool permissions. Any client with the API key can read every
-chat and send to anyone. Use a dedicated WhatsApp account for agent work, keep
-the endpoint off the public internet, and watch what the agent does while you
-test prompts.
+<Callout type="warning" title="The Easy API key grants write access too">
+The same key authenticates both Easy API and MCP requests. A client with the
+key can call the tools available to the linked session, including reading
+chats, sending messages and changing groups, subject to the session's feature
+and license limits. open-wa offers no per-tool permissions or read-only key.
+A read-only tool annotation is a hint for the client. Keep the server on
+loopback, keep the key private and link only your test account for this guide.
 </Callout>
 
-## Turn it on
+## Start the MCP server locally
 
-MCP is configured in `wa.config.*`; there's no `--mcp` flag. The Easy API
-refuses to start with MCP enabled and no `apiKey`.
+In a new directory, create `wa.config.mjs`. MCP is enabled through config.
 
 ```js title="wa.config.mjs"
+const apiKey = process.env.WA_API_KEY;
+if (!apiKey) throw new Error('Set WA_API_KEY before starting open-wa');
+
 export default {
-  apiKey: process.env.WA_API_KEY,
+  host: '127.0.0.1',
+  port: 8080,
+  apiKey,
   mcp: {
     enabled: true,
     path: '/mcp',
     exposeToolsMeta: true,
+    events: { enabled: false },
   },
 };
 ```
 
-```bash
-WA_API_KEY="your-secure-key" npx @open-wa/wa-automate --config ./wa.config.mjs --session-id mcp
-```
-
-The endpoint is `http://localhost:8080/mcp` (on your machine). It uses the
-Streamable HTTP transport on that single path, and tool calls wait until the
-WhatsApp session is ready.
-
-Check it from `/health`:
+Generate a key for this local session with
+`node -p "require('node:crypto').randomBytes(32).toString('hex')"`.
+In both terminals, set `WA_API_KEY` to the generated value. Start open-wa in
+one terminal from the directory with `wa.config.mjs`.
 
 ```bash
-curl -s http://localhost:8080/health | jq '.capabilities | {mcpEnabled, mcpAvailable, mcpPath}'
+export WA_API_KEY='replace-with-your-generated-key'
+npx @open-wa/wa-automate@5.10.0 --config ./wa.config.mjs --session-id mcp-test
 ```
 
-`mcpEnabled: false` means the config wasn't loaded or `mcp.enabled` isn't set.
-`mcpAvailable: false` means there's no API key. With `exposeToolsMeta`, you can
-also list the generated tools:
+On the test phone, open **WhatsApp → Linked devices → Link a device** and scan
+the QR code. Keep open-wa running. Check `/health` from another terminal.
+Wait for `connected`, `session.ready` and `capabilities.mcpAvailable` to be `true`.
 
 ```bash
-curl -s http://localhost:8080/meta/mcp-tools.json | jq '.endpoint, .requiresApiKey, (.tools | length)'
+curl --fail-with-body http://127.0.0.1:8080/health
 ```
 
-That file shows what's exposed but isn't an MCP handshake. To test the
-connection properly, connect a real MCP client and call `tools/list`.
+## Call one read-only tool
 
-## Connect an AI client
+Use a local client that supports [MCP `2026-07-28` over Streamable HTTP](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http).
 
-Every request must carry the Easy API key in `X-API-Key` (`api_key` and `key`
-headers also work).
+1. Add `http://127.0.0.1:8080/mcp` as a Streamable HTTP server and configure the client to send `X-API-Key` with the value of `WA_API_KEY` on every request.
+2. List the server's tools with `tools/list` and select `session.getWAVersion`.
+3. Call the tool with empty arguments. In a client that accepts raw tool parameters, use:
 
-<Tabs items={['Claude Desktop', 'Cursor', 'Windsurf', 'Custom client']}>
-<Tab value="Claude Desktop">
+   ```json
+   {
+     "name": "session.getWAVersion",
+     "arguments": {}
+   }
+   ```
 
-Add to `claude_desktop_config.json`, then restart Claude Desktop:
-
-```json
-{
-  "mcpServers": {
-    "open-wa": {
-      "url": "http://localhost:8080/mcp",
-      "headers": {
-        "X-API-Key": "your-secure-key"
-      }
-    }
-  }
-}
-```
-
-If the tools don't appear, check the header value and that the Easy API loaded
-your config.
-
-</Tab>
-<Tab value="Cursor">
-
-In Cursor's settings, add an MCP server with URL `http://localhost:8080/mcp`
-and header `X-API-Key: your-secure-key`, then test the connection.
-
-</Tab>
-<Tab value="Windsurf">
-
-In Windsurf's settings, add an MCP server with URL `http://localhost:8080/mcp`
-and an `X-API-Key` header set to your API key, then verify the connection.
-
-</Tab>
-<Tab value="Custom client">
-
-Connect to `http://localhost:8080/mcp` with the Streamable HTTP transport, send
-`X-API-Key` on every request, call `tools/list` after the handshake and
-`tools/call` to run a tool.
-
-</Tab>
-</Tabs>
-
-## What the agent can do
-
-Each Easy API method becomes a tool with the method's name, its description and
-typed parameters, so the tool list matches the
-[HTTP API](/docs/reference/client/client). That includes reading all messages,
-sending to any contact or group, sending media, reading contacts and creating,
-changing or leaving groups.
-
-If the API key leaks or the endpoint is reachable from the internet, whoever
-has it controls the account. Keep the key secret, put the endpoint behind HTTPS
-and a reverse proxy for remote use, and review activity in:
-
-- the Neo dashboard's MCP page at `/dashboard/mcp`, which also has ready-made client snippets;
-- your Easy API and reverse proxy access logs;
-- the session's event log.
+The tool returns the WhatsApp Web version as text in `result.content[0].text`.
+The version varies by session. A missing or incorrect API key returns HTTP
+`401`. The Neo dashboard at `/dashboard/mcp` and `/meta/mcp-tools.json` also
+show the available tools.
 
 ## Configuration
 
@@ -146,16 +104,16 @@ WA_MCP='{"enabled":true,"path":"/mcp","exposeToolsMeta":true}'
       answer: 'MCP needs an Easy API key. Set apiKey in wa.config.*, set WA_API_KEY, or pass --api-key.',
     },
     {
-      question: 'The MCP endpoint returns 401 or 403',
+      question: 'The MCP endpoint returns 401',
       answer: 'Send the Easy API key as X-API-Key in your MCP client configuration.',
     },
     {
       question: 'No tools are listed',
-      answer: 'Check /health for capabilities.mcpEnabled and capabilities.mcpAvailable, then /meta/mcp-tools.json. If both look right, reconnect the client and call tools/list again.',
+      answer: 'Check /health for capabilities.mcpEnabled and capabilities.mcpAvailable, then /meta/mcp-tools.json. If both look right, check that your client supports MCP 2026-07-28 and call tools/list again.',
     },
     {
       question: "Tool calls say the session isn't ready",
-      answer: 'Tools wait for a linked, ready session. Finish linking WhatsApp, then try a read-only tool before allowing sends.',
+      answer: 'Finish linking the test WhatsApp account and wait until /health reports session.ready, then retry session.getWAVersion.',
     },
   ]}
 />
@@ -175,6 +133,7 @@ describe open-wa; to act on WhatsApp, the agent still connects to your Easy API.
 
 ## Related
 
+- [Quick start](/docs/getting-started/quickstart) to create a project and link a test account.
 - [AI agent patterns](/docs/guides/ai-agent-patterns)
 - [Easy API](/docs/getting-started/easy-api)
 - [Security and deployment](/docs/operations/security-and-deployment)

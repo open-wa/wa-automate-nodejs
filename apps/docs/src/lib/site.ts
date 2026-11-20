@@ -21,6 +21,7 @@ export const DOCS_PATHS = {
   overview: '/docs',
   apiExplorer: '/api-explorer/',
   projectBuilder: '/new/',
+  whatsappWebApi: '/whatsapp-web-api',
   quickstart: '/docs/getting-started/quickstart',
   easyApi: '/docs/getting-started/easy-api',
   customCode: '/docs/getting-started/custom-code',

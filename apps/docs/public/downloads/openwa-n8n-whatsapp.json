@@ -1,0 +1,192 @@
+{
+  "name": "OpenWA Easy API - reply to a test chat",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "openwa-test-chat",
+        "authentication": "headerAuth",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "165eefa6-0a8a-4f16-a658-6cd0fc0b5fb4",
+      "name": "Receive WhatsApp event",
+      "webhookId": "35e70e53-7c83-4c4a-9614-af871bd1ac01"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "76797fe5-feb6-4a78-8740-d5013274530e",
+              "leftValue": "={{ (() => {\n  const event = $json.body;\n  const message = event?.payload?.message;\n  const testChat = 'REPLACE_WITH_TEST_CHAT_ID';\n  return event?.event === 'message.received'\n    && event.sessionId === 'n8n-demo'\n    && typeof message?.id === 'string' && message.id.length > 0\n    && message.fromMe === false && message.isGroupMsg === false\n    && message.self !== 'out' && message.from !== message.to\n    && typeof message.from === 'string' && /^[0-9]+@(c[.]us|lid)$/.test(message.from)\n    && message.from === testChat\n    && message.type === 'chat' && message.body === 'ping n8n';\n})() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        0
+      ],
+      "id": "a27b0d71-75ab-4e33-8db1-e78a5ba2b793",
+      "name": "Allow test chat only"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH claim AS (\n  INSERT INTO public.openwa_n8n_reply_claim (event_key)\n  VALUES (sha256(convert_to(jsonb_build_array($1::text, $2::text)::text, 'UTF8')))\n  ON CONFLICT (event_key) DO NOTHING\n  RETURNING 1\n)\nSELECT EXISTS (SELECT 1 FROM claim) AS claimed;",
+        "options": {
+          "queryReplacement": "={{ [$json.body.sessionId, $json.body.payload.message.id] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        480,
+        0
+      ],
+      "id": "a112719b-6579-4bec-b9d8-c99bce575a03",
+      "name": "Claim message ID",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "66571562-f537-4648-9da7-0101b2c473cf",
+              "leftValue": "={{ $json.claimed }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        0
+      ],
+      "id": "1086d399-cb54-4765-bfd5-d7bd5c2082ba",
+      "name": "Continue only for new claim"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8080/api/messages/sendText",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ to: $('Receive WhatsApp event').first().json.body.payload.message.from, content: 'pong from n8n' }) }}",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        0
+      ],
+      "id": "03798b33-a675-452b-992b-1fe0d6e8cb33",
+      "name": "Send WhatsApp reply",
+      "retryOnFail": false
+    }
+  ],
+  "connections": {
+    "Receive WhatsApp event": {
+      "main": [
+        [
+          {
+            "node": "Allow test chat only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Allow test chat only": {
+      "main": [
+        [
+          {
+            "node": "Claim message ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claim message ID": {
+      "main": [
+        [
+          {
+            "node": "Continue only for new claim",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Continue only for new claim": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveExecutionProgress": false,
+    "saveManualExecutions": false
+  },
+  "pinData": {},
+  "tags": []
+}

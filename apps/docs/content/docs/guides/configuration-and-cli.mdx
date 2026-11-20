@@ -188,7 +188,7 @@ These older flags are accepted but only print a warning:
 | `--ready-webhook`, `--stats`, `--generate-api-docs`, `--tunnel` | No replacement yet. API docs are always served at `/api-docs/`. |
 | `--chatwoot-url`, `--twilio-webhook`, `--bot-press-url` | Use the [Chatwoot integration](/docs/guides/chatwoot) or another plugin. |
 
-`--mcp` and `--api-host` aren't recognised: enable MCP with `mcp: { enabled: true }` in a config file, and use `--host` for the bind address. The `sessionData`, `sessionDataPath` and `skipSessionSave` settings are deprecated in favour of the browser profile in `userDataDir`.
+The CLI does not parse `--mcp` or `--api-host`. Enable MCP with `mcp: { enabled: true }` in a config file and use `--host` for the bind address. The `sessionData`, `sessionDataPath` and `skipSessionSave` settings are deprecated in favour of the browser profile in `userDataDir`.
 
 ## Sandboxed chat code
 
