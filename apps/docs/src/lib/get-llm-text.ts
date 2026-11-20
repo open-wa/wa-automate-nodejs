@@ -11,7 +11,7 @@ export async function getLLMText(page: InferPageType<typeof source>) {
       'Connect a SocketClient to the Easy API, or create an in-process Client before using these methods.',
       ...methods.map((method) => [
         `## ${method.name}`, method.description,
-        `Canonical reference: ${page.url}#${method.anchor}`,
+        `Canonical reference: ${method.href}`,
         method.license ? `License: ${method.license}` : '',
         '### Parameters',
         ...method.parameters.map((parameter) => `- \`${parameter.name}${parameter.required ? '' : '?'}: ${parameter.type}\`: ${parameter.description}`),
