@@ -84,13 +84,21 @@ jobs:
         env:
           PUPPETEER_SKIP_DOWNLOAD: '1'
 
+      - name: Check the Worker deployment
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/docs
+          command: deploy --config dist/server/wrangler.json --dry-run
+
       - name: Apply documentation feedback migrations
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: apps/docs
-          command: d1 migrations apply openwa-docs-feedback --remote
+          command: d1 migrations apply openwa-docs-feedback --config wrangler.jsonc --remote
 
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
@@ -98,4 +106,4 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: apps/docs
-          command: deploy
+          command: deploy --config dist/server/wrangler.json
