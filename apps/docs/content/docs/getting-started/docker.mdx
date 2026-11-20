@@ -28,7 +28,8 @@ What each setting does:
   already sets `WA_HOST=0.0.0.0` so the server accepts connections from outside
   the container.
 - `WA_SESSION_DATA_PATH=/sessions` saves the login file, `sales.data.json`, in
-  the mounted folder so it survives the container being replaced.
+  the mounted folder so it survives the container being replaced; the
+  [restart check](#restart-and-confirm-the-login-survived) confirms it.
 - `WA_API_KEY` protects every method route. Use at least 8 characters.
 - `--init` reaps the browser's child processes when they exit.
 
@@ -110,20 +111,35 @@ supported.
 
 If Chrome fails to start or exits, see [error handling](/docs/operations/error-handling).
 
-## Check that the login survives a restart
+## Restart and confirm the login survived
 
-1. Remove the container and keep `./sessions`:
+The saved login is the file `<sessionId>.data.json` in `WA_SESSION_DATA_PATH`, here `/sessions/sales.data.json` inside the container and `./sessions/sales.data.json` on the host. Run this check once after the first scan, before you rely on the container:
+
+1. **Check the file exists on the host.**
+
+   ```bash
+   ls sessions/
+   ```
+
+   The listing includes `sales.data.json`. If it doesn't, the volume or `WA_SESSION_DATA_PATH` is wrong, and a restart will ask for a new QR code.
+
+2. **Replace the container.** Removing it is a harder test than `docker restart`, because nothing inside the old container survives:
 
    ```bash
    docker rm -f openwa-sales
    ```
 
-2. Run the same `docker run` command again.
-3. Check `/health` until `session.ready` is `true`.
+   Then run the same `docker run` command as before, with the same `WA_SESSION_ID`, `WA_SESSION_DATA_PATH` and volume.
 
-No QR code should appear. If one does, check that `sales.data.json` is in
-`./sessions` and that `WA_SESSION_ID` and `WA_SESSION_DATA_PATH` match the first
-run.
+3. **Confirm the session is ready without a scan.**
+
+   ```bash
+   curl -s http://127.0.0.1:8080/health
+   ```
+
+   Repeat until the response has `"connected": true` and `"session": { "ready": true, ... }`. `docker logs openwa-sales` shows no QR code this time.
+
+If a QR code appears, check that `sales.data.json` is in `./sessions` and that `WA_SESSION_ID` and `WA_SESSION_DATA_PATH` match the first run. Back the file up like a password, because anyone who copies it can use the account.
 
 ## Next steps
 
