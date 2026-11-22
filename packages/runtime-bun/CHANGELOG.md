@@ -1,6 +1,12 @@
 # @open-wa/runtime-bun
 
 
+
+## 5.11.1
+<sub>2026-11-22</sub>
+
+- *(patch)* Version bump from group with `@open-wa/core` v5.11.1
+
 ## 5.11.0
 <sub>2026-11-20</sub>
 

@@ -26,6 +26,13 @@
 
 
 
+
+## 5.11.1
+<sub>2026-11-22</sub>
+
+-  *(patch)*
+  - 🐛 Restore saved logins with the current WhatsApp Web identity setter so a restart can reuse the existing checkpoint without another QR scan.
+
 ## 5.11.0
 <sub>2026-11-20</sub>
 
