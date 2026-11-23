@@ -70,6 +70,8 @@ const CLI_FLAGS: Record<string, string> = {
   webhook: '--webhook',
   proxyHost: '--proxy-host',
   proxyToken: '--proxy-token',
+  router: '--router',
+  'mcp.enabled': '--mcp',
 };
 
 function getDescription(schema: z.ZodTypeAny): string | null {

@@ -8,6 +8,10 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getCliOutputSink, type CliOutputSink } from './cli/output-sink';
+import { TunnelClient } from './tunnel-client';
+
+/** The hosted open-wa router; `router: true` connects here. */
+const DEFAULT_ROUTER_URL = 'https://router.openwa.cloud';
 import {
     defaultChatSandboxPolicy,
     type ChatSandboxPolicy,
@@ -392,6 +396,9 @@ export function parseCliArgs(argv: string[] = process.argv.slice(2)): ParsedCliA
     const proxyToken = getVal(argv, '--proxy-token');
     if (proxyToken) cliOverrides.proxyToken = proxyToken;
 
+    if (argv.includes('--router')) cliOverrides.router = true;
+    if (argv.includes('--mcp')) cliOverrides.mcp = { enabled: true };
+
     const readyWebhook = getVal(argv, '--ready-webhook');
     if (readyWebhook) unsupportedWarnings.push(`--ready-webhook was provided (${readyWebhook}) but ready-webhook delivery is not yet wired in v5 CLI.`);
 
@@ -541,6 +548,51 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
     await server.start();
     sink.status({ phase: 'server.started', sessionId: config.sessionId });
 
+    // A self-hosted proxy (with a token) connects as soon as the API listens, so the session is reachable while
+    // it links. The licensed router (no token) connects once WhatsApp is ready, because it checks the license
+    // against this account's number.
+    let tunnel: TunnelClient | undefined;
+    const proxyHost = config.proxyHost ?? (config.router ? DEFAULT_ROUTER_URL : undefined);
+    const tunnelLog = (level: 'info' | 'warn' | 'error', message: string) => sink.write({ level, message });
+    if (proxyHost && !config.apiKey) {
+        // The proxy forwards requests unchanged, so the API key is the only check on them.
+        sink.write({ level: 'error', message: 'Not connecting to the session proxy: set an API key (--api-key or apiKey) first, because the proxy makes this API reachable from the internet.' });
+    } else if (config.proxyHost && config.proxyToken) {
+        sink.write({ level: 'info', message: `Connecting to the session proxy at ${config.proxyHost}...` });
+        tunnel = new TunnelClient({
+            proxyHost: config.proxyHost,
+            proxyToken: config.proxyToken,
+            sessionId: config.sessionId,
+            localSessionPort: config.port,
+            localApiKey: config.apiKey,
+            log: tunnelLog,
+        });
+        tunnel.connect();
+    }
+    const connectLicensedRouter = async () => {
+        if (!proxyHost || config.proxyToken || !config.apiKey || tunnel) return;
+        try {
+            const number = String(await client.getHostNumber()).replace(/\D/g, '');
+            const key = await resolveRouterLicenseKey(config.licenseKey, config.sessionId, number);
+            if (!key) {
+                sink.write({ level: 'error', message: 'Not connecting to the open-wa router: it needs a license key for this number (--license-key or licenseKey).' });
+                return;
+            }
+            sink.write({ level: 'info', message: `Connecting to the open-wa router at ${proxyHost}...` });
+            tunnel = new TunnelClient({
+                proxyHost, sessionId: config.sessionId, localSessionPort: config.port, localApiKey: config.apiKey,
+                license: { key, number }, log: tunnelLog,
+                onAddress: address => {
+                    const mcp = config.mcp?.enabled ? `\n  ChatGPT / MCP server URL: ${address}${config.mcp.path || '/mcp'}` : '';
+                    sink.write({ level: 'info', message: `Your public address: ${address}${mcp}` });
+                },
+            });
+            tunnel.connect();
+        } catch (error) {
+            sink.write({ level: 'error', message: `Could not connect to the open-wa router: ${error instanceof Error ? error.message : String(error)}` });
+        }
+    };
+
     printStartupSummary(config, executableResolution, preferLocalChrome, engineLabel);
 
     sink.status({ phase: 'client.starting', sessionId: config.sessionId });
@@ -688,6 +740,7 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
     const dispose = () => {
         if (disposed) return;
         disposed = true;
+        tunnel?.destroy();
         detachRuntimeBridge();
         openwaClient.events.off('launch.browser.init.after', handleBrowserInit);
         runtimeBridgeListeners.clear();
@@ -715,8 +768,23 @@ export async function start(parsedArgs: ParsedCliArgs = parseCliArgs()): Promise
         message: `WhatsApp Client ready with state: ${client.getState()} (status=${readiness.status}, exposureSafe=${readiness.exposureSafe})`,
     });
 
+    void connectLicensedRouter();
     detachLaunchNarration();
     return { server, client, config, events: openwaClient.events, dispose };
+}
+
+/** The router checks one key per number; `licenseKey` may be a key, a number-to-key map, or a function. */
+async function resolveRouterLicenseKey(licenseKey: Config['licenseKey'], sessionId: string, number: string): Promise<string | undefined> {
+    if (typeof licenseKey === 'string') return licenseKey.trim() || undefined;
+    if (typeof licenseKey === 'function') {
+        const value = await (licenseKey as (sessionId: string, number: string) => unknown)(sessionId, number);
+        return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+    }
+    if (licenseKey && typeof licenseKey === 'object') {
+        const record = licenseKey as Record<string, string>;
+        return record[number] ?? record[`${number}@c.us`] ?? undefined;
+    }
+    return undefined;
 }
 
 export async function main(argv: string[] = process.argv.slice(2)): Promise<CliRuntimeResult | void> {

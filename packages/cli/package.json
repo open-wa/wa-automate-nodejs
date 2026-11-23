@@ -33,7 +33,6 @@
     "ink": "^7.1.1",
     "qrcode": "^1.5.4",
     "react": "catalog:",
-    "ws": "^8.22.0",
     "zod": "catalog:"
   },
   "devDependencies": {

@@ -55,7 +55,8 @@
     "chrome-launcher": "^1.2.1",
     "effect": "catalog:",
     "hono": "catalog:",
-    "qrcode-terminal": "^0.12.0"
+    "qrcode-terminal": "^0.12.0",
+    "ws": "^8.22.0"
   },
   "devDependencies": {
     "typescript": "catalog:",

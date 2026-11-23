@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import { resetCliOutputSink, runCli, setCliOutputSink, type CliRuntimeResult } from '@open-wa/wa-automate';
-import { TunnelClient } from './tunnel-client';
 import { parseCliLocalFlags } from './config/cli-flags-schema';
 import { performGracefulShutdown, writeVisibleFatalError } from './runtime/cli-termination';
 import type { OutputBroker } from './runtime/output-broker';
@@ -38,12 +37,11 @@ async function main() {
   }
 
   let runtime: CliRuntimeResult | undefined;
-  let tunnelClient: TunnelClient | undefined;
 
   const shutdownController = createShutdownController({
     timeoutMs: 10_000,
     gracefulShutdown: async (signal) => {
-      await performGracefulShutdown({ runtime, tunnelClient, store }, signal);
+      await performGracefulShutdown({ runtime, store }, signal);
     },
     cleanup: async () => {
       cleanupCliResources();
@@ -66,38 +64,6 @@ async function main() {
       detachEvents = store.attachEmitter(runtime.events);
     }
     
-    // If pm2 is used, result is void
-    if (runtime?.config.proxyHost && runtime.config.proxyToken) {
-      const log = (level: 'info' | 'warn' | 'error', message: string) => {
-        if (broker) {
-          broker.write(level, message);
-          return;
-        }
-
-        if (level === 'warn') {
-          console.warn(message);
-          return;
-        }
-
-        if (level === 'error') {
-          console.error(message);
-          return;
-        }
-
-        console.log(message);
-      };
-
-      log('info', `[CLI] Starting TunnelClient connecting to ${runtime.config.proxyHost}...`);
-      tunnelClient = new TunnelClient({
-        proxyHost: runtime.config.proxyHost,
-        proxyToken: runtime.config.proxyToken,
-        sessionId: runtime.config.sessionId,
-        localSessionPort: runtime.config.port,
-        localApiKey: runtime.config.apiKey,
-        log,
-      });
-      tunnelClient.connect();
-    }
   } catch (err: unknown) {
     const message = err instanceof Error ? `${err.message}${err.stack ? `\n${err.stack}` : ''}` : String(err);
     store?.projectStatus({ phase: 'error', detail: message });
