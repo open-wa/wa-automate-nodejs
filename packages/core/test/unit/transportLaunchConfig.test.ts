@@ -292,6 +292,37 @@ describe('Transport launch/config plumbing', () => {
     }
   });
 
+  it('renews an expired QR from the page markup when the socket model is unavailable', async () => {
+    vi.useFakeTimers();
+    const page = new TestPage();
+    const events = createEvents();
+    const driver = new CaptureDriver(new TestBrowser(page));
+    Object.defineProperty(driver, 'name', { value: 'puppeteer' });
+    const transport = new Transport({ driver, events, logger: createLogger() });
+    (transport as any).page = page;
+    const evaluate = vi.spyOn(page, 'evaluateScript')
+      .mockResolvedValueOnce('ref,1')
+      .mockResolvedValueOnce({ state: 'UNPAIRED_IDLE', qr: null, source: 'dom' })
+      .mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ state: 'UNPAIRED', qr: 'ref,2', source: 'dom' });
+    try {
+      expect(await transport.waitForQr()).toBe('ref,1');
+      await vi.advanceTimersByTimeAsync(2500);
+      const generated = (events.emit as any).mock.calls.filter(([event]: string[]) => event === 'launch.auth.qr.generated');
+      expect(generated.map(([, payload]: any[]) => payload.details.qr)).toEqual(['ref,1', 'ref,2']);
+      expect(events.emit).toHaveBeenCalledWith('launch.auth.qr.expired', expect.any(Object));
+      const scripts = evaluate.mock.calls.map(([script]) => String(script));
+      expect(scripts[2]).toContain('link_device_qr_expired_refresh_button');
+      expect(scripts[2]).not.toContain('resetLinkDeviceState');
+      // Once the model is known to be missing, later polls stop requiring it.
+      expect(scripts[1]).toContain('WAWebSocketModel');
+      expect(scripts[3]).not.toContain('WAWebSocketModel');
+    } finally {
+      (transport as any).stopQrWatcher();
+      vi.useRealTimers();
+    }
+  });
+
   it('returns a native logout during startup to fresh pairing instead of replaying the checkpoint', async () => {
     const page = new TestPage();
     const transport = new Transport({ driver: new CaptureDriver(new TestBrowser(page)),

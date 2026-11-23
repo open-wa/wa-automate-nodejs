@@ -95,6 +95,19 @@ const BLOCKED_ASSET_RESOURCE_TYPES = new Set(['image', 'stylesheet', 'font']);
 
 /** JavaScript snippet to extract QR data from the WA Web page */
 const QR_CHECK_SCRIPT = `document.querySelector("canvas[aria-label]")?.parentElement?.getAttribute("data-ref") || null`;
+/** WA shows this button over a stale QR once its pairing ref expires; the old ref stays in the DOM. */
+const QR_EXPIRED_BUTTON_SELECTOR = '[data-testid="link_device_qr_expired_refresh_button"]';
+/**
+ * Reads the pairing state. WA's socket model is the precise source, but on some builds it does not resolve
+ * on the login screen (every require logs an error there), so the page markup is the fallback.
+ */
+const qrPollScript = (useSocketModel: boolean) => `(() => {
+  let state = null;
+  ${useSocketModel ? `try { state = require('WAWebSocketModel')?.Socket?.state ?? null; } catch {}` : ''}
+  if (state) return { state, qr: state === 'UNPAIRED' ? (${QR_CHECK_SCRIPT}) : null, source: 'model' };
+  const expired = Boolean(document.querySelector('${QR_EXPIRED_BUTTON_SELECTOR}'));
+  return { state: expired ? 'UNPAIRED_IDLE' : 'UNPAIRED', qr: expired ? null : (${QR_CHECK_SCRIPT}), source: 'dom' };
+})()`;
 const PRE_AUTH_SURFACE_READY_CHECK_SCRIPT = `Boolean(
   document.querySelector('#pane-side')
   || document.querySelector('[data-testid="chat-list-search"]')
@@ -1773,14 +1786,13 @@ export class Transport {
   private pollQrChanges(watcher: AbortController): void {
     // Native QR cycles expire even when the DOM observer is available. Use WA's
     // current linking action to renew only an idle, unpaired QR cycle.
+    let useSocketModel = true;
     const poll = async () => {
       if (watcher.signal.aborted || !this.page) return;
       try {
-        const current = await this.page.evaluateScript<{ state: string; qr: string | null }>(`(() => {
-          const state = require('WAWebSocketModel').Socket.state;
-          return { state, qr: state === 'UNPAIRED' ? (${QR_CHECK_SCRIPT}) : null };
-        })()`);
+        const current = await this.page.evaluateScript<{ state: string; qr: string | null; source?: 'model' | 'dom' }>(qrPollScript(useSocketModel));
         if (watcher.signal.aborted) return;
+        if (current.source === 'dom') useSocketModel = false;
         if (current.state === 'UNPAIRED_IDLE') {
           if (this.lastQrData) {
             this.lastQrData = null;
@@ -1788,7 +1800,9 @@ export class Transport {
               correlationId: 'qr-wait', ts: Date.now(), step: 'qr_expired',
             });
           }
-          await this.page.evaluateScript(`require('WAWebLinkDeviceAction').resetLinkDeviceState({
+          await this.page.evaluateScript(current.source === 'dom'
+            ? `document.querySelector('${QR_EXPIRED_BUTTON_SELECTOR}')?.click()`
+            : `require('WAWebLinkDeviceAction').resetLinkDeviceState({
             linkDeviceMethod: require('WAWebPairingType').PairingType.QR_CODE
           })`);
         } else if (typeof current.qr === 'string') {
