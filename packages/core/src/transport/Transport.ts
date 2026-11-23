@@ -618,6 +618,18 @@ export class Transport {
     });
 
     this.logger.info('transport_navigated', { url: this.waWebUrl });
+    if (this.portable.hasCheckpoint && new URL(this.page.url()).pathname.startsWith('/login')) {
+      // WhatsApp serves its main app only to browsers holding the login cookie saved
+      // with the checkpoint. Without it the restore hook never loads.
+      const restored = await this.portable.restoreWebSession().catch((error: unknown) => {
+        this.logger.warn('portable_session_web_cookie_failed', { error });
+        return false;
+      });
+      this.logger.info('portable_session_web_cookie', { restored });
+      if (restored) {
+        await this.page.goto(this.waWebUrl, { waitUntil: 'domcontentloaded', timeoutMs: this.navigationTimeoutMs });
+      }
+    }
     await this.configureLaunchBootstrap(this.page);
     await this.waitForInjectableSession();
   }
