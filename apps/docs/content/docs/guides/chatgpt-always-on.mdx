@@ -1,0 +1,141 @@
+---
+title: Run open-wa for ChatGPT on one computer
+sidebarTitle: Always-on ChatGPT setup
+description: Run Easy API on one computer that stays on, get a public HTTPS address from the open-wa router, and connect ChatGPT to your WhatsApp number.
+---
+
+This guide runs Easy API on one computer that stays on, such as an office PC or a small server. With a license, open-wa connects out to the open-wa router and gets its own HTTPS address, which you add to ChatGPT. You do not need a cloud server, a domain, a tunnel or an open port on your router.
+
+The computer must stay on and connected to the internet. When the computer stops, ChatGPT does not get WhatsApp events, and the assistant cannot send messages.
+
+## What you need
+
+- A computer with Windows, macOS or Linux and [Node.js](https://nodejs.org) 22.21.1 or later.
+- The phone with the WhatsApp or WhatsApp Business number that you want to connect.
+- An [open-wa license](/docs/licensing/pricing) for that number. The router address needs a license.
+- A ChatGPT plan that can add custom MCP servers. Check OpenAI's documentation for the plans that support apps and event subscriptions.
+
+## Create the configuration
+
+Make a folder for open-wa, for example `C:\open-wa` on Windows or `~/open-wa` on macOS and Linux. In that folder, create `wa.config.mjs`:
+
+```js title="wa.config.mjs"
+const apiKey = process.env.WA_API_KEY;
+const licenseKey = process.env.WA_LICENSE_KEY;
+if (!apiKey || !licenseKey) throw new Error('Set WA_API_KEY and WA_LICENSE_KEY before starting open-wa');
+
+export default {
+  sessionId: 'shop',
+  apiKey,
+  licenseKey,
+  router: true,
+  mcp: {
+    enabled: true,
+    oauth: { approvalCode: { sendToSelf: true } },
+  },
+};
+```
+
+`router: true` connects open-wa to the open-wa router. `sendToSelf: true` sends the one-time code that approves ChatGPT to your own WhatsApp chat, so you can approve from your phone.
+
+Generate a private API key with `node -p "require('node:crypto').randomBytes(32).toString('hex')"`. Keep the API key and your license key in a password manager.
+
+## Start open-wa and link WhatsApp
+
+Start open-wa from the folder for the first time.
+
+On Windows PowerShell:
+
+```powershell
+$env:WA_API_KEY = 'replace-with-your-api-key'
+$env:WA_LICENSE_KEY = 'replace-with-your-license-key'
+npx @open-wa/wa-automate@latest --config ./wa.config.mjs
+```
+
+On macOS and Linux:
+
+```bash
+export WA_API_KEY='replace-with-your-api-key'
+export WA_LICENSE_KEY='replace-with-your-license-key'
+npx @open-wa/wa-automate@latest --config ./wa.config.mjs
+```
+
+On your phone, open **WhatsApp → Linked devices → Link a device** and scan the QR code. open-wa saves the login in `shop.data.json` in the folder. Keep that file and the `.open-wa` folder. When open-wa restarts, it connects again without a new QR code.
+
+Your phone and the WhatsApp desktop app continue to work. open-wa is one more linked device on the same number.
+
+When WhatsApp is ready, open-wa checks your license with the router and prints your address:
+
+```text
+Your public address: https://k7f2q9xw3mzpw4tdqa.open-wa.com
+  ChatGPT / MCP server URL: https://k7f2q9xw3mzpw4tdqa.open-wa.com/mcp
+```
+
+The address comes from your license key. It stays the same when open-wa restarts. If your license key is replaced, the address changes, and you must connect ChatGPT again with the new address.
+
+## Connect ChatGPT
+
+1. In ChatGPT, add a custom MCP server.
+2. Enter the `ChatGPT / MCP server URL` that open-wa printed.
+3. Select OAuth as the authentication method.
+4. On the open-wa page that opens, select **Get a one-time code**.
+5. Open the **Message yourself** chat on your phone. open-wa sends the code there, and also writes it to its log.
+6. Enter the code and select **Approve**.
+
+The code works once, for that request only, and expires after ten minutes. Nobody can approve a connection without access to your WhatsApp or to the computer.
+
+ChatGPT keeps the connection and renews its token. To disconnect ChatGPT, change the Easy API key and restart open-wa.
+
+To connect Codex instead, run `codex mcp add open-wa --url <your MCP server URL>`, then `codex mcp login open-wa`, and approve with the code in the same way.
+
+Then follow [Watch WhatsApp from ChatGPT](/docs/guides/mcp-events) to tell ChatGPT what to watch and how to answer.
+
+## Start open-wa after a reboot
+
+Put the start command in a script. Then start the script when the computer starts.
+
+On Windows, create `C:\open-wa\start.cmd`:
+
+```bat title="start.cmd"
+@echo off
+cd /d C:\open-wa
+set WA_API_KEY=replace-with-your-api-key
+set WA_LICENSE_KEY=replace-with-your-license-key
+npx @open-wa/wa-automate@latest --config ./wa.config.mjs >> open-wa.log 2>&1
+```
+
+Open a terminal as administrator and register a task that starts the script at system start:
+
+```bat
+schtasks /Create /TN "open-wa" /TR "C:\open-wa\start.cmd" /SC ONSTART /RU %USERNAME% /RP * /RL HIGHEST
+```
+
+The command asks for your Windows password, because the task runs before you sign in. To test the task, run `schtasks /Run /TN "open-wa"`.
+
+On macOS and Linux, use [pm2](https://pm2.keymetrics.io/):
+
+```bash
+npm install --global pm2
+WA_API_KEY='replace-with-your-api-key' WA_LICENSE_KEY='replace-with-your-license-key' \
+  pm2 start "npx @open-wa/wa-automate@latest --config ./wa.config.mjs" --name open-wa
+pm2 save
+pm2 startup
+```
+
+Run the command that `pm2 startup` prints. Check the log with `pm2 logs open-wa`.
+
+## Check the setup
+
+Open your address followed by `/health` in a browser, for example `https://k7f2q9xw3mzpw4tdqa.open-wa.com/health`. The response shows `"connected": true` when WhatsApp is linked and ready. When open-wa is not running, the router answers `Session offline` with the time it went offline.
+
+If ChatGPT cannot connect, check these items:
+
+- open-wa is running. Read `open-wa.log` or `pm2 logs open-wa`.
+- The log shows `Your public address`. If it says the license is not valid for this number, check that the license is for the linked WhatsApp number.
+- ChatGPT uses the address with `/mcp` at the end.
+
+## Privacy
+
+Requests from ChatGPT pass through the open-wa router on Cloudflare to your computer. HTTPS ends at Cloudflare, so the router carries message content in transit. The router does not store messages, keys or tokens. ChatGPT signs in to open-wa on your computer, and your computer issues and checks its tokens.
+
+You can also run your own connection without the router. Point a [Cloudflare Tunnel](https://developers.cloudflare.com/tunnel/) at a hostname you own. Then set `mcp.oauth.publicUrl` to that hostname instead of `router: true`.

@@ -793,9 +793,6 @@ importers:
       react:
         specifier: 'catalog:'
         version: 19.3.0
-      ws:
-        specifier: ^8.22.0
-        version: 8.22.0
       zod:
         specifier: 'catalog:'
         version: 4.6.5
@@ -1596,6 +1593,9 @@ importers:
       qrcode-terminal:
         specifier: ^0.12.0
         version: 0.12.0
+      ws:
+        specifier: ^8.22.0
+        version: 8.22.0
     devDependencies:
       typescript:
         specifier: 'catalog:'

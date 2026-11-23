@@ -6,6 +6,9 @@ import { eventJsonSchema, getHttpMethodDefinitions, type Config } from '@open-wa
 import { getMcpToolDefinitions } from '../manifest';
 import { executeCapability } from '../execution/kernel';
 import { McpEventsService } from '../events/service';
+import { McpOAuth } from '../oauth/oauth';
+import { createApprovalDelivery } from '../oauth/approval-delivery';
+import { callChatTool, chatToolDefinitions, mediaContent } from './chat-tools';
 import packageMetadata from '../../package.json' with { type: 'json' };
 import {
   EVENTS_EXTENSION, decodeHeaderValue, emptyResultSchema, eventListParamsSchema, eventListResultSchema,
@@ -37,7 +40,26 @@ export function createHonoMcpAdapter(options: HonoMcpAdapterOptions) {
     storePath: eventConfig?.storePath ?? join('.open-wa', `mcp-events-${owner()!.slice(0, 24)}.sqlite`),
     lifetimeMs: eventConfig?.lifetimeMs ?? 24 * 60 * 60_000,
     retentionMs: eventConfig?.retentionMs ?? 15 * 60_000,
+    operatorPauseMs: eventConfig?.operatorPauseMs ?? 30 * 60_000,
     log: data => elasticEmitter?.log(data),
+  });
+  const mcpPath = config.mcp?.path || '/mcp';
+  const invoke = (functionName: string, payload: Record<string, unknown>) => executeCapability({
+    client: clientSource(), definition: executionDefinitions.get(functionName)!, payload, elasticEmitter, sessionId: config.sessionId,
+  });
+  const oauthConfig = config.mcp?.oauth;
+  const approval = oauthConfig?.approvalCode;
+  const oauth = oauthConfig?.enabled === false ? undefined : new McpOAuth({
+    storePath: oauthConfig?.storePath ?? join('.open-wa', `mcp-oauth-${owner()!.slice(0, 24)}.sqlite`),
+    mcpPath, apiKey: () => config.apiKey, owner, publicUrl: oauthConfig?.publicUrl,
+    onApprovalCode: createApprovalDelivery({
+      sessionId: config.sessionId ?? '',
+      log: approval?.log ?? true,
+      webhookUrl: (approval?.webhook ?? true) ? approval?.webhookUrl ?? config.webhook : undefined,
+      webhookSecret: approval?.webhookSecret,
+      sendToSelf: approval?.sendToSelf ?? false,
+      invoke, noteOwnSend: id => events?.noteOwnSend(id),
+    }),
   });
   // Subscription state belongs to the adapter, outside the per-request SDK server.
   const handler = createMcpHandler(() => {
@@ -51,23 +73,23 @@ export function createHonoMcpAdapter(options: HonoMcpAdapterOptions) {
         name: def.toolName, description: def.description,
         inputSchema: eventJsonSchema(def.inputSchema) as { type: 'object'; [key: string]: unknown },
         annotations: def.annotations,
-      })),
+      })).concat(chatToolDefinitions.map(def => ({ ...def, inputSchema: def.inputSchema as unknown as { type: 'object'; [key: string]: unknown } })) as never),
     }));
     server.setRequestHandler('tools/call', async request => {
       const { name, arguments: args } = request.params;
       const definition = toolMap.get(name);
       const failure = (text: string) => ({ isError: true, content: [{ type: 'text' as const, text }] });
-      if (!definition) return failure(`Unknown tool: ${name}. Use tools/list to discover available tools.`);
+      const isChatTool = chatToolDefinitions.some(def => def.name === name);
+      if (!definition && !isChatTool) return failure(`Unknown tool: ${name}. Use tools/list to discover available tools.`);
       if (isSessionConnected && !isSessionConnected() && config.apiLifecycle !== 'immediate') {
         return failure('Session is not connected or ready. Tool execution is blocked until the session is fully ready.');
       }
-      const result = await executeCapability({
-        client: clientSource(), definition: executionDefinitions.get(definition.functionName)!, payload: (args as Record<string, unknown>) || {},
-        elasticEmitter, sessionId: config.sessionId,
-      });
-      return result.success
-        ? { content: [{ type: 'text' as const, text: JSON.stringify(result.data ?? null, null, 2) }] }
-        : failure(result.error || 'Internal Execution Error');
+      if (isChatTool) return (await callChatTool(name, (args as Record<string, unknown>) || {}, invoke, events)) as never;
+      const result = await invoke(definition!.functionName, (args as Record<string, unknown>) || {});
+      if (!result.success) return failure(result.error || 'Internal Execution Error');
+      // Remember messages open-wa sent, so they aren't mistaken for a person replying from the app.
+      if (definition!.functionName.startsWith('send') && typeof result.data === 'string') events?.noteOwnSend(result.data);
+      return { content: mediaContent(result.data, definition!.toolName) ?? [{ type: 'text' as const, text: JSON.stringify(result.data ?? null, null, 2) }] } as never;
     });
     if (events) {
       server.setRequestHandler('events/list', { params: eventListParamsSchema, result: eventListResultSchema }, async () => events.list());
@@ -84,10 +106,13 @@ export function createHonoMcpAdapter(options: HonoMcpAdapterOptions) {
 
   return {
     mount(app: Hono, path: string) {
+      oauth?.routes(app);
       app.all(path, async (c: Context) => {
         const key = c.req.header('X-API-Key') || c.req.header('api_key') || c.req.header('key');
-        if (!config.apiKey || key !== config.apiKey) {
-          return c.json({ error: 'Unauthorized', details: 'Invalid or missing API key for MCP endpoint' }, 401);
+        if (!config.apiKey || (key !== config.apiKey && !oauth?.verify(c))) {
+          // ChatGPT and other OAuth clients follow this challenge to the protected-resource metadata.
+          if (oauth) c.header('WWW-Authenticate', oauth.challenge(c));
+          return c.json({ error: 'Unauthorized', details: 'Sign in with OAuth or send the Easy API key in X-API-Key' }, 401);
         }
         const mismatch = await eventNameMismatch(c.req.raw);
         if (mismatch) return c.json({ jsonrpc: '2.0', id: mismatch.id, error: { code: -32020, message: 'HeaderMismatch', data: { header: 'Mcp-Name' } } }, 400);
@@ -100,7 +125,7 @@ export function createHonoMcpAdapter(options: HonoMcpAdapterOptions) {
     },
     async close() {
       try { await handler.close(); }
-      finally { await events?.close(); }
+      finally { await events?.close(); oauth?.close(); }
     },
   };
 }

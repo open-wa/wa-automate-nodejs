@@ -3,7 +3,7 @@ title: Watch WhatsApp from ChatGPT
 description: Subscribe to WhatsApp updates and let ChatGPT respond to your instructions.
 ---
 
-MCP Events lets ChatGPT Work watch a WhatsApp conversation and act when an update arrives. For example: “Watch this customer conversation. When they ask for a quote, draft a reply using our price list.”
+MCP Events lets ChatGPT Work watch a WhatsApp conversation and act when an update arrives. For example: “Watch this customer conversation. When they ask for a quote, draft a reply from our price list.”
 
 ## Enable the endpoint
 
@@ -16,25 +16,67 @@ Run the Easy API with an API key and [MCP enabled](/docs/guides/mcp):
 }
 ```
 
-Connect its publicly reachable HTTPS MCP endpoint to your ChatGPT plugin using the Easy API key. The endpoint serves MCP 2.0, protocol revision `2026-07-28`. Event subscriptions are available in ChatGPT Work web chats, desktop Work chats with Cloud selected, and dots.
+ChatGPT signs in to the endpoint with OAuth. Add the public HTTPS address of `/mcp` as a custom MCP server in ChatGPT and select OAuth. open-wa then shows an approval page:
+
+1. Select **Get a one-time code**. The page shows a request ID, such as `5CWP`.
+2. Find the code for that request. open-wa writes it to its log, and sends it to your webhook when one is set.
+3. Enter the code and select **Approve**.
+
+The code works once, for that request only, and expires after ten minutes. A proxy or tunnel in front of open-wa can read the page, but a code it sees there cannot be used again. You can also approve with the Easy API key, but only do that on a connection you trust. Other MCP clients can send the key in the `X-API-Key` header.
+
+To get the code in WhatsApp, set `sendToSelf`. open-wa then sends it to the account's own **Message yourself** chat:
+
+```js title="wa.config.mjs"
+mcp: {
+  enabled: true,
+  oauth: {
+    approvalCode: {
+      log: true,
+      webhook: true,
+      webhookUrl: 'https://automation.example.com/open-wa',
+      webhookSecret: process.env.WA_APPROVAL_WEBHOOK_SECRET,
+      sendToSelf: true,
+    },
+  },
+},
+```
+
+The webhook receives an `mcp.oauth.approval_requested` event, signed with Standard Webhooks when `webhookSecret` is set. When `webhookUrl` is not set, open-wa uses the top-level `webhook`. open-wa never publishes the code as an MCP event, so a connected client cannot approve other clients.
+
+The endpoint serves MCP 2.0, protocol revision `2026-07-28`. Event subscriptions are available in ChatGPT Work web chats, desktop Work chats with Cloud selected, and dots. To run the endpoint on one computer with a stable HTTPS address, read [Run open-wa for ChatGPT on one computer](/docs/guides/chatgpt-always-on).
 
 open-wa advertises these events alongside its tools:
 
 | Event | When it arrives | Subscription filter |
 | --- | --- | --- |
 | [`message.received`](/docs/reference/event-contracts/generated/mcp_message_received) | A new incoming message, excluding this account's sends | Optional exact `chatId` |
-| [`ack.changed`](/docs/reference/event-contracts/generated/mcp_ack_changed) | A message acknowledgement changes | Optional exact `chatId`; snapshots without that field won't match |
+| [`ack.changed`](/docs/reference/event-contracts/generated/mcp_ack_changed) | A message acknowledgement changes | Optional exact `chatId`. Snapshots without that field do not match |
 | [`session.state.changed`](/docs/reference/event-contracts/generated/mcp_session_state_changed) | The linked session changes state | No arguments |
 
-Use the conversation ID returned by open-wa. Ask ChatGPT what to monitor and what it should do; ChatGPT manages `events/subscribe`, refresh and `events/unsubscribe`.
+Use the conversation ID from an open-wa event. A chat ID can be a phone-number ID such as `447700900123@c.us` or a linked ID that ends in `@lid`. Ask ChatGPT what to watch and what to do. ChatGPT manages `events/subscribe`, refresh and `events/unsubscribe`.
+
+## Let the assistant handle a conversation
+
+These tools help an assistant read and answer a conversation:
+
+| Tool | What it does |
+| --- | --- |
+| `media.getForMessage` | Opens the photo, voice note, video or document of a message by `messageId`. Photos and voice notes return as image and audio content. |
+| `messages.sendAttachment` | Sends a file that ChatGPT holds, such as an image it created, to a chat. ChatGPT gives the file through `openai/fileParams`. |
+| `messages.sendText` | Sends a text reply. |
+| `automation.getStatus`, `automation.pause`, `automation.resume` | Shows, starts or stops a pause for one chat. |
+
+When you reply to a chat from the WhatsApp app on your phone or computer, open-wa pauses `message.received` for that chat for 30 minutes. The assistant does not get new messages from the chat while you handle it. Messages that open-wa sends do not start a pause. Set the time with `mcp.events.operatorPauseMs`, or set it to `0` to turn the pause off.
+
+ChatGPT decides if an event starts a task, and if a reply needs your approval. Your ChatGPT plan and workspace settings control these limits, not open-wa.
 
 ## Other MCP clients
 
-The endpoint implements the MCP Events extension (`io.modelcontextprotocol/events`) and advertises it in `server/discover`. Every event supports all three delivery modes, so a client that can't receive callbacks can still follow WhatsApp:
+The endpoint implements the MCP Events extension (`io.modelcontextprotocol/events`) and advertises it in `server/discover`. Every event supports all three delivery modes, so a client that cannot receive callbacks can still follow WhatsApp:
 
 | Mode | Method | Fits |
 | --- | --- | --- |
-| Poll | `events/poll` | Scripts, cron jobs and local agents. The first call with `cursor: null` returns a cursor; pass it back each time. open-wa suggests polling every five seconds. |
+| Poll | `events/poll` | Scripts, cron jobs and local agents. The first call with `cursor: null` returns a cursor. Pass it back each time. open-wa suggests polling every five seconds. |
 | Push | `events/stream` | Long-running clients. One request per subscription stays open as a server-sent event stream, with a heartbeat every 30 seconds unless you ask for a different interval (5–60 seconds). |
 | Webhook | `events/subscribe` | Hosted clients with a public HTTPS callback, such as ChatGPT. |
 
@@ -51,7 +93,7 @@ The endpoint implements the MCP Events extension (`io.modelcontextprotocol/event
 }
 ```
 
-Send the `Mcp-Name` header with the event name on `events/poll`, `events/stream`, `events/subscribe` and `events/unsubscribe`. A header that doesn't match `params.name` is rejected with `HeaderMismatch`.
+Send the `Mcp-Name` header with the event name on `events/poll`, `events/stream`, `events/subscribe` and `events/unsubscribe`. If the header does not match `params.name`, open-wa rejects the request with `HeaderMismatch`.
 
 ## Payloads and delivery
 
@@ -59,15 +101,19 @@ Message updates contain `sessionId`, `messageId`, optional `chatId`, `from` and 
 
 Each event has a stable `eventId`: the WhatsApp message ID for `message.received`, and the message ID with the acknowledgement value for `ack.changed`. Use it to discard duplicates within a subscription.
 
-open-wa verifies a callback before sending WhatsApp data. It signs each request with the secret the client supplied, validates public HTTPS destinations for each connection and rejects redirects. A successful HTTP response acknowledges receipt. Transient failures are retried five times over about 15 minutes, keeping the same `webhook-id`. `410` and `413` responses aren't retried. Webhook deliveries can repeat or arrive out of order. Polls and streams arrive in order.
+open-wa verifies a callback before it sends WhatsApp data. It signs each request with the secret from the client, validates public HTTPS destinations for each connection and rejects redirects. A successful HTTP response acknowledges receipt.
 
-When a refresh supplies a new signing secret, open-wa signs with both the old and new secrets for ten minutes. If the API key changes or an event type is withdrawn, webhook subscribers receive a signed `terminated` envelope and stream subscribers a `notifications/events/terminated` message.
+open-wa tries a failed delivery five times over about 15 minutes, with the same `webhook-id`. It does not try again after a `410` or `413` response. Webhook deliveries can arrive two times or out of order. Polls and streams arrive in order.
+
+When a refresh supplies a new signing secret, open-wa signs with the old and the new secret for ten minutes. If the API key changes or an event type is withdrawn, webhook subscribers receive a signed `terminated` envelope and stream subscribers a `notifications/events/terminated` message.
 
 ## Cursors and replay
 
-Every delivery carries a `cursor`. Store the latest one and pass it back when you poll, reconnect a stream or refresh a webhook subscription, and open-wa replays the events you missed. It keeps recent events for `retentionMs`, 15 minutes by default. If your cursor is older than that, or `maxAgeMs` cuts the replay short, the response sets `truncated: true` with a fresh cursor, and you should read current state with tools.
+Every delivery carries a `cursor`. Store the latest cursor. Pass it back when you poll, reconnect a stream or refresh a webhook subscription. open-wa then replays the events that you missed. It keeps recent events for `retentionMs`, which is 15 minutes by default.
 
-Recent events, subscriptions and pending deliveries persist in a private SQLite file under `.open-wa/`, so cursors survive a restart. Keep that directory on persistent storage when running in a container. Events that occur while open-wa is offline can't be recovered.
+If your cursor is older than that, or `maxAgeMs` stops the replay, the response sets `truncated: true` and gives a fresh cursor. Then read the current state with tools.
+
+Recent events, subscriptions and pending deliveries persist in a private SQLite file under `.open-wa/`, so cursors survive a restart. Keep that directory on persistent storage when running in a container. open-wa cannot recover events that occur while it is offline.
 
 ## Subscription settings
 
@@ -79,7 +125,8 @@ Recent events, subscriptions and pending deliveries persist in a private SQLite 
       "enabled": true,
       "storePath": ".open-wa/mcp-events.sqlite",
       "lifetimeMs": 86400000,
-      "retentionMs": 900000
+      "retentionMs": 900000,
+      "operatorPauseMs": 1800000
     }
   }
 }
@@ -89,4 +136,4 @@ Recent events, subscriptions and pending deliveries persist in a private SQLite 
 
 [Read the generated event contracts](/docs/reference/event-contracts) or [download AsyncAPI](/asyncapi.json).
 
-The OpenAI MCP Extensions SDK provides sidebar views, file handlers, mentions and forms. This integration uses the standard MCP Events methods and doesn't require that UI SDK. [MCP Events extension](https://modelcontextprotocol.io/extensions/events/overview). [OpenAI MCP Events requirements](https://developers.openai.com/plugins/build/mcp-events), [OpenAI MCP Extensions](https://github.com/openai/mcp-extensions).
+The OpenAI MCP Extensions SDK provides sidebar views, file handlers, mentions and forms. This integration does not need that UI SDK. It implements the standard MCP Events methods. [MCP Events extension](https://modelcontextprotocol.io/extensions/events/overview). [OpenAI MCP Events requirements](https://developers.openai.com/plugins/build/mcp-events), [OpenAI MCP Extensions](https://github.com/openai/mcp-extensions).

@@ -83,37 +83,7 @@ Sitemap: ${sitemapUrl}
     });
   });
 
-  app.get('/.well-known/oauth-authorization-server', (c: any) => {
-    const origin = new URL(c.req.url).origin;
-    return c.json({
-      issuer: origin,
-      authorization_endpoint: joinPath(origin, 'api'),
-      token_endpoint: joinPath(origin, 'api'),
-      grant_types_supported: ["client_credentials"],
-      note: "Easy API uses X-API-Key headers strictly for authentication."
-    });
-  });
-
-  app.get('/.well-known/openid-configuration', (c: any) => {
-     // Alias for OAuth Auth Server
-    const origin = new URL(c.req.url).origin;
-    return c.json({
-      issuer: origin,
-      authorization_endpoint: joinPath(origin, 'api'),
-      token_endpoint: joinPath(origin, 'api'),
-      grant_types_supported: ["client_credentials"],
-      note: "Easy API uses X-API-Key headers strictly for authentication."
-    });
-  });
-
-  app.get('/.well-known/oauth-protected-resource', (c: any) => {
-    const origin = new URL(c.req.url).origin;
-    return c.json({
-      resource: joinPath(origin, 'api'),
-      authorization_servers: [origin],
-      scopes_supported: ["all"],
-    });
-  });
+  // OAuth metadata is served by the MCP adapter when MCP is enabled; the REST API itself uses X-API-Key.
 
   app.get('/.well-known/mcp/server-card.json', (c: any) => {
     const endpoint = options.config.mcp?.path || '/mcp';
