@@ -15,6 +15,8 @@ export interface McpEventsOptions {
   owner: () => string | undefined;
   lifetimeMs: number;
   retentionMs: number;
+  /** How long a person's reply from the WhatsApp app pauses message events for that chat; 0 turns it off. */
+  operatorPauseMs?: number;
   log?: (data: Record<string, unknown>) => void;
   /** Callback transport; replaceable in tests. */
   post?: typeof postCallback;
@@ -45,6 +47,7 @@ const POLL_EVENTS = { default: 100, max: 500 };
 const HEARTBEAT_MS = { min: 5000, default: 30_000, max: 60_000 };
 const VERIFICATIONS_PER_HOST_PER_MINUTE = 10;
 const MAINTENANCE_MS = 30_000;
+const OWN_SEND_GRACE_MS = 3000;
 
 const object = (value: unknown): Record<string, unknown> => value && typeof value === 'object' ? value as Record<string, unknown> : {};
 const messageId = (kind?: string) => `msg_${kind ? `${kind}_` : ''}${randomBytes(16).toString('hex')}`;
@@ -62,6 +65,8 @@ export class McpEventsService {
   private readonly streams = new Set<LiveStream>();
   private readonly timer: ReturnType<typeof setInterval>;
   private lastMaintenance = 0;
+  private readonly paused = new Map<string, { until: number; reason: 'operator' | 'assistant' }>();
+  private readonly ownSends = new Map<string, number>();
   private closing = false;
 
   constructor(private readonly options: McpEventsOptions) {
@@ -313,13 +318,66 @@ export class McpEventsService {
 
   // Publishing
 
+  // Operator takeover
+
+  /** Records a message open-wa sent itself, so it isn't mistaken for a person replying. */
+  noteOwnSend(messageId: string): void {
+    const now = Date.now();
+    this.ownSends.set(messageId, now + 10 * 60_000);
+    if (this.ownSends.size > 5000) for (const [id, expiry] of this.ownSends) if (expiry <= now || this.ownSends.size > 5000) this.ownSends.delete(id);
+  }
+
+  pauseChat(chatId: string, ms = this.options.operatorPauseMs ?? 30 * 60_000, reason: 'operator' | 'assistant' = 'operator'): void {
+    if (ms > 0) this.paused.set(chatId, { until: Date.now() + ms, reason });
+  }
+
+  resumeChat(chatId: string): void { this.paused.delete(chatId); }
+
+  chatStatus(chatId: string) {
+    const pause = this.pausedFor(chatId);
+    return { chatId, paused: Boolean(pause), until: pause ? new Date(pause.until).toISOString() : null, reason: pause?.reason ?? null };
+  }
+
+  private pausedFor(chatId: unknown) {
+    if (typeof chatId !== 'string') return;
+    const pause = this.paused.get(chatId);
+    if (pause && pause.until <= Date.now()) { this.paused.delete(chatId); return; }
+    return pause;
+  }
+
+  /**
+   * A message from this account that open-wa didn't send was typed by a person in a WhatsApp app.
+   * WhatsApp marks messages created on open-wa's own linked device as local, which also covers REST sends.
+   * Without that flag, wait briefly: WhatsApp reports a send before the send call returns its ID.
+   */
+  private observeOwnMessage(payload: unknown): void {
+    if ((this.options.operatorPauseMs ?? 30 * 60_000) <= 0) return;
+    const message = object(object(payload).message);
+    if (message.fromMe !== true || typeof message.id !== 'string' || message.local === true) return;
+    const id = message.id;
+    const chatId = typeof message.chatId === 'string' ? message.chatId : typeof message.to === 'string' ? message.to : undefined;
+    if (!chatId) return;
+    const decide = () => {
+      if (this.closing) return;
+      const expiry = this.ownSends.get(id);
+      if (expiry !== undefined && expiry > Date.now()) return;
+      this.pauseChat(chatId, undefined, 'operator');
+      this.log('mcp_event_operator_pause', 'message.any');
+    };
+    if (message.local === false) decide();
+    else setTimeout(decide, OWN_SEND_GRACE_MS).unref?.();
+  }
+
   publish(name: string, payload: unknown): void {
+    if (name === 'message.any') { this.observeOwnMessage(payload); return; }
     const owner = this.options.owner();
     const contract = getEventContract(name);
     if (this.closing || !owner || !contract?.mcp) return;
     const projected = contract.mcp.payloadSchema.safeParse(contract.mcp.project(payload, this.options.sessionId));
     if (!projected.success) { this.log('mcp_event_payload_unavailable', name); return; }
     const data = projected.data as Record<string, unknown>;
+    // While a person is handling the chat, assistants don't see its new messages.
+    if (name === 'message.received' && this.pausedFor(data.chatId)) return;
     const runtime = object(payload);
     const occurredAt = object(runtime.ctx).ts ?? runtime.ts;
     if (typeof occurredAt !== 'number' || !Number.isFinite(occurredAt)) { this.log('mcp_event_timestamp_unavailable', name); return; }

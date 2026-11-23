@@ -191,9 +191,23 @@ export const McpConfigSchema = z.object({
     storePath: z.string().optional().describe('Private SQLite event log, subscription and delivery journal; defaults to an instance-specific file under .open-wa.'),
     retentionMs: z.number().int().positive().max(24 * 60 * 60_000).default(15 * 60_000)
       .describe('How long recent events stay available for cursor replay, polling and stream reconnection.'),
+    operatorPauseMs: z.number().int().min(0).max(7 * 24 * 60 * 60_000).default(30 * 60_000)
+      .describe('When someone replies from the WhatsApp app, pause message events for that chat for this long. 0 turns it off.'),
     lifetimeMs: z.number().int().positive().max(7 * 24 * 60 * 60_000).default(24 * 60 * 60_000)
       .describe('Maximum granted subscription lifetime in milliseconds. ChatGPT refreshes before expiration.'),
   }).optional().describe('Durable MCP Events delivery configuration.'),
+  oauth: z.object({
+    enabled: z.boolean().default(true).describe('Let MCP clients such as ChatGPT sign in with OAuth 2.1; the owner approves with a one-time code or the Easy API key.'),
+    publicUrl: z.string().url().optional().describe('Public origin of Easy API behind a tunnel or proxy, such as https://wa.example.com. Defaults to the forwarded request origin.'),
+    storePath: z.string().optional().describe('Private SQLite file for OAuth clients and hashed tokens; defaults to an instance-specific file under .open-wa.'),
+    approvalCode: z.object({
+      log: z.boolean().default(true).describe('Print each one-time approval code in the Easy API log.'),
+      webhook: z.boolean().default(true).describe('Send each approval code to approvalCode.webhookUrl, or to the top-level webhook when that is not set.'),
+      webhookUrl: z.string().url().optional().describe('Where to POST mcp.oauth.approval_requested events. Defaults to the top-level webhook.'),
+      webhookSecret: z.string().optional().describe('Standard Webhooks secret (whsec_…) used to sign approval code webhooks.'),
+      sendToSelf: z.boolean().default(false).describe('Also send each approval code to this account\'s own "Message yourself" chat.'),
+    }).optional().describe('Where the one-time code that approves an MCP client sign-in is delivered. The code is never published as an open-wa or MCP event.'),
+  }).optional().describe('OAuth sign-in for the MCP endpoint.'),
 });
 
 export const ChatSandboxConfigSchema = z.object({
@@ -500,6 +514,10 @@ export const ConfigSchema = z.object({
     .default(3000)
     .describe('Port for the dashboard sidecar. Defaults to 3000.'),
 
+  router: z
+    .boolean()
+    .default(false)
+    .describe('Connect to the open-wa router and get a public HTTPS address for this session, such as for ChatGPT. Needs a license key and apiKey.'),
   proxyHost: z
     .string()
     .optional()
