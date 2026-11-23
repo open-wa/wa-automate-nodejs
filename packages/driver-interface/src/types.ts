@@ -9,6 +9,19 @@ export interface IDriverContext {
     };
 }
 
+/** A browser cookie, including httpOnly cookies that page script cannot read. */
+export interface BrowserCookie {
+    name: string;
+    value: string;
+    domain: string;
+    path: string;
+    /** Seconds since the epoch; -1 or undefined for a session cookie. */
+    expires?: number;
+    httpOnly?: boolean;
+    secure?: boolean;
+    sameSite?: 'Strict' | 'Lax' | 'None';
+}
+
 export interface LightpandaOptions {
     executablePath?: string;
     portStart?: number;

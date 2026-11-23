@@ -1,4 +1,4 @@
-import { LaunchOptions, ConnectOptions, IDriverContext, DriverName } from './types';
+import { LaunchOptions, ConnectOptions, IDriverContext, DriverName, BrowserCookie } from './types';
 
 export type NavigationWaitUntil = 'load' | 'domcontentloaded' | 'networkidle' | 'networkidle0' | 'networkidle2';
 
@@ -113,6 +113,10 @@ export interface IPage {
 
     setViewport(viewport: { width: number; height: number }): Promise<void>;
     setUserAgent(ua: string): Promise<void>;
+    /** Read the browser's cookies for these URLs, including httpOnly cookies. */
+    cookies?(urls: string[]): Promise<BrowserCookie[]>;
+    /** Store cookies in the browser before a navigation needs them. */
+    setCookies?(cookies: BrowserCookie[]): Promise<void>;
     /** Grant device capture to a verified calling document's origin. */
     grantMediaPermissions?(origin: string): Promise<void>;
     setRequestInterception(enabled: boolean): Promise<void>;

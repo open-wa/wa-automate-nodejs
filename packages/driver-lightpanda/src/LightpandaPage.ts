@@ -1,4 +1,5 @@
 import {
+    BrowserCookie,
     DisposableHandle,
     DriverCapabilities,
     DriverCapabilityError,
@@ -144,6 +145,33 @@ export class LightpandaPage implements IPage {
 
     async setViewport(viewport: { width: number; height: number }): Promise<void> {
         await this.requirePage().setViewport(viewport);
+    }
+
+    async cookies(urls: string[]): Promise<BrowserCookie[]> {
+        const session = await this.requirePage().createCDPSession();
+        try {
+            const { cookies } = await session.send('Network.getCookies', { urls });
+            return (cookies as BrowserCookie[]).map(cookie => ({
+                name: cookie.name, value: cookie.value, domain: cookie.domain, path: cookie.path,
+                expires: cookie.expires, httpOnly: cookie.httpOnly, secure: cookie.secure, sameSite: cookie.sameSite,
+            }));
+        } finally {
+            await session.detach().catch(() => undefined);
+        }
+    }
+
+    async setCookies(cookies: BrowserCookie[]): Promise<void> {
+        const session = await this.requirePage().createCDPSession();
+        try {
+            for (const cookie of cookies) {
+                await session.send('Network.setCookie', {
+                    ...cookie,
+                    expires: cookie.expires !== undefined && cookie.expires > 0 ? cookie.expires : undefined,
+                });
+            }
+        } finally {
+            await session.detach().catch(() => undefined);
+        }
     }
 
     async setUserAgent(ua: string): Promise<void> {
