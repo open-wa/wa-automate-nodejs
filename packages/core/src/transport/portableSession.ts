@@ -59,6 +59,10 @@ interface SessionPersistence {
   acquire(sessionId: string): Promise<PortableSessionLease>;
 }
 
+/** WhatsApp's server-side login cookie. Without it the server redirects every load to /login/. */
+const WEB_SESSION_COOKIE = 'wa_web_access_token';
+const COOKIE_VALUE = /^[\x21\x23-\x2b\x2d-\x3a\x3c-\x5b\x5d-\x7e]{1,4096}$/;
+
 /** Host-only opaque persistence. WhatsApp owns message delivery. */
 export class PortableSessionController {
   private readonly leaseScope = Scope.makeUnsafe();
@@ -73,6 +77,7 @@ export class PortableSessionController {
   private leaseCloseResult?: Exit.Exit<void, never>;
   private installAttempted = false;
   private page?: IPage;
+  private origin = '';
   #encryption?: SessionEncryptionCredentials;
 
   get hasCheckpoint(): boolean { return this.payload !== null; }
@@ -92,6 +97,7 @@ export class PortableSessionController {
       if (this.installAttempted) return yield* Effect.fail(portableFailure('PORTABLE_SESSION_ALREADY_INSTALLED'));
       this.installAttempted = true;
       this.page = page;
+      this.origin = origin;
       yield* this.installEffect(page, origin, script).pipe(Effect.onExit(exit => {
         if (Exit.isSuccess(exit)) return Effect.void;
         // Installation precedes navigation. No authenticated browser can own this
@@ -142,6 +148,15 @@ export class PortableSessionController {
             this.payload = payload;
             return ++this.revision;
           }))));
+      // Page script cannot read the httpOnly login cookie, so the sealed checkpoint receives it from here.
+      yield* portableIO('PORTABLE_SESSION_PROVISION_FAILED', () => page.exposeFunction('OpenWA_PortableWebSession',
+        (token: unknown, documentId: unknown) => runPortable(Effect.gen({ self: this }, function* () {
+          yield* authorize(token, documentId);
+          if (!page.cookies) return null;
+          const cookies = yield* portableIO('PORTABLE_SESSION_SAVE_FAILED', () => page.cookies!([`${origin}/`]));
+          const found = cookies.find(cookie => cookie.name === WEB_SESSION_COOKIE && COOKIE_VALUE.test(cookie.value));
+          return found ? { value: found.value, expires: found.expires ?? -1 } : null;
+        }))));
       yield* portableIO('PORTABLE_SESSION_PROVISION_FAILED', () => page.exposeFunction('OpenWA_PortableCheckpointFailed',
         (token: unknown, documentId: unknown, diagnostic: unknown) =>
           this.serial(Effect.gen({ self: this }, function* () {
@@ -156,7 +171,8 @@ export class PortableSessionController {
         const bridge = Object.freeze({
           bootstrap: () => globalThis.OpenWA_PortableBootstrap(token),
           commit: (documentId, revision, payload) => globalThis.OpenWA_PortableCommit(token, documentId, revision, payload),
-          checkpointFailed: (documentId, diagnostic) => globalThis.OpenWA_PortableCheckpointFailed(token, documentId, diagnostic)
+          checkpointFailed: (documentId, diagnostic) => globalThis.OpenWA_PortableCheckpointFailed(token, documentId, diagnostic),
+          webSession: documentId => globalThis.OpenWA_PortableWebSession(token, documentId)
         });
         ${script}
       })();`));
@@ -181,6 +197,25 @@ export class PortableSessionController {
       if (this.invalidated || this.flushing || this.releasing || documentId !== this.documentId) {
         return yield* Effect.fail(portableFailure('PORTABLE_SESSION_FENCED'));
       }
+    }));
+  }
+
+  /**
+   * Put the saved login cookie back so WhatsApp serves its main app, where the
+   * checkpoint restores. Returns false when the checkpoint holds no cookie.
+   */
+  restoreWebSession(): Promise<boolean> {
+    return runPortable(Effect.gen({ self: this }, function* () {
+      const page = yield* this.currentPage();
+      if (this.payload === null || !page.setCookies) return false;
+      const saved = yield* portableIO('PORTABLE_SESSION_REPLAY_FAILED', () => page.evaluateScript<{ value?: unknown; expires?: unknown } | null>(
+        'globalThis.OpenWA_PortableSession?.webSession?.() ?? null'));
+      if (!saved || typeof saved.value !== 'string' || !COOKIE_VALUE.test(saved.value)) return false;
+      const expires = typeof saved.expires === 'number' && Number.isFinite(saved.expires) ? saved.expires : -1;
+      const { hostname } = new URL(this.origin);
+      yield* portableIO('PORTABLE_SESSION_REPLAY_FAILED', () => page.setCookies!([{ name: WEB_SESSION_COOKIE, value: saved.value as string,
+        domain: `.${hostname}`, path: '/', expires, httpOnly: true, secure: true, sameSite: 'Lax' }]));
+      return true;
     }));
   }
 

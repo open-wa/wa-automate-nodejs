@@ -3,6 +3,7 @@ import {
     IElementHandle,
     DriverCapabilities,
     type DisposableHandle,
+    type BrowserCookie,
     type IConsoleMessage,
     type IFrame,
     type IRequest,
@@ -235,6 +236,34 @@ export class PuppeteerPage implements IPage {
 
     async setUserAgent(ua: string): Promise<void> {
         await this.page.setUserAgent(ua);
+    }
+
+    async cookies(urls: string[]): Promise<BrowserCookie[]> {
+        const session = await this.page.createCDPSession();
+        try {
+            const { cookies } = await session.send('Network.getCookies', { urls });
+            return cookies.map(cookie => ({
+                name: cookie.name, value: cookie.value, domain: cookie.domain, path: cookie.path,
+                expires: cookie.expires, httpOnly: cookie.httpOnly, secure: cookie.secure, sameSite: cookie.sameSite,
+            }));
+        } finally {
+            await session.detach().catch(() => undefined);
+        }
+    }
+
+    async setCookies(cookies: BrowserCookie[]): Promise<void> {
+        const session = await this.page.createCDPSession();
+        try {
+            for (const cookie of cookies) {
+                const { success } = await session.send('Network.setCookie', {
+                    ...cookie,
+                    expires: cookie.expires !== undefined && cookie.expires > 0 ? cookie.expires : undefined,
+                });
+                if (success === false) throw new Error(`The browser rejected cookie ${cookie.name}`);
+            }
+        } finally {
+            await session.detach().catch(() => undefined);
+        }
     }
 
     async setRequestInterception(enabled: boolean): Promise<void> {

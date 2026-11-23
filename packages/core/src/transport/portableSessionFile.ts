@@ -1,5 +1,5 @@
 import { constants } from 'node:fs';
-import { open, mkdir, rename, unlink, lstat, rm } from 'node:fs/promises';
+import { open, mkdir, rename, unlink, lstat, rm, readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { Effect, Semaphore } from 'effect';
@@ -97,8 +97,18 @@ export function acquirePortableSessionFile(path: string, onRecovery?: (reason: s
         yield* validatePortablePayload(payload);
         yield* replace(payload);
       })),
-      // Keep a credential-free marker so a stale configured seed cannot resurrect logout.
-      remove: () => owned(replace('LOGGED OUT')),
+      // Keep a credential-free marker so a stale configured seed cannot resurrect logout. The previous
+      // login moves to `<file>.rejected` rather than being destroyed: a WhatsApp change that breaks
+      // restoration must not cost every user their login.
+      remove: () => owned(Effect.gen(function* () {
+        yield* io(async () => {
+          let current: string;
+          try { current = await readFile(destination, 'utf8'); }
+          catch (error) { if (missing(error) || codeOf(error) === 'EISDIR') return; throw error; }
+          if (current.trim() && current !== 'LOGGED OUT') await rename(destination, `${destination}.rejected`);
+        });
+        yield* replace('LOGGED OUT');
+      })),
       release: () => {
         // Stop this handle's queued/new operations and let its current IO settle.
         closed = true;

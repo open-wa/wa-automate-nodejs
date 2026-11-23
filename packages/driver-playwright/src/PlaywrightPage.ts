@@ -3,6 +3,7 @@ import {
     IElementHandle,
     DriverCapabilities,
     type DisposableHandle,
+    type BrowserCookie,
     type IConsoleMessage,
     type IFrame,
     type IRequest,
@@ -185,6 +186,20 @@ export class PlaywrightPage implements IPage {
 
     async setUserAgent(ua: string): Promise<void> {
         await this.page.setExtraHTTPHeaders({ 'User-Agent': ua });
+    }
+
+    async cookies(urls: string[]): Promise<BrowserCookie[]> {
+        return (await this.page.context().cookies(urls)).map(cookie => ({
+            name: cookie.name, value: cookie.value, domain: cookie.domain, path: cookie.path,
+            expires: cookie.expires, httpOnly: cookie.httpOnly, secure: cookie.secure, sameSite: cookie.sameSite,
+        }));
+    }
+
+    async setCookies(cookies: BrowserCookie[]): Promise<void> {
+        await this.page.context().addCookies(cookies.map(cookie => ({
+            ...cookie,
+            expires: cookie.expires !== undefined && cookie.expires > 0 ? cookie.expires : undefined,
+        })));
     }
 
     async setRequestInterception(enabled: boolean): Promise<void> {
