@@ -200,6 +200,11 @@ Publishing is driven by Bumpy and the `release` branch.
   version. Record manifest, dist-tag, tarball and docs deployment completion in
   the aggregate release's `release-state.json` asset. Rerun the failed action for
   that version independently, without opening another PR or publishing again.
+- Each version has exactly one GitHub release, the aggregate `vX.Y.Z`, created
+  with its commit-based notes already written. Bumpy's per-package draft
+  releases are its retry record: the availability action deletes them, keeping
+  their git tags, once npm serves every package. Do not reintroduce
+  per-package GitHub releases or a placeholder release body.
 - Stable packages publish under npm's `latest` tag. Do not reintroduce
   Changesets pre-mode.
 - `gh-signoff` can record checks Mohammed requested and actually ran. It does
