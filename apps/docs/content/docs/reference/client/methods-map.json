@@ -126,7 +126,6 @@
   "sendRawMessage": "/docs/reference/client/messages#sendrawmessage",
   "sendReplyWithMentions": "/docs/reference/client/messages#sendreplywithmentions",
   "sendSeen": "/docs/reference/client/messages#sendseen",
-  "sendSoundSticker": "/docs/reference/client/messages#sendsoundsticker",
   "sendSticker": "/docs/reference/client/messages#sendsticker",
   "sendText": "/docs/reference/client/messages#sendtext",
   "sendTextWithMentions": "/docs/reference/client/messages#sendtextwithmentions",

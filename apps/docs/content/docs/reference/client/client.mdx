@@ -1,7 +1,7 @@
 ---
 title: "All methods (A–Z)"
 seoTitle: "All open-wa WhatsApp API methods, A–Z | open-wa"
-description: "All 155 open-wa methods in alphabetical order, each with a one-line summary and a link to its signature, examples, parameters and return type."
+description: "All 154 open-wa methods in alphabetical order, each with a one-line summary and a link to its signature, examples, parameters and return type."
 icon: "BookOpen"
 ---
 
@@ -9,7 +9,7 @@ icon: "BookOpen"
 
 Find a method by name or job, then open it on its page for the signature, an example, parameters and the return type.
 
-<ClientReference total={155}>
+<ClientReference total={154}>
 
 | Method | Page | What it does | License |
 | --- | --- | --- | --- |
@@ -140,8 +140,7 @@ Find a method by name or job, then open it on its page for the signature, an exa
 | [`sendRawMessage`](/docs/reference/client/messages#sendrawmessage) | Messages | Send a constructed WhatsApp protobuf Message payload (Insiders and above); media must already be uploaded. | Insiders |
 | [`sendReplyWithMentions`](/docs/reference/client/messages#sendreplywithmentions) | Messages | Sends a reply to a message that includes @mentions. | - |
 | [`sendSeen`](/docs/reference/client/messages#sendseen) | Messages | Mark message as seen. | - |
-| [`sendSoundSticker`](/docs/reference/client/messages#sendsoundsticker) | Messages | Send a sticker with a short sound the recipient can play. The image is resized into a sticker. The sound must be an Ogg Opus or M4A clip of at most 1 MB and is not converted. Resolves to the message ID once WhatsApp accepts it, not a delivery receipt. Sound stickers only work on WhatsApp accounts and app versions that support them. | - |
-| [`sendSticker`](/docs/reference/client/messages#sendsticker) | Messages | Turn an image or video into a sticker, apply optional effects and author and pack labels, and send it. Resolves to the message ID once WhatsApp accepts it, not a delivery receipt. If the outcome is unknown, check the chat before you retry. | - |
+| [`sendSticker`](/docs/reference/client/messages#sendsticker) | Messages | Turn an image or video into a sticker, apply optional effects, author and pack labels and a sound, and send it. A video becomes an animated sticker of at most 10 seconds. Resolves to the message ID once WhatsApp accepts it, not a delivery receipt. If the outcome is unknown, check the chat before you retry. Sound stickers only play on WhatsApp accounts and app versions that support them. | - |
 | [`sendText`](/docs/reference/client/messages#sendtext) | Messages | Send a text message to a chat. Starting a chat with a number that has never messaged you needs a Restricted or Premium license. | - |
 | [`sendTextWithMentions`](/docs/reference/client/messages#sendtextwithmentions) | Messages | Sends a text message that includes @mentions. | - |
 | [`sendVCard`](/docs/reference/client/messages#sendvcard) | Messages | Sends a contact card (vCard) | - |

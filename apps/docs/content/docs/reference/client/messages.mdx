@@ -1349,7 +1349,7 @@ The SDK resolves to `MediaSendResult` instead.
 
 ## `sendSticker`
 
-Turn an image or video into a sticker, apply optional effects and author and pack labels, and send it. Resolves to the message ID once WhatsApp accepts it, not a delivery receipt. If the outcome is unknown, check the chat before you retry.
+Turn an image or video into a sticker, apply optional effects, author and pack labels and a sound, and send it. A video becomes an animated sticker of at most 10 seconds. Resolves to the message ID once WhatsApp accepts it, not a delivery receipt. If the outcome is unknown, check the chat before you retry. Sound stickers only play on WhatsApp accounts and app versions that support them.
 
 <ReferenceCode>
 
@@ -1428,7 +1428,7 @@ Response:
 | --- | --- | --- |
 | `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
 | `input` | `string` | A media data URL or HTTP(S) URL. The local library additionally accepts bytes, Blob and local filenames. |
-| `job` | `{ author?: string; backend?: "auto" \| "browser" \| "standalone"; background?: string; circle?: boolean; effects?: (string \| { name: string; options?: object })[]; fit?: "contain" \| "cover"; fps?: number; loopCount?: number; pack?: string; quality?: number; quotedMsgId?: string; trim?: number[] }` | Optional. |
+| `job` | `{ audio?: boolean \| string; author?: string; backend?: "auto" \| "browser" \| "standalone"; background?: string; circle?: boolean; effects?: (string \| { name: string; options?: object })[]; fit?: "contain" \| "cover"; fps?: number; loopCount?: number; pack?: string; quality?: number; quotedMsgId?: string; trim?: number[] }` | Optional. |
 
 <h3 id="sendsticker-returns" className="scroll-m-28">Returns</h3>
 
@@ -1437,110 +1437,6 @@ Resolves to [`MessageId`](/docs/reference/client/return-types#messageid).
 Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.
 
 **HTTP:** `POST /api/messages/sendSticker`, or `/api/sendSticker`. **Also named:** `messages.sendSticker`.
-
-
-## `sendSoundSticker`
-
-Send a sticker with a short sound the recipient can play. The image is resized into a sticker. The sound must be an Ogg Opus or M4A clip of at most 1 MB and is not converted. Resolves to the message ID once WhatsApp accepts it, not a delivery receipt. Sound stickers only work on WhatsApp accounts and app versions that support them.
-
-<ReferenceCode>
-
-```ts
-client.sendSoundSticker(
-  to: string,
-  sticker: string | Buffer,
-  sound: string | Buffer,
-  options?: { quotedMsgId?: string },
-): Promise<MessageId>
-```
-
-</ReferenceCode>
-
-<h3 id="sendsoundsticker-usage" className="scroll-m-28">Usage</h3>
-
-<InterfaceTabs>
-  <InterfaceTab value="SDK">
-
-<ReferenceCode>
-
-```ts
-const result = await client.sendSoundSticker(
-  "447123456789@c.us",
-  "data:image/png;base64,iVBORw0KGgo...",
-  "data:audio/ogg;base64,T2dnUwACAAAAAAAAAAB...",
-);
-```
-
-</ReferenceCode>
-
-  </InterfaceTab>
-  <InterfaceTab value="SocketClient">
-
-<ReferenceCode>
-
-```ts
-import { SocketClient } from '@open-wa/socket-client';
-
-const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
-const result = await client.sendSoundSticker({
-  to: "447123456789@c.us",
-  sticker: "data:image/png;base64,iVBORw0KGgo...",
-  sound: "data:audio/ogg;base64,T2dnUwACAAAAAAAAAAB...",
-});
-```
-
-</ReferenceCode>
-
-  </InterfaceTab>
-  <InterfaceTab value="HTTP">
-
-<ReferenceCode>
-
-```bash
-curl -X POST "http://localhost:8080/api/messages/sendSoundSticker" \
-  -H "content-type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  --data '{
-    "to": "447123456789@c.us",
-    "sticker": "data:image/png;base64,iVBORw0KGgo...",
-    "sound": "data:audio/ogg;base64,T2dnUwACAAAAAAAAAAB..."
-  }'
-```
-
-</ReferenceCode>
-
-Response:
-
-<ReferenceCode>
-
-```json
-{
-  "success": true,
-  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
-}
-```
-
-</ReferenceCode>
-
-  </InterfaceTab>
-</InterfaceTabs>
-
-<h3 id="sendsoundsticker-parameters" className="scroll-m-28">Parameters</h3>
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
-| `sticker` | `string \| Buffer` | Sticker image (path, URL, DataURL, or Base64). It is resized to a square sticker. |
-| `sound` | `string \| Buffer` | Sound clip as Ogg Opus or M4A, at most 1 MB (path, URL, DataURL, or Base64) |
-| `options` | `{ quotedMsgId?: string }` | Optional. |
-
-<h3 id="sendsoundsticker-returns" className="scroll-m-28">Returns</h3>
-
-Resolves to [`MessageId`](/docs/reference/client/return-types#messageid).
-
-Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.
-
-**HTTP:** `POST /api/messages/sendSoundSticker`, or `/api/sendSoundSticker`. **Also named:** `messages.sendSoundSticker`.
 
 
 ## `sendAlbum`

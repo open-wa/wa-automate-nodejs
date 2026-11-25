@@ -560,7 +560,6 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   declare sendMultipleContacts: MessagingMethods['sendMultipleContacts'];
   declare sendVCard: MessagingMethods['sendVCard'];
   declare sendSticker: MessagingMethods['sendSticker'];
-  declare sendSoundSticker: MessagingMethods['sendSoundSticker'];
   declare reply: MessagingMethods['reply'];
   declare forwardMessages: MessagingMethods['forwardMessages'];
   declare deleteMessage: MessagingMethods['deleteMessage'];

@@ -7,7 +7,7 @@ import { SendStickerError } from './SendStickerError';
 type StickerSendResult = { ok: true; messageId: string } | { ok: false; code: string; message: string; outcome: 'not_sent' | 'unknown' };
 declare const WAPI: {
   stickerRuntimeVersion?: string;
-  sendStickerJob?: (job: { to: string; bytes: number[]; author?: string; pack?: string; quotedMsgId?: string }) => Promise<StickerSendResult>;
+  sendStickerJob?: (job: { to: string; bytes: number[]; author?: string; pack?: string; quotedMsgId?: string; audio?: { bytes: number[]; mime: string; durationMs?: number } }) => Promise<StickerSendResult>;
 };
 const runtimes = new WeakMap<Client, Promise<StickerRuntime>>();
 
@@ -36,7 +36,7 @@ export async function sendClientSticker(client: Client, to: string, input: Stick
     sent = await client.evaluate(async request => {
       if (typeof WAPI.sendStickerJob !== 'function' || WAPI.stickerRuntimeVersion !== '1') return { ok: false as const, code: 'RUNTIME_UNAVAILABLE', message: 'The sticker runtime is unavailable.', outcome: 'not_sent' as const };
       return WAPI.sendStickerJob(request);
-    }, { to, bytes: Array.from(result.bytes), author: result.author, pack: result.pack, quotedMsgId: job.quotedMsgId });
+    }, { to, bytes: Array.from(result.bytes), author: result.author, pack: result.pack, quotedMsgId: job.quotedMsgId, ...(result.audio ? { audio: { bytes: Array.from(result.audio.bytes), mime: result.audio.mime, durationMs: result.audio.durationMs } } : {}) });
   } catch (cause) {
     throw new SendStickerError('Sticker submission has an unknown outcome; inspect the chat before retrying.', { code: 'SEND_FAILED', outcome: 'unknown', cause });
   }

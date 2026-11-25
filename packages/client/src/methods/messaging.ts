@@ -10,14 +10,14 @@ import type {
   Content,
   AlbumMedia,
   AlbumSendResult,
-  MediaSendOptions, AudioAttachmentOptions, VoiceNoteOptions, GifSendOptions, PollSendOptions, PollResults, PinDuration, SoundStickerOptions,
+  MediaSendOptions, AudioAttachmentOptions, VoiceNoteOptions, GifSendOptions, PollSendOptions, PollResults, PinDuration,
 } from '@open-wa/schema';
-import { implementMethod, editMessage as editMessageSchema, react as reactSchema, SendTextResultSchema, AlbumSendResultSchema, sendAlbum as sendAlbumSchema, sendPoll as sendPollSchema, AudioAttachmentOptionsSchema, VoiceNoteOptionsSchema, GifSendOptionsSchema, PollResultsSchema, voteOnPoll as voteOnPollSchema, getPollResults as getPollResultsMethodSchema, pinMessage as pinMessageSchema, unpinMessage as unpinMessageSchema, SoundStickerOptionsSchema } from '@open-wa/schema';
+import { implementMethod, editMessage as editMessageSchema, react as reactSchema, SendTextResultSchema, AlbumSendResultSchema, sendAlbum as sendAlbumSchema, sendPoll as sendPollSchema, AudioAttachmentOptionsSchema, VoiceNoteOptionsSchema, GifSendOptionsSchema, PollResultsSchema, voteOnPoll as voteOnPollSchema, getPollResults as getPollResultsMethodSchema, pinMessage as pinMessageSchema, unpinMessage as unpinMessageSchema } from '@open-wa/schema';
 import { SendTextError } from '../SendTextError';
 import type { StickerInput, StickerJob } from '@open-wa/stickers';
 import { sendClientSticker } from '../stickers';
 import { invokePatch } from '../patchRuntime';
-import { sendMedia, mediaSendResult, resolveMediaInput, type MediaInput, type MediaSendResult } from '../mediaInput';
+import { sendMedia, mediaSendResult, type MediaInput, type MediaSendResult } from '../mediaInput';
 
 declare const WAPI: {
   sendMessage: (to: string, content: string) => Promise<unknown>;
@@ -60,10 +60,8 @@ export interface MessagingMethods {
   sendContact(to: ChatId, contact: ContactId | ContactId[]): Promise<MessageId | boolean | (MessageId | boolean)[]>;
   sendMultipleContacts(to: ChatId, contactIds: ContactId[]): Promise<MessageId | boolean>;
   sendVCard(to: ChatId, vcard: string, contactName?: string, contactNumber?: string): Promise<MessageId | boolean>;
-  /** Render locally with automatic whole-job routing, then submit through the donor finalizer. */
+  /** Turn an image or video into a sticker and send it. `job.audio` attaches a sound the recipient can play. */
   sendSticker(to: ChatId, input: StickerInput, job?: StickerJob): Promise<MessageId>;
-  /** Sends a sticker with a short sound. The sound must be Ogg Opus or M4A, at most 1 MB; it is not converted. */
-  sendSoundSticker(to: ChatId, sticker: MediaInput, sound: MediaInput, options?: SoundStickerOptions): Promise<MessageId>;
   reply(to: ChatId, content: string, quotedMsgId: MessageId): Promise<MessageId | boolean>;
   forwardMessages(to: ChatId, messages: MessageId | MessageId[], skipMyMessages?: boolean): Promise<MessageIdReturn[] | boolean>;
   deleteMessage(chatId: ChatId, messageId: MessageId | MessageId[], onlyLocal?: boolean): Promise<boolean>;
@@ -219,26 +217,6 @@ export function messagingMethods(client: Client): MessagingMethods {
       return sendClientSticker(client, to, input, job);
     },
     
-    async sendSoundSticker(to, sticker, sound, options = {}) {
-      const config = SoundStickerOptionsSchema.parse(options);
-      const [image, clip] = await Promise.all([resolveMediaInput(sticker), resolveMediaInput(sound)]);
-      if (!image.mime.startsWith('image/')) throw new Error('sendSoundSticker needs an image for the sticker.');
-      // An MP4 signature identifies the container, which also holds M4A audio.
-      if (clip.mime === 'video/mp4') clip.dataUrl = clip.dataUrl.replace(/^data:[^;,]*/, 'data:audio/mp4');
-      else if (!clip.mime.startsWith('audio/')) throw new Error('sendSoundSticker needs an audio clip for the sound.');
-      // The patch's own messages say what to fix, so return them instead of a wrapped evaluation error.
-      const result = await evaluate(async input => {
-        const send = (globalThis as unknown as { WAPI?: { sendSoundSticker?: (...args: unknown[]) => Promise<unknown> } }).WAPI?.sendSoundSticker;
-        if (typeof send !== 'function') return { ok: false as const, message: 'sendSoundSticker is unavailable in this session. Restart the session to load the current patches.' };
-        try { return { ok: true as const, id: await send(input.to, input.sticker, input.sound, input.config) }; }
-        catch (error) { return { ok: false as const, message: error instanceof Error ? error.message : String(error) }; }
-      }, { to, sticker: image.dataUrl, sound: clip.dataUrl, config });
-      if (!result.ok) throw new Error(result.message);
-      const parsed = SendTextResultSchema.safeParse(result.id);
-      if (!parsed.success) throw new Error('sendSoundSticker did not return a message ID. The sticker may have been sent; check the chat before retrying.');
-      return parsed.data;
-    },
-
     async reply(to: ChatId, content: string, quotedMsgId: MessageId): Promise<MessageId | boolean> {
       return evaluate(
         ({ to, content, quotedMsgId }) => WAPI.reply(to, content, quotedMsgId),
