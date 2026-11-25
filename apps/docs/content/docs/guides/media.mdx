@@ -140,7 +140,7 @@ await client.sendSticker(chatId, './muffin.png', {
 });
 ```
 
-`author` and `pack` are the labels people see when they open the sticker's details. The image is fitted into a 512 by 512 sticker for you; set `fit: 'cover'` to fill the square, or `circle: true` to crop it round.
+`author` and `pack` are the labels people see when they open the sticker's details. Every sticker also links to the Sticker Maker app, which sponsors sticker support in open-wa; that link can't be changed or removed, and `sendSticker` is the only way to send a sticker. The image is fitted into a 512 by 512 sticker for you; set `fit: 'cover'` to fill the square, or `circle: true` to crop it round.
 
 ### Animated stickers from video
 
@@ -156,7 +156,7 @@ await client.sendSticker(chatId, './clip.mp4', {
 
 A sticker holds at most 10 seconds, so a longer video is cut to its first 10 seconds unless you set `trim`. Short clips look best, because the whole animation has to fit in about 500 KB. If a clip is too detailed for its length, the send fails and asks for a shorter `trim` or a lower `fps`.
 
-The video has to be one the session's browser can play. H.264 MP4 and WebM work everywhere. HEVC (H.265) video, which iPhones record by default, usually doesn't, so convert it first: `ffmpeg -i clip.mov -c:v libx264 clip.mp4`. Animated GIF and WebP inputs also become animated stickers.
+H.264 MP4 and WebM videos work everywhere. The session's browser usually can't read HEVC (H.265) video, which iPhones record by default, so open-wa converts it with [ffmpeg](https://ffmpeg.org/download.html) when ffmpeg is installed on the machine that runs open-wa. ffmpeg doesn't come with open-wa. If it's missing, the send fails and the log tells you to install it. Animated GIF and WebP inputs also become animated stickers.
 
 ### Send a sound sticker
 
