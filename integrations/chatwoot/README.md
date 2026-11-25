@@ -1,6 +1,6 @@
 # @open-wa/integration-chatwoot
 
-`@open-wa/integration-chatwoot` bridges WhatsApp messages with a Chatwoot API inbox. The current plugin package is `5.1.0`. It initializes the Chatwoot client at `core.started`, syncs supported WhatsApp messages into Chatwoot, and exposes `createChatwootRouter` for Chatwoot webhooks.
+`@open-wa/integration-chatwoot` bridges WhatsApp messages with a Chatwoot API inbox. It initializes the Chatwoot client at `core.started`, syncs supported WhatsApp messages into Chatwoot, and exposes `createChatwootRouter` for Chatwoot webhooks.
 
 ## Quick start
 
