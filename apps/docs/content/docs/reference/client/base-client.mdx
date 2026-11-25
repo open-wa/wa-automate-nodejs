@@ -146,6 +146,7 @@ Each call maps its arguments, validates them with the method's Zod input schema 
 | `sendRawMessage` | `messages` | `to`, `payload` | `string` |
 | `sendReplyWithMentions` | `messages` | `to`, `content`, `replyMessageId`, `hideTags`, `mentions` | `MessageIdReturn \| boolean` |
 | `sendSeen` | `messages` | `chatId` | `boolean` |
+| `sendSoundSticker` | `messages` | `to`, `sticker`, `sound`, `options` | `MessageId` |
 | `sendSticker` | `messages` | `to`, `input`, `job` | `MessageId` |
 | `sendText` | `messages` | `to`, `content`, `options` | `MessageId` |
 | `sendTextWithMentions` | `messages` | `to`, `content`, `hideTags`, `mentions` | `MessageIdReturn \| boolean` |

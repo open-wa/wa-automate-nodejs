@@ -1439,6 +1439,110 @@ Validated serialized message ID. This confirms the send returned an ID, not deli
 **HTTP:** `POST /api/messages/sendSticker`, or `/api/sendSticker`. **Also named:** `messages.sendSticker`.
 
 
+## `sendSoundSticker`
+
+Send a sticker with a short sound the recipient can play. The image is resized into a sticker. The sound must be an Ogg Opus or M4A clip of at most 1 MB and is not converted. Resolves to the message ID once WhatsApp accepts it, not a delivery receipt. Sound stickers only work on WhatsApp accounts and app versions that support them.
+
+<ReferenceCode>
+
+```ts
+client.sendSoundSticker(
+  to: string,
+  sticker: string | Buffer,
+  sound: string | Buffer,
+  options?: { quotedMsgId?: string },
+): Promise<MessageId>
+```
+
+</ReferenceCode>
+
+<h3 id="sendsoundsticker-usage" className="scroll-m-28">Usage</h3>
+
+<InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.sendSoundSticker(
+  "447123456789@c.us",
+  "data:image/png;base64,iVBORw0KGgo...",
+  "data:audio/ogg;base64,T2dnUwACAAAAAAAAAAB...",
+);
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="SocketClient">
+
+<ReferenceCode>
+
+```ts
+import { SocketClient } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');
+const result = await client.sendSoundSticker({
+  to: "447123456789@c.us",
+  sticker: "data:image/png;base64,iVBORw0KGgo...",
+  sound: "data:audio/ogg;base64,T2dnUwACAAAAAAAAAAB...",
+});
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+  <InterfaceTab value="HTTP">
+
+<ReferenceCode>
+
+```bash
+curl -X POST "http://localhost:8080/api/messages/sendSoundSticker" \
+  -H "content-type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data '{
+    "to": "447123456789@c.us",
+    "sticker": "data:image/png;base64,iVBORw0KGgo...",
+    "sound": "data:audio/ogg;base64,T2dnUwACAAAAAAAAAAB..."
+  }'
+```
+
+</ReferenceCode>
+
+Response:
+
+<ReferenceCode>
+
+```json
+{
+  "success": true,
+  "data": "true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB"
+}
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
+</InterfaceTabs>
+
+<h3 id="sendsoundsticker-parameters" className="scroll-m-28">Parameters</h3>
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
+| `sticker` | `string \| Buffer` | Sticker image (path, URL, DataURL, or Base64). It is resized to a square sticker. |
+| `sound` | `string \| Buffer` | Sound clip as Ogg Opus or M4A, at most 1 MB (path, URL, DataURL, or Base64) |
+| `options` | `{ quotedMsgId?: string }` | Optional. |
+
+<h3 id="sendsoundsticker-returns" className="scroll-m-28">Returns</h3>
+
+Resolves to [`MessageId`](/docs/reference/client/return-types#messageid).
+
+Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.
+
+**HTTP:** `POST /api/messages/sendSoundSticker`, or `/api/sendSoundSticker`. **Also named:** `messages.sendSoundSticker`.
+
+
 ## `sendAlbum`
 
 Sends images and videos together as a native WhatsApp album with one caption on its first item. GIFs use MP4 video data with isGif: true. Documents are rejected. Phone-number IDs are resolved to LIDs; the destination chat must already be loaded and allow sending. WhatsApp controls the minimum item count and upload limits. Runtime failures include the parent and submitted child IDs when available; inspect the chat before retrying.
