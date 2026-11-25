@@ -18,6 +18,8 @@ export interface PatchFetchParams {
 export interface PatchFetchResult {
   data: string[];
   tag: string;
+  /** The endpoint that served the stream: the primary URL, or the fallback when the primary failed. */
+  url?: string;
 }
 
 export interface LicenseValidationBody {
@@ -65,7 +67,7 @@ export async function fetchPatches(
   const primaryResult = await fetchWithRetry(primaryFullUrl, timeoutMs, retries);
 
   if (primaryResult.ok) {
-    return parsePatchResponse(primaryResult);
+    return parsePatchResponse(primaryResult, primaryUrl);
   }
 
   // Fallback to GitHub raw URL if provided
@@ -74,7 +76,7 @@ export async function fetchPatches(
     const fallbackResult = await fetchWithRetry(fallbackFullUrl, timeoutMs, retries);
 
     if (fallbackResult.ok) {
-      return parsePatchResponse(fallbackResult);
+      return parsePatchResponse(fallbackResult, fallbackUrl);
     }
 
     throw new Error(
@@ -230,7 +232,7 @@ async function fetchWithRetry(
   };
 }
 
-async function parsePatchResponse(result: FetchAttemptResult): Promise<PatchFetchResult> {
+async function parsePatchResponse(result: FetchAttemptResult, url: string): Promise<PatchFetchResult> {
   let data = result.data;
 
   // The CDN and GitHub raw endpoints return content-type: text/plain,
@@ -264,5 +266,5 @@ async function parsePatchResponse(result: FetchAttemptResult): Promise<PatchFetc
       .slice(-5);
   }
 
-  return { data: data as string[], tag };
+  return { data: data as string[], tag, url };
 }

@@ -21,6 +21,7 @@ import type { HyperEmitter } from '@open-wa/hyperemitter';
 import type { Logger } from '@open-wa/logger';
 import type { OpenWAEventMap, STATE } from '../events/eventMap';
 import { fetchPatches, validateLicense } from './httpClient';
+import { version as coreVersion } from '../../package.json';
 import { installDocumentRuntime } from '../livePatch/installDocument';
 import { InjectionController, type GenerationSnapshot } from './InjectionController';
 import { getProgObserverScript, injectInitPatch } from './initPatchScripts';
@@ -3005,7 +3006,7 @@ export class Transport {
     const result = await this.fetchFreshLivePatches(sessionInfo);
     this.logger.info('live_patch_downloaded', {
       source: 'remote',
-      url: DEFAULT_LIVE_PATCHES_URL,
+      url: result.url ?? DEFAULT_LIVE_PATCHES_URL,
       tag: result.tag,
       patchCount: result.data.length,
     });
@@ -3022,7 +3023,7 @@ export class Transport {
     }
   }
 
-  private async fetchFreshLivePatches(sessionInfo?: SessionDebugInfo, fresh = false): Promise<{ data: string[]; tag: string }> {
+  private async fetchFreshLivePatches(sessionInfo?: SessionDebugInfo, fresh = false): Promise<{ data: string[]; tag: string; url?: string }> {
     const useGithubPrimary = this.patchConfig.ghPatch === true;
     const primaryUrl = useGithubPrimary ? GH_LIVE_PATCHES_FALLBACK_URL : DEFAULT_LIVE_PATCHES_URL;
     const fallbackUrl = useGithubPrimary
@@ -3035,15 +3036,20 @@ export class Transport {
     const result = await fetchPatches(
       primaryUrl,
       {
-        waVersion: sessionInfo?.WA_VERSION,
-        waAutomateVersion: sessionInfo?.WA_AUTOMATE_VERSION,
+        // The patch CDN refuses requests without both versions. The startup preload
+        // runs before the page reports WhatsApp's version, so it sends 'unknown'.
+        waVersion: sessionInfo?.WA_VERSION || 'unknown',
+        waAutomateVersion: coreVersion,
       },
       { fallbackUrl, fresh },
     );
     const fetchDurationMs = Date.now() - fetchStart;
 
+    const servedBy = result.url ?? primaryUrl;
+    if (servedBy !== primaryUrl) this.logger.warn('live_patch_primary_unavailable', { primaryUrl, servedBy });
     this.logger.info('live_patch_fetch_complete', {
-      url: primaryUrl,
+      url: servedBy,
+      fallback: servedBy !== primaryUrl,
       durationMs: fetchDurationMs,
       durationFormatted: `${(fetchDurationMs / 1000).toFixed(2)}s`,
       tag: result.tag,
