@@ -127,7 +127,7 @@ const METHOD_ORDER: Record<string, readonly string[]> = {
   messages: [
     'sendText', 'sendImage', 'sendFile', 'sendFileFromUrl', 'sendReplyWithMentions', 'react', 'sendTextWithMentions',
     'editMessage', 'deleteMessage', 'forwardMessages', 'sendSeen', 'getMessageById', 'sendAudio', 'sendPtt',
-    'sendSticker', 'sendAlbum', 'sendVideoAsGif', 'sendLocation', 'sendContact', 'sendVCard', 'sendMultipleContacts',
+    'sendSticker', 'sendSoundSticker', 'sendAlbum', 'sendVideoAsGif', 'sendLocation', 'sendContact', 'sendVCard', 'sendMultipleContacts',
     'sendLinkWithAutoPreview', 'sendYouTubeLink', 'sendMessageWithThumb', 'sendPoll', 'getPollResults', 'voteOnPoll',
     'sendButtons', 'sendListMessage', 'sendInteractive', 'sendAdvancedButtons', 'sendBanner', 'getAllMessages',
     'loadEarlierMessages', 'getMyLastMessage', 'getMessageInfo', 'getMessagesForLLM', 'getAlbumMessages',
