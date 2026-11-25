@@ -61,17 +61,17 @@
   },
   "homepage": "https://github.com/open-wa/wa-automate-socket-client-nodejs#readme",
   "dependencies": {
-    "@open-wa/wa-automate-types-only": "workspace:*",
     "@open-wa/hyperemitter": "workspace:*",
+    "@open-wa/runtime-core": "workspace:*",
+    "@open-wa/runtime-node": "workspace:*",
+    "@open-wa/schema": "workspace:*",
+    "@open-wa/wa-automate-types-only": "workspace:*",
     "debug": "^4.4.3",
     "effect": "catalog:",
-    "eventsource": "^5.1.2",
+    "eventsource": "^5.1.5",
+    "hls.js": "^1.7.4",
     "isomorphic-ws": "^5.0.0",
-    "ws": "^8.22.0",
-    "@open-wa/schema": "workspace:*",
-    "@open-wa/runtime-node": "workspace:*",
-    "@open-wa/runtime-core": "workspace:*",
-    "hls.js": "^1.7.3"
+    "ws": "^8.23.0"
   },
   "devDependencies": {
     "typescript": "catalog:",

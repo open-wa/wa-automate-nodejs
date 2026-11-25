@@ -12,15 +12,14 @@
   },
   "dependencies": {
     "chalk": "^6.0.1",
-    "figlet": "^1.11.4",
+    "figlet": "^1.13.0",
     "log-update": "^8.0.0",
-    "ora": "^9.4.1",
+    "ora": "^10.0.0",
     "winston": "catalog:",
     "winston-transport": "^4.9.0",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/figlet": "^1.7.0",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

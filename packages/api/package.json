@@ -32,7 +32,7 @@
     "@open-wa/screencaster": "workspace:*",
     "hono": "catalog:",
     "tree-kill": "^1.2.2",
-    "ws": "^8.22.0"
+    "ws": "^8.23.0"
   },
   "peerDependencies": {
     "vite": "*"
@@ -40,7 +40,7 @@
   "devDependencies": {
     "@open-wa/dashboard-neo": "workspace:*",
     "@types/node": "catalog:",
-    "@types/ws": "^8.18.1",
+    "@types/ws": "^8.18.2",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },

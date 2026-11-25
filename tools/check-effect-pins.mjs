@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 
 const root = new URL('..', import.meta.url).pathname;
-const expected = '4.0.2';
+const expected = '4.1.5';
 const family = [
   'effect',
   '@effect/platform-node',
