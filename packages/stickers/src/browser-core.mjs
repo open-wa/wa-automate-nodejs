@@ -37,15 +37,33 @@ export function createBrowserBackend(driver, { resourceBytes = webResourceBytes,
       if (blob?.type !== 'image/webp') return { available: false, requirements: [] };
       const requirements = ['canvas2d','encode:image/webp','decode:image/png','decode:image/jpeg','decode:image/webp'];
       if (typeof ImageDecoder !== 'undefined') for (const type of ['image/gif','image/png','image/webp','image/avif']) if (await ImageDecoder.isTypeSupported(type)) requirements.push(`decode:${type}`,`animation:${type}`);
+      if (typeof document !== 'undefined') { const video = document.createElement('video'); for (const type of ['video/mp4','video/webm']) if (video.canPlayType(type)) requirements.push(`decode:${type}`,`animation:${type}`); }
+      if (typeof AudioEncoder !== 'undefined' && typeof AudioData !== 'undefined' && (globalThis.OfflineAudioContext || globalThis.webkitOfflineAudioContext) && (await AudioEncoder.isConfigSupported({ codec: 'opus', sampleRate: 48000, numberOfChannels: 2 }).catch(() => undefined))?.supported) requirements.push('audio:convert');
       if (typeof WebAssembly !== 'undefined') requirements.push(...['invert','grayscale','stereo','dilate','erode','bayer'].map(name => `kernel:${name}`));
       if (typeof FontFace !== 'undefined' && (globalThis.fonts || globalThis.document?.fonts)) requirements.push('font:sans','font:serif','font:mono');
       return { available: true, requirements };
     });
   }
+  async function install(signal) {
+    const installed = await evaluate(() => globalThis.__OPENWA_STICKER_RENDERER_V1__?.version === '1');
+    if (!installed) await evaluate(createRecipeEngine, { install: true, kernelBytes: Array.from(await kernelBytes(signal)) });
+  }
+  async function convert(bytes, job) {
+    abortIfRequested(job.signal);
+    await install(job.signal);
+    const result = await evaluate(async ({ bytes, serialize }) => {
+      try {
+        const audio = await globalThis.__OPENWA_STICKER_RENDERER_V1__.audio(new Blob([new Uint8Array(bytes)]));
+        return { audio: { ...audio, bytes: serialize ? Array.from(audio.bytes) : audio.bytes } };
+      } catch (error) { return { error: { message: error.message || String(error) } }; }
+    }, { bytes: driver ? Array.from(bytes) : bytes, serialize: !!driver });
+    abortIfRequested(job.signal);
+    if (result.error) throw new StickerError('AUDIO_FAILED', `audio: ${result.error.message}.`);
+    return { ...result.audio, bytes: new Uint8Array(result.audio.bytes) };
+  }
   async function execute(input, job, requirements) {
     abortIfRequested(job.signal);
-    const installed = await evaluate(() => globalThis.__OPENWA_STICKER_RENDERER_V1__?.version === '1');
-    if (!installed) await evaluate(createRecipeEngine, { install: true, kernelBytes: Array.from(await kernelBytes(job.signal)) });
+    await install(job.signal);
     for (const requirement of requirements.filter(value => value.startsWith('font:'))) {
       const resource = resourceManifest['font' + requirement.slice(5,6).toUpperCase() + requirement.slice(6)];
       const loaded = await evaluate(family => (globalThis.fonts || document.fonts).check(`12px "${family}"`) && !!globalThis.__OPENWA_STICKER_FONTS_V1__?.has(family), resource.family);
@@ -64,13 +82,13 @@ export function createBrowserBackend(driver, { resourceBytes = webResourceBytes,
     try { result = await evaluate(async ({ bytes, mime, job, serialize }) => {
       try {
         const result = await globalThis.__OPENWA_STICKER_RENDERER_V1__.render(new Blob([new Uint8Array(bytes)], { type: mime }), job);
-        return { result: { ...result, bytes: serialize ? Array.from(result.bytes) : result.bytes } };
+        return { result: { ...result, bytes: serialize ? Array.from(result.bytes) : result.bytes, ...(result.audio ? { audio: { ...result.audio, bytes: serialize ? Array.from(result.audio.bytes) : result.audio.bytes } } : {}) } };
       } catch (error) { return { error: { message: error.message || String(error), code: error.code || 'RENDER_FAILED' } }; }
     }, { bytes: driver ? Array.from(input.bytes) : input.bytes, mime: input.mime, job: { ...serializable, __renderId: renderId }, serialize: !!driver }); }
     finally { signal?.removeEventListener('abort', cancel); }
     abortIfRequested(signal);
     if (result.error) throw new StickerError(result.error.code, result.error.message);
-    const output = { ...result.result, bytes: new Uint8Array(result.result.bytes) };
+    const output = { ...result.result, bytes: new Uint8Array(result.result.bytes), ...(result.result.audio ? { audio: { ...result.result.audio, bytes: new Uint8Array(result.result.audio.bytes) } } : {}) };
     onProgress?.({ frame: output.frames, frames: output.frames });
     return output;
   }
@@ -84,13 +102,16 @@ export function createBrowserBackend(driver, { resourceBytes = webResourceBytes,
     });
   }
   const jobs = manageStickerRuntime(() => ({
-    createSticker: ({ input, requirements }, job) => execute(input, job, requirements),
+    createSticker: ({ input, requirements, sound }, job) => sound ? convert(sound, job) : execute(input, job, requirements),
     dispose: release,
   }));
   return {
     capabilities,
     render(input, job, requirements) {
       return jobs.createSticker({ input, requirements }, job);
+    },
+    convertAudio(sound, job) {
+      return jobs.createSticker({ sound }, job);
     },
     dispose: () => jobs.dispose(),
   };

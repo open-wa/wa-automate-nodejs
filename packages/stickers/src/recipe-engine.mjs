@@ -10,6 +10,45 @@ const environment = config.environment || {
  ImageData: globalThis.ImageData,
  supportsColor: color=>!!globalThis.CSS?.supports('color',color),
  disposeSurface(c){c.width=0;c.height=0;},
+ // Video frames come from the page's own decoder, so any video the browser plays is accepted.
+ async openVideo(blob){
+  if(typeof document==='undefined')throw Error('Video input needs a browser page');
+  const el=document.createElement('video'),url=URL.createObjectURL(blob);el.muted=true;el.playsInline=true;el.preload='auto';
+  const settle=name=>new Promise((resolve,reject)=>{const done=error=>{clearTimeout(timer);el.removeEventListener(name,ok);el.removeEventListener('error',bad);error?reject(error):resolve();},ok=()=>done(),bad=()=>done(Error('The browser cannot play this video. H.264 MP4 or WebM works in every browser')),timer=setTimeout(bad,20000);el.addEventListener(name,ok);el.addEventListener('error',bad);});
+  const close=()=>{el.removeAttribute('src');try{el.load();}catch{}URL.revokeObjectURL(url);};
+  try{const loaded=settle('loadeddata');el.src=url;await loaded;if(!el.videoWidth||!el.videoHeight)throw Error('The browser cannot decode the picture in this video. HEVC (H.265) needs hardware decoding, which automated browsers usually have off. Use an H.264 MP4 or a WebM');if(!Number.isFinite(el.duration)||el.duration<=0)throw Error('The video has no readable length');}catch(error){close();throw error;}
+  return {durationMs:el.duration*1000,close,async frameAt(ms){const time=Math.max(0,Math.min(ms/1000,el.duration-.001));if(Math.abs(el.currentTime-time)>.0005){const seeked=settle('seeked');el.currentTime=time;await seeked;}return globalThis.createImageBitmap(el);}};
+ },
+ // Decode any audio the browser reads, cut it to the range and write an Ogg Opus clip.
+ async transcodeAudio(blob,range){
+  const Offline=globalThis.OfflineAudioContext||globalThis.webkitOfflineAudioContext;
+  if(!Offline||typeof AudioEncoder==='undefined'||typeof AudioData==='undefined')throw Error('This browser cannot convert audio. Supply an Ogg Opus or M4A clip');
+  let decoded;try{decoded=await new Offline(1,1,48000).decodeAudioData(await blob.arrayBuffer());}catch{throw Error('The browser found no audio it can read in this file');}
+  const rate=decoded.sampleRate,from=Math.max(0,Math.floor((range?range[0]:0)*rate/1000)),to=Math.min(decoded.length,range?Math.ceil(range[1]*rate/1000):decoded.length),total=to-from;
+  if(rate!==48000)throw Error('The browser did not resample the audio');
+  if(total<=0)throw Error('The selected trim contains no audio');
+  if(total>rate*300)throw Error('The sound is longer than five minutes');
+  const channels=Math.min(2,decoded.numberOfChannels),planes=Array.from({length:channels},(_,c)=>decoded.getChannelData(c));
+  const packets=[];let failure,preSkip=312;
+  const encoder=new AudioEncoder({output(part,meta){const data=new Uint8Array(part.byteLength);part.copyTo(data);packets.push({data,samples:Math.round((part.duration||20000)*48/1000)});const d=meta?.decoderConfig?.description;if(d){const head=d instanceof ArrayBuffer?new Uint8Array(d):new Uint8Array(d.buffer,d.byteOffset,d.byteLength);if(head.length>=12&&String.fromCharCode(...head.subarray(0,8))==='OpusHead')preSkip=head[10]|head[11]<<8;}},error(error){failure=error;}});
+  encoder.configure({codec:'opus',sampleRate:rate,numberOfChannels:channels,bitrate:Math.max(16000,Math.min(64000,Math.floor(7200000*rate/total)))});
+  for(let at=from;at<to;at+=rate){const frames=Math.min(rate,to-at),data=new Float32Array(frames*channels);for(let c=0;c<channels;c++)data.set(planes[c].subarray(at,at+frames),c*frames);const frame=new AudioData({format:'f32-planar',sampleRate:rate,numberOfFrames:frames,numberOfChannels:channels,timestamp:Math.round((at-from)*1e6/rate),data});encoder.encode(frame);frame.close();}
+  await encoder.flush();encoder.close();if(failure)throw failure;
+  if(!packets.length)throw Error('The audio could not be encoded');
+  const table=new Uint32Array(256);for(let i=0;i<256;i++){let r=i<<24;for(let j=0;j<8;j++)r=r&0x80000000?(r<<1)^0x04c11db7:r<<1;table[i]=r>>>0;}
+  const serial=crypto.getRandomValues(new Uint32Array(1))[0],pages=[];let sequence=0;
+  const page=(list,granule,flags)=>{const lacing=[];for(const p of list){for(let n=p.length;n>=255;n-=255)lacing.push(255);lacing.push(p.length%255);}const size=list.reduce((sum,p)=>sum+p.length,0),out=new Uint8Array(27+lacing.length+size),view=new DataView(out.buffer);out.set([79,103,103,83,0,flags]);view.setUint32(6,granule%4294967296,true);view.setUint32(10,Math.floor(granule/4294967296),true);view.setUint32(14,serial,true);view.setUint32(18,sequence++,true);out[26]=lacing.length;out.set(lacing,27);let at=27+lacing.length;for(const p of list){out.set(p,at);at+=p.length;}let crc=0;for(let i=0;i<out.length;i++)crc=((crc<<8)^table[((crc>>>24)^out[i])&255])>>>0;view.setUint32(22,crc,true);pages.push(out);};
+  const text=value=>Uint8Array.from(value,char=>char.charCodeAt(0)),head=new Uint8Array(19),tags=new Uint8Array(23);
+  head.set(text('OpusHead'));head[8]=1;head[9]=channels;new DataView(head.buffer).setUint16(10,preSkip,true);new DataView(head.buffer).setUint32(12,rate,true);
+  tags.set(text('OpusTags'));tags[8]=7;tags.set(text('open-wa'),12);
+  page([head],0,2);page([tags],0,0);
+  let group=[],segments=0,produced=0;const last=preSkip+total;
+  for(let i=0;i<packets.length;i++){const need=Math.floor(packets[i].data.length/255)+1;if(group.length&&(segments+need>255||group.length>=50)){page(group,Math.min(produced,last),0);group=[];segments=0;}group.push(packets[i].data);segments+=need;produced+=packets[i].samples;}
+  page(group,Math.min(produced,last),4);
+  const bytes=new Uint8Array(pages.reduce((sum,p)=>sum+p.length,0));let at=0;for(const p of pages){bytes.set(p,at);at+=p.length;}
+  if(bytes.length>1000000)throw Error('The converted sound is larger than 1 MB. Use a shorter clip');
+  return {bytes,mime:'audio/ogg; codecs=opus',durationMs:Math.round(total*1000/rate)};
+ },
 };
 const ImageData=environment.ImageData;
 const createImageBitmap=environment.createImageBitmap;
@@ -195,17 +234,21 @@ async function render(input,job={}) {
  const steps=resolveStack(job.effects||[]);if(steps.some(s=>['invert','grayscale','stereo','dilate','erode','bayer','random'].includes(s.name))&&!kernel)throw Error('Rust kernels were not provisioned');
  const quality=job.quality??.82,freeze=steps.some(s=>s.name==='freeze');
  if(job.background&&!CSS.supports('color',job.background))throw Error('Invalid background colour');
- let decoder,bitmap,sourceFrames=1;
+ let decoder,bitmap,video,sourceFrames=1;
  currentJob=job;
  try {
-  if(environment.ImageDecoder&&['image/gif','image/webp','image/avif','image/png'].includes(input.type)&&await environment.ImageDecoder.isTypeSupported(input.type)){
+  if(input.type.startsWith('video/')){
+   if(!environment.openVideo)throw Error('Video input needs a browser page');
+   video=await environment.openVideo(input);
+  }else if(environment.ImageDecoder&&['image/gif','image/webp','image/avif','image/png'].includes(input.type)&&await environment.ImageDecoder.isTypeSupported(input.type)){
    decoder=new environment.ImageDecoder({data:new Uint8Array(await input.arrayBuffer()),type:input.type,preferAnimation:true});await decoder.tracks.ready;await decoder.completed;sourceFrames=decoder.tracks.selectedTrack.frameCount;
   }else bitmap=await createImageBitmap(input);
   if(!sourceFrames||sourceFrames>120)throw Error('Input must contain 1–120 frames');
   const lastFreeze=steps.findLastIndex(s=>s.name==='freeze');
   const animated=steps.some((s,index)=>index>lastFreeze&&recipes[s.name].animated);
   const timeline=[];let sourceDuration=0;
-  if(sourceFrames>1){
+  if(video)sourceDuration=video.durationMs;
+  else if(sourceFrames>1){
    for(let frameIndex=0;frameIndex<sourceFrames;frameIndex++){
     await checkpoint();
     const image=(await decoder.decode({frameIndex,completeFramesOnly:true})).image;
@@ -213,17 +256,23 @@ async function render(input,job={}) {
     finally { image.close(); }
    }
   }else{const count=animated?20:1;sourceDuration=animated?1600:80;for(let i=0;i<count;i++)timeline.push({frameIndex:0,begin:i*sourceDuration/count,end:(i+1)*sourceDuration/count});}
-  const begin=job.trim?Math.max(0,job.trim[0]):0,end=job.trim?Math.min(sourceDuration,job.trim[1]):sourceDuration;
+  // A video with no trim uses its first ten seconds, the longest animation a sticker holds.
+  const begin=job.trim?Math.max(0,job.trim[0]):0,end=Math.min(sourceDuration,job.trim?job.trim[1]:video?begin+10000:sourceDuration);
   if(end<=begin)throw Error('The selected trim contains no frames');
   let selected=timeline.filter(f=>f.end>begin&&f.begin<end).map(f=>({...f,begin:Math.max(begin,f.begin),end:Math.min(end,f.end)}));
-  if(job.fps&&selected.length>1){const sampled=[];for(let t=begin;t<end;t+=1000/job.fps){const frame=timeline.find(f=>t>=f.begin&&t<f.end);sampled.push({...frame,begin:t,end:Math.min(end,t+1000/job.fps)});}selected=sampled;}
-  if(freeze){const first=selected[0],count=animated?(job.fps?Math.ceil(1.6*job.fps):20):1,duration=animated?1600:80;selected=Array.from({length:count},(_,i)=>({frameIndex:first.frameIndex,begin:i*duration/count,end:(i+1)*duration/count}));}
+  if(video){
+   // Sample at the requested rate. The default keeps about 48 frames so each one has enough bytes to look good.
+   const step=1000/(job.fps||Math.max(4,Math.min(15,Math.floor(48000/(end-begin))))),frames=Math.max(1,Math.ceil((end-begin)/step-1e-6));
+   selected=Array.from({length:frames},(_,i)=>({time:begin+i*step,begin:Math.round(begin+i*step),end:Math.round(Math.min(end,begin+(i+1)*step))}));
+  }else if(job.fps&&selected.length>1){const sampled=[];for(let t=begin;t<end;t+=1000/job.fps){const frame=timeline.find(f=>t>=f.begin&&t<f.end);sampled.push({...frame,begin:t,end:Math.min(end,t+1000/job.fps)});}selected=sampled;}
+  if(freeze){const first=selected[0],count=animated?(job.fps?Math.ceil(1.6*job.fps):20):1,duration=animated?1600:80;selected=Array.from({length:count},(_,i)=>({frameIndex:first.frameIndex,time:first.time,begin:i*duration/count,end:(i+1)*duration/count}));}
   if(selected.length>120)throw Error('The selected animation exceeds 120 frames');
   const count=selected.length,encoded=[],delays=[];let hasAlpha=false,firstStatic,totalBytes=0,totalDuration=0;
   for(let i=0;i<count;i++){
    await checkpoint();
    let frame=bitmap,ownedFrame;
    if(decoder){ownedFrame=(await decoder.decode({frameIndex:selected[i].frameIndex,completeFramesOnly:true})).image;frame=ownedFrame;}
+   else if(video){ownedFrame=await video.frameAt(selected[i].time);frame=ownedFrame;}
    let delay=selected[i].end-selected[i].begin;
    for(const s of steps)if(s.name==='slow')delay*=s.p.factor;
    delay=Math.max(1,Math.round(delay));if(delay>16777215){ownedFrame?.close();throw Error('Invalid frame duration');}
@@ -238,7 +287,7 @@ async function render(input,job={}) {
    if(job.circle)g.restore();ownedFrame?.close();
    for(let j=0;j<steps.length;j++){await checkpoint();const s=steps[j];c=await effect(c,s.name,s.p,count===1||j<=lastFreeze?0:freeze?i/count:(selected[i].begin-begin)/(end-begin),s.info);}
    const frameBudget=count>1?Math.floor((512000-4096-44)/count)-24:100000-4096;
-   const blob=await encode(c,'image/webp',quality,frameBudget);if(!firstStatic)firstStatic=blob;
+   const blob=await encode(c,'image/webp',quality,frameBudget).catch(error=>{throw count>1&&/byte budget/.test(error?.message)?Error('The animation is too detailed for a sticker of this length. Use a shorter trim or a lower fps'):error;});if(!firstStatic)firstStatic=blob;
    if(count>1){const {parts,alpha}=pixelChunks(new Uint8Array(await blob.arrayBuffer()));hasAlpha ||= alpha;const h=new Uint8Array(16);u24(h,6,511);u24(h,9,511);u24(h,12,delay);h[15]=2;const encodedFrame=chunk('ANMF',join([h,...parts]));encoded.push(encodedFrame);totalBytes+=encodedFrame.length;if(totalBytes+44>512000)throw Error('Animated sticker exceeds the byte budget');}
    else if(blob.size>100000)throw Error('Static sticker exceeds the byte budget');
    delays.push(delay);clearSurfaces();job.onProgress?.({frame:i+1,frames:count});
@@ -247,14 +296,22 @@ async function render(input,job={}) {
   let blob;
   if(encoded.length>1){blob=mux(encoded,hasAlpha);if(job.loopCount){const bytes=new Uint8Array(await blob.arrayBuffer());bytes[42]=job.loopCount&255;bytes[43]=job.loopCount>>>8;blob=new Blob([bytes],{type:'image/webp'});}}
   else blob=firstStatic;
-  return {bytes:new Uint8Array(await blob.arrayBuffer()),width:512,height:512,frames:encoded.length>1?encoded.length:1,durationMs:encoded.length>1?delays.reduce((a,b)=>a+b,0):0,steps:steps.map(s=>({name:s.name,options:s.p,...s.info}))};
- }finally{clearSurfaces();decoder?.close();bitmap?.close();currentJob=undefined;}
+  // audio: true keeps the sound of the frames that were used.
+  let audio;
+  if(job.audio===true){if(!video)throw Error('audio: true needs a video input. Pass a sound file or URL instead');audio=await transcode(input,[begin,end]);}
+  return {bytes:new Uint8Array(await blob.arrayBuffer()),width:512,height:512,frames:encoded.length>1?encoded.length:1,durationMs:encoded.length>1?delays.reduce((a,b)=>a+b,0):0,steps:steps.map(s=>({name:s.name,options:s.p,...s.info})),...(audio?{audio}:{})};
+ }finally{clearSurfaces();decoder?.close();bitmap?.close();video?.close();currentJob=undefined;}
 }
+function transcode(input,range){if(!environment.transcodeAudio)throw Error('Audio conversion needs a browser page');return environment.transcodeAudio(input,range);}
 let tail=Promise.resolve(),pending=0,closed=false;
 const engine={version:'1',get busy(){return pending>0;},cancel(id){cancellations.add(id);},render(input,job){
  if(closed)return Promise.reject(Error('Renderer disposed'));
  pending++;const result=tail.then(()=>{if(closed)throw Error('Renderer disposed');if(cancellations.has(job.__renderId)){const error=Error('Render cancelled');error.code='CANCELLED';throw error;}return render(input,job);});
  tail=result.catch(()=>{}).finally(()=>{pending--;cancellations.delete(job.__renderId);});return result;
+},audio(input,range){
+ if(closed)return Promise.reject(Error('Renderer disposed'));
+ pending++;const result=tail.then(()=>{if(closed)throw Error('Renderer disposed');return transcode(input,range);});
+ tail=result.catch(()=>{}).finally(()=>{pending--;});return result;
 },dispose(){closed=true;clearSurfaces();cancellations.clear();kernel=undefined;}};
 if(config.install){globalThis.__OPENWA_STICKER_RENDERER_V1__=engine;return {version:'1',installed:true};}
 return engine;

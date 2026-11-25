@@ -8,10 +8,31 @@ export function sniffMime(bytes) {
   if (text(0, 4) === 'GIF8') return 'image/gif';
   if (text(0, 4) === 'RIFF' && text(8, 4) === 'WEBP') return 'image/webp';
   if (text(4, 4) === 'ftyp') return text(8, 4).startsWith('avi') ? 'image/avif' : 'video/mp4';
-  throw new StickerError('INVALID_INPUT', 'Supported inputs are PNG, JPEG, GIF, WebP, AVIF or MP4 media.');
+  if (bytes[0] === 0x1a && bytes[1] === 0x45 && bytes[2] === 0xdf && bytes[3] === 0xa3) return 'video/webm';
+  throw new StickerError('INVALID_INPUT', 'Supported inputs are PNG, JPEG, GIF, WebP, AVIF, MP4, MOV or WebM media.');
 }
 
-export async function resolveInput(input, options = {}) {
+/** Ogg Opus and M4A clips are sent as they are. Anything else is converted in the browser first. */
+export function sniffReadyAudio(bytes) {
+  const text = (start, count) => String.fromCharCode(...bytes.subarray(start, start + count));
+  if (bytes.length > 1_000_000) return undefined;
+  if (text(0, 4) === 'OggS' && bytes[26] > 0 && text(27 + bytes[26], 8) === 'OpusHead') return 'audio/ogg; codecs=opus';
+  if (text(4, 4) === 'ftyp' && /^M4[AB] $/.test(text(8, 4))) return 'audio/mp4';
+  return undefined;
+}
+
+/** Read a sound from bytes, a Blob, a data URL, a URL or a local filename. */
+export async function resolveAudio(input, options = {}) {
+  let bytes;
+  try { ({ bytes } = await resolveInput(input, options, true)); }
+  catch (error) {
+    if (error instanceof StickerError) throw new StickerError(error.code, `audio: ${error.message}`, error.detail);
+    throw new StickerError('INPUT_UNAVAILABLE', `audio: the sound could not be read (${error?.message || error}).`, {}, error);
+  }
+  return { bytes, mime: sniffReadyAudio(bytes) };
+}
+
+export async function resolveInput(input, options = {}, audio = false) {
   abortIfRequested(options.signal);
   let bytes;
   if (input instanceof Uint8Array || input instanceof ArrayBuffer) {
@@ -22,7 +43,7 @@ export async function resolveInput(input, options = {}) {
     if (input.size > STICKER_PROFILE.maxInputBytes) throw new StickerError('INPUT_TOO_LARGE', 'Input exceeds the byte limit.');
     bytes = new Uint8Array(await input.arrayBuffer());
   } else if (typeof input === 'string' && input.startsWith('data:')) {
-    const match = /^data:(?:image|video)\/[\w.+-]+;base64,([A-Za-z0-9+/]*={0,2})$/.exec(input);
+    const match = (audio ? /^data:(?:audio|video|application)\/[\w.+-]+(?:;[\w-]+=[\w.+-]+)*;base64,([A-Za-z0-9+/]*={0,2})$/ : /^data:(?:image|video)\/[\w.+-]+;base64,([A-Za-z0-9+/]*={0,2})$/).exec(input);
     if (!match || match[1].length > Math.ceil(STICKER_PROFILE.maxInputBytes / 3) * 4 || match[1].length % 4) throw new StickerError('INVALID_INPUT', 'Invalid or oversized media data URL.');
     const raw = atob(match[1]); bytes = Uint8Array.from(raw, char => char.charCodeAt(0));
   } else if (typeof input === 'string' && /^https?:\/\//.test(input)) {
@@ -58,8 +79,8 @@ export async function resolveInput(input, options = {}) {
       if (at > STICKER_PROFILE.maxInputBytes || at > stat.size) throw new StickerError('INPUT_TOO_LARGE', 'Input changed or exceeded its byte limit.');
       bytes = buffer.subarray(0, at);
     } finally { await file.close(); }
-  } else throw new StickerError('INVALID_INPUT', 'Supply image bytes, a Blob, media data URL, URL or local filename.');
+  } else throw new StickerError('INVALID_INPUT', 'Supply media bytes, a Blob, media data URL, URL or local filename.');
   if (!bytes.length || bytes.length > STICKER_PROFILE.maxInputBytes) throw new StickerError('INPUT_TOO_LARGE', 'Input is empty or exceeds the byte limit.');
   abortIfRequested(options.signal);
-  return { bytes, mime: sniffMime(bytes) };
+  return audio ? { bytes } : { bytes, mime: sniffMime(bytes) };
 }
