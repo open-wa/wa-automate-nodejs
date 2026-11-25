@@ -49,37 +49,12 @@ async function availability(pkg) {
   }
 }
 
-// Bumpy's accepted upload can precede npm availability. Reconcile its existing
-// package release status only after the public manifest and tarball work.
-function reconcilePackage(pkg) {
+// Bumpy creates one draft GitHub release per package as its retry record.
+// Once npm serves every package, that record has done its job: the combined
+// vX.Y.Z release is the only one readers need. Git tags stay.
+function removePackageRelease(pkg) {
   const entry = tagRelease(`${pkg.name}@${pkg.version}`, false);
-  if (!entry) return;
-  const match = entry.body?.match(/<!-- bumpy-metadata\s+([\s\S]*?)bumpy-metadata -->/);
-  if (!match) return;
-  const metadata = JSON.parse(match[1]);
-  if (!metadata.targets?.npm) return;
-  if (metadata.targets.npm.status === 'success') {
-    if (entry.draft && Object.values(metadata.targets).every(target => target.status === 'success')) {
-      api(`repos/${repo}/releases/${entry.id}`, { draft: false }, 'PATCH');
-    }
-    return;
-  }
-  metadata.targets.npm = {
-    status: 'success', publishedAt: new Date().toISOString(),
-    url: `https://www.npmjs.com/package/${pkg.name}/v/${pkg.version}`,
-  };
-  const rows = Object.entries(metadata.targets).map(([name, target]) => {
-    const label = target.label || name;
-    if (target.status === 'success') return `- ✅ ${target.url ? `[${label}](${target.url})` : label}`;
-    if (target.status === 'pending') return `- ⏳ ${label}`;
-    if (target.status === 'failed') return `- ❌ ${label} — will retry on next CI run`;
-    return `- ⏭️ ${label}`;
-  });
-  const content = entry.body.split(/#### Published to|<!-- bumpy-metadata/)[0].trimEnd();
-  api(`repos/${repo}/releases/${entry.id}`, {
-    body: `${content}\n\n#### Published to\n${rows.join('\n')}\n\n<!-- bumpy-metadata\n${JSON.stringify(metadata, null, 2)}\nbumpy-metadata -->`,
-    draft: !Object.values(metadata.targets).every(target => target.status === 'success'),
-  }, 'PATCH');
+  if (entry) api(`repos/${repo}/releases/${entry.id}`, undefined, 'DELETE');
 }
 
 const deadline = Date.now() + 120 * 60_000;
@@ -90,7 +65,7 @@ while (Date.now() < deadline) {
   registry = await mapLimit(registry, pkg => pkg.available ? pkg : availability(pkg));
   remaining = registry.filter(pkg => !pkg.available);
   if (!remaining.length && !reconciled) {
-    for (const pkg of registry) reconcilePackage(pkg);
+    for (const pkg of registry) removePackageRelease(pkg);
     current = checkpoint(v, { npmAvailableAt: new Date().toISOString(), npmValidationPending: false, registry });
     reconciled = true;
   }

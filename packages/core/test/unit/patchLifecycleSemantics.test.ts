@@ -5,6 +5,7 @@ import type { IDriver } from '@open-wa/driver-interface';
 import { Transport } from '../../src/transport/Transport';
 import type { OpenWAEventMap } from '../../src/events/eventMap';
 import * as httpClient from '../../src/transport/httpClient';
+import { version as coreVersion } from '../../package.json';
 
 function createTransport(patchConfig?: ConstructorParameters<typeof Transport>[0]['patchConfig']): Transport {
   return new Transport({
@@ -47,8 +48,8 @@ describe('transport patch lifecycle semantics', () => {
     expect(saveCachedSpy).not.toHaveBeenCalled();
     expect(fetchSpy).toHaveBeenCalledWith(
       'https://cdn.openwa.dev/patches.json',
-      expect.objectContaining({ waVersion: '2.2400.1', waAutomateVersion: '5.0.0' }),
-      { fallbackUrl: 'https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/patches.json' },
+      expect.objectContaining({ waVersion: '2.2400.1', waAutomateVersion: coreVersion }),
+      { fallbackUrl: 'https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/patches.json', fresh: false },
     );
   });
 
@@ -100,8 +101,8 @@ describe('transport patch lifecycle semantics', () => {
     expect(result).toMatchObject({ tag: 'github-tag' });
     expect(fetchSpy).toHaveBeenCalledWith(
       'https://raw.githubusercontent.com/open-wa/wa-automate-nodejs/master/patches.json',
-      expect.objectContaining({ waVersion: '2.2400.1', waAutomateVersion: '5.0.0' }),
-      { fallbackUrl: undefined },
+      expect.objectContaining({ waVersion: '2.2400.1', waAutomateVersion: coreVersion }),
+      { fallbackUrl: undefined, fresh: false },
     );
   });
 });

@@ -29,6 +29,14 @@
 
 
 
+
+## 5.13.0
+<sub>2026-11-25</sub>
+
+-  *(patch)*
+  🐛 Sessions load their patches from the open-wa CDN at startup again. The first patch request went out before WhatsApp's version was known and without the open-wa version, so the CDN refused it and the session quietly used the GitHub copy instead. Every patch request now carries both versions, and the log says which source served the patches.
+- *(minor)* Version bump from group with `@open-wa/client` v5.13.0, `@open-wa/schema` v5.13.0
+
 ## 5.12.1
 <sub>2026-11-23</sub>
 
