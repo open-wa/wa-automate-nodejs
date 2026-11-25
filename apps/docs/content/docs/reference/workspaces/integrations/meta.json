@@ -4,8 +4,10 @@
     "index",
     "chatwoot",
     "cloudflare",
+    "jev",
     "node-red",
     "s3",
+    "voxtral",
     "webhook"
   ]
 }

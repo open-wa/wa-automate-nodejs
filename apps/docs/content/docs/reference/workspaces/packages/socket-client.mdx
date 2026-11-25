@@ -13,7 +13,7 @@ Use `@open-wa/socket-client` from a Node.js application to call a running `@open
 ## Start the API server
 
 ```bash
-npx @open-wa/wa-automate@5.1.0 --session-id main --host 127.0.0.1 --port 8002 --api-key replace-this-key
+npx @open-wa/wa-automate@latest --session-id main --host 127.0.0.1 --port 8002 --api-key replace-this-key
 ```
 
 Keep the server on loopback or a private network unless you have configured an appropriate access boundary. The API key is sent by the client in the `X-API-Key` header for commands and as an `api_key` query parameter for the SSE connection.
@@ -21,7 +21,7 @@ Keep the server on loopback or a private network unless you have configured an a
 ## Connect and send a message
 
 ```bash
-npm install @open-wa/socket-client@5.1.0
+npm install @open-wa/socket-client@latest
 ```
 
 ```typescript

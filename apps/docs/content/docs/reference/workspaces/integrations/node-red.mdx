@@ -8,7 +8,7 @@ description: "Official @open-wa node-red integration."
 
 # @open-wa/node-red
 
-`@open-wa/node-red` connects Node-RED flows to an existing open-wa Easy API session. The current package is `5.1.0` and registers three node types: `owa-server`, `cmd`, and `listen`.
+`@open-wa/node-red` connects Node-RED flows to an existing open-wa Easy API session. It registers three node types: `owa-server`, `cmd`, and `listen`.
 
 The integration keeps the Node-RED palette small and maps commands and events to the Easy API metadata endpoints. It uses `@open-wa/socket-client` as the compatibility client; v5 commands travel over HTTP RPC and runtime events use the client event stream.
 
@@ -17,13 +17,13 @@ The integration keeps the Node-RED palette small and maps commands and events to
 Start Easy API separately, then install the package into Node-RED's user directory:
 
 ```bash
-npx @open-wa/wa-automate@5.1.0 \
+npx @open-wa/wa-automate@latest \
   --session-id sales \
   --port 8080 \
-  --api-key "$WA_API_KEY"
+  --api-key "$OPENWA_API_KEY"
 
 cd ~/.node-red
-npm install @open-wa/node-red@5.1.0
+npm install @open-wa/node-red@latest
 node-red
 ```
 
@@ -79,11 +79,11 @@ Use the same URL and key outside Node-RED to separate API reachability, authenti
 
 ```bash
 curl -sS -D - \
-  -H "X-API-Key: $WA_API_KEY" \
+  -H "X-API-Key: $OPENWA_API_KEY" \
   http://127.0.0.1:8080/health
 
 curl -sS -D - \
-  -H "X-API-Key: $WA_API_KEY" \
+  -H "X-API-Key: $OPENWA_API_KEY" \
   http://127.0.0.1:8080/meta/basic/commands
 ```
 
