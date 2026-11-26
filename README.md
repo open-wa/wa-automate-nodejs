@@ -36,9 +36,9 @@
 
 `@open-wa/wa-automate` is a Node.js toolkit for WhatsApp Web automation. You can make a local API, bot backend, webhook source, plugin host, or MCP server.
 
-This repository is the **v5 monorepo**. Its packages share the stable **5.0.0** release and use separate modules for the runtime, drivers, API, and integrations.
+This repository is the **v5 monorepo**. Its packages are released together under one version number and use separate modules for the runtime, drivers, API, and integrations.
 
-Need a WhatsApp API running quickly? Start with **Easy API**. Want the browser/runtime inside your own app? Use the **embedded runtime**. Building integrations, proxying sessions, or exposing WhatsApp to an AI agent? Those surfaces are in this repo too.
+Starting from nothing? Run `npm init @open-wa@latest my-bot` and the project generator sets everything up. Need a WhatsApp API running quickly? Start with **Easy API**. Want the browser/runtime inside your own app? Use the **embedded runtime**. Building integrations, proxying sessions, or exposing WhatsApp to an AI agent? Those surfaces are in this repo too.
 
 ## What can you build?
 
@@ -47,12 +47,14 @@ Need a WhatsApp API running quickly? Start with **Easy API**. Want the browser/r
 - bots that react to messages, group activity, and runtime events
 - webhook bridges for CRMs, helpdesks, automations, and low-code tools
 - multi-session automations with named accounts and isolated consumers
-- AI-agent workflows through the built-in Model Context Protocol server
+- voice and chat assistants that answer voice notes, audio calls, and ordinary chats
+- AI-agent workflows through the built-in Model Context Protocol server, including ChatGPT watching and answering your chats
 
 ## Capabilities at a glance
 
 | Surface | What it gives you | Start here |
 | --- | --- | --- |
+| Project generator | Create an Easy API or SDK project, with the plugins you pick, from one command | [Start a project](#start-a-project) |
 | Easy API | Run WhatsApp as a local HTTP API with docs and generated schemas | [Quick start](#quick-start-easy-api) |
 | SocketClient | Connect another Node.js app to a running Easy API instance | [Simple automation](#simple-automation-socketclient) |
 | Embedded runtime | Own the runtime lifecycle directly through `createClient` | [Deep integration](#deep-integration-embedded-runtime) |
@@ -61,12 +63,15 @@ Need a WhatsApp API running quickly? Start with **Easy API**. Want the browser/r
 | Webhooks | Push WhatsApp events into your own service | [Plugins and integrations](#plugins-and-integrations) |
 | Chatwoot | Bridge WhatsApp into Chatwoot conversations | [Plugins and integrations](#plugins-and-integrations) |
 | Cloudflare proxy | Get remote access to a local session without direct exposure of local ports | [Cloudflare Session Proxy](#cloudflare-session-proxy) |
-| MCP | Let AI agents discover and call Easy API methods as tools | [AI-agent integration](#ai-agent-integration-mcp) |
+| MCP | Let AI agents discover and call Easy API methods as tools, and watch chats with MCP Events | [AI-agent integration](#ai-agent-integration-mcp) |
+| Assistants | Add Voxtral for voice notes and audio calls, and Jev for text chats with buttons, lists, forms and booking cards | [Plugins and integrations](#plugins-and-integrations) |
+| Stickers | Send images as stickers, including stickers that play a sound | [Media guide](https://openwa.dev/docs/guides/media) |
 
 ## Pick your path
 
 | If you want to... | Start here |
 | --- | --- |
+| create a new project with one command | [Start a project](#start-a-project) |
 | get a WhatsApp-backed API running in minutes | [Quick start: Easy API](#quick-start-easy-api) |
 | build a bot without owning the browser runtime | [Simple automation: SocketClient](#simple-automation-socketclient) |
 | own the runtime inside your own Node.js app | [Deep integration: embedded runtime](#deep-integration-embedded-runtime) |
@@ -77,10 +82,29 @@ Need a WhatsApp API running quickly? Start with **Easy API**. Want the browser/r
 
 You can use this project in a few practical ways:
 
+- generate a project that is ready to start
 - run a ready-made API with the CLI
 - connect another app to that runtime
 - embed the runtime directly in your own Node.js code
 - add integrations and plugins
+
+## Start a project
+
+The project generator asks whether you want the Easy API or the Node.js SDK, JavaScript or TypeScript, and which plugins to add. Then it writes the project and installs it:
+
+```bash
+npm init @open-wa@latest my-bot
+cd my-bot
+npm start
+```
+
+Scan the QR code from **WhatsApp → Linked devices → Link a device**. Later starts from the same folder reuse the saved login. To add the assistants at the same time, pass the plugins on the command line:
+
+```bash
+npm init @open-wa@latest my-assistant -- --plugins jev,voxtral
+```
+
+The [quick start](https://openwa.dev/docs/getting-started/quickstart) continues from here to your first message, and the [project builder](https://openwa.dev/new/) makes the same choices in the browser.
 
 ## Quick start: Easy API
 
@@ -133,19 +157,20 @@ Good defaults for a first real session:
 - protect the API with an `--api-key` before exposing it outside your machine
 - keep business logic in your own app and let open-wa own the WhatsApp runtime
 
-If your goal is simply "connect WhatsApp to another service", configure `@open-wa/integration-webhook` in `wa.config.*`. The v5 CLI parses `--webhook` but currently warns that CLI webhook registration parity is not restored, so that flag does not enable source-backed delivery. See [Webhooks for Business](apps/docs/content/docs/guides/webhooks-for-business.mdx) for the working configuration.
+If your goal is simply "connect WhatsApp to another service", configure `@open-wa/integration-webhook` in `wa.config.*`. The v5 CLI parses `--webhook` but currently warns that CLI webhook registration parity is not restored, so that flag does not enable source-backed delivery. See [Receive webhooks](https://openwa.dev/docs/guides/receive-webhooks) for the working configuration.
 
 If you prefer Docker:
 
 ```bash
-docker run -p 8080:8080 --init openwa/wa-automate
+docker run -p 127.0.0.1:8080:8080 --init openwa/wa-automate
 ```
 
 Docker notes:
 
-- this is best for local testing or a disposable first run unless you also plan session persistence properly
+- this command is for local testing or a disposable first run, because the login is lost when the container is removed
+- to keep the login, mount a folder and set `WA_SESSION_DATA_PATH`, as the [Docker guide](https://openwa.dev/docs/getting-started/docker) shows
 - use `--init` so the init process removes zombie processes
-- you can pin the library version with `W_A_V`, for example `-e W_A_V=4.42.1`
+- you can pin the library version with `W_A_V`, for example `-e W_A_V=5.13.0`
 
 ## Simple automation: SocketClient
 
@@ -267,7 +292,7 @@ Some older docs and examples still mention additional legacy or transitional fla
 For contributors to this monorepo, the repo currently declares:
 
 - **Node.js** `>=22.21.1`
-- **pnpm** `11.15.1`
+- **pnpm** `11.25.0`
 
 The exact toolchain is pinned in [`mise.toml`](./mise.toml) (`mise install`),
 and the full contributor setup — including browser-automation dependencies —
@@ -291,6 +316,8 @@ Relevant packages in this repo:
 - `@open-wa/integration-chatwoot`
 - `@open-wa/integration-s3`
 - `@open-wa/integration-cloudflare`
+- `@open-wa/integration-voxtral`
+- `@open-wa/integration-jev`
 - `@open-wa/node-red`
 
 ### Loading plugins
@@ -337,6 +364,10 @@ So today, “share a plugin” realistically means “publish a package users ca
 - **Chatwoot**: connect open-wa to Chatwoot for bidirectional message handling
 - **Cloudflare Session Proxy**: remote session access without opening public ports
 - **Node-RED**: low-code visual automation on top of Easy API
+- **Voxtral**: a voice assistant that answers voice notes with voice notes and takes audio calls ([guide](https://openwa.dev/docs/guides/voxtral))
+- **Jev**: a text assistant that answers chats and chooses when to send buttons, a list, a form or a booking card ([guide](https://openwa.dev/docs/guides/jev))
+
+Plugins named in your configuration that are published on npm install themselves when open-wa starts.
 
 ## Cloudflare Session Proxy
 
@@ -359,6 +390,8 @@ const client = await SocketClient.connect(
 ```
 
 This is the cleanest path if you want remote access but do not want to invent your own transport bridge.
+
+With a license, you can skip the Worker: set `router: true` and open-wa connects out to the open-wa router, which gives the session its own HTTPS address. The [ChatGPT guide](https://openwa.dev/docs/guides/chatgpt-always-on) uses it.
 
 ## AI-agent integration (MCP)
 
@@ -419,8 +452,10 @@ Add a new MCP server with the URL `http://localhost:8080/mcp` and include `X-API
 
 - Uses the **Streamable HTTP** transport (single endpoint, no separate SSE/messages paths)
 - The schema registry generates the same tools as the HTTP API
-- **API key necessary** on every request (same key as Easy API)
+- **API key necessary** on every request (same key as Easy API), or an OAuth sign-in for clients such as ChatGPT that can't send a key
 - The runtime blocks tools until the session connects
+- **MCP Events** let an agent watch a chat and receive new messages by poll, stream or webhook ([guide](https://openwa.dev/docs/guides/mcp-events))
+- ChatGPT can sign in and work in your chats ([guide](https://openwa.dev/docs/guides/chatgpt-always-on))
 - Dashboard: shows connection status, configuration copy-paste snippets (Claude/Cursor), and live tool details at `http://localhost:8080/dashboard/mcp`
 
 ### Configuration contract
@@ -470,13 +505,20 @@ The v5 runtime has a different public surface, so update existing integrations d
 
 The current docs organize information by usage mode. Start with:
 
+- **Quick start**: https://openwa.dev/docs/getting-started/quickstart
 - **Easy API quick start**: https://openwa.dev/docs/getting-started/easy-api
 - **Custom code**: https://openwa.dev/docs/getting-started/custom-code
+- **Recipes** (OTP, booking confirmations, support bot, Python bot): https://openwa.dev/docs/build
+- **Media and stickers**: https://openwa.dev/docs/guides/media
 - **Socket Client**: https://openwa.dev/docs/guides/socket-client
+- **MCP**: https://openwa.dev/docs/guides/mcp
+- **ChatGPT with your WhatsApp number**: https://openwa.dev/docs/guides/chatgpt-always-on
+- **Voxtral** and **Jev** assistants: https://openwa.dev/docs/guides/voxtral and https://openwa.dev/docs/guides/jev
 - **Cloudflare Session Proxy**: https://openwa.dev/docs/guides/cf-proxy
 - **Configuration and CLI**: https://openwa.dev/docs/guides/configuration-and-cli
 - **Chatwoot**: https://openwa.dev/docs/guides/chatwoot
-- **Core reference**: https://openwa.dev/docs/reference/core
+- **Go to production**: https://openwa.dev/docs/operations/go-to-production
+- **API reference**: https://openwa.dev/docs/reference/client
 
 ## Running this repo locally
 

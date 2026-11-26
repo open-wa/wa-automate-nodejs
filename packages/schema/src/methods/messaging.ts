@@ -24,9 +24,7 @@ import {
     mentionedJidListParam,
     fileDataParam,
     audioDataParam,
-    videoDataParam,
-    stickerImageParam,
-    soundClipParam
+    videoDataParam
 } from '../parameters';
 
 // ============================================================================
@@ -48,13 +46,15 @@ export const StickerJobSchema = z.object({
     trim: z.tuple([z.number().nonnegative(),z.number().positive()]).refine(([start,end])=>end>start).optional(),
     fps: z.number().int().min(1).max(30).optional(),
     loopCount: z.number().int().min(0).max(65535).optional(),
-    author: z.string().max(128).optional(), pack: z.string().max(128).optional(),
+    author: z.string().max(128).optional().describe('Author label shown in the sticker details.'),
+    pack: z.string().max(128).optional().describe('Pack name shown in the sticker details.'),
+    audio: z.union([z.boolean(), z.string().regex(/^(?:data:(?:audio|video|application)\/[^;,]+(?:;[\w-]+=[\w.+-]+)*;base64,[A-Za-z0-9+/]+={0,2}|https?:\/\/\S+)$/)]).optional().describe('Attach a sound the recipient can play. `true` keeps the sound of a video input, cut to the same part of the video as the sticker. A string is a separate sound as a data URL or HTTP(S) URL; the local library additionally accepts bytes, Blob and local filenames. Ogg Opus and M4A clips of at most 1 MB are sent as they are; other audio is converted.'),
     quotedMsgId: messageIdParam.optional().describe('Reply with the sticker to a loaded message in the destination chat.'),
 }).strict();
 
 export const sendSticker = defineMethodV2('sendSticker', {
     meta: {
-        description: 'Turn an image or video into a sticker, apply optional effects and author and pack labels, and send it. Resolves to the message ID once WhatsApp accepts it, not a delivery receipt. If the outcome is unknown, check the chat before you retry.',
+        description: 'Turn an image or video into a sticker, apply optional effects, author and pack labels and a sound, and send it. A video becomes an animated sticker of at most 10 seconds. Resolves to the message ID once WhatsApp accepts it, not a delivery receipt. If the outcome is unknown, check the chat before you retry. Sound stickers only play on WhatsApp accounts and app versions that support them.',
         action: 'send', namespace: 'messages', license: 'none', functionality: 'both', httpMethod: 'POST',
         wapiOverride: 'sendStickerJob',
     },
@@ -64,26 +64,6 @@ export const sendSticker = defineMethodV2('sendSticker', {
         job: StickerJobSchema.optional(),
     }),
     parameterOrder: ['to','input','job'],
-    output: SendTextResultSchema,
-});
-
-export const SoundStickerOptionsSchema = z.strictObject({
-    quotedMsgId: messageIdParam.optional().describe('Reply with the sticker to a loaded message in the destination chat.'),
-});
-export type SoundStickerOptions = z.infer<typeof SoundStickerOptionsSchema>;
-
-export const sendSoundSticker = defineMethodV2('sendSoundSticker', {
-    meta: {
-        description: 'Send a sticker with a short sound the recipient can play. The image is resized into a sticker. The sound must be an Ogg Opus or M4A clip of at most 1 MB and is not converted. Resolves to the message ID once WhatsApp accepts it, not a delivery receipt. Sound stickers only work on WhatsApp accounts and app versions that support them.',
-        action: 'send', namespace: 'messages', license: 'none', functionality: 'both', httpMethod: 'POST',
-    },
-    input: z.object({
-        to: toParam,
-        sticker: stickerImageParam,
-        sound: soundClipParam,
-        options: SoundStickerOptionsSchema.optional().default({}),
-    }),
-    parameterOrder: ['to', 'sticker', 'sound', 'options'],
     output: SendTextResultSchema,
 });
 

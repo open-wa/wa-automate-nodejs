@@ -129,17 +129,61 @@ For object storage, upload the same bytes and keep the MIME type as metadata, or
 
 Media links expire, so save media when it arrives. Older messages that weren't downloaded at the time may no longer be retrievable.
 
-## Send a sound sticker
+## Send a sticker
 
-[`sendSoundSticker(to, sticker, sound, options?)`](/docs/reference/client/messages#sendsoundsticker) sends a sticker with a short sound the recipient can play. Both inputs take a local path, URL, data URL, base64 string or `Buffer`.
+[`sendSticker(to, input, job?)`](/docs/reference/client/messages#sendsticker) turns an image or a video into a sticker and sends it. The input takes a local path, URL, data URL or bytes.
 
 ```ts
-await client.sendSoundSticker(chatId, './muffin.png', './chime.ogg');
+await client.sendSticker(chatId, './muffin.png', {
+  author: 'Muffin',
+  pack: 'Bakery pack',
+});
 ```
 
-The image is resized into a square sticker for you. The sound isn't converted, so supply an Ogg Opus or M4A clip of at most 1 MB; anything else, such as MP3, is rejected before sending. With ffmpeg, `ffmpeg -i clip.mp3 -c:a libopus -ac 1 chime.ogg` produces a clip that works. Keep clips to a few seconds, and pass `{ quotedMsgId }` to send the sticker as a reply.
+`author` and `pack` are the labels people see when they open the sticker's details. Every sticker also links to the Sticker Maker app, which sponsors sticker support in open-wa; that link can't be changed or removed, and `sendSticker` is the only way to send a sticker. The image is fitted into a 512 by 512 sticker for you; set `fit: 'cover'` to fill the square, or `circle: true` to crop it round.
+
+### Animated stickers from video
+
+A video becomes an animated sticker. `trim` chooses the part to use, in milliseconds:
+
+```ts
+await client.sendSticker(chatId, './clip.mp4', {
+  trim: [0, 2000],
+  author: 'Muffin',
+  pack: 'Bakery pack',
+});
+```
+
+A sticker holds at most 10 seconds, so a longer video is cut to its first 10 seconds unless you set `trim`. Short clips look best, because the whole animation has to fit in about 500 KB. If a clip is too detailed for its length, the send fails and asks for a shorter `trim` or a lower `fps`.
+
+H.264 MP4 and WebM videos work everywhere. The session's browser usually can't read HEVC (H.265) video, which iPhones record by default, so open-wa converts it with [ffmpeg](https://ffmpeg.org/download.html) when ffmpeg is installed on the machine that runs open-wa. ffmpeg doesn't come with open-wa. If it's missing, the send fails and the log tells you to install it. Animated GIF and WebP inputs also become animated stickers.
+
+### Send a sound sticker
+
+Set `audio` to send a sticker with a sound the recipient can play. `audio: true` keeps the video's own sound, cut to the same part of the video as the sticker:
+
+```ts
+await client.sendSticker(chatId, './clip.mp4', { trim: [0, 2000], audio: true });
+```
+
+To add a sound to an image, or a different sound to a video, pass the sound as a local path, URL, data URL or bytes:
+
+```ts
+await client.sendSticker(chatId, './muffin.png', { audio: './chime.ogg' });
+```
+
+Ogg Opus and M4A clips of at most 1 MB are sent as they are. Other audio, such as MP3 or WAV, is converted for you. Keep sounds to a few seconds, and pass `quotedMsgId` to send any sticker as a reply.
 
 Sound stickers are new in WhatsApp. People on an app version without them see an ordinary sticker, and the method throws if the sending account doesn't have them yet.
+
+Over HTTP, `input` and `audio` are data URLs or HTTP(S) URLs:
+
+```bash
+curl --fail-with-body http://127.0.0.1:8080/api/messages/sendSticker \
+  -H "X-API-Key: $WA_API_KEY" \
+  -H 'Content-Type: application/json' \
+  --data '{"to": "447700900123@c.us", "input": "https://example.com/clip.mp4", "job": {"trim": [0, 2000], "audio": true, "author": "Muffin", "pack": "Bakery pack"}}'
+```
 
 ## Test what you'll run
 

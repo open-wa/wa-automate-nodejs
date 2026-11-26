@@ -15,6 +15,12 @@
 
 
 
+
+## 5.14.0
+<sub>2026-11-26</sub>
+
+- *(minor)* Version bump from group with `@open-wa/client` v5.14.0, `@open-wa/schema` v5.14.0, `@open-wa/stickers` v5.14.0
+
 ## 5.13.0
 <sub>2026-11-25</sub>
 

@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/utils",
-  "version": "5.13.0",
+  "version": "5.14.0",
   "description": "Shared utility functions for open-wa",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -27,7 +27,7 @@
   "dependencies": {
     "json5": "^2.2.3",
     "pidtree": "^1.0.0",
-    "pidusage": "^4.0.1"
+    "pidusage": "^4.1.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",

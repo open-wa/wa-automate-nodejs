@@ -24,9 +24,29 @@ await client.sendSticker(to, './photo.jpg', {
 });
 ```
 
+A video input becomes an animated sticker, and `audio` attaches a sound that
+the recipient can play. Both need a browser, so they work through the SDK or the
+browser entry:
+
+```js
+// The first two seconds of a video, with its own sound.
+await client.sendSticker(to, './clip.mp4', { trim: [0, 2000], audio: true });
+
+// An image with a separate sound.
+await client.sendSticker(to, './photo.jpg', { audio: './chime.ogg' });
+```
+
+`createSticker()` returns the sound as `result.audio`, an Ogg Opus or M4A clip
+of at most 1 MB. Ogg Opus and M4A inputs are used as they are; other audio is
+converted in the browser. A video with no `trim` uses its first 10 seconds. The
+browser has to be able to play the video: H.264 MP4 and WebM work everywhere.
+In Node.js, a video the browser can't decode, such as HEVC, is converted with
+the system's `ffmpeg` when it is installed (`FFMPEG_PATH` overrides the
+command). ffmpeg is not bundled; when it is missing, the error and a log line
+say to install it.
+
 The SDK imports this package on the first sticker request. Rendering produces
-pixels and optional author/pack labels. Sending a sticker needs a license and
-goes through `sendSticker`; `sendRawMessage` rejects sticker payloads. Forwarding
+pixels and optional author/pack labels. Sending goes through `sendSticker`; `sendRawMessage` rejects sticker payloads. Forwarding
 stickers isn't supported yet.
 
 ## Routing and lifecycle

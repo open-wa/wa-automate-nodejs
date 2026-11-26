@@ -10,82 +10,84 @@ packages:
   - sdks/*
 
 catalog:
-  '@base-ui/react': ^1.8.0
-  '@effect/platform-browser': 4.0.2
-  '@effect/platform-bun': 4.0.2
-  '@effect/platform-node': 4.0.2
-  '@effect/platform-node-shared': 4.0.2
+  '@base-ui/react': ^1.9.0
+  '@effect/platform-browser': 4.1.5
+  '@effect/platform-bun': 4.1.5
+  '@effect/platform-node': 4.1.5
+  '@effect/platform-node-shared': 4.1.5
   '@discordjs/collection': ^2.1.1
   '@elastic/elasticsearch': ^9.5.1
-  '@hono/node-server': ^2.1.1
-  '@tailwindcss/vite': ^4.3.3
-  '@tanstack/react-query': ^5.101.4
-  '@tanstack/react-router': 1.170.40
-  '@tanstack/react-router-devtools': 1.167.2
+  '@hono/node-server': ^2.1.11
+  '@tailwindcss/vite': ^4.3.5
+  '@tanstack/react-query': ^5.108.4
+  '@tanstack/react-router': 1.170.46
+  '@tanstack/react-router-devtools': 1.167.4
   '@tanstack/react-router-ssr-query': 1.167.3
-  '@tanstack/react-start': 1.168.59
-  '@tanstack/router-generator': 1.167.39
-  '@tanstack/router-plugin': 1.168.41
-  '@tanstack/start-static-server-functions': ^1.167.38
-  '@types/cors': ^2.8.12
+  '@tanstack/react-start': 1.169.7
+  '@tanstack/router-generator': 1.168.0
+  '@tanstack/router-plugin': 1.169.0
+  '@tanstack/start-static-server-functions': ^1.167.44
+  '@types/cors': ^2.8.19
   '@types/express': ^5.0.6
-  '@types/jest': ^29.5.0
-  '@types/morgan': ^1.9.3
-  '@types/node': ^26.6.3
+  '@types/jest': ^30.0.0
+  '@types/morgan': ^1.9.10
+  '@types/node': ^26.6.6
   '@types/react': ^19.3.0
   '@types/react-dom': ^19.3.0
   '@types/tar-fs': ^2.0.4
-  '@vitejs/plugin-react': ^6.1.1
-  autoprefixer: ^10.6.1
+  '@vitejs/plugin-react': ^6.3.0
+  autoprefixer: ^10.7.0
   axios: npm:redaxios@0.5.1
-  cabin: ^11.0.3
+  cabin: ^14.0.0
   clsx: 2.1.1
-  cors: ^2.8.5
-  dotenv: ^17.4.2
-  effect: 4.0.2
-  express: ^4.17.3
-  express-request-id: 1.4.1
-  helmet: ^6.0.0
-  hono: ^4.13.9
-  jest: ^29.5.0
-  lucide-react: ^1.48.0
-  morgan: ^1.10.0
+  cors: ^2.8.6
+  dotenv: ^18.0.10
+  effect: 4.1.5
+  express: ^5.3.0
+  express-request-id: 3.0.0
+  helmet: ^8.3.0
+  hono: ^4.13.21
+  jest: ^30.5.2
+  lucide-react: ^1.79.0
+  morgan: ^1.12.1
   nitro: ^2.2.28
-  playwright: ^1.58.2
-  pm2: ^7.0.3
-  postcss: ^8.5.28
-  prettier: ^3.9.9
+  playwright: ^1.65.1
+  pm2: ^7.1.2
+  postcss: ^8.5.33
+  prettier: ^3.10.1
   public-ip: 8.0.0
-  puppeteer: ^25.12.0
-  puppeteer-core: ^25.12.0
+  puppeteer: ^25.18.1
+  puppeteer-core: ^25.18.1
   puppeteer-extra: ^3.3.6
-  react: ^19.3.0
-  react-dom: ^19.3.0
+  react: ^19.3.1
+  react-dom: ^19.3.1
   request-received: ^0.0.3
-  response-time: ^2.3.2
-  serve: ^14.2.6
-  socket.io: ^4.5.4
-  socket.io-client: ^4.7.5
-  tailwind-merge: 3.7.0
-  tailwindcss: ^4.3.3
+  response-time: ^2.3.4
+  serve: ^14.2.8
+  socket.io: ^4.8.4
+  socket.io-client: ^4.8.4
+  tailwind-merge: 3.7.1
+  tailwindcss: ^4.3.5
   ts-node: ^10.9.2
-  ts-jest: ^29.1.0
+  ts-jest: ^29.4.15
   typescript: ^7.0.2
-  uuid: ^14.0.2
-  vite: ^8.3.1
+  uuid: ^14.0.3
+  vite: ^8.3.8
   vite-tsconfig-paths: ^6.1.1
-  vitest: 5.0.2
+  vitest: 5.1.1
   winston: ^3.19.0
-  wrangler: ^4.143.0
-  zod: ^4.6.5
+  wrangler: ^4.168.0
+  zod: ^4.6.7
 shamefullyHoist: true
 nodeLinker: hoisted
 strictPeerDependencies: false
 overrides:
-  '@effect/platform-node-shared': 4.0.2
+  '@effect/platform-node-shared': 4.1.5
   'js-yaml@^3.0.0': 3.15.2
   'js-yaml@^4.0.0': 4.3.2
-  postcss: 8.5.28
+  postcss: 8.5.33
+  "datauri>image-size": ^2.0.3
+  "@ts-morph/common>minimatch": ^11.0.1
 lockfile: true
 # NOTE: node-red previously skipped puppeteer's browser download via a
 # per-project .npmrc. Set PUPPETEER_SKIP_DOWNLOAD=1 in the environment for

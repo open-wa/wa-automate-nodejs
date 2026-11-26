@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/integration-voxtral",
-  "version": "5.13.0",
+  "version": "5.14.0",
   "description": "Voxtral conversational voice notes and live audio calls for open-wa",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -24,13 +24,13 @@
     "dev": "tsdown src/index.ts --format esm --format cjs --watch"
   },
   "dependencies": {
+    "@open-wa/integration-jev": "workspace:*",
     "@open-wa/plugin-sdk": "workspace:*",
     "@open-wa/schema": "workspace:*",
     "ffmpeg-static": "5.3.0",
     "hono": "catalog:",
-    "ws": "^8.22.0",
-    "zod": "catalog:",
-    "@open-wa/integration-jev": "workspace:*"
+    "ws": "^8.23.0",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

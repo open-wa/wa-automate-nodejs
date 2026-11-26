@@ -1,178 +1,188 @@
-# open-wa AI Installation & Quickstart Reference
+# open-wa installation reference for AI agents
 
-This is a high-density, machine-optimized quickstart guide for installing, configuring, and verifying the `open-wa` (`wa-automate-nodejs`) runtime. It is designed for rapid ingestion by AI coding agents and automated setup pipelines.
+This page is a short, accurate path for an AI coding agent or a setup script to
+install open-wa, link a WhatsApp account and send a first message. Each step
+links to the full guide. Every documentation page is also available as Markdown
+at `https://openwa.dev/llms.mdx/docs/<path>`, and the index is at
+[`/llms.txt`](https://openwa.dev/llms.txt).
 
----
+## 1. Requirements
 
-## 1. Prerequisites & Environment Check
+- **Node.js 22.21.1 or newer** and npm. Check with `node --version`.
+- A phone with WhatsApp, to link the account once.
+- A browser. The command below downloads Chrome for Testing on the first start; pass `--browser system-chrome` to use the Chrome already installed.
 
-Before initiating setup, ensure the host environment meets the strict compatibility parameters:
+## 2. Create a project
 
-- **Node.js**: `node >= 22.21.1` (Required. Earlier versions will fail due to ESM and syntax requirements).
-- **Package Manager**: `npm` or `pnpm` (pnpm is preferred for monorepos).
-- **Linked Device**: A physical or virtual phone with WhatsApp installed to act as the host session scanner.
-
-Verification command:
-```bash
-node --version
-```
-
----
-
-## 2. Option A: Standalone Easy API CLI Setup (Recommended for Agents)
-
-The fastest way to spin up the HTTP JSON-RPC gateway is via the CLI.
-
-### Step 1: Run the CLI Server
-
-Spawn the API server with strict port allocation and API key protection:
+The project generator writes a project that is ready to start. Pass flags so it
+asks no questions:
 
 ```bash
-npx @open-wa/wa-automate --port <PORT_NUMBER> --api-key "<YOUR_SECURE_API_KEY>"
+npm init @open-wa@latest my-api -- --mode easy-api --language js --browser chrome --plugins none --yes
+cd my-api
+cp .env.example .env
 ```
 
-### Step 2: Device Authentication (First-Run Only)
+Put a long random value in `.env` as `WA_API_KEY` (at least 8 characters).
 
-1. Monitor the stdout/stderr for the terminal-rendered **QR Code**.
-2. Open **WhatsApp** on the host phone.
-3. Navigate to **Linked Devices** -> **Link a Device**.
-4. Scan the terminal QR code.
-5. Alternatively, use phone number pairing (Link-code login):
-   ```bash
-   npx @open-wa/wa-automate --port <PORT_NUMBER> --link-code "<YOUR_PHONE_NUMBER>"
-   ```
+- `--mode easy-api` runs an HTTP server that any language can call. `--mode sdk`
+  writes a Node.js bot that calls open-wa directly.
+- `--language` is `js` or `ts`.
+- `--plugins` takes a comma-separated list of `jev`, `voxtral`, `webhook` and
+  `chatwoot`, or `none`.
 
----
+All flags: <https://openwa.dev/docs/getting-started/quickstart/generator-options>
 
-## 3. Option B: Docker Container Deployment
-
-For persistent or headless server deployments, use the official Docker image.
-
-### Run with Session Persistence & Environment Flags
+Without a generated project, this command starts the same server:
 
 ```bash
-docker run -d \
-  --name open-wa-api \
-  -p 8080:8080 \
-  -v open_wa_sessions:/sessions \
-  -e WA_PORT=8080 \
-  -e WA_SESSION_ID=default \
-  -e WA_USER_DATA_DIR=/sessions/default \
-  -e WA_API_KEY="<YOUR_SECURE_API_KEY>" \
-  openwa/wa-automate
+npx @open-wa/wa-automate@latest --session-id my-api --api-key "<key>"
 ```
 
-- **Persistence**: Mounts a volume on `/sessions` and points `WA_USER_DATA_DIR` at `/sessions/default` so the browser profile is reused across container restarts. Without `WA_USER_DATA_DIR`, the current v5 runtime derives the profile path from the working directory and session id.
-- **Config Precedence**: Environment variables prefixed with `WA_*` override configurations in `wa.config.mjs`.
-
----
-
-## 4. Option C: Embedded Code (Direct Node.js Integration)
-
-To embed the core browser driver directly into your custom TypeScript/JavaScript runtime, use `@open-wa/core`.
-
-### Installation
+## 3. Start and link WhatsApp
 
 ```bash
-npm install @open-wa/core @open-wa/driver-puppeteer
+npm start
 ```
 
-### Client Scaffolding
+A QR code appears in the terminal. A person must scan it from **WhatsApp →
+Linked devices → Link a device**. Later starts from the same folder reuse the
+saved login, which is kept in `<sessionId>.data.json`. To link without a
+camera, see <https://openwa.dev/docs/sessions/link-code>.
 
-Create `client.ts` / `client.js`:
+## 4. Wait until the session is ready
 
-```typescript
-import { createClient } from '@open-wa/core';
-import { PuppeteerDriver } from '@open-wa/driver-puppeteer';
-
-async function start() {
-  const client = await createClient({
-    sessionId: 'sales-bot',
-    driver: new PuppeteerDriver(),
-    useChrome: true,
-    authTimeout: 60,
-    blockCrashLogs: true,
-  });
-
-  // Listen to new incoming messages
-  client.onMessage(async (message) => {
-    if (message.body === 'ping') {
-      await client.sendText(message.from, 'pong');
-    }
-  });
-
-  // Safe Lifecycle shutdown hook
-  process.on('SIGINT', async () => {
-    await client.stop();
-    process.exit(0);
-  });
-}
-
-start().catch(console.error);
-```
-
----
-
-## 5. Setup Verification & Health Check
-
-Once the API or client is running, execute a health check to verify availability.
-
-### Step 1: Query the Health Endpoint
+The HTTP server answers before WhatsApp has finished linking. Poll `/health`,
+which needs no API key, until `connected` and `session.ready` are both `true`:
 
 ```bash
-curl -i http://localhost:8080/health
+curl http://127.0.0.1:8080/health
 ```
 
-Expected HTTP Response:
-```http
-HTTP/1.1 200 OK
-Content-Type: application/json
-
-{
-  "status": "UP",
-  "sessionId": "default",
-  "authenticated": true
-}
-```
-
-### Step 2: Send a Verification Text
-
-Send a test text to your own Chat ID (`<PHONE_NUMBER>@c.us`):
-
-```bash
-curl -X POST http://localhost:8080/api/sendText \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: <YOUR_SECURE_API_KEY>" \
-  -d '{
-    "to": "1234567890@c.us",
-    "text": "Hello, verification successful!"
-  }'
-```
-
-Expected API Success Response:
 ```json
 {
-  "success": true,
-  "data": "true_1234567890@c.us_EXAMPLE_MESSAGE_ID"
+  "status": "ok",
+  "connected": true,
+  "session": { "state": "READY", "status": "ready", "ready": true, "pending": [], "blockers": [] }
 }
 ```
 
-If the API key is incorrect or missing, expect a 401:
+`status: "ok"` only means the HTTP server is up. Until the session is ready,
+method calls return `503`.
+
+## 5. Send a message
+
+Every method has a `POST` route at `/api/<namespace>/<method>` that takes the
+method's parameters as a JSON object. Send the key in the `X-API-Key` header.
+
+```bash
+curl --fail-with-body http://127.0.0.1:8080/api/messages/sendText \
+  -H "X-API-Key: $WA_API_KEY" \
+  -H 'Content-Type: application/json' \
+  --data '{"to": "447700900123@c.us", "content": "Hello from open-wa"}'
+```
+
+A successful call returns the new message ID:
+
 ```json
-{
-  "error": "Unauthorized"
+{ "success": true, "data": "true_447700900123@c.us_3EB0C767D1D7E8A2F1C4" }
+```
+
+A failure returns an HTTP error with `{ "error": "..." }`. A chat ID is the
+full international number without `+`, followed by `@c.us`. Use a chat the
+linked account already has; starting a chat with a new number needs a
+[license](https://openwa.dev/docs/licensing/pricing).
+
+Full guide: <https://openwa.dev/docs/getting-started/easy-api>
+
+## 6. Receive messages
+
+Open the Server-Sent Events stream and filter it by topic:
+
+```bash
+curl --no-buffer 'http://127.0.0.1:8080/api/events?topics=message.received' \
+  -H "X-API-Key: $WA_API_KEY"
+```
+
+Each `data:` line is a JSON envelope with `id`, `event`, `payload`, `ts` and
+`sessionId`. An incoming message is at `payload.message`. For a server that
+should receive messages without holding a connection open, use a webhook:
+<https://openwa.dev/docs/guides/receive-webhooks>
+
+## 7. The Node.js SDK instead of HTTP
+
+```bash
+npm install @open-wa/wa-automate
+```
+
+```js
+import { create } from '@open-wa/wa-automate';
+
+const client = await create({ sessionId: 'my-bot' });
+
+client.onMessage(async message => {
+  if (!message.fromMe && message.body === '!ping') {
+    await client.sendText(message.from, 'pong');
+  }
+});
+
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  process.once(signal, () => {
+    void client.stop(signal).catch(console.error);
+  });
 }
 ```
 
----
+`create()` starts the browser, prints the QR code when the account isn't
+linked yet, and resolves once the session is ready to send.
 
-## 6. Safety & Anti-Ban Configuration Boundaries
+Full guide: <https://openwa.dev/docs/getting-started/custom-code>
 
-To protect host WhatsApp accounts from automation bans, strictly adhere to these limits when configuring custom agents:
+## 8. Docker
 
-| Metric | Recommended Safe Setting | CLI Flag / Config Property |
-| --- | --- | --- |
-| Cool-down queue | Enforce random sleep | `wa.config.mjs` -> `enqueueCooldown: true` |
-| Concurrency limit | Limit to 1 message at a time | Utilize external `p-queue` inside bot loop |
-| Block rate limits | Under 500 messages/hour | Handle `429` statuses with exponential backoff |
-| Safety filters | Filter specific group IDs | `groupFilter` in configuration |
+```bash
+mkdir -p sessions
+docker run --name openwa-sales --init \
+  -p 127.0.0.1:8080:8080 \
+  -v "$PWD/sessions:/sessions" \
+  -e WA_SESSION_ID=sales \
+  -e WA_SESSION_DATA_PATH=/sessions \
+  -e WA_API_KEY="replace-with-a-long-random-key" \
+  openwa/wa-automate:latest
+```
+
+`WA_SESSION_DATA_PATH` saves the login file in the mounted folder, so it
+survives the container being replaced. Read the QR code from
+`docker logs -f openwa-sales`. Any configuration option can be set as `WA_`
+followed by the option name in upper snake case.
+
+Full guide: <https://openwa.dev/docs/getting-started/docker>
+
+## 9. Connect an AI agent to WhatsApp
+
+Easy API includes a Model Context Protocol server that exposes each method as a
+tool. Enable it in the config file with `mcp: { enabled: true }` and point the
+MCP client at `http://127.0.0.1:8080/mcp` with the `X-API-Key` header.
+
+- MCP setup: <https://openwa.dev/docs/guides/mcp>
+- Watching a chat for new messages: <https://openwa.dev/docs/guides/mcp-events>
+- ChatGPT with a WhatsApp number: <https://openwa.dev/docs/guides/chatgpt-always-on>
+
+## 10. Keep it private and safe
+
+- `/health` is public and can include the pairing QR code. Keep the server on
+  `127.0.0.1` or a private network.
+- Send `X-API-Key` on every other request, and use HTTPS for anything that
+  leaves the machine.
+- open-wa is unofficial and automation can get an account banned. Message
+  people who expect to hear from you, and read
+  <https://openwa.dev/docs/operations/rate-limits> before sending in volume.
+- Before customers depend on it, work through
+  <https://openwa.dev/docs/operations/go-to-production>.
+
+## Reference
+
+- API reference: <https://openwa.dev/docs/reference/client>
+- OpenAPI schema: <https://openwa.dev/openapi.json>, or `/meta/swagger.json` on a
+  running server
+- Configuration and CLI flags: <https://openwa.dev/docs/guides/configuration-and-cli>

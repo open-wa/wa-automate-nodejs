@@ -16,8 +16,8 @@ export function createStickerRuntime(options = {}) {
     const browser = options.browser || (!node ? createBrowserBackend() : undefined);
     let standalone;
     return {
-      createSticker(input, job) {
-        return renderSticker(input, job, {
+      async createSticker(input, job) {
+        const render = source => renderSticker(source, job, {
           browser, standalone: { available: node, requirements: localRequirements },
           getStandalone() {
             standalone ??= import('./library.mjs').then(({ createLibraryBackend }) =>
@@ -26,6 +26,14 @@ export function createStickerRuntime(options = {}) {
             return standalone;
           },
         });
+        try { return await render(input); }
+        catch (error) {
+          // A video the browser cannot decode, such as HEVC, is converted once with the system's ffmpeg.
+          if (!node || error?.code !== 'VIDEO_UNDECODABLE') throw error;
+          const [{ convertVideo }, { resolveInput }] = await Promise.all([import('./ffmpeg.mjs'), import('./input.mjs')]);
+          const { bytes } = await resolveInput(input, job ?? {});
+          return render(await convertVideo(bytes, { signal: job?.signal }));
+        }
       },
       async dispose() {
         await Promise.all([browser !== options.browser ? browser?.dispose() : undefined, standalone?.then(backend => backend.dispose())]);

@@ -12,11 +12,11 @@ services:
       - "127.0.0.1:8080:8080"
     environment:
       WA_DISABLE_SPINS: 'true' # See supported environment variables: https://openwa.dev/docs/guides/config-secrets
-      W_A_V: "5.1.0"
+      W_A_V: "latest" # Set a version such as "5.13.0" for repeatable restarts
       WA_SESSION_ID: "MY_SESSION" # Change this
       WA_PORT: "8080"
       WA_HOST: "0.0.0.0"
-      WA_USER_DATA_DIR: /sessions/MY_SESSION
+      WA_SESSION_DATA_PATH: /sessions # The login file, MY_SESSION.data.json, is saved in the volume
       WA_API_KEY: ${WA_API_KEY:?Set WA_API_KEY in .env before starting}
     command: ["--session-id", "MY_SESSION", "--host", "0.0.0.0", "--port", "8080"]
     healthcheck:

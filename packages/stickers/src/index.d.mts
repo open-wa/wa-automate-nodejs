@@ -14,6 +14,12 @@ export interface StickerJob {
   loopCount?: number;
   author?: string;
   pack?: string;
+  /**
+   * Attach a sound that the recipient can play. `true` keeps the sound of a video input, cut to the same
+   * part of the video as the sticker. A filename, URL, data URL or bytes attaches that sound instead.
+   * Ogg Opus and M4A clips of at most 1 MB are used as they are; anything else is converted in the browser.
+   */
+  audio?: boolean | StickerInput;
   quotedMsgId?: string;
   signal?: AbortSignal;
   onProgress?: (progress: StickerProgress) => void;
@@ -23,12 +29,17 @@ export interface StickerResult {
   width: number; height: number; animated: boolean; frames: number;
   durationMs: number; loopCount: number; alpha: boolean; elapsedMs: number;
   author?: string; pack?: string;
+  /** The sound to send with the sticker, when the job asked for one. */
+  audio?: StickerAudio;
   steps: (StickerEffect & { selected?: string })[];
 }
+export interface StickerAudio { bytes: Uint8Array; mime: 'audio/ogg; codecs=opus' | 'audio/mp4'; durationMs?: number; }
 export interface BackendCapabilities { available: boolean; requirements: readonly string[]; }
 export interface BrowserBackend {
   capabilities(): Promise<BackendCapabilities>;
-  render(input: { bytes: Uint8Array; mime: string }, job: StickerJob, requirements: string[]): Promise<Pick<StickerResult,'bytes'|'width'|'height'|'frames'|'durationMs'|'steps'>>;
+  render(input: { bytes: Uint8Array; mime: string }, job: StickerJob, requirements: string[]): Promise<Pick<StickerResult,'bytes'|'width'|'height'|'frames'|'durationMs'|'steps'|'audio'>>;
+  /** Convert a sound to an Ogg Opus clip. Needed only for sounds that are not already Ogg Opus or M4A. */
+  convertAudio?(sound: Uint8Array, job: StickerJob): Promise<StickerAudio>;
   dispose(): Promise<void>;
 }
 export interface StickerRuntime {

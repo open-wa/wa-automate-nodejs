@@ -39,7 +39,7 @@ export function probeInput(input) {
       at += size;
     }
     if (!width || !height) throw new StickerError('INVALID_INPUT', 'JPEG has no usable dimensions.');
-  }
+  } else if (mime.startsWith('video/')) animated = true;
   if (width !== undefined && (!width || !height || width * height > STICKER_PROFILE.maxSourcePixels)) throw new StickerError('INPUT_TOO_LARGE', 'Source dimensions exceed the pixel budget.', { width, height });
   return { ...input, width, height, animated };
 }

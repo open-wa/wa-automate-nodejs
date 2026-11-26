@@ -7202,99 +7202,13 @@
     }
   },
   {
-    "id": "messages.sendsoundsticker",
-    "anchor": "sendsoundsticker",
-    "name": "sendSoundSticker",
-    "namespacedName": "messages.sendSoundSticker",
-    "namespace": "messages",
-    "href": "/docs/reference/client/messages#sendsoundsticker",
-    "description": "Send a sticker with a short sound the recipient can play. The image is resized into a sticker. The sound must be an Ogg Opus or M4A clip of at most 1 MB and is not converted. Resolves to the message ID once WhatsApp accepts it, not a delivery receipt. Sound stickers only work on WhatsApp accounts and app versions that support them.",
-    "license": null,
-    "aliases": [
-      "messages.sendSoundSticker"
-    ],
-    "deprecatedAliases": [],
-    "parameterOrder": [
-      "to",
-      "sticker",
-      "sound",
-      "options"
-    ],
-    "parameters": [
-      {
-        "name": "to",
-        "type": "string",
-        "required": true,
-        "description": "Recipient chat ID The target chat for a send operation Branded type: ChatId Pattern: ^\\d+(-\\d+)?@(c|g)\\.us$|^\\d+@lid$",
-        "summary": "Recipient chat ID. The target chat for a send operation.",
-        "aliases": [
-          "chatId"
-        ],
-        "deprecatedAliases": [],
-        "example": "`\"447123456789@c.us\"`",
-        "namedType": "ChatId"
-      },
-      {
-        "name": "sticker",
-        "type": "string | Buffer",
-        "required": true,
-        "description": "Sticker image (path, URL, DataURL, or Base64). It is resized to a square sticker. Branded type: DataURL",
-        "summary": "Sticker image (path, URL, DataURL, or Base64). It is resized to a square sticker.",
-        "aliases": [],
-        "deprecatedAliases": [],
-        "example": "`\"data:image/png;base64,iVBORw0KGgo...\"`",
-        "namedType": "DataURL"
-      },
-      {
-        "name": "sound",
-        "type": "string | Buffer",
-        "required": true,
-        "description": "Sound clip as Ogg Opus or M4A, at most 1 MB (path, URL, DataURL, or Base64) Branded type: DataURL",
-        "summary": "Sound clip as Ogg Opus or M4A, at most 1 MB (path, URL, DataURL, or Base64)",
-        "aliases": [],
-        "deprecatedAliases": [],
-        "example": "`\"data:audio/ogg;base64,T2dnUwACAAAAAAAAAAB...\"`",
-        "namedType": "DataURL"
-      },
-      {
-        "name": "options",
-        "type": "{ quotedMsgId?: string }",
-        "required": false,
-        "description": "",
-        "summary": "",
-        "aliases": [],
-        "deprecatedAliases": [],
-        "example": "-"
-      }
-    ],
-    "returnType": "MessageId",
-    "returnTypeLinks": {
-      "MessageId": "/docs/reference/client/return-types#messageid"
-    },
-    "sdkReturnType": "MessageId",
-    "returnCaveat": "Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.",
-    "returnNotes": "Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.",
-    "route": {
-      "method": "POST",
-      "path": "/api/messages/sendSoundSticker",
-      "flatPath": "/api/sendSoundSticker"
-    },
-    "examples": {
-      "inProcessSdk": "const result = await client.sendSoundSticker(\n  \"447123456789@c.us\",\n  \"data:image/png;base64,iVBORw0KGgo...\",\n  \"data:audio/ogg;base64,T2dnUwACAAAAAAAAAAB...\",\n);",
-      "nodeCall": "const result = await client.sendSoundSticker({\n  to: \"447123456789@c.us\",\n  sticker: \"data:image/png;base64,iVBORw0KGgo...\",\n  sound: \"data:audio/ogg;base64,T2dnUwACAAAAAAAAAAB...\",\n});",
-      "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendSoundSticker({\n  to: \"447123456789@c.us\",\n  sticker: \"data:image/png;base64,iVBORw0KGgo...\",\n  sound: \"data:audio/ogg;base64,T2dnUwACAAAAAAAAAAB...\",\n});",
-      "http": "curl -X POST \"http://localhost:8080/api/messages/sendSoundSticker\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"sticker\": \"data:image/png;base64,iVBORw0KGgo...\",\n    \"sound\": \"data:audio/ogg;base64,T2dnUwACAAAAAAAAAAB...\"\n  }'",
-      "response": "{\n  \"success\": true,\n  \"data\": \"true_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n}"
-    }
-  },
-  {
     "id": "messages.sendsticker",
     "anchor": "sendsticker",
     "name": "sendSticker",
     "namespacedName": "messages.sendSticker",
     "namespace": "messages",
     "href": "/docs/reference/client/messages#sendsticker",
-    "description": "Turn an image or video into a sticker, apply optional effects and author and pack labels, and send it. Resolves to the message ID once WhatsApp accepts it, not a delivery receipt. If the outcome is unknown, check the chat before you retry.",
+    "description": "Turn an image or video into a sticker, apply optional effects, author and pack labels and a sound, and send it. A video becomes an animated sticker of at most 10 seconds. Resolves to the message ID once WhatsApp accepts it, not a delivery receipt. If the outcome is unknown, check the chat before you retry. Sound stickers only play on WhatsApp accounts and app versions that support them.",
     "license": null,
     "aliases": [
       "messages.sendSticker"
@@ -7331,7 +7245,7 @@
       },
       {
         "name": "job",
-        "type": "{ author?: string; backend?: \"auto\" | \"browser\" | \"standalone\"; background?: string; circle?: boolean; effects?: (string | { name: string; options?: object })[]; fit?: \"contain\" | \"cover\"; fps?: number; loopCount?: number; pack?: string; quality?: number; quotedMsgId?: string; trim?: number[] }",
+        "type": "{ audio?: boolean | string; author?: string; backend?: \"auto\" | \"browser\" | \"standalone\"; background?: string; circle?: boolean; effects?: (string | { name: string; options?: object })[]; fit?: \"contain\" | \"cover\"; fps?: number; loopCount?: number; pack?: string; quality?: number; quotedMsgId?: string; trim?: number[] }",
         "required": false,
         "description": "",
         "summary": "",

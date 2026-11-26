@@ -5,7 +5,7 @@ import { isPortableColor } from './colors.mjs';
 
 export function normalizeJob(options = {}) {
   if (!options || typeof options !== 'object' || Array.isArray(options)) throw new StickerError('INVALID_JOB', 'Sticker options must be an object.');
-  const allowed = new Set(['effects','backend','quality','fit','circle','background','trim','fps','loopCount','author','pack','quotedMsgId','signal','onProgress']);
+  const allowed = new Set(['effects','backend','quality','fit','circle','background','trim','fps','loopCount','author','pack','audio','quotedMsgId','signal','onProgress']);
   for (const key of Object.keys(options)) if (!allowed.has(key)) throw new StickerError('INVALID_JOB', `Unknown sticker option: ${key}.`, { option: key });
   const backend = options.backend ?? 'auto';
   if (!['auto','browser','standalone'].includes(backend)) throw new StickerError('INVALID_JOB', 'Backend must be auto, browser or standalone.');
@@ -39,6 +39,8 @@ export function normalizeJob(options = {}) {
   if (options.loopCount !== undefined && (!Number.isInteger(options.loopCount) || options.loopCount < 0 || options.loopCount > 65535)) throw new StickerError('INVALID_JOB', 'Loop count must be 0–65535.');
   if (options.trim !== undefined && (!Array.isArray(options.trim) || options.trim.length !== 2 || options.trim.some(v => !Number.isFinite(v) || v < 0) || options.trim[1] <= options.trim[0])) throw new StickerError('INVALID_JOB', 'Trim is [startMs, endMs] with an increasing finite range.');
   if (options.circle !== undefined && typeof options.circle !== 'boolean') throw new StickerError('INVALID_JOB', 'Circle must be boolean.');
+  const audio = options.audio;
+  if (audio !== undefined && typeof audio !== 'boolean' && (typeof audio !== 'string' || !audio) && !(audio instanceof Uint8Array) && !(audio instanceof ArrayBuffer) && !(typeof Blob !== 'undefined' && audio instanceof Blob)) throw new StickerError('INVALID_JOB', 'audio must be true to keep a video\'s own sound, or a sound as a filename, URL, data URL or bytes.');
   for (const key of ['author','pack']) if (options[key] !== undefined && (typeof options[key] !== 'string' || options[key].length > 128)) throw new StickerError('INVALID_JOB', `${key} must be a string of at most 128 characters.`);
   if (options.quotedMsgId !== undefined && (typeof options.quotedMsgId !== 'string' || !/^(true|false)_[^\s_]+@[^\s_]+_[^\s]+$/.test(options.quotedMsgId))) throw new StickerError('INVALID_JOB','quotedMsgId must be a serialized message ID.');
   if (options.background !== undefined && (typeof options.background !== 'string' || options.background.length > 64 || !isPortableColor(options.background))) throw new StickerError('INVALID_JOB', 'Background must be a portable sRGB colour.');
@@ -54,6 +56,7 @@ export function requirementsFor(input, job) {
   const requirements = new Set(['canvas2d', 'encode:image/webp', `decode:${input.mime}`]);
   if (input.animated) requirements.add(`animation:${input.mime}`);
   for (const effect of job.effects) for (const requirement of effectCatalogue[effect.name].requirements) requirements.add(requirement);
+  if (job.audio === true) requirements.add('audio:convert');
   return [...requirements];
 }
 
@@ -61,7 +64,8 @@ export function chooseBackend(requirements, browser, standalone, requested = 'au
   const fits = backend => backend?.available && requirements.every(requirement => backend.requirements.includes(requirement));
   const chosen = requested === 'auto' ? (fits(browser) ? 'browser' : 'standalone') : requested;
   const capability = chosen === 'browser' ? browser : standalone;
-  if (!fits(capability)) throw new StickerError('CAPABILITY_UNAVAILABLE', `${chosen} cannot execute the complete sticker job.`, {
+  const needsPage = requirements.some(requirement => /^(?:decode|animation):video\/|^audio:convert$/.test(requirement)) && !fits(capability);
+  if (!fits(capability)) throw new StickerError('CAPABILITY_UNAVAILABLE', needsPage ? 'Video input and sound conversion run in a browser that supports them. Send through an open-wa session, or supply an image and an Ogg Opus or M4A clip.' : `${chosen} cannot execute the complete sticker job.`, {
     backend: chosen, missing: requirements.filter(requirement => !capability?.requirements.includes(requirement)),
   });
   return chosen;

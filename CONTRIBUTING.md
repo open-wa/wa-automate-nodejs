@@ -8,7 +8,7 @@ schema/registry, drivers, integrations, docs, and orchestrator.
 | Tool | Version | Why |
 | --- | --- | --- |
 | Node.js | `>=22.21.1` | root `engines.node` |
-| pnpm | `11.9.x` | root `packageManager` |
+| pnpm | `11.25.x` | root `packageManager` |
 
 The exact versions are pinned in [`mise.toml`](./mise.toml). If you use
 [mise](https://mise.jdx.dev):
@@ -18,8 +18,8 @@ mise install     # installs the pinned Node + pnpm
 mise run install # pnpm install
 ```
 
-Without mise, install Node 22.21+ and pnpm 11.9 yourself (e.g. via Corepack:
-`corepack enable && corepack prepare pnpm@11.9.0 --activate`).
+Without mise, install Node 22.21+ and pnpm 11.25 yourself (e.g. via Corepack:
+`corepack enable && corepack prepare pnpm@11.25.0 --activate`).
 
 ## Common commands
 

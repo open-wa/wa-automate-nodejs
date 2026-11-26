@@ -30,6 +30,14 @@
 
 
 
+
+## 5.14.0
+<sub>2026-11-26</sub>
+
+-  *(patch)*
+  ⬆️ Every dependency is on its latest release, which clears all known security advisories in the dependency tree. This includes Effect 4.1.5, Hono, Zod, Vite, Puppeteer and the TanStack packages.
+- *(minor)* Version bump from group with `@open-wa/client` v5.14.0, `@open-wa/schema` v5.14.0, `@open-wa/stickers` v5.14.0
+
 ## 5.13.0
 <sub>2026-11-25</sub>
 

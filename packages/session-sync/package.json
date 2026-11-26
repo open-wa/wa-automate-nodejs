@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/session-sync",
-  "version": "5.13.0",
+  "version": "5.14.0",
   "main": "dist/index.cjs",
   "types": "dist/index.d.cts",
   "scripts": {
@@ -11,10 +11,10 @@
   },
   "dependencies": {
     "@open-wa/schema": "workspace:*",
-    "chokidar": "^5.0.0",
+    "chokidar": "^6.0.0",
     "pico-s3": "^2.11.0",
     "simple-zstd": "^2.1.0",
-    "tar-fs": "^3.1.3"
+    "tar-fs": "^3.1.4"
   },
   "devDependencies": {
     "@types/node": "catalog:",

@@ -37,16 +37,16 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "@varlock/bumpy": "1.18.1",
+    "@varlock/bumpy": "1.19.0",
     "node-emoji": "2.2.0",
-    "oxlint": "^1.85.0",
+    "oxlint": "^1.95.0",
     "prettier": "catalog:",
-    "rimraf": "^6.1.3",
-    "syncpack": "^15.3.3",
+    "rimraf": "^6.1.4",
+    "syncpack": "^15.3.4",
     "ts-morph": "^28.0.0",
-    "tsdown": "^0.23.0",
+    "tsdown": "^0.23.7",
     "tsx": "^4.23.15",
-    "turbo": "^2.11.4",
+    "turbo": "^2.11.13",
     "typescript": "catalog:"
   },
   "engines": {

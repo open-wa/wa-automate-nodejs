@@ -1,6 +1,6 @@
 {
   "name": "@open-wa/create",
-  "version": "5.13.0",
+  "version": "5.14.0",
   "description": "Create an open-wa Easy API or SDK project",
   "type": "module",
   "bin": {
@@ -35,7 +35,7 @@
     "node": ">=22.21.1"
   },
   "dependencies": {
-    "@clack/prompts": "1.8.1"
+    "@clack/prompts": "1.9.0"
   },
   "publishConfig": {
     "access": "public"

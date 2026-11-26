@@ -115,20 +115,6 @@ export const fileDataParam = FileToDataUrlSchema.describe(
     brandedType: 'DataURL',
 });
 
-export const stickerImageParam = FileToDataUrlSchema.describe(
-    'Sticker image (path, URL, DataURL, or Base64). It is resized to a square sticker.'
-).register(parameterRegistry, {
-    example: 'data:image/png;base64,iVBORw0KGgo...',
-    brandedType: 'DataURL',
-});
-
-export const soundClipParam = FileToDataUrlSchema.describe(
-    'Sound clip as Ogg Opus or M4A, at most 1 MB (path, URL, DataURL, or Base64)'
-).register(parameterRegistry, {
-    example: 'data:audio/ogg;base64,T2dnUwACAAAAAAAAAAB...',
-    brandedType: 'DataURL',
-});
-
 export const audioDataParam = FileToDataUrlSchema.describe(
     'Audio file (path, URL, DataURL, or Base64)'
 ).register(parameterRegistry, {
