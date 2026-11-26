@@ -1,9 +1,11 @@
 ---
-title: MCP server
-description: Run open-wa's MCP server locally with a test WhatsApp account and call a read-only tool to check the connection.
+title: WhatsApp MCP server
+sidebarTitle: MCP server
+seoTitle: "WhatsApp MCP server for Claude, ChatGPT and Codex, self-hosted | open-wa"
+description: Run a self-hosted WhatsApp MCP server with open-wa. Link a test WhatsApp account, connect Claude Code or another MCP client, and call a read-only tool to check the connection.
 ---
 
-# MCP server
+# WhatsApp MCP server
 
 Connect a local tool or AI client to WhatsApp through the Easy API's Model
 Context Protocol (MCP) endpoint. This walkthrough reads the WhatsApp Web
@@ -48,7 +50,7 @@ one terminal from the directory with `wa.config.mjs`.
 
 ```bash
 export WA_API_KEY='replace-with-your-generated-key'
-npx @open-wa/wa-automate@5.10.0 --config ./wa.config.mjs --session-id mcp-test
+npx @open-wa/wa-automate@latest --config ./wa.config.mjs --session-id mcp-test
 ```
 
 On the test phone, open **WhatsApp → Linked devices → Link a device** and scan
@@ -78,6 +80,16 @@ The tool returns the WhatsApp Web version as text in `result.content[0].text`.
 The version varies by session. A missing or incorrect API key returns HTTP
 `401`. The Neo dashboard at `/dashboard/mcp` and `/meta/mcp-tools.json` also
 show the available tools.
+
+## Connect Claude Code
+
+Claude Code connects over Streamable HTTP with the key in a header. Run this in a terminal where `WA_API_KEY` is set:
+
+```bash
+claude mcp add --transport http open-wa http://127.0.0.1:8080/mcp --header "X-API-Key: $WA_API_KEY"
+```
+
+`claude mcp list` then shows `open-wa` as connected. ChatGPT and Codex sign in with OAuth at a public HTTPS address instead; see [Run open-wa for ChatGPT on one computer](/docs/guides/chatgpt-always-on).
 
 ## Configuration
 
