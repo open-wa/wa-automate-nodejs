@@ -262,7 +262,7 @@ export const sendAudio = defineMethodV2('sendAudio', {
  */
 export const sendPtt = defineMethodV2('sendPtt', {
     meta: {
-        description: 'Sends prepared audio as a voice note, optionally view once. It does not transcode the input; use suitable voice-note audio such as Ogg Opus.',
+        description: 'Sends audio as a voice note, optionally view once. Audio that is not already mono Ogg Opus is converted to it in the session\'s browser first, so that it plays on every phone. Conversion accepts files of up to 20 MB and 10 minutes; mono Ogg Opus is sent as it is.',
         action: 'send',
         namespace: 'messages',
         license: 'none',

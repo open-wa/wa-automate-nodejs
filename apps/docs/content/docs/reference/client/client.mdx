@@ -136,7 +136,7 @@ Find a method by name or job, then open it on its page for the signature, an exa
 | [`sendMultipleContacts`](/docs/reference/client/messages#sendmultiplecontacts) | Messages | Sends multiple contacts. | - |
 | [`sendPaymentRequest`](/docs/reference/client/messages#sendpaymentrequest) | Messages | Sends a payment request message. | - |
 | [`sendPoll`](/docs/reference/client/messages#sendpoll) | Messages | Send a poll with a selection limit, an optional quoted message, an optional closing time in Unix milliseconds and optionally hidden voter names. Closing times and hidden names only work where WhatsApp supports them for the sending account and chat. | - |
-| [`sendPtt`](/docs/reference/client/messages#sendptt) | Messages | Sends prepared audio as a voice note, optionally view once. It does not transcode the input; use suitable voice-note audio such as Ogg Opus. | - |
+| [`sendPtt`](/docs/reference/client/messages#sendptt) | Messages | Sends audio as a voice note, optionally view once. Audio that is not already mono Ogg Opus is converted to it in the session's browser first, so that it plays on every phone. Conversion accepts files of up to 20 MB and 10 minutes; mono Ogg Opus is sent as it is. | - |
 | [`sendRawMessage`](/docs/reference/client/messages#sendrawmessage) | Messages | Send a constructed WhatsApp protobuf Message payload (Insiders and above); media must already be uploaded. | Insiders |
 | [`sendReplyWithMentions`](/docs/reference/client/messages#sendreplywithmentions) | Messages | Reply to a message with text that mentions people. Write each mention in the text as `@` followed by the number, for example `@447700000000`. | - |
 | [`sendSeen`](/docs/reference/client/messages#sendseen) | Messages | Mark message as seen. | - |
