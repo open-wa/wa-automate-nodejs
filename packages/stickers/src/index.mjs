@@ -1,9 +1,10 @@
-import { renderSticker } from './render.mjs';
+import { renderSticker, convertSound } from './render.mjs';
+import { isMonoOggOpus } from './input.mjs';
 import { STICKER_PROFILE } from './profile.mjs';
 import { StickerError } from './errors.mjs';
 import { createBrowserBackend } from './browser.mjs';
 import { manageStickerRuntime } from './lifecycle.mjs';
-export { StickerError, STICKER_PROFILE };
+export { StickerError, STICKER_PROFILE, isMonoOggOpus };
 export { listEffects, effectCatalogue } from './catalogue.mjs';
 export { resourceManifest } from './resources.mjs';
 export { validateStickerJob } from './planner.mjs';
@@ -35,6 +36,7 @@ export function createStickerRuntime(options = {}) {
           return render(await convertVideo(bytes, { signal: job?.signal }));
         }
       },
+      convertAudio: (input, options) => convertSound(input, options, browser),
       async dispose() {
         await Promise.all([browser !== options.browser ? browser?.dispose() : undefined, standalone?.then(backend => backend.dispose())]);
       },

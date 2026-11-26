@@ -1,5 +1,5 @@
 import { normalizeJob, requirementsFor, chooseBackend } from './planner.mjs';
-import { resolveInput, resolveAudio } from './input.mjs';
+import { resolveInput, resolveAudio, isMonoOggOpus } from './input.mjs';
 import { probeInput } from './probe.mjs';
 import { parseWebp } from './webp.mjs';
 import { admitSticker, STICKER_PROFILE } from './profile.mjs';
@@ -29,4 +29,21 @@ export async function renderSticker(input, jobOptions, { browser, standalone, ge
   admitSticker(info, result.bytes.length, STICKER_PROFILE.metadataReserveBytes);
   const { author, pack } = job;
   return Object.freeze({ ...result, ...info, chunks: undefined, backend, mime: 'image/webp', author, pack, ...(audio ? { audio: Object.freeze(audio) } : {}), elapsedMs: performance.now() - started });
+}
+
+/** Turn a sound into mono Ogg Opus at 48 kHz. Only a browser page converts; a clip that is already mono Ogg Opus needs none. */
+export async function convertSound(input, options = {}, browser) {
+  for (const [name, least, most] of [['maxSeconds', 1, 3600], ['maxBytes', 1024, 64_000_000], ['bitrate', 6000, 256_000]]) {
+    const value = options[name];
+    if (value !== undefined && !(Number.isInteger(value) && value >= least && value <= most)) throw new StickerError('INVALID_JOB', `audio: ${name} must be a whole number from ${least} to ${most}.`);
+  }
+  const { bytes } = await resolveAudio(input, options);
+  if (isMonoOggOpus(bytes)) return Object.freeze({ bytes, mime: 'audio/ogg; codecs=opus' });
+  let able = false;
+  try { able = !!browser?.convertAudio && (await browser.capabilities()).requirements.includes('audio:convert'); }
+  catch (error) { throw new StickerError('AUDIO_UNAVAILABLE', 'audio: the browser page could not be asked to convert audio. Supply a mono Ogg Opus clip.', {}, error); }
+  if (!able) throw new StickerError('AUDIO_UNAVAILABLE', 'audio: converting a sound needs a browser page with WebCodecs audio encoding. Supply a mono Ogg Opus clip.');
+  abortIfRequested(options.signal);
+  const { maxSeconds, maxBytes, bitrate, signal } = options;
+  return Object.freeze(await browser.convertAudio(bytes, { maxSeconds, maxBytes, bitrate, signal }));
 }

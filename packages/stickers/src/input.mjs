@@ -12,12 +12,18 @@ export function sniffMime(bytes) {
   throw new StickerError('INVALID_INPUT', 'Supported inputs are PNG, JPEG, GIF, WebP, AVIF, MP4, MOV or WebM media.');
 }
 
+/** True for an Ogg Opus clip with one channel, the format of a voice note. The channel count follows the OpusHead version byte. */
+export function isMonoOggOpus(bytes) {
+  const text = (start, count) => String.fromCharCode(...bytes.subarray(start, start + count));
+  return text(0, 4) === 'OggS' && bytes[26] > 0 && text(27 + bytes[26], 8) === 'OpusHead' && bytes[27 + bytes[26] + 9] === 1;
+}
+
 /** Mono Ogg Opus and M4A clips are sent as they are. Anything else is converted in the browser first. */
 export function sniffReadyAudio(bytes) {
   const text = (start, count) => String.fromCharCode(...bytes.subarray(start, start + count));
   if (bytes.length > 1_000_000) return undefined;
   // Only mono Opus goes out as it is. A stereo clip is converted, because some phones stay silent on stereo sticker sound.
-  if (text(0, 4) === 'OggS' && bytes[26] > 0 && text(27 + bytes[26], 8) === 'OpusHead') return bytes[27 + bytes[26] + 9] === 1 ? 'audio/ogg; codecs=opus' : undefined;
+  if (isMonoOggOpus(bytes)) return 'audio/ogg; codecs=opus';
   if (text(4, 4) === 'ftyp' && /^M4[AB] $/.test(text(8, 4))) return 'audio/mp4';
   return undefined;
 }
