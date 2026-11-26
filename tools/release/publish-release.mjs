@@ -1,10 +1,59 @@
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { command, git, api, repo, packages, output, summary, release, state, checkpoint, version, runUrl } from './shared.mjs';
+import { command, git, api, repo, packages, output, summary, release, state, checkpoint, version, runUrl, request, mapLimit, sleep } from './shared.mjs';
 
 const v = version(JSON.parse(readFileSync('packages/core/package.json', 'utf8')).version);
 const mode = process.argv[2];
 const alignVersions = process.env.RELEASE_ALIGN_VERSIONS === 'true';
+
+/** Public packages grouped so that each layer depends only on earlier layers. */
+function dependencyLayers() {
+  const all = packages();
+  const names = new Set(all.map(pkg => pkg.name));
+  const needs = new Map(all.map(pkg => {
+    const manifest = JSON.parse(readFileSync(`${pkg.directory}/package.json`, 'utf8'));
+    const listed = { ...manifest.dependencies, ...manifest.optionalDependencies, ...manifest.peerDependencies };
+    return [pkg.name, Object.keys(listed).filter(name => names.has(name))];
+  }));
+  const done = new Set(), layers = [];
+  while (done.size < all.length) {
+    const layer = all.filter(pkg => !done.has(pkg.name) && needs.get(pkg.name).every(name => done.has(name)));
+    if (!layer.length) throw new Error('Public packages depend on each other in a cycle, so they cannot be published in order.');
+    for (const pkg of layer) done.add(pkg.name);
+    layers.push(layer);
+  }
+  return layers;
+}
+
+async function isServed(pkg) {
+  try {
+    const query = `?openwa_release=${Date.now()}`;
+    const manifest = await (await request(`https://registry.npmjs.org/${encodeURIComponent(pkg.name)}/${pkg.version}${query}`, { headers: { 'Cache-Control': 'no-cache' } })).json();
+    if (manifest.version !== pkg.version || !manifest.dist?.tarball) return false;
+    const tarball = new URL(manifest.dist.tarball);
+    tarball.searchParams.set('openwa_release', String(Date.now()));
+    await request(tarball, { method: 'HEAD', headers: { 'Cache-Control': 'no-cache' } });
+    return true;
+  } catch { return false; }
+}
+
+/** Wait until npm serves every package in the layer. Stop the release if it does not. */
+async function served(layer) {
+  const minutes = Number(process.env.RELEASE_LAYER_WAIT_MINUTES || 90);
+  const deadline = Date.now() + minutes * 60_000;
+  let waiting = layer;
+  for (;;) {
+    const results = await mapLimit(waiting, async pkg => ({ pkg, ok: await isServed(pkg) }));
+    waiting = results.filter(item => !item.ok).map(item => item.pkg);
+    if (!waiting.length) return;
+    if (Date.now() >= deadline) break;
+    console.log(`Waiting for npm to serve ${waiting.map(pkg => `${pkg.name}@${pkg.version}`).join(', ')}`);
+    await sleep(20_000);
+  }
+  const held = waiting.map(pkg => `${pkg.name}@${pkg.version}`).join(', ');
+  summary(`## open-wa ${v} is paused\n\nnpm accepted ${held} but has not served it after ${minutes} minutes. Nothing that depends on it was published, so the previous release still installs. Rerun this job when npm serves it. Do not upload it again.`);
+  throw new Error(`npm has not served ${held}. Packages that depend on it were not published.`);
+}
 
 if (mode === 'open') {
   let existing = release(v, false);
@@ -69,16 +118,26 @@ if (mode === 'open') {
   output('packages', current.packages.map(pkg => pkg.name));
 } else if (mode === 'npm') {
   if (!state(v).npmSubmittedAt) {
-    const result = spawnSync('pnpm', ['exec', 'bumpy', 'publish'], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
-    process.stdout.write(result.stdout || '');
-    process.stderr.write(result.stderr || '');
-    if (result.error) throw result.error;
-    const log = `${result.stdout || ''}\n${result.stderr || ''}`.replace(/\x1b\[[0-9;]*m/g, '');
-    const codes = [...log.matchAll(/npm (?:error|ERR!) code (\S+)/g)].map(match => match[1]);
-    const staged = codes.length > 0 && codes.every(code => code === 'E409') && /previously staged version/i.test(log);
-    if (result.status !== 0 && !staged) throw new Error('npm publishing failed; see the package errors above.');
-    checkpoint(v, { npmSubmittedAt: new Date().toISOString(), npmValidationPending: staged });
-    if (staged) summary('npm already accepted these versions for validation. Tracking availability without uploading them again.');
+    // npm can accept a version and then hold it for validation, sometimes for hours. A version
+    // that depends on a held one cannot be installed, and it is already `latest`. So publish in
+    // dependency layers and wait for npm to serve each layer before publishing what depends on it.
+    let pending = false;
+    for (const [index, layer] of dependencyLayers().entries()) {
+      const names = layer.map(pkg => pkg.name);
+      console.log(`\nLayer ${index + 1}: ${names.join(', ')}`);
+      const result = spawnSync('pnpm', ['exec', 'bumpy', 'publish', '--filter', names.join(',')], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+      process.stdout.write(result.stdout || '');
+      process.stderr.write(result.stderr || '');
+      if (result.error) throw result.error;
+      const log = `${result.stdout || ''}\n${result.stderr || ''}`.replace(/\x1b\[[0-9;]*m/g, '');
+      const codes = [...log.matchAll(/npm (?:error|ERR!) code (\S+)/g)].map(match => match[1]);
+      const staged = codes.length > 0 && codes.every(code => code === 'E409') && /previously staged version/i.test(log);
+      if (result.status !== 0 && !staged) throw new Error('npm publishing failed; see the package errors above.');
+      pending ||= staged;
+      await served(layer);
+    }
+    checkpoint(v, { npmSubmittedAt: new Date().toISOString(), npmValidationPending: pending });
+    if (pending) summary('npm had already accepted some versions for validation. They were not uploaded again.');
   }
 } else if (mode === 'finish') {
   const current = checkpoint(v, { githubPackagesPublishedAt: new Date().toISOString() });
