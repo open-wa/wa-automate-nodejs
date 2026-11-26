@@ -135,7 +135,7 @@ export interface MessagingMethods {
   /** Sends media in its native presentation: image, video, audio or document. */
   sendFile(to: ChatId, file: MediaInput, filename?: string, options?: MediaSendOptions): Promise<MediaSendResult>;
   sendAudio(to: ChatId, file: MediaInput, filename?: string, options?: AudioAttachmentOptions): Promise<MediaSendResult>;
-  /** Marks prepared audio as a voice note; it does not transcode the input. */
+  /** Sends a voice note. Audio that is not already mono Ogg Opus is converted in the session's browser first, so that it plays on every phone. */
   sendPtt(to: ChatId, file: MediaInput, options?: VoiceNoteOptions): Promise<MediaSendResult>;
   /** Sends video with WhatsApp's looping GIF flag. */
   sendVideoAsGif(to: ChatId, file: MediaInput, filename?: string, options?: GifSendOptions): Promise<MediaSendResult>;
