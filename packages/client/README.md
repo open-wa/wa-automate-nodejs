@@ -62,7 +62,7 @@ await client.react(messageId, '👍');
 await client.editMessage(messageId, 'Updated text');
 ```
 
-`sendPtt` marks prepared audio as a voice note; it does not transcode the source. `sendVideoAsGif` accepts video and enables WhatsApp's looping GIF presentation. Media and poll sends return a serialized message ID or a boolean submission result. Neither confirms recipient delivery; an uncertain result should be checked in the chat before retrying.
+`sendPtt` sends a voice note. Audio that is not already mono Ogg Opus is converted to it in the session's browser first, so that it plays on every phone. It converts files of up to 20 MB and 10 minutes. `sendVideoAsGif` accepts video and enables WhatsApp's looping GIF presentation. Media and poll sends return a serialized message ID or a boolean submission result. Neither confirms recipient delivery; an uncertain result should be checked in the chat before retrying.
 
 `sendVCard(chatId, vcard, contactName?, contactNumber?)` sends supplied vCard content. `sendMultipleContacts(chatId, contactIds)` sends one contact bundle, while `sendContact` sends each supplied contact separately and returns the individual results.
 

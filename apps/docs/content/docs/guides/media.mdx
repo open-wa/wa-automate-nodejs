@@ -33,7 +33,7 @@ The `type` option picks the presentation and decides which other options apply. 
 | `audio` | `quotedMsgId`, `ptt`, `viewOnce` | Requires audio. View once needs `ptt: true`. |
 | `document` | `caption`, `quotedMsgId` | Sends any file as a document, including images, videos and audio. |
 
-open-wa uploads the media as you supply it, without transcoding, cropping or shortening it. WhatsApp's size limits still apply. A returned message ID confirms the send, not delivery, so use `onAck` for delivery and check the chat before retrying an uncertain send.
+open-wa uploads the media as you supply it, without transcoding, cropping or shortening it. The one exception is a [voice note](#voice-notes), which is converted when it needs to be. WhatsApp's size limits still apply. A returned message ID confirms the send, not delivery, so use `onAck` for delivery and check the chat before retrying an uncertain send.
 
 ## View once
 
@@ -56,7 +56,20 @@ await client.sendFile(chatId, './loop.mp4', 'loop.mp4', {
 });
 ```
 
-A video note shows as a circle. Supply a square MP4 of 60 seconds or less; video notes can't have a caption or be GIFs. A GIF is an MP4 that loops, and it can't be view once. For voice notes, send prepared audio such as Ogg Opus.
+A video note shows as a circle. Supply a square MP4 of 60 seconds or less; video notes can't have a caption or be GIFs. A GIF is an MP4 that loops, and it can't be view once.
+
+## Voice notes
+
+```ts
+await client.sendPtt(chatId, './reply.mp3');
+await client.sendPtt(chatId, './voice.ogg', { quotedMsgId: messageId });
+```
+
+[`sendPtt`](/docs/reference/client/messages#sendptt) sends a voice note from any audio the session's browser can read, such as MP3, M4A, WAV or Ogg. Audio that isn't already mono Ogg Opus is converted to it first, so that the voice note plays on every phone. A mono Ogg Opus file is sent as it is. `sendFile` with `{ type: 'audio', ptt: true }` does the same.
+
+open-wa converts files of up to 20 MB and 10 minutes. A larger or longer file is refused with an error that names the limit, and nothing is sent. Convert such a file to mono Ogg Opus yourself and it is sent as it is. Conversion needs a browser that can encode audio, which Chrome can. The experimental Lightpanda driver can't, so supply mono Ogg Opus there.
+
+[`sendAudio`](/docs/reference/client/messages#sendaudio) never converts: it sends the file you supply as an audio attachment.
 
 ## Send media as a document
 
