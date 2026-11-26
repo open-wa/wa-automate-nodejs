@@ -11,9 +11,10 @@ import type {
 } from '@open-wa/schema';
 
 /**
- * What each listener's callback receives. These are the values the SDK
- * `Client` listener of the same name delivers, so a handler written for
- * `client.onMessage` works unchanged on the socket client.
+ * What `client.onMessage(callback)` and the other listener methods deliver.
+ * These are the values the SDK `Client` listener of the same name delivers,
+ * so a handler written for `client.onMessage` works unchanged on the socket
+ * client.
  */
 export interface ListenerPayloads {
     onMessage: Message;
@@ -31,6 +32,44 @@ export interface ListenerPayloads {
     onIncomingCall: Call;
     onCallState: Call;
 }
+
+/** The context the Easy API stamps on a stream event. */
+export type StreamContext = { correlationId: string; ts: number; attempt?: number };
+
+type Wrapped<K extends string, T> = { ctx: StreamContext } & { [P in K]: T };
+
+/** A session step event, such as a state change or a logout. */
+export type SessionStepPayload = StreamContext & {
+    step: string;
+    details?: Record<string, unknown>;
+    durationMs?: number;
+    error?: { name: string; message: string; stack?: string };
+};
+
+/**
+ * What a `listen(name, callback)` callback receives: the Easy API stream
+ * payload as it was sent. `listen('onMessage', ...)` gets `{ ctx, message }`.
+ * For the bare value, use the listener method: `client.onMessage(callback)`.
+ */
+export interface ListenPayloads {
+    onMessage: Wrapped<'message', Message>;
+    onAnyMessage: Wrapped<'message', Message>;
+    onAck: Wrapped<'ack', Message>;
+    onStateChanged: SessionStepPayload;
+    onLogout: SessionStepPayload;
+    onPollVote: Wrapped<'vote', PollVote>;
+    onEvent: Wrapped<'event', WhatsAppEvent>;
+    onEventResponse: Wrapped<'response', EventResponse>;
+    onInteractiveResponse: Wrapped<'response', InteractiveResponse | FormResponse>;
+    onFormResponse: Wrapped<'response', InteractiveResponse | FormResponse>;
+    onGlobalParticipantsChanged: Wrapped<'change', ParticipantChange>;
+    onIncomingCall: Call;
+    onCallState: Call;
+}
+
+export type ListenPayload<L extends string> = L extends keyof ListenPayloads ? ListenPayloads[L] : unknown;
+
+export type ListenCallback<L extends string> = (data: ListenPayload<L>) => unknown;
 
 /** A listener whose payload type is known. */
 export type TypedListenerName = keyof ListenerPayloads;
@@ -58,8 +97,8 @@ type ListenerSource = {
 
 /**
  * The stream event behind each listener name, and how its payload becomes the
- * value the listener delivers. Mirrors the listener bridges of the SDK `Client`.
- * A listener without `project` receives the stream payload as it arrived.
+ * value the listener method delivers. Mirrors the listener bridges of the SDK
+ * `Client`. A listener without `project` receives the stream payload as it arrived.
  */
 export const LISTENER_SOURCES: Readonly<Record<string, ListenerSource>> = {
     onMessage: { event: 'message.received', project: (payload) => payload?.message },
@@ -96,13 +135,17 @@ export function streamEventForListener(listener: string): string {
     return LISTENER_SOURCES[listener]?.event ?? listener;
 }
 
-/** The listener names fed by a stream event, each with the value its callbacks receive. */
-export function listenerDeliveries(streamEvent: string, payload: unknown, envelope: StreamEnvelope = {}): Array<[listener: string, data: unknown]> {
-    const deliveries: Array<[string, unknown]> = [];
-    for (const listener of LISTENERS_BY_STREAM_EVENT[streamEvent] ?? []) {
-        const project = LISTENER_SOURCES[listener].project;
-        const data = project ? project(payload, envelope) : payload;
-        if (data !== undefined && data !== null) deliveries.push([listener, data]);
-    }
-    return deliveries;
+/** The listener names fed by a stream event. */
+export function listenersForStreamEvent(streamEvent: string): readonly string[] {
+    return LISTENERS_BY_STREAM_EVENT[streamEvent] ?? [];
+}
+
+/**
+ * Turns a stream payload into the value the SDK `Client` listener of that name
+ * delivers. `undefined` means the callback is skipped.
+ */
+export function clientListenerValue(listener: string, payload: unknown, envelope: StreamEnvelope = {}): unknown {
+    const project = LISTENER_SOURCES[listener]?.project;
+    const data = project ? project(payload, envelope) : payload;
+    return data === null ? undefined : data;
 }

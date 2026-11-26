@@ -95,18 +95,18 @@ describe('listeners', () => {
   it.each([
     ['the v4 string name', 'onMessage' as const],
     ['the SimpleListener member', SimpleListener.Message],
-  ])('deliver the message itself through listen() with %s', async (_label, name) => {
+  ])('deliver the stream payload through listen() with %s', async (_label, name) => {
     const received = vi.fn();
     const id = await client.listen(name, received);
     expect(id).toEqual(expect.any(String));
 
     api.emit('message.received', { ctx, message });
 
-    await vi.waitFor(() => expect(received).toHaveBeenCalledWith(message));
-    expect(received).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => expect(received).toHaveBeenCalledTimes(1));
+    expect(received).toHaveBeenCalledWith({ ctx, message });
   });
 
-  it('deliver the same payload through the listener method', async () => {
+  it('deliver the message itself through the listener method, as the SDK Client does', async () => {
     const received = vi.fn();
     await client.onMessage(received);
     await client.onAnyMessage(received);
@@ -121,9 +121,9 @@ describe('listeners', () => {
 
   it('project the other SDK listeners from their stream events', async () => {
     const ack = vi.fn(), state = vi.fn(), logout = vi.fn(), vote = vi.fn(), form = vi.fn(), interactive = vi.fn();
-    await client.listen('onAck', ack);
-    await client.listen(SimpleListener.StateChanged, state);
-    await client.listen('onLogout', logout);
+    await client.onAck(ack);
+    await client.onStateChanged(state);
+    await client.onLogout(logout);
     await client.onPollVote(vote);
     await client.onFormResponse(form);
     await client.onInteractiveResponse(interactive);
@@ -142,6 +142,23 @@ describe('listeners', () => {
     expect(vote).toHaveBeenCalledWith({ id: 'vote-1' });
     expect(form).toHaveBeenCalledTimes(1);
     expect(form).toHaveBeenCalledWith({ type: 'form', id: 'f-1' });
+  });
+
+  it('keep the stream payload for every listener name passed to listen()', async () => {
+    const ack = vi.fn(), state = vi.fn(), vote = vi.fn();
+    await client.listen('onAck', ack);
+    await client.listen(SimpleListener.StateChanged, state);
+    await client.listen('onPollVote', vote);
+
+    const step = { ...ctx, step: 'session.state.changed', details: { prev: 'STARTING', next: 'READY' } };
+    api.emit('ack.changed', { ctx, ack: { id: message.id, ack: 3 } });
+    api.emit('session.state.changed', step);
+    api.emit('poll.vote', { ctx, vote: { id: 'vote-1' } });
+
+    await vi.waitFor(() => expect(vote).toHaveBeenCalledTimes(1));
+    expect(ack).toHaveBeenCalledWith({ ctx, ack: { id: message.id, ack: 3 } });
+    expect(state).toHaveBeenCalledWith(step);
+    expect(vote).toHaveBeenCalledWith({ ctx, vote: { id: 'vote-1' } });
   });
 
   it('filter participant changes to one group', async () => {
@@ -167,7 +184,7 @@ describe('listeners', () => {
 
     await vi.waitFor(() => expect(raw).toHaveBeenCalledWith({ ctx, message }));
     expect(onSocket).toHaveBeenCalledWith({ ctx, message });
-    expect(onEv).toHaveBeenCalledWith(message);
+    expect(onEv).toHaveBeenCalledWith({ ctx, message });
   });
 
   it('stop a listener by its id', async () => {

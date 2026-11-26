@@ -14,14 +14,14 @@ export async function reported() {
   // The object `connect` resolves to is typed as the client itself, with no intersection or cast.
   const client = await SocketClient.connect('http://localhost:8080');
 
-  // 1. A typed listener registered through the enum.
-  await client.listen(SimpleListener.Message, async (message: Message) => {
-    expectType<string>(message.body);
+  // 1. A typed listener registered through the enum, exactly as reported.
+  await client.listen(SimpleListener.Message, async (message: { message: Message }) => {
+    expectType<string>(message.message.body);
   });
 
   // 2. The v4-style string name.
-  await client.listen('onMessage', async (message: Message) => {
-    expectType<string>(message.body);
+  await client.listen('onMessage', async (message: { message: Message }) => {
+    expectType<string>(message.message.body);
   });
 
   // 3. Direct methods with positional arguments, as on the v4 Client.
@@ -32,16 +32,17 @@ export async function reported() {
 }
 
 export async function listeners(client: SocketClient) {
-  // An unannotated handler gets the payload type from the listener name.
-  await client.listen('onMessage', (message) => expectType<Message>(message));
-  await client.listen(SimpleListener.AnyMessage, (message) => expectType<Message>(message));
-  await client.listen('onAck', (message) => expectType<Message>(message));
-  await client.listen(SimpleListener.StateChanged, (state) => expectType<string>(state));
-  await client.listen('onLogout', (logout) => expectType<number>(logout.timestamp));
-  await client.listen('onGlobalParticipantsChanged', (change) => expectType<string>(change.action));
-  await client.listen('onPollVote', (vote) => expectType<ListenerPayloads['onPollVote']>(vote));
+  // listen() delivers the stream payload as the Easy API sent it; an
+  // unannotated handler gets that type from the listener name.
+  await client.listen('onMessage', ({ ctx, message }) => { expectType<Message>(message); expectType<number>(ctx.ts); });
+  await client.listen(SimpleListener.AnyMessage, ({ message }) => expectType<Message>(message));
+  await client.listen('onAck', ({ ack }) => expectType<Message>(ack));
+  await client.listen(SimpleListener.StateChanged, (step) => expectType<string>(step.step));
+  await client.listen('onLogout', (step) => expectType<number>(step.ts));
+  await client.listen('onGlobalParticipantsChanged', ({ change }) => expectType<string>(change.action));
+  await client.listen('onPollVote', ({ vote }) => expectType<ListenerPayloads['onPollVote']>(vote));
 
-  // The listener methods of the SDK Client exist with the same payloads.
+  // The listener methods deliver what the SDK Client listeners deliver.
   const id = await client.onMessage((message) => expectType<Message>(message));
   expectType<string>(id);
   await client.onAnyMessage(async (message) => expectType<Message>(message));
@@ -56,9 +57,11 @@ export async function listeners(client: SocketClient) {
   // So does an Easy API stream event addressed by its own name.
   await client.listen('message.received', (payload) => expectType<unknown>(payload));
 
-  // The wire envelope is not what a listener receives.
-  // @ts-expect-error onMessage delivers the message, not `{ message }`.
-  await client.listen('onMessage', (payload: { message: Message }) => void payload);
+  // listen() gives the stream payload, and the listener method gives the message.
+  // @ts-expect-error listen('onMessage') delivers `{ ctx, message }`, not the message.
+  await client.listen('onMessage', (message: Message) => void message);
+  // @ts-expect-error onMessage() delivers the message, not `{ message }`.
+  await client.onMessage((payload: { message: Message }) => void payload);
   // @ts-expect-error a handler for the wrong payload is rejected.
   await client.listen(SimpleListener.Message, (state: number) => void state);
 }

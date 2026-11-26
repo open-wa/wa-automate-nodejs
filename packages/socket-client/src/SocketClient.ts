@@ -12,8 +12,8 @@ const uuidv4 = () => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto
 import { MessageCollector } from './MessageCollector';
 import { AwaitMessagesOptions, Collection, CollectorFilter, CollectorOptions } from './Collector';
 import makeDebug from 'debug';
-import { listenerDeliveries, streamEventForListener } from './listeners';
-import type { ListenerCallback, ListenerMethods, ListenerName } from './listeners';
+import { clientListenerValue, listenersForStreamEvent, streamEventForListener } from './listeners';
+import type { ListenCallback, ListenerMethods, ListenerName } from './listeners';
 import { remoteArguments } from './remoteArguments';
 const debug = makeDebug('wa:socket');
 
@@ -163,10 +163,10 @@ export interface SocketClient extends Client, Omit<ListenerMethods, 'onIncomingC
  *
  *          const client = await SocketClient.connect("http://localhost:8080");
  *
- *          // Listeners deliver what the SDK Client listeners deliver.
+ *          // Listener methods deliver what the SDK Client listeners deliver.
  *          await client.onMessage(message => console.log(message.from, message.body));
- *          // The same listener, registered by name.
- *          await client.listen("onMessage", message => console.log(message.body));
+ *          // listen() delivers the stream payload as the Easy API sent it.
+ *          await client.listen("onMessage", ({ message }) => console.log(message.body));
  *
  *          // Every Easy API method is a method of the client. Pass the
  *          // arguments in order, or one object of named parameters.
@@ -342,7 +342,7 @@ export class SocketClient {
                 // `await client` must give back this proxy, so the client must not look like a promise.
                 if (NOT_REMOTE_METHODS.has(prop)) return undefined;
                 if (/^on[A-Z]/.test(prop)) {
-                    return async (callback: (data: unknown) => unknown) => target.listen(prop, callback);
+                    return async (callback: (data: unknown) => unknown) => target.listenAsClient(prop, callback);
                 }
                 return async (...args: unknown[]) => target.ask(prop, remoteArguments(prop, args));
             }
@@ -475,21 +475,28 @@ export class SocketClient {
             }
         }
 
-        // The stream event itself carries the payload as the Easy API sent it.
-        this.deliver(resolvedEventName, payload);
-        // Listener names such as `onMessage` receive what the SDK `Client` listener delivers.
-        for (const [listener, data] of listenerDeliveries(resolvedEventName, payload, envelope)) {
-            this.deliver(listener, data);
+        // The stream event, and every listener name it feeds, carries the payload as the Easy API sent it.
+        this.deliver(resolvedEventName, payload, envelope);
+        for (const listener of listenersForStreamEvent(resolvedEventName)) {
+            this.deliver(listener, payload, envelope);
         }
     }
 
-    private deliver(name: string, data: unknown) {
+    private envelopeInDelivery: SseEventEnvelope | undefined;
+
+    private deliver(name: string, data: unknown, envelope?: SseEventEnvelope) {
         this.ev.emit(name, data);
         this.socket.emitLocal(name, data);
 
         const listenerCallbacks = this.listeners[name];
         if (listenerCallbacks) {
-            void Promise.all(Object.values(listenerCallbacks).map((callback) => callback(data)));
+            // Callbacks start synchronously, so a listener method can read the envelope of this delivery.
+            this.envelopeInDelivery = envelope;
+            try {
+                void Promise.all(Object.values(listenerCallbacks).map((callback) => callback(data)));
+            } finally {
+                this.envelopeInDelivery = undefined;
+            }
         }
     }
 
@@ -629,15 +636,16 @@ export class SocketClient {
     }
 
     /**
-     * Set a callback on a listener. The callback receives what the SDK `Client`
-     * listener of that name delivers: `onMessage` gets the message itself.
-     * An Easy API stream event name such as `message.received` is accepted too,
-     * and its callback receives the event payload as sent.
+     * Set a callback on a listener. The callback receives the Easy API stream
+     * payload as it was sent: `listen('onMessage', ...)` gets `{ ctx, message }`.
+     * For the message itself, as the SDK `Client` delivers it, use the listener
+     * method instead: `client.onMessage(callback)`.
+     * An Easy API stream event name such as `message.received` is accepted too.
      * @param listener The listener name, as a string (`'onMessage'`) or a `SimpleListener` member
      * @param callback The callback you need to run on the selected listener
      * @returns The id of the callback
      */
-    public async listen<L extends ListenerName | SimpleListener | (string & {})>(listener: L, callback: ListenerCallback<`${L}`>): Promise<string>;
+    public async listen<L extends ListenerName | SimpleListener | (string & {})>(listener: L, callback: ListenCallback<`${L}`>): Promise<string>;
     public async listen(listener: string, callback: (data: any) => unknown): Promise<string> {
         debug("listen", listener)
         if (listener === 'onIncomingCall') return this.onIncomingCall(callback);
@@ -656,8 +664,21 @@ export class SocketClient {
      * @returns The id of the callback, registered under `onGlobalParticipantsChanged`
      */
     public async onParticipantsChanged(groupId: GroupId | string, callback: (change: ParticipantChange) => unknown): Promise<string> {
-        return this.listen('onGlobalParticipantsChanged', (change) => {
+        return this.listenAsClient('onGlobalParticipantsChanged', (change: ParticipantChange) => {
             if (String(change.groupId) === String(groupId)) return callback(change);
+        });
+    }
+
+    /**
+     * Registers a callback that receives what the SDK `Client` listener of that
+     * name delivers. This is what `client.onMessage(callback)` and the other
+     * listener methods use.
+     */
+    private async listenAsClient(listener: string, callback: (data: any) => unknown): Promise<string> {
+        if (listener === 'onIncomingCall' || listener === 'onCallState') return this.listen(listener, callback);
+        return this.listen(listener as string, (payload: unknown) => {
+            const data = clientListenerValue(listener, payload, this.envelopeInDelivery ?? {});
+            if (data !== undefined) return callback(data);
         });
     }
 

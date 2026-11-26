@@ -43,7 +43,7 @@ client.socket.on('connect', () => console.log('Easy API event stream connected')
 client.socket.on('disconnect', (reason) => console.warn('Event stream disconnected:', reason));
 client.socket.on('connect_error', (error) => console.error('Event stream connection failed:', error));
 
-await client.listen('onMessage', (message) => {
+await client.onMessage((message) => {
   console.log('Incoming message:', message.from, message.body);
 });
 
@@ -99,19 +99,17 @@ await client.onMessage((message) => console.log(message.from, message.body));
 await client.onStateChanged((state) => console.log('Session state:', state));
 ```
 
-`listen()` registers the same listeners by name and returns an ID. Pass that ID to `stopListener()` to remove the callback. The parameter of the callback is typed from the listener name, and a type annotation is optional:
+Each listener method returns an ID. Pass that ID to `stopListener()` to remove the callback:
 
 ```ts
-const listenerId = await client.listen('onMessage', async (message: Message) => {
+const listenerId = await client.onMessage(async (message: Message) => {
   if (message.body === 'ping') await client.sendText(message.from, 'pong');
 });
 
 client.stopListener('onMessage', listenerId);
 ```
 
-`listen()` accepts the listener name as a string or as a `SimpleListener` member, for example `SimpleListener.Message`.
-
-| Listener | The callback receives |
+| Listener method | The callback receives |
 | --- | --- |
 | `onMessage`, `onAnyMessage` | The message |
 | `onAck` | The message with its new `ack` value |
@@ -122,6 +120,18 @@ client.stopListener('onMessage', listenerId);
 | `onEvent`, `onEventResponse` | The WhatsApp event, or the response to one |
 | `onInteractiveResponse`, `onFormResponse` | The interactive response |
 | `onIncomingCall`, `onCallState` | The call, with its controls |
+
+### Listen by name
+
+`listen()` registers a listener by name, as a string or as a `SimpleListener` member such as `SimpleListener.Message`. Its callback receives the event as the Easy API sends it, so `listen('onMessage', ...)` receives `{ ctx, message }`. `ctx` holds the event's correlation ID and timestamp. The parameter of the callback is typed from the name:
+
+```ts
+await client.listen('onMessage', async ({ ctx, message }) => {
+  console.log(ctx.ts, message.from, message.body);
+});
+```
+
+Use the listener methods when you want the same values as the SDK `Client`, and `listen()` when you want the whole event.
 
 The `client.socket` event hooks report the SSE connection. They do not indicate whether an individual command succeeded.
 
@@ -151,7 +161,7 @@ For remote access without opening an inbound port to the Easy API, use the [Clou
 
 v4 used socket.io and v5 uses HTTP and SSE, so a v4 socket client cannot connect to a v5 Easy API. Install the v5 `@open-wa/socket-client`, at the same version as the Easy API you connect to.
 
-Your code keeps the form it had in v4. `SocketClient.connect(url, apiKey)`, `client.listen('onMessage', callback)`, `client.onMessage(callback)` and direct calls such as `client.sendText(chatId, text)` take the same arguments, and the listener callbacks receive the same values. TypeScript reports a method that v5 does not have.
+`SocketClient.connect(url, apiKey)`, `client.onMessage(callback)` and direct calls such as `client.sendText(chatId, text)` keep the form they had in v4, and the listener methods deliver the same values. `client.listen('onMessage', callback)` takes the same arguments, but in v5 its callback receives `{ ctx, message }` instead of the message, so read `message` from that object or use `client.onMessage(callback)`. TypeScript reports both this and a method that v5 does not have.
 
 ## Security
 
