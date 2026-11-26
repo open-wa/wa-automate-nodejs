@@ -178,7 +178,7 @@ The CLI downloads no browser when it installs. It uses an installed Google Chrom
 
 `--use-chrome`, `--use-chromium` and `--use-lightpanda` (or `--lightpanda`) choose directly and download on demand. Downloads are cached per user, and your choice is remembered. A first start with no browser and no terminal to ask in needs one of these flags. Set `browser.download: 'never'` to forbid downloads.
 
-Lightpanda mode downloads Lightpanda 1.0.0 the first time and keeps the `/qr` endpoint and terminal QR working. It's experimental: recovering after a reload, sending reliably and long-running sessions aren't confirmed, and Live Portal and screenshots aren't available.
+Lightpanda mode downloads Lightpanda 1.0.5 the first time and keeps the `/qr` endpoint and terminal QR working. It's experimental. Linking, restarts from the saved login, text and image sends work; stickers and audio sends don't, and Live Portal and screenshots aren't available. A logged-in session currently uses more memory and CPU than Chrome the longer it runs, so use Chrome for anything long-running.
 
 ### Flags that do nothing yet
 

@@ -8,7 +8,7 @@ import { Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { toPublicError, type BrowserProvisionOptions, type IDriverContext } from '@open-wa/driver-interface';
 
-const VERSION = '1.0.0';
+const VERSION = '1.0.5';
 
 async function isExecutable(path: string): Promise<boolean> {
     try {
