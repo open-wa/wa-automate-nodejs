@@ -2,27 +2,48 @@ name: Effect runtime contracts
 
 on:
   pull_request:
+    # Pull requests into master only. The release promotion pull request
+    # (master into release) is opened with the Actions token, so GitHub holds
+    # its runs for approval; it merges before anyone approves them, and they
+    # end as failures with no jobs. Those commits are checked by the push run.
+    branches: [master]
     paths:
       - 'packages/runtime-*/**'
       - 'packages/client/**'
       - 'packages/core/**'
+      - 'packages/config/**'
+      - 'packages/wa-automate/**'
       - 'integrations/**'
+      - 'architecture/benchmarks/effect-replacements.json'
+      - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
       - 'tools/check-effect-pins.mjs'
+      - 'tools/check-effect-evidence.mjs'
       - 'tools/check-portable-imports.mjs'
       - 'tools/check-bun-runtime.ts'
       - 'tools/bench-effect-startup.mjs'
       - '.github/workflows/effect-contracts.yml'
   push:
     branches: [master]
+    # Everything the check builds on or runs, so a change to any of it is checked.
     paths:
       - 'packages/runtime-*/**'
       - 'packages/client/**'
       - 'packages/core/**'
+      - 'packages/config/**'
+      - 'packages/wa-automate/**'
       - 'integrations/**'
+      - 'architecture/benchmarks/effect-replacements.json'
+      - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
+      - 'tools/check-effect-pins.mjs'
+      - 'tools/check-effect-evidence.mjs'
+      - 'tools/check-portable-imports.mjs'
+      - 'tools/check-bun-runtime.ts'
+      - 'tools/bench-effect-startup.mjs'
+      - '.github/workflows/effect-contracts.yml'
 
 jobs:
   contracts:
