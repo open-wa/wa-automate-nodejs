@@ -17,7 +17,7 @@ export interface StickerJob {
   /**
    * Attach a sound that the recipient can play. `true` keeps the sound of a video input, cut to the same
    * part of the video as the sticker. A filename, URL, data URL or bytes attaches that sound instead.
-   * Ogg Opus and M4A clips of at most 1 MB are used as they are; anything else is converted in the browser.
+   * Mono Ogg Opus and M4A clips of at most 1 MB are used as they are; anything else is converted in the browser to mono Ogg Opus.
    */
   audio?: boolean | StickerInput;
   quotedMsgId?: string;
@@ -38,7 +38,7 @@ export interface BackendCapabilities { available: boolean; requirements: readonl
 export interface BrowserBackend {
   capabilities(): Promise<BackendCapabilities>;
   render(input: { bytes: Uint8Array; mime: string }, job: StickerJob, requirements: string[]): Promise<Pick<StickerResult,'bytes'|'width'|'height'|'frames'|'durationMs'|'steps'|'audio'>>;
-  /** Convert a sound to an Ogg Opus clip. Needed only for sounds that are not already Ogg Opus or M4A. */
+  /** Convert a sound to a mono Ogg Opus clip. Needed only for sounds that are not already mono Ogg Opus or M4A. */
   convertAudio?(sound: Uint8Array, job: StickerJob): Promise<StickerAudio>;
   dispose(): Promise<void>;
 }

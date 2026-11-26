@@ -19,7 +19,7 @@ const environment = config.environment || {
   try{const loaded=settle('loadeddata');el.src=url;await loaded;if(!el.videoWidth||!el.videoHeight)throw Object.assign(Error('The browser cannot decode the picture in this video. HEVC (H.265) needs hardware decoding, which automated browsers usually have off. Use an H.264 MP4 or a WebM'),{code:'VIDEO_UNDECODABLE'});if(!Number.isFinite(el.duration)||el.duration<=0)throw Error('The video has no readable length');}catch(error){close();throw error;}
   return {durationMs:el.duration*1000,close,async frameAt(ms){const time=Math.max(0,Math.min(ms/1000,el.duration-.001));if(Math.abs(el.currentTime-time)>.0005){const seeked=settle('seeked');el.currentTime=time;await seeked;}return globalThis.createImageBitmap(el);}};
  },
- // Decode any audio the browser reads, cut it to the range and write an Ogg Opus clip.
+ // Decode any audio the browser reads, cut it to the range and write a mono Ogg Opus clip at 48 kHz.
  async transcodeAudio(blob,range){
   const Offline=globalThis.OfflineAudioContext||globalThis.webkitOfflineAudioContext;
   if(!Offline||typeof AudioEncoder==='undefined'||typeof AudioData==='undefined')throw Error('This browser cannot convert audio. Supply an Ogg Opus or M4A clip');
@@ -28,10 +28,13 @@ const environment = config.environment || {
   if(rate!==48000)throw Error('The browser did not resample the audio');
   if(total<=0)throw Error('The selected trim contains no audio');
   if(total>rate*300)throw Error('The sound is longer than five minutes');
-  const channels=Math.min(2,decoded.numberOfChannels),planes=Array.from({length:channels},(_,c)=>decoded.getChannelData(c));
+  // One channel, like a voice note: phones that play sound stickers all play mono, and some stay silent on stereo.
+  const channels=1,mixed=new Float32Array(decoded.length);
+  for(let c=0;c<decoded.numberOfChannels;c++){const plane=decoded.getChannelData(c);for(let i=0;i<mixed.length;i++)mixed[i]+=plane[i]/decoded.numberOfChannels;}
+  const planes=[mixed];
   const packets=[];let failure,preSkip=312;
   const encoder=new AudioEncoder({output(part,meta){const data=new Uint8Array(part.byteLength);part.copyTo(data);packets.push({data,samples:Math.round((part.duration||20000)*48/1000)});const d=meta?.decoderConfig?.description;if(d){const head=d instanceof ArrayBuffer?new Uint8Array(d):new Uint8Array(d.buffer,d.byteOffset,d.byteLength);if(head.length>=12&&String.fromCharCode(...head.subarray(0,8))==='OpusHead')preSkip=head[10]|head[11]<<8;}},error(error){failure=error;}});
-  encoder.configure({codec:'opus',sampleRate:rate,numberOfChannels:channels,bitrate:Math.max(16000,Math.min(64000,Math.floor(7200000*rate/total)))});
+  encoder.configure({codec:'opus',sampleRate:rate,numberOfChannels:channels,bitrate:Math.max(16000,Math.min(48000,Math.floor(7200000*rate/total)))});
   for(let at=from;at<to;at+=rate){const frames=Math.min(rate,to-at),data=new Float32Array(frames*channels);for(let c=0;c<channels;c++)data.set(planes[c].subarray(at,at+frames),c*frames);const frame=new AudioData({format:'f32-planar',sampleRate:rate,numberOfFrames:frames,numberOfChannels:channels,timestamp:Math.round((at-from)*1e6/rate),data});encoder.encode(frame);frame.close();}
   await encoder.flush();encoder.close();if(failure)throw failure;
   if(!packets.length)throw Error('The audio could not be encoded');

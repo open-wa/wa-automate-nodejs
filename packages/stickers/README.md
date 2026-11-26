@@ -36,9 +36,10 @@ await client.sendSticker(to, './clip.mp4', { trim: [0, 2000], audio: true });
 await client.sendSticker(to, './photo.jpg', { audio: './chime.ogg' });
 ```
 
-`createSticker()` returns the sound as `result.audio`, an Ogg Opus or M4A clip
-of at most 1 MB. Ogg Opus and M4A inputs are used as they are; other audio is
-converted in the browser. A video with no `trim` uses its first 10 seconds. The
+`createSticker()` returns the sound as `result.audio`, a mono Ogg Opus or M4A
+clip of at most 1 MB. Mono Ogg Opus and M4A inputs are used as they are; other
+audio, including stereo Ogg Opus and a video's own sound, is converted in the
+browser to mono Ogg Opus at 48 kHz. A video with no `trim` uses its first 10 seconds. The
 browser has to be able to play the video: H.264 MP4 and WebM work everywhere.
 In Node.js, a video the browser can't decode, such as HEVC, is converted with
 the system's `ffmpeg` when it is installed (`FFMPEG_PATH` overrides the

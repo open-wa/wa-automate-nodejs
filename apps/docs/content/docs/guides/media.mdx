@@ -172,7 +172,7 @@ To add a sound to an image, or a different sound to a video, pass the sound as a
 await client.sendSticker(chatId, './muffin.png', { audio: './chime.ogg' });
 ```
 
-Ogg Opus and M4A clips of at most 1 MB are sent as they are. Other audio, such as MP3 or WAV, is converted for you. Keep sounds to a few seconds, and pass `quotedMsgId` to send any sticker as a reply.
+Sticker sound goes out as mono Ogg Opus, the format voice notes use, so that it plays on every phone. Mono Ogg Opus and M4A clips of at most 1 MB are sent as they are. Other audio, such as MP3, WAV or stereo Ogg Opus, is converted for you, and so is a video's own sound. Keep sounds to a few seconds, and pass `quotedMsgId` to send any sticker as a reply.
 
 Sound stickers are new in WhatsApp. People on an app version without them see an ordinary sticker, and the method throws if the sending account doesn't have them yet.
 
