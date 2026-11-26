@@ -8,6 +8,7 @@ import {
 import { LightpandaPage } from './LightpandaPage';
 import { installTransferablePorts } from './transferablePorts';
 import { compressionPrelude } from './compressionStreams';
+import { installSettledFilterRow } from './settledFilterRow';
 
 export class LightpandaBrowser implements IBrowser {
     readonly name = 'lightpanda' as const;
@@ -58,6 +59,7 @@ export class LightpandaBrowser implements IBrowser {
             if (!native.portTransfer || !native.signedViews || !native.keyCloning) {
                 await page.evaluateOnNewDocument(installTransferablePorts, false, native.keyCloning);
             }
+            await page.evaluateOnNewDocument(installSettledFilterRow);
         }
 
         if (options?.clearFirstPage) {
