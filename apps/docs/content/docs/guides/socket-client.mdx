@@ -43,7 +43,7 @@ client.socket.on('connect', () => console.log('Easy API event stream connected')
 client.socket.on('disconnect', (reason) => console.warn('Event stream disconnected:', reason));
 client.socket.on('connect_error', (error) => console.error('Event stream connection failed:', error));
 
-await client.listen('onMessage', (message) => {
+await client.onMessage((message) => {
   console.log('Incoming message:', message.from, message.body);
 });
 
@@ -62,26 +62,78 @@ EASY_API_URL='http://localhost:8080' npx tsx consumer.ts
 
 `EASY_API_URL` is this example's own variable. If the Easy API has an API key, also set `WA_API_KEY` to the same value. For any example that calls `sendText`, replace the destination with a chat you control and run it only when you intend to send that message.
 
-## Call commands and listen for events
+## Call methods
 
-The client exposes Easy API methods directly, and `ask()` is available when you prefer an explicit RPC call:
+The client has every Easy API method. The names and the argument order are the same as on the SDK `Client`, so `client.sendText(chatId, text)` is the same call in each place. TypeScript checks the arguments, and your editor shows the parameters and the description of each method.
+
+Pass the arguments in order, or pass one object of named parameters:
 
 ```ts
-const result = await client.sendText('447700900123@c.us', 'Hello from SocketClient');
-// Equivalent explicit command:
-const sameResult = await client.ask('sendText', {
-  to: '447700900123@c.us',
-  content: 'Hello from SocketClient',
+const chatId = '447700900123@c.us';
+
+const messageId = await client.sendText(chatId, 'Hello from SocketClient');
+await client.sendText({ to: chatId, content: 'Hello from SocketClient' });
+
+await client.sendImage(chatId, 'https://example.com/receipt.png', 'receipt.png', { caption: 'Receipt attached' });
+const chats = await client.getAllChats();
+```
+
+`ask()` calls a method by name. It takes the same named parameters, and it is the form to use when your code selects the method name at run time:
+
+```ts
+const sameMessageId = await client.ask('sendText', { to: chatId, content: 'Hello from SocketClient' });
+```
+
+Replace the chat ID with a chat you control before you run a send example. The [API reference](/docs/reference/client) lists each method with its parameters.
+
+## Listen for events
+
+Each listener of the SDK `Client` is a method on the socket client. The callback receives the same value that the SDK listener of that name delivers, so `onMessage` receives the message:
+
+```ts
+import { SocketClient, type Message } from '@open-wa/socket-client';
+
+const client = await SocketClient.connect('http://localhost:8080', process.env.WA_API_KEY);
+
+await client.onMessage((message) => console.log(message.from, message.body));
+await client.onStateChanged((state) => console.log('Session state:', state));
+```
+
+Each listener method returns an ID. Pass that ID to `stopListener()` to remove the callback:
+
+```ts
+const listenerId = await client.onMessage(async (message: Message) => {
+  if (message.body === 'ping') await client.sendText(message.from, 'pong');
+});
+
+client.stopListener('onMessage', listenerId);
+```
+
+| Listener method | The callback receives |
+| --- | --- |
+| `onMessage`, `onAnyMessage` | The message |
+| `onAck` | The message with its new `ack` value |
+| `onStateChanged` | The new session state, for example `READY` |
+| `onLogout` | `{ reason, timestamp }` |
+| `onGlobalParticipantsChanged` | The participant change. `onParticipantsChanged(groupId, callback)` limits it to one group |
+| `onPollVote` | The poll vote |
+| `onEvent`, `onEventResponse` | The WhatsApp event, or the response to one |
+| `onInteractiveResponse`, `onFormResponse` | The interactive response |
+| `onIncomingCall`, `onCallState` | The call, with its controls |
+
+### Listen by name
+
+`listen()` registers a listener by name, as a string or as a `SimpleListener` member such as `SimpleListener.Message`. Its callback receives the event as the Easy API sends it, so `listen('onMessage', ...)` receives `{ ctx, message }`. `ctx` holds the event's correlation ID and timestamp. The parameter of the callback is typed from the name:
+
+```ts
+await client.listen('onMessage', async ({ ctx, message }) => {
+  console.log(ctx.ts, message.from, message.body);
 });
 ```
 
-`onMessage` can also be registered through the listener helper:
+Use the listener methods when you want the same values as the SDK `Client`, and `listen()` when you want the whole event.
 
-```ts
-await client.listen('onMessage', (message) => console.log(message.body));
-```
-
-Use a chat ID for a chat you control before running the send example. The `client.socket` event hooks report the SSE connection; they do not indicate whether an individual command succeeded.
+The `client.socket` event hooks report the SSE connection. They do not indicate whether an individual command succeeded.
 
 ## Reconnect and shutdown
 
@@ -105,11 +157,15 @@ If the first stream connection fails, `connect()` rejects with `Unable to establ
 
 For remote access without opening an inbound port to the Easy API, use the [Cloudflare session proxy](/docs/guides/cf-proxy). `SocketClient.connect()` accepts its `cf-proxy://` URL format.
 
-## Versions and security
+## Move from v4
 
-v4 used socket.io, so v4 SocketClient examples don't work against a v5 Easy API. Install the same version of `@open-wa/socket-client` as the Easy API you connect to.
+v4 used socket.io and v5 uses HTTP and SSE, so a v4 socket client cannot connect to a v5 Easy API. Install the v5 `@open-wa/socket-client`, at the same version as the Easy API you connect to.
 
-The consumer can call Easy API methods and receive session events. It can't reach the browser. Treat the API key as a server secret and restrict network access to the API.
+`SocketClient.connect(url, apiKey)`, `client.onMessage(callback)` and direct calls such as `client.sendText(chatId, text)` keep the form they had in v4, and the listener methods deliver the same values. `client.listen('onMessage', callback)` takes the same arguments, but in v5 its callback receives `{ ctx, message }` instead of the message, so read `message` from that object or use `client.onMessage(callback)`. TypeScript reports both this and a method that v5 does not have.
+
+## Security
+
+The consumer can call Easy API methods and receive session events. It has no access to the browser. Treat the API key as a server secret and restrict network access to the API.
 
 ## Related
 

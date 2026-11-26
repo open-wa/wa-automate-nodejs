@@ -36,9 +36,10 @@ await client.sendSticker(to, './clip.mp4', { trim: [0, 2000], audio: true });
 await client.sendSticker(to, './photo.jpg', { audio: './chime.ogg' });
 ```
 
-`createSticker()` returns the sound as `result.audio`, an Ogg Opus or M4A clip
-of at most 1 MB. Ogg Opus and M4A inputs are used as they are; other audio is
-converted in the browser. A video with no `trim` uses its first 10 seconds. The
+`createSticker()` returns the sound as `result.audio`, a mono Ogg Opus or M4A
+clip of at most 1 MB. Mono Ogg Opus and M4A inputs are used as they are; other
+audio, including stereo Ogg Opus and a video's own sound, is converted in the
+browser to mono Ogg Opus at 48 kHz. A video with no `trim` uses its first 10 seconds. The
 browser has to be able to play the video: H.264 MP4 and WebM work everywhere.
 In Node.js, a video the browser can't decode, such as HEVC, is converted with
 the system's `ffmpeg` when it is installed (`FFMPEG_PATH` overrides the
@@ -106,6 +107,21 @@ const result = await stickers.createSticker(input, { effects: ['invert'] });
 The page must provide `evaluate(fn, argument)`. Inside a browser page the default
 runtime uses that page directly. Explicit runtimes also clean up automatically;
 their optional `dispose()` method is for an immediate, permanent shutdown.
+
+A runtime with a browser page also converts a sound on its own. The SDK uses
+this for voice notes:
+
+```js
+const clip = await stickers.convertAudio('./voice.mp3', {
+  maxSeconds: 600, maxBytes: 4_000_000, bitrate: 32_000,
+});
+// clip.bytes is mono Ogg Opus at 48 kHz
+```
+
+A clip that is already mono Ogg Opus is returned as it is. Any other audio the
+browser reads is converted, and a sound longer than `maxSeconds` or a result
+larger than `maxBytes` is refused. Without options the limits are those of
+sticker sound: five minutes, 1 MB and a bitrate of at most 48 kbit/s.
 
 Bursts wait in arrival order before inputs are read, downloaded or copied, rather
 than failing when four requests are queued. Node prepares at most two jobs at

@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { SocketClient } from '../src/SocketClient';
+import { SocketClient } from '../../src/SocketClient';
 
 class TestEventSource {
   static latest: TestEventSource;

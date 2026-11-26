@@ -1,4 +1,7 @@
 export * from './SocketClient'
+export type { ListenCallback, ListenPayload, ListenPayloads, ListenerCallback, ListenerMethods, ListenerName, ListenerPayload, ListenerPayloads, SessionStepPayload, StreamContext, TypedListenerName } from './listeners'
+export type { RemoteClientMethods, RemoteMethodInputs, RemoteMethodName, RemoteMethodOutputs } from '@open-wa/schema/generated';
+export type { Chat, ChatId, Contact, ContactId, GroupId, Message, MessageId, ParticipantChange, PollVote } from '@open-wa/schema';
 export * from './TunnelSocketClient'
 export * from './Collector'
 export type { LicenseFeatures } from '@open-wa/schema';

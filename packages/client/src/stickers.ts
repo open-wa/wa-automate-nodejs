@@ -16,10 +16,8 @@ export async function disposeClientStickers(client: Client): Promise<void> {
   if (pending) await (await pending).dispose();
 }
 
-export async function sendClientSticker(client: Client, to: string, input: StickerInput, job: StickerJob = {}): Promise<MessageId> {
-  if (typeof to !== 'string' || !/^[^\s_]+@(?:c\.us|lid|g\.us)$/.test(to)) throw new SendStickerError('Supply a supported chat destination.', { code: 'INVALID_ARGUMENT', outcome: 'not_sent' });
-  const available = await client.evaluate(() => typeof WAPI.sendStickerJob === 'function' && WAPI.stickerRuntimeVersion === '1', undefined);
-  if (!available) throw new SendStickerError('The private sticker runtime patch must be applied before sending stickers.', { code: 'RUNTIME_UNAVAILABLE', outcome: 'not_sent' });
+/** One sticker runtime per client, bound to the session's page. Stickers and voice notes share it. */
+export function clientStickerRuntime(client: Client): Promise<StickerRuntime> {
   let pending = runtimes.get(client);
   if (!pending) {
     pending = (async () => {
@@ -29,7 +27,14 @@ export async function sendClientSticker(client: Client, to: string, input: Stick
     runtimes.set(client, pending);
     pending.catch(() => { if (runtimes.get(client) === pending) runtimes.delete(client); });
   }
-  const result = await (await pending).createSticker(input, job);
+  return pending;
+}
+
+export async function sendClientSticker(client: Client, to: string, input: StickerInput, job: StickerJob = {}): Promise<MessageId> {
+  if (typeof to !== 'string' || !/^[^\s_]+@(?:c\.us|lid|g\.us)$/.test(to)) throw new SendStickerError('Supply a supported chat destination.', { code: 'INVALID_ARGUMENT', outcome: 'not_sent' });
+  const available = await client.evaluate(() => typeof WAPI.sendStickerJob === 'function' && WAPI.stickerRuntimeVersion === '1', undefined);
+  if (!available) throw new SendStickerError('The private sticker runtime patch must be applied before sending stickers.', { code: 'RUNTIME_UNAVAILABLE', outcome: 'not_sent' });
+  const result = await (await clientStickerRuntime(client)).createSticker(input, job);
   if (job.signal?.aborted) throw new SendStickerError('Sticker sending was cancelled before submission.', { code: 'CANCELLED', outcome: 'not_sent' });
   let sent: StickerSendResult;
   try {

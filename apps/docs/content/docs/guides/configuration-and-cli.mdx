@@ -143,6 +143,8 @@ A few names don't follow the rule: `WA_DEBUG` sets `devtools`, `WA_BROWSER_WS_EN
 | `--ephemeral` | `ephemeral` | Has no effect on the login: it is always saved to the session file. |
 | `--log-console`, `--log-level`, `--verbose` | logging | Prints browser logs, sets the level, or turns on debug output. |
 | `--sandbox-chats`, `--sandbox-isolation` | `sandboxChats` | Isolates code run on behalf of a chat; see below. |
+| `--mcp` | `mcp.enabled` | Turns on the [MCP server](/docs/guides/mcp) at `/mcp`. |
+| `--router` | `router` | Connects a licensed session to the open-wa router for a public HTTPS address; see [ChatGPT setup](/docs/guides/chatgpt-always-on). |
 | `--pm2`, `--name` | — | Runs under PM2 with the given process name. |
 
 There's no flag for a link code; set `linkCode` in a config file or `WA_LINK_CODE`, and the code is printed in the terminal.
@@ -176,7 +178,7 @@ The CLI downloads no browser when it installs. It uses an installed Google Chrom
 
 `--use-chrome`, `--use-chromium` and `--use-lightpanda` (or `--lightpanda`) choose directly and download on demand. Downloads are cached per user, and your choice is remembered. A first start with no browser and no terminal to ask in needs one of these flags. Set `browser.download: 'never'` to forbid downloads.
 
-Lightpanda mode downloads Lightpanda 1.0.0 the first time and keeps the `/qr` endpoint and terminal QR working. It's experimental: recovering after a reload, sending reliably and long-running sessions aren't confirmed, and Live Portal and screenshots aren't available.
+Lightpanda mode downloads Lightpanda 1.0.5 the first time and keeps the `/qr` endpoint and terminal QR working. It's experimental. Linking, restarts from the saved login, text and image sends work; stickers and audio sends don't, and Live Portal and screenshots aren't available. A logged-in session currently uses more memory and CPU than Chrome the longer it runs, so use Chrome for anything long-running.
 
 ### Flags that do nothing yet
 
@@ -188,7 +190,7 @@ These older flags are accepted but only print a warning:
 | `--ready-webhook`, `--stats`, `--generate-api-docs`, `--tunnel` | No replacement yet. API docs are always served at `/api-docs/`. |
 | `--chatwoot-url`, `--twilio-webhook`, `--bot-press-url` | Use the [Chatwoot integration](/docs/guides/chatwoot) or another plugin. |
 
-The CLI does not parse `--mcp` or `--api-host`. Enable MCP with `mcp: { enabled: true }` in a config file and use `--host` for the bind address. The `sessionData`, `sessionDataPath` and `skipSessionSave` settings are deprecated in favour of the browser profile in `userDataDir`.
+The CLI does not parse `--api-host`; use `--host` for the bind address. `--mcp` turns MCP on with its defaults, and other MCP settings, such as where the approval code is sent, go in a config file.
 
 ## Sandboxed chat code
 

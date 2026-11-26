@@ -1,5 +1,6 @@
 ---
 title: AI agent patterns
+seoTitle: "WhatsApp AI agent patterns for Node.js: context, images, voice notes | open-wa"
 description: Connect an LLM to WhatsApp so it answers chats with context, handles images and voice notes, and stays within sensible send rates.
 ---
 
@@ -224,7 +225,7 @@ const imageCaption = 'Generated image';
 await client.sendImage(message.from, imageDataUrl, imageFilename, { caption: imageCaption });
 ```
 
-Expected behavior: the image is sent to the incoming chat with `ai-generated.png` as the attachment filename and `Generated image` as the caption. Use `sendPtt` to reply with a voice note, supplying prepared audio such as Ogg Opus.
+Expected behavior: the image is sent to the incoming chat with `ai-generated.png` as the attachment filename and `Generated image` as the caption. Use `sendPtt` to reply with a voice note. It takes the MP3 or WAV that a text-to-speech service returns and converts it for you.
 
 ## Groups and direct messages
 

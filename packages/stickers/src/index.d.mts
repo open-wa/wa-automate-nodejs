@@ -17,7 +17,7 @@ export interface StickerJob {
   /**
    * Attach a sound that the recipient can play. `true` keeps the sound of a video input, cut to the same
    * part of the video as the sticker. A filename, URL, data URL or bytes attaches that sound instead.
-   * Ogg Opus and M4A clips of at most 1 MB are used as they are; anything else is converted in the browser.
+   * Mono Ogg Opus and M4A clips of at most 1 MB are used as they are; anything else is converted in the browser to mono Ogg Opus.
    */
   audio?: boolean | StickerInput;
   quotedMsgId?: string;
@@ -34,16 +34,31 @@ export interface StickerResult {
   steps: (StickerEffect & { selected?: string })[];
 }
 export interface StickerAudio { bytes: Uint8Array; mime: 'audio/ogg; codecs=opus' | 'audio/mp4'; durationMs?: number; }
+/** Limits for `convertAudio`. Left out, they are those of sticker sound: five minutes, 1 MB and a bitrate of at most 48 kbit/s that fits the length. */
+export interface AudioConversion {
+  /** The longest sound to convert, in seconds. A longer sound is refused. */
+  maxSeconds?: number;
+  /** The largest converted clip, in bytes. A larger result is refused. */
+  maxBytes?: number;
+  /** The Opus bitrate in bits per second. */
+  bitrate?: number;
+  signal?: AbortSignal;
+}
 export interface BackendCapabilities { available: boolean; requirements: readonly string[]; }
 export interface BrowserBackend {
   capabilities(): Promise<BackendCapabilities>;
   render(input: { bytes: Uint8Array; mime: string }, job: StickerJob, requirements: string[]): Promise<Pick<StickerResult,'bytes'|'width'|'height'|'frames'|'durationMs'|'steps'|'audio'>>;
-  /** Convert a sound to an Ogg Opus clip. Needed only for sounds that are not already Ogg Opus or M4A. */
-  convertAudio?(sound: Uint8Array, job: StickerJob): Promise<StickerAudio>;
+  /** Convert a sound to a mono Ogg Opus clip. Needed only for sounds that are not already mono Ogg Opus or M4A. */
+  convertAudio?(sound: Uint8Array, options: AudioConversion): Promise<StickerAudio>;
   dispose(): Promise<void>;
 }
 export interface StickerRuntime {
   createSticker(input: StickerInput, job?: StickerJob): Promise<StickerResult>;
+  /**
+   * Convert a sound to mono Ogg Opus at 48 kHz, the format of a voice note. A clip that is already mono Ogg Opus
+   * is returned as it is. Anything else is converted in the browser page, so a runtime without one refuses it.
+   */
+  convertAudio(input: StickerInput, options?: AudioConversion): Promise<StickerAudio>;
   dispose(): Promise<void>;
 }
 export interface EffectDescriptor {
@@ -60,6 +75,8 @@ export type EffectOption = Readonly<
 >;
 /** Automatically queue bursts, reuse renderers, and release resources after idle. No disposal is needed. */
 export function createSticker(input: StickerInput, job?: StickerJob): Promise<StickerResult>;
+/** True for an Ogg Opus clip with one channel. */
+export function isMonoOggOpus(bytes: Uint8Array): boolean;
 /** Validate a job without decoding media or starting a renderer. */
 export function validateStickerJob(job?: StickerJob): void;
 export function createStickerRuntime(options?: { browser?: BrowserBackend; cacheDirectory?: string; offline?: boolean }): StickerRuntime;

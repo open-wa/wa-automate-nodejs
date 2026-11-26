@@ -471,7 +471,7 @@ Add a new MCP server with the URL `http://localhost:8080/mcp` and include `X-API
 }
 ```
 
-The current v5 source does not parse `--mcp`. Enable MCP through `wa.config.*` as shown above.
+The `--mcp` flag turns MCP on with its defaults. Put other MCP settings in `wa.config.*` as shown above.
 
 ### Security boundary
 

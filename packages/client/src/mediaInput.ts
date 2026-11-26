@@ -1,6 +1,7 @@
 import { fileToDataUrlCodec, MediaSendOptionsSchema } from '@open-wa/schema';
 import type { ChatId, MessageId, MediaSendOptions } from '@open-wa/schema';
 import type { Client } from './Client';
+import { voiceNoteMedia } from './voiceNote';
 
 /** A data URL, base64 string, URL, local path or Buffer. */
 export type MediaInput = string | Buffer;
@@ -63,9 +64,11 @@ export async function sendMedia(
   options: MediaSendOptions = {},
 ): Promise<MediaSendResult> {
   options = MediaSendOptionsSchema.parse(options);
-  const resolved = await resolveMediaInput(input, filename);
-  // MP4 and WebM signatures identify containers, which can also contain audio only.
+  let resolved = await resolveMediaInput(input, filename);
   if (options.type === 'audio') {
+    // A voice note that is not mono Ogg Opus is converted first. An audio attachment is never converted.
+    if (options.ptt === true) resolved = await voiceNoteMedia(client, resolved);
+    // MP4 and WebM signatures identify containers, which can also contain audio only.
     if (resolved.mime === 'video/mp4' || resolved.mime === 'video/webm') {
       resolved.mime = resolved.mime.replace('video/', 'audio/');
       resolved.dataUrl = resolved.dataUrl.replace(/^data:[^;,]*/, `data:${resolved.mime}`);

@@ -31,13 +31,11 @@ type HarnessOptions = {
   runtimeMethods?: string[];
   storeMsgAvailable?: boolean;
   sessionLoaded?: boolean;
-  invalidSession?: boolean;
   phoneOutOfReach?: boolean;
   linkCode?: string;
   generatedLinkCode?: string | null;
   authenticateOnLinkCodeRequest?: boolean;
   qrMax?: number;
-  ignoreNuke?: boolean;
   authTimeoutMs?: number;
   oorTimeoutMs?: number;
   qrPollingMs?: number;
@@ -47,7 +45,8 @@ type HarnessOptions = {
   patchConfig?: PatchFetchConfig;
   driverCapabilities?: Partial<DriverCapabilities>;
   driverName?: string;
-  injectableSession?: boolean;
+  /** WhatsApp shows the pairing QR while the page loads, then takes it away. */
+  qrDisappearsAfterNavigation?: boolean;
   launchAssetFails?: boolean;
 };
 
@@ -87,7 +86,6 @@ class FakePage implements IPage {
   private runtimeMethods = new Set<string>();
   private storeMsgAvailable: boolean;
   private sessionLoaded: boolean;
-  private invalidSession: boolean;
   private phoneOutOfReach: boolean;
   private readonly configuredLinkCode?: string;
   private readonly generatedLinkCode: string | null;
@@ -98,7 +96,7 @@ class FakePage implements IPage {
   private launchError: string | null = null;
   private readonly licenseApplyFails: boolean;
   private readonly initPatchFails: boolean;
-  private readonly injectableSession: boolean;
+  private readonly qrDisappearsAfterNavigation: boolean;
   private readonly launchAssetFails: boolean;
   private wapiAssetInjected = false;
   private recoverRuntimeOnNextLaunchInjection = false;
@@ -114,7 +112,6 @@ class FakePage implements IPage {
     this.runtimeMethods = new Set(options.runtimeMethods ?? FakePage.defaultRuntimeMethods);
     this.storeMsgAvailable = options.storeMsgAvailable ?? false;
     this.sessionLoaded = options.sessionLoaded ?? false;
-    this.invalidSession = options.invalidSession ?? false;
     this.phoneOutOfReach = options.phoneOutOfReach ?? false;
     this.configuredLinkCode = options.linkCode;
     this.generatedLinkCode = options.generatedLinkCode ?? 'ABC-1234';
@@ -122,7 +119,7 @@ class FakePage implements IPage {
     this.screenshotError = options.screenshotError;
     this.licenseApplyFails = options.licenseApplyFails ?? false;
     this.initPatchFails = options.initPatchFails ?? false;
-    this.injectableSession = options.injectableSession ?? true;
+    this.qrDisappearsAfterNavigation = options.qrDisappearsAfterNavigation ?? false;
     this.launchAssetFails = options.launchAssetFails ?? false;
     this.refreshBrowserGlobals();
   }
@@ -258,10 +255,6 @@ class FakePage implements IPage {
       return this.qrCode as Ret;
     }
 
-    if (script.includes('old-logout-cred')) {
-      return this.invalidSession as Ret;
-    }
-
     if (script.includes('Trying to reach phone')) {
       return this.phoneOutOfReach as Ret;
     }
@@ -327,16 +320,14 @@ class FakePage implements IPage {
    * This is called by waitForFunction() to evaluate probe scripts.
    */
   private evaluateBooleanScript(script: string): boolean {
-    if (script.includes('WAWebCollections')) {
-      if (this.injectableSession) {
-        return true;
+    // Navigation's pre-auth surface probe: WhatsApp is showing its chat list or a pairing QR.
+    if (script.includes('post_logout=1')) {
+      const surfaceReady = this.sessionLoaded || this.qrCode !== null;
+      if (surfaceReady && this.qrDisappearsAfterNavigation) {
+        this.qrCode = null;
+        this.qrCodes = [];
       }
-
-      if (script.includes('canvas[aria-label]')) {
-        return this.qrCode !== null;
-      }
-
-      return false;
+      return surfaceReady;
     }
 
     // LEGACY_IS_INSIDE_CHAT_CHECK_SCRIPT and RIPE_SESSION_CHECK_SCRIPT
@@ -352,11 +343,6 @@ class FakePage implements IPage {
     // Checks: isSessionLoaded(), WA_AUTHENTICATED, #pane-side, chat-list-search, app/two tabindex
     if (script.includes('pane-side') || script.includes('chat-list-search') || script.includes('isSessionLoaded')) {
       return Boolean(this.browserGlobals.WA_AUTHENTICATED);
-    }
-
-    // SESSION_INVALID_CHECK_SCRIPT - checks localStorage['old-logout-cred']
-    if (script.includes('localStorage') && script.includes('old-logout-cred')) {
-      return Boolean(this.invalidSession);
     }
 
     // PHONE_OUT_OF_REACH_CHECK_SCRIPT - checks body.innerText.includes('Trying to reach phone')
@@ -637,7 +623,6 @@ async function createHarness(options: HarnessOptions = {}): Promise<{
     oorTimeoutMs: options.oorTimeoutMs,
     linkCode: options.linkCode,
     qrMax: options.qrMax,
-    ignoreNuke: options.ignoreNuke,
     licenseKey: options.licenseKey,
     patchConfig: options.patchConfig,
   });
@@ -685,9 +670,8 @@ afterEach(async () => {
 });
 
 describe('bootstrap contract harness', () => {
-  it('allows pre-auth navigation to continue when QR is visible before WAWebCollections is injectable', async () => {
+  it('allows pre-auth navigation to continue once the pairing QR is visible, before any runtime is injectable', async () => {
     const { client } = await createHarness({
-      injectableSession: false,
       qrCode: 'contract-qr',
     });
 
@@ -702,7 +686,6 @@ describe('bootstrap contract harness', () => {
 
   it('defers launch helper failures when the pre-auth QR surface is already available', async () => {
     const { client, page } = await createHarness({
-      injectableSession: false,
       launchAssetFails: true,
       qrCode: 'contract-qr',
       runtimeAvailable: true,
@@ -721,7 +704,7 @@ describe('bootstrap contract harness', () => {
     }
   });
 
-  it('Phase D: blocks readiness until runtime injection proves usable capability', async () => {
+  it('Phase D: keeps readiness blocked while WhatsApp is still showing the pairing QR', async () => {
     const { client, recordedEvents } = await createHarness({
       runtimeAvailable: false,
       storeMsgAvailable: false,
@@ -732,22 +715,73 @@ describe('bootstrap contract harness', () => {
 
     requireBlockedReady(
       recordedEvents,
-      'Section 27.D/27.G requires client.ready to stay blocked until runtime injection proves usable capability, but the active path emitted client.ready even though the fake page never exposed WAPI/runtime capability.'
+      'client.ready must stay blocked until WhatsApp shows the chat list, but the active path emitted client.ready while the fake page was still showing the pairing QR.'
     );
 
     if (startResult.status !== 'rejected') {
       throw new Error(
-        'Section 27.D requires bootstrap to fail or remain blocked when runtime capability is absent after injection, but start() resolved successfully on a page with no runtime capability.'
+        'Bootstrap must reject when the pairing QR is never scanned, but start() resolved on a page that never left the QR.'
       );
     }
 
+    expect(String(startResult.error)).toContain('Authentication did not finish: qr_timeout');
+    expect(findEventIndex(recordedEvents, 'launch.auth.qr.generated')).toBeGreaterThan(-1);
+    expect(findEventIndex(recordedEvents, 'core.started')).toBe(-1);
     expect(client.getReadiness()).toMatchObject({
       ready: false,
-      status: 'blocked',
-      blockers: ['runtimeUsable'],
+      status: 'not_ready',
+      exposureSafe: false,
+      blockers: [],
+      requirements: {
+        runtimeUsable: { state: 'pending' },
+        finalization: { state: 'pending' },
+      },
     });
 
     await client.stop('phase_d_cleanup');
+  });
+
+  it('Phase D: reports ready from the chat list alone and keeps a missing runtime observable as pending work', async () => {
+    vi.spyOn(Transport.prototype as any, 'fetchLivePatchesWithCache').mockResolvedValue({
+      data: [],
+      tag: 'empty',
+      source: 'remote' as const,
+    });
+
+    // Since the October 2026 lifecycle change, readiness follows WhatsApp's own screens.
+    // Startup no longer validates or repairs the injected runtime before reporting ready.
+    const { client, recordedEvents } = await createHarness({
+      runtimeAvailable: false,
+      storeMsgAvailable: false,
+      sessionLoaded: true,
+    });
+
+    const startResult = await settleStart(client);
+
+    if (startResult.status !== 'resolved') {
+      throw new Error(`Expected an authenticated session to start without a runtime validation gate, but it rejected with: ${String(startResult.error)}`);
+    }
+
+    expect(recordedEvents.filter((event) => event.name === 'client.ready')).toHaveLength(1);
+
+    const readiness = client.getReadiness();
+    expect(readiness).toMatchObject({
+      ready: true,
+      status: 'ready',
+      blockers: [],
+      lowerLevel: {
+        runtimeOperational: false,
+        runtimeBridgeReady: false,
+      },
+      requirements: {
+        runtimeUsable: { state: 'satisfied' },
+        patchLifecycle: { state: 'non_blocking' },
+        finalization: { state: 'satisfied' },
+      },
+    });
+    expect(readiness.pending).toEqual(expect.arrayContaining(['runtimeOperational', 'runtimeBridgeReady']));
+
+    await client.stop('phase_d_chat_list_cleanup');
   });
 
   it('Phase E: emits distinct patch and license overlay lifecycle before readiness', async () => {
@@ -899,8 +933,9 @@ describe('bootstrap contract harness', () => {
       throw new Error('Expected invalid license path to emit launch.license.check.after with status=invalid.');
     }
 
-    const finalizeIndex = findEventIndex(recordedEvents, 'launch.client.finalize.before');
+    const finalizeIndex = findEventIndex(recordedEvents, 'launch.client.finalize.after');
     expect(finalizeIndex).toBeGreaterThan(invalidCheckIndex);
+    expect(findEventIndex(recordedEvents, 'client.ready')).toBeGreaterThan(finalizeIndex);
 
     await client.stop('phase_e_invalid_license_cleanup');
   });
@@ -935,146 +970,20 @@ describe('bootstrap contract harness', () => {
       throw new Error('Expected expired license path to emit launch.license.check.after with status=expired.');
     }
 
-    const finalizeIndex = findEventIndex(recordedEvents, 'launch.client.finalize.before');
+    const finalizeIndex = findEventIndex(recordedEvents, 'launch.client.finalize.after');
     expect(finalizeIndex).toBeGreaterThan(expiredCheckIndex);
+    expect(findEventIndex(recordedEvents, 'client.ready')).toBeGreaterThan(finalizeIndex);
 
     await client.stop('phase_e_expired_license_cleanup');
   });
 
-  it('Phase F: surfaces repairable validation work before readiness instead of hiding it behind success', async () => {
-    let repairAttempts = 0;
-
-    vi.spyOn(Transport.prototype, 'repairRuntimeIntegrity').mockImplementation(async function mockRepair(this: Transport) {
-      repairAttempts += 1;
-      const page = this.getPage() as FakePage | null;
-      if (page) {
-        page.setRuntimeAvailable(true);
-        page.setStoreMsgAvailable(true);
-        page.setSessionLoaded(true);
-      }
-      return true;
+  it('Phase F: pre-auth required-method gaps do not stop QR pairing, and the post-auth runtime reports none missing', async () => {
+    vi.spyOn(Transport.prototype as any, 'fetchLivePatchesWithCache').mockResolvedValue({
+      data: [],
+      tag: 'empty',
+      source: 'remote' as const,
     });
 
-    const { client, recordedEvents } = await createHarness({
-      runtimeAvailable: false,
-      storeMsgAvailable: false,
-      sessionLoaded: false,
-    });
-
-    const startResult = await settleStart(client);
-    const readyIndex = findEventIndex(recordedEvents, 'client.ready');
-    const repairSignalIndex = findFirstOf(recordedEvents, [
-      'launch.session.invalid.retry',
-      'session.reinject.before',
-      'session.reinject.after',
-      'session.reinject.qr.waiting',
-    ]);
-
-    if (repairSignalIndex === -1) {
-      throw new Error(
-        'Section 27.F requires repairable/deferred bootstrap work to be surfaced explicitly, but no retry or reinject lifecycle event was emitted when the fixture needed a repair pass.'
-      );
-    }
-
-    if (readyIndex !== -1 && readyIndex < repairSignalIndex) {
-      throw new Error(
-        'Section 27.F/27.G requires repair or reinject work to happen before client.ready. The active path emitted client.ready before any repair signal.'
-      );
-    }
-
-    if (repairAttempts < 1) {
-      throw new Error(
-        'Section 27.F expects a repairable path to attempt another validation/repair action before readiness. The fixture never received a repair attempt.'
-      );
-    }
-
-    if (startResult.status !== 'resolved') {
-      throw new Error(`Expected repairable scenario to recover after repair, but bootstrap rejected with: ${String(startResult.error)}`);
-    }
-
-    await client.stop('phase_f_repair_cleanup');
-  });
-
-  it('Phase F broken-method integrity gate: repairs a recoverable required-method gap before readiness', async () => {
-    const { client, recordedEvents } = await createHarness({
-      runtimeAvailable: true,
-      storeMsgAvailable: true,
-      sessionLoaded: true,
-    });
-
-    const validateRuntimeUsability = vi.spyOn(Transport.prototype, 'validateRuntimeUsability');
-    validateRuntimeUsability
-      .mockResolvedValueOnce({
-        stage: 'post_injection',
-        usable: false,
-        repairable: true,
-        failureReason: 'required_method_missing',
-        hasRuntime: true,
-        hasStoreMsg: true,
-        sessionLoaded: true,
-        bridgeReady: false,
-        requiredMethods: ['onAck', 'onAnyMessage', 'onStateChanged'],
-        missingMethods: ['onAck'],
-      })
-      .mockResolvedValueOnce({
-        stage: 'post_injection',
-        usable: true,
-        repairable: false,
-        hasRuntime: true,
-        hasStoreMsg: true,
-        sessionLoaded: true,
-        bridgeReady: true,
-        requiredMethods: ['onAck', 'onAnyMessage', 'onStateChanged'],
-        missingMethods: [],
-      })
-      .mockResolvedValueOnce({
-        stage: 'post_overlay',
-        usable: true,
-        repairable: false,
-        hasRuntime: true,
-        hasStoreMsg: true,
-        sessionLoaded: true,
-        bridgeReady: true,
-        requiredMethods: ['onAck', 'onAnyMessage', 'onStateChanged'],
-        missingMethods: [],
-      });
-
-    const repairRuntimeIntegrity = vi.spyOn(Transport.prototype, 'repairRuntimeIntegrity').mockResolvedValue(true);
-
-    const startResult = await settleStart(client);
-
-    if (startResult.status !== 'resolved') {
-      throw new Error(`Expected broken-method repair path to resolve, but bootstrap rejected with: ${String(startResult.error)}`);
-    }
-
-    const missingMethodValidationIndex = recordedEvents.findIndex((event) => {
-      if (event.name !== 'launch.session.validityCheck.after') return false;
-      const payload = event.payload as { details?: { failureReason?: string } } | undefined;
-      return payload?.details?.failureReason === 'required_method_missing';
-    });
-
-    if (missingMethodValidationIndex === -1) {
-      throw new Error('Expected broken-method integrity validation to classify a missing required runtime method before attempting repair.');
-    }
-
-    const repairSignalIndex = findFirstOf(recordedEvents, [
-      'launch.session.invalid.retry',
-      'session.reinject.before',
-      'session.reinject.after',
-    ]);
-
-    if (repairSignalIndex === -1 || repairSignalIndex < missingMethodValidationIndex) {
-      throw new Error('Expected required-method integrity failure to surface before the repair path ran.');
-    }
-
-    if (repairRuntimeIntegrity.mock.calls.length !== 1) {
-      throw new Error('Expected broken-method integrity repair to invoke the transport repair path exactly once before readiness.');
-    }
-
-    await client.stop('phase_f_broken_method_repair_cleanup');
-  });
-
-  it('Phase F broken-method integrity gate: defers pre-auth required-method gaps so QR/auth polling can proceed before strict post-auth validation', async () => {
     const requiredMethods = ['onAck', 'onAnyMessage', 'onStateChanged'];
     const { client, recordedEvents } = await createHarness({
       runtimeAvailable: true,
@@ -1083,8 +992,6 @@ describe('bootstrap contract harness', () => {
       sessionLoaded: false,
     });
 
-    const validateRuntimeUsability = vi.spyOn(Transport.prototype, 'validateRuntimeUsability');
-    const repairRuntimeIntegrity = vi.spyOn(Transport.prototype, 'repairRuntimeIntegrity');
     vi.spyOn(Transport.prototype, 'waitForAuthentication').mockImplementation(async function (this: Transport) {
       const transport = this as unknown as {
         events: { emit: (eventName: string, payload: unknown) => void };
@@ -1118,40 +1025,28 @@ describe('bootstrap contract harness', () => {
     const startResult = await settleStart(client);
 
     if (startResult.status !== 'resolved') {
-      throw new Error(`Expected deferred pre-auth integrity scenario to resolve, but bootstrap rejected with: ${String(startResult.error)}`);
+      throw new Error(`Expected a pre-auth required-method gap to be deferred, but bootstrap rejected with: ${String(startResult.error)}`);
     }
 
-    const validationEvents = recordedEvents
-      .map((event, index) => ({ event, index }))
-      .filter(({ event }) => event.name === 'launch.session.validityCheck.after');
     const qrGeneratedIndex = findEventIndex(recordedEvents, 'launch.auth.qr.generated');
     expect(qrGeneratedIndex).toBeGreaterThan(-1);
 
-    const preAuthValidation = validationEvents.find(({ index }) => index < qrGeneratedIndex);
-    expect(preAuthValidation?.event.payload).toMatchObject({
-      details: { phase: 'post_injection', valid: true, sessionLoaded: false, missingMethods: [] },
-    });
+    // The runtime is injected again once WhatsApp has authenticated.
+    const postAuthInjectionIndex = recordedEvents.findIndex(
+      (event, index) => index > qrGeneratedIndex && event.name === 'launch.wapi.inject.after',
+    );
+    expect(postAuthInjectionIndex).toBeGreaterThan(qrGeneratedIndex);
+    expect(recordedEvents[postAuthInjectionIndex]?.payload).toMatchObject({ details: { success: true } });
+    expect(findEventIndex(recordedEvents, 'client.ready')).toBeGreaterThan(postAuthInjectionIndex);
 
-    const strictValidation = validationEvents.find(({ event, index }) => {
-      const payload = event.payload as { details?: { phase?: string } } | undefined;
-      return index > qrGeneratedIndex && payload?.details?.phase === 'post_overlay';
-    });
-    expect(strictValidation?.event.payload).toMatchObject({
-      details: { valid: true, sessionLoaded: true, missingMethods: [] },
-    });
-    expect(validateRuntimeUsability).toHaveBeenCalledWith('post_overlay');
-    expect(validateRuntimeUsability).not.toHaveBeenCalledWith('post_injection');
-
-    const fatalIntegrityErrorIndex = recordedEvents.findIndex((event) => {
-      if (event.name !== 'error') return false;
-      const payload = event.payload as { fatal?: boolean; error?: { message?: string } } | undefined;
-      return payload?.fatal === true && payload?.error?.message?.includes('required_method_missing');
-    });
-
-    expect(fatalIntegrityErrorIndex).toBe(-1);
-    expect(repairRuntimeIntegrity).not.toHaveBeenCalled();
+    expect(recordedEvents.filter((event) => event.name === 'error')).toEqual([]);
     expect(client.getReadiness()).toMatchObject({
       ready: true,
+      pending: [],
+      lowerLevel: {
+        runtimeBridgeReady: true,
+        missingRuntimeMethods: [],
+      },
       requirements: {
         runtimeUsable: { state: 'satisfied' },
       },
@@ -1160,111 +1055,93 @@ describe('bootstrap contract harness', () => {
     await client.stop('phase_f_broken_method_deferred_cleanup');
   });
 
-  it('Phase F broken-method integrity gate: terminal required-method gaps block readiness explicitly', async () => {
+  it('Phase F: a required runtime method still missing after authentication stays observable in readiness', async () => {
+    vi.spyOn(Transport.prototype as any, 'fetchLivePatchesWithCache').mockResolvedValue({
+      data: [],
+      tag: 'empty',
+      source: 'remote' as const,
+    });
+
+    // Startup no longer runs an integrity gate or a repair cycle. The gap is
+    // reported in the readiness snapshot for callers that want to act on it.
     const { client, recordedEvents } = await createHarness({
       runtimeAvailable: true,
+      runtimeMethods: ['onAnyMessage', 'onStateChanged', 'onAddedToGroup'],
       storeMsgAvailable: true,
       sessionLoaded: true,
     });
 
-    const validateRuntimeUsability = vi.spyOn(Transport.prototype, 'validateRuntimeUsability');
-    validateRuntimeUsability
-      .mockResolvedValueOnce({
-        stage: 'post_injection',
-        usable: false,
-        repairable: true,
-        failureReason: 'required_method_missing',
-        hasRuntime: true,
-        hasStoreMsg: true,
-        sessionLoaded: true,
-        bridgeReady: false,
-        requiredMethods: ['onAck', 'onAnyMessage', 'onStateChanged'],
-        missingMethods: ['onAck'],
-      })
-      .mockResolvedValueOnce({
-        stage: 'post_injection',
-        usable: false,
-        repairable: true,
-        failureReason: 'required_method_missing',
-        hasRuntime: true,
-        hasStoreMsg: true,
-        sessionLoaded: true,
-        bridgeReady: false,
-        requiredMethods: ['onAck', 'onAnyMessage', 'onStateChanged'],
-        missingMethods: ['onAck'],
-      });
-
-    const repairRuntimeIntegrity = vi.spyOn(Transport.prototype, 'repairRuntimeIntegrity').mockResolvedValue(true);
     const startResult = await settleStart(client);
 
-    if (startResult.status !== 'rejected') {
-      throw new Error('Expected unrepaired broken-method integrity failure to block readiness, but start() resolved.');
+    if (startResult.status !== 'resolved') {
+      throw new Error(`Expected a missing runtime method to be reported, not to reject bootstrap, but it rejected with: ${String(startResult.error)}`);
     }
 
-    requireBlockedReady(
-      recordedEvents,
-      'Expected unrepaired broken-method integrity failure to block readiness, but client.ready still emitted.'
-    );
-
-    const fatalIntegrityErrorIndex = recordedEvents.findIndex((event) => {
-      if (event.name !== 'error') return false;
-      const payload = event.payload as { fatal?: boolean; error?: { message?: string } } | undefined;
-      return payload?.fatal === true && payload?.error?.message?.includes('required_method_missing');
+    expect(recordedEvents.filter((event) => event.name === 'client.ready')).toHaveLength(1);
+    expect(client.getReadiness()).toMatchObject({
+      ready: true,
+      pending: ['runtimeBridgeReady'],
+      blockers: [],
+      lowerLevel: {
+        runtimeOperational: true,
+        runtimeBridgeReady: false,
+        missingRuntimeMethods: ['onAck'],
+      },
     });
 
-    if (fatalIntegrityErrorIndex === -1) {
-      throw new Error('Expected broken-method integrity failure to be classified as a fatal readiness blocker.');
-    }
-
-    if (repairRuntimeIntegrity.mock.calls.length !== 1) {
-      throw new Error('Expected unrepaired broken-method integrity failure to attempt exactly one transport repair/reinject cycle before blocking readiness.');
-    }
-
-    await client.stop('phase_f_broken_method_terminal_cleanup');
+    await client.stop('phase_f_broken_method_observable_cleanup');
   });
 
-  it('Phase F failure classes: required injection failure is classified as a fatal bootstrap blocker', async () => {
+  it('Phase F failure classes: a failed post-auth runtime injection rejects start() and blocks readiness', async () => {
     vi.spyOn(Transport.prototype, 'injectWapi').mockRejectedValue(new Error('simulated injection failure'));
 
     const { client, recordedEvents } = await createHarness({
       runtimeAvailable: false,
       storeMsgAvailable: false,
-      sessionLoaded: false,
+      sessionLoaded: true,
     });
 
     const startResult = await settleStart(client);
 
     if (startResult.status !== 'rejected') {
-      throw new Error('Section 27.5 requires required injection failure to block readiness entirely, but start() resolved.');
+      throw new Error('A failed post-auth runtime injection must block readiness entirely, but start() resolved.');
     }
+
+    // The pre-auth attempt is deferred, so authentication still completes before the failure.
+    expect(String(startResult.error)).toContain('simulated injection failure');
+    expect(recordedEvents.find((event) => event.name === 'launch.auth.check.after')?.payload).toMatchObject({
+      details: { isAuthenticated: true },
+    });
 
     requireBlockedReady(
       recordedEvents,
-      'Section 27.5/27.6 requires required injection failure to block readiness entirely, but client.ready still emitted after a required injection failure.'
+      'A failed post-auth runtime injection must block readiness entirely, but client.ready still emitted.'
     );
-
-    const fatalErrorIndex = recordedEvents.findIndex((event) => {
-      if (event.name !== 'error') return false;
-      const payload = event.payload as { fatal?: boolean } | undefined;
-      return payload?.fatal === true;
+    expect(findEventIndex(recordedEvents, 'core.started')).toBe(-1);
+    expect(findEventIndex(recordedEvents, 'launch.client.finalize.after')).toBe(-1);
+    expect(client.getReadiness()).toMatchObject({
+      ready: false,
+      status: 'not_ready',
+      requirements: {
+        runtimeUsable: { state: 'pending' },
+        finalization: { state: 'pending' },
+      },
     });
-
-    if (fatalErrorIndex === -1) {
-      throw new Error(
-        'Section 27.5 requires a fatal bootstrap blocker classification for required injection failure, but no fatal error signal was emitted.'
-      );
-    }
 
     await client.stop('phase_f_fatal_cleanup');
   });
 
-  it('Phase G: fresh auth reruns post-auth reinjection and ripe-session gating before overlays begin', async () => {
+  it('Phase G: fresh auth injects the runtime again after authentication, before overlays begin', async () => {
+    let recordedAtAuthentication = -1;
+    let recorded: RecordedEvent[] = [];
+
     vi.spyOn(Transport.prototype, 'waitForAuthentication').mockImplementation(async function (this: Transport) {
       const page = this.getPage() as FakePage;
       page.setSessionLoaded(true);
       page.setRuntimeAvailable(false);
       page.setStoreMsgAvailable(false);
       page.setRecoverRuntimeOnNextLaunchInjection(true);
+      recordedAtAuthentication = recorded.length;
 
       return {
         outcome: 'authenticated',
@@ -1273,21 +1150,12 @@ describe('bootstrap contract harness', () => {
       };
     });
 
-    const originalGetSessionDebugInfo = Transport.prototype.getSessionDebugInfo;
-    vi.spyOn(Transport.prototype, 'getSessionDebugInfo').mockImplementation(function (this: Transport) {
-      const page = this.getPage() as FakePage;
-      if (!page.isRuntimeAvailable()) {
-        throw new Error('session debug info requested before post-auth reinjection restored the runtime');
-      }
-
-      return originalGetSessionDebugInfo.call(this);
-    });
-
     const { client, page, recordedEvents } = await createHarness({
       runtimeAvailable: true,
       storeMsgAvailable: true,
       sessionLoaded: false,
     });
+    recorded = recordedEvents;
 
     const startResult = await settleStart(client);
     if (startResult.status !== 'resolved') {
@@ -1295,19 +1163,31 @@ describe('bootstrap contract harness', () => {
     }
 
     expect(page.getLaunchInjectionCount()).toBeGreaterThanOrEqual(2);
+    expect(page.isRuntimeAvailable()).toBe(true);
+    expect(recordedAtAuthentication).toBeGreaterThan(-1);
 
-    const finalizeBeforeIndex = findEventIndex(recordedEvents, 'launch.client.finalize.before');
+    const postAuthInjectionIndex = recordedEvents.findIndex(
+      (event, index) => index >= recordedAtAuthentication && event.name === 'launch.wapi.inject.after',
+    );
+    const overlayIndex = recordedEvents.findIndex(
+      (event, index) => index >= recordedAtAuthentication && event.name === 'patch.init.before',
+    );
+    expect(postAuthInjectionIndex).toBeGreaterThan(-1);
+    expect(recordedEvents[postAuthInjectionIndex]?.payload).toMatchObject({ details: { success: true } });
+    expect(overlayIndex).toBeGreaterThan(postAuthInjectionIndex);
+
+    const finalizeAfterIndex = findEventIndex(recordedEvents, 'launch.client.finalize.after');
     const readyIndex = findEventIndex(recordedEvents, 'client.ready');
-    expect(finalizeBeforeIndex).toBeGreaterThan(-1);
-    expect(readyIndex).toBeGreaterThan(finalizeBeforeIndex);
+    expect(finalizeAfterIndex).toBeGreaterThan(overlayIndex);
+    expect(readyIndex).toBeGreaterThan(finalizeAfterIndex);
 
     await client.stop('phase_g_fresh_auth_post_auth_reinject_cleanup');
   });
 
-  it('Phase G: resumed sessions do not regress into extra post-auth reinjection when the authenticated runtime is already truthful', async () => {
+  it('Phase G: resumed sessions inject once before and once after authentication, and no more', async () => {
     const originalInjectWapi = Transport.prototype.injectWapi;
-    const injectSpy = vi.spyOn(Transport.prototype, 'injectWapi').mockImplementation(function (this: Transport) {
-      return originalInjectWapi.call(this);
+    const injectSpy = vi.spyOn(Transport.prototype, 'injectWapi').mockImplementation(function (this: Transport, options) {
+      return originalInjectWapi.call(this, options);
     });
 
     vi.spyOn(Transport.prototype, 'waitForAuthentication').mockResolvedValue({
@@ -1327,12 +1207,16 @@ describe('bootstrap contract harness', () => {
       throw new Error(`Expected resumed-session bootstrap to stay green, but it rejected with: ${String(startResult.error)}`);
     }
 
-    expect(injectSpy).toHaveBeenCalledTimes(1);
+    // The simple lifecycle has no repair or reinjection loop: one optional attempt while
+    // WhatsApp authenticates, then one authoritative injection with freshly loaded patches.
+    expect(injectSpy).toHaveBeenCalledTimes(2);
+    expect(injectSpy.mock.calls[0]).toEqual([]);
+    expect(injectSpy.mock.calls[1]).toEqual([{ reuseCachedPatches: false }]);
 
     await client.stop('phase_g_resumed_session_truthful_cleanup');
   });
 
-  it('Phase G: client.ready does not emit until injection, overlays, validation, and finalization are complete', async () => {
+  it('Phase G: client.ready does not emit until authentication, injection, overlays, and finalization are complete', async () => {
     const { client, recordedEvents } = await createHarness({
       runtimeAvailable: true,
       storeMsgAvailable: true,
@@ -1353,23 +1237,20 @@ describe('bootstrap contract harness', () => {
     expect(finalizeAfterPayload?.details?.success).toBe(true);
     expect(finalizeAfterPayload?.details?.outcome).toBe('ready');
 
-    const patchCompleteIndex = findFirstOf(recordedEvents, ['launch.patch.init.after', 'patch.init.after', 'patch.apply.after']);
-    const licenseCompleteIndex = findFirstOf(recordedEvents, ['launch.license.check.after', 'license.check.after', 'license.inject.after']);
-    const validationEvents = recordedEvents
-      .map((event, index) => ({ event, index }))
-      .filter(({ event }) => event.name === 'launch.session.validityCheck.after');
-    const postOverlayValidation = validationEvents.find(({ event, index }) => {
-      const payload = event.payload as { details?: { phase?: string } } | undefined;
-      return payload?.details?.phase === 'post_overlay' && index > patchCompleteIndex && index > licenseCompleteIndex;
-    });
-
-    if (!postOverlayValidation) {
-      throw new Error(
-        'Section 27.F/27.G requires a real post-overlay validation stage before readiness, but no post_overlay launch.session.validityCheck.after event was observed after overlays completed.'
-      );
-    }
+    // Finalization is the last step before readiness: it follows the final overlay.
+    const finalizeAfterIndex = findEventIndex(recordedEvents, 'launch.client.finalize.after');
+    const lastOverlayIndex = recordedEvents.reduce(
+      (last, event, index) => (['patch.init.after', 'license.check.after', 'license.inject.after'].includes(String(event.name)) ? index : last),
+      -1,
+    );
+    expect(lastOverlayIndex).toBeGreaterThan(-1);
+    expect(finalizeAfterIndex).toBeGreaterThan(lastOverlayIndex);
 
     const requiredBeforeReady: Array<{ name: string; events: string[] }> = [
+      {
+        name: 'authentication completion',
+        events: ['launch.auth.check.after'],
+      },
       {
         name: 'runtime injection completion',
         events: ['launch.wapi.inject.after'],
@@ -1381,10 +1262,6 @@ describe('bootstrap contract harness', () => {
       {
         name: 'license overlay completion',
         events: ['launch.license.check.after', 'license.check.after', 'license.inject.after'],
-      },
-      {
-        name: 'session validation completion',
-        events: ['launch.session.validityCheck.after'],
       },
       {
         name: 'client finalization completion',
@@ -1444,8 +1321,8 @@ describe('bootstrap contract harness', () => {
       releaseHook = resolve;
     });
 
-    client.events.on('launch.client.finalize.before', () => {
-      markerOrder.push('finalize.before');
+    client.events.on('launch.client.finalize.after', () => {
+      markerOrder.push('finalize.after');
     });
     client.events.on('client.ready', () => {
       markerOrder.push('client.ready');
@@ -1463,6 +1340,7 @@ describe('bootstrap contract harness', () => {
       expect(markerOrder).toContain('hook.start');
     });
 
+    expect(markerOrder).not.toContain('finalize.after');
     expect(markerOrder).not.toContain('client.ready');
     expect(findEventIndex(recordedEvents, 'client.ready')).toBe(-1);
 
@@ -1473,110 +1351,60 @@ describe('bootstrap contract harness', () => {
       throw new Error(`Expected finalization-hook bootstrap fixture to resolve, but it rejected with: ${String(startResult.error)}`);
     }
 
-    expect(markerOrder.indexOf('finalize.before')).toBeGreaterThan(-1);
-    expect(markerOrder.indexOf('hook.start')).toBeGreaterThan(markerOrder.indexOf('finalize.before'));
-    expect(markerOrder.indexOf('hook.end')).toBeGreaterThan(markerOrder.indexOf('hook.start'));
-    expect(markerOrder.indexOf('client.ready')).toBeGreaterThan(markerOrder.indexOf('hook.end'));
+    expect(markerOrder).toEqual(['hook.start', 'hook.end', 'finalize.after', 'client.ready']);
 
     await client.stop('phase_g_hook_cleanup');
   });
 
-  it('Phase G: pending QR authentication remains a blocked finalization path instead of crashing bootstrap immediately', async () => {
-    vi.spyOn(Transport.prototype, 'waitForAuthentication').mockResolvedValue({
-      outcome: 'authenticated',
-      qrSeen: true,
-      qrAttempts: 1,
-    });
-    vi.spyOn(Transport.prototype, 'waitForRipeSession').mockResolvedValue(false);
-
+  it('Phase G: an unfinished QR authentication rejects start() with its outcome and never finalizes', async () => {
+    const finalizationHook = vi.fn();
     const { client, recordedEvents } = await createHarness({
       runtimeAvailable: true,
       storeMsgAvailable: true,
       sessionLoaded: false,
     });
+    client.registerFinalizationHook(finalizationHook);
 
     const startResult = await settleStart(client);
 
     if (startResult.status !== 'rejected') {
-      throw new Error('Expected pending authentication timeout to reject start(), but it resolved.');
+      throw new Error('Expected an unscanned QR to reject start(), but it resolved.');
     }
+
+    expect(String(startResult.error)).toContain('Authentication did not finish: qr_timeout');
 
     requireBlockedReady(
       recordedEvents,
-      'Finalization failure must block client.ready, but client.ready still emitted after pending authentication timed out.'
+      'An unfinished authentication must block client.ready, but client.ready still emitted after the QR timed out.'
     );
 
-    const finalizeAfterEvent = recordedEvents.find((event) => event.name === 'launch.client.finalize.after');
-    if (!finalizeAfterEvent) {
-      throw new Error('Expected finalization failure path to emit launch.client.finalize.after with an explicit failed outcome.');
-    }
-
-    const finalizeAfterPayload = finalizeAfterEvent.payload as {
-      details?: { success?: boolean; outcome?: string; detail?: string };
-    } | undefined;
-
-    expect(finalizeAfterPayload?.details?.success).toBe(false);
-    expect(finalizeAfterPayload?.details?.outcome).toBe('failed');
-    expect(finalizeAfterPayload?.details?.detail).toContain('ripe session');
+    // Authentication got as far as showing the QR; nothing after it ran.
+    const qrGeneratedIndex = findEventIndex(recordedEvents, 'launch.auth.qr.generated');
+    expect(qrGeneratedIndex).toBeGreaterThan(-1);
+    expect(recordedEvents.slice(qrGeneratedIndex).map((event) => event.name)).not.toContain('launch.wapi.inject.before');
+    expect(findEventIndex(recordedEvents, 'patch.init.before')).toBe(-1);
+    expect(findEventIndex(recordedEvents, 'launch.client.finalize.after')).toBe(-1);
+    expect(finalizationHook).not.toHaveBeenCalled();
 
     expect(client.getReadiness()).toMatchObject({
       ready: false,
-      status: 'blocked',
-      blockers: ['finalization'],
+      status: 'not_ready',
+      requirements: {
+        finalization: { state: 'pending' },
+      },
     });
 
     await client.stop('phase_g_finalize_failure_cleanup');
   });
 
-  it('classifies invalid session / NUKE distinctly instead of collapsing into auth timeout', async () => {
-    const { client, recordedEvents } = await createHarness({
-      runtimeAvailable: true,
-      storeMsgAvailable: true,
-      sessionLoaded: false,
-      invalidSession: true,
-      qrCode: null,
-      authTimeoutMs: 5,
-      qrPollingMs: 1,
-    });
-
-    const startResult = await settleStart(client);
-
-    expect(startResult.status).toBe('rejected');
-    expect(String(startResult.status === 'rejected' ? startResult.error : '')).toContain('manual host account logout');
-    expect(findEventIndex(recordedEvents, 'launch.auth.nuke.detected')).toBeGreaterThan(-1);
-    expect(findEventIndex(recordedEvents, 'launch.auth.phoneOutOfReach')).toBe(-1);
-
-    await client.stop('invalid_session_classification_cleanup');
-  });
-
-  it('ignoreNuke keeps invalid-session detection from aborting bootstrap as a forced NUKE path', async () => {
-    const { client, recordedEvents } = await createHarness({
-      runtimeAvailable: true,
-      storeMsgAvailable: true,
-      sessionLoaded: false,
-      invalidSession: true,
-      ignoreNuke: true,
-      qrCode: null,
-      authTimeoutMs: 5,
-      qrPollingMs: 1,
-    });
-
-    const startResult = await settleStart(client);
-
-    expect(startResult.status).toBe('rejected');
-    expect(String(startResult.status === 'rejected' ? startResult.error : '')).toContain('Authentication timed out');
-    expect(findEventIndex(recordedEvents, 'launch.auth.nuke.detected')).toBe(-1);
-
-    await client.stop('ignore_nuke_cleanup');
-  });
-
   it('classifies phone-out-of-reach distinctly from ordinary authentication timeout', async () => {
+    // WhatsApp replaces the pairing QR with its "Trying to reach phone" notice.
     const { client, recordedEvents } = await createHarness({
       runtimeAvailable: true,
       storeMsgAvailable: true,
       sessionLoaded: false,
       phoneOutOfReach: true,
-      qrCode: null,
+      qrDisappearsAfterNavigation: true,
       authTimeoutMs: 5,
       oorTimeoutMs: 5,
       qrPollingMs: 1,
@@ -1585,8 +1413,9 @@ describe('bootstrap contract harness', () => {
     const startResult = await settleStart(client);
 
     expect(startResult.status).toBe('rejected');
-    expect(String(startResult.status === 'rejected' ? startResult.error : '')).toContain('host phone is out of reach');
+    expect(String(startResult.status === 'rejected' ? startResult.error : '')).toContain('Authentication did not finish: phone_out_of_reach');
     expect(findEventIndex(recordedEvents, 'launch.auth.phoneOutOfReach')).toBeGreaterThan(-1);
+    expect(findEventIndex(recordedEvents, 'client.ready')).toBe(-1);
 
     const timeoutEvent = recordedEvents.find((event) => event.name === 'launch.auth.timeout');
     const timeoutPayload = timeoutEvent?.payload as { details?: { phoneOutOfReach?: boolean } } | undefined;
@@ -1600,7 +1429,7 @@ describe('bootstrap contract harness', () => {
       runtimeAvailable: true,
       storeMsgAvailable: true,
       sessionLoaded: false,
-      qrCode: null,
+      qrDisappearsAfterNavigation: true,
       authTimeoutMs: 5,
       oorTimeoutMs: 5,
       qrPollingMs: 1,
@@ -1609,9 +1438,14 @@ describe('bootstrap contract harness', () => {
     const startResult = await settleStart(client);
 
     expect(startResult.status).toBe('rejected');
-    expect(String(startResult.status === 'rejected' ? startResult.error : '')).toContain('Authentication timed out');
-    expect(String(startResult.status === 'rejected' ? startResult.error : '')).not.toContain('out of reach');
+    expect(String(startResult.status === 'rejected' ? startResult.error : '')).toContain('Authentication did not finish: auth_timeout');
+    expect(String(startResult.status === 'rejected' ? startResult.error : '')).not.toContain('phone_out_of_reach');
     expect(findEventIndex(recordedEvents, 'launch.auth.phoneOutOfReach')).toBe(-1);
+    expect(findEventIndex(recordedEvents, 'client.ready')).toBe(-1);
+
+    const timeoutEvent = recordedEvents.find((event) => event.name === 'launch.auth.timeout');
+    const timeoutPayload = timeoutEvent?.payload as { details?: { phoneOutOfReach?: boolean } } | undefined;
+    expect(timeoutPayload?.details?.phoneOutOfReach).toBe(false);
 
     await client.stop('auth_timeout_classification_cleanup');
   });
@@ -1621,7 +1455,6 @@ describe('bootstrap contract harness', () => {
       runtimeAvailable: true,
       storeMsgAvailable: true,
       sessionLoaded: false,
-      qrCode: null,
       linkCode: '15551234567',
       generatedLinkCode: 'XYZ-1234',
       authenticateOnLinkCodeRequest: true,
@@ -1637,6 +1470,12 @@ describe('bootstrap contract harness', () => {
     const generatedEvent = recordedEvents.find((event) => event.name === 'launch.auth.linkCode.generated');
     const generatedPayload = generatedEvent?.payload as { details?: { linkCode?: string } } | undefined;
     expect(generatedPayload?.details?.linkCode).toBe('XYZ-1234');
+
+    // The link code replaces QR pairing: the login screen's QR is never offered to the caller.
+    expect(findEventIndex(recordedEvents, 'launch.auth.qr.generated')).toBe(-1);
+    expect(findEventIndex(recordedEvents, 'client.ready')).toBeGreaterThan(
+      findEventIndex(recordedEvents, 'launch.auth.linkCode.generated'),
+    );
 
     await client.stop('link_code_auth_path_cleanup');
   });
@@ -1655,7 +1494,7 @@ describe('bootstrap contract harness', () => {
     const startResult = await settleStart(client);
 
     expect(startResult.status).toBe('rejected');
-    expect(String(startResult.status === 'rejected' ? startResult.error : '')).toContain('QR/link-code limit');
+    expect(String(startResult.status === 'rejected' ? startResult.error : '')).toContain('Authentication did not finish: qr_max');
 
     const qrGeneratedEvents = recordedEvents.filter((event) => event.name === 'launch.auth.qr.generated');
     expect(qrGeneratedEvents).toHaveLength(1);
@@ -1800,7 +1639,7 @@ describe('bootstrap contract harness', () => {
       fetchSpy.mockRestore();
     });
 
-    it('blocks readiness when the required deferred init patch fails', async () => {
+    it('reports a failed deferred init patch without blocking readiness', async () => {
       const fetchSpy = vi.spyOn(
         Transport.prototype as any,
         'fetchLivePatchesWithCache',
@@ -1810,6 +1649,8 @@ describe('bootstrap contract harness', () => {
         source: 'remote' as const,
       });
 
+      // Since the October 2026 lifecycle change a patch failure is reported, not fatal:
+      // the session is authenticated, so startup finishes and leaves the failure observable.
       const { client, recordedEvents } = await createHarness({
         runtimeAvailable: true,
         storeMsgAvailable: true,
@@ -1820,19 +1661,34 @@ describe('bootstrap contract harness', () => {
 
       const startResult = await settleStart(client);
 
-      requireBlockedReady(
-        recordedEvents,
-        'Required deferred init patch failures must block readiness, but client.ready still emitted after the init patch threw.'
-      );
-
-      if (startResult.status !== 'rejected') {
-        throw new Error('Expected deferred init patch failure to reject start(), but it resolved.');
+      if (startResult.status !== 'resolved') {
+        throw new Error(`Expected a failed deferred init patch to be reported without rejecting start(), but it rejected with: ${String(startResult.error)}`);
       }
 
+      const initPatchApplyAfterIndex = recordedEvents.findIndex((event) => {
+        if (event.name !== 'patch.apply.after') {
+          return false;
+        }
+
+        const payload = event.payload as { details?: { patchId?: string } } | undefined;
+        return payload?.details?.patchId === 'init-patch-legacy';
+      });
+      expect(recordedEvents[initPatchApplyAfterIndex]?.payload).toMatchObject({
+        details: { applied: false, outcome: 'failed', required: true },
+      });
+
+      const initPatchSummaryIndex = recordedEvents.findIndex(
+        (event, index) => index > initPatchApplyAfterIndex && event.name === 'patch.init.after',
+      );
+      expect(recordedEvents[initPatchSummaryIndex]?.payload).toMatchObject({
+        details: { applied: [], outcome: 'failed', blockingFailure: true },
+      });
+
+      const readyIndex = findEventIndex(recordedEvents, 'client.ready');
+      expect(readyIndex).toBeGreaterThan(initPatchSummaryIndex);
       expect(client.getReadiness()).toMatchObject({
-        ready: false,
-        status: 'blocked',
-        blockers: ['runtimeUsable'],
+        ready: true,
+        status: 'ready',
       });
 
       await client.stop('deferred_init_patch_failure_cleanup');
@@ -1841,16 +1697,21 @@ describe('bootstrap contract harness', () => {
   });
 
   describe('payload depth: license server validation', () => {
-    it('retries license preload after the live patch reveals the host ID', async () => {
+    it('preloads the license with the host ID once the live patch has revealed it', async () => {
       const unknownHost = {
         WA_VERSION: '2.3000.0',
         WA_AUTOMATE_VERSION: '5.0.0',
         hostNumber: '',
       };
       const resolvedHost = { ...unknownHost, hostNumber: '1234567890@c.us' };
+      let recorded: RecordedEvent[] = [];
+      const livePatchesApplied = () => recorded.some((event) => {
+        const payload = event.payload as { details?: { phase?: string } } | undefined;
+        return event.name === 'patch.init.after' && payload?.details?.phase === 'apply';
+      });
+      // The host ID is unknown until the live patches have run.
       const debugSpy = vi.spyOn(Transport.prototype, 'getSessionDebugInfo')
-        .mockResolvedValueOnce(unknownHost)
-        .mockResolvedValueOnce(resolvedHost);
+        .mockImplementation(async () => (livePatchesApplied() ? resolvedHost : unknownHost));
       const originalPreload = Transport.prototype.preloadLicenseArtifact;
       const licensePreloadSpy = vi.spyOn(Transport.prototype, 'preloadLicenseArtifact')
         .mockImplementation(function (this: Transport, options) {
@@ -1884,10 +1745,16 @@ describe('bootstrap contract harness', () => {
         sessionLoaded: true,
         licenseKey: 'insiders-test-key-12345',
       });
+      recorded = recordedEvents;
 
       expect(await settleStart(client)).toMatchObject({ status: 'resolved' });
-      expect(debugSpy).toHaveBeenCalledTimes(2);
-      expect(licensePreloadSpy).toHaveBeenCalledWith(expect.objectContaining({
+
+      // Startup preloads once without the host, then asks for the host a single time, after the live patches.
+      expect(debugSpy).toHaveBeenCalledTimes(1);
+      expect(licensePreloadSpy).toHaveBeenCalledTimes(2);
+      expect(licensePreloadSpy.mock.calls[0]?.[0].sessionInfo).toBeUndefined();
+      expect(licensePreloadSpy).toHaveBeenLastCalledWith(expect.objectContaining({
+        licenseKey: 'insiders-test-key-12345',
         sessionInfo: expect.objectContaining({ hostNumber: '1234567890@c.us' }),
       }));
       expect(recordedEvents).toContainEqual(expect.objectContaining({
@@ -1896,6 +1763,10 @@ describe('bootstrap contract harness', () => {
           details: expect.objectContaining({ status: 'valid' }),
         }),
       }));
+      expect(client.getReadiness()).toMatchObject({
+        ready: true,
+        requirements: { licenseLifecycle: { state: 'satisfied' } },
+      });
 
       await client.stop('license_host_recovery_cleanup');
     });

@@ -19,19 +19,33 @@ const environment = config.environment || {
   try{const loaded=settle('loadeddata');el.src=url;await loaded;if(!el.videoWidth||!el.videoHeight)throw Object.assign(Error('The browser cannot decode the picture in this video. HEVC (H.265) needs hardware decoding, which automated browsers usually have off. Use an H.264 MP4 or a WebM'),{code:'VIDEO_UNDECODABLE'});if(!Number.isFinite(el.duration)||el.duration<=0)throw Error('The video has no readable length');}catch(error){close();throw error;}
   return {durationMs:el.duration*1000,close,async frameAt(ms){const time=Math.max(0,Math.min(ms/1000,el.duration-.001));if(Math.abs(el.currentTime-time)>.0005){const seeked=settle('seeked');el.currentTime=time;await seeked;}return globalThis.createImageBitmap(el);}};
  },
- // Decode any audio the browser reads, cut it to the range and write an Ogg Opus clip.
- async transcodeAudio(blob,range){
+ // Decode any audio the browser reads, cut it to the range and write a mono Ogg Opus clip at 48 kHz.
+ // Without limits the clip is sticker sound: five minutes and 1 MB at most, at a bitrate that fits the length.
+ async transcodeAudio(blob,range,limits){
+  const maxSeconds=limits?.maxSeconds||300,maxBytes=limits?.maxBytes||1000000;
+  const fail=(code,message)=>Object.assign(Error(message),{code});
+  const tooLong=()=>fail('AUDIO_TOO_LONG',limits?.maxSeconds?'The sound is longer than '+(maxSeconds%60?maxSeconds+' seconds':maxSeconds/60+' minutes'):'The sound is longer than five minutes');
   const Offline=globalThis.OfflineAudioContext||globalThis.webkitOfflineAudioContext;
-  if(!Offline||typeof AudioEncoder==='undefined'||typeof AudioData==='undefined')throw Error('This browser cannot convert audio. Supply an Ogg Opus or M4A clip');
-  let decoded;try{decoded=await new Offline(1,1,48000).decodeAudioData(await blob.arrayBuffer());}catch{throw Error('The browser found no audio it can read in this file');}
+  if(!Offline||typeof AudioEncoder==='undefined'||typeof AudioData==='undefined')throw fail('AUDIO_UNSUPPORTED','This browser cannot convert audio. Supply an Ogg Opus or M4A clip');
+  // Decoding holds the whole sound in memory, so a caller's length limit is checked on the file's own length first, where the page can read it.
+  if(limits?.maxSeconds&&typeof document!=='undefined'){
+   const el=document.createElement('audio'),url=URL.createObjectURL(blob);
+   const seconds=await new Promise(resolve=>{const done=value=>{clearTimeout(timer);resolve(value);},timer=setTimeout(()=>done(NaN),5000);el.addEventListener('loadedmetadata',()=>done(el.duration),{once:true});el.addEventListener('error',()=>done(NaN),{once:true});el.preload='metadata';el.src=url;});
+   el.removeAttribute('src');try{el.load();}catch{}URL.revokeObjectURL(url);
+   if(Number.isFinite(seconds)&&seconds>maxSeconds*1.05+1)throw tooLong();
+  }
+  let decoded;try{decoded=await new Offline(1,1,48000).decodeAudioData(await blob.arrayBuffer());}catch{throw fail('AUDIO_UNREADABLE','The browser found no audio it can read in this file');}
   const rate=decoded.sampleRate,from=Math.max(0,Math.floor((range?range[0]:0)*rate/1000)),to=Math.min(decoded.length,range?Math.ceil(range[1]*rate/1000):decoded.length),total=to-from;
   if(rate!==48000)throw Error('The browser did not resample the audio');
   if(total<=0)throw Error('The selected trim contains no audio');
-  if(total>rate*300)throw Error('The sound is longer than five minutes');
-  const channels=Math.min(2,decoded.numberOfChannels),planes=Array.from({length:channels},(_,c)=>decoded.getChannelData(c));
+  if(total>rate*maxSeconds)throw tooLong();
+  // One channel, like a voice note: phones that play sound stickers all play mono, and some stay silent on stereo.
+  const channels=1,mixed=new Float32Array(decoded.length);
+  for(let c=0;c<decoded.numberOfChannels;c++){const plane=decoded.getChannelData(c);for(let i=0;i<mixed.length;i++)mixed[i]+=plane[i]/decoded.numberOfChannels;}
+  const planes=[mixed];
   const packets=[];let failure,preSkip=312;
   const encoder=new AudioEncoder({output(part,meta){const data=new Uint8Array(part.byteLength);part.copyTo(data);packets.push({data,samples:Math.round((part.duration||20000)*48/1000)});const d=meta?.decoderConfig?.description;if(d){const head=d instanceof ArrayBuffer?new Uint8Array(d):new Uint8Array(d.buffer,d.byteOffset,d.byteLength);if(head.length>=12&&String.fromCharCode(...head.subarray(0,8))==='OpusHead')preSkip=head[10]|head[11]<<8;}},error(error){failure=error;}});
-  encoder.configure({codec:'opus',sampleRate:rate,numberOfChannels:channels,bitrate:Math.max(16000,Math.min(64000,Math.floor(7200000*rate/total)))});
+  encoder.configure({codec:'opus',sampleRate:rate,numberOfChannels:channels,bitrate:limits?.bitrate||Math.max(16000,Math.min(48000,Math.floor(maxBytes*72/10*rate/total)))});
   for(let at=from;at<to;at+=rate){const frames=Math.min(rate,to-at),data=new Float32Array(frames*channels);for(let c=0;c<channels;c++)data.set(planes[c].subarray(at,at+frames),c*frames);const frame=new AudioData({format:'f32-planar',sampleRate:rate,numberOfFrames:frames,numberOfChannels:channels,timestamp:Math.round((at-from)*1e6/rate),data});encoder.encode(frame);frame.close();}
   await encoder.flush();encoder.close();if(failure)throw failure;
   if(!packets.length)throw Error('The audio could not be encoded');
@@ -46,7 +60,7 @@ const environment = config.environment || {
   for(let i=0;i<packets.length;i++){const need=Math.floor(packets[i].data.length/255)+1;if(group.length&&(segments+need>255||group.length>=50)){page(group,Math.min(produced,last),0);group=[];segments=0;}group.push(packets[i].data);segments+=need;produced+=packets[i].samples;}
   page(group,Math.min(produced,last),4);
   const bytes=new Uint8Array(pages.reduce((sum,p)=>sum+p.length,0));let at=0;for(const p of pages){bytes.set(p,at);at+=p.length;}
-  if(bytes.length>1000000)throw Error('The converted sound is larger than 1 MB. Use a shorter clip');
+  if(bytes.length>maxBytes)throw fail('AUDIO_TOO_LARGE',limits?.maxBytes?'The converted sound is larger than '+maxBytes+' bytes. Use a shorter clip':'The converted sound is larger than 1 MB. Use a shorter clip');
   return {bytes,mime:'audio/ogg; codecs=opus',durationMs:Math.round(total*1000/rate)};
  },
 };
@@ -302,15 +316,15 @@ async function render(input,job={}) {
   return {bytes:new Uint8Array(await blob.arrayBuffer()),width:512,height:512,frames:encoded.length>1?encoded.length:1,durationMs:encoded.length>1?delays.reduce((a,b)=>a+b,0):0,steps:steps.map(s=>({name:s.name,options:s.p,...s.info})),...(audio?{audio}:{})};
  }finally{clearSurfaces();decoder?.close();bitmap?.close();video?.close();currentJob=undefined;}
 }
-function transcode(input,range){if(!environment.transcodeAudio)throw Error('Audio conversion needs a browser page');return environment.transcodeAudio(input,range);}
+function transcode(input,range,limits){if(!environment.transcodeAudio)throw Error('Audio conversion needs a browser page');return environment.transcodeAudio(input,range,limits);}
 let tail=Promise.resolve(),pending=0,closed=false;
 const engine={version:'1',get busy(){return pending>0;},cancel(id){cancellations.add(id);},render(input,job){
  if(closed)return Promise.reject(Error('Renderer disposed'));
  pending++;const result=tail.then(()=>{if(closed)throw Error('Renderer disposed');if(cancellations.has(job.__renderId)){const error=Error('Render cancelled');error.code='CANCELLED';throw error;}return render(input,job);});
  tail=result.catch(()=>{}).finally(()=>{pending--;cancellations.delete(job.__renderId);});return result;
-},audio(input,range){
+},audio(input,range,limits){
  if(closed)return Promise.reject(Error('Renderer disposed'));
- pending++;const result=tail.then(()=>{if(closed)throw Error('Renderer disposed');return transcode(input,range);});
+ pending++;const result=tail.then(()=>{if(closed)throw Error('Renderer disposed');return transcode(input,range,limits);});
  tail=result.catch(()=>{}).finally(()=>{pending--;});return result;
 },dispose(){closed=true;clearSurfaces();cancellations.clear();kernel=undefined;}};
 if(config.install){globalThis.__OPENWA_STICKER_RENDERER_V1__=engine;return {version:'1',installed:true};}

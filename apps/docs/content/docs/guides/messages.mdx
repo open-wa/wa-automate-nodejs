@@ -84,15 +84,19 @@ await client.sendText(chatId, '~cancelled~ ```monospace```');
 
 ## Mentions
 
-Mentions are Easy API methods, [`sendTextWithMentions`](/docs/reference/client/messages#sendtextwithmentions) and [`sendReplyWithMentions`](/docs/reference/client/messages#sendreplywithmentions). Put the `@number` text in the content and pass the mentioned contact IDs:
+[`sendTextWithMentions`](/docs/reference/client/messages#sendtextwithmentions) mentions everyone you tag in the text. Write each tag as `@` followed by the person's number, and WhatsApp shows it as their name:
+
+```ts
+await client.sendTextWithMentions(groupId, 'Hello @447700000000, can you check this?');
+```
 
 ```bash
 curl --fail-with-body http://localhost:8080/api/messages/sendTextWithMentions \
   -H "Content-Type: application/json" -H "X-API-Key: $WA_API_KEY" \
-  -d '{"to":"120363000000000000@g.us","content":"Hello @447700000000, can you check this?","mentions":["447700000000@c.us"]}'
+  -d '{"to":"120363000000000000@g.us","content":"Hello @447700000000, can you check this?"}'
 ```
 
-Set `"hideTags": true` to notify the mentioned people without showing the tags. `sendReplyWithMentions` takes the same fields plus `replyMessageId` to quote a message.
+Pass `mentions`, a list of contact IDs, to mention people the text doesn't tag. Set `hideTags` to `true` to take the tags out of the text and still notify the people. [`sendReplyWithMentions`](/docs/reference/client/messages#sendreplywithmentions) takes the same arguments plus `replyMessageId`, the message to quote, after the content. Both resolve to the ID of the sent message.
 
 ## Attachments
 

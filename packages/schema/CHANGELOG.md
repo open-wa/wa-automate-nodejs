@@ -32,6 +32,23 @@
 
 
 
+
+## 5.14.2
+<sub>2026-11-26</sub>
+
+-  *(patch)*
+  🐛 `SocketClient` has the Client's methods and listeners again. After `await SocketClient.connect()`, direct calls such as `client.sendText(chatId, text)` and `client.onMessage(callback)` threw "is not a function", so only `ask()` and `listen()` worked. They work now, with the arguments in order as in v4 or as one object of named parameters.
+  🏷️ The socket client is typed. Every Easy API method has its parameters, return type and description, so your editor completes `client.sendText(` and `client.ask('sendText', {`, and TypeScript checks the call. `listen('onMessage', ...)` takes the name as a string or as `SimpleListener.Message` and types the callback's parameter from it, so no cast or `@ts-ignore` is needed.
+  🎧 `listen()` and the listener methods now have clear roles. `client.listen('onMessage', ...)` keeps delivering the event as the Easy API sends it, `{ ctx, message }`, so existing v5 handlers work unchanged. The listener methods, such as `client.onMessage(callback)`, deliver what the Client's listeners deliver: the message itself for `onMessage` and `onAnyMessage`, the message with its new `ack` for `onAck`, the new state for `onStateChanged`. `onLogout` now fires.
+-  *(patch)*
+  🐛 `sendTextWithMentions` and `sendReplyWithMentions` work. Both were documented, but calling them through the SDK, the Easy API or the socket client failed with "not implemented on Client". They now send the message and resolve to its ID.
+  🏷️ Tag people in the text as `@` followed by their number, for example `@447700000000`. `mentions` is optional and adds people the text doesn't tag, `hideTags` removes the tags from the text and still notifies the people, and nobody is mentioned twice when an ID is both tagged and listed.
+  🧯 A failed send throws `SendTextError` with a `code` and an `outcome`. `not_sent` means nothing was sent, and `unknown` means the message may have been sent, so check the chat before you retry.
+-  *(patch)*
+  🎙️ `sendPtt` now converts the audio you give it. A voice note used to be sent exactly as supplied, and some phones could not play one that was not mono Ogg Opus, such as a stereo `.ogg`. Audio that is not already mono Ogg Opus, including MP3, M4A, WAV and stereo Ogg, is converted in the session's browser to mono Ogg Opus at 48 kHz before it is sent. A mono Ogg Opus file is sent as it is, and `sendFile` with `{ type: 'audio', ptt: true }` does the same. `sendAudio` is unchanged.
+  📏 Conversion accepts files of up to 20 MB and 10 minutes. A larger or longer file is refused with an error that names the limit and nothing is sent, as is any audio on a browser that cannot encode it, such as the experimental Lightpanda driver. Supply mono Ogg Opus in those cases.
+  🔊 `@open-wa/stickers` runtimes have `convertAudio(input, options)`, which converts a sound to mono Ogg Opus in the browser page with your own `maxSeconds`, `maxBytes` and `bitrate`. Sticker sound keeps its limits.
+
 ## 5.14.1
 <sub>2026-11-26</sub>
 

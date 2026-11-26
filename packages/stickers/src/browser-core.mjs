@@ -1,7 +1,7 @@
 import { createRecipeEngine } from './recipe-engine.mjs';
 import { resourceManifest } from './resources.mjs';
 import { StickerError, abortIfRequested } from './errors.mjs';
-import { renderSticker } from './render.mjs';
+import { renderSticker, convertSound } from './render.mjs';
 import { webResourceBytes, webKernelBytes } from './browser-resources.mjs';
 import { manageStickerRuntime } from './lifecycle.mjs';
 
@@ -13,6 +13,7 @@ export function createBrowserStickerRuntime(driver, resources) {
       createSticker(input, job) {
         return renderSticker(input, { ...job, backend: job.backend ?? 'browser' }, { browser, standalone: { available: false, requirements: [] } });
       },
+      convertAudio: (input, options) => convertSound(input, options, browser),
       dispose: () => browser.dispose(),
     };
   });
@@ -51,14 +52,21 @@ export function createBrowserBackend(driver, { resourceBytes = webResourceBytes,
   async function convert(bytes, job) {
     abortIfRequested(job.signal);
     await install(job.signal);
-    const result = await evaluate(async ({ bytes, serialize }) => {
+    // Sticker sound keeps the engine's own limits. A caller of convertAudio() can set a length, a size and a bitrate.
+    const { maxSeconds, maxBytes, bitrate } = job;
+    const limits = maxSeconds || maxBytes || bitrate ? { maxSeconds, maxBytes, bitrate } : undefined;
+    // A sound can be many megabytes, so it crosses to a driven page as base64 text, a third of the size of a number list.
+    let text = '';
+    if (driver) for (let at = 0; at < bytes.length; at += 0x8000) text += String.fromCharCode.apply(null, bytes.subarray(at, at + 0x8000));
+    const result = await evaluate(async ({ bytes, serialize, limits }) => {
       try {
-        const audio = await globalThis.__OPENWA_STICKER_RENDERER_V1__.audio(new Blob([new Uint8Array(bytes)]));
+        const sound = typeof bytes === 'string' ? Uint8Array.from(atob(bytes), char => char.charCodeAt(0)) : new Uint8Array(bytes);
+        const audio = await globalThis.__OPENWA_STICKER_RENDERER_V1__.audio(new Blob([sound]), undefined, limits);
         return { audio: { ...audio, bytes: serialize ? Array.from(audio.bytes) : audio.bytes } };
-      } catch (error) { return { error: { message: error.message || String(error) } }; }
-    }, { bytes: driver ? Array.from(bytes) : bytes, serialize: !!driver });
+      } catch (error) { return { error: { message: error.message || String(error), reason: error.code } }; }
+    }, { bytes: driver ? btoa(text) : bytes, serialize: !!driver, limits });
     abortIfRequested(job.signal);
-    if (result.error) throw new StickerError('AUDIO_FAILED', `audio: ${result.error.message}.`);
+    if (result.error) throw new StickerError('AUDIO_FAILED', `audio: ${result.error.message}.`, result.error.reason ? { reason: result.error.reason } : {});
     return { ...result.audio, bytes: new Uint8Array(result.audio.bytes) };
   }
   async function execute(input, job, requirements) {

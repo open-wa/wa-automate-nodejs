@@ -12,8 +12,8 @@ import type {
   AlbumSendResult,
   MediaSendOptions, AudioAttachmentOptions, VoiceNoteOptions, GifSendOptions, PollSendOptions, PollResults, PinDuration,
 } from '@open-wa/schema';
-import { implementMethod, editMessage as editMessageSchema, react as reactSchema, SendTextResultSchema, AlbumSendResultSchema, sendAlbum as sendAlbumSchema, sendPoll as sendPollSchema, AudioAttachmentOptionsSchema, VoiceNoteOptionsSchema, GifSendOptionsSchema, PollResultsSchema, voteOnPoll as voteOnPollSchema, getPollResults as getPollResultsMethodSchema, pinMessage as pinMessageSchema, unpinMessage as unpinMessageSchema } from '@open-wa/schema';
-import { SendTextError } from '../SendTextError';
+import { implementMethod, sendTextWithMentions as sendTextWithMentionsSchema, sendReplyWithMentions as sendReplyWithMentionsSchema, editMessage as editMessageSchema, react as reactSchema, SendTextResultSchema, AlbumSendResultSchema, sendAlbum as sendAlbumSchema, sendPoll as sendPollSchema, AudioAttachmentOptionsSchema, VoiceNoteOptionsSchema, GifSendOptionsSchema, PollResultsSchema, voteOnPoll as voteOnPollSchema, getPollResults as getPollResultsMethodSchema, pinMessage as pinMessageSchema, unpinMessage as unpinMessageSchema } from '@open-wa/schema';
+import { SendTextError, type SendTextErrorCode } from '../SendTextError';
 import type { StickerInput, StickerJob } from '@open-wa/stickers';
 import { sendClientSticker } from '../stickers';
 import { invokePatch } from '../patchRuntime';
@@ -29,7 +29,99 @@ declare const WAPI: {
   getMessageById: (messageId: string) => Message | false | null;
   getAlbumMessages: (messageId: string) => Promise<Message[] | false>;
   sendAlbum: (to: string, media: AlbumMedia[], caption: string, quotedMsgId?: string) => Promise<AlbumSendResult>;
+  sendMentions?: (to: string, body: string, options: MentionSendOptions) => Promise<unknown>;
 };
+
+interface MentionSendOptions {
+  quotedMsgId?: string;
+  hideTags?: boolean;
+  mentions?: string[];
+}
+
+/** What the page resolves a mention send with; `id` is the message that was created, when there is one. */
+interface MentionSendFailure {
+  ok: false;
+  code: string;
+  outcome: 'not_sent' | 'unknown';
+  message: string;
+  id?: string;
+}
+
+const MENTION_ERROR_CODES: Record<string, SendTextErrorCode> = {
+  INVALID_ARGUMENT: 'INVALID_ARGUMENT',
+  LICENSE_REQUIRED: 'LICENSE_REQUIRED',
+  SEND_FAILED: 'SEND_FAILED',
+};
+
+/** One send path for both mention methods. It never retries, and only resolves with the ID of a message WhatsApp accepted. */
+async function sendMentions(
+  client: Client,
+  method: 'sendTextWithMentions' | 'sendReplyWithMentions',
+  schema: typeof sendTextWithMentionsSchema | typeof sendReplyWithMentionsSchema,
+  input: { to: unknown; content: unknown; replyMessageId?: unknown; hideTags?: unknown; mentions?: unknown },
+): Promise<MessageId> {
+  const parsed = schema.openWAInput.safeParse(input);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    throw new SendTextError(`${method}: ${issue ? `${issue.path.join('.') || 'input'}: ${issue.message}` : 'invalid arguments'}`, {
+      code: 'INVALID_ARGUMENT',
+      outcome: 'not_sent',
+      cause: parsed.error,
+    });
+  }
+  const { to, content, hideTags, mentions } = parsed.data;
+  const options: MentionSendOptions = { hideTags, mentions };
+  if ('replyMessageId' in parsed.data) options.quotedMsgId = String(parsed.data.replyMessageId);
+
+  let result: unknown;
+  try {
+    result = await client.evaluate(
+      async ({ to, content, options }) => {
+        if (typeof WAPI.sendMentions !== 'function') return { ok: false, code: 'UNAVAILABLE', outcome: 'not_sent', message: '' };
+        return WAPI.sendMentions(to, content, options);
+      },
+      { to, content, options },
+    );
+  } catch (cause) {
+    throw new SendTextError(`${method} could not confirm the result. The message may have been sent; check the chat before retrying.`, {
+      code: 'SEND_FAILED',
+      outcome: 'unknown',
+      cause,
+    });
+  }
+
+  const reply = result !== null && typeof result === 'object' ? result as { ok?: unknown; id?: unknown } : {};
+  if (reply.ok === true) {
+    const id = SendTextResultSchema.safeParse(reply.id);
+    if (id.success) return id.data;
+  }
+  if (reply.ok !== false) {
+    throw new SendTextError(`${method} did not return a valid message ID. The message may have been sent; check the chat before retrying.`, {
+      code: 'INVALID_SEND_RESULT',
+      outcome: 'unknown',
+      cause: result,
+    });
+  }
+
+  const failure = reply as MentionSendFailure;
+  if (failure.code === 'UNAVAILABLE') {
+    throw new SendTextError(`${method} is not part of the runtime patches this session loaded. Restart the session to load the current patches.`, {
+      code: 'SEND_REJECTED',
+      outcome: 'not_sent',
+    });
+  }
+  if (failure.code === 'LICENSE_REQUIRED') {
+    const message = 'Starting a chat with a new number requires an applied restricted or premium license.';
+    client.logger.error('send_mentions_unknown_number_requires_license', { sessionId: client.sessionId, detail: message });
+    throw new SendTextError(message, { code: 'LICENSE_REQUIRED', outcome: 'not_sent' });
+  }
+  const sentId = typeof failure.id === 'string' ? ` Message ID: ${failure.id}.` : '';
+  throw new SendTextError(`${method}: ${failure.message}${sentId}`, {
+    code: MENTION_ERROR_CODES[failure.code] ?? 'SEND_REJECTED',
+    outcome: failure.outcome === 'unknown' ? 'unknown' : 'not_sent',
+    cause: result,
+  });
+}
 
 export interface MessagingMethods {
   /**
@@ -43,7 +135,7 @@ export interface MessagingMethods {
   /** Sends media in its native presentation: image, video, audio or document. */
   sendFile(to: ChatId, file: MediaInput, filename?: string, options?: MediaSendOptions): Promise<MediaSendResult>;
   sendAudio(to: ChatId, file: MediaInput, filename?: string, options?: AudioAttachmentOptions): Promise<MediaSendResult>;
-  /** Marks prepared audio as a voice note; it does not transcode the input. */
+  /** Sends a voice note. Audio that is not already mono Ogg Opus is converted in the session's browser first, so that it plays on every phone. */
   sendPtt(to: ChatId, file: MediaInput, options?: VoiceNoteOptions): Promise<MediaSendResult>;
   /** Sends video with WhatsApp's looping GIF flag. */
   sendVideoAsGif(to: ChatId, file: MediaInput, filename?: string, options?: GifSendOptions): Promise<MediaSendResult>;
@@ -63,6 +155,13 @@ export interface MessagingMethods {
   /** Turn an image or video into a sticker and send it. `job.audio` attaches a sound the recipient can play. */
   sendSticker(to: ChatId, input: StickerInput, job?: StickerJob): Promise<MessageId>;
   reply(to: ChatId, content: string, quotedMsgId: MessageId): Promise<MessageId | boolean>;
+  /**
+   * Mentions everyone tagged as `@number` in the text, plus the listed contacts.
+   * Resolves to the ID of the sent message; throws SendTextError and never retries.
+   */
+  sendTextWithMentions(to: ChatId, content: string, hideTags?: boolean, mentions?: ContactId[]): Promise<MessageId>;
+  /** sendTextWithMentions as a reply to `replyMessageId`. */
+  sendReplyWithMentions(to: ChatId, content: string, replyMessageId: MessageId, hideTags?: boolean, mentions?: ContactId[]): Promise<MessageId>;
   forwardMessages(to: ChatId, messages: MessageId | MessageId[], skipMyMessages?: boolean): Promise<MessageIdReturn[] | boolean>;
   deleteMessage(chatId: ChatId, messageId: MessageId | MessageId[], onlyLocal?: boolean): Promise<boolean>;
   editMessage: ReturnType<typeof implementMethod<typeof editMessageSchema>>;
@@ -224,6 +323,14 @@ export function messagingMethods(client: Client): MessagingMethods {
       ) as Promise<MessageId | boolean>;
     },
     
+    async sendTextWithMentions(to, content, hideTags, mentions) {
+      return sendMentions(client, 'sendTextWithMentions', sendTextWithMentionsSchema, { to, content, hideTags, mentions });
+    },
+
+    async sendReplyWithMentions(to, content, replyMessageId, hideTags, mentions) {
+      return sendMentions(client, 'sendReplyWithMentions', sendReplyWithMentionsSchema, { to, content, replyMessageId, hideTags, mentions });
+    },
+
     async forwardMessages(
       to: ChatId,
       messages: MessageId | MessageId[],

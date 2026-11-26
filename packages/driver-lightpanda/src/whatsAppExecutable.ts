@@ -8,12 +8,12 @@ import type { BrowserProvisionOptions, IDriverContext } from '@open-wa/driver-in
 
 const run = promisify(execFile);
 const RECIPE = 'whatsapp-ua-v1';
-// Official 1.0.0 release digests. Never modify an arbitrary installed binary.
+// Official 1.0.5 release digests (macOS arm64 and x64, Linux arm64 and x64). Never modify an arbitrary installed binary.
 const RELEASE_DIGESTS = new Set([
-    '955440053a84754dd64c62f970449a56a2b350cdf43ea5f2e809a73047b8173d',
-    'e510299683b37a203912eac0ee00732224b2ef9b07fe58e69c467f5255be45e2',
-    '69791924bcee43b13b224af4c845622c5fe66fdbc1b8143bfaa39ca8f85244f5',
-    'aa5a4b8ed53d1e38b3c73f5b2647d0a84a82e6744557f45f9a9c85858aa031c3',
+    'eec3781086ee512320a04b036f092806a8a959944ea78fc8f4fe7dfe215a84b4',
+    '2b75c9fee5c36d5d840f7938df6a532074bec03bf0485c3130b28597999a66fe',
+    '7527391c479f323eb9111b834b012d91a89057528c28ef027741b21739b12299',
+    '0ec21fa4867ab9e82b35285ff4ab0e7336c6c1d89f26fe991f27d73c8a678bd7',
 ]);
 const digest = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex');
 
@@ -77,7 +77,7 @@ export async function prepareWhatsAppExecutable(
         await chmod(prepared, 0o700);
         const manifest = {
             recipe: RECIPE, sourceSha256, executableSha256: digest(await readFile(prepared)),
-            version: '1.0.0', experimentalWhatsApp: true,
+            version: '1.0.5', experimentalWhatsApp: true,
         };
         const preparedManifest = join(staging, 'manifest.json');
         await writeFile(preparedManifest, JSON.stringify(manifest) + '\n', { flag: 'wx', mode: 0o600 });

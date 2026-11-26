@@ -144,11 +144,11 @@ Each call maps its arguments, validates them with the method's Zod input schema 
 | `sendPoll` | `messages` | `to`, `name`, `options`, `config` | `MessageIdReturn \| boolean` |
 | `sendPtt` | `messages` | `to`, `file`, `options` | `MessageIdReturn \| boolean` |
 | `sendRawMessage` | `messages` | `to`, `payload` | `string` |
-| `sendReplyWithMentions` | `messages` | `to`, `content`, `replyMessageId`, `hideTags`, `mentions` | `MessageIdReturn \| boolean` |
+| `sendReplyWithMentions` | `messages` | `to`, `content`, `replyMessageId`, `hideTags`, `mentions` | `MessageId` |
 | `sendSeen` | `messages` | `chatId` | `boolean` |
 | `sendSticker` | `messages` | `to`, `input`, `job` | `MessageId` |
 | `sendText` | `messages` | `to`, `content`, `options` | `MessageId` |
-| `sendTextWithMentions` | `messages` | `to`, `content`, `hideTags`, `mentions` | `MessageIdReturn \| boolean` |
+| `sendTextWithMentions` | `messages` | `to`, `content`, `hideTags`, `mentions` | `MessageId` |
 | `sendVCard` | `messages` | `to`, `vcard`, `contactName`, `contactNumber` | `MessageIdReturn \| boolean` |
 | `sendVideoAsGif` | `messages` | `to`, `file`, `filename`, `options` | `MessageIdReturn \| boolean` |
 | `sendYouTubeLink` | `messages` | `to`, `url`, `text`, `thumbnail`, `quotedMsgId`, `customSize` | `MessageIdReturn \| boolean` |

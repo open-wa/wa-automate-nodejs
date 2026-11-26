@@ -60,6 +60,8 @@ export const clientRuntimeMethodSurface = {
   sendVCard: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'common', runtimeMethod: 'sendVCard' },
   sendSticker: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'private', runtimeMethod: 'sendSticker', reason: 'provided by the private donor finalizer' },
   reply: { support: 'runtime', runtimeMethod: 'reply' },
+  sendTextWithMentions: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'mentions', runtimeMethod: 'sendMentions' },
+  sendReplyWithMentions: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'mentions', runtimeMethod: 'sendMentions' },
   forwardMessages: { support: 'runtime', runtimeMethod: 'forwardMessages' },
   deleteMessage: { support: 'runtime', runtimeMethod: 'smartDeleteMessages' },
   editMessage: { support: 'runtime', runtimeSource: 'live-patch', runtimePatch: 'common', runtimeMethod: 'editMessage', reason: 'provided by the common patch' },

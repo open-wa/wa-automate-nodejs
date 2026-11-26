@@ -57,7 +57,15 @@ export type {
   InferOutput,
 } from '@open-wa/schema';
 
-export type { BaseClient, BaseNamespacedClient } from '@open-wa/schema/generated';
+export type {
+  BaseClient,
+  BaseNamespacedClient,
+  // === The Easy API methods as a remote client calls them ===
+  RemoteClientMethods,
+  RemoteMethodInputs,
+  RemoteMethodName,
+  RemoteMethodOutputs,
+} from '@open-wa/schema/generated';
 
 // === Value re-exports (enums, constants needed at type-level) ===
 export {

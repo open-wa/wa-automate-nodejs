@@ -244,8 +244,11 @@ describe('cli runtime chrome resolution', () => {
       sources: ['defaults', 'cli'],
       rawConfigs: { defaults: { useChrome: false }, cli: { sessionId: 'sink-session' } },
     });
+    const pluginHost = { getRoutes: () => [] };
+    const mountPluginsMock = vi.fn();
     const createClientMock = vi.fn().mockResolvedValue({
       events: fakeEmitter,
+      plugins: pluginHost,
       getReadiness: () => ({ status: 'CONNECTED', exposureSafe: true }),
       getTransport: () => ({ transport: true }),
     });
@@ -276,6 +279,7 @@ describe('cli runtime chrome resolution', () => {
         setReadinessProvider = vi.fn();
         setQR = vi.fn();
         setClient = vi.fn();
+        mountPlugins = mountPluginsMock;
       },
     }));
     vi.doMock('@open-wa/driver-puppeteer', () => ({
@@ -316,6 +320,7 @@ describe('cli runtime chrome resolution', () => {
     expect(PuppeteerDriverMock).toHaveBeenCalledTimes(1);
     expect(LightpandaDriverMock).not.toHaveBeenCalled();
     expect(createClientMock).toHaveBeenCalledWith(expect.objectContaining({ driver: expect.objectContaining({ name: 'puppeteer' }) }));
+    expect(mountPluginsMock).toHaveBeenCalledExactlyOnceWith(pluginHost);
     expect(sink.write).toHaveBeenCalledWith(expect.objectContaining({ message: 'Starting WhatsApp Client...' }));
     expect(sink.write).toHaveBeenCalledWith(expect.objectContaining({ message: 'Browser engine: Puppeteer' }));
     expect(sink.write).toHaveBeenCalledWith(
@@ -352,8 +357,11 @@ describe('cli runtime chrome resolution', () => {
       sources: ['defaults', 'programmatic'],
       rawConfigs: { defaults: { useChrome: false }, programmatic: { useLightpanda: true } },
     });
+    const pluginHost = { getRoutes: () => [] };
+    const mountPluginsMock = vi.fn();
     const createClientMock = vi.fn().mockResolvedValue({
       events: fakeEmitter,
+      plugins: pluginHost,
       getReadiness: () => ({ status: 'CONNECTED', exposureSafe: true }),
       getTransport: () => ({ transport: true }),
     });
@@ -382,6 +390,7 @@ describe('cli runtime chrome resolution', () => {
         setReadinessProvider = vi.fn();
         setQR = vi.fn();
         setClient = vi.fn();
+        mountPlugins = mountPluginsMock;
       }
     }));
     vi.doMock('@open-wa/driver-puppeteer', () => ({ PuppeteerDriver: PuppeteerDriverMock }));
@@ -420,6 +429,7 @@ describe('cli runtime chrome resolution', () => {
       })
     );
     expect(findSystemBrowserMock).not.toHaveBeenCalled();
+    expect(mountPluginsMock).toHaveBeenCalledExactlyOnceWith(pluginHost);
     expect(sink.write).toHaveBeenCalledWith(expect.objectContaining({ message: 'Browser engine: Lightpanda' }));
     expect(sink.write).toHaveBeenCalledWith(
       expect.objectContaining({

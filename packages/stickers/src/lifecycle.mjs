@@ -53,14 +53,14 @@ export function manageStickerRuntime(createHost, concurrency = 1, onDispose = ()
       waiting.delete(item);
       active.add(item);
       item.timeout = setTimeout(() => {
-        item.controller.abort(new StickerError('RENDER_TIMEOUT', 'Sticker creation exceeded its two-minute execution budget.'));
+        item.controller.abort(new StickerError('RENDER_TIMEOUT', `${item.name} exceeded its two-minute execution budget.`));
       }, EXECUTION_MS);
       item.finished = (async () => {
         try {
           await cleanup;
           abortIfRequested(item.controller.signal);
           host ??= createHost();
-          const result = await host.createSticker(item.input, { ...item.job, signal: item.controller.signal });
+          const result = await host[item.method](item.input, { ...item.job, signal: item.controller.signal });
           abortIfRequested(item.controller.signal);
           item.resolve(result);
         } catch (error) {
@@ -77,28 +77,32 @@ export function manageStickerRuntime(createHost, concurrency = 1, onDispose = ()
     }
   }
 
+  /** Stickers and sounds share the queue, the warm host and the execution budget. */
+  function enqueue(method, name, input, job) {
+    if (closed) return Promise.reject(new StickerError('RUNTIME_CLOSED', 'The sticker runtime is closed.'));
+    if (job.signal?.aborted) return Promise.reject(new StickerError('CANCELLED', `${name} was cancelled.`));
+    clearTimeout(idleTimer);
+    return new Promise((resolve, reject) => {
+      const item = { method, name, input, job: { ...job }, resolve, reject, controller: new AbortController() };
+      item.abort = () => {
+        const error = new StickerError('CANCELLED', `${name} was cancelled.`);
+        item.controller.abort(error);
+        if (waiting.delete(item)) {
+          unsubscribe(item);
+          item.input = item.job = undefined;
+          reject(error);
+          idle();
+        }
+      };
+      subscribe(item);
+      waiting.set(item, true);
+      pump();
+    });
+  }
+
   return {
-    createSticker(input, job = {}) {
-      if (closed) return Promise.reject(new StickerError('RUNTIME_CLOSED', 'The sticker runtime is closed.'));
-      if (job.signal?.aborted) return Promise.reject(new StickerError('CANCELLED', 'Sticker creation was cancelled.'));
-      clearTimeout(idleTimer);
-      return new Promise((resolve, reject) => {
-        const item = { input, job: { ...job }, resolve, reject, controller: new AbortController() };
-        item.abort = () => {
-          const error = new StickerError('CANCELLED', 'Sticker creation was cancelled.');
-          item.controller.abort(error);
-          if (waiting.delete(item)) {
-            unsubscribe(item);
-            item.input = item.job = undefined;
-            reject(error);
-            idle();
-          }
-        };
-        subscribe(item);
-        waiting.set(item, true);
-        pump();
-      });
-    },
+    createSticker: (input, job = {}) => enqueue('createSticker', 'Sticker creation', input, job),
+    convertAudio: (input, options = {}) => enqueue('convertAudio', 'Sound conversion', input, options),
     dispose() {
       if (disposal) return disposal;
       closed = true;

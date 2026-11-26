@@ -529,6 +529,10 @@ function buildReturnNotes(def: MethodDefinition): string {
     return "The ID means WhatsApp accepted the message, not that it was delivered or read. On failure the SDK throws `SendTextError`, exported by `@open-wa/wa-automate`. Its `code` is `INVALID_ARGUMENT`, `LICENSE_REQUIRED`, `SEND_REJECTED`, `INVALID_SEND_RESULT` or `SEND_FAILED`, and its `outcome` is `not_sent` or `unknown`. An `unknown` outcome means the message may already have been sent, so check the chat before you retry. The client never retries on its own.";
   }
 
+  if (def.meta.functionName === 'sendTextWithMentions' || def.meta.functionName === 'sendReplyWithMentions') {
+    return "The ID is the message that was sent, and it means WhatsApp accepted the message, not that it was delivered or read. On failure the SDK throws `SendTextError`, exported by `@open-wa/wa-automate`, with a `code` and an `outcome` of `not_sent` or `unknown`. An `unknown` outcome means the message may already have been sent, so check the chat before you retry. The client never retries on its own.";
+  }
+
   if (def.meta.functionName === 'deleteMessage') {
     return "`true` means the delete was accepted and `false` means it didn't complete. WhatsApp can still refuse to remove the message for everyone, so `true` doesn't prove every recipient lost it.";
   }

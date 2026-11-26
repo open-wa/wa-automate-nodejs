@@ -9,6 +9,7 @@ export default defineConfig({
     'http-manifest': './src/http-manifest.ts',
     'methods/index': './src/methods/index.ts',
     'generated/index': './src/generated/index.ts',
+    'method-parameters': './src/generated/methodParameters.ts',
   },
   format: ['cjs', 'esm'],
   dts: true,

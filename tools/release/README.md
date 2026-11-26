@@ -12,6 +12,8 @@ Development lands directly on `master`. Bumpy manages package bump intent and ve
 
 All 36 public packages share one fixed release version, including Jev and the runtime adapters. Preparation aligns a newly added member with the highest stable version in its group. Stable packages use npm's `latest` tag. `release-state.json`, attached to the aggregate GitHub release, records source SHA, package versions, publication progress, docs run, and the confirmed Discord message ID. It contains no credentials.
 
+The publisher submits packages in dependency layers and waits for npm to serve each layer before it publishes the packages that depend on it. npm can accept a version and hold it for validation, as it did with `@open-wa/core@5.14.0` on 2026-11-26; without the wait, the dependent packages become `latest` and cannot be installed. If npm does not serve a layer within 90 minutes (`RELEASE_LAYER_WAIT_MINUTES`), the job stops, the packages that depend on it stay unpublished, and the previous release still installs. Rerun the job when npm serves the held version.
+
 Accepted npm uploads can remain unavailable during npm's automated validation. An E409 for a previously staged version is tracked as pending availability, not uploaded again. The package publishing action does not wait for validation, documentation, release notes or Discord. A failure in a follow-up action does not undo package publication or require another release PR.
 
 ## Commit-based release notes
