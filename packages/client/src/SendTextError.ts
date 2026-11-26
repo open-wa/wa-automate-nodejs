@@ -9,7 +9,8 @@ export type SendTextErrorCode =
 export type SendTextOutcome = 'not_sent' | 'unknown';
 
 /**
- * A sendText failure. The client never retries a send automatically.
+ * A failed text send: sendText, sendTextWithMentions or sendReplyWithMentions.
+ * The client never retries a send automatically.
  * When outcome is unknown, WhatsApp may have accepted the message already.
  */
 export class SendTextError extends Error {

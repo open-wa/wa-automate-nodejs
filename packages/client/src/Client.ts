@@ -561,6 +561,8 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   declare sendVCard: MessagingMethods['sendVCard'];
   declare sendSticker: MessagingMethods['sendSticker'];
   declare reply: MessagingMethods['reply'];
+  declare sendTextWithMentions: MessagingMethods['sendTextWithMentions'];
+  declare sendReplyWithMentions: MessagingMethods['sendReplyWithMentions'];
   declare forwardMessages: MessagingMethods['forwardMessages'];
   declare deleteMessage: MessagingMethods['deleteMessage'];
   declare editMessage: MessagingMethods['editMessage'];

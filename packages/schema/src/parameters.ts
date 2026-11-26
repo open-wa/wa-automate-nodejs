@@ -224,7 +224,7 @@ export const messageIdsParam = z
 export const mentionedJidListParam = z
     .array(contactIdParam)
     .optional()
-    .describe('List of mentioned contact IDs')
+    .describe('Contact IDs to mention. People whose `@number` tag is in the text are mentioned without being listed; list an ID to mention someone the text does not tag.')
     .register(parameterRegistry, {
         example: ['447123456789@c.us', '441234567890@c.us'],
     });

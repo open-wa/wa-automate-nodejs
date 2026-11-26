@@ -129,7 +129,7 @@ export const sendText = defineMethodV2('sendText', {
  */
 export const sendTextWithMentions = defineMethodV2('sendTextWithMentions', {
     meta: {
-        description: 'Sends a text message that includes @mentions',
+        description: 'Send a text message that mentions people. Write each mention in the text as `@` followed by the number, for example `@447700000000`.',
         action: 'send',
         namespace: 'messages',
         license: 'none',
@@ -139,11 +139,11 @@ export const sendTextWithMentions = defineMethodV2('sendTextWithMentions', {
     input: z.object({
         to: toParam,
         content: contentParam,
-        hideTags: z.boolean().optional().describe('Removes all tags within the message'),
+        hideTags: z.boolean().optional().describe('Remove the `@number` tags from the text. The people are still mentioned.'),
         mentions: mentionedJidListParam
     }),
     parameterOrder: ['to', 'content', 'hideTags', 'mentions'],
-    output: MessageIdReturnSchema.or(z.boolean())
+    output: SendTextResultSchema
 });
 
 /**
@@ -151,7 +151,7 @@ export const sendTextWithMentions = defineMethodV2('sendTextWithMentions', {
  */
 export const sendReplyWithMentions = defineMethodV2('sendReplyWithMentions', {
     meta: {
-        description: 'Sends a reply to a message that includes @mentions',
+        description: 'Reply to a message with text that mentions people. Write each mention in the text as `@` followed by the number, for example `@447700000000`.',
         action: 'send',
         namespace: 'messages',
         license: 'none',
@@ -162,11 +162,11 @@ export const sendReplyWithMentions = defineMethodV2('sendReplyWithMentions', {
         to: toParam,
         content: contentParam,
         replyMessageId: messageIdParam,
-        hideTags: z.boolean().optional().describe('Removes all tags within the message'),
+        hideTags: z.boolean().optional().describe('Remove the `@number` tags from the text. The people are still mentioned.'),
         mentions: mentionedJidListParam
     }),
     parameterOrder: ['to', 'content', 'replyMessageId', 'hideTags', 'mentions'],
-    output: MessageIdReturnSchema.or(z.boolean())
+    output: SendTextResultSchema
 });
 
 /**
