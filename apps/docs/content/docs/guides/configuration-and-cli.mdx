@@ -143,6 +143,8 @@ A few names don't follow the rule: `WA_DEBUG` sets `devtools`, `WA_BROWSER_WS_EN
 | `--ephemeral` | `ephemeral` | Has no effect on the login: it is always saved to the session file. |
 | `--log-console`, `--log-level`, `--verbose` | logging | Prints browser logs, sets the level, or turns on debug output. |
 | `--sandbox-chats`, `--sandbox-isolation` | `sandboxChats` | Isolates code run on behalf of a chat; see below. |
+| `--mcp` | `mcp.enabled` | Turns on the [MCP server](/docs/guides/mcp) at `/mcp`. |
+| `--router` | `router` | Connects a licensed session to the open-wa router for a public HTTPS address; see [ChatGPT setup](/docs/guides/chatgpt-always-on). |
 | `--pm2`, `--name` | — | Runs under PM2 with the given process name. |
 
 There's no flag for a link code; set `linkCode` in a config file or `WA_LINK_CODE`, and the code is printed in the terminal.
@@ -188,7 +190,7 @@ These older flags are accepted but only print a warning:
 | `--ready-webhook`, `--stats`, `--generate-api-docs`, `--tunnel` | No replacement yet. API docs are always served at `/api-docs/`. |
 | `--chatwoot-url`, `--twilio-webhook`, `--bot-press-url` | Use the [Chatwoot integration](/docs/guides/chatwoot) or another plugin. |
 
-The CLI does not parse `--mcp` or `--api-host`. Enable MCP with `mcp: { enabled: true }` in a config file and use `--host` for the bind address. The `sessionData`, `sessionDataPath` and `skipSessionSave` settings are deprecated in favour of the browser profile in `userDataDir`.
+The CLI does not parse `--api-host`; use `--host` for the bind address. `--mcp` turns MCP on with its defaults, and other MCP settings, such as where the approval code is sent, go in a config file.
 
 ## Sandboxed chat code
 
