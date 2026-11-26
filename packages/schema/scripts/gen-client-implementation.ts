@@ -123,7 +123,7 @@ fs.writeFileSync(path.join(generatedDir, 'BaseNamespacedClient.ts'), namespacedO
 fs.writeFileSync(path.join(generatedDir, 'AliasMap.ts'), aliasMapOutput);
 fs.writeFileSync(
   path.join(generatedDir, 'index.ts'),
-  `/* eslint-disable */\nexport * from './AliasMap';\nexport * from './BaseClient';\nexport * from './BaseNamespacedClient';\nexport * from './types';\n`
+  `/* eslint-disable */\nexport * from './AliasMap';\nexport * from './BaseClient';\nexport * from './BaseNamespacedClient';\nexport * from './RemoteClient';\nexport * from './methodParameters';\nexport * from './types';\n`
 );
 
 console.log('Successfully generated BaseClient.ts, BaseNamespacedClient.ts, and AliasMap.ts');

@@ -33,6 +33,17 @@
         "default": "./dist/generated/index.mjs"
       }
     },
+    "./method-parameters": {
+      "bun": "./src/generated/methodParameters.ts",
+      "require": {
+        "types": "./dist/method-parameters.d.cts",
+        "default": "./dist/method-parameters.cjs"
+      },
+      "import": {
+        "types": "./dist/method-parameters.d.mts",
+        "default": "./dist/method-parameters.mjs"
+      }
+    },
     "./implementor": {
       "bun": "./src/implementor.ts",
       "require": {
@@ -90,7 +101,7 @@
     }
   },
   "scripts": {
-    "generate": "tsx scripts/gen-asyncapi.ts && tsx scripts/gen-openapi.ts && tsx scripts/gen-types.ts && tsx scripts/gen-client-implementation.ts && tsx scripts/gen-client-reference-docs.ts",
+    "generate": "tsx scripts/gen-asyncapi.ts && tsx scripts/gen-openapi.ts && tsx scripts/gen-types.ts && tsx scripts/gen-client-implementation.ts && tsx scripts/gen-remote-client.ts && tsx scripts/gen-client-reference-docs.ts",
     "build": "pnpm generate && tsdown",
     "dev": "tsdown --watch",
     "lint": "oxlint src scripts",
@@ -133,6 +144,16 @@
         "import": {
           "types": "./dist/generated/index.d.mts",
           "default": "./dist/generated/index.mjs"
+        }
+      },
+      "./method-parameters": {
+        "require": {
+          "types": "./dist/method-parameters.d.cts",
+          "default": "./dist/method-parameters.cjs"
+        },
+        "import": {
+          "types": "./dist/method-parameters.d.mts",
+          "default": "./dist/method-parameters.mjs"
         }
       },
       "./implementor": {

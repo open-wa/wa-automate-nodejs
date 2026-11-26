@@ -95,6 +95,42 @@ describe('generator outputs', () => {
         });
     });
 
+    describe('RemoteClient.ts', () => {
+        const remoteClientPath = path.join(generatedDir, 'RemoteClient.ts');
+        const parametersPath = path.join(generatedDir, 'methodParameters.ts');
+
+        it('declares named and positional signatures from the registry order', () => {
+            const content = fs.readFileSync(remoteClientPath, 'utf-8');
+
+            expect(content).toContain('sendText(params: T.SendTextInput): Promise<T.SendTextOutput>;');
+            expect(content).toContain('sendText(to: T.SendTextInput["to"], content: T.SendTextInput["content"], options?: T.SendTextInput["options"]): Promise<T.SendTextOutput>;');
+            // A required argument after an optional one keeps every earlier argument required.
+            expect(content).toMatch(/sendReplyWithMentions\(to: [^,]+, content: [^,]+, replyMessageId: [^,]+, hideTags\?: /);
+        });
+
+        it('covers every registered method and flat alias', () => {
+            const content = fs.readFileSync(remoteClientPath, 'utf-8');
+            const inputs = content.slice(content.indexOf('export interface RemoteMethodInputs'), content.indexOf('export interface RemoteMethodOutputs'));
+
+            for (const def of clientRegistry.getAll()) {
+                const names = [def.meta.functionName, ...(def.meta.allAliases ?? []).filter((alias) => !alias.includes('.'))];
+                for (const name of names) {
+                    expect(inputs).toContain(`  ${name}: T.`);
+                    expect(content).toContain(`  ${name}(`);
+                }
+            }
+        });
+
+        it('writes the positional parameter names without importing the schemas', () => {
+            const content = fs.readFileSync(parametersPath, 'utf-8');
+
+            expect(content).not.toMatch(/^import /m);
+            expect(content).toContain('"sendText": ["to","content","options"],');
+            expect(content).toContain('methodsWithObjectFirstParameter');
+            expect(content).toMatch(/methodsWithObjectFirstParameter[^\n]*"decryptMedia"/);
+        });
+    });
+
     describe('Client API reference docs', () => {
         const indexPath = path.join(clientDocsDir, 'index.mdx');
         const referenceMetaPath = path.join(clientDocsDir, '../meta.json');

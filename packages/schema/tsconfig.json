@@ -4,6 +4,7 @@
         "outDir": "./dist",
         "rootDir": "./src",
         "composite": true,
+        "removeComments": false,
         "skipLibCheck": true
     },
     "include": [
