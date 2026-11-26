@@ -27,6 +27,17 @@
 
 
 
+
+## 5.14.2
+<sub>2026-11-26</sub>
+
+-  *(patch)*
+  🔊 Sticker sound is now sent in mono. `sendSticker` used to keep a video's stereo sound, and some phones showed those stickers without sound. The sound of a video, and any stereo Ogg Opus clip you pass as `audio`, is now converted to mono Ogg Opus at 48 kHz, the format voice notes use.
+-  *(patch)*
+  🎙️ `sendPtt` now converts the audio you give it. A voice note used to be sent exactly as supplied, and some phones could not play one that was not mono Ogg Opus, such as a stereo `.ogg`. Audio that is not already mono Ogg Opus, including MP3, M4A, WAV and stereo Ogg, is converted in the session's browser to mono Ogg Opus at 48 kHz before it is sent. A mono Ogg Opus file is sent as it is, and `sendFile` with `{ type: 'audio', ptt: true }` does the same. `sendAudio` is unchanged.
+  📏 Conversion accepts files of up to 20 MB and 10 minutes. A larger or longer file is refused with an error that names the limit and nothing is sent, as is any audio on a browser that cannot encode it, such as the experimental Lightpanda driver. Supply mono Ogg Opus in those cases.
+  🔊 `@open-wa/stickers` runtimes have `convertAudio(input, options)`, which converts a sound to mono Ogg Opus in the browser page with your own `maxSeconds`, `maxBytes` and `bitrate`. Sticker sound keeps its limits.
+
 ## 5.14.1
 <sub>2026-11-26</sub>
 

@@ -32,6 +32,15 @@
 
 
 
+
+## 5.14.2
+<sub>2026-11-26</sub>
+
+-  *(patch)*
+  ⬆️ The experimental Lightpanda driver now uses Lightpanda 1.0.5. A WhatsApp session links, restarts from its saved login and sends text and images without a custom browser build, and the same `.data.json` login moves between Chrome and Lightpanda. Stickers and audio sends don't work on it yet.
+-  *(patch)*
+  🐛 An idle WhatsApp session on the experimental Lightpanda driver no longer grows by about 200 MiB a minute or keeps a CPU core busy. In a ten-minute test the browser stayed near 700 MiB and used less CPU than Chrome. Its memory still grows by roughly 12 MiB a minute, and `POST /api/session/refresh` gives that back.
+
 ## 5.14.1
 <sub>2026-11-26</sub>
 

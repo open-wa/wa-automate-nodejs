@@ -15,6 +15,12 @@
 
 
 
+
+## 5.14.2
+<sub>2026-11-26</sub>
+
+- *(patch)* Version bump from group with `@open-wa/client` v5.14.2, `@open-wa/driver-lightpanda` v5.14.2, `@open-wa/schema` v5.14.2, `@open-wa/socket-client` v5.14.2, `@open-wa/stickers` v5.14.2, `@open-wa/wa-automate-types-only` v5.14.2
+
 ## 5.14.1
 <sub>2026-11-26</sub>
 
