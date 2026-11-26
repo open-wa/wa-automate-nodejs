@@ -1,8 +1,8 @@
 import { EventEmitter } from '@open-wa/hyperemitter';
 import { Effect } from 'effect';
 import { EventSource as EventSourcePolyfill } from 'eventsource';
-import type { SimpleListener, Chat, ChatId, Message } from "@open-wa/wa-automate-types-only";
-import type { BaseClient as _Client } from "@open-wa/wa-automate-types-only";
+import type { SimpleListener, Chat, ChatId, Message, GroupId, ParticipantChange } from "@open-wa/schema";
+import type { RemoteClientMethods, RemoteMethodInputs, RemoteMethodName, RemoteMethodOutputs } from "@open-wa/schema/generated";
 import { RemoteCalls } from './calling';
 import type { SessionRefreshOptions, SessionRefreshResult, SessionRefreshSnapshot } from '@open-wa/schema';
 import { normalizeCallMedia } from '@open-wa/schema/calling-media';
@@ -12,6 +12,9 @@ const uuidv4 = () => typeof crypto !== 'undefined' && crypto.randomUUID ? crypto
 import { MessageCollector } from './MessageCollector';
 import { AwaitMessagesOptions, Collection, CollectorFilter, CollectorOptions } from './Collector';
 import makeDebug from 'debug';
+import { listenerDeliveries, streamEventForListener } from './listeners';
+import type { ListenerCallback, ListenerMethods, ListenerName } from './listeners';
+import { remoteArguments } from './remoteArguments';
 const debug = makeDebug('wa:socket');
 
 type SseEventEnvelope = {
@@ -45,41 +48,11 @@ const DEFAULT_STREAM_EVENTS = [
     'session:state',
 ];
 
-const LEGACY_LISTENER_TO_STREAM_EVENT: Partial<Record<SimpleListener, string>> = {
-    onMessage: 'message.received',
-    onAnyMessage: 'message.any',
-    onAck: 'ack.changed',
-    onStateChanged: 'session.state.changed',
-    onAddedToGroup: 'group.addedToGroup',
-    onLogout: 'logout',
-    onChatState: 'chatState',
-};
+/** Property reads that must stay `undefined` so the client is not mistaken for a promise or serialised as a call. */
+const NOT_REMOTE_METHODS = new Set(['then', 'catch', 'finally', 'toJSON', 'inspect', 'asymmetricMatch', 'nodeType', 'tagName', '$$typeof']);
 
-const STREAM_EVENT_TO_LEGACY_LISTENERS = Object.entries(LEGACY_LISTENER_TO_STREAM_EVENT).reduce(
-    (acc, [legacyListener, streamEvent]) => {
-        if (!streamEvent) {
-            return acc;
-        }
-
-        if (!acc[streamEvent]) {
-            acc[streamEvent] = [];
-        }
-
-        acc[streamEvent].push(legacyListener as SimpleListener);
-        return acc;
-    },
-    {} as Record<string, SimpleListener[]>
-);
-
-function getStreamEventsForSubscription(eventName: string): string[] {
-    const mappedEvent = LEGACY_LISTENER_TO_STREAM_EVENT[eventName as SimpleListener];
-    return mappedEvent ? [mappedEvent] : [eventName];
-}
-
-function getDispatchEventNames(eventName: string): string[] {
-    const aliases = STREAM_EVENT_TO_LEGACY_LISTENERS[eventName] ?? [];
-    return Array.from(new Set([eventName, ...aliases]));
-}
+/** Methods the socket client implements itself, with its own signatures. */
+type LocalMethods = 'getCallCapabilities' | 'getLicenseFeatures' | 'getActiveCall' | 'startCall';
 
 class SocketCompat {
     public connected = false;
@@ -119,7 +92,7 @@ class SocketCompat {
 
         if (maybeAck) {
             const payload = args[0];
-            this.client.ask(event as keyof Client, payload?.args ?? payload)
+            this.client.ask(event, payload?.args ?? payload)
                 .then((data) => maybeAck({ success: true, data }))
                 .catch((error) => maybeAck({ success: false, error: error instanceof Error ? error.message : String(error) }));
             return true;
@@ -158,56 +131,50 @@ class SocketCompat {
 }
 
 /**
+ * The Easy API methods the socket client calls remotely, typed from the same
+ * method registry the Easy API uses to validate and run each call.
+ */
+export type Client = Omit<RemoteClientMethods, LocalMethods>;
+/**
  * A convenience type that includes all keys from the `Client`.
  */
-export type ClientMethods = keyof _Client;
-export type Client = _Client;
+export type ClientMethods = keyof Client;
 
 /**
- * [ALPHA - API will 100% change in the near future. Don't say I didn't warn you.]
- * 
- * 
- * A compatibility client that allows users to connect to remote instances of the EASY API.
- * 
- * How to use it:
- * 
- * 1. Make sure you're running an instance of the EASY API.
+ * Every Easy API method is available directly, as `client.sendText(to, content)`
+ * or `client.sendText({ to, content })`, and every listener as
+ * `client.onMessage(callback)`.
+ */
+export interface SocketClient extends Client, Omit<ListenerMethods, 'onIncomingCall' | 'onCallState'> {}
+
+/**
+ * Connects to a remote Easy API and gives you the same methods and listeners
+ * as the SDK `Client`. Commands are sent over the Easy API HTTP surface and
+ * events are streamed back over Server-Sent Events (SSE).
+ *
+ * 1. Start an Easy API:
  *      ```bash
- *          > docker run -e PORT=8080 -p 8080:8080 openwa/wa-automate:latest
+ *          > npx @open-wa/wa-automate@latest --port 8080
  *      ```
- *    Commands are sent over the EASY API HTTP surface and runtime events are streamed back over Server-Sent Events (SSE).
- *    Legacy listener helpers such as `listen("onMessage", ...)` are resolved locally against
- *    the SSE event stream instead of depending on a separate listener-registration RPC.
- * 2. Use this in your code:
- * 
+ * 2. Connect to it:
+ *
  *      ```javascript
- *          import { SocketClient } from "@open-wa/wa-automate";
- *          
- *          SocketClient.connect("http://localhost:8080").then(async client => {
- *              //now you can use the client similar to how you would use the EASY API client surface.
- * 
- *              //There are two main commands from this client
- * 
- *              // 1. client.listen - use this for your event listeners
- *              
- *              await client.listen("onMessage", message => {
- *                  ...
- *              })
- * 
- *              // 2. client.ask - ask the main host client to get things done
- * 
- *              await client.ask("sendText", {
- *                  "to" : "44771234567@c.us",
- *                  "content": "hellow socket"
- *              })
- * 
- *              // or you can send the arguments in order as an array (or tuple, as the cool kids would say)
- *              await client.ask("sendText", [
- *                  "44771234567@c.us",
- *                  "hellow socket"
- *              ])
- * 
- *          })
+ *          import { SocketClient } from "@open-wa/socket-client";
+ *
+ *          const client = await SocketClient.connect("http://localhost:8080");
+ *
+ *          // Listeners deliver what the SDK Client listeners deliver.
+ *          await client.onMessage(message => console.log(message.from, message.body));
+ *          // The same listener, registered by name.
+ *          await client.listen("onMessage", message => console.log(message.body));
+ *
+ *          // Every Easy API method is a method of the client. Pass the
+ *          // arguments in order, or one object of named parameters.
+ *          await client.sendText("447700900123@c.us", "hello socket");
+ *          await client.sendText({ to: "447700900123@c.us", content: "hello socket" });
+ *
+ *          // client.ask calls a method by name with the same parameters.
+ *          await client.ask("sendText", { to: "447700900123@c.us", content: "hello socket" });
  *      ```
  */
 export class SocketClient {
@@ -220,7 +187,7 @@ export class SocketClient {
      */
     ev: EventEmitter = new EventEmitter();
     listeners: {
-        [listener in SimpleListener]?: {
+        [listener: string]: {
             [id: string]: (data: any) => any
         }
     } = {};
@@ -245,7 +212,7 @@ export class SocketClient {
      * @param apiKey optional api key if set
      * @returns SocketClient
      */
-    static async connect(url: string, apiKey?: string, ev?: boolean): Promise<SocketClient & Client> {
+    static async connect(url: string, apiKey?: string, ev?: boolean): Promise<SocketClient> {
         if (url.startsWith('cf-proxy://')) {
             const parsed = new URL(url.replace('cf-proxy://', 'https://'));
             const proxyHost = 'https://' + parsed.host + parsed.pathname;
@@ -260,7 +227,7 @@ export class SocketClient {
 
         const client = new this(url, apiKey, ev, false);
         await client.waitForConnection();
-        return client as SocketClient & Client;
+        return client;
     }
 
     private async _connected() {
@@ -297,7 +264,7 @@ export class SocketClient {
      * Attempt to kill the session and close the socket
      */
     public async killSession(): Promise<void> {
-        await this.ask("kill" as any);
+        await this.ask("kill");
         this.close();
     }
 
@@ -338,7 +305,7 @@ export class SocketClient {
 
     public async createMessageCollector(c: Message | ChatId | Chat, filter: CollectorFilter<[Message]>, options: CollectorOptions): Promise<MessageCollector> {
         const chatId: ChatId = ((c as Message)?.chat?.id || (c as Chat)?.id || c) as ChatId;
-        return new MessageCollector(await this.ask('getSessionId' as any) as string, await this.ask('getInstanceId' as any) as string, chatId, filter, options, this.ev);
+        return new MessageCollector(await this.ask('getSessionId') as string, await this.ask('getInstanceId') as string, chatId, filter, options, this.ev);
     }
 
     public async awaitMessages(c: Message | ChatId | Chat, filter: CollectorFilter<[Message]>, options: AwaitMessagesOptions = {}): Promise<Collection<string, Message>> {
@@ -367,28 +334,19 @@ export class SocketClient {
         this.apiKey = apiKey ?? '';
         this.flushListenersOnDisconnect = flushListenersOnDisconnect ?? this.flushListenersOnDisconnect;
         this.socket = new SocketCompat(this);
-        this.calls = new RemoteCalls(this.getBaseUrl(), this.apiKey, (method, args) => this.ask(method as any, args));
+        this.calls = new RemoteCalls(this.getBaseUrl(), this.apiKey, (method, args) => this.ask(method, args));
         void this.openStream();
         return new Proxy(this, {
-            get: function get(target: SocketClient, prop: string) {
-                const o = Reflect.get(target, prop);
-                if (o || prop == "ev") return o;
-                if (prop === 'then') {
-                    return Promise.prototype.then.bind(Promise.resolve(target));
+            get: function get(target: SocketClient, prop: string | symbol, receiver: unknown) {
+                if (typeof prop !== 'string' || prop in target) return Reflect.get(target, prop, receiver);
+                // `await client` must give back this proxy, so the client must not look like a promise.
+                if (NOT_REMOTE_METHODS.has(prop)) return undefined;
+                if (/^on[A-Z]/.test(prop)) {
+                    return async (callback: (data: unknown) => unknown) => target.listen(prop, callback);
                 }
-                if (prop.startsWith("on")) {
-                    return async (callback: (data: unknown) => void) => target.listen(prop as SimpleListener, callback)
-                } else {
-                    return async (...args: any[]) => {
-                        return target.ask(prop as keyof Client, args.length == 1 && typeof args[0] == "object" ? {
-                            ...args[0]
-                        } : [
-                            ...args
-                        ] as any)
-                    }
-                }
+                return async (...args: unknown[]) => target.ask(prop, remoteArguments(prop, args));
             }
-        }) as Client & SocketClient
+        })
     }
 
     private async waitForConnection(): Promise<void> {
@@ -475,12 +433,9 @@ export class SocketClient {
             return;
         }
 
-        for (const streamEventName of getStreamEventsForSubscription(eventName)) {
-            if (!this.registeredStreamEvents.has(streamEventName)) {
-                this.registeredStreamEvents.add(streamEventName);
-            }
-            this.bindStreamListener(streamEventName);
-        }
+        const streamEventName = streamEventForListener(eventName);
+        this.registeredStreamEvents.add(streamEventName);
+        this.bindStreamListener(streamEventName);
     }
 
     private bindStreamListeners() {
@@ -520,14 +475,21 @@ export class SocketClient {
             }
         }
 
-        for (const dispatchEventName of getDispatchEventNames(resolvedEventName)) {
-            this.ev.emit(dispatchEventName, payload);
-            this.socket.emitLocal(dispatchEventName, payload);
+        // The stream event itself carries the payload as the Easy API sent it.
+        this.deliver(resolvedEventName, payload);
+        // Listener names such as `onMessage` receive what the SDK `Client` listener delivers.
+        for (const [listener, data] of listenerDeliveries(resolvedEventName, payload, envelope)) {
+            this.deliver(listener, data);
+        }
+    }
 
-            const listenerCallbacks = this.listeners[dispatchEventName as SimpleListener];
-            if (listenerCallbacks) {
-                void Promise.all(Object.values(listenerCallbacks).map((callback) => callback(payload)));
-            }
+    private deliver(name: string, data: unknown) {
+        this.ev.emit(name, data);
+        this.socket.emitLocal(name, data);
+
+        const listenerCallbacks = this.listeners[name];
+        if (listenerCallbacks) {
+            void Promise.all(Object.values(listenerCallbacks).map((callback) => callback(data)));
         }
     }
 
@@ -590,9 +552,9 @@ export class SocketClient {
     //   [K in keyof Parameters<Pick<Client,M>[ M ]>]: Parameters<Pick<Client,M>[ M ]>[K]
     // }
 
-    public async getCallCapabilities(): Promise<CallCapabilities> { return this.ask('getCallCapabilities' as any) as Promise<CallCapabilities>; }
-    public async getLicenseFeatures(): Promise<import('@open-wa/schema').LicenseFeatures> { return this.ask('getLicenseFeatures' as any) as Promise<import('@open-wa/schema').LicenseFeatures>; }
-    public async getActiveCall(): Promise<Call | null> { const snapshot = await this.ask('getActiveCall' as any) as CallSnapshot | null; return snapshot ? this.calls.hydrate(snapshot) : null; }
+    public async getCallCapabilities(): Promise<CallCapabilities> { return this.ask<string>('getCallCapabilities') as Promise<CallCapabilities>; }
+    public async getLicenseFeatures(): Promise<import('@open-wa/schema').LicenseFeatures> { return this.ask<string>('getLicenseFeatures') as Promise<import('@open-wa/schema').LicenseFeatures>; }
+    public async getActiveCall(): Promise<Call | null> { const snapshot = await this.ask<string>('getActiveCall') as CallSnapshot | null; return snapshot ? this.calls.hydrate(snapshot) : null; }
     private async logCallingAvailability() {
         const capabilities = await this.getCallCapabilities();
         if (capabilities.reason && !this.callingWarnings.has(capabilities.reason.code)) {
@@ -612,11 +574,16 @@ export class SocketClient {
     }
     public async startCall(to: string, microphone?: AudioInput | CallMediaOptions, speaker?: AudioOutput, camera?: VideoInput): Promise<CallActionResult> { return this.calls.start(to, normalizeCallMedia(microphone, speaker, camera)); }
 
-    public async ask<M extends ClientMethods, P extends Parameters<Pick<Client, M>[M]>>(method: M, args?: any[] | P | {
-        [k: string]: unknown
-    }): Promise<unknown> {
+    /**
+     * Call an Easy API method by name. Pass the named parameters as one object,
+     * or the same values in order as an array.
+     */
+    public async ask<M extends RemoteMethodName>(method: M, args?: RemoteMethodInputs[M] | Parameters<RemoteClientMethods[M]>): Promise<RemoteMethodOutputs[M]>;
+    /** Call a method this package has no types for, such as one a plugin adds. */
+    public async ask<M extends string>(method: M extends RemoteMethodName ? never : M, args?: unknown[] | { [k: string]: unknown } | string | number): Promise<unknown>;
+    public async ask(method: string, args?: unknown): Promise<unknown> {
         debug("ask", method)
-        if (typeof args !== "object" && !Array.isArray(args) && (typeof args === "string" || typeof args === "number")) args = [args] as any
+        if (typeof args === "string" || typeof args === "number") args = [args]
 
         const headers: Record<string, string> = {
             'Content-Type': 'application/json'
@@ -662,13 +629,19 @@ export class SocketClient {
     }
 
     /**
-     * Set a callback on a simple listener
-     * @param listener The listener name (e.g onMessage, onAnyMessage, etc.)
+     * Set a callback on a listener. The callback receives what the SDK `Client`
+     * listener of that name delivers: `onMessage` gets the message itself.
+     * An Easy API stream event name such as `message.received` is accepted too,
+     * and its callback receives the event payload as sent.
+     * @param listener The listener name, as a string (`'onMessage'`) or a `SimpleListener` member
      * @param callback The callback you need to run on the selected listener
      * @returns The id of the callback
      */
-    public async listen(listener: SimpleListener, callback: (data: unknown) => void): Promise<string> {
+    public async listen<L extends ListenerName | SimpleListener | (string & {})>(listener: L, callback: ListenerCallback<`${L}`>): Promise<string>;
+    public async listen(listener: string, callback: (data: any) => unknown): Promise<string> {
         debug("listen", listener)
+        if (listener === 'onIncomingCall') return this.onIncomingCall(callback);
+        if (listener === 'onCallState') return this.onCallState(callback);
         const id = uuidv4()
         this.ensureStreamEventRegistered(listener);
         if (!this.listeners[listener]) {
@@ -679,13 +652,23 @@ export class SocketClient {
     }
 
     /**
+     * Listen to participant changes in one group.
+     * @returns The id of the callback, registered under `onGlobalParticipantsChanged`
+     */
+    public async onParticipantsChanged(groupId: GroupId | string, callback: (change: ParticipantChange) => unknown): Promise<string> {
+        return this.listen('onGlobalParticipantsChanged', (change) => {
+            if (String(change.groupId) === String(groupId)) return callback(change);
+        });
+    }
+
+    /**
      * Discard a callback
      * 
      * @param listener The listener name (e.g onMessage, onAnyMessage, etc.)
      * @param callbackId The ID from `listen`
      * @returns boolean - true if the callback was found and discarded, false if the callback is not found
      */
-    public stopListener(listener: SimpleListener, callbackId: string): boolean {
+    public stopListener(listener: ListenerName | SimpleListener | (string & {}), callbackId: string): boolean {
         debug("stop listener", callbackId)
         if (String(listener) === 'onIncomingCall') return this.incomingCalls.delete(callbackId);
         if (String(listener) === 'onCallState') return this.callStates.delete(callbackId);

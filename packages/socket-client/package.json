@@ -24,7 +24,8 @@
     "build": "tsdown",
     "dev": "tsdown --watch",
     "lint": "oxlint src test",
-    "test": "vitest run --passWithNoTests",
+    "test": "pnpm test:types && vitest run --passWithNoTests",
+    "test:types": "tsc -p test/types/tsconfig.json",
     "test:integration": "vitest run test/SocketClient.test.ts"
   },
   "repository": {
