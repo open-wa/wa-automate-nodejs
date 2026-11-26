@@ -7054,7 +7054,7 @@
     "namespacedName": "messages.sendReplyWithMentions",
     "namespace": "messages",
     "href": "/docs/reference/client/messages#sendreplywithmentions",
-    "description": "Sends a reply to a message that includes @mentions",
+    "description": "Reply to a message with text that mentions people. Write each mention in the text as `@` followed by the number, for example `@447700000000`.",
     "license": null,
     "aliases": [
       "messages.sendReplyWithMentions"
@@ -7116,8 +7116,8 @@
         "name": "hideTags",
         "type": "boolean",
         "required": false,
-        "description": "Removes all tags within the message",
-        "summary": "Removes all tags within the message.",
+        "description": "Remove the `@number` tags from the text. The people are still mentioned.",
+        "summary": "Remove the `@number` tags from the text. The people are still mentioned.",
         "aliases": [],
         "deprecatedAliases": [],
         "example": "-"
@@ -7126,26 +7126,27 @@
         "name": "mentions",
         "type": "string[]",
         "required": false,
-        "description": "List of mentioned contact IDs",
-        "summary": "List of mentioned contact IDs.",
+        "description": "Contact IDs to mention. People whose `@number` tag is in the text are mentioned without being listed; list an ID to mention someone the text does not tag.",
+        "summary": "Contact IDs to mention. People whose `@number` tag is in the text are mentioned without being listed; list an ID to mention someone the text does not tag.",
         "aliases": [],
         "deprecatedAliases": [],
         "example": "`[\"447123456789@c.us\",\"441234567890@c.us\"]`"
       }
     ],
-    "returnType": "MessageIdReturn | boolean",
+    "returnType": "MessageId",
     "returnTypeLinks": {
-      "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
+      "MessageId": "/docs/reference/client/return-types#messageid"
     },
-    "sdkReturnType": null,
-    "returnNotes": "",
+    "sdkReturnType": "MessageId",
+    "returnCaveat": "Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.",
+    "returnNotes": "The ID is the message that was sent, and it means WhatsApp accepted the message, not that it was delivered or read. On failure the SDK throws `SendTextError`, exported by `@open-wa/wa-automate`, with a `code` and an `outcome` of `not_sent` or `unknown`. An `unknown` outcome means the message may already have been sent, so check the chat before you retry. The client never retries on its own.",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendReplyWithMentions",
       "flatPath": "/api/sendReplyWithMentions"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.sendReplyWithMentions(\n  \"447123456789@c.us\",\n  \"Hello, world!\",\n  \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n);",
       "nodeCall": "const result = await client.sendReplyWithMentions({\n  to: \"447123456789@c.us\",\n  content: \"Hello, world!\",\n  replyMessageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendReplyWithMentions({\n  to: \"447123456789@c.us\",\n  content: \"Hello, world!\",\n  replyMessageId: \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendReplyWithMentions\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"content\": \"Hello, world!\",\n    \"replyMessageId\": \"false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB\"\n  }'",
@@ -7359,7 +7360,7 @@
     "namespacedName": "messages.sendTextWithMentions",
     "namespace": "messages",
     "href": "/docs/reference/client/messages#sendtextwithmentions",
-    "description": "Sends a text message that includes @mentions",
+    "description": "Send a text message that mentions people. Write each mention in the text as `@` followed by the number, for example `@447700000000`.",
     "license": null,
     "aliases": [
       "messages.sendTextWithMentions"
@@ -7404,8 +7405,8 @@
         "name": "hideTags",
         "type": "boolean",
         "required": false,
-        "description": "Removes all tags within the message",
-        "summary": "Removes all tags within the message.",
+        "description": "Remove the `@number` tags from the text. The people are still mentioned.",
+        "summary": "Remove the `@number` tags from the text. The people are still mentioned.",
         "aliases": [],
         "deprecatedAliases": [],
         "example": "-"
@@ -7414,26 +7415,27 @@
         "name": "mentions",
         "type": "string[]",
         "required": false,
-        "description": "List of mentioned contact IDs",
-        "summary": "List of mentioned contact IDs.",
+        "description": "Contact IDs to mention. People whose `@number` tag is in the text are mentioned without being listed; list an ID to mention someone the text does not tag.",
+        "summary": "Contact IDs to mention. People whose `@number` tag is in the text are mentioned without being listed; list an ID to mention someone the text does not tag.",
         "aliases": [],
         "deprecatedAliases": [],
         "example": "`[\"447123456789@c.us\",\"441234567890@c.us\"]`"
       }
     ],
-    "returnType": "MessageIdReturn | boolean",
+    "returnType": "MessageId",
     "returnTypeLinks": {
-      "MessageIdReturn": "/docs/reference/client/return-types#messageidreturn"
+      "MessageId": "/docs/reference/client/return-types#messageid"
     },
-    "sdkReturnType": null,
-    "returnNotes": "",
+    "sdkReturnType": "MessageId",
+    "returnCaveat": "Validated serialized message ID. This confirms the send returned an ID, not delivery or reading.",
+    "returnNotes": "The ID is the message that was sent, and it means WhatsApp accepted the message, not that it was delivered or read. On failure the SDK throws `SendTextError`, exported by `@open-wa/wa-automate`, with a `code` and an `outcome` of `not_sent` or `unknown`. An `unknown` outcome means the message may already have been sent, so check the chat before you retry. The client never retries on its own.",
     "route": {
       "method": "POST",
       "path": "/api/messages/sendTextWithMentions",
       "flatPath": "/api/sendTextWithMentions"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.sendTextWithMentions(\n  \"447123456789@c.us\",\n  \"Hello, world!\",\n);",
       "nodeCall": "const result = await client.sendTextWithMentions({\n  to: \"447123456789@c.us\",\n  content: \"Hello, world!\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.sendTextWithMentions({\n  to: \"447123456789@c.us\",\n  content: \"Hello, world!\",\n});",
       "http": "curl -X POST \"http://localhost:8080/api/messages/sendTextWithMentions\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{\n    \"to\": \"447123456789@c.us\",\n    \"content\": \"Hello, world!\"\n  }'",

@@ -397,7 +397,7 @@ The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
 ## `sendReplyWithMentions`
 
-Sends a reply to a message that includes @mentions
+Reply to a message with text that mentions people. Write each mention in the text as `@` followed by the number, for example `@447700000000`.
 
 <ReferenceCode>
 
@@ -408,7 +408,7 @@ client.sendReplyWithMentions(
   replyMessageId: string,
   hideTags?: boolean,
   mentions?: string[],
-): Promise<MessageIdReturn | boolean>
+): Promise<MessageId>
 ```
 
 </ReferenceCode>
@@ -416,6 +416,21 @@ client.sendReplyWithMentions(
 <h3 id="sendreplywithmentions-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.sendReplyWithMentions(
+  "447123456789@c.us",
+  "Hello, world!",
+  "false_447123456789@c.us_9C4D0965EA5C09D591334AB6BDB07FEB",
+);
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 <ReferenceCode>
@@ -474,14 +489,14 @@ Response:
 | `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
 | `content` | `string` | Message content. Also accepts `body`, `message`, `text`. |
 | `replyMessageId` | `string` | Message ID. A WhatsApp message identifier. Also accepts `id`, `msgId`. |
-| `hideTags` | `boolean` | Optional. Removes all tags within the message. |
-| `mentions` | `string[]` | Optional. List of mentioned contact IDs. |
+| `hideTags` | `boolean` | Optional. Remove the `@number` tags from the text. The people are still mentioned. |
+| `mentions` | `string[]` | Optional. Contact IDs to mention. People whose `@number` tag is in the text are mentioned without being listed; list an ID to mention someone the text does not tag. |
 
 <h3 id="sendreplywithmentions-returns" className="scroll-m-28">Returns</h3>
 
-Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
+Resolves to [`MessageId`](/docs/reference/client/return-types#messageid).
 
-The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
+The ID is the message that was sent, and it means WhatsApp accepted the message, not that it was delivered or read. On failure the SDK throws `SendTextError`, exported by `@open-wa/wa-automate`, with a `code` and an `outcome` of `not_sent` or `unknown`. An `unknown` outcome means the message may already have been sent, so check the chat before you retry. The client never retries on its own.
 
 **HTTP:** `POST /api/messages/sendReplyWithMentions`, or `/api/sendReplyWithMentions`. **Also named:** `messages.sendReplyWithMentions`.
 
@@ -568,7 +583,7 @@ The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
 
 ## `sendTextWithMentions`
 
-Sends a text message that includes @mentions
+Send a text message that mentions people. Write each mention in the text as `@` followed by the number, for example `@447700000000`.
 
 <ReferenceCode>
 
@@ -578,7 +593,7 @@ client.sendTextWithMentions(
   content: string,
   hideTags?: boolean,
   mentions?: string[],
-): Promise<MessageIdReturn | boolean>
+): Promise<MessageId>
 ```
 
 </ReferenceCode>
@@ -586,6 +601,20 @@ client.sendTextWithMentions(
 <h3 id="sendtextwithmentions-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.sendTextWithMentions(
+  "447123456789@c.us",
+  "Hello, world!",
+);
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 <ReferenceCode>
@@ -641,14 +670,14 @@ Response:
 | --- | --- | --- |
 | `to` | `string` | Recipient chat ID. The target chat for a send operation. Also accepts `chatId`. |
 | `content` | `string` | Message content. Also accepts `body`, `message`, `text`. |
-| `hideTags` | `boolean` | Optional. Removes all tags within the message. |
-| `mentions` | `string[]` | Optional. List of mentioned contact IDs. |
+| `hideTags` | `boolean` | Optional. Remove the `@number` tags from the text. The people are still mentioned. |
+| `mentions` | `string[]` | Optional. Contact IDs to mention. People whose `@number` tag is in the text are mentioned without being listed; list an ID to mention someone the text does not tag. |
 
 <h3 id="sendtextwithmentions-returns" className="scroll-m-28">Returns</h3>
 
-Resolves to `MessageIdReturn | boolean`. See [MessageIdReturn](/docs/reference/client/return-types#messageidreturn) for its fields.
+Resolves to [`MessageId`](/docs/reference/client/return-types#messageid).
 
-The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
+The ID is the message that was sent, and it means WhatsApp accepted the message, not that it was delivered or read. On failure the SDK throws `SendTextError`, exported by `@open-wa/wa-automate`, with a `code` and an `outcome` of `not_sent` or `unknown`. An `unknown` outcome means the message may already have been sent, so check the chat before you retry. The client never retries on its own.
 
 **HTTP:** `POST /api/messages/sendTextWithMentions`, or `/api/sendTextWithMentions`. **Also named:** `messages.sendTextWithMentions`.
 
