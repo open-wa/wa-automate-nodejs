@@ -7,6 +7,8 @@ description: Create groups, add and manage participants, share invite links, and
 
 WhatsApp assigns group IDs, so keep the full ID that a method or message gives you rather than building one from a name or participant numbers. The [chat ID primer](/docs/guides/chatid-primer) covers ID formats and invite links. The examples assume a `client` from `create()`.
 
+For linked groups, Community-wide admin actions and Announcements, see [manage WhatsApp Communities with OpenWA](/docs/guides/communities).
+
 ## Create a group
 
 `createGroup` needs a [license](/docs/licensing/pricing). It returns an object with the new group's `gid`, or `null` if no group was created. The account must also be allowed to add each contact you list.
