@@ -8,10 +8,14 @@ import { ReferenceCode } from '../../../../src/components/reference-code';
 
 # Communities
 
+<LicensedMethodSection tier="insiders">
 
+<span id="getallcommunities---insiders" aria-hidden="true"></span>
 ## `getAllCommunities`
 
 Get all communities
+
+Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
 <ReferenceCode>
 
@@ -24,6 +28,17 @@ client.getAllCommunities(): Promise<GroupChatId[]>
 <h3 id="getallcommunities-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.getAllCommunities();
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 <ReferenceCode>
@@ -77,14 +92,18 @@ Resolves to `GroupChatId[]`. See [GroupChatId](/docs/reference/client/return-typ
 
 Opaque group conversation identifier returned by a group lookup or join method.
 
-The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
-
 **HTTP:** `GET /api/communities/getAll`, or `/api/communities/all`, `/api/communities/list`, `/api/getAllCommunities`, `/api/listCommunities`. **Also named:** `communities.all`, `communities.getAll`, `communities.list`, `listCommunities`.
 
+</LicensedMethodSection>
 
+<LicensedMethodSection tier="insiders">
+
+<span id="getcommunityinfo---insiders" aria-hidden="true"></span>
 ## `getCommunityInfo`
 
 Get community metadata
+
+Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
 <ReferenceCode>
 
@@ -97,6 +116,17 @@ client.getCommunityInfo(communityId: string): Promise<CommunityMetadata>
 <h3 id="getcommunityinfo-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.getCommunityInfo("447123456789-1445627445@g.us");
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 <ReferenceCode>
@@ -157,14 +187,18 @@ Response:
 
 Resolves to [`CommunityMetadata`](/docs/reference/client/return-types#communitymetadata).
 
-The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
-
 **HTTP:** `GET /api/communities/getInfo`, or `/api/getCommunityInfo`. **Also named:** `communities.getInfo`.
 
+</LicensedMethodSection>
 
+<LicensedMethodSection tier="insiders">
+
+<span id="getcommunityparticipants---insiders" aria-hidden="true"></span>
 ## `getCommunityParticipants`
 
 Get community participants
+
+Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
 <ReferenceCode>
 
@@ -177,6 +211,19 @@ client.getCommunityParticipants(communityId: string): Promise<CommunityParticipa
 <h3 id="getcommunityparticipants-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.getCommunityParticipants(
+  "447123456789-1445627445@g.us",
+);
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 <ReferenceCode>
@@ -231,14 +278,18 @@ Response:
 
 Resolves to `CommunityParticipants[]`. See [CommunityParticipants](/docs/reference/client/return-types#communityparticipants) for its fields.
 
-The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
-
 **HTTP:** `GET /api/communities/getParticipants`, or `/api/getCommunityParticipants`. **Also named:** `communities.getParticipants`.
 
+</LicensedMethodSection>
 
+<LicensedMethodSection tier="insiders">
+
+<span id="getcommunityparticipantids---insiders" aria-hidden="true"></span>
 ## `getCommunityParticipantIds`
 
 Get community participant IDs
+
+Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
 <ReferenceCode>
 
@@ -251,6 +302,19 @@ client.getCommunityParticipantIds(communityId: string): Promise<CommunityPartici
 <h3 id="getcommunityparticipantids-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.getCommunityParticipantIds(
+  "447123456789-1445627445@g.us",
+);
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 <ReferenceCode>
@@ -305,14 +369,18 @@ Response:
 
 Resolves to `CommunityParticipantIds[]`. See [CommunityParticipantIds](/docs/reference/client/return-types#communityparticipantids) for its fields.
 
-The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
-
 **HTTP:** `GET /api/communities/getParticipantIds`, or `/api/getCommunityParticipantIds`. **Also named:** `communities.getParticipantIds`.
 
+</LicensedMethodSection>
 
+<LicensedMethodSection tier="insiders">
+
+<span id="getcommunityadmins---insiders" aria-hidden="true"></span>
 ## `getCommunityAdmins`
 
 Get community admins
+
+Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
 <ReferenceCode>
 
@@ -325,6 +393,17 @@ client.getCommunityAdmins(communityId: string): Promise<CommunityAdmins[]>
 <h3 id="getcommunityadmins-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.getCommunityAdmins("447123456789-1445627445@g.us");
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 <ReferenceCode>
@@ -379,14 +458,18 @@ Response:
 
 Resolves to `CommunityAdmins[]`. See [CommunityAdmins](/docs/reference/client/return-types#communityadmins) for its fields.
 
-The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
-
 **HTTP:** `GET /api/communities/getAdmins`, or `/api/getCommunityAdmins`. **Also named:** `communities.getAdmins`.
 
+</LicensedMethodSection>
 
+<LicensedMethodSection tier="insiders">
+
+<span id="getcommunityadminids---insiders" aria-hidden="true"></span>
 ## `getCommunityAdminIds`
 
 Get community admin IDs
+
+Needs an Insiders license. See [pricing](/docs/licensing/pricing).
 
 <ReferenceCode>
 
@@ -399,6 +482,19 @@ client.getCommunityAdminIds(communityId: string): Promise<CommunityAdminIds[]>
 <h3 id="getcommunityadminids-usage" className="scroll-m-28">Usage</h3>
 
 <InterfaceTabs>
+  <InterfaceTab value="SDK">
+
+<ReferenceCode>
+
+```ts
+const result = await client.getCommunityAdminIds(
+  "447123456789-1445627445@g.us",
+);
+```
+
+</ReferenceCode>
+
+  </InterfaceTab>
   <InterfaceTab value="SocketClient">
 
 <ReferenceCode>
@@ -453,6 +549,6 @@ Response:
 
 Resolves to `CommunityAdminIds[]`. See [CommunityAdminIds](/docs/reference/client/return-types#communityadminids) for its fields.
 
-The SDK `Client` doesn't have this method. Call it through SocketClient or HTTP.
-
 **HTTP:** `GET /api/communities/getAdminIds`, or `/api/getCommunityAdminIds`. **Also named:** `communities.getAdminIds`.
+
+</LicensedMethodSection>

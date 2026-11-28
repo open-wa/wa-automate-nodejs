@@ -40,7 +40,7 @@ Find a method by name or job, then open it on its page for the signature, an exa
 | [`getAlbumMessages`](/docs/reference/client/messages#getalbummessages) | Messages | Returns currently loaded image and video messages associated with an album, including GIF videos. The album can arrive before its media, so the array may be incomplete. Returns false if the album is not loaded or the ID belongs to another message type. | - |
 | [`getAllChatIds`](/docs/reference/client/chatids#getallchatids) | Chat IDs | Get all chat IDs. | - |
 | [`getAllChats`](/docs/reference/client/chats#getallchats) | Chats | Returns serialized Chat objects from the current session, optionally limited to chats with unread messages. | - |
-| [`getAllCommunities`](/docs/reference/client/communities#getallcommunities) | Communities | Get all communities. | - |
+| [`getAllCommunities`](/docs/reference/client/communities#getallcommunities) | Communities | Get all communities. | Insiders |
 | [`getAllContacts`](/docs/reference/client/contacts#getallcontacts) | Contacts | Retrieves all contacts. | - |
 | [`getAllGroups`](/docs/reference/client/groups#getallgroups) | Groups | Get all groups. | - |
 | [`getAllLabels`](/docs/reference/client/labels#getalllabels) | Labels | Get all labels. | - |
@@ -54,11 +54,11 @@ Find a method by name or job, then open it on its page for the signature, an exa
 | [`getChatsByLabel`](/docs/reference/client/labels#getchatsbylabel) | Labels | Get chats by label. | - |
 | [`getChatWithNonContacts`](/docs/reference/client/chats#getchatwithnoncontacts) | Chats | Get chats with non-contacts. | - |
 | [`getCommonGroups`](/docs/reference/client/contacts#getcommongroups) | Contacts | Get common groups with contact. | - |
-| [`getCommunityAdminIds`](/docs/reference/client/communities#getcommunityadminids) | Communities | Get community admin IDs. | - |
-| [`getCommunityAdmins`](/docs/reference/client/communities#getcommunityadmins) | Communities | Get community admins. | - |
-| [`getCommunityInfo`](/docs/reference/client/communities#getcommunityinfo) | Communities | Get community metadata. | - |
-| [`getCommunityParticipantIds`](/docs/reference/client/communities#getcommunityparticipantids) | Communities | Get community participant IDs. | - |
-| [`getCommunityParticipants`](/docs/reference/client/communities#getcommunityparticipants) | Communities | Get community participants. | - |
+| [`getCommunityAdminIds`](/docs/reference/client/communities#getcommunityadminids) | Communities | Get community admin IDs. | Insiders |
+| [`getCommunityAdmins`](/docs/reference/client/communities#getcommunityadmins) | Communities | Get community admins. | Insiders |
+| [`getCommunityInfo`](/docs/reference/client/communities#getcommunityinfo) | Communities | Get community metadata. | Insiders |
+| [`getCommunityParticipantIds`](/docs/reference/client/communities#getcommunityparticipantids) | Communities | Get community participant IDs. | Insiders |
+| [`getCommunityParticipants`](/docs/reference/client/communities#getcommunityparticipants) | Communities | Get community participants. | Insiders |
 | [`getConnectionState`](/docs/reference/client/session#getconnectionstate) | Session | Get connection state. | - |
 | [`getContact`](/docs/reference/client/contacts#getcontact) | Contacts | Get specific contact. | - |
 | [`getEvent`](/docs/reference/client/whatsapp-events#getevent) | Calendar events | Retrieve an event by message ID from WhatsApp local history. Returns null when absent. | - |

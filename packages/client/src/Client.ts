@@ -46,6 +46,7 @@ import { interactiveMethods, type InteractiveMethods } from './methods/interacti
 import { messagingMethods, type MessagingMethods } from './methods/messaging';
 import { mediaMethods, type MediaMethods } from './methods/media';
 import { statusMethods, type StatusMethods } from './methods/status';
+import { communityMethods, type CommunityMethods } from './methods/communities';
 import { groupMethods, type GroupMethods } from './methods/groups';
 import { chatMethods, type ChatMethods } from './methods/chats';
 import { contactMethods, type ContactMethods } from './methods/contacts';
@@ -101,7 +102,7 @@ export type EvaluateFn = <Arg, Ret>(
  * client.onMessage(msg => console.log(msg));
  * ```
  */
-export class Client implements InteractiveMethods, MessagingMethods, MediaMethods, StatusMethods, GroupMethods, ChatMethods, ContactMethods, UtilitiesMethods, WhatsAppEventMethods {
+export class Client implements InteractiveMethods, MessagingMethods, MediaMethods, StatusMethods, GroupMethods, CommunityMethods, ChatMethods, ContactMethods, UtilitiesMethods, WhatsAppEventMethods {
   private readonly _client: OpenWAClient;
   private readonly _transport: Transport;
   private readonly _listenerManager: ListenerManager;
@@ -126,6 +127,7 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
     this._bindMethods(mediaMethods, this);
     this._bindMethods(statusMethods, this);
     this._bindMethods(groupMethods, this);
+    this._bindMethods(communityMethods, this);
     this._bindMethods(chatMethods, this);
     this._bindMethods(contactMethods, this);
     this._bindMethods(utilitiesMethods, this);
@@ -601,6 +603,13 @@ export class Client implements InteractiveMethods, MessagingMethods, MediaMethod
   declare joinGroupViaLink: GroupMethods['joinGroupViaLink'];
   declare leaveGroup: GroupMethods['leaveGroup'];
   
+  declare getAllCommunities: CommunityMethods['getAllCommunities'];
+  declare getCommunityInfo: CommunityMethods['getCommunityInfo'];
+  declare getCommunityParticipantIds: CommunityMethods['getCommunityParticipantIds'];
+  declare getCommunityAdminIds: CommunityMethods['getCommunityAdminIds'];
+  declare getCommunityParticipants: CommunityMethods['getCommunityParticipants'];
+  declare getCommunityAdmins: CommunityMethods['getCommunityAdmins'];
+
   // Chat methods
   declare getChat: ChatMethods['getChat'];
   declare getAllChats: ChatMethods['getAllChats'];

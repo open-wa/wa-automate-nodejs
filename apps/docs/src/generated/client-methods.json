@@ -1456,7 +1456,7 @@
     "namespace": "communities",
     "href": "/docs/reference/client/communities#getallcommunities",
     "description": "Get all communities",
-    "license": null,
+    "license": "insiders",
     "aliases": [
       "communities.all",
       "communities.getAll",
@@ -1470,7 +1470,7 @@
     "returnTypeLinks": {
       "GroupChatId": "/docs/reference/client/return-types#groupchatid"
     },
-    "sdkReturnType": null,
+    "sdkReturnType": "GroupChatId[]",
     "returnCaveat": "Opaque group conversation identifier returned by a group lookup or join method.",
     "returnNotes": "",
     "route": {
@@ -1479,7 +1479,7 @@
       "flatPath": "/api/getAllCommunities"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.getAllCommunities();",
       "nodeCall": "const result = await client.getAllCommunities();",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getAllCommunities();",
       "http": "curl -X GET \"http://localhost:8080/api/communities/getAll\" \\\n  -H \"content-type: application/json\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data '{}'",
@@ -2085,7 +2085,7 @@
     "namespace": "communities",
     "href": "/docs/reference/client/communities#getcommunityadminids",
     "description": "Get community admin IDs",
-    "license": null,
+    "license": "insiders",
     "aliases": [
       "communities.getAdminIds"
     ],
@@ -2110,7 +2110,7 @@
     "returnTypeLinks": {
       "CommunityAdminIds": "/docs/reference/client/return-types#communityadminids"
     },
-    "sdkReturnType": null,
+    "sdkReturnType": "CommunityAdminIds[]",
     "returnNotes": "",
     "route": {
       "method": "GET",
@@ -2118,7 +2118,7 @@
       "flatPath": "/api/getCommunityAdminIds"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.getCommunityAdminIds(\n  \"447123456789-1445627445@g.us\",\n);",
       "nodeCall": "const result = await client.getCommunityAdminIds({\n  communityId: \"447123456789-1445627445@g.us\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getCommunityAdminIds({\n  communityId: \"447123456789-1445627445@g.us\",\n});",
       "http": "curl -G \"http://localhost:8080/api/communities/getAdminIds\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"communityId=447123456789-1445627445@g.us\"",
@@ -2133,7 +2133,7 @@
     "namespace": "communities",
     "href": "/docs/reference/client/communities#getcommunityadmins",
     "description": "Get community admins",
-    "license": null,
+    "license": "insiders",
     "aliases": [
       "communities.getAdmins"
     ],
@@ -2158,7 +2158,7 @@
     "returnTypeLinks": {
       "CommunityAdmins": "/docs/reference/client/return-types#communityadmins"
     },
-    "sdkReturnType": null,
+    "sdkReturnType": "CommunityAdmins[]",
     "returnNotes": "",
     "route": {
       "method": "GET",
@@ -2166,7 +2166,7 @@
       "flatPath": "/api/getCommunityAdmins"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.getCommunityAdmins(\"447123456789-1445627445@g.us\");",
       "nodeCall": "const result = await client.getCommunityAdmins({\n  communityId: \"447123456789-1445627445@g.us\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getCommunityAdmins({\n  communityId: \"447123456789-1445627445@g.us\",\n});",
       "http": "curl -G \"http://localhost:8080/api/communities/getAdmins\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"communityId=447123456789-1445627445@g.us\"",
@@ -2181,7 +2181,7 @@
     "namespace": "communities",
     "href": "/docs/reference/client/communities#getcommunityinfo",
     "description": "Get community metadata",
-    "license": null,
+    "license": "insiders",
     "aliases": [
       "communities.getInfo"
     ],
@@ -2206,7 +2206,7 @@
     "returnTypeLinks": {
       "CommunityMetadata": "/docs/reference/client/return-types#communitymetadata"
     },
-    "sdkReturnType": null,
+    "sdkReturnType": "CommunityMetadata",
     "returnNotes": "",
     "route": {
       "method": "GET",
@@ -2214,7 +2214,7 @@
       "flatPath": "/api/getCommunityInfo"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.getCommunityInfo(\"447123456789-1445627445@g.us\");",
       "nodeCall": "const result = await client.getCommunityInfo({\n  communityId: \"447123456789-1445627445@g.us\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getCommunityInfo({\n  communityId: \"447123456789-1445627445@g.us\",\n});",
       "http": "curl -G \"http://localhost:8080/api/communities/getInfo\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"communityId=447123456789-1445627445@g.us\"",
@@ -2229,7 +2229,7 @@
     "namespace": "communities",
     "href": "/docs/reference/client/communities#getcommunityparticipantids",
     "description": "Get community participant IDs",
-    "license": null,
+    "license": "insiders",
     "aliases": [
       "communities.getParticipantIds"
     ],
@@ -2254,7 +2254,7 @@
     "returnTypeLinks": {
       "CommunityParticipantIds": "/docs/reference/client/return-types#communityparticipantids"
     },
-    "sdkReturnType": null,
+    "sdkReturnType": "CommunityParticipantIds[]",
     "returnNotes": "",
     "route": {
       "method": "GET",
@@ -2262,7 +2262,7 @@
       "flatPath": "/api/getCommunityParticipantIds"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.getCommunityParticipantIds(\n  \"447123456789-1445627445@g.us\",\n);",
       "nodeCall": "const result = await client.getCommunityParticipantIds({\n  communityId: \"447123456789-1445627445@g.us\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getCommunityParticipantIds({\n  communityId: \"447123456789-1445627445@g.us\",\n});",
       "http": "curl -G \"http://localhost:8080/api/communities/getParticipantIds\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"communityId=447123456789-1445627445@g.us\"",
@@ -2277,7 +2277,7 @@
     "namespace": "communities",
     "href": "/docs/reference/client/communities#getcommunityparticipants",
     "description": "Get community participants",
-    "license": null,
+    "license": "insiders",
     "aliases": [
       "communities.getParticipants"
     ],
@@ -2302,7 +2302,7 @@
     "returnTypeLinks": {
       "CommunityParticipants": "/docs/reference/client/return-types#communityparticipants"
     },
-    "sdkReturnType": null,
+    "sdkReturnType": "CommunityParticipants[]",
     "returnNotes": "",
     "route": {
       "method": "GET",
@@ -2310,7 +2310,7 @@
       "flatPath": "/api/getCommunityParticipants"
     },
     "examples": {
-      "inProcessSdk": "",
+      "inProcessSdk": "const result = await client.getCommunityParticipants(\n  \"447123456789-1445627445@g.us\",\n);",
       "nodeCall": "const result = await client.getCommunityParticipants({\n  communityId: \"447123456789-1445627445@g.us\",\n});",
       "nodeClient": "import { SocketClient } from '@open-wa/socket-client';\n\nconst client = await SocketClient.connect('http://localhost:8080', 'YOUR_API_KEY');\nconst result = await client.getCommunityParticipants({\n  communityId: \"447123456789-1445627445@g.us\",\n});",
       "http": "curl -G \"http://localhost:8080/api/communities/getParticipants\" \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  --data-urlencode \"communityId=447123456789-1445627445@g.us\"",
