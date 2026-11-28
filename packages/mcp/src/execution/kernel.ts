@@ -81,7 +81,10 @@ export async function executeCapability(
     };
   } catch (error: any) {
     const isValidationError = error?.name === 'ZodError';
-    const status = error?.code === 'SESSION_REFRESHING' ? 503 : isValidationError ? 400 : 500;
+    const isInsidersLicenseError = error?.name === 'InsidersLicenseRequiredError';
+    const status = error?.code === 'SESSION_REFRESHING' ? 503
+      : isInsidersLicenseError ? 403
+      : isValidationError ? 400 : 500;
 
     // Log failure to monitoring
     elasticEmitter?.log({

@@ -25,6 +25,29 @@ function dependencyLayers() {
   return layers;
 }
 
+/**
+ * Ask npm whether it accepts this workflow as a trusted publisher for a package. npm's own client
+ * hides the answer: when the exchange is refused it carries on without a token and the publish
+ * ends in ENEEDAUTH. Returns undefined when npm accepts, or npm's reason when it refuses.
+ */
+async function trustRefusal(name) {
+  const requestUrl = process.env.ACTIONS_ID_TOKEN_REQUEST_URL, requestToken = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
+  if (!requestUrl || !requestToken) return undefined; // not in a job that can use trusted publishing
+  try {
+    const url = new URL(requestUrl);
+    url.searchParams.append('audience', 'npm:registry.npmjs.org');
+    const id = await (await fetch(url, { headers: { Accept: 'application/json', Authorization: `Bearer ${requestToken}` } })).json();
+    if (!id.value) return undefined;
+    const response = await fetch(`https://registry.npmjs.org/-/npm/v1/oidc/token/exchange/package/${name.replace('/', '%2f')}`, {
+      method: 'POST', headers: { Authorization: `Bearer ${id.value}`, 'Content-Type': 'application/json' },
+    });
+    if (response.ok) return undefined;
+    let reason = '';
+    try { reason = (await response.json()).message || ''; } catch { /* the status is enough */ }
+    return `${response.status}${reason ? ` ${reason}` : ''}`;
+  } catch { return undefined; } // a failed check must never stop a release that would have worked
+}
+
 async function isServed(pkg) {
   try {
     const query = `?openwa_release=${Date.now()}`;
@@ -123,9 +146,19 @@ if (mode === 'open') {
     // dependency layers and wait for npm to serve each layer before publishing what depends on it.
     let pending = false;
     for (const [index, layer] of dependencyLayers().entries()) {
-      const names = layer.map(pkg => pkg.name);
-      console.log(`\nLayer ${index + 1}: ${names.join(', ')}`);
-      const result = spawnSync('pnpm', ['exec', 'bumpy', 'publish', '--filter', names.join(',')], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+      console.log(`\nLayer ${index + 1}: ${layer.map(pkg => pkg.name).join(', ')}`);
+      // A package that npm already serves needs no publisher. For the rest, find out now whether
+      // npm will take them from this workflow, so a refusal is named with npm's reason.
+      const refused = [];
+      for (const pkg of layer) {
+        if (await isServed(pkg)) continue;
+        const reason = await trustRefusal(pkg.name);
+        if (reason) refused.push({ pkg, reason });
+      }
+      const names = layer.filter(pkg => !refused.some(item => item.pkg === pkg)).map(pkg => pkg.name);
+      const result = names.length
+        ? spawnSync('pnpm', ['exec', 'bumpy', 'publish', '--filter', names.join(',')], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 })
+        : { status: 0, stdout: '', stderr: '' };
       process.stdout.write(result.stdout || '');
       process.stderr.write(result.stderr || '');
       if (result.error) throw result.error;
@@ -133,6 +166,11 @@ if (mode === 'open') {
       const codes = [...log.matchAll(/npm (?:error|ERR!) code (\S+)/g)].map(match => match[1]);
       const staged = codes.length > 0 && codes.every(code => code === 'E409') && /previously staged version/i.test(log);
       if (result.status !== 0 && !staged) throw new Error('npm publishing failed; see the package errors above.');
+      if (refused.length) {
+        const list = refused.map(({ pkg, reason }) => `${pkg.name}@${pkg.version} (${reason})`).join(', ');
+        summary(`## open-wa ${v} is paused\n\nnpm refuses trusted publishing for ${list}. The rest of the layer was published; nothing that depends on a refused package was, so the previous release still installs. Publish the refused package by hand from the \`release\` branch (\`pnpm build\`, \`pnpm pack\` in its folder, \`npm publish <file> --access public\`), wait until npm serves it, then rerun this job. If it is already published by hand, npm has not served it yet: wait and rerun.`);
+        throw new Error(`npm refuses trusted publishing for ${list}. Publish it by hand, wait until npm serves it, then rerun this job.`);
+      }
       pending ||= staged;
       await served(layer);
     }

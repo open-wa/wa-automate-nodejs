@@ -33,6 +33,14 @@
 
 
 
+
+## 5.15.0
+<sub>2026-11-28</sub>
+
+-  *(patch)*
+  - ✨ List WhatsApp Communities and read their details, linked groups, participants, and admins with an Insiders license.
+- *(minor)* Version bump from group with `@open-wa/client` v5.15.0, `@open-wa/schema` v5.15.0
+
 ## 5.14.2
 <sub>2026-11-26</sub>
 
