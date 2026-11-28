@@ -1,27 +1,48 @@
 ---
 title: Manage WhatsApp Communities with OpenWA
 seoTitle: "WhatsApp Community Management Guide | OpenWA"
-description: Find WhatsApp Community chat IDs, manage linked groups, and send sound stickers to Community Announcements with the OpenWA Node.js SDK.
+description: List WhatsApp Communities, read members and admins, manage linked groups, and send sound stickers with the OpenWA Node.js SDK.
 ---
 
 # Manage WhatsApp Communities with OpenWA
 
-OpenWA 5.14.2 can manage individual groups linked to a WhatsApp Community and send sound stickers to its Announcements group. Each action uses the ID of the group it targets. [OpenWA 5.14.2 release](https://github.com/open-wa/wa-automate-nodejs/releases/tag/v5.14.2)
+With OpenWA 5.15.0 and an Insiders license, you can list the WhatsApp Communities visible to your connected account and read their details, linked groups, members, and admins. Use the Group API for changes to an individual linked group and `sendSticker` to post a sound sticker to Community Announcements.
+
+## List Communities and read their details
+
+Connect a WhatsApp account using the Node.js SDK and set `licenseKey` to its Insiders key. The examples use a `client` returned by `create()`. [OpenWA quickstart](/docs/getting-started/quickstart) · [License configuration](/docs/guides/configuration-and-cli) · [Insiders licensing](/docs/licensing/pricing)
+
+```ts
+const communityIds = await client.getAllCommunities();
+
+for (const communityId of communityIds) {
+  const community = await client.getCommunityInfo(communityId);
+  console.log(community.subject, community.id);
+  console.table(community.subGroups.map((group) => ({
+    title: group.subject,
+    id: group.id,
+  })));
+}
+```
+
+Pass a Community ID to `getCommunityParticipantIds` or `getCommunityAdminIds` for IDs grouped by the Community and its subgroups. Use `getCommunityParticipants` or `getCommunityAdmins` for contact records. The same operations are available through the Easy API and SocketClient. [Community API reference](/docs/reference/client/communities)
+
+Community creation, group linking, and Community-wide membership changes are outside the read API.
 
 ## Which WhatsApp ID should you use?
 
 A WhatsApp Community brings related groups together. A Community, its Announcements group, and each linked group have their own IDs. They can all end in `@g.us`, so check which chat the ID belongs to before using it. [About WhatsApp Communities](https://faq.whatsapp.com/495856382464992) · [OpenWA chat IDs](/docs/guides/chatid-primer)
 
-| Destination | What it does | OpenWA 5.14.2 support |
+| Destination | What it does | OpenWA method |
 | --- | --- | --- |
-| Community | Organizes groups, Community membership and admin roles | Community-level administration is unavailable through the API. |
+| Community | Organizes groups, Community membership and admin roles | Use the Community ID with the Community read methods. |
 | Community Announcements | Lets Community admins post an update for all members | Use the Announcements group's own ID with `sendSticker`. |
 | Linked discussion group | Has its own conversations, participants and settings | Use the discussion group's ID with OpenWA group methods. |
 | WhatsApp Channel | Publishes updates to followers in the Updates tab | Treat `@newsletter` as a Channel ID. OpenWA 5.14.2 rejected sound stickers in the Channel test. |
 
 ## Find the ID for Announcements or a linked group
 
-Connect the WhatsApp account that will perform the action using the [OpenWA quickstart](/docs/getting-started/quickstart). Open the target chat in WhatsApp Web, then list chats visible to that same account. The examples use the Node.js SDK client returned by `create()`.
+Use `getAllChats` to match a known Announcements or discussion chat to its own group ID.
 
 ```ts
 const chats = await client.getAllChats();
@@ -56,7 +77,3 @@ const messageId = await client.sendSticker(announcementGroupId, './announcement.
 ```
 
 In an owner-only Community on 5.14.2, WhatsApp acknowledged a sticker with a two-second mono Ogg Opus clip, and the sending session marked the sound as playable. Playback on a separate member's device remains unverified.
-
-## Is the Community API available?
-
-The dedicated Community API is in an unreleased [Insiders](/docs/licensing/pricing) preview. OpenWA 5.14.2 does not support creating a Community, linking or unlinking groups, or changing Community-wide membership, invites or settings through the API. The Community read routes listed in the reference are also unavailable on that release. [Community API reference](/docs/reference/client/communities)
